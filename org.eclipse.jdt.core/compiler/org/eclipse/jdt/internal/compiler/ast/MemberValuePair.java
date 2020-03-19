@@ -119,7 +119,7 @@ public class MemberValuePair extends ASTNode {
 							&& requiredType.dimensions() == 1
 							&& (MemberValuePair.this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
 									|| valueType.isCompatibleWith(leafType)))) {
-						
+
 						if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
 							scope.problemReporter().annotationValueMustBeAnnotation(MemberValuePair.this.binding.declaringClass,
 									MemberValuePair.this.name, MemberValuePair.this.value, leafType);

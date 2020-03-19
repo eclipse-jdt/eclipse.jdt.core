@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
@@ -38,11 +38,11 @@ public interface IProcessorProvider {
 	 *         {@link #discoverNextProcessor()} is called.
 	 */
 	List<ProcessorInfo> getDiscoveredProcessors();
-	
+
 	/**
 	 * Called when a processor throws an exception.  This may abort compilation, throw an
 	 * unchecked exception, etc; the caller should not assume that this method will return.
-	 * 
+	 *
 	 * @param p the processor, if known, or null if not.
 	 * @param e
 	 */

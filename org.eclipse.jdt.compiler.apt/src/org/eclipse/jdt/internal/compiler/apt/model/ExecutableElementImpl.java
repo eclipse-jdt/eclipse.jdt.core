@@ -49,9 +49,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class ExecutableElementImpl extends ElementImpl implements
 		ExecutableElement {
-	
+
 	private Name _name = null;
-	
+
 	/* package */ ExecutableElementImpl(BaseProcessingEnvImpl env, MethodBinding binding) {
 		super(env, binding);
 	}
@@ -75,7 +75,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (defaultValue != null) return new AnnotationMemberValue(_env, defaultValue, binding);
 		return null;
 	}
-	
+
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		return Collections.emptyList();
@@ -193,7 +193,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		}
 		return _name;
 	}
-	
+
 	@Override
 	public List<? extends TypeMirror> getThrownTypes() {
 		MethodBinding binding = (MethodBinding)_binding;
@@ -214,7 +214,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (variables.length == 0) {
 			return Collections.emptyList();
 		}
-		List<TypeParameterElement> params = new ArrayList<>(variables.length); 
+		List<TypeParameterElement> params = new ArrayList<>(variables.length);
 		for (TypeVariableBinding variable : variables) {
 			params.add(_env.getFactory().newTypeParameterElement(variable, this));
 		}
@@ -247,7 +247,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (!_env.getLookupEnvironment().methodVerifier().isMethodSubsignature(hiderBinding, hiddenBinding)) {
 			return false;
 		}
-		return null != hiderBinding.declaringClass.findSuperTypeOriginatingFrom(hiddenBinding.declaringClass); 
+		return null != hiderBinding.declaringClass.findSuperTypeOriginatingFrom(hiddenBinding.declaringClass);
 	}
 
 	@Override
@@ -257,18 +257,18 @@ public class ExecutableElementImpl extends ElementImpl implements
 
 	/**
 	 * Return true if this method overrides {@code overridden} in the context of {@code type}.  For
-	 * instance, consider 
+	 * instance, consider
 	 * <pre>
 	 *   interface A { void f(); }
 	 *   class B { void f() {} }
 	 *   class C extends B implements I { }
-	 * </pre> 
+	 * </pre>
 	 * In the context of B, B.f() does not override A.f(); they are unrelated.  But in the context of
 	 * C, B.f() does override A.f().  That is, the copy of B.f() that C inherits overrides A.f().
 	 * This is equivalent to considering two questions: first, does C inherit B.f(); if so, does
 	 * the inherited C.f() override A.f().  If B.f() were private, for instance, then in the context
-	 * of C it would still not override A.f().  
-	 * 
+	 * of C it would still not override A.f().
+	 *
 	 * @see javax.lang.model.util.Elements#overrides(ExecutableElement, ExecutableElement, TypeElement)
      * @jls3 8.4.8 Inheritance, Overriding, and Hiding
      * @jls3 9.4.1 Inheritance and Overriding
@@ -286,7 +286,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		char[] selector = ((MethodBinding)_binding).selector;
 		if (!CharOperation.equals(selector, overriddenBinding.selector))
 			return false;
-		
+
 		// Construct a binding to the equivalent of this (the overrider) as it would be inherited by 'type'.
 		// Can only do this if 'type' is descended from the overrider.
 		// Second clause of the AND is required to match a peculiar javac behavior.
@@ -297,11 +297,11 @@ public class ExecutableElementImpl extends ElementImpl implements
 		MethodBinding overriderBinding = new MethodBinding((MethodBinding)_binding, overriderContext);
 		if (overriderBinding.isPrivate()) {
 			// a private method can never override another method.  The other method would either be
-			// private itself, in which case it would not be visible; or this would be a restriction 
+			// private itself, in which case it would not be visible; or this would be a restriction
 			// of access, which is a compile-time error.
 			return false;
 		}
-		
+
 		TypeBinding match = overriderBinding.declaringClass.findSuperTypeOriginatingFrom(overriddenBinding.declaringClass);
 		if (!(match instanceof ReferenceBinding)) return false;
 

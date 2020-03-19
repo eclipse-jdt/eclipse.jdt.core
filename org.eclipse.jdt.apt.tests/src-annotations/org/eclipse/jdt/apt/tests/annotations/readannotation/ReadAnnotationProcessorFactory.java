@@ -30,9 +30,9 @@ public class ReadAnnotationProcessorFactory extends BaseFactory
 
 	public AnnotationProcessor getProcessorFor(
 			Set<AnnotationTypeDeclaration> atds,
-			AnnotationProcessorEnvironment env) 
+			AnnotationProcessorEnvironment env)
 	{
 		return new ReadAnnotationProcessor( env );
 	}
-	
+
 }

@@ -52,11 +52,11 @@ public class VisitorProc extends BaseProcessor
 	 */
 	@SuppressWarnings("deprecation")
 	private static class ElementVisitorTester extends ElementScanner6<Void, Void> {
-		
+
 		public enum Visited { TYPE, EXECUTABLE, VARIABLE, TYPEPARAM, PACKAGE, UNKNOWN }
-		
+
 		private EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
-		
+
 		public boolean checkVisits() {
 			boolean asExpected = true;
 			asExpected &= _visited.contains(Visited.TYPE);
@@ -67,7 +67,7 @@ public class VisitorProc extends BaseProcessor
 			//asExpected &= _visited.contains(Visited.PACKAGE);
 			return asExpected;
 		}
-		
+
         /**
          * Check that we can visit types.
          * @return true if all tests passed
@@ -78,7 +78,7 @@ public class VisitorProc extends BaseProcessor
         	// Scan the type's subtypes, fields, and methods
             return super.visitType(e, p);
         }
-        
+
         /**
          * Check that we can visit methods.
          */
@@ -88,7 +88,7 @@ public class VisitorProc extends BaseProcessor
         	// Scan the method's parameters
             return super.visitExecutable(e, p);
         }
-        
+
         /**
          * Check that we can visit variables.
          */
@@ -108,7 +108,7 @@ public class VisitorProc extends BaseProcessor
             // Type parameters do not enclose any elements, so no need to call super.
         	return null;
         }
-        
+
         /**
          * Check that we can visit packages.
          */
@@ -118,7 +118,7 @@ public class VisitorProc extends BaseProcessor
             // We don't want to scan the package's types here, so don't call super.
         	return null;
         }
-        
+
         /**
          * This should not actually be encountered.
          */
@@ -127,9 +127,9 @@ public class VisitorProc extends BaseProcessor
         	_visited.add(Visited.UNKNOWN);
         	return null;
         }
-        
+
 	}
-	
+
 	/*
 	 * The specific values checked by this visitor correspond to values in targets.model.pc.TypedAnnos.java
 	 */
@@ -137,9 +137,9 @@ public class VisitorProc extends BaseProcessor
 	private static class AnnotationVisitorTester extends AbstractAnnotationValueVisitor6<Void, Void> {
 
 		public enum Visited { ANNOTATION, ARRAY, BOOLEAN, BYTE, CHAR, DOUBLE, ENUMCONSTANT, FLOAT, INT, LONG, SHORT, STRING, TYPE }
-		
+
 		private EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
-		
+
 		public boolean checkVisits() {
 			boolean asExpected = true;
 			asExpected &= _visited.contains(Visited.ANNOTATION);
@@ -157,7 +157,7 @@ public class VisitorProc extends BaseProcessor
 			asExpected &= _visited.contains(Visited.TYPE);
 			return asExpected;
 		}
-		
+
 		@Override
 		public Void visitAnnotation(AnnotationMirror a, Void p)
 		{
@@ -201,7 +201,7 @@ public class VisitorProc extends BaseProcessor
 		@Override
 		public Void visitChar(char c, Void p)
 		{
-			if (c == 'c') { 
+			if (c == 'c') {
 				_visited.add(Visited.CHAR);
 			}
 			return null;
@@ -280,9 +280,9 @@ public class VisitorProc extends BaseProcessor
 			}
 			return null;
 		}
-		
+
 	}
-	
+
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv)
 	{
@@ -306,7 +306,7 @@ public class VisitorProc extends BaseProcessor
 			reportError("Element visitor was not visited as expected");
 			return false;
 		}
-		
+
 		AnnotationVisitorTester annoValVisitor = new AnnotationVisitorTester();
 		TypeElement typedAnnosDecl = _elementUtils.getTypeElement("org.eclipse.jdt.compiler.apt.tests.annotations.TypedAnnos");
 		if (null == typedAnnosDecl) {

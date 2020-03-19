@@ -128,7 +128,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 		}
 	}
 	public ExternalAnnotationStatus externalAnnotationStatus = ExternalAnnotationStatus.NOT_EEA_CONFIGURED; // unless proven differently
-	
+
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char[][][] missingTypeNames, boolean resolveEnumConstants) {
 	if (binaryValue == null) return null;
 	if (binaryValue instanceof Constant)
@@ -163,18 +163,18 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char
 public TypeBinding clone(TypeBinding outerType) {
 	BinaryTypeBinding copy = new BinaryTypeBinding(this);
 	copy.enclosingType = (ReferenceBinding) outerType;
-	
+
 	/* BinaryTypeBinding construction is not "atomic" and is split between the constructor and cachePartsFrom and between the two
 	   stages of construction, clone can kick in when LookupEnvironment.createBinaryTypeFrom calls PackageBinding.addType. This
 	   can result in some URB's being resolved, which could trigger the clone call, leaving the clone with semi-initialized prototype.
 	   Fortunately, the protocol for this type demands all clients to use public access methods, where we can deflect the call to the
 	   prototype. enclosingType() and memberTypes() should not delegate, so ...
 	*/
-	if (copy.enclosingType != null) 
+	if (copy.enclosingType != null)
 		copy.tagBits |= TagBits.HasUnresolvedEnclosingType;
-	else 
+	else
 		copy.tagBits &= ~TagBits.HasUnresolvedEnclosingType;
-	
+
 	copy.tagBits |= TagBits.HasUnresolvedMemberTypes;
 	return copy;
 }
@@ -287,7 +287,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
  * @param needFieldsAndMethods
  */
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment, boolean needFieldsAndMethods) {
-	
+
 	this.prototype = this;
 	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
 	computeId();
@@ -344,11 +344,11 @@ public boolean canBeSeenBy(Scope sco) {
  */
 @Override
 public FieldBinding[] availableFields() {
-	
+
 	if (!isPrototype()) {
 		return this.prototype.availableFields();
 	}
-	
+
 	if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
 		return this.fields;
 
@@ -378,7 +378,7 @@ private TypeVariableBinding[] addMethodTypeVariables(TypeVariableBinding[] metho
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.typeVariables == null || this.typeVariables == Binding.NO_TYPE_VARIABLES) {
 		return methodTypeVars;
-	} 
+	}
 	if (methodTypeVars == null || methodTypeVars == Binding.NO_TYPE_VARIABLES) {
 		return this.typeVariables;
 	}
@@ -405,7 +405,7 @@ private TypeVariableBinding[] addMethodTypeVariables(TypeVariableBinding[] metho
  */
 @Override
 public MethodBinding[] availableMethods() {
-	
+
 	if (!isPrototype()) {
 		return this.prototype.availableMethods();
 	}
@@ -479,7 +479,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		this.tagBits |= binaryType.getTagBits();
 		if (this.environment.globalOptions.complianceLevel < ClassFileConstants.JDK1_8)
 			this.tagBits &= ~TagBits.AnnotationForTypeUse; // avoid confusion with semantics that are not supported at 1.7-
-		
+
 		char[][][] missingTypeNames = binaryType.getMissingTypeNames();
 		SignatureWrapper wrapper = null;
 		if (typeSignature != null) {
@@ -500,7 +500,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			MethodBinding enclosingMethod = findMethod(methodDescriptor, missingTypeNames);
 			if (enclosingMethod != null) {
 				typeVars = enclosingMethod.typeVariables;
-				this.typeVariables = addMethodTypeVariables(typeVars);			
+				this.typeVariables = addMethodTypeVariables(typeVars);
 			}
 		}
 		if (typeSignature == null)  {
@@ -528,7 +528,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			}
 		} else {
 			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
-			this.superclass = (ReferenceBinding) this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames, 
+			this.superclass = (ReferenceBinding) this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames,
 																		toplevelWalker.toSupertype((short) -1, wrapper.peekFullType()));
 			this.tagBits |= TagBits.HasUnresolvedSuperclass;
 
@@ -839,7 +839,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 
 		if (!method.isConstructor())
 			returnType = this.environment.getTypeFromSignature(methodDescriptor, index + 1, -1, false, this, missingTypeNames, walker.toMethodReturn());   // index is currently pointing at the ')'
-		
+
 		final int argumentNamesLength = argumentNames == null ? 0 : argumentNames.length;
 		if (startIndex > 0 && argumentNamesLength > 0) {
 			// We'll have to slice the starting arguments off
@@ -922,7 +922,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	MethodBinding result = method.isConstructor()
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
-	
+
 	IBinaryAnnotation[] receiverAnnotations = walker.toReceiver().getAnnotationsAtCursor(this.id, false);
 	if (receiverAnnotations != null && receiverAnnotations.length > 0) {
 		result.receiver = this.environment.createAnnotatedType(this, createAnnotations(receiverAnnotations, this.environment, missingTypeNames));
@@ -948,7 +948,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	}
 
 	if (argumentNames != null) result.parameterNames = argumentNames;
-	
+
 	if (use15specifics)
 		result.tagBits |= method.getTagBits();
 	result.typeVariables = typeVars;
@@ -1059,7 +1059,7 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, bool
 						int colon = CharOperation.indexOf(Util.C_COLON, typeSignature, i);
 						char[] variableName = CharOperation.subarray(typeSignature, i, colon);
 						TypeVariableBinding typeVariable = new TypeVariableBinding(variableName, this, rank, this.environment);
-						AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.toTypeParameter(isClassTypeParameter, rank++).getAnnotationsAtCursor(0, false), 
+						AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.toTypeParameter(isClassTypeParameter, rank++).getAnnotationsAtCursor(0, false),
 																										this.environment, missingTypeNames);
 						if (annotations != null && annotations != Binding.NO_ANNOTATIONS)
 							typeVariable.setTypeAnnotations(annotations, this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
@@ -1100,7 +1100,7 @@ public ReferenceBinding enclosingType() {  // should not delegate to prototype.
 // NOTE: the type of each field of a binary type is resolved when needed
 @Override
 public FieldBinding[] fields() {
-	
+
 	if (!isPrototype()) {
 		return this.fields = this.prototype.fields();
 	}
@@ -1273,7 +1273,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 //NOTE: the type of a field of a binary type is resolved when needed
 @Override
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
-	
+
 	if (!isPrototype())
 		return this.prototype.getField(fieldName, needResolve);
 
@@ -1325,7 +1325,7 @@ public ReferenceBinding getMemberType(char[] typeName) {
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] getMethods(char[] selector) {
-	
+
 	if (!isPrototype())
 		return this.prototype.getMethods(selector);
 
@@ -1366,7 +1366,7 @@ public MethodBinding[] getMethods(char[] selector) {
 // The suggested parameter length is optional and may not be guaranteed by every type.
 @Override
 public MethodBinding[] getMethods(char[] selector, int suggestedParameterLength) {
-	
+
 	if (!isPrototype())
 		return this.prototype.getMethods(selector, suggestedParameterLength);
 
@@ -1425,10 +1425,10 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 }
 @Override
 public boolean hasTypeBit(int bit) {
-	
+
 	if (!isPrototype())
 		return this.prototype.hasTypeBit(bit);
-	
+
 	// ensure hierarchy is resolved, which will propagate bits down to us
 	boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
 	this.environment.mayTolerateMissingType = true;
@@ -1490,7 +1490,7 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
  */
 @Override
 public boolean isEquivalentTo(TypeBinding otherType) {
-	
+
 	if (TypeBinding.equalsEquals(this, otherType)) return true;
 	if (otherType == null) return false;
 	switch(otherType.kind()) {
@@ -1499,12 +1499,12 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 			return ((WildcardBinding) otherType).boundCheck(this);
 		case Binding.PARAMETERIZED_TYPE:
 		/* With the hybrid 1.4/1.5+ projects modes, while establishing type equivalence, we need to
-	       be prepared for a type such as Map appearing in one of three forms: As (a) a ParameterizedTypeBinding 
-	       e.g Map<String, String>, (b) as RawTypeBinding Map#RAW and finally (c) as a BinaryTypeBinding 
+	       be prepared for a type such as Map appearing in one of three forms: As (a) a ParameterizedTypeBinding
+	       e.g Map<String, String>, (b) as RawTypeBinding Map#RAW and finally (c) as a BinaryTypeBinding
 	       When the usage of a type lacks type parameters, whether we land up with the raw form or not depends
 	       on whether the underlying type was "seen to be" a generic type in the particular build environment or
-	       not. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827 
-		*/ 
+	       not. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827
+		*/
 		case Binding.RAW_TYPE :
 			return TypeBinding.equalsEquals(otherType.erasure(), this);
 	}
@@ -1512,18 +1512,18 @@ public boolean isEquivalentTo(TypeBinding otherType) {
 }
 @Override
 public boolean isGenericType() {
-	
+
 	if (!isPrototype())
 		return this.prototype.isGenericType();
-	
+
     return this.typeVariables != Binding.NO_TYPE_VARIABLES;
 }
 @Override
 public boolean isHierarchyConnected() {
-	
+
 	if (!isPrototype())
 		return this.prototype.isHierarchyConnected();
-	
+
 	return (this.tagBits & (TagBits.HasUnresolvedSuperclass | TagBits.HasUnresolvedSuperinterfaces)) == 0;
 }
 @Override
@@ -1533,10 +1533,10 @@ public boolean isRepeatableAnnotationType() {
 }
 @Override
 public int kind() {
-	
+
 	if (!isPrototype())
 		return this.prototype.kind();
-	
+
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES)
 		return Binding.GENERIC_TYPE;
 	return Binding.TYPE;
@@ -1563,7 +1563,7 @@ public ReferenceBinding[] memberTypes() {
 		this.memberTypesSorted = true;
 		return this.memberTypes;
 	}
-	
+
 	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0) {
 		return maybeSortedMemberTypes();
 	}
@@ -1591,11 +1591,11 @@ private ReferenceBinding[] maybeSortedMemberTypes() {
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] methods() {
-	
+
 	if (!isPrototype()) {
 		return this.methods = this.prototype.methods();
 	}
-	
+
 	if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
 		return this.methods;
 
@@ -1639,10 +1639,10 @@ public ReferenceBinding containerAnnotationType() {
 }
 
 private FieldBinding resolveTypeFor(FieldBinding field) {
-	
+
 	if (!isPrototype())
 		return this.prototype.resolveTypeFor(field);
-	
+
 	if ((field.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return field;
 
@@ -1655,10 +1655,10 @@ private FieldBinding resolveTypeFor(FieldBinding field) {
 	return field;
 }
 MethodBinding resolveTypesFor(MethodBinding method) {
-	
+
 	if (!isPrototype())
 		return this.prototype.resolveTypesFor(method);
-	
+
 	if ((method.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return method;
 
@@ -1691,10 +1691,10 @@ MethodBinding resolveTypesFor(MethodBinding method) {
 }
 @Override
 AnnotationBinding[] retrieveAnnotations(Binding binding) {
-	
+
 	if (!isPrototype())
 		return this.prototype.retrieveAnnotations(binding);
-	
+
 	return AnnotationBinding.addStandardAnnotations(super.retrieveAnnotations(binding), binding.getAnnotationTagBits(), this.environment);
 }
 
@@ -1713,10 +1713,10 @@ public void tagAsHavingDefectiveContainerType() {
 
 @Override
 SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore) {
-	
+
 	if (!isPrototype())
 		return this.prototype.storedAnnotations(forceInitialize, forceStore);
-	
+
 	if (forceInitialize && this.storedAnnotations == null) {
 		if (!this.environment.globalOptions.storeAnnotations && !forceStore)
 			return null; // not supported during this compile
@@ -1759,7 +1759,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 
 	boolean explicitNullness = false;
 	IBinaryAnnotation[] annotations = externalAnnotationWalker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER
-											? externalAnnotationWalker.getAnnotationsAtCursor(fieldBinding.type.id, false) 
+											? externalAnnotationWalker.getAnnotationsAtCursor(fieldBinding.type.id, false)
 											: field.getAnnotations();
 	if (annotations != null) {
 		for (int i = 0; i < annotations.length; i++) {
@@ -1901,8 +1901,8 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 		}
 	}
 	if (useNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
-		if (methodBinding.returnType.hasNullTypeAnnotations() 
-				|| (methodBinding.tagBits & TagBits.AnnotationNullMASK) != 0 
+		if (methodBinding.returnType.hasNullTypeAnnotations()
+				|| (methodBinding.tagBits & TagBits.AnnotationNullMASK) != 0
 				|| methodBinding.parameterNonNullness != null) {
 			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 		} else {
@@ -2032,7 +2032,7 @@ public static int evaluateTypeQualifierDefault(ReferenceBinding annotationType) 
 							for (Object value1 : values)
 								nullness |= Annotation.nullLocationBitsFromElementTypeAnnotationValue(value1);
 						} else {
-							nullness |= Annotation.nullLocationBitsFromElementTypeAnnotationValue(value);								
+							nullness |= Annotation.nullLocationBitsFromElementTypeAnnotationValue(value);
 						}
 						return nullness;
 					}
@@ -2079,11 +2079,11 @@ private void scanTypeForContainerAnnotation(IBinaryType binaryType, char[][][] m
 */
 @Override
 public ReferenceBinding superclass() {
-	
+
 	if (!isPrototype()) {
 		return this.superclass = this.prototype.superclass();
 	}
-	
+
 	if ((this.tagBits & TagBits.HasUnresolvedSuperclass) == 0)
 		return this.superclass;
 
@@ -2104,7 +2104,7 @@ public ReferenceBinding superclass() {
 		}
 	}
 	this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
-	if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
+	if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 		this.typeBits |= applyCloseableClassWhitelists(this.environment.globalOptions);
 	detectCircularHierarchy();
 	return this.superclass;
@@ -2121,7 +2121,7 @@ private void breakLoop() {
 		currentSuper.tagBits |= TagBits.EndHierarchyCheck;
 		prevSuper = currentSuper;
 		currentSuper = currentSuper.superclass();
-	}	
+	}
 }
 
 private void detectCircularHierarchy() {
@@ -2129,14 +2129,14 @@ private void detectCircularHierarchy() {
 	ReferenceBinding tempSuper = null;
 	int count = 0;
 	int skipCount = 20;
-	while (currentSuper != null) {		
+	while (currentSuper != null) {
 		if (currentSuper.hasHierarchyCheckStarted())
 			break;
 		if (TypeBinding.equalsEquals(currentSuper, this) || TypeBinding.equalsEquals(currentSuper, tempSuper)) {
 			currentSuper.tagBits |= TagBits.HierarchyHasProblems;
 			if (currentSuper.isBinaryBinding())
 				breakLoop();
-			
+
 			return;
 		}
 		if (count == skipCount) {
@@ -2145,25 +2145,25 @@ private void detectCircularHierarchy() {
 			count = 0;
 		}
 		//Ignore if the super is not yet resolved..
-		if (!currentSuper.isHierarchyConnected()) 
+		if (!currentSuper.isHierarchyConnected())
 			return;
-		currentSuper = currentSuper.superclass();	
+		currentSuper = currentSuper.superclass();
 		count++;
 	}
 	/* No loop detected and completely found that there is no loop
-	 * So, set that info for all the classes 
+	 * So, set that info for all the classes
 	 */
 	tempSuper = this;
 	while (TypeBinding.notEquals(currentSuper, tempSuper)) {
 		tempSuper.setHierarchyCheckDone();
 		tempSuper=tempSuper.superclass();
-	}	
+	}
 }
 
 // NOTE: superInterfaces of binary types are resolved when needed
 @Override
 public ReferenceBinding[] superInterfaces() {
-	
+
 	if (!isPrototype()) {
 		return this.superInterfaces = this.prototype.superInterfaces();
 	}
@@ -2190,10 +2190,10 @@ public ReferenceBinding[] superInterfaces() {
 				this.superInterfaces[i].superInterfaces();
 			} finally {
 				this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
-			}	
+			}
 		}
 		this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
-		if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
+		if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 			this.typeBits |= applyCloseableInterfaceWhitelists();
 	}
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
@@ -2201,7 +2201,7 @@ public ReferenceBinding[] superInterfaces() {
 }
 @Override
 public TypeVariableBinding[] typeVariables() {
-	
+
 	if (!isPrototype()) {
 		return this.typeVariables = this.prototype.typeVariables();
 	}
@@ -2215,10 +2215,10 @@ public TypeVariableBinding[] typeVariables() {
 }
 @Override
 public String toString() {
-	
+
 	if (this.hasTypeAnnotations())
 		return annotatedDebugName();
-	
+
 	StringBuffer buffer = new StringBuffer();
 
 	if (isDeprecated()) buffer.append("deprecated "); //$NON-NLS-1$
@@ -2321,19 +2321,19 @@ public TypeBinding withoutToplevelNullAnnotation() {
 }
 @Override
 MethodBinding[] unResolvedMethods() { // for the MethodVerifier so it doesn't resolve types
-	
+
 	if (!isPrototype())
 		return this.prototype.unResolvedMethods();
-	
+
 	return this.methods;
 }
 
 @Override
 public FieldBinding[] unResolvedFields() {
-	
+
 	if (!isPrototype())
 		return this.prototype.unResolvedFields();
-	
+
 	return this.fields;
 }
 @Override

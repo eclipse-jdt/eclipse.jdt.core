@@ -26,13 +26,13 @@ import org.eclipse.core.runtime.IPath;
 
 /**
  * The location of the index files are represented as {@link IndexLocation}
- * 
+ *
  * This is an abstract class to allow different implementation for a jar entry and a file
  * on the disk. Some of these functions could mean different for a jar entry or a file
- * 
+ *
  */
 public abstract class IndexLocation {
-	
+
 	public static IndexLocation createIndexLocation(URL url) {
 		URL localUrl;
 		try {
@@ -53,16 +53,16 @@ public abstract class IndexLocation {
 		}
 		return new JarIndexLocation(url, localUrl);
 	}
-	
+
 	private final URL url; // url of the given index location
 
 	/**
 	 * Set to true if this index location is of an index file specified
-	 * by a participant through 
+	 * by a participant through
 	 * {@link org.eclipse.jdt.core.search.SearchParticipant#scheduleDocumentIndexing}
 	 */
 	protected boolean participantIndex;
-	
+
 	protected IndexLocation(File file) {
 		URL tempUrl = null;
 		try {
@@ -72,7 +72,7 @@ public abstract class IndexLocation {
 		}
 		this.url = tempUrl;
 	}
-	
+
 	public IndexLocation(URL url) {
 		this.url = url;
 	}
@@ -94,7 +94,7 @@ public abstract class IndexLocation {
 	public abstract boolean delete();
 
 	public abstract boolean exists();
-	
+
 	public abstract String fileName();
 
 	/**

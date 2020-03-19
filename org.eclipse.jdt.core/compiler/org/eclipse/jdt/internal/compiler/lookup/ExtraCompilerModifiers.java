@@ -45,7 +45,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccBlankFinal = ASTNode.Bit27; // for blank final variables
 	final int AccIsDefaultConstructor = ASTNode.Bit27; // for default constructor
 	final int AccLocallyUsed = ASTNode.Bit28; // used to diagnose unused (a) private/local members or (b) members of private classes
-											  // generally set when actual usage has been detected 
+											  // generally set when actual usage has been detected
 											  // or, (b) when member of a private class is exposed via a non-private subclass
 											  //     see https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
 	final int AccVisibilityMASK = ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate;

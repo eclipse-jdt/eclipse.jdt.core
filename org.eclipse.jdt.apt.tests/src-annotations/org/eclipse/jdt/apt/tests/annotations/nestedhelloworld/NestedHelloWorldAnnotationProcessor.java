@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 
@@ -39,15 +39,15 @@ public class NestedHelloWorldAnnotationProcessor extends
 
 	// Code is annotated with HelloWorldAnnotation, so it will cause another round of processing
 	public String getCode() {
-		return "package " + PACKAGENAME + ";" + "\n" + 
-		"@" + HelloWorldAnnotation.class.getName() + "\n" + 
+		return "package " + PACKAGENAME + ";" + "\n" +
+		"@" + HelloWorldAnnotation.class.getName() + "\n" +
 		"public class " + TYPENAME + "\n" +
 		"{  }";
 	}
-		
+
 	private final static String PACKAGENAME = "nested.hello.world.generatedclass.pkg"; //$NON-NLS-1$
 	private final static String TYPENAME = "NestedHelloWorldAnnotationGeneratedClass"; //$NON-NLS-1$
-	
+
 	@SuppressWarnings("unused")
 	public void process()
 	{

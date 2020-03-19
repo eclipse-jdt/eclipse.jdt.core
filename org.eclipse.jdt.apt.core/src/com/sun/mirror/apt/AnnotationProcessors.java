@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2004, Sun Microsystems, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -15,7 +15,7 @@
  *     * Neither the name of the Sun Microsystems, Inc. nor the names of
  *       its contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
  * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -54,8 +54,8 @@ public class AnnotationProcessors {
      * processors in sequence.
      */
     static class CompositeAnnotationProcessor implements AnnotationProcessor {
-    
-	private List<AnnotationProcessor> aps = 
+
+	private List<AnnotationProcessor> aps =
 	    new LinkedList<AnnotationProcessor>();
 
 	/**
@@ -80,12 +80,12 @@ public class AnnotationProcessors {
 	 * in the order in which the processors were passed to the constructor.
 	 */
 	@Override
-	public void process() { 
+	public void process() {
 	    for(AnnotationProcessor ap: aps)
 		ap.process();
 	}
     }
- 
+
 
     /**
      *  An annotation processor that does nothing and has no state.
@@ -94,7 +94,7 @@ public class AnnotationProcessors {
      * @since 1.5
      */
     public final static AnnotationProcessor NO_OP = new NoOpAP();
- 
+
     /**
      * Constructs a new composite annotation processor.  A composite
      * annotation processor combines multiple annotation processors
@@ -107,7 +107,7 @@ public class AnnotationProcessors {
     public static AnnotationProcessor getCompositeAnnotationProcessor(AnnotationProcessor... aps) {
 	return new CompositeAnnotationProcessor(aps);
     }
- 
+
     /**
      * Constructs a new composite annotation processor.  A composite
      * annotation processor combines multiple annotation processors

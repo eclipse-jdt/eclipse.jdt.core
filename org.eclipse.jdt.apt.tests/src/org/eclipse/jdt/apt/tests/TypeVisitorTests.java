@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 BEA Systems, Inc. 
+ * Copyright (c) 2006 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -51,7 +51,7 @@ import com.sun.mirror.util.Types;
  * Tests for the JDT-APT implementation of Type Visitors
  */
 public class TypeVisitorTests extends APTTestBase {
-	
+
 	public TypeVisitorTests(final String name) {
 		super(name);
 	}
@@ -59,7 +59,7 @@ public class TypeVisitorTests extends APTTestBase {
 	public static Test suite() {
 		return new TestSuite(TypeVisitorTests.class);
 	}
-	
+
 	public void testPrimitiveTypeVisitor() {
 		testCaseIdentifier = Cases.PrimitiveType;
 		runProcessorBasedTest();
@@ -69,12 +69,12 @@ public class TypeVisitorTests extends APTTestBase {
 		testCaseIdentifier = Cases.VoidType;
 		runProcessorBasedTest();
 	}
-	
+
 	public void testClassTypeVisitor() {
 		testCaseIdentifier = Cases.ClassType;
 		runProcessorBasedTest();
 	}
-	
+
 	public void testEnumTypeVisitor() {
 		testCaseIdentifier = Cases.EnumType;
 		runProcessorBasedTest();
@@ -84,12 +84,12 @@ public class TypeVisitorTests extends APTTestBase {
 		testCaseIdentifier = Cases.InterfaceType;
 		runProcessorBasedTest();
 	}
-	
+
 	public void testAnnotationTypeVisitor() {
 		testCaseIdentifier = Cases.AnnotationType;
 		runProcessorBasedTest();
 	}
-	
+
 	public void testArrayTypeVisitor() {
 		testCaseIdentifier = Cases.ArrayType;
 		runProcessorBasedTest();
@@ -105,36 +105,36 @@ public class TypeVisitorTests extends APTTestBase {
 		runProcessorBasedTest();
 	}
 
-	
+
 	/**
 	 * Instantiate the AnnotationProcessor to run the actual tests
 	 */
 	void runProcessorBasedTest() {
 		TypeVisitorProc p = new TypeVisitorProc();
 		GenericFactory.PROCESSOR = p;
-		
+
 		IProject project = env.getProject(getProjectName());
 		IPath srcRoot = getSourcePath();
 
-		env.addClass(srcRoot, "test", "Test", code);		
-		
+		env.addClass(srcRoot, "test", "Test", code);
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		assertTrue("Processor not invoked", p.called);
 	}
 
-	
+
 	/**
 	 * Annotation Processor containing the actual tests
 	 */
 	class TypeVisitorProc extends AbstractGenericProcessor {
 		boolean called;
-		
+
 		public void _process() {
 			called = true;
 			assertTrue(decls.size() == 1);
-			
+
 			initTypeVisitList();
 
 			TypeDeclaration typeDecl = env.getTypeDeclarations().iterator().next();
@@ -148,7 +148,7 @@ public class TypeVisitorTests extends APTTestBase {
 
 			switch (testCaseIdentifier) {
 
-			case PrimitiveType : 
+			case PrimitiveType :
 				for(FieldDeclaration tempDecl : fieldDecls) {
 					if(tempDecl.getSimpleName().equals("j")) {
 						fieldDecl = tempDecl;
@@ -160,15 +160,15 @@ public class TypeVisitorTests extends APTTestBase {
 				assertEquals("Expected PrimitiveType visitor", "PrimitiveTypeImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case VoidType : 
+			case VoidType :
 				MethodDeclaration methodDecl = typeDecl.getMethods().iterator().next();
 				VoidType voidType = (VoidType)methodDecl.getReturnType();
 				voidType.accept(new TypeVisitorImpl());
 				assertEquals("Expect one visitor", 1, typesVisited.size());
 				assertEquals("Expected VoidType visitor", "VoidTypeImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
-				
-			case ClassType : 
+
+			case ClassType :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("C")) {
 						classDecl = (ClassDeclaration)tempDecl;
@@ -180,7 +180,7 @@ public class TypeVisitorTests extends APTTestBase {
 				assertEquals("Expected ClassType visitor", "ClassDeclarationImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case EnumType : 
+			case EnumType :
 				for(FieldDeclaration tempDecl : fieldDecls) {
 					if(tempDecl.getSimpleName().equals("s")) {
 						fieldDecl = tempDecl;
@@ -193,7 +193,7 @@ public class TypeVisitorTests extends APTTestBase {
 				assertEquals("Expected EnumType visitor", "EnumDeclarationImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case InterfaceType : 
+			case InterfaceType :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("D")) {
 						classDecl = (ClassDeclaration)tempDecl;
@@ -205,7 +205,7 @@ public class TypeVisitorTests extends APTTestBase {
 				assertEquals("Expected InterfaceType visitor", "InterfaceDeclarationImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case AnnotationType : 
+			case AnnotationType :
 				for(FieldDeclaration tempDecl : fieldDecls) {
 					if(tempDecl.getSimpleName().equals("s")) {
 						fieldDecl = tempDecl;
@@ -218,19 +218,19 @@ public class TypeVisitorTests extends APTTestBase {
 				assertEquals("Expected AnnotationType visitor", "AnnotationDeclarationImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case ArrayType : 
+			case ArrayType :
 				for(FieldDeclaration tempDecl : fieldDecls) {
 					if(tempDecl.getSimpleName().equals("k")) {
 						fieldDecl = tempDecl;
 					}
 				}
 				ArrayType arrayType = (ArrayType)fieldDecl.getType();
-				arrayType.accept(new TypeVisitorImpl());				
+				arrayType.accept(new TypeVisitorImpl());
 				assertEquals("Expect one visitor", 1, typesVisited.size());
 				assertEquals("Expected ArrayType visitor", "ArrayTypeImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case TypeVariable : 
+			case TypeVariable :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("P")) {
 						classDecl = (ClassDeclaration)tempDecl;
@@ -243,7 +243,7 @@ public class TypeVisitorTests extends APTTestBase {
 				assertEquals("Expected TypeVariable visitor", "TypeParameterDeclarationImpl", typesVisited.get(0).getClass().getSimpleName());
 				break;
 
-			case WildcardType : 
+			case WildcardType :
 				for(FieldDeclaration tempDecl : fieldDecls) {
 					if(tempDecl.getSimpleName().equals("ln")) {
 						fieldDecl = tempDecl;
@@ -258,8 +258,8 @@ public class TypeVisitorTests extends APTTestBase {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * TypeVisitor implementation for the purposes of these tests
 	 */
@@ -313,12 +313,12 @@ public class TypeVisitorTests extends APTTestBase {
 			typeVisited(t);
 		}
 	}
-	
+
 
 	/*
 	 * Utilities for running the TypeVisitor tests
 	 */
-	
+
 	enum Cases {
 		PrimitiveType,
 		VoidType,
@@ -330,21 +330,21 @@ public class TypeVisitorTests extends APTTestBase {
 		TypeVariable,
 		WildcardType
 	}
-	
+
 	Cases testCaseIdentifier;
-	
+
 	ArrayList<TypeMirror> typesVisited = new ArrayList<TypeMirror>();
 
 	void typeVisited(TypeMirror t) {
 			typesVisited.add(t);
 	}
-	
+
 	void initTypeVisitList() {
 		if(typesVisited.size() > 0) {
 			typesVisited.clear();
 		}
 	}
-	
+
 	final String code =
 		"package test;" + "\n" +
 		"import org.eclipse.jdt.apt.tests.annotations.generic.*;" + "\n" +

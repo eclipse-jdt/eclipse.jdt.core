@@ -56,7 +56,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		name.indexOf(" - JLS");
 		this.API_LEVEL = Integer.parseInt(name.substring(name.indexOf(" - JLS") + 6));
 	}
-	
+
 	public ASTStructuralPropertyTest(String name, int apiLevel) {
 		super(name);
 		this.API_LEVEL = apiLevel;

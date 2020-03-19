@@ -33,15 +33,15 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
- * Element represents any defined Java language element - a package, 
+ * Element represents any defined Java language element - a package,
  * a method, a class or interface.  Contrast with DeclaredType.
  */
-public abstract class ElementImpl 
+public abstract class ElementImpl
 	implements javax.lang.model.element.Element, IElementInfo
 {
 	public final BaseProcessingEnvImpl _env;
 	public final Binding _binding;
-	
+
 	protected ElementImpl(BaseProcessingEnvImpl env, Binding binding) {
 		_env = env;
 		_binding = binding;
@@ -65,17 +65,17 @@ public abstract class ElementImpl
 	public final AnnotationBinding [] getPackedAnnotationBindings() {
 		return Factory.getPackedAnnotationBindings(getAnnotationBindings());
 	}
-	
+
 	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass) {
 		A annotation = _env.getFactory().getAnnotation(getPackedAnnotationBindings(), annotationClass);
 		if (annotation != null || this.getKind() != ElementKind.CLASS || annotationClass.getAnnotation(Inherited.class) == null)
 			return annotation;
-		
+
 		ElementImpl superClass = (ElementImpl) _env.getFactory().newElement(((ReferenceBinding) this._binding).superclass());
 		return superClass == null ? null : superClass.getAnnotation(annotationClass);
 	}
-	
+
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		return _env.getFactory().getAnnotationMirrors(getPackedAnnotationBindings());
@@ -86,14 +86,14 @@ public abstract class ElementImpl
 		A [] annotations = _env.getFactory().getAnnotationsByType(Factory.getUnpackedAnnotationBindings(getPackedAnnotationBindings()), annotationType);
 		if (annotations.length != 0 || this.getKind() != ElementKind.CLASS || annotationType.getAnnotation(Inherited.class) == null)
 			return annotations;
-		
+
 		ElementImpl superClass =  (ElementImpl) _env.getFactory().newElement(((ReferenceBinding) this._binding).superclass());
 		return superClass == null ? annotations : superClass.getAnnotationsByType(annotationType);
 	}
 
 	@Override
 	public Set<Modifier> getModifiers() {
-		// Most subclasses implement this; this default is appropriate for 
+		// Most subclasses implement this; this default is appropriate for
 		// PackageElement and TypeParameterElement.
 		return Collections.emptySet();
 	}
@@ -109,7 +109,7 @@ public abstract class ElementImpl
 	}
 
 	// TODO: equals() implemented as == of JDT bindings.  Valid within
-	// a single Compiler instance; breaks in IDE if processors cache values. 
+	// a single Compiler instance; breaks in IDE if processors cache values.
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

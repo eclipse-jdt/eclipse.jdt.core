@@ -381,7 +381,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 						return Messages.bind(Messages.status_cannot_retrieve_attached_javadoc, this.string, "");//$NON-NLS-1$
 					}
 					break;
-					
+
 				case CANNOT_RETRIEVE_ATTACHED_JAVADOC_TIMEOUT :
 					if (this.elements != null && this.elements.length == 1) {
 						if (this.string != null) {

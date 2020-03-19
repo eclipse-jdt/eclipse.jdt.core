@@ -48,7 +48,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point() imple {\n" + 
+				"public record Point() imple {\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -67,7 +67,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point() exte {\n" + 
+				"public record Point() exte {\n" +
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -88,7 +88,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U>() imple {\n" + 
+				"public record Point<U>() imple {\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -105,7 +105,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U>() exte {\n" + 
+				"public record Point<U>() exte {\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -121,7 +121,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U extends Thread>() imple {\n" + 
+				"public record Point<U extends Thread>() imple {\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -139,7 +139,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U extends Thread>() /*here*/exte {\n" + 
+				"public record Point<U extends Thread>() /*here*/exte {\n" +
 				"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -170,7 +170,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point(int comp) exte {\n" + 
+				"public record Point(int comp) exte {\n" +
 				"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -185,7 +185,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U>(int comp) imple {\n" + 
+				"public record Point<U>(int comp) imple {\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 
@@ -204,7 +204,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U>(int comp) exte {\n" + 
+				"public record Point<U>(int comp) exte {\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 
@@ -221,7 +221,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U extends Thread>(int comp) imple {\n" + 
+				"public record Point<U extends Thread>(int comp) imple {\n" +
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
@@ -246,7 +246,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
-				"public record Point<U extends Thread>(int comp) /*here*/exte {\n" + 
+				"public record Point<U extends Thread>(int comp) /*here*/exte {\n" +
 				"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -278,7 +278,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("", requestor.getResults());
-	} 
+	}
 
 	public void test0014() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -289,7 +289,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						" * @par \n" +
 						" *\n"+
 						" */\n" +
-						"public record Point()  {\n" + 
+						"public record Point()  {\n" +
 				"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -310,7 +310,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						" * @par \n" +
 						" *\n"+
 						" */\n" +
-						"public record Point(int a)  {\n" + 
+						"public record Point(int a)  {\n" +
 				"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -330,7 +330,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/Completion/src/Point.java",
 				"public record  Point(int comp_) { \n" +
 						"}\n"+
-						"class MyClass extends /*here*/Poin	\n" 	
+						"class MyClass extends /*here*/Poin	\n"
 				);
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);

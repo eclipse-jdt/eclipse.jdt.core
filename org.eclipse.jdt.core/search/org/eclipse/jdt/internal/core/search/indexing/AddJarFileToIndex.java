@@ -92,7 +92,7 @@ class AddJarFileToIndex extends BinaryContainer {
 
 		if (hasPreBuiltIndex()) {
 			boolean added = this.manager.addIndex(this.containerPath, this.indexFileURL);
-			if (added) return true;	
+			if (added) return true;
 			this.indexFileURL = null;
 		}
 
@@ -235,7 +235,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					// iterate each entry to index it
 					ZipEntry ze = (ZipEntry) e.nextElement();
 					String zipEntryName = ze.getName();
-					if (Util.isClassFileName(zipEntryName) && 
+					if (Util.isClassFileName(zipEntryName) &&
 							isValidPackageNameForClassOrisModule(zipEntryName)) {
 						hasModuleInfoClass |= zipEntryName.contains(TypeConstants.MODULE_INFO_NAME_STRING);
 						// index only classes coming from valid packages - https://bugs.eclipse.org/bugs/show_bug.cgi?id=293861
@@ -293,7 +293,7 @@ class AddJarFileToIndex extends BinaryContainer {
 		if (this.resource != null)
 			return super.getJobFamily();
 		return this.containerPath.toOSString(); // external jar
-	}	
+	}
 	@Override
 	protected Integer updatedIndexState() {
 

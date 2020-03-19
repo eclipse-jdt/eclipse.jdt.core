@@ -31,7 +31,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug560798_002" };
 	}
-	
+
 	public static Class<?> testClass() {
 		return RecordsRestrictedClassTest.class;
 	}
@@ -52,7 +52,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
-	
+
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions());
@@ -134,11 +134,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				"abstract record Point(int x, int y){\n"+
 			"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	abstract record Point(int x, int y){\n" + 
-			"	                ^^^^^\n" + 
-			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	abstract record Point(int x, int y){\n" +
+			"	                ^^^^^\n" +
+			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 			"----------\n");
 	}
 	/* A record declaration is implicitly final. It is permitted for the declaration of
@@ -169,11 +169,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				"final final record Point(int x, int y){\n"+
 			"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	final final record Point(int x, int y){\n" + 
-			"	                   ^^^^^\n" + 
-			"Duplicate modifier for the type Point\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	final final record Point(int x, int y){\n" +
+			"	                   ^^^^^\n" +
+			"Duplicate modifier for the type Point\n" +
 			"----------\n");
 	}
 	public void testBug550750_005() {
@@ -197,11 +197,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				"public public record X(int x, int y){\n"+
 			"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	public public record X(int x, int y){\n" + 
-			"	                     ^\n" + 
-			"Duplicate modifier for the type X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public public record X(int x, int y){\n" +
+			"	                     ^\n" +
+			"Duplicate modifier for the type X\n" +
 			"----------\n");
 	}
 	public void testBug550750_007() {
@@ -395,16 +395,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public Point(int myInt, char myChar){\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The blank final field myChar may not have been initialized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	public Point(int myInt, char myChar){\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The blank final field myInt may not have been initialized\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public Point(int myInt, char myChar){\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The blank final field myChar may not have been initialized\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	public Point(int myInt, char myChar){\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The blank final field myInt may not have been initialized\n" +
 			"----------\n");
 	}
 	public void testBug550750_019() {
@@ -424,11 +424,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	private Point {\n" + 
-			"	        ^^^^^\n" + 
-			"The canonical constructor Point of a record declaration must be declared public.\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	private Point {\n" +
+			"	        ^^^^^\n" +
+			"The canonical constructor Point of a record declaration must be declared public.\n" +
 			"----------\n");
 	}
 	public void testBug550750_020() {
@@ -448,11 +448,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	protected Point {\n" + 
-			"	          ^^^^^\n" + 
-			"The canonical constructor Point of a record declaration must be declared public.\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	protected Point {\n" +
+			"	          ^^^^^\n" +
+			"The canonical constructor Point of a record declaration must be declared public.\n" +
 			"----------\n");
 	}
 	public void testBug550750_021() {
@@ -492,11 +492,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	return;\n" + 
-			"	^^^^^^^\n" + 
-			"The body of a compact constructor must not contain a return statement\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	return;\n" +
+			"	^^^^^^^\n" +
+			"The body of a compact constructor must not contain a return statement\n" +
 			"----------\n");
 	}
 	public void testBug550750_023() {
@@ -515,11 +515,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int finalize) implements I {\n" + 
-			"	                            ^^^^^^^^\n" + 
-			"Illegal component name finalize in record Point;\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int finalize) implements I {\n" +
+			"	                            ^^^^^^^^\n" +
+			"Illegal component name finalize in record Point;\n" +
 			"----------\n");
 	}
 	public void testBug550750_024() {
@@ -539,11 +539,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int finalize, int myZ) implements I {\n" + 
-			"	                            ^^^^^^^^\n" + 
-			"Illegal component name finalize in record Point;\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int finalize, int myZ) implements I {\n" +
+			"	                            ^^^^^^^^\n" +
+			"Illegal component name finalize in record Point;\n" +
 			"----------\n");
 	}
 	public void testBug550750_025() {
@@ -563,11 +563,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myZ, int myZ) implements I {\n" + 
-			"	                                     ^^^\n" + 
-			"Duplicate component myZ in record\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int myZ, int myZ) implements I {\n" +
+			"	                                     ^^^\n" +
+			"Duplicate component myZ in record\n" +
 			"----------\n");
 	}
 	public void testBug550750_026() {
@@ -587,16 +587,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" + 
-			"	                            ^^^^^\n" + 
-			"Duplicate component myInt in record\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" + 
-			"	                                       ^^^^^\n" + 
-			"Duplicate component myInt in record\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
+			"	                            ^^^^^\n" +
+			"Duplicate component myInt in record\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
+			"	                                       ^^^^^\n" +
+			"Duplicate component myInt in record\n" +
 			"----------\n");
 	}
 	public void testBug550750_027() {
@@ -617,11 +617,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	static final int z;\n" + 
-			"	                 ^\n" + 
-			"The blank final field z may not have been initialized\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	static final int z;\n" +
+			"	                 ^\n" +
+			"The blank final field z may not have been initialized\n" +
 			"----------\n");
 	}
 	public void testBug550750_028() {
@@ -642,11 +642,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	int z;\n" + 
-			"	    ^\n" + 
-			"User declared non-static fields z are not permitted in a record\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	int z;\n" +
+			"	    ^\n" +
+			"User declared non-static fields z are not permitted in a record\n" +
 			"----------\n");
 	}
 	public void testBug550750_029() {
@@ -667,11 +667,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	public native void foo();\n" + 
-			"	                   ^^^^^\n" + 
-			"Illegal modifier native for method foo; native methods are not allowed in record\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	public native void foo();\n" +
+			"	                   ^^^^^\n" +
+			"Illegal modifier native for method foo; native methods are not allowed in record\n" +
 			"----------\n");
 	}
 	public void testBug550750_030() {
@@ -690,13 +690,13 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	{\n" + 
-			"     System.out.println(0);\n" + 
-			"  }\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Instance Initializer is not allowed in a record declaration\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	{\n" +
+			"     System.out.println(0);\n" +
+			"  }\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Instance Initializer is not allowed in a record declaration\n" +
 			"----------\n");
 	}
 	public void testBug550750_031() {
@@ -727,11 +727,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  }\n"+
 						"}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	class record {\n" + 
-			"	      ^^^^^^\n" + 
-			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class record {\n" +
+			"	      ^^^^^^\n" +
+			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_033() {
@@ -744,11 +744,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  }\n"+
 						"}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	class X<record> {\n" + 
-			"	        ^^^^^^\n" + 
-			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X<record> {\n" +
+			"	        ^^^^^^\n" +
+			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_034() {
@@ -762,11 +762,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  public <record> void foo(record args){}\n"+
 						"}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	public <record> void foo(record args){}\n" + 
-			"	        ^^^^^^\n" + 
-			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	public <record> void foo(record args){}\n" +
+			"	        ^^^^^^\n" +
+			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_035() {
@@ -780,16 +780,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  public void foo(record args){}\n"+
 						"}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	public void foo(record args){}\n" + 
-			"	                ^^^^^^\n" + 
-			"record cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	public void foo(record args){}\n" + 
-			"	                ^^^^^^\n" + 
-			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	public void foo(record args){}\n" +
+			"	                ^^^^^^\n" +
+			"record cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	public void foo(record args){}\n" +
+			"	                ^^^^^^\n" +
+			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_036() {
@@ -806,21 +806,21 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  public void apply(int i);\n" +
 						"}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	I lambda = (record r) -> {};\n" + 
-			"	           ^^^^^^^^^^^^^\n" + 
-			"This lambda expression refers to the missing type record\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	I lambda = (record r) -> {};\n" + 
-			"	            ^^^^^^\n" + 
-			"record cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\n" + 
-			"	I lambda = (record r) -> {};\n" + 
-			"	            ^^^^^^\n" + 
-			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	I lambda = (record r) -> {};\n" +
+			"	           ^^^^^^^^^^^^^\n" +
+			"This lambda expression refers to the missing type record\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	I lambda = (record r) -> {};\n" +
+			"	            ^^^^^^\n" +
+			"record cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	I lambda = (record r) -> {};\n" +
+			"	            ^^^^^^\n" +
+			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_037() {
@@ -881,11 +881,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
  						"   public Point() {}\n"+
 						"}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	private int f;\n" + 
-			"	            ^\n" + 
-			"User declared non-static fields f are not permitted in a record\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	private int f;\n" +
+			"	            ^\n" +
+			"User declared non-static fields f are not permitted in a record\n" +
 			"----------\n");
 	}
 	public void testBug550750_041() {
@@ -923,11 +923,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public char myInt() {;\n" + 
-			"	       ^^^^\n" + 
-			"Illegal return type of accessor; should be the same as the declared type int of the record component\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public char myInt() {;\n" +
+			"	       ^^^^\n" +
+			"Illegal return type of accessor; should be the same as the declared type int of the record component\n" +
 			"----------\n");
 	}
 	public void testBug553152_002() {
@@ -964,11 +964,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public <T> int myInt() {;\n" + 
-			"	               ^^^^^^^\n" + 
-			"The accessor method must not be generic\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public <T> int myInt() {;\n" +
+			"	               ^^^^^^^\n" +
+			"The accessor method must not be generic\n" +
 			"----------\n");
 	}
 	public void testBug553152_004() {
@@ -990,16 +990,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	private int myInt() {;\n" + 
-			"	            ^^^^^^^\n" + 
-			"The accessor method must be declared public\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
-			"	/* package */ int myZ() {;\n" + 
-			"	                  ^^^^^\n" + 
-			"The accessor method must be declared public\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	private int myInt() {;\n" +
+			"	            ^^^^^^^\n" +
+			"The accessor method must be declared public\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	/* package */ int myZ() {;\n" +
+			"	                  ^^^^^\n" +
+			"The accessor method must be declared public\n" +
 			"----------\n");
 	}
 	public void testBug553152_005() {
@@ -1018,11 +1018,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public int myInt() throws Exception {;\n" + 
-			"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Throws clause not allowed for explicitly declared accessor method\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public int myInt() throws Exception {;\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Throws clause not allowed for explicitly declared accessor method\n" +
 			"----------\n");
 	}
 	public void testBug553152_006() {
@@ -1060,11 +1060,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public Point(Integer myInt, int myZ) {\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The blank final field myZ may not have been initialized\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public Point(Integer myInt, int myZ) {\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The blank final field myZ may not have been initialized\n" +
 			"----------\n");
 	}
 	public void testBug553152_008() {
@@ -1088,16 +1088,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public Point {\n" + 
-			"	       ^^^^^\n" + 
-			"Duplicate method Point(Integer, int) in type Point\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	public Point(Integer myInt, int myZ) {\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method Point(Integer, int) in type Point\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public Point {\n" +
+			"	       ^^^^^\n" +
+			"Duplicate method Point(Integer, int) in type Point\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	public Point(Integer myInt, int myZ) {\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate method Point(Integer, int) in type Point\n" +
 			"----------\n");
 	}
 	public void testBug553152_009() {
@@ -1117,11 +1117,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	Point(Integer myInt, int myZ) {\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The canonical constructor Point of a record declaration must be declared public.\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	Point(Integer myInt, int myZ) {\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The canonical constructor Point of a record declaration must be declared public.\n" +
 			"----------\n");
 	}
 	public void testBug553152_010() {
@@ -1141,11 +1141,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public <T> Point(Integer myInt, int myZ) {\n" + 
-			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Canonical constructor Point of a record declaration should not be generic\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public <T> Point(Integer myInt, int myZ) {\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Canonical constructor Point of a record declaration should not be generic\n" +
 			"----------\n");
 	}
 	public void testBug553152_011() {
@@ -1165,11 +1165,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public Point(Integer myInt, int myZ) throws Exception {\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Throws clause not allowed for canonical constructor Point\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public Point(Integer myInt, int myZ) throws Exception {\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Throws clause not allowed for canonical constructor Point\n" +
 			"----------\n");
 	}
 	public void testBug553152_012() {
@@ -1190,11 +1190,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	return;\n" + 
-			"	^^^^^^^\n" + 
-			"The body of a compact constructor must not contain a return statement\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	return;\n" +
+			"	^^^^^^^\n" +
+			"The body of a compact constructor must not contain a return statement\n" +
 			"----------\n");
 	}
 	public void testBug553152_013() {
@@ -1217,11 +1217,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I { void apply();}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	Zork();\n" + 
-			"	^^^^\n" + 
-			"The method Zork() is undefined for the type Point\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type Point\n" +
 			"----------\n");
 	}
 	public void testBug553152_014() {
@@ -1242,11 +1242,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	super();\n" + 
-			"	^^^^^^^^\n" + 
-			"The body of a canonical constructor must not contain an explicit constructor call\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The body of a canonical constructor must not contain an explicit constructor call\n" +
 			"----------\n");
 	}
 	public void testBug553152_015() {
@@ -1268,20 +1268,20 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	this.Point(0);\n" + 
-			"	     ^^^^^\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	this.Point(0);\n" +
+			"	     ^^^^^\n" +
 			"The method Point(int) is undefined for the type Point\n" +
-			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
-			"	public Point(Integer myInt) {}\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. ERROR in X.java (at line 12)\n" +
+			"	public Point(Integer myInt) {}\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
 			"The blank final field myInt may not have been initialized\n" +
-			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
-			"	public Point(Integer myInt) {}\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 12)\n" +
+			"	public Point(Integer myInt) {}\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
 			"The blank final field myZ may not have been initialized\n" +
 			"----------\n");
 	}
@@ -1303,11 +1303,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	super();\n" + 
-			"	^^^^^^^^\n" + 
-			"The body of a compact constructor must not contain an explicit constructor call\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The body of a compact constructor must not contain an explicit constructor call\n" +
 			"----------\n");
 	}
 	public void testBug553152_017() {
@@ -1324,10 +1324,10 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	record Point(int myInt, char myChar) {}\n" + 
-		"	       ^^^^^\n" + 
-		"Nested Record is (implicitly) static and hence enclosing type should be static\n" + 
+		"1. ERROR in X.java (at line 3)\n" +
+		"	record Point(int myInt, char myChar) {}\n" +
+		"	       ^^^^^\n" +
+		"Nested Record is (implicitly) static and hence enclosing type should be static\n" +
 		"----------\n");
 	}
 	public void _testBug553152_018() {
@@ -1363,11 +1363,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public static int myInt() {;\n" + 
-			"	                  ^^^^^^^\n" + 
-			"The accessor method must not be static\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public static int myInt() {;\n" +
+			"	                  ^^^^^^^\n" +
+			"The accessor method must not be static\n" +
 			"----------\n");
 	}
 public void testBug553153_01() {
@@ -1408,8 +1408,8 @@ public void testBug553153_01() {
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
-		"	public Point {\n" + 
-		"	       ^^^^^\n" + 
+		"	public Point {\n" +
+		"	       ^^^^^\n" +
 		"The blank final field myChar may not have been initialized\n" +
 		"----------\n");
 }
@@ -1427,7 +1427,7 @@ public void testBug553153_003() {
 			"  public Point {\n"+
 			"     this.myInt = myInt;\n" +
 			"  }\n"+
-			"}\n" + 
+			"}\n" +
 			"interface I {}\n"
 		},
 	 "0");
@@ -1449,10 +1449,10 @@ public void testBug553153_004() {
 			"interface I {}\n"
 	},
 	"----------\n" +
-	"1. ERROR in X.java (at line 7)\n" + 
-	"	public Point(int myInt, char myChar) {\n" + 
-	"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-	"The blank final field myChar may not have been initialized\n" + 
+	"1. ERROR in X.java (at line 7)\n" +
+	"	public Point(int myInt, char myChar) {\n" +
+	"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+	"The blank final field myChar may not have been initialized\n" +
 	"----------\n");
 }
 public void testBug558069_001() {
@@ -1467,11 +1467,11 @@ public void testBug558069_001() {
 					"private record Point(){\n"+
 					"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	private record Point(){\n" + 
-			"	               ^^^^^\n" + 
-			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	private record Point(){\n" +
+			"	               ^^^^^\n" +
+			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 			"----------\n");
 }
 public void testBug558069_002() {
@@ -1591,10 +1591,10 @@ public void testBug558494_001() throws Exception {
 			"}\n"
 		},
 	 "0");
-	String expectedOutput = "Record: #Record\n" + 
-			"Components:\n" + 
-			"  \n" + 
-			"// Component descriptor #6 I\n" + 
+	String expectedOutput = "Record: #Record\n" +
+			"Components:\n" +
+			"  \n" +
+			"// Component descriptor #6 I\n" +
 			"int heyPinkCity;\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -1615,8 +1615,8 @@ public void testBug558494_002() throws Exception {
 			"}\n"
 		},
 	 "Point@1");
-	String expectedOutput = "Record: #Record\n" + 
-			"Components:\n" + 
+	String expectedOutput = "Record: #Record\n" +
+			"Components:\n" +
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -1635,8 +1635,8 @@ public void testBug558494_003() throws Exception {
 			"}\n"
 		},
 		"");
-	String expectedOutput = "Record: #Record\n" + 
-			"Components:\n" + 
+	String expectedOutput = "Record: #Record\n" +
+			"Components:\n" +
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -1655,7 +1655,7 @@ public void testBug558494_004() throws Exception {
 			"}\n"
 		},
 		"");
-	String expectedOutput = 
+	String expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
 			"  \n" +
@@ -1697,11 +1697,11 @@ public void testBug558764_002() {
 					"  }\n"+
 					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	record Point(@MyAnnotation int myInt, char myChar) {}\n" + 
-			"	             ^^^^^^^^^^^^^\n" + 
-			"The annotation @MyAnnotation is disallowed for this location\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	record Point(@MyAnnotation int myInt, char myChar) {}\n" +
+			"	             ^^^^^^^^^^^^^\n" +
+			"The annotation @MyAnnotation is disallowed for this location\n" +
 			"----------\n");
 }
 public void testBug558764_003() {
@@ -1731,17 +1731,17 @@ public void testBug558764_004() {
 					" @Target({ElementType.RECORD_COMPONENT})\n"+
 					" @interface MyAnnotation {}\n" +
 					"class X {\n"+
-					"  public @MyAnnotation String f = \"hello\";\n" + 
+					"  public @MyAnnotation String f = \"hello\";\n" +
 					"  public static void main(String[] args){\n"+
 					"     System.out.println(0);\n" +
 					"  }\n"+
 					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	public @MyAnnotation String f = \"hello\";\n" + 
-			"	       ^^^^^^^^^^^^^\n" + 
-			"The annotation @MyAnnotation is disallowed for this location\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public @MyAnnotation String f = \"hello\";\n" +
+			"	       ^^^^^^^^^^^^^\n" +
+			"The annotation @MyAnnotation is disallowed for this location\n" +
 			"----------\n");
 }
 public void testBug553567_001() {
@@ -1754,11 +1754,11 @@ public void testBug553567_001() {
 					"  }\n"+
 					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	class X extends Record{\n" + 
-			"	                ^^^^^^\n" + 
-			"The type X may not subclass Record explicitly\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X extends Record{\n" +
+			"	                ^^^^^^\n" +
+			"The type X may not subclass Record explicitly\n" +
 			"----------\n");
 }
 public void testBug553567_002() {
@@ -1833,15 +1833,15 @@ public void testBug559448_002() {
 					"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int... x, int y){\n" + 
-			"	                    ^\n" + 
-			"The variable argument type int of the record Point must be the last parameter\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int... x, int y){\n" + 
-			"	                    ^\n" + 
-			"The variable argument type int of the method Point must be the last parameter\n" + 
+			"1. ERROR in X.java (at line 6)\n" +
+			"	record Point(int... x, int y){\n" +
+			"	                    ^\n" +
+			"The variable argument type int of the record Point must be the last parameter\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	record Point(int... x, int y){\n" +
+			"	                    ^\n" +
+			"The variable argument type int of the method Point must be the last parameter\n" +
 			"----------\n");
 }
 public void testBug559448_003() {
@@ -1857,15 +1857,15 @@ public void testBug559448_003() {
 					"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int... x, int... y){\n" + 
-			"	                    ^\n" + 
-			"The variable argument type int of the record Point must be the last parameter\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int... x, int... y){\n" + 
-			"	                    ^\n" + 
-			"The variable argument type int of the method Point must be the last parameter\n" + 
+			"1. ERROR in X.java (at line 6)\n" +
+			"	record Point(int... x, int... y){\n" +
+			"	                    ^\n" +
+			"The variable argument type int of the record Point must be the last parameter\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	record Point(int... x, int... y){\n" +
+			"	                    ^\n" +
+			"The variable argument type int of the method Point must be the last parameter\n" +
 			"----------\n");
 }
 public void testBug559574_001() {
@@ -1881,25 +1881,25 @@ public void testBug559574_001() {
 					"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	public XX3  {}\n" + 
-			"	       ^^^\n" + 
-			"Return type for the method is missing\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	public XX3(int x, int y, int z) {\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Return type for the method is missing\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 3)\n" + 
-			"	public XX3(int x, int y, int z) {\n" + 
-			"	               ^\n" + 
-			"The parameter x is hiding a field from type X\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\n" + 
-			"	this.y = y;\n" + 
-			"	     ^\n" + 
-			"y cannot be resolved or is not a field\n" + 
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public XX3  {}\n" +
+			"	       ^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	public XX3(int x, int y, int z) {\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 3)\n" +
+			"	public XX3(int x, int y, int z) {\n" +
+			"	               ^\n" +
+			"The parameter x is hiding a field from type X\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	this.y = y;\n" +
+			"	     ^\n" +
+			"y cannot be resolved or is not a field\n" +
 			"----------\n");
 }
 public void testBug559992_001() {
@@ -1911,11 +1911,11 @@ public void testBug559992_001() {
 					"  }\n"+
 					"}\n"
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public R throws Exception {\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^\n" + 
-		"Throws clause not allowed for canonical constructor R\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public R throws Exception {\n" +
+		"	       ^^^^^^^^^^^^^^^^^^\n" +
+		"Throws clause not allowed for canonical constructor R\n" +
 		"----------\n");
 }
 public void testBug559992_002() {
@@ -1927,11 +1927,11 @@ public void testBug559992_002() {
 					"  }\n"+
 					"}\n"
 			},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public R() throws Exception {\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Throws clause not allowed for canonical constructor R\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public R() throws Exception {\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^\n" +
+		"Throws clause not allowed for canonical constructor R\n" +
 		"----------\n");
 }
 public void testBug560256_001() {
@@ -1946,11 +1946,11 @@ public void testBug560256_001() {
 			"final protected record Point(int x, int y){\n"+
 		"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	final protected record Point(int x, int y){\n" + 
-		"	                       ^^^^^\n" + 
-		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	final protected record Point(int x, int y){\n" +
+		"	                       ^^^^^\n" +
+		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 		"----------\n");
 }
 public void testBug560256_002() {
@@ -1965,11 +1965,11 @@ public void testBug560256_002() {
 			"native record Point(int x, int y){\n"+
 		"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	native record Point(int x, int y){\n" + 
-		"	              ^^^^^\n" + 
-		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	native record Point(int x, int y){\n" +
+		"	              ^^^^^\n" +
+		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" +
 		"----------\n");
 }
 public void testBug560256_003() {
@@ -1982,11 +1982,11 @@ public void testBug560256_003() {
 			"  }\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	record Point(int x, int y){}\n" + 
-		"	       ^^^^^\n" + 
-		"Nested Record is (implicitly) static and hence enclosing type should be static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	record Point(int x, int y){}\n" +
+		"	       ^^^^^\n" +
+		"Nested Record is (implicitly) static and hence enclosing type should be static\n" +
 		"----------\n");
 }
 public void testBug560256_004() {
@@ -1999,11 +1999,11 @@ public void testBug560256_004() {
 			"  }\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	native record Point(int x, int y){}\n" + 
-		"	              ^^^^^\n" + 
-		"Illegal modifier for the record Point; only public, private, protected, static, final and strictfp are permitted\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	native record Point(int x, int y){}\n" +
+		"	              ^^^^^\n" +
+		"Illegal modifier for the record Point; only public, private, protected, static, final and strictfp are permitted\n" +
 		"----------\n");
 }
 public void testBug560531_001() {
@@ -2061,13 +2061,13 @@ public void testBug560569_001() throws Exception {
 			"}\n"
 		},
 	 "true");
-	String expectedOutput = 
-			"Bootstrap methods:\n" + 
-			"  0 : # 68 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" + 
-			"	Method arguments:\n" + 
-			"		#1 Car\n" + 
-			"		#69 model;year\n" + 
-			"		#71 REF_getField model:Ljava/lang/String;\n" + 
+	String expectedOutput =
+			"Bootstrap methods:\n" +
+			"  0 : # 68 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
+			"	Method arguments:\n" +
+			"		#1 Car\n" +
+			"		#69 model;year\n" +
+			"		#71 REF_getField model:Ljava/lang/String;\n" +
 			"		#72 REF_getField year:I\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -2083,7 +2083,7 @@ public void testBug560496_001() throws Exception {
 			"}\n"
 		},
 	 "0");
-	String expectedOutput = 
+	String expectedOutput =
 			"public final int hashCode();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -2099,7 +2099,7 @@ public void testBug560496_002() throws Exception {
 			"}\n"
 		},
 	 "0");
-	String expectedOutput = 
+	String expectedOutput =
 			"public final strictfp int hashCode();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -2115,7 +2115,7 @@ public void testBug560797_001() throws Exception {
 			"}\n"
 		},
 	 "true");
-	String expectedOutput = 
+	String expectedOutput =
 			"public strictfp int x();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -2133,7 +2133,7 @@ public void testBug560797_002() throws Exception {
 			"}\n"
 		},
 	 "true");
-	String expectedOutput = 
+	String expectedOutput =
 			"public strictfp int x();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -2160,7 +2160,7 @@ public void testBug560798_002() {
 			"X.java",
 			"import java.lang.annotation.Target;\n"+
 			"import java.lang.annotation.ElementType;\n"+
-			"@Target({ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE,\n" + 
+			"@Target({ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE,\n" +
 			"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER})\n"+
 			"@interface MyAnnot {}\n"+
 			"record R(@MyAnnot()  int i, int j) {}\n" +
@@ -2169,11 +2169,11 @@ public void testBug560798_002() {
 			"       }\n"+
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	record R(@MyAnnot()  int i, int j) {}\n" + 
-		"	         ^^^^^^^^\n" + 
-		"The annotation @MyAnnot is disallowed for this location\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	record R(@MyAnnot()  int i, int j) {}\n" +
+		"	         ^^^^^^^^\n" +
+		"The annotation @MyAnnot is disallowed for this location\n" +
 		"----------\n");
 }
 public void testBug560798_003() throws Exception {
@@ -2236,11 +2236,11 @@ public void testBug560770_001() {
 			"X.java",
 			"record R() {}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	record R() {}\n" + 
-		"	       ^\n" + 
-		"You are using a preview language feature that may or may not be supported in a future release\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	record R() {}\n" +
+		"	       ^\n" +
+		"You are using a preview language feature that may or may not be supported in a future release\n" +
 		"----------\n",
 		null,
 		true,
@@ -2361,16 +2361,16 @@ public void testBug560893_007() {
 			"    }\n"+
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	System.out.println(li);  // error, local variable\n" + 
-		"	                   ^^\n" + 
-		"Cannot make a static reference to the non-static variable li from a local record\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	System.out.println(nsi); // error, non-static member\n" + 
-		"	                   ^^^\n" + 
-		"Cannot make a static reference to the non-static field nsi\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(li);  // error, local variable\n" +
+		"	                   ^^\n" +
+		"Cannot make a static reference to the non-static variable li from a local record\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	System.out.println(nsi); // error, non-static member\n" +
+		"	                   ^^^\n" +
+		"Cannot make a static reference to the non-static field nsi\n" +
 		"----------\n");
 }
 }

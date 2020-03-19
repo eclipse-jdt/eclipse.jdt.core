@@ -44,7 +44,7 @@ public class BuildFilerImpl extends FilerImpl {
 	}
 
     @Override
-	public OutputStream createClassFile(String typeName) throws IOException 
+	public OutputStream createClassFile(String typeName) throws IOException
     {
     	if (typeName == null)
     		throw new IllegalArgumentException("Type name cannot be null"); //$NON-NLS-1$
@@ -58,15 +58,15 @@ public class BuildFilerImpl extends FilerImpl {
 			throw new IOException(e);
 		}
 		_generatedClassFiles = true;
-		
+
 		// We do not want to write to disk during reconcile
 		if (_env.getPhase() == Phase.RECONCILE) {
 			return new NoOpOutputStream();
 		}
-		
+
     	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager(_env.isTestCode());
     	IPath path;
-    	try 
+    	try
     	{
     		 path = gsfm.getBinaryOutputLocation();
     	}
@@ -76,37 +76,37 @@ public class BuildFilerImpl extends FilerImpl {
     		AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
     		throw new IOException(e);
     	}
-    	
+
     	path = path.append(typeName.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
-    	
+
         IFile file = getEnv().getProject().getFile(path);
         return new BinaryFileOutputStream(file, _env);
     }
-	
+
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
 
     @Override
-	public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
-        throws IOException 
+	public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName)
+        throws IOException
     {
     	if (relPath == null)
     		throw new IllegalArgumentException("Path cannot be null"); //$NON-NLS-1$
     	if ("".equals(relPath.getPath())) //$NON-NLS-1$
     		throw new IllegalArgumentException("Path cannot be empty"); //$NON-NLS-1$
-    	
+
     	_env.checkValid();
-    	
+
     	// If we're reconciling, we do not want to actually create the text file
     	if (_env.getPhase() == Phase.RECONCILE) {
     		return new NoOpPrintWriter();
     	}
-    	
-    	
+
+
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
     	validateFile(file);
     	OutputStream binaryOut = new EncodedFileOutputStream(file, _env, charsetName);
- 
+
     	if (charsetName == null) {
     		return new PrintWriter(binaryOut);
     	}
@@ -118,20 +118,20 @@ public class BuildFilerImpl extends FilerImpl {
 
     @Override
 	public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
-        throws IOException 
+        throws IOException
     {
     	if (relPath == null)
     		throw new IllegalArgumentException("Path cannot be null"); //$NON-NLS-1$
     	if ("".equals(relPath.getPath())) //$NON-NLS-1$
     		throw new IllegalArgumentException("Path cannot be empty"); //$NON-NLS-1$
-    	
+
     	_env.checkValid();
-    	
+
     	// We do not want to write to disk during reconcile
 		if (_env.getPhase() == Phase.RECONCILE) {
 			return new NoOpOutputStream();
 		}
-    	
+
     	IPath path = getOutputFileForLocation( loc, pkg, relPath );
     	IFile file = _env.getProject().getFile(path);
     	validateFile(file);
@@ -142,7 +142,7 @@ public class BuildFilerImpl extends FilerImpl {
 	protected AbstractCompilationEnv getEnv() {
 		return _env;
 	}
-	
+
     private void validateFile(IFile file) throws IOException
 	{
     	IStatus status = file.getWorkspace().validatePath(file.getFullPath().toOSString(), IResource.FILE);

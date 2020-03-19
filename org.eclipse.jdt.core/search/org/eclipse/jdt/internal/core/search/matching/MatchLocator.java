@@ -337,7 +337,7 @@ public MatchLocator(
 	    			this.sourceStartOfMethodToRetain  = range.getOffset();
 	    			this.sourceEndOfMethodToRetain = this.sourceStartOfMethodToRetain + range.getLength() - 1; // offset is 0 based.
 	    		} catch (JavaModelException e) {
-	    			// drop silently. 
+	    			// drop silently.
 	    		}
 	    	}
 	    }
@@ -800,15 +800,15 @@ protected boolean encloses(IJavaElement element) {
 	if (element != null) {
 		if (this.scope instanceof HierarchyScope)
 			return ((HierarchyScope)this.scope).encloses(element, this.progressMonitor);
-		else 
+		else
 			return this.scope.encloses(element);
 	}
 	return false;
 }
 private boolean filterEnum(SearchMatch match) {
-	
-	// filter org.apache.commons.lang.enum package for projects above 1.5 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264	
+
+	// filter org.apache.commons.lang.enum package for projects above 1.5
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264
 	IJavaElement element = (IJavaElement)match.getElement();
 	PackageFragment pkg = (PackageFragment)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 	if (pkg != null) {
@@ -1030,7 +1030,7 @@ private int  getMaxResult(int[][] resultsMap) {
 		for (int i = 1; i < rows; ++i) {
 			int tmp = resultsMap[i][j];
 			if (tmp < current) continue;
-			if (tmp > current)  { 
+			if (tmp > current)  {
 				current = tmp;
 				candidates.clear();
 			}
@@ -1041,7 +1041,7 @@ private int  getMaxResult(int[][] resultsMap) {
 	return candidates.get(0);
 }
 
-/** apply the function to map the parameter full name to an index 
+/** apply the function to map the parameter full name to an index
  */
 private int mapParameter(List <String> patternParameterFullName, List <String> methodParameterFullName) {
 	int patternLen = patternParameterFullName.size();
@@ -1506,7 +1506,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 						JavaModelManager.getLocalFile(path).toPath().toAbsolutePath().toString() :
 						pathString.split(Pattern.quote("|"))[0]; //$NON-NLS-1$
 				possibleMatch.autoModuleName = new String(AutomaticModuleNaming.determineAutomaticModuleName(s));
-			}			
+			}
 		}
 
 		// last project
@@ -1560,7 +1560,7 @@ private Openable getCloserOpenable(Openable openable, String pathString) {
 			if (jpkf.getModuleDescription() != null &&
 					CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) <
 					ClassFileConstants.JDK9) {
-				openable = this.handleFactory.createOpenable(pathString, 
+				openable = this.handleFactory.createOpenable(pathString,
 						getSubScope(JavaCore.COMPILER_COMPLIANCE, ClassFileConstants.JDK9, false));
 			}
 		}
@@ -1915,7 +1915,7 @@ protected boolean parseAndBuildBindings(PossibleMatch possibleMatch, boolean mus
 			if (parsedUnit.isModuleInfo()) {
 				if (mustResolve) {
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-				}				
+				}
 			} else if (!parsedUnit.isEmpty()) {
 				if (mustResolve) {
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
@@ -2491,7 +2491,7 @@ protected void reportMatching(LambdaExpression lambdaExpression,  IJavaElement p
 	ASTNode[] nodes = typeInHierarchy ? nodeSet.matchingNodes(lambdaExpression.sourceStart, lambdaExpression.sourceEnd) : null;
 	boolean report = (this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0 && encloses(enclosingElement);
 	MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, report ? nodes : null, nodeSet, this, typeInHierarchy);
-	
+
 	if (lambdaExpression.arguments != null) {
 		int argumentsLength = lambdaExpression.arguments.length;
 		for (int i = 0; i < argumentsLength; i++)
@@ -2501,7 +2501,7 @@ protected void reportMatching(LambdaExpression lambdaExpression,  IJavaElement p
 	if (lambdaExpression.body != null) {
 		lambdaExpression.body.traverse(declarationVisitor, (BlockScope) null);
 	}
-	
+
 	// Report all nodes and remove them
 	if (nodes != null) {
 		int length = nodes.length;
@@ -2725,8 +2725,8 @@ private void reportMatching(Annotation[][] annotationsList, IJavaElement enclosi
 	if (annotationsList != null) {
 		for (int i = 0, length = annotationsList.length; i < length; ++i) {
 			Annotation[] annotations = annotationsList[i];
-			if (annotations != null) 
-				reportMatching(annotations, enclosingElement, null, binding, nodeSet, matchedClassContainer, encloses(enclosingElement));	
+			if (annotations != null)
+				reportMatching(annotations, enclosingElement, null, binding, nodeSet, matchedClassContainer, encloses(enclosingElement));
 		}
 	}
 }
@@ -3117,7 +3117,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				if ((type.bits & ASTNode.IsAnonymousType) != 0) {
 					if (fileName != null) {
 						if (fileName.endsWith("jar") || fileName.endsWith(SuffixConstants.SUFFIX_STRING_class)) { //$NON-NLS-1$
-							IOrdinaryClassFile classFile= binaryType.getPackageFragment().getOrdinaryClassFile(binaryType.getTypeQualifiedName() + 
+							IOrdinaryClassFile classFile= binaryType.getPackageFragment().getOrdinaryClassFile(binaryType.getTypeQualifiedName() +
 									"$" + Integer.toString(occurrenceCount) + SuffixConstants.SUFFIX_STRING_class);//$NON-NLS-1$
 							anonType =  classFile.getType();
 						}
@@ -3187,7 +3187,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 			for (int i = 0, length = superClass.annotations == null ? 0 : superClass.annotations.length; i < length; i++) {
 				Annotation[] annotations = superClass.annotations[i];
 				if (annotations == null) continue;
-				reportMatching(annotations, enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);	
+				reportMatching(annotations, enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);
 			}
 		}
 		TypeReference[] superInterfaces = type.superInterfaces;
@@ -3199,9 +3199,9 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				if (annotations != null) {
 					for (int j = 0, length = annotations.length; j < length; j++) {
 						if (annotations[j] == null) continue;
-						reportMatching(annotations[j], enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);	
+						reportMatching(annotations[j], enclosingElement, null, type.binding, nodeSet, matchedClassContainer, enclosesElement);
 					}
-				}			
+				}
 			}
 		}
 	}
@@ -3295,7 +3295,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 			}
 			boolean matchedClassContainer = (this.matchContainer & PatternLocator.ALL_CONTAINER) != 0;
 			if (typeParameter.annotations != null) {
-				reportMatching(typeParameter.annotations, enclosingElement, null, typeParameter.binding, nodeSet, matchedClassContainer, encloses(enclosingElement));	
+				reportMatching(typeParameter.annotations, enclosingElement, null, typeParameter.binding, nodeSet, matchedClassContainer, encloses(enclosingElement));
 			}
 			if (typeParameter.type != null) {
 				reportMatching(typeParameter.type.annotations, enclosingElement, typeParameter.binding, nodeSet, matchedClassContainer);

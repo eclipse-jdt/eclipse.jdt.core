@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements MethodDeclaration
 {
-    public MethodDeclarationImpl(final IMethodBinding binding,                                 
+    public MethodDeclarationImpl(final IMethodBinding binding,
                                  final BaseProcessorEnv env)
     {
         super(binding, env);

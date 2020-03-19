@@ -28,11 +28,11 @@ import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class ExecutableDeclarationImpl 
+public abstract class ExecutableDeclarationImpl
 	extends MemberDeclarationImpl implements ExecutableDeclaration
 {
     public ExecutableDeclarationImpl(final IMethodBinding binding, final BaseProcessorEnv env)
-    {     
+    {
         super(binding, env);
     }
 
@@ -45,7 +45,7 @@ public abstract class ExecutableDeclarationImpl
     @Override
 	public TypeDeclaration getDeclaringType()
     {
-        final IMethodBinding methodBinding = getDeclarationBinding();        
+        final IMethodBinding methodBinding = getDeclarationBinding();
         return Factory.createReferenceType(methodBinding.getDeclaringClass(), _env);
     }
 

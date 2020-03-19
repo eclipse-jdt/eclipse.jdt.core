@@ -280,7 +280,7 @@ public class ModuleInfo extends ClassFileStruct implements IBinaryModule {
 		}
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) 
+			if (this == o)
 				return true;
 			if (!(o instanceof IModule.IModuleReference))
 				return false;

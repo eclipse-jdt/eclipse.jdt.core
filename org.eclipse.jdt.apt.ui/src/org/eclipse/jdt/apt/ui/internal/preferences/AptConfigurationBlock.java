@@ -73,25 +73,25 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
  * see org.eclipse.jdt.ui.internal.preferences.TodoTaskConfigurationBlock
  * for the conceptual source of some of this code.
  * <p>
- * 
+ *
  */
 public class AptConfigurationBlock extends BaseConfigurationBlock {
-		
+
 	private static final Key KEY_APTENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_ENABLED);
 	private static final Key KEY_RECONCILEENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_RECONCILEENABLED);
 	private static final Key KEY_GENSRCDIR= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_GENSRCDIR);
 	private static final Key KEY_GENTESTSRCDIR= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_GENTESTSRCDIR);
-	
+
 	private static Key[] getAllKeys() {
 		return new Key[] {
 				KEY_APTENABLED, KEY_RECONCILEENABLED, KEY_GENSRCDIR
 		};
 	}
-	
+
 	private static final int IDX_ADD= 0;
 	private static final int IDX_EDIT= 1;
 	private static final int IDX_REMOVE= 2;
-	
+
 	private final IJavaProject fJProj;
 
 	private SelectionButtonDialogField fAptEnabledField;
@@ -99,24 +99,24 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private StringDialogField fGenSrcDirField;
 	private StringDialogField fGenTestSrcDirField;
 	private ListDialogField<ProcessorOption> fProcessorOptionsField;
-	
+
 	private PixelConverter fPixelConverter;
 	private Composite fBlockControl;
-	
+
 	private Map<String, String> fOriginalProcOptions; // cache of saved values
 	private String fOriginalGenSrcDir;
 	private String fOriginalGenTestSrcDir;
 	private boolean fOriginalAptEnabled;
 	private boolean fOriginalReconcileEnabled;
-	
+
 	// used to distinguish actual changes from re-setting of same value - see useProjectSpecificSettings()
 	private boolean fPerProjSettingsEnabled;
-	
+
 	/**
 	 * Event handler for Processor Options list control.
 	 */
 	private class ProcessorOptionsAdapter implements IListAdapter<ProcessorOption>, IDialogFieldListener {
-		
+
 		public void customButtonPressed(ListDialogField<ProcessorOption> field, int index) {
 			switch (index) {
 			case IDX_ADD:
@@ -132,7 +132,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			List<ProcessorOption> selectedElements= field.getSelectedElements();
 			field.enableButton(IDX_EDIT, canEdit(field, selectedElements));
 		}
-			
+
 		public void doubleClicked(ListDialogField<ProcessorOption> field) {
 			tryToEdit(field);
 		}
@@ -146,7 +146,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				return false;
 			return selectedElements.size() == 1;
 		}
-		
+
 		private void tryToEdit(ListDialogField<ProcessorOption> field) {
 			List<ProcessorOption> selection= getListSelection();
 			if (canEdit(field, selection)) {
@@ -154,7 +154,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			}
 		}
 	}
-	
+
 	/**
 	 * An entry in the Processor Options list control.
 	 */
@@ -171,19 +171,19 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			return getComparator().compare(((ProcessorOption) e1).key, ((ProcessorOption) e2).key);
 		}
 	}
-	
+
 	/**
 	 * Controls display of items in the Processor Options list control.
 	 */
 	private class ProcessorOptionsLabelProvider extends LabelProvider implements ITableLabelProvider {
-		
+
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
 		 */
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
 		 */
@@ -203,11 +203,11 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 
 	public AptConfigurationBlock(IStatusChangeListener context, IProject project, IWorkbenchPreferenceContainer container) {
 		super(context, project, getAllKeys(), container);
-		
+
 		fJProj = JavaCore.create(project);
-		
+
 		UpdateAdapter adapter= new UpdateAdapter();
-		
+
 		if (fJProj != null) {
 			fAptEnabledField= new SelectionButtonDialogField(SWT.CHECK);
 			fAptEnabledField.setDialogFieldListener(adapter);
@@ -216,11 +216,11 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		else {
 			fAptEnabledField = null;
 		}
-		
+
 		fReconcileEnabledField= new SelectionButtonDialogField(SWT.CHECK);
 		fReconcileEnabledField.setDialogFieldListener(adapter);
 		fReconcileEnabledField.setLabelText(Messages.AptConfigurationBlock_enableReconcileProcessing);
-		
+
 		fGenSrcDirField = new StringDialogField();
 		fGenSrcDirField.setDialogFieldListener(adapter);
 		fGenSrcDirField.setLabelText(Messages.AptConfigurationBlock_generatedSrcDir);
@@ -245,17 +245,17 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fProcessorOptionsField.setTableColumns(new ListDialogField.ColumnsDescription(columnHeaders, true));
 		fProcessorOptionsField.setViewerComparator(new ProcessorOptionSorter());
 		fProcessorOptionsField.setLabelText(Messages.AptConfigurationBlock_options);
-		
+
 		updateControls();
-		
+
 		if (fProcessorOptionsField.getSize() > 0) {
 			fProcessorOptionsField.selectFirstElement();
 		} else {
 			fProcessorOptionsField.enableButton(IDX_EDIT, false);
 		}
-		
+
 	}
-	
+
 	/*
 	 * At workspace level, don't ask for a rebuild.
 	 */
@@ -281,14 +281,14 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private List<ProcessorOption> getListElements() {
 		return fProcessorOptionsField.getElements();
 	}
-	
+
 	/*
 	 * Helper to eliminate unchecked-conversion warning
 	 */
 	private List<ProcessorOption> getListSelection() {
 		return fProcessorOptionsField.getSelectedElements();
 	}
-	
+
 	private void editOrAddProcessorOption(ProcessorOption original) {
 		ProcessorOptionInputDialog dialog= new ProcessorOptionInputDialog(getShell(), original, getListElements());
 		if (dialog.open() == Window.OK) {
@@ -299,24 +299,24 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			}
 		}
 	}
-	
+
 	@Override
 	protected Control createContents(Composite parent) {
 		setShell(parent.getShell());
-		
+
 		fPixelConverter= new PixelConverter(parent);
 		int indent= fPixelConverter.convertWidthInCharsToPixels(4);
-		
+
 		fBlockControl = new Composite(parent, SWT.NONE);
 		fBlockControl.setFont(parent.getFont());
-		
+
 		GridLayout layout= new GridLayout();
 		layout.numColumns= 2;
 		layout.marginWidth= 0;
 		layout.marginHeight= 0;
-		
+
 		fBlockControl.setLayout(layout);
-		
+
 		DialogField[] fields = fAptEnabledField != null ?
 				new DialogField[] {
 					fAptEnabledField,
@@ -333,18 +333,18 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				};
 		LayoutUtil.doDefaultLayout(fBlockControl, fields, true, SWT.DEFAULT, SWT.DEFAULT);
 		LayoutUtil.setHorizontalGrabbing(fProcessorOptionsField.getListControl(null));
-		
+
 		GridData reconcileGD= (GridData)fReconcileEnabledField.getSelectionButton(parent).getLayoutData();
 		reconcileGD.horizontalIndent = indent;
 		fReconcileEnabledField.getSelectionButton(parent).setLayoutData(reconcileGD);
-		
+
 		Dialog.applyDialogFont(fBlockControl);
-		
+
 		validateSettings(null, null, null);
-		
+
 		return fBlockControl;
 	}
-	
+
 	@Override
 	protected void cacheOriginalValues() {
 		super.cacheOriginalValues();
@@ -386,7 +386,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				if (fOriginalAptEnabled != AptConfig.isEnabled(null)) {
 					// make JDT "processingEnabled" setting track APT "enabled" setting.
 					setJDTProcessAnnotationsSetting(fAptEnabledField.isSelected());
-					
+
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 				}
 				if (fOriginalReconcileEnabled != AptConfig.shouldProcessDuringReconcile(null)) {
@@ -402,7 +402,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				if (fOriginalAptEnabled != isAptEnabled) {
 					// make JDT "processingEnabled" setting track APT "enabled" setting.
 					setJDTProcessAnnotationsSetting(isAptEnabled);
-					
+
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_ENABLED);
 				}
 				if (fOriginalReconcileEnabled != fReconcileEnabledField.isSelected())
@@ -410,7 +410,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			}
 		}
 	}
-	
+
 	/**
 	 * Set the org.eclipse.jdt.core.compiler.processAnnotations setting.
 	 * In Eclipse 3.3, this value replaces org.eclipse.jdt.apt.aptEnabled,
@@ -432,7 +432,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			AptPlugin.log(e, "Failed to save preference: " + AptPreferenceConstants.APT_PROCESSANNOTATIONS); //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
 	 * Check whether any processor options have changed.
 	 * @return true if they did.
@@ -477,7 +477,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	@Override
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
 		IStatus status = null;
-		
+
 		status = validateGenSrcDir();
 
 		if (status.getSeverity() == IStatus.OK) {
@@ -490,7 +490,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 
 		fContext.statusChanged(status);
 	}
-	
+
 	/**
 	 * Validate "generated source directory" setting.  It must be a valid
 	 * pathname relative to a project, and must not be a source directory.
@@ -549,7 +549,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		}
 		return new StatusInfo();
 	}
-	
+
 	/**
 	 * Update the UI based on the values presently stored in the keys.
 	 */
@@ -566,12 +566,12 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		String teststr= getValue(KEY_GENTESTSRCDIR);
 		fGenTestSrcDirField.setText(teststr == null ? "" : teststr); //$NON-NLS-1$
 	}
-	
+
 	/**
 	 * Update the values stored in the keys based on the UI.
 	 */
 	protected final void updateModel(DialogField field) {
-		
+
 		if (fAptEnabledField != null && field == fAptEnabledField) {
 			String newVal = String.valueOf(fAptEnabledField.isSelected());
 			setValue(KEY_APTENABLED, newVal);

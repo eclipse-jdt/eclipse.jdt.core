@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
  *******************************************************************************/
@@ -34,9 +34,9 @@ import com.sun.mirror.util.SourcePosition;
  * classes, like "java.lang", or possibly "" (the default package).
  */
 public class PackageDeclarationImplNoBinding implements PackageDeclaration {
-	
+
 	private final IPackageFragment[] fragments;
-	
+
 	public PackageDeclarationImplNoBinding(final IPackageFragment[] fragments) {
 		this.fragments = fragments;
 	}

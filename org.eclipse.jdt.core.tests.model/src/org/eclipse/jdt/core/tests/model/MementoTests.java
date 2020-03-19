@@ -94,8 +94,8 @@ public void setUpSuite() throws Exception {
 	Util.createClassFolder(new String[] {
 		"X.java",
 		"public class X {}"
-		}, 
-		getExternalResourcePath("myLib"), 
+		},
+		getExternalResourcePath("myLib"),
 		"1.4");
 	this.createJavaProject(
 			"P",
@@ -816,7 +816,7 @@ public void testAnnotationPath18() throws CoreException, IOException {
 	// tests annotationpath in memento for a regular jar library:
 	try {
 		IJavaProject project = createJavaProject("Test", new String[] {"src"}, null, "bin", "1.8", false);
-		addLibraryWithExternalAnnotations(project, "1.8", "lib.jar", "/Test/annots", 
+		addLibraryWithExternalAnnotations(project, "1.8", "lib.jar", "/Test/annots",
 				new String[] {
 					"test/Test.java",
 					"package test;\n" +
@@ -841,7 +841,7 @@ public void testAnnotationPath18() throws CoreException, IOException {
 				// PackageFragment
 				IPackageFragment test = packageRoot.getPackageFragment("test");
 				handleIdentifier = test.getHandleIdentifier();
-				String expected = expectedIdentifiers[i]+"<test"; 
+				String expected = expectedIdentifiers[i]+"<test";
 				assertEquals("PackageFragment mementos", expected, handleIdentifier);
 				element = JavaCore.create(handleIdentifier, null);
 				assertEquals("PackageFragment equivalence", test, element);
@@ -888,7 +888,7 @@ public void testAnnotationPath9() throws CoreException, IOException {
 		// PackageFragment
 		IPackageFragment test = packageRoot.getPackageFragment("java.lang");
 		handleIdentifier = test.getHandleIdentifier();
-		String expected = expectedIdentifier+"<java.lang"; 
+		String expected = expectedIdentifier+"<java.lang";
 		assertEquals("PackageFragment mementos", expected, handleIdentifier);
 		element = JavaCore.create(handleIdentifier, null);
 		assertEquals("PackageFragment equivalence", test, element);
@@ -909,15 +909,15 @@ public void testEmptyAttribute() throws CoreException, IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 				new String[] {"test/Test.java", "package test; public class Test {}\n" },
 				null, project.getProject().getLocation().toString()+"/lib.jar", null, "1.8", null);
-		
+
 		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 		IClasspathAttribute[] attributes = {
-			JavaCore.newClasspathAttribute("foo", "")	
+			JavaCore.newClasspathAttribute("foo", "")
 		};
 		addLibraryEntry(project, new Path("/Test/lib.jar"), null, null, null, null, attributes, false);
 		String[] expectedIdentifiers = {
 			"=Test/src",
-			"=Test/lib.jar=/foo=/=/"	
+			"=Test/lib.jar=/foo=/=/"
 		};
 		IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
 		boolean archiveSeen = false;
@@ -932,7 +932,7 @@ public void testEmptyAttribute() throws CoreException, IOException {
 				// PackageFragment
 				IPackageFragment test = packageRoot.getPackageFragment("test");
 				handleIdentifier = test.getHandleIdentifier();
-				String expected = expectedIdentifiers[i]+"<test"; 
+				String expected = expectedIdentifiers[i]+"<test";
 				assertEquals("PackageFragment mementos", expected, handleIdentifier);
 				element = JavaCore.create(handleIdentifier, null);
 				assertEquals("PackageFragment equivalence", test, element);

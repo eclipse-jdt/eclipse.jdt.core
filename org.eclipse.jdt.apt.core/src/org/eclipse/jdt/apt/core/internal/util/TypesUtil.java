@@ -40,17 +40,17 @@ import com.sun.mirror.type.WildcardType;
 import com.sun.mirror.util.Types;
 
 public class TypesUtil implements Types
-{	
+{
 	private static final String[] NO_ARGS = new String[0];
     private final BaseProcessorEnv _env;
-	
+
 	public static void main(String[] args){}
 
     public TypesUtil(BaseProcessorEnv env){
         _env = env;
         assert env != null : "null environment."; //$NON-NLS-1$
     }
-    
+
     @Override
 	public ArrayType getArrayType(TypeMirror componentType)
     {
@@ -81,12 +81,12 @@ public class TypesUtil implements Types
 			final ITypeBinding arrayType = _env.getTypeBindingFromKey(bindingKey);
 			if(arrayType == null)
 				return null;
-			return (ArrayType)Factory.createTypeMirror(arrayType, _env); 
+			return (ArrayType)Factory.createTypeMirror(arrayType, _env);
         }
-		
+
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
                                                     " Found " + componentType.getClass().getName()); //$NON-NLS-1$
-                                                
+
     }
 
     /**
@@ -97,9 +97,9 @@ public class TypesUtil implements Types
      */
     private ITypeBinding findMemberType(ITypeBinding outer, String inner )
     {
-        if( outer == null || inner == null ) return null;        
+        if( outer == null || inner == null ) return null;
 
-        outer = outer.getTypeDeclaration();        
+        outer = outer.getTypeDeclaration();
 
         final ITypeBinding[] nestedTypes = outer.getDeclaredTypes();
         // first we search throw the ones that are directly declared within 'outer'
@@ -111,14 +111,14 @@ public class TypesUtil implements Types
 		// first we search the super type
 		ITypeBinding result = findMemberType(outer.getSuperclass(), inner);
 		if( result != null ) return result;
-		
+
 		// then the super interfaces
 		final ITypeBinding[] interfaces = outer.getInterfaces();
 		for( ITypeBinding interfaceType : interfaces ){
 			result = findMemberType(interfaceType, inner);
 			if( result != null ) return result;
 		}
-        
+
 		// can't find it.
 		return null;
     }
@@ -127,10 +127,10 @@ public class TypesUtil implements Types
 	public com.sun.mirror.type.DeclaredType getDeclaredType(DeclaredType containing, TypeDeclaration decl, TypeMirror... typeArgs)
     {
 		if( decl == null ) return null;
-	
+
         final ITypeBinding outerBinding = getTypeBinding(containing);
 		final ITypeBinding memberBinding;
-		
+
 		if( containing == null )
 			memberBinding = getTypeBinding(decl);
 		else{
@@ -138,51 +138,51 @@ public class TypesUtil implements Types
 	             throw new IllegalArgumentException("[containing], " + containing + ", is a generic type."); //$NON-NLS-1$ //$NON-NLS-2$
 			 // make sure 'decl' is a valid member of 'outerBinding'
 			memberBinding = findMemberType(outerBinding, decl.getSimpleName() );
-			if( memberBinding == null )        
+			if( memberBinding == null )
 	            throw new IllegalArgumentException(decl + " is not a member type of " + containing ); //$NON-NLS-1$
 		}
-		
-		final int numArgs = typeArgs == null ? 0 : typeArgs.length;		
-		
+
+		final int numArgs = typeArgs == null ? 0 : typeArgs.length;
+
 		if( memberBinding.isGenericType() ){
 			final String[] argKeys = numArgs == 0 ? NO_ARGS : new String[numArgs];
-			for( int i=0; i<numArgs; i++ ){		
+			for( int i=0; i<numArgs; i++ ){
 				final ITypeBinding binding = getTypeBinding(typeArgs[i]);
 				assert binding != null : "failed to get binding mirror type"; //$NON-NLS-1$
 				argKeys[i] = binding.getKey();
 			}
-			
+
 			final ITypeBinding[] typeParams = memberBinding.getTypeParameters();
 			final int numTypeParams = typeParams == null ? 0 : typeParams.length;
-			// if no argument then a raw type will be created, otherwise it's an error when the 
+			// if no argument then a raw type will be created, otherwise it's an error when the
 			// number of type parameter and arguments don't agree.
 			if( numTypeParams != numArgs && numArgs != 0 )
 				throw new IllegalArgumentException("type, " + memberBinding.getQualifiedName() + ", require " + numTypeParams + " type arguments " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
                         "but found " + numArgs ); //$NON-NLS-1$
-			
+
 			final String typeKey = BindingKey.createParameterizedTypeBindingKey(memberBinding.getKey(), argKeys);
 			final ITypeBinding resultBinding = _env.getTypeBindingFromKey(typeKey);
 			return Factory.createReferenceType(resultBinding, _env);
 		}
-		else{ 
+		else{
 			if( numArgs != 0 )
 				throw new IllegalArgumentException("type, " + memberBinding + " is not a generic type and cannot have type arguments."); //$NON-NLS-1$ //$NON-NLS-2$
 			// simple case, turning a non-generic TypeDeclaration into a DeclaredType
 			return (DeclaredType)decl;
-		}	
+		}
     }
 
     @Override
 	public com.sun.mirror.type.DeclaredType getDeclaredType(TypeDeclaration decl, TypeMirror... typeArgs)
     {
-		return getDeclaredType(null, decl, typeArgs);		
+		return getDeclaredType(null, decl, typeArgs);
     }
 
     @Override
 	public TypeMirror getErasure(TypeMirror t)
-    {	
+    {
         if( t == null ) return null;
-        
+
         if(t instanceof EclipseMirrorType){
             final EclipseMirrorType impl = (EclipseMirrorType)t;
             final ITypeBinding binding;
@@ -192,7 +192,7 @@ public class TypesUtil implements Types
                 case TYPE_VOID:
                 case TYPE_ERROR:
                     return t;
-                
+
                 default:
                     binding = impl.getTypeBinding();
             }
@@ -222,7 +222,7 @@ public class TypesUtil implements Types
             case INT:     return _env.getIntType();
             case LONG:    return _env.getLongType();
             case SHORT:   return _env.getShortType();
-          
+
             default: throw new IllegalStateException("unknown primitive kind : " + kind); //$NON-NLS-1$
         }
     }
@@ -246,7 +246,7 @@ public class TypesUtil implements Types
 
     @Override @Deprecated
 	public WildcardType getWildcardType(Collection<ReferenceType> upperBounds, Collection<ReferenceType> lowerBounds)
-    {		
+    {
         final String boundKey;
         final char boundKind;
         final int upperBoundCount = upperBounds == null ? 0 : upperBounds.size();
@@ -282,7 +282,7 @@ public class TypesUtil implements Types
     	EclipseMirrorType left = (EclipseMirrorType)t1;
     	EclipseMirrorType right = (EclipseMirrorType)t2;
     	return left.isAssignmentCompatible(right);
-    	
+
     }
 
     @Override
@@ -290,10 +290,10 @@ public class TypesUtil implements Types
     {
     	EclipseMirrorType left = (EclipseMirrorType)t1;
     	EclipseMirrorType right = (EclipseMirrorType)t2;
-    	
+
     	return left.isSubTypeCompatible(right);
     }
-    
+
     /**
      * @return the binding correspond to the given type.
      *         Return null if the type is an error marker.
@@ -302,7 +302,7 @@ public class TypesUtil implements Types
 
     private static ITypeBinding getTypeBinding(TypeMirror type)
         throws NonEclipseImplementationException
-    {	
+    {
         if(type == null ) return null;
         if( type instanceof EclipseMirrorType ){
             return ((EclipseMirrorType)type).getTypeBinding();
@@ -320,10 +320,10 @@ public class TypesUtil implements Types
         throws NonEclipseImplementationException
     {
         if(type == null ) return null;
-        if( type instanceof EclipseMirrorObject ){           
+        if( type instanceof EclipseMirrorObject ){
             return ((TypeDeclarationImpl)type).getTypeBinding();
         }
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
                                                     " Found " + type.getClass().getName()); //$NON-NLS-1$
-    } 
+    }
 }

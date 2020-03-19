@@ -62,7 +62,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	private static final Class THIS= ImportRewriteTest.class;
 
 	protected IPackageFragmentRoot sourceFolder;
@@ -1510,25 +1510,25 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		expected.append("public class Clazz {}\n");
 		assertEqualString(cu.getSource(), expected.toString());
 	}
-	
+
 	// https://bugs.eclipse.org/459320
 	public void testAddImportToCuNotOnClasspath() throws Exception {
 		StringBuffer contents = new StringBuffer();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("public class Clazz {}\n");
-		
+
 		createFolder("/P/alt-src/pack1/");
 		IFile clazz = createFile("/P/alt-src/pack1/Clazz.java", contents.toString());
 		ICompilationUnit cu = (ICompilationUnit) JavaCore.create(clazz);
 		cu.becomeWorkingCopy(null);
-		
+
 		try {
 			ImportRewrite rewrite = newImportsRewrite(cu, new String[] {}, 999, 999, true);
 			rewrite.setUseContextToFilterImplicitImports(true);
 			rewrite.addImport("pack1.AnotherClass");
 			apply(rewrite);
-			
+
 			assertEqualString(cu.getSource(), contents.toString());
 		} finally {
 			cu.discardWorkingCopy();
@@ -1721,10 +1721,10 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("}\n");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
-	
+
 	public void testAddImports4() throws Exception {
 		getJavaProject("P").setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, JavaCore.INSERT);
-		
+
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package pack1;\n");
@@ -1755,7 +1755,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testAddImports5() throws Exception {
 		getJavaProject("P").setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, JavaCore.INSERT);
-		
+
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package pack1;\n");
@@ -1792,19 +1792,19 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append(
-				"package pack1;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
-				"\n" + 
-				"public class C {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        HashMap h;\n" + 
-				"\n" + 
-				"        Map.Entry e= null;\n" + 
-				"        Entry e2= null;\n" + 
-				"\n" + 
-				"        System.out.println(\"hello\");\n" + 
-				"    }\n" + 
+				"package pack1;\n" +
+				"\n" +
+				"import java.util.*;\n" +
+				"\n" +
+				"public class C {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        HashMap h;\n" +
+				"\n" +
+				"        Map.Entry e= null;\n" +
+				"        Entry e2= null;\n" +
+				"\n" +
+				"        System.out.println(\"hello\");\n" +
+				"    }\n" +
 				"}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -1819,20 +1819,20 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		// With on-demand threshold set to 1, java.util.Map.Entry is reduced to java.util.Map.*.
 		buf= new StringBuffer();
 		buf.append(
-				"package pack1;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
-				"import java.util.Map.*;\n" + 
-				"\n" + 
-				"public class C {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        HashMap h;\n" + 
-				"\n" + 
-				"        Map.Entry e= null;\n" + 
-				"        Entry e2= null;\n" + 
-				"\n" + 
-				"        System.out.println(\"hello\");\n" + 
-				"    }\n" + 
+				"package pack1;\n" +
+				"\n" +
+				"import java.util.*;\n" +
+				"import java.util.Map.*;\n" +
+				"\n" +
+				"public class C {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        HashMap h;\n" +
+				"\n" +
+				"        Map.Entry e= null;\n" +
+				"        Entry e2= null;\n" +
+				"\n" +
+				"        System.out.println(\"hello\");\n" +
+				"    }\n" +
 				"}");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
@@ -1842,21 +1842,21 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append(
-				"package pack1;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
-				"import java.util.Map.Entry;\n" + 
-				"\n" + 
-				"public class C {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        HashMap h;\n" + 
-				"\n" + 
-				"        Map.Entry e= null;\n" + 
-				"        Entry e2= null;\n" + 
-				"\n" + 
-				"        PrintWriter pw;\n" + 
-				"        System.out.println(\"hello\");\n" + 
-				"    }\n" + 
+				"package pack1;\n" +
+				"\n" +
+				"import java.util.*;\n" +
+				"import java.util.Map.Entry;\n" +
+				"\n" +
+				"public class C {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        HashMap h;\n" +
+				"\n" +
+				"        Map.Entry e= null;\n" +
+				"        Entry e2= null;\n" +
+				"\n" +
+				"        PrintWriter pw;\n" +
+				"        System.out.println(\"hello\");\n" +
+				"    }\n" +
 				"}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -1870,23 +1870,23 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		buf= new StringBuffer();
 		buf.append(
-				"package pack1;\n" + 
-				"\n" + 
-				"import java.io.*;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
-				"import java.util.Map.Entry;\n" + 
-				"\n" + 
-				"public class C {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        HashMap h;\n" + 
-				"\n" + 
-				"        Map.Entry e= null;\n" + 
-				"        Entry e2= null;\n" + 
-				"\n" + 
-				"        PrintWriter pw;\n" + 
-				"        System.out.println(\"hello\");\n" + 
-				"    }\n" + 
+				"package pack1;\n" +
+				"\n" +
+				"import java.io.*;\n" +
+				"\n" +
+				"import java.util.*;\n" +
+				"import java.util.Map.Entry;\n" +
+				"\n" +
+				"public class C {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        HashMap h;\n" +
+				"\n" +
+				"        Map.Entry e= null;\n" +
+				"        Entry e2= null;\n" +
+				"\n" +
+				"        PrintWriter pw;\n" +
+				"        System.out.println(\"hello\");\n" +
+				"    }\n" +
 				"}");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
@@ -2046,7 +2046,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("    }\n");
 		buf.append("}\n");
 		pack.createCompilationUnit("A.java", buf.toString(), false, null);
-		
+
 		IPackageFragment test1= this.sourceFolder.createPackageFragment("test1", false, null);
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -2061,22 +2061,22 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("public class T {\n");
 		buf.append("}\n");
 		ICompilationUnit cuT= test1.createCompilationUnit("T.java", buf.toString(), false, null);
-		
+
 		ASTParser parser= ASTParser.newParser(JLS3_INTERNAL);
 		parser.setSource(cuT);
 		parser.setResolveBindings(true);
 		CompilationUnit astRoot= (CompilationUnit) parser.createAST(null);
-		
+
 		ImportRewrite imports= newImportsRewrite(astRoot, new String[0], 99, 99, true);
 		imports.setUseContextToFilterImplicitImports(true);
-		
+
 		imports.removeImport("pack.A.Inner");
 		imports.removeImport("pack.A.NotThere");
 		imports.removeImport("pack.B.Inner");
 		imports.removeImport("pack.B.NotThere");
-		
+
 		apply(imports);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("\n");
@@ -2089,7 +2089,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testRemoveImportWithSyntaxError_bug494691() throws Exception {
-	
+
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package pack1;\n");
@@ -2100,12 +2100,12 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("public class C {\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
-	
+
 		ImportRewrite imports= newImportsRewrite(cu, new String[0], 2, 2, true);
 		imports.removeImport("java.util.*");
-	
+
 		apply(imports);
-	
+
 		buf= new StringBuffer();
 		buf.append("package pack1;\n");
 		buf.append("\n");
@@ -2283,7 +2283,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	/**
 	 * Test that the Inner class import comes in the right order (i.e. after the enclosing type's import) when re-organized
-	 * 
+	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=194358"
 	 */
 	public void testBug194358() throws Exception {
@@ -2301,7 +2301,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
-		// We need to actually make some state in the AST for the classes, to test that we can 
+		// We need to actually make some state in the AST for the classes, to test that we can
 		// disambiguate between packages and inner classes (see the bug for details).
 		IPackageFragment pack2= this.sourceFolder.createPackageFragment("pack2", false, null);
 		ICompilationUnit aUnit= pack2.createCompilationUnit("A.java", "", false, null);
@@ -2334,9 +2334,9 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	/**
 	 * Test that a valid inner class import is not removed even when the container
-	 * class is implicitly available. This tests the case where the classes are in 
+	 * class is implicitly available. This tests the case where the classes are in
 	 * different compilation units.
-	 * 
+	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=194358"
 	 */
 	public void testBug194358a() throws Exception {
@@ -2380,10 +2380,10 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cu.getSource(), buf.toString());
 	}
 	/**
-	 * Test that the Inner type imports are not removed while organizing even though the 
-	 * containing class is implicitly available - for the case when both the classes are 
+	 * Test that the Inner type imports are not removed while organizing even though the
+	 * containing class is implicitly available - for the case when both the classes are
 	 * in the same compilation unit
-	 * 
+	 *
 	 * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=235253"
 	 */
 	public void testBug235253() throws Exception {
@@ -2393,7 +2393,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("class Bug {\n");
 		buf.append("public void addFile(File file) {}\n");
 		buf.append("\tinterface Proto{};\n");
-		buf.append("}\n");		
+		buf.append("}\n");
 		buf.append("class Foo implements Proto{}");
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("bug", false, null);
@@ -2402,8 +2402,8 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, false);
 		imports.setUseContextToFilterImplicitImports(true);
 		imports.addImport("bug.Bug.Proto");
-		imports.addImport("java.io.File"); 
-		
+		imports.addImport("java.io.File");
+
 		apply(imports);
 		buf = new StringBuffer();
 		buf.append("package bug;\n");
@@ -2415,11 +2415,11 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("class Bug {\n");
 		buf.append("public void addFile(File file) {}\n");
 		buf.append("\tinterface Proto{};\n");
-		buf.append("}\n");		
+		buf.append("}\n");
 		buf.append("class Foo implements Proto{}");
 		assertEqualString(cu.getSource(), buf.toString());
 	}
-		
+
 	public void testAddStaticImports1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
@@ -2775,10 +2775,10 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testBug252379() throws CoreException, BackingStoreException,
 			MalformedTreeException, BadLocationException {
-		
+
 
 		ICompilationUnit[] units = new ICompilationUnit[3];
-		
+
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment(
 				"bug", false, null);
 
@@ -2789,15 +2789,15 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("\tone;\n");
 		buf.append("\tstatic CaseType[] all(){return null;}\n");
 		buf.append("}\n");
-		
+
 		units[0] = pack1.createCompilationUnit("CaseType.java", buf.toString(), false, null);
-		
+
 		buf = new StringBuffer();
 		buf.append("package bug;\n");
 		buf.append("enum ShareLevel{all})\n");
-		
+
 		units[1] = pack1.createCompilationUnit("ShareLevel.java", buf.toString(), false, null);
-		
+
 		buf = new StringBuffer();
 		buf.append("package bug;\n");
 		buf.append("class Bug {\n");
@@ -2889,24 +2889,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         StringBuffer buf = new StringBuffer();
         // 2 imports are in 1 group but third is separated by a comment
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
+                "package pack1;\n" +
+                "\n" +
                 "import java.util.*; // test\n" +
                 "import java.util.Map.Entry;\n" +
                 "//comment 2\n" +
                 "import java.util.Map.SomethingElse;\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -2920,54 +2920,54 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-                "import java.io.*;\n" + 
-                "\n" + 
-                "import java.util.*; // test\n" + 
-                "import java.util.Map.Entry;\n" + 
+                "package pack1;\n" +
+                "\n" +
+                "import java.io.*;\n" +
+                "\n" +
+                "import java.util.*; // test\n" +
+                "import java.util.Map.Entry;\n" +
                 "//comment 2\n" +
                 "import java.util.Map.SomethingElse;\n" +
                 "// commen 3\n" +
-                "\n" +  
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_2() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         // all imports are in same group
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "import java.util.*; // test\n" +
                 "import java.util.Map.Entry; // test2\n" +
                 "import java.util.Map.SomethingElse;\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -2981,30 +2981,30 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-                "import java.io.*;\n" + 
-                "\n" + 
-                "// comment 1\n" + 
+                "package pack1;\n" +
+                "\n" +
+                "import java.io.*;\n" +
+                "\n" +
+                "// comment 1\n" +
                 "import java.util.*; // test\n" +
                 "import java.util.Map.Entry; // test2\n" +
                 "import java.util.Map.SomethingElse;\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_3() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
@@ -3012,24 +3012,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // all imports are in same group
         // leading and trailing comments
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.util.Map.Entry; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3043,54 +3043,54 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-                "import java.io.*;\n" + 
-                "\n" + 
-                "// comment 1\n" + 
+                "package pack1;\n" +
+                "\n" +
+                "import java.io.*;\n" +
+                "\n" +
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.util.Map.Entry; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" +  
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     // remove imports, preserve all comments
     public void testBug376930_3a() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.util.Map.Entry; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3104,24 +3104,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-				"import java.io.*;\n" + 
-				"\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "package pack1;\n" +
+                "\n" +
+				"import java.io.*;\n" +
+				"\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_4() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
@@ -3130,24 +3130,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // leading and trailing comments
         // two on demand imports in the group
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.util.Map.*; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3161,54 +3161,54 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-                "import java.io.*;\n" + 
-                "\n" +  
-                "// comment 1\n" + 
+                "package pack1;\n" +
+                "\n" +
+                "import java.io.*;\n" +
+                "\n" +
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.util.Map.*; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     // remove imports, preserve all comments
     public void testBug376930_4a() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.HashMap; // test1\n" +
                 "/* lead 2*/import java.util.Map.*; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3222,24 +3222,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-				"import java.io.*;\n" + 
-				"\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+				"import java.io.*;\n" +
+				"\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_5() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
@@ -3248,24 +3248,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // leading and trailing comments
         // adding an on-demand import belonging to a group
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3281,31 +3281,31 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // java.util.Map.* is placed after java.util.* and is assigned the comments
         // from java.util.Map.SomethingElse.
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-                "// comment 1\n" + 
+                "package pack1;\n" +
+                "\n" +
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 3*/\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.Map.*;\n" +
                 "\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "\n" +
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_5a() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
@@ -3314,24 +3314,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // leading and trailing comments
         // adding an on-demand import belonging to a group
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3347,54 +3347,54 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // and the latter's comments are reassigned to it.
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
-                "// comment 1\n" + 
+                "package pack1;\n" +
+                "\n" +
+                "// comment 1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 3*/\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.Map.*;\n" +
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     // added import should get folded into existing *, without touching comments
     public void testBug376930_5b() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3408,48 +3408,48 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
 				"\n" +
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     // remove imports, preserve all comments
     public void testBug376930_5c() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
-                "// comment 1\n" + 
+                "// comment 1\n" +
                 "/* lead 1*/ import java.util.*; // test1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "/* lead 3*/ import java.util.Map.SomethingElse; // test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3465,50 +3465,50 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         // and the latter's comments are reassigned to it.
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
-                "\n" + 
+                "package pack1;\n" +
+                "\n" +
 				"/* lead 3*/\n" +
 				"// test3\n" +
 				"// commen 3\n" +
 				"import java.util.Map.*;\n" +
 				"\n" +
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     // added import should get folded along with existing import into *, without deleting comments
     public void testBug376930_5d() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
                 "/* lead 1*/ import java.util.Map; // test1\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3522,7 +3522,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/* lead 2*/import java.io.PrintWriter.*; // test2\n" +
@@ -3531,17 +3531,17 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "// test1\n" +
                 "// commen 3\n" +
                 "import java.util.*;\n" +
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "        PrintWriter pw;\n" + 
-                "        System.out.println(\"hello\");\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "        PrintWriter pw;\n" +
+                "        System.out.println(\"hello\");\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
@@ -3579,30 +3579,30 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "import java.util.*;\n" +
-                "/* comment leading Map.Entry */\n" + 
+                "/* comment leading Map.Entry */\n" +
                 "import java.util.Map.Entry;\n" +
-                "\n" + 
-                "public class C {\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap h;\n" + 
-                "\n" + 
-                "        Map.Entry e= null;\n" + 
-                "        Entry e2= null;\n" + 
-                "\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C {\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap h;\n" +
+                "\n" +
+                "        Map.Entry e= null;\n" +
+                "        Entry e2= null;\n" +
+                "\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     public void testBug378024() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3618,13 +3618,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 " * keep me with HashMap\n" +
                 " */\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3640,7 +3640,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3656,23 +3656,23 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 " * keep me with HashMap\n" +
                 " */\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     public void testBug378024b() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3688,13 +3688,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 " * don't move me 3\n" +
                 " */\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3710,7 +3710,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3729,26 +3729,26 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 " * don't move me 3\n" +
                 " */\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.*;\n" +
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
-    // leading and trailing comments always move with imports. 
+    // leading and trailing comments always move with imports.
     // comments in between stay where they are
     public void testBug378024c() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3775,13 +3775,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3797,7 +3797,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3824,25 +3824,25 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "\n" +
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
-    // leading and trailing comments always move with imports. 
+    // leading and trailing comments always move with imports.
     // comments in between stay where they are
     public void testBug378024c_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3869,13 +3869,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3891,7 +3891,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3901,42 +3901,42 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "// lead 1\n" +
                 "import java.awt.List;// test1\n" +
-                "\n" + 
+                "\n" +
                 "/*\n" +
                 " * don't move me 2\n" +
                 " */\n" +
-                "\n" + 
+                "\n" +
                 "// lead 2\n" +
                 "import java.io.Serializable;// test2\n" +
                 "/*\n" +
                 " * don't move me 3\n" +
                 " */\n" +
-                "\n" + 
+                "\n" +
                 "/*\n" +
                 " * don't move me 4\n" +
                 " */\n" +
-                "\n" + 
+                "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
-    // leading and trailing comments always move with imports, even if they get folded. 
+    // leading and trailing comments always move with imports, even if they get folded.
     // comments in between stay where they are
     public void testBug378024c_2() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3963,13 +3963,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -3985,7 +3985,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -3996,43 +3996,43 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "// lead 1\n" +
                 "// test1\n" +
                 "import java.awt.*;\n" +
-                "\n" + 
+                "\n" +
                 "/*\n" +
                 " * don't move me 2\n" +
                 " */\n" +
-                "\n" + 
+                "\n" +
                 "// lead 2\n" +
                 "// test2\n" +
                 "/*\n" +
                 " * don't move me 3\n" +
                 " */\n" +
                 "import java.io.*;\n" +
-                "\n" + 
+                "\n" +
                 "/*\n" +
                 " * don't move me 4\n" +
                 " */\n" +
-                "\n" + 
+                "\n" +
                 "//lead 3\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.*;\n" +
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // not adding an import should preserve its comments and put them at the end.
     public void testBug378024d() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4059,13 +4059,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4080,7 +4080,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4098,25 +4098,25 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.*;\n" +
                 "\n" +
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // adding a new import should not disturb comments and import should be added in its group
     public void testBug378024e() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4143,13 +4143,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4166,7 +4166,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4194,17 +4194,17 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // removing an import should preserve its comments at the end, and adding a new import should not disturb
     // existing comments
@@ -4212,7 +4212,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4239,13 +4239,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4261,7 +4261,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4279,24 +4279,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "\n" +
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // folding imports because of a newly added import should preserve comments
     public void testBug378024f() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4323,13 +4323,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4346,7 +4346,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4374,24 +4374,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // folding imports because of a newly added import should preserve comments
     public void testBug378024f_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4424,13 +4424,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 4\n" +
                 "import java.util.HashMap;// test4\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4447,7 +4447,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4480,24 +4480,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 4\n" +
                 "import java.util.HashMap;// test4\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "\n" +
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // Re-ordering imports and converting them to *
     public void testBug378024g() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4523,13 +4523,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4545,7 +4545,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         StringBuffer buf2 = new StringBuffer();
         buf2.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4559,7 +4559,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.*;\n" +
                 "\n" +
                 "/*\n" +
@@ -4576,15 +4576,15 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 " */\n" +
                 "import java.io.*;\n" +
                 "\n" +
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        List l = new List();\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        List l = new List();\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf2.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // Preserve comments when imports are removed in case the restoring of imports is enabled
     // This will test changes in org.eclipse.jdt.internal.core.dom.rewrite.ImportRewriteAnalyzer.removeImport(String, boolean)
@@ -4592,7 +4592,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4619,12 +4619,12 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4638,7 +4638,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "/*\n" +
                 " * don't move me 2\n" +
@@ -4656,23 +4656,23 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // Preserve comments when imports are removed in case the restoring of imports is enabled
     public void testBug378024h_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4699,12 +4699,12 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4719,7 +4719,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "/*\n" +
                 " * don't move me 2\n" +
@@ -4737,24 +4737,24 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.HashMap;// test3\n" +
-                "// commen 3\n" + 
-                "import java.util.List;\n" +                
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "import java.util.List;\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // Preserve comments when imports are unfolded.
     public void testBug378024i() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4781,14 +4781,14 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "import java.util.*;// test3\n" +
-                "// commen 3\n" + 
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap e= null;\n" + 
-                "        PrintWriter p= null;\n" + 
-                "        List l= null;\n" + 
-                "    }\n" + 
+                "// commen 3\n" +
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap e= null;\n" +
+                "        PrintWriter p= null;\n" +
+                "        List l= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4805,7 +4805,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4835,27 +4835,27 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "\n" +
                 "//lead 3\n" +
                 "// test3\n" +
-                "// commen 3\n" + 
+                "// commen 3\n" +
                 "import java.util.HashMap;\n" +
                 "import java.util.Map;\n" +
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        HashMap e= null;\n" + 
-                "        PrintWriter p= null;\n" + 
-                "        List l= null;\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        HashMap e= null;\n" +
+                "        PrintWriter p= null;\n" +
+                "        List l= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }
-    
+
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     // Preserve comments when imports are folded but a member type import is present
     public void testBug378024j() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
         StringBuffer buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4887,11 +4887,11 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "// lead 2\n" +
                 "import java.io.Serializable;// test2\n" +
                 "// commen 3\n" +
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         ICompilationUnit cu = pack1.createCompilationUnit("C.java", buf.toString(), false, null);
 
@@ -4908,7 +4908,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         buf = new StringBuffer();
         buf.append(
-                "package pack1;\n" + 
+                "package pack1;\n" +
                 "\n" +
                 "// comment 1\n" +
                 "/*\n" +
@@ -4943,11 +4943,11 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
                 "// member type import\n" +
                 "/*keep me with Map.Entry 2*/\n" +
                 "import java.util.Map.*;\n" +
-                "\n" + 
-                "public class C implements Serializable{\n" + 
-                "    public static void main(String[] args) {\n" + 
-                "        Map e= null;\n" + 
-                "    }\n" + 
+                "\n" +
+                "public class C implements Serializable{\n" +
+                "    public static void main(String[] args) {\n" +
+                "        Map e= null;\n" +
+                "    }\n" +
                 "}");
         assertEqualString(cu.getSource(), buf.toString());
     }

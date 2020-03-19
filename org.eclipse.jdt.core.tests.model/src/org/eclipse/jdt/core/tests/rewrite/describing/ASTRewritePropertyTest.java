@@ -63,7 +63,7 @@ public class ASTRewritePropertyTest extends ASTRewritingTest {
 		Object value1 = rewrite.getProperty(propertyName1);
 		assertTrue("Not a String", value1 instanceof String);
 		assertTrue("Wrong value", "value".equals(value1));
-		
+
 		Object value2 = rewrite.getProperty(propertyName2);
 		assertTrue("Not an Integer", value2 instanceof Integer);
 		assertTrue("Wrong value", Integer.valueOf(1).equals(value2));

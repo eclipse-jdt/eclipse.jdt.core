@@ -22,7 +22,7 @@ public class LoaderTestCodeExample {
 	public static final String CODE_CLASS_NAME = "LoaderTestClass";
 	public static final String CODE_FULL_NAME = CODE_PACKAGE + "." + CODE_CLASS_NAME;
 
-	public static final String CODE = 
+	public static final String CODE =
 		"package loadertestpackage;\n" +
 		"import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestAnnotation;" + "\n" +
 		"@LoaderTestAnnotation" + "\n" +

@@ -135,9 +135,9 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 	}
 
 	/**
-	 * Note: For deprecated formatter options, you may also add migration to their replacement options in 
+	 * Note: For deprecated formatter options, you may also add migration to their replacement options in
 	 * {@link org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions#setDeprecatedOptions}.
-	 * 
+	 *
 	 * @deprecated As using deprecated options
 	 */
 	private void initializeDeprecatedOptions() {

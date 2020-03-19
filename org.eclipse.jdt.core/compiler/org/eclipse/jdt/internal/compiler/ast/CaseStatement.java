@@ -64,7 +64,7 @@ public FlowInfo analyseCode(
 private void analyseConstantExpression(
 		BlockScope currentScope,
 		FlowContext flowContext,
-		FlowInfo flowInfo, 
+		FlowInfo flowInfo,
 		Expression e) {
 	if (e.constant == Constant.NotAConstant
 			&& !e.resolvedType.isEnum()) {
@@ -171,12 +171,12 @@ public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType
 	}
 	return Constant.NotAConstantList;
 }
-public Constant resolveConstantExpression(BlockScope scope, 
-											TypeBinding caseType, 
-											TypeBinding switchExpressionType, 
-											SwitchStatement switchStatement, 
+public Constant resolveConstantExpression(BlockScope scope,
+											TypeBinding caseType,
+											TypeBinding switchExpressionType,
+											SwitchStatement switchStatement,
 											Expression expression) {
-	
+
 	if (expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
 			|| caseType.isCompatibleWith(switchExpressionType)) {
 		if (caseType.isEnum()) {
@@ -216,7 +216,7 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 		} else {
 			if (this.constantExpression != null) this.constantExpression.traverse(visitor, blockScope);
 		}
-		
+
 	}
 	visitor.endVisit(this, blockScope);
 }

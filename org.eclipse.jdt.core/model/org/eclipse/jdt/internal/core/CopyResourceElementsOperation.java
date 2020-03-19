@@ -279,7 +279,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 */
 	protected void prepareDeltas(IJavaElement sourceElement, IJavaElement destinationElement, boolean isMove, boolean overWriteCU) {
 		if (Util.isExcluded(sourceElement) || Util.isExcluded(destinationElement)) return;
-		
+
 		IJavaProject destProject = destinationElement.getJavaProject();
 		if (isMove) {
 			IJavaProject sourceProject = sourceElement.getJavaProject();
@@ -374,7 +374,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			// register the correct change deltas
 			boolean contentChanged = this.force && destFile.exists();
 			prepareDeltas(source, destCU, isMove(), contentChanged);
-			
+
 			if (newCUName != null) {
 				//the main type has been renamed
 				String oldName = Util.getNameWithoutJavaLikeExtension(source.getElementName());

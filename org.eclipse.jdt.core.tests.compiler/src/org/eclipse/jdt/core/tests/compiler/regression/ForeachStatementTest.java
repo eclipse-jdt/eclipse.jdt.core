@@ -83,11 +83,11 @@ public void test002() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	for (int value : new int[] {value}) {\n" + 
-		"	                            ^^^^^\n" + 
-		"value cannot be resolved to a variable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	for (int value : new int[] {value}) {\n" +
+		"	                            ^^^^^\n" +
+		"value cannot be resolved to a variable\n" +
 		"----------\n");
 }
 public void test003() {
@@ -103,11 +103,11 @@ public void test003() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	for (int value : value) {\n" + 
-		"	                 ^^^^^\n" + 
-		"value cannot be resolved to a variable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	for (int value : value) {\n" +
+		"	                 ^^^^^\n" +
+		"value cannot be resolved to a variable\n" +
 		"----------\n");
 }
 public void test004() {
@@ -1811,36 +1811,36 @@ public void test036() throws Exception {
 		},
 		"ab");
 	String expectedOutput =
-		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" + 
-		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" + 
-		"  // Stack: 2, Locals: 4\n" + 
-		"  public void foo(java.lang.Runnable t);\n" + 
-		"     0  aload_1 [t]\n" + 
-		"     1  checkcast java.lang.Iterable [5]\n" + 
-		"     4  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" + 
-		"     9  astore_3\n" + 
-		"    10  goto 30\n" + 
-		"    13  aload_3\n" + 
-		"    14  invokeinterface java.util.Iterator.next() : java.lang.Object [43] [nargs: 1]\n" + 
-		"    19  checkcast java.lang.String [18]\n" + 
-		"    22  astore_2 [s]\n" + 
-		"    23  getstatic java.lang.System.out : java.io.PrintStream [49]\n" + 
-		"    26  aload_2 [s]\n" + 
-		"    27  invokevirtual java.io.PrintStream.print(java.lang.String) : void [55]\n" + 
-		"    30  aload_3\n" + 
-		"    31  invokeinterface java.util.Iterator.hasNext() : boolean [61] [nargs: 1]\n" + 
-		"    36  ifne 13\n" + 
-		"    39  return\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 7]\n" + 
-		"        [pc: 23, line: 8]\n" + 
-		"        [pc: 30, line: 7]\n" + 
-		"        [pc: 39, line: 9]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 40] local: this index: 0 type: X\n" + 
-		"        [pc: 0, pc: 40] local: t index: 1 type: java.lang.Runnable\n" + 
-		"        [pc: 23, pc: 30] local: s index: 2 type: java.lang.String\n" + 
-		"      Local variable type table:\n" + 
+		"  // Method descriptor #37 (Ljava/lang/Runnable;)V\n" +
+		"  // Signature: <T::Ljava/lang/Runnable;:Ljava/lang/Iterable<Ljava/lang/String;>;>(TT;)V\n" +
+		"  // Stack: 2, Locals: 4\n" +
+		"  public void foo(java.lang.Runnable t);\n" +
+		"     0  aload_1 [t]\n" +
+		"     1  checkcast java.lang.Iterable [5]\n" +
+		"     4  invokeinterface java.lang.Iterable.iterator() : java.util.Iterator [39] [nargs: 1]\n" +
+		"     9  astore_3\n" +
+		"    10  goto 30\n" +
+		"    13  aload_3\n" +
+		"    14  invokeinterface java.util.Iterator.next() : java.lang.Object [43] [nargs: 1]\n" +
+		"    19  checkcast java.lang.String [18]\n" +
+		"    22  astore_2 [s]\n" +
+		"    23  getstatic java.lang.System.out : java.io.PrintStream [49]\n" +
+		"    26  aload_2 [s]\n" +
+		"    27  invokevirtual java.io.PrintStream.print(java.lang.String) : void [55]\n" +
+		"    30  aload_3\n" +
+		"    31  invokeinterface java.util.Iterator.hasNext() : boolean [61] [nargs: 1]\n" +
+		"    36  ifne 13\n" +
+		"    39  return\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 7]\n" +
+		"        [pc: 23, line: 8]\n" +
+		"        [pc: 30, line: 7]\n" +
+		"        [pc: 39, line: 9]\n" +
+		"      Local variable table:\n" +
+		"        [pc: 0, pc: 40] local: this index: 0 type: X\n" +
+		"        [pc: 0, pc: 40] local: t index: 1 type: java.lang.Runnable\n" +
+		"        [pc: 23, pc: 30] local: s index: 2 type: java.lang.String\n" +
+		"      Local variable type table:\n" +
 		"        [pc: 0, pc: 40] local: t index: 1 type: T\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -1882,34 +1882,34 @@ public void test037() throws Exception {
 		"ab");
 
 	String expectedOutput =
-		"  // Method descriptor #41 (Ljava/util/ArrayList;)V\n" + 
-		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" + 
-		"  // Stack: 2, Locals: 3\n" + 
-		"  public static void foo(java.util.ArrayList t);\n" + 
-		"     0  aload_0 [t]\n" + 
-		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [43]\n" + 
-		"     4  astore_2\n" + 
-		"     5  goto 25\n" + 
-		"     8  aload_2\n" + 
-		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [47] [nargs: 1]\n" + 
-		"    14  checkcast java.lang.String [19]\n" + 
-		"    17  astore_1 [s]\n" + 
-		"    18  getstatic java.lang.System.out : java.io.PrintStream [53]\n" + 
-		"    21  aload_1 [s]\n" + 
-		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" + 
-		"    25  aload_2\n" + 
-		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [65] [nargs: 1]\n" + 
-		"    31  ifne 8\n" + 
-		"    34  return\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 8]\n" + 
-		"        [pc: 18, line: 9]\n" + 
-		"        [pc: 25, line: 8]\n" + 
-		"        [pc: 34, line: 10]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" + 
-		"        [pc: 18, pc: 25] local: s index: 1 type: java.lang.String\n" + 
-		"      Local variable type table:\n" + 
+		"  // Method descriptor #41 (Ljava/util/ArrayList;)V\n" +
+		"  // Signature: <T:Ljava/util/ArrayList<Ljava/lang/String;>;>(TT;)V\n" +
+		"  // Stack: 2, Locals: 3\n" +
+		"  public static void foo(java.util.ArrayList t);\n" +
+		"     0  aload_0 [t]\n" +
+		"     1  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [43]\n" +
+		"     4  astore_2\n" +
+		"     5  goto 25\n" +
+		"     8  aload_2\n" +
+		"     9  invokeinterface java.util.Iterator.next() : java.lang.Object [47] [nargs: 1]\n" +
+		"    14  checkcast java.lang.String [19]\n" +
+		"    17  astore_1 [s]\n" +
+		"    18  getstatic java.lang.System.out : java.io.PrintStream [53]\n" +
+		"    21  aload_1 [s]\n" +
+		"    22  invokevirtual java.io.PrintStream.print(java.lang.String) : void [59]\n" +
+		"    25  aload_2\n" +
+		"    26  invokeinterface java.util.Iterator.hasNext() : boolean [65] [nargs: 1]\n" +
+		"    31  ifne 8\n" +
+		"    34  return\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 8]\n" +
+		"        [pc: 18, line: 9]\n" +
+		"        [pc: 25, line: 8]\n" +
+		"        [pc: 34, line: 10]\n" +
+		"      Local variable table:\n" +
+		"        [pc: 0, pc: 35] local: t index: 0 type: java.util.ArrayList\n" +
+		"        [pc: 18, pc: 25] local: s index: 1 type: java.lang.String\n" +
+		"      Local variable type table:\n" +
 		"        [pc: 0, pc: 35] local: t index: 0 type: T\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2702,19 +2702,19 @@ public void test050() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"	private T values;\n" + 
-			"	public X(T values) {\n" + 
-			"		this.values = values;\n" + 
-			"	}\n" + 
-			"	public T getValues() {\n" + 
-			"		return values;\n" + 
-			"	}\n" + 
+			"public class X<T> {\n" +
+			"	private T values;\n" +
+			"	public X(T values) {\n" +
+			"		this.values = values;\n" +
+			"	}\n" +
+			"	public T getValues() {\n" +
+			"		return values;\n" +
+			"	}\n" +
 			"	public static void main(String[] args) {\n" +
-			"		X<short[]> x = new X<short[]>(new short[] { 1, 2, 3, 4, 5 });\n" + 
-			"		for (int i : x.getValues()) {\n" + 
-			"			System.out.print(i);\n" + 
-			"		}\n" + 
+			"		X<short[]> x = new X<short[]>(new short[] { 1, 2, 3, 4, 5 });\n" +
+			"		for (int i : x.getValues()) {\n" +
+			"			System.out.print(i);\n" +
+			"		}\n" +
 			"	}\n" +
 			"}",
 		},
@@ -2725,19 +2725,19 @@ public void test051() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"	private T values;\n" + 
-			"	public X(T values) {\n" + 
-			"		this.values = values;\n" + 
-			"	}\n" + 
-			"	public T getValues() {\n" + 
-			"		return values;\n" + 
-			"	}\n" + 
+			"public class X<T> {\n" +
+			"	private T values;\n" +
+			"	public X(T values) {\n" +
+			"		this.values = values;\n" +
+			"	}\n" +
+			"	public T getValues() {\n" +
+			"		return values;\n" +
+			"	}\n" +
 			"	public static void main(String[] args) {\n" +
-			"		X<short[]> x = new X<short[]>(new short[] { 1, 2, 3, 4, 5 });\n" + 
-			"		for (long l : x.getValues()) {\n" + 
-			"			System.out.print(l);\n" + 
-			"		}\n" + 
+			"		X<short[]> x = new X<short[]>(new short[] { 1, 2, 3, 4, 5 });\n" +
+			"		for (long l : x.getValues()) {\n" +
+			"			System.out.print(l);\n" +
+			"		}\n" +
 			"	}\n" +
 			"}",
 		},
@@ -2748,19 +2748,19 @@ public void test052() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"	private T values;\n" + 
-			"	public X(T values) {\n" + 
-			"		this.values = values;\n" + 
-			"	}\n" + 
-			"	public T getValues() {\n" + 
-			"		return values;\n" + 
-			"	}\n" + 
+			"public class X<T> {\n" +
+			"	private T values;\n" +
+			"	public X(T values) {\n" +
+			"		this.values = values;\n" +
+			"	}\n" +
+			"	public T getValues() {\n" +
+			"		return values;\n" +
+			"	}\n" +
 			"	public static void main(String[] args) {\n" +
-			"		X<Short[]> x = new X<Short[]>(new Short[] { 1, 2, 3, 4, 5 });\n" + 
-			"		for (int i : x.getValues()) {\n" + 
-			"			System.out.print(i);\n" + 
-			"		}\n" + 
+			"		X<Short[]> x = new X<Short[]>(new Short[] { 1, 2, 3, 4, 5 });\n" +
+			"		for (int i : x.getValues()) {\n" +
+			"			System.out.print(i);\n" +
+			"		}\n" +
 			"	}\n" +
 			"}",
 		},
@@ -2771,19 +2771,19 @@ public void test053() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"	private T values;\n" + 
-			"	public X(T values) {\n" + 
-			"		this.values = values;\n" + 
-			"	}\n" + 
-			"	public T getValues() {\n" + 
-			"		return values;\n" + 
-			"	}\n" + 
+			"public class X<T> {\n" +
+			"	private T values;\n" +
+			"	public X(T values) {\n" +
+			"		this.values = values;\n" +
+			"	}\n" +
+			"	public T getValues() {\n" +
+			"		return values;\n" +
+			"	}\n" +
 			"	public static void main(String[] args) {\n" +
-			"		X<Short[]> x = new X<Short[]>(new Short[] { 1, 2, 3, 4, 5 });\n" + 
-			"		for (long i : x.getValues()) {\n" + 
-			"			System.out.print(i);\n" + 
-			"		}\n" + 
+			"		X<Short[]> x = new X<Short[]>(new Short[] { 1, 2, 3, 4, 5 });\n" +
+			"		for (long i : x.getValues()) {\n" +
+			"			System.out.print(i);\n" +
+			"		}\n" +
 			"	}\n" +
 			"}",
 		},
@@ -2816,31 +2816,31 @@ public void test054() throws Exception {
 				"    Zork z;\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 9)\n" + 
-			"	Set<String> [] OK= new Set[] { x, y };\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 10)\n" + 
-			"	for (Set<String> BUG : new Set[] { x, y }) {\n" + 
-			"	                       ^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Elements of type Set need unchecked conversion to conform to Set<String>\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 14)\n" + 
-			"	Set [] set = new Set[] { x, y };\n" + 
-			"	^^^\n" + 
-			"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 15)\n" + 
-			"	for (Set<String> BUG : set) {\n" + 
-			"	                       ^^^\n" + 
-			"Type safety: Elements of type Set need unchecked conversion to conform to Set<String>\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 20)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 9)\n" +
+			"	Set<String> [] OK= new Set[] { x, y };\n" +
+			"	                   ^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type Set[] needs unchecked conversion to conform to Set<String>[]\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 10)\n" +
+			"	for (Set<String> BUG : new Set[] { x, y }) {\n" +
+			"	                       ^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Elements of type Set need unchecked conversion to conform to Set<String>\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 14)\n" +
+			"	Set [] set = new Set[] { x, y };\n" +
+			"	^^^\n" +
+			"Set is a raw type. References to generic type Set<E> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 15)\n" +
+			"	for (Set<String> BUG : set) {\n" +
+			"	                       ^^^\n" +
+			"Type safety: Elements of type Set need unchecked conversion to conform to Set<String>\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 20)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/393719
@@ -2871,11 +2871,11 @@ public void test055() throws Exception {
 				"    Zork z;\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 20)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 20)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/393719
@@ -2886,32 +2886,32 @@ public void test056() throws Exception {
 				"X.java",
 				"import java.util.List;\n" +
 				"public class X {\n" +
-				"    void testRawType(@SuppressWarnings(\"rawtypes\") List<List> lists) {\n" + 
-				"		List<String> stringList = lists.get(0); // (1)\n" + 
-				"		for (List<String> strings : lists)      // (2)\n" + 
-				"			stringList = strings;\n" + 
-				"		for (@SuppressWarnings(\"unchecked\") List<String> strings : lists) // no warning\n" + 
-				"			stringList = strings;\n" + 
+				"    void testRawType(@SuppressWarnings(\"rawtypes\") List<List> lists) {\n" +
+				"		List<String> stringList = lists.get(0); // (1)\n" +
+				"		for (List<String> strings : lists)      // (2)\n" +
+				"			stringList = strings;\n" +
+				"		for (@SuppressWarnings(\"unchecked\") List<String> strings : lists) // no warning\n" +
+				"			stringList = strings;\n" +
 				"		System.out.println(stringList.get(0));\n" +
 				"	 }\n" +
 				"    Zork z;\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	List<String> stringList = lists.get(0); // (1)\n" + 
-			"	                          ^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	for (List<String> strings : lists)      // (2)\n" + 
-			"	                            ^^^^^\n" + 
-			"Type safety: Elements of type List need unchecked conversion to conform to List<String>\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 11)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	List<String> stringList = lists.get(0); // (1)\n" +
+			"	                          ^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<String>\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	for (List<String> strings : lists)      // (2)\n" +
+			"	                            ^^^^^\n" +
+			"Type safety: Elements of type List need unchecked conversion to conform to List<String>\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401853
@@ -2923,12 +2923,12 @@ public void test057() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	public static void main(String[] argv) {\n" + 
-			"		for (long l : new ArrayList<Long>()) {}\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] argv) {\n" +
+			"		for (long l : new ArrayList<Long>()) {}\n" +
+			"	}\n" +
 			"}",
 		},
 		"",
@@ -2939,41 +2939,41 @@ public void test057() throws Exception {
 		null);
 
 	String expectedOutput =
-		"public class X {\n" + 
-		"  \n" + 
-		"  // Method descriptor #6 ()V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
-		"  public X();\n" + 
-		"    0  aload_0 [this]\n" + 
-		"    1  invokespecial java.lang.Object() [8]\n" + 
-		"    4  return\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 3]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
-		"  \n" + 
-		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-		"  // Stack: 2, Locals: 2\n" + 
-		"  public static void main(java.lang.String[] argv);\n" + 
-		"     0  new java.util.ArrayList [16]\n" + 
-		"     3  dup\n" + 
-		"     4  invokespecial java.util.ArrayList() [18]\n" + 
-		"     7  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [19]\n" + 
-		"    10  astore_1\n" + 
-		"    11  goto 27\n" + 
-		"    14  aload_1\n" + 
-		"    15  invokeinterface java.util.Iterator.next() : java.lang.Object [23] [nargs: 1]\n" + 
-		"    20  checkcast java.lang.Long [29]\n" + 
-		"    23  invokevirtual java.lang.Long.longValue() : long [31]\n" + 
-		"    26  pop2\n" + 
-		"    27  aload_1\n" + 
-		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [35] [nargs: 1]\n" + 
-		"    33  ifne 14\n" + 
-		"    36  return\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 5]\n" + 
-		"        [pc: 36, line: 6]\n" + 
-		"      Local variable table:\n" + 
+		"public class X {\n" +
+		"  \n" +
+		"  // Method descriptor #6 ()V\n" +
+		"  // Stack: 1, Locals: 1\n" +
+		"  public X();\n" +
+		"    0  aload_0 [this]\n" +
+		"    1  invokespecial java.lang.Object() [8]\n" +
+		"    4  return\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 3]\n" +
+		"      Local variable table:\n" +
+		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
+		"  \n" +
+		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+		"  // Stack: 2, Locals: 2\n" +
+		"  public static void main(java.lang.String[] argv);\n" +
+		"     0  new java.util.ArrayList [16]\n" +
+		"     3  dup\n" +
+		"     4  invokespecial java.util.ArrayList() [18]\n" +
+		"     7  invokevirtual java.util.ArrayList.iterator() : java.util.Iterator [19]\n" +
+		"    10  astore_1\n" +
+		"    11  goto 27\n" +
+		"    14  aload_1\n" +
+		"    15  invokeinterface java.util.Iterator.next() : java.lang.Object [23] [nargs: 1]\n" +
+		"    20  checkcast java.lang.Long [29]\n" +
+		"    23  invokevirtual java.lang.Long.longValue() : long [31]\n" +
+		"    26  pop2\n" +
+		"    27  aload_1\n" +
+		"    28  invokeinterface java.util.Iterator.hasNext() : boolean [35] [nargs: 1]\n" +
+		"    33  ifne 14\n" +
+		"    36  return\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 5]\n" +
+		"        [pc: 36, line: 6]\n" +
+		"      Local variable table:\n" +
 		"        [pc: 0, pc: 37] local: argv index: 0 type: java.lang.String[]\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2988,7 +2988,7 @@ public void test057() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425632, [1.8][compiler] Compiler gets the scope of enhanced for loop's expression wrong. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425632, [1.8][compiler] Compiler gets the scope of enhanced for loop's expression wrong.
 public void test425632() throws Exception {
 	this.runConformTest(
 			new String[] {
@@ -3021,40 +3021,40 @@ public void testBug508215() throws Exception {
 				"}\n" +
 				"",
 		}
-	); 
+	);
 
 	String expectedOutput =
-		"  public static void main(java.lang.String[] args);\n" + 
-		"     0  iconst_1\n" + 
-		"     1  anewarray java.lang.Integer [16]\n" + 
-		"     4  dup\n" + 
-		"     5  iconst_0\n" + 
-		"     6  iconst_1\n" + 
-		"     7  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [18]\n" + 
-		"    10  aastore\n" + 
-		"    11  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [22]\n" + 
-		"    14  invokeinterface java.util.List.iterator() : java.util.Iterator [28] [nargs: 1]\n" + 
-		"    19  astore_2\n" + 
-		"    20  goto 40\n" + 
-		"    23  aload_2\n" + 
-		"    24  invokeinterface java.util.Iterator.next() : java.lang.Object [34] [nargs: 1]\n" + 
-		"    29  checkcast java.lang.Integer [16]\n" + 
-		"    32  astore_1 [i]\n" + 
-		"    33  getstatic java.lang.System.out : java.io.PrintStream [40]\n" + 
-		"    36  aload_1 [i]\n" + 
-		"    37  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [46]\n" + 
-		"    40  aload_2\n" + 
-		"    41  invokeinterface java.util.Iterator.hasNext() : boolean [52] [nargs: 1]\n" + 
-		"    46  ifne 23\n" + 
-		"    49  return\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 6]\n" + 
-		"        [pc: 33, line: 7]\n" + 
-		"        [pc: 40, line: 6]\n" + 
-		"        [pc: 49, line: 9]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 50] local: args index: 0 type: java.lang.String[]\n" + 
-		"        [pc: 33, pc: 40] local: i index: 1 type: java.lang.Integer\n" + 
+		"  public static void main(java.lang.String[] args);\n" +
+		"     0  iconst_1\n" +
+		"     1  anewarray java.lang.Integer [16]\n" +
+		"     4  dup\n" +
+		"     5  iconst_0\n" +
+		"     6  iconst_1\n" +
+		"     7  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [18]\n" +
+		"    10  aastore\n" +
+		"    11  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [22]\n" +
+		"    14  invokeinterface java.util.List.iterator() : java.util.Iterator [28] [nargs: 1]\n" +
+		"    19  astore_2\n" +
+		"    20  goto 40\n" +
+		"    23  aload_2\n" +
+		"    24  invokeinterface java.util.Iterator.next() : java.lang.Object [34] [nargs: 1]\n" +
+		"    29  checkcast java.lang.Integer [16]\n" +
+		"    32  astore_1 [i]\n" +
+		"    33  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
+		"    36  aload_1 [i]\n" +
+		"    37  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [46]\n" +
+		"    40  aload_2\n" +
+		"    41  invokeinterface java.util.Iterator.hasNext() : boolean [52] [nargs: 1]\n" +
+		"    46  ifne 23\n" +
+		"    49  return\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 6]\n" +
+		"        [pc: 33, line: 7]\n" +
+		"        [pc: 40, line: 6]\n" +
+		"        [pc: 49, line: 9]\n" +
+		"      Local variable table:\n" +
+		"        [pc: 0, pc: 50] local: args index: 0 type: java.lang.String[]\n" +
+		"        [pc: 33, pc: 40] local: i index: 1 type: java.lang.Integer\n" +
 		"";
 
 	File f = new File(OUTPUT_DIR + File.separator + "linenumber" + File.separator + "DebugErrorVarargs1Arg.class");

@@ -233,7 +233,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		// setup a project depending on the classpath container:
 		IJavaProject javaProject = setUpJavaProject("ExternalContainer");
 		IProject p = javaProject.getProject();
-		
+
 		// build should find no errors:
 		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
@@ -241,7 +241,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		for (int i=0; i<markers.length; i++)
 			System.out.println("unexpected marker: "+markers[i].getType()+": "+markers[i].getAttribute(IMarker.MESSAGE));
 		assertEquals("Unexpected markers", markers.length, 0);
-		
+
 	} finally {
 		deleteExternalResource("TestContainer");
 		deleteProject("ExternalContainer");
@@ -265,7 +265,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		// setup a project depending on the classpath container:
 		IJavaProject javaProject = setUpJavaProject("ExternalContainer");
 		IProject p = javaProject.getProject();
-		
+
 		// build should find no errors:
 		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
@@ -273,7 +273,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		for (int i=0; i<markers.length; i++)
 			System.out.println("unexpected marker: "+markers[i].getType()+": "+markers[i].getAttribute(IMarker.MESSAGE));
 		assertEquals("Unexpected markers", markers.length, 0);
-		
+
 	} finally {
 		deleteExternalResource("TestContainer");
 		deleteProject("ExternalContainer");
@@ -286,7 +286,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 public void testAddExternalLibFolder7() throws CoreException {
 	String firstSegmentOfExternalPath = new Path(getExternalPath()).segment(0);
 	try {
-		
+
 		IJavaProject p = createJavaProject(firstSegmentOfExternalPath, new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		expandAll(p);
 		createExternalFolder("externalLib");
@@ -378,8 +378,8 @@ public void testAddZIPArchive1() throws Exception {
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib.abc\n" + 
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib.abc\n" +
 			"    <default> (...)",
 			p
 		);
@@ -455,8 +455,8 @@ public void testAddZIPArchive4() throws Exception {
 		refreshExternalArchives(p);
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" + 
-			"  "+ getExternalPath() + "externalLib.abc\n" + 
+			"P\n" +
+			"  "+ getExternalPath() + "externalLib.abc\n" +
 			"    <default> (...)",
 			p
 		);
@@ -505,7 +505,7 @@ public void testAddZIPArchive5() throws Exception {
 public void testAddZIPArchive6() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
-		addLibrary(p, "internalLib.abc", null, new String[0], 
+		addLibrary(p, "internalLib.abc", null, new String[0],
 				new String[] {
 					"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n" +
@@ -516,8 +516,8 @@ public void testAddZIPArchive6() throws Exception {
 		waitForAutoBuild();
 		assertElementDescendants(
 			"Unexpected project content",
-			"P\n" + 
-			"  internalLib.abc\n" + 
+			"P\n" +
+			"  internalLib.abc\n" +
 			"    <default> (...)",
 			p
 		);
@@ -1031,8 +1031,8 @@ public void testFolderWithDotName() throws JavaModelException, CoreException {
 		startDeltas(listener);
 		folder.getFolder(new Path("org.eclipse")).create(false, true, null);
 		assertDeltas(
-			"Unexpected delta", 
-			"JavaProjectTests[*]: {CONTENT}\n" + 
+			"Unexpected delta",
+			"JavaProjectTests[*]: {CONTENT}\n" +
 			"	ResourceDelta(/JavaProjectTests/org.eclipse)[+]",
 		listener);
 		stopDeltas(listener);
@@ -1153,7 +1153,7 @@ public void testGetNonJavaResources5() throws CoreException {
 		addLibraryEntry(project, file.getLocation(), false/*not exported*/);
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
-			"/P/.classpath\n" + 
+			"/P/.classpath\n" +
 			"/P/.project",
 			project.getNonJavaResources());
 	} finally {
@@ -1266,7 +1266,7 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 		startDeltas(listener);
 		newFolder.create(false, true, null);
 		assertDeltas(
-			"Unexpected delta", 
+			"Unexpected delta",
 			"", listener);
 	} finally {
 		stopDeltas(listener);
@@ -2513,7 +2513,7 @@ public void testBug360164() throws IOException, CoreException {
 	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
 	try {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
-		IFile file = createFile("/P/src/X.java", 
+		IFile file = createFile("/P/src/X.java",
 				"import p360164.Provider;\n" +
 				"import p360164.MyEnum;\n" +
 				"public class X {\n" +
@@ -2526,14 +2526,14 @@ public void testBug360164() throws IOException, CoreException {
 				"        return 0;\n" +
 				"    }\n" +
 				"}"
-		);	
+		);
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 		unit.getWorkingCopy(owner, null);
-		assertProblems("Unexpected problems", 
-				"----------\n" + 
-				"----------\n", 
+		assertProblems("Unexpected problems",
+				"----------\n" +
+				"----------\n",
 				problemRequestor);
 	} finally {
 		this.deleteProject("P");
@@ -2545,7 +2545,7 @@ public void testBug360164a() throws IOException, CoreException {
 	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
 	try {
 		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
-		IFile file = createFile("/P/src/X.java", 
+		IFile file = createFile("/P/src/X.java",
 				"import p360164.Provider;\n" +
 				"import p360164.MyEnum;\n" +
 				"public class X {\n" +
@@ -2554,16 +2554,16 @@ public void testBug360164a() throws IOException, CoreException {
 				"        return e.toString();\n" +
 				"    }\n" +
 				"}"
-		);	
+		);
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 		unit.getWorkingCopy(owner, null);
-		assertProblems("Unexpected problems", 
-				"----------\n" + 
-				"1. ERROR in /P/src/X.java\n" + 
-				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required .class files\n" + 
-				"----------\n", 
+		assertProblems("Unexpected problems",
+				"----------\n" +
+				"1. ERROR in /P/src/X.java\n" +
+				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required .class files\n" +
+				"----------\n",
 				problemRequestor);
 	} finally {
 		this.deleteProject("P");
@@ -2587,13 +2587,13 @@ public void testBug360317() throws IOException, CoreException {
 						 "        return 0;\n" +
 						 "    }\n" +
 						 "}";
-		IFile file = createFile("/P/src/X.java", sourceX);	
+		IFile file = createFile("/P/src/X.java", sourceX);
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		problemRequestor.initialize(sourceX.toCharArray());
 		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 		unit.getWorkingCopy(owner, null);
-		assertProblems("Unexpected problems", 
+		assertProblems("Unexpected problems",
 				"----------\n" +
 				"1. ERROR in /P/src/X.java (at line 6)\n" +
 				"	switch (e) {\n" +
@@ -2701,7 +2701,7 @@ public void testBug351697() throws Exception {
 /**
  * Test that conflicting rules between refreshLocal and IProject.touch() invoked by
  * JDT don't cause an IAE.
- * 
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=462756"
  */
 public void testBug462756() throws CoreException {
@@ -2777,7 +2777,7 @@ public void testBug490724() throws CoreException {
 		project14.setRawClasspath(newClasspath, null);
 
 		createFolder("/BugBug490724_14/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"public final class J13 {\n" +
 			"	private p2.Klass c; \n" +
@@ -2814,35 +2814,35 @@ public void testBug491354() throws CoreException {
 		createFile(
 				"/Bug491354_15/src/p/ServiceTracker.java",
 				"package p;\n" +
-				"public class ServiceTracker<S, T> {\n" + 
-				"	private Tracked tracked() { return null; }\n" + 
-				"	private class Tracked {  }\n" + 
-				"}\n" + 
+				"public class ServiceTracker<S, T> {\n" +
+				"	private Tracked tracked() { return null; }\n" +
+				"	private class Tracked {  }\n" +
+				"}\n" +
 				""
 				);
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		project14 = createJavaProject("Bug491354_14", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Bug491354_15"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Bug491354_14/src/p1");
-		String source = 
+		String source =
 				"package p1;\n" +
 				"import p.ServiceTracker;\n" +
 				"public final class HttpServiceTracker extends ServiceTracker {\n" +
 				"}";
-		
+
 		createFile(
 				"/Bug491354_14/src/p1/HttpServiceTracker.java",
 				source
@@ -2867,57 +2867,57 @@ public void testBug501220() throws CoreException {
 		jdkPrj = createJavaProject("JDK8", new String[]{"src"}, new String[] {"JCL_LIB"}, null, null, "bin", new String[]{"bin"}, null, null, "1.8");
 		createFolder("/JDK8/src/jdk8");
 		createFile("/JDK8/src/jdk8/MyConsumer.java",
-				"package jdk8;\n" + 
-				"@FunctionalInterface\n" + 
-				"public interface MyConsumer<T> {\n" + 
-				"    void accept(T t);\n" + 
+				"package jdk8;\n" +
+				"@FunctionalInterface\n" +
+				"public interface MyConsumer<T> {\n" +
+				"    void accept(T t);\n" +
 				"}\n");
-	
+
 		swtPrj = createJavaProject("SWT", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/JDK8"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
 		createFolder("/SWT/src/swt");
 		createFile("/SWT/src/swt/EventObject.java",
-				"package swt;\n" + 
-				"\n" + 
-				"import jdk8.MyConsumer;\n" + 
-				"\n" + 
-				"public class EventObject {\n" + 
+				"package swt;\n" +
+				"\n" +
+				"import jdk8.MyConsumer;\n" +
+				"\n" +
+				"public class EventObject {\n" +
 				"}");
 		createFile("/SWT/src/swt/SelectionListener.java",
-				"package swt;\n" + 
-				"\n" + 
-				"import java.util.EventObject;\n" + 
-				"\n" + 
-				"import jdk8.MyConsumer;\n" + 
-				"\n" + 
-				"public interface SelectionListener {\n" + 
-				"	void widgetSelected(EventObject event);\n" + 
-				"\n" + 
-				"	static SelectionListener widgetSelected(MyConsumer<EventObject> c) {\n" + 
-				"		return new SelectionListener() {\n" + 
-				"			public void widgetSelected(EventObject e) {\n" + 
-				"				c.accept(e);\n" + 
-				"			}\n" + 
-				"		};\n" + 
-				"	}\n" + 
+				"package swt;\n" +
+				"\n" +
+				"import java.util.EventObject;\n" +
+				"\n" +
+				"import jdk8.MyConsumer;\n" +
+				"\n" +
+				"public interface SelectionListener {\n" +
+				"	void widgetSelected(EventObject event);\n" +
+				"\n" +
+				"	static SelectionListener widgetSelected(MyConsumer<EventObject> c) {\n" +
+				"		return new SelectionListener() {\n" +
+				"			public void widgetSelected(EventObject e) {\n" +
+				"				c.accept(e);\n" +
+				"			}\n" +
+				"		};\n" +
+				"	}\n" +
 				"}");
 		egitPrj = createJavaProject("EGit", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/SWT"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
 		egitPrj.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		createFolder("/EGit/src/egit");
 		createFile("/EGit/src/egit/UIUtils.java",
-				"package egit; // Error: The type jdk8.MyConsumer cannot be resolved. It is indirectly referenced from required .class files\n" + 
-				"\n" + 
-				"import swt.EventObject;\n" + 
-				"\n" + 
-				"import swt.SelectionListener;\n" + 
-				"\n" + 
-				"public class UIUtils {\n" + 
-				"	void foo() {\n" + 
-				"		SelectionListener listener = new SelectionListener() {\n" + 
-				"			public void widgetSelected(EventObject event) {\n" + 
-				"			}\n" + 
-				"		};\n" + 
-				"		listener.toString();\n" + 
-				"	}\n" + 
+				"package egit; // Error: The type jdk8.MyConsumer cannot be resolved. It is indirectly referenced from required .class files\n" +
+				"\n" +
+				"import swt.EventObject;\n" +
+				"\n" +
+				"import swt.SelectionListener;\n" +
+				"\n" +
+				"public class UIUtils {\n" +
+				"	void foo() {\n" +
+				"		SelectionListener listener = new SelectionListener() {\n" +
+				"			public void widgetSelected(EventObject event) {\n" +
+				"			}\n" +
+				"		};\n" +
+				"		listener.toString();\n" +
+				"	}\n" +
 				"}\n");
 		egitPrj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 		IMarker[] markers = egitPrj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);

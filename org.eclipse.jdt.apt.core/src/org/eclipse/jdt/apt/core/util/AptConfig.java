@@ -56,16 +56,16 @@ import org.osgi.service.prefs.BackingStoreException;
 /**
  * Accesses configuration data for APT.
  * Note that some of the code in org.eclipse.jdt.ui reads and writes settings
- * data directly, rather than calling into the methods of this class. 
- * 
+ * data directly, rather than calling into the methods of this class.
+ *
  * This class is static.  Instances should not be constructed.
- * 
+ *
  * Helpful information about the Eclipse preferences mechanism can be found at:
  * http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/platform-core-home/documents/user_settings/faq.html
  * @since 3.5
  */
 public class AptConfig {
-	
+
 	/** regex to identify substituted token in path variables */
 	private static final String PATHVAR_TOKEN = "^%[^%/\\\\ ]+%.*"; //$NON-NLS-1$
 	/** path variable meaning "workspace root" */
@@ -77,7 +77,7 @@ public class AptConfig {
 	 * Hide constructor; this is a static object
 	 */
 	private AptConfig() {}
-	
+
 	/**
      * Add the equivalent of -Akey=val to the list of processor options.
      * @param key must be a nonempty string.  It should only include the key;
@@ -90,7 +90,7 @@ public class AptConfig {
     	if (key == null || key.length() < 1) {
     		throw new IllegalArgumentException();
     	}
-		IScopeContext context = (null != jproj) ? 
+		IScopeContext context = (null != jproj) ?
 				new ProjectScope(jproj.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
 				AptPreferenceConstants.APT_PROCESSOROPTIONS);
@@ -102,7 +102,7 @@ public class AptConfig {
 			AptPlugin.log(e, "Unable to save annotation processor option" + key); //$NON-NLS-1$
 		}
     }
-	
+
 	/**
      * Remove an option from the list of processor options.
      * @param jproj a project, or null to remove the option workspace-wide.
@@ -113,7 +113,7 @@ public class AptConfig {
     	if (key == null || key.length() < 1) {
     		throw new IllegalArgumentException();
     	}
-    	IScopeContext context = (null != jproj) ? 
+    	IScopeContext context = (null != jproj) ?
 				new ProjectScope(jproj.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID + "/" +  //$NON-NLS-1$
 				AptPreferenceConstants.APT_PROCESSOROPTIONS);
@@ -124,7 +124,7 @@ public class AptConfig {
 			AptPlugin.log(e, "Unable to save annotation processor option" + key); //$NON-NLS-1$
 		}
     }
-    
+
 	/**
 	 * @deprecated Use {@link #getProcessorOptions(IJavaProject, boolean)} or
 	 *             {@link #getRawProcessorOptions(IJavaProject)}
@@ -133,12 +133,12 @@ public class AptConfig {
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
     		return getProcessorOptions(jproj, false);
     }
-    
+
 	/**
      * Get the options that are presented to annotation processors by the
      * AnnotationProcessorEnvironment.  Options are key/value pairs which
      * are set in the project properties.
-     * 
+     *
      * Option values can begin with a percent-delimited token representing
      * a classpath variable or one of several predefined values.  The token
      * must either be followed by a path delimiter, or be the entire value.
@@ -147,10 +147,10 @@ public class AptConfig {
      * of the workspace root directory, and <code>%PROJECT.DIR%</code>, which
      * will be replaced by the absolute pathname of the project root directory.
      * For example, a value of <code>%ECLIPSE_HOME%/configuration/config.ini</code>
-     * might be resolved to <code>d:/eclipse/configuration/config.ini</code>. 
-     * 
-     * This method returns some options which are set programmatically but 
-     * are not directly editable, are not displayed in the configuration GUI, 
+     * might be resolved to <code>d:/eclipse/configuration/config.ini</code>.
+     *
+     * This method returns some options which are set programmatically but
+     * are not directly editable, are not displayed in the configuration GUI,
      * and are not persisted to the preference store.  This is meant to
      * emulate the behavior of Sun's apt command-line tool, which passes
      * most of its command line options to the processor environment.  The
@@ -161,21 +161,21 @@ public class AptConfig {
      *  <code>-d</code> [set to binary output dir]
      *  <code>-target</code> [set to compiler target version]
      *  <code>-source</code> [set to compiler source version]
-     *  
+     *
      * There are some slight differences between the options returned by this
-     * method and the options returned from this implementation of @see 
-     * AnnotationProcessorEnvironment#getOptions().  First, that method returns 
-     * additional options which are only meaningful during a build, such as 
+     * method and the options returned from this implementation of @see
+     * AnnotationProcessorEnvironment#getOptions().  First, that method returns
+     * additional options which are only meaningful during a build, such as
      * <code>phase</code>.  Second, that method also adds alternate encodings
      * of each option, to be compatible with a bug in Sun's apt implementation:
      * specifically, for each option key="k", value="v", an additional option
      * is created with key="-Ak=v", value=null.  This includes the user-created
      * options, but does not include the programmatically defined options listed
      * above.
-     * 
+     *
      * @param jproj a project, or null to query the workspace-wide setting.
      * @param isTestCode if true, the programmatically set options are computed for test code compilation
-     * @return a mutable, possibly empty, map of (key, value) pairs.  
+     * @return a mutable, possibly empty, map of (key, value) pairs.
      * The value part of a pair may be null (equivalent to "-Akey" on the Sun apt
      * command line).
      * The value part may contain spaces.
@@ -185,28 +185,28 @@ public class AptConfig {
     	Map<String,String> rawOptions = getRawProcessorOptions(jproj);
     	// map is large enough to also include the programmatically generated options
     	Map<String, String> options = new HashMap<>(rawOptions.size() + 6);
-    	
+
     	// Resolve path metavariables like %ROOT%
     	for (Map.Entry<String, String> entry : rawOptions.entrySet()) {
     		String resolvedValue = resolveVarPath(jproj, entry.getValue());
     		String value = (resolvedValue == null) ? entry.getValue() : resolvedValue;
     		options.put(entry.getKey(), value);
     	}
-    	
+
     	if (jproj == null) {
     		// there are no programmatically set options at the workspace level
     		return options;
     	}
-    	
+
     	IWorkspaceRoot root = jproj.getProject().getWorkspace().getRoot();
-    	
+
     	// Add sourcepath and classpath variables
     	try {
     		IClasspathEntry[] classpathEntries = jproj.getResolvedClasspath(true);
     		Set<String> classpath = new LinkedHashSet<>();
     		Set<String> sourcepath = new LinkedHashSet<>();
-    		
-    		// For projects on the classpath, loops can exist; need to make sure we 
+
+    		// For projects on the classpath, loops can exist; need to make sure we
     		// don't loop forever
     		Set<IJavaProject> projectsProcessed = new HashSet<>();
     		projectsProcessed.add(jproj);
@@ -217,9 +217,9 @@ public class AptConfig {
     			int kind = entry.getEntryKind();
     			if (kind == IClasspathEntry.CPE_LIBRARY) {
 	    			IPath cpPath = entry.getPath();
-	    			
+
 	    			IResource res = root.findMember(cpPath);
-	    			
+
 	    			// If res is null, the path is absolute (it's an external jar)
 	    			if (res == null) {
 	    				classpath.add(cpPath.toOSString());
@@ -238,18 +238,18 @@ public class AptConfig {
     				if (srcPath == null) {
     					continue;
     				}
-    				
+
     				sourcepath.add(srcPath.toOSString());
     			}
     			else if (kind == IClasspathEntry.CPE_PROJECT) {
     				// Add the dependent project's build path and classpath to ours
     				IPath otherProjectPath = entry.getPath();
     				IProject otherProject = root.getProject(otherProjectPath.segment(0));
-    				
-    				// Note: JavaCore.create() is safe, even if the project is null -- 
+
+    				// Note: JavaCore.create() is safe, even if the project is null --
     				// in that case, we get null back
     				IJavaProject otherJavaProject = JavaCore.create(otherProject);
-    				
+
     				// If it doesn't exist, ignore it
     				if (otherJavaProject != null && otherJavaProject.getProject().isOpen()) {
     					addProjectClasspath(root, otherJavaProject, projectsProcessed, classpath, isTestCode);
@@ -258,16 +258,16 @@ public class AptConfig {
     		}
     		// if you add options here, also add them in isAutomaticProcessorOption(),
     		// and document them in docs/reference/automatic_processor_options.html.
-    		
+
     		// Classpath and sourcepath
-    		options.put("-classpath",convertPathCollectionToString(classpath)); //$NON-NLS-1$    		
+    		options.put("-classpath",convertPathCollectionToString(classpath)); //$NON-NLS-1$
     		options.put("-sourcepath", convertPathCollectionToString(sourcepath)); //$NON-NLS-1$
-    		
+
     		// Get absolute path for generated source dir
     		IFolder genSrcDir = jproj.getProject().getFolder(isTestCode ? getGenTestSrcDir(jproj) : getGenSrcDir(jproj));
     		String genSrcDirString = genSrcDir.getRawLocation().toOSString();
     		options.put("-s", genSrcDirString); //$NON-NLS-1$
-    		
+
     		// Absolute path for bin dir as well
     		IPath binPath = isTestCode ? ClasspathUtil.findTestOutputLocation(jproj.getRawClasspath()) : jproj.getOutputLocation();
     		IResource binPathResource = root.findMember(binPath);
@@ -279,20 +279,20 @@ public class AptConfig {
     			binDirString = binPath.toOSString();
     		}
     		options.put("-d", binDirString); //$NON-NLS-1$
-    		
+
     		String target = jproj.getOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, true);
     		options.put("-target", target); //$NON-NLS-1$
-    		
+
     		String source = jproj.getOption(JavaCore.COMPILER_SOURCE, true);
     		options.put("-source", source); //$NON-NLS-1$
     	}
     	catch (JavaModelException jme) {
     		AptPlugin.log(jme, "Could not get the classpath for project: " + jproj); //$NON-NLS-1$
     	}
-    	
+
     	return options;
     }
-    
+
 	/**
 	 * If the value starts with a path variable such as %ROOT%, replace it with
 	 * the absolute path.
@@ -321,7 +321,7 @@ public class AptConfig {
 			IPath absoluteResPath = absoluteProjPath.append(relativePath);
 			return absoluteResPath.toOSString();
 		}
-		
+
 		// If it matches %PROJECT.DIR%/project, the path is relative to the current project.
 		if (jproj != null && PATHVAR_PROJECTROOT.equals(firstToken)) {
 			// all is well; do the substitution
@@ -330,7 +330,7 @@ public class AptConfig {
 			IPath absoluteResPath = absoluteProjPath.append(relativePath);
 			return absoluteResPath.toOSString();
 		}
-		
+
 		// otherwise it's a classpath-var-based path.
 		String cpvName = firstToken.substring(1, firstToken.length() - 1);
 		IPath cpvPath = JavaCore.getClasspathVariable(cpvName);
@@ -342,7 +342,7 @@ public class AptConfig {
 			return value;
 		}
 	}
-	
+
 	// We need this as a separate method, as we'll put dependent projects' output
     // on the classpath
     private static void addProjectClasspath(
@@ -351,14 +351,14 @@ public class AptConfig {
     		Set<IJavaProject> projectsProcessed,
     		Set<String> classpath,
     		boolean isTestCode) {
-    	
-    	// Check for cycles. If we've already seen this project, 
+
+    	// Check for cycles. If we've already seen this project,
     	// no need to go any further.
     	if (projectsProcessed.contains(otherJavaProject)) {
 			return;
 		}
     	projectsProcessed.add(otherJavaProject);
-    	
+
     	try {
     		// Add the output directory first as a binary entry for other projects
     		IPath binPath = otherJavaProject.getOutputLocation();
@@ -371,7 +371,7 @@ public class AptConfig {
     			binDirString = binPath.toOSString();
     		}
     		classpath.add(binDirString);
-    		
+
     		// Now the rest of the classpath
     		IClasspathEntry[] classpathEntries = otherJavaProject.getResolvedClasspath(true);
     		for (IClasspathEntry entry : classpathEntries) {
@@ -380,9 +380,9 @@ public class AptConfig {
     			}
     			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
     				IPath cpPath = entry.getPath();
-	    			
+
 	    			IResource res = root.findMember(cpPath);
-	    			
+
 	    			// If res is null, the path is absolute (it's an external jar)
 	    			if (res == null) {
 	    				classpath.add(cpPath.toOSString());
@@ -407,7 +407,7 @@ public class AptConfig {
     		AptPlugin.log(jme, "Failed to get the classpath for the following project: " + otherJavaProject); //$NON-NLS-1$
     	}
 	}
-    
+
     private static String convertPathCollectionToString(Collection<String> paths) {
     	if (paths.size() == 0) {
     		return ""; //$NON-NLS-1$
@@ -438,7 +438,7 @@ public class AptConfig {
      * contain anything at all.  Keys cannot be null, but values can be.
      */
     public static void setProcessorOptions(Map<String, String> options, IJavaProject jproj) {
-		IScopeContext context = (null != jproj) ? 
+		IScopeContext context = (null != jproj) ?
 				new ProjectScope(jproj.getProject()) : InstanceScope.INSTANCE;
 
     	// TODO: this call is needed only for backwards compatibility with
@@ -451,7 +451,7 @@ public class AptConfig {
 		try {
 			node.clear();
 			for (Entry<String, String> option : options.entrySet()) {
-				String nonNullVal = option.getValue() == null ? 
+				String nonNullVal = option.getValue() == null ?
 						AptPreferenceConstants.APT_NULLVALUE : option.getValue();
 				node.put(option.getKey(), nonNullVal);
 			}
@@ -482,41 +482,41 @@ public class AptConfig {
 			return true;
 		return false;
 	}
-	
+
 	/**
      * Get the options that are presented to annotation processors by the
-     * AnnotationProcessorEnvironment.  The -A and = are stripped out, so 
+     * AnnotationProcessorEnvironment.  The -A and = are stripped out, so
      * (key, value) is the equivalent of -Akey=value.
-     * 
-     * This method differs from getProcessorOptions in that the options returned 
-     * by this method do NOT include any programmatically set options.  This 
+     *
+     * This method differs from getProcessorOptions in that the options returned
+     * by this method do NOT include any programmatically set options.  This
      * method returns only the options that are persisted to the preference
      * store and that are displayed in the configuration GUI.
-     * 
+     *
      * @param jproj a project, or null to query the workspace-wide setting.
      * If jproj is not null, but the project has no per-project settings,
      * this method will fall back to the workspace-wide settings.
-     * @return a mutable, possibly empty, map of (key, value) pairs.  
+     * @return a mutable, possibly empty, map of (key, value) pairs.
      * The value part of a pair may be null (equivalent to "-Akey").
      * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
      */
 	public static Map<String, String> getRawProcessorOptions(IJavaProject jproj) {
         Map<String, String> options = new HashMap<>();
-		
+
 	    // TODO: this code is needed only for backwards compatibility with
 	    // settings files previous to 2005.11.13.  At some point it should be
 	    // removed.
 		// If an old-style setting exists, add it into the mix for backward
 		// compatibility.
 		options.putAll(getOldStyleRawProcessorOptions(jproj));
-		
+
 		// Fall back from project to workspace scope on an all-or-nothing basis,
 		// not value by value.  (Never fall back to default scope; there are no
 		// default processor options.)  We can't use IPreferencesService for this
 		// as we would normally do, because we don't know the names of the keys.
 		IScopeContext[] contexts;
 		if (jproj != null) {
-			contexts = new IScopeContext[] { 
+			contexts = new IScopeContext[] {
 					new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE };
 		}
 		else {
@@ -544,7 +544,7 @@ public class AptConfig {
 		}
 		return options;
 	}
-    
+
 	/**
      * TODO: this code is needed only for backwards compatibility with
      * settings files previous to 2005.11.13.  At some point it should be
@@ -567,7 +567,7 @@ public class AptConfig {
      * TODO: this code is needed only for backwards compatibility with
      * settings files previous to 2005.11.13.  At some point it should be
      * removed.
-     *   
+     *
      * Used to parse an apt-style command line string into a map of key/value
      * pairs.
      * Parsing ignores errors and simply tries to gobble up as many well-formed
@@ -577,13 +577,13 @@ public class AptConfig {
     	final String _s;
     	int _start; // everything before this is already parsed.
     	boolean _hasVal; // does the last key found have a value token?
-    	
+
     	public ProcessorOptionsParser(String s) {
     		_s = s;
     		_start = 0;
     		_hasVal = false;
     	}
-    	
+
      	public Map<String, String> parse() {
         	Map<String, String> options = new HashMap<>();
         	String key;
@@ -592,7 +592,7 @@ public class AptConfig {
         	}
          	return options;
     	}
-    	
+
     	/**
     	 * Skip until a well-formed key (-Akey[=val]) is found, and
     	 * return the key.  Set _start to the beginning of the value,
@@ -605,22 +605,22 @@ public class AptConfig {
     		String key;
     		int spaceAt = -1;
     		int equalsAt = -1;
-    		
+
     		_hasVal = false;
-    		
+
     		while (true) {
 	        	_start = _s.indexOf("-A", _start); //$NON-NLS-1$
 	        	if (_start < 0) {
 	        		return null;
 	        	}
-	    		
+
 	    		// we found a -A.  The key is everything up to the next '=' or ' ' or EOL.
 	    		_start += 2;
 	    		if (_start >= _s.length()) {
 	    			// it was just a -A, nothing following.
 	    			return null;
 	    		}
-	    		
+
 	    		spaceAt = _s.indexOf(' ', _start);
 	    		equalsAt = _s.indexOf('=', _start);
 	    		if (spaceAt == _start || equalsAt == _start) {
@@ -629,8 +629,8 @@ public class AptConfig {
 	    			continue;
 	    		}
 	    		break;
-    		} 
-    		
+    		}
+
     		// We found a legitimate -A with some text after it.
     		// Where does the key end?
     		if (equalsAt > 0) {
@@ -648,7 +648,7 @@ public class AptConfig {
     		}
     		else {
 	    		if (spaceAt < 0) {
-					// no equals sign and no spaces: a valueless key, up to the end of the string. 
+					// no equals sign and no spaces: a valueless key, up to the end of the string.
 					key = _s.substring(_start);
 					_start = _s.length();
 	    		}
@@ -660,7 +660,7 @@ public class AptConfig {
     		}
         	return key;
     	}
-    	
+
     	/**
     	 * A value token is delimited by a space; but spaces inside quoted
     	 * regions are ignored.  A value may include multiple quoted regions.
@@ -687,11 +687,11 @@ public class AptConfig {
     			}
     			++end;
     		}
- 
+
     		return _s.substring(start, end);
     	}
     }
-    
+
     /**
      * TODO: this code is needed only for backwards compatibility with
      * settings files previous to 2005.11.13.  At some point it should be
@@ -724,16 +724,16 @@ public class AptConfig {
 	 */
 	public static void initialize() {
 		// If we cached workspace-level preferences, we would want to install
-		// some change listeners here. 
+		// some change listeners here.
 	}
-	
+
 	/**
 	 * Is annotation processing turned on for this project?
 	 * <p>
 	 * Prior to Eclipse 3.3, this read the org.eclipse.jdt.apt.aptEnabled
 	 * setting.  In Eclipse 3.3, it reads the org.eclipse.jdt.core.compiler.processingEnabled
-	 * setting; the result is logically or-ed with value of the older setting in order to 
-	 * preserve backward compatibility. 
+	 * setting; the result is logically or-ed with value of the older setting in order to
+	 * preserve backward compatibility.
 	 * @param jproject an IJavaProject, or null to request workspace preferences.
 	 * @return true if annotation processing is turned on.
 	 */
@@ -744,32 +744,32 @@ public class AptConfig {
 		// backward compatibility: also return true if old setting is enabled
 		return getBoolean(jproject, AptPreferenceConstants.APT_ENABLED);
 	}
-	
-	
+
+
 	/**
 	 * Turn annotation processing on or off for this project.
 	 * <p>
 	 * Prior to Eclipse 3.3, this affected the org.eclipse.jdt.apt.aptEnabled
 	 * setting.  In Eclipse 3.3, it affects the org.eclipse.jdt.core.compiler.processingEnabled
 	 * setting; the older setting is still set (and read) in order to preserve backward
-	 * compatibility. 
+	 * compatibility.
 	 * @param jproject an IJavaProject, or null to set workspace preferences.
 	 * @param enabled
 	 */
 	public static void setEnabled(IJavaProject jproject, boolean enabled) {
 		if (jproject == null && enabled == true) {
 			IllegalArgumentException e = new IllegalArgumentException();
-			IStatus status = AptPlugin.createWarningStatus(e, 
+			IStatus status = AptPlugin.createWarningStatus(e,
 				"Illegal attempt to enable annotation processing workspace-wide"); //$NON-NLS-1$
 			AptPlugin.log(status);
 			throw e;
 		}
-		setString(jproject, AptPreferenceConstants.APT_PROCESSANNOTATIONS, 
+		setString(jproject, AptPreferenceConstants.APT_PROCESSANNOTATIONS,
 				enabled ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED);
 		// backward compatibility: also save old setting
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
 	}
-	
+
 	/**
 	 * Is annotation processing turned on during reconcile, or only during build?
 	 * Note that if isEnabled() is false, processing will not occur at all; the
@@ -780,7 +780,7 @@ public class AptConfig {
 	public static boolean shouldProcessDuringReconcile(IJavaProject jproject) {
 		return getBoolean(jproject, AptPreferenceConstants.APT_RECONCILEENABLED);
 	}
-	
+
 	/**
 	 * Turn processing during reconcile on or off.  Processing during build is
 	 * unaffected.  Note that if isEnabled() is false, processing will not occur
@@ -791,34 +791,34 @@ public class AptConfig {
 	public static void setProcessDuringReconcile(IJavaProject jproject, boolean enabled) {
 		setBoolean(jproject, AptPreferenceConstants.APT_RECONCILEENABLED, enabled);
 	}
-	
+
 	private static boolean getBoolean(IJavaProject jproj, String optionName) {
 		IPreferencesService service = Platform.getPreferencesService();
 		IScopeContext[] contexts;
 		if (jproj != null) {
-			contexts = new IScopeContext[] { 
+			contexts = new IScopeContext[] {
 					new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE, DefaultScope.INSTANCE };
 		}
 		else {
 			contexts = new IScopeContext[] { InstanceScope.INSTANCE, DefaultScope.INSTANCE };
 		}
 		return service.getBoolean(
-				AptPlugin.PLUGIN_ID, 
-				optionName, 
-				Boolean.parseBoolean(AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName)),  
+				AptPlugin.PLUGIN_ID,
+				optionName,
+				Boolean.parseBoolean(AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName)),
 				contexts);
 	}
-	
+
 	/**
 	 * Get a factory path corresponding to the default values: if jproj is
 	 * non-null, return the current workspace factory path (workspace prefs
-	 * are the default for a project); if jproj is null, return the default 
+	 * are the default for a project); if jproj is null, return the default
 	 * list of plugin factories (which is the "factory default").
 	 */
 	public static IFactoryPath getDefaultFactoryPath(IJavaProject jproj) {
 		return FactoryPathUtil.getDefaultFactoryPath(jproj);
 	}
-	
+
 	/**
 	 * Get the factory path for a given project or for the workspace.
 	 * @param jproj the project, or null to get the factory path for the workspace.
@@ -830,15 +830,15 @@ public class AptConfig {
 	public static IFactoryPath getFactoryPath(IJavaProject jproj) {
 		return FactoryPathUtil.getFactoryPath(jproj);
 	}
-	
+
 	/**
 	 * Set the factory path for a given project or for the workspace.
 	 * Does not perform any validation on the path.
 	 * @param jproj the project, or null to set the factory path for the workspace.
 	 * @param path a factory path, or null to reset the factory path to the default.
 	 */
-	public static void setFactoryPath(IJavaProject jproj, IFactoryPath path)	
-			throws CoreException 
+	public static void setFactoryPath(IJavaProject jproj, IFactoryPath path)
+			throws CoreException
 	{
 		FactoryPath fp = (FactoryPath)path;
 		FactoryPathUtil.setFactoryPath(jproj, fp);
@@ -848,11 +848,11 @@ public class AptConfig {
 			AnnotationProcessorFactoryLoader.getLoader().resetAll();
 		}
 	}
-	
+
 	/**
 	 * Does this project have a factory path that is different from the
 	 * workspace default?
-	 * 
+	 *
 	 * @return true if there is a project-specific factory path.
 	 */
 	public static boolean hasProjectSpecificFactoryPath(IJavaProject jproj) {
@@ -865,14 +865,14 @@ public class AptConfig {
 	}
 
 	/**
-	 * Helper method to get a single preference setting, e.g., APT_GENSRCDIR.    
+	 * Helper method to get a single preference setting, e.g., APT_GENSRCDIR.
 	 * This is a different level of abstraction than the processor -A settings!
-	 * The -A settings are all contained under one single preference node, 
-	 * APT_PROCESSOROPTIONS.  Use @see #getProcessorOptions(IJavaProject) to 
-	 * get the -A settings; use @see #getOptions(IJavaProject) to get all the 
-	 * preference settings as a map; and use this helper method to get a single 
+	 * The -A settings are all contained under one single preference node,
+	 * APT_PROCESSOROPTIONS.  Use @see #getProcessorOptions(IJavaProject) to
+	 * get the -A settings; use @see #getOptions(IJavaProject) to get all the
+	 * preference settings as a map; and use this helper method to get a single
 	 * preference setting.
-	 * 
+	 *
 	 * @param jproj the project, or null for workspace.
 	 * @param optionName a preference constant from @see AptPreferenceConstants.
 	 * @return the string value of the setting.
@@ -881,7 +881,7 @@ public class AptConfig {
 		IPreferencesService service = Platform.getPreferencesService();
 		IScopeContext[] contexts;
 		if (jproj != null) {
-			contexts = new IScopeContext[] { 
+			contexts = new IScopeContext[] {
 					new ProjectScope(jproj.getProject()), InstanceScope.INSTANCE, DefaultScope.INSTANCE };
 		}
 		else {
@@ -895,16 +895,16 @@ public class AptConfig {
 			pluginId = AptPlugin.PLUGIN_ID;
 		}
 		return service.getString(
-				pluginId, 
-				optionName, 
-				AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName), 
+				pluginId,
+				optionName,
+				AptPreferenceConstants.DEFAULT_OPTIONS_MAP.get(optionName),
 				contexts);
 	}
-    
+
     public static String getGenSrcDir(IJavaProject jproject) {
     	return getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
     }
-    
+
     public static void setGenSrcDir(IJavaProject jproject, String dirString) {
     	if (!GeneratedSourceFolderManager.validate(jproject, dirString)) {
     		throw new IllegalArgumentException("Illegal name for generated source folder: " + dirString); //$NON-NLS-1$
@@ -918,7 +918,7 @@ public class AptConfig {
     public static String getGenTestSrcDir(IJavaProject jproject) {
     	return getString(jproject, AptPreferenceConstants.APT_GENTESTSRCDIR);
     }
-    
+
     /**
 	 * @since 3.6
 	 */
@@ -932,9 +932,9 @@ public class AptConfig {
     public static boolean validateGenSrcDir(IJavaProject jproject, String dirName) {
     	return GeneratedSourceFolderManager.validate(jproject, dirName);
     }
-	
+
 	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
-		IScopeContext context = (null != jproject) ? 
+		IScopeContext context = (null != jproject) ?
 				new ProjectScope(jproject.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
 		// get old val as a String, so it can be null if setting doesn't exist yet
@@ -946,9 +946,9 @@ public class AptConfig {
 		}
 		flushPreference(optionName, node);
 	}
-	
+
 	private static void setString(IJavaProject jproject, String optionName, String value) {
-		IScopeContext context = (null != jproject) ? 
+		IScopeContext context = (null != jproject) ?
 				new ProjectScope(jproject.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node;
 		if (AptPreferenceConstants.APT_PROCESSANNOTATIONS.equals(optionName)) {

@@ -455,7 +455,7 @@ public class IndexBinaryType implements IBinaryType {
 		method.getGenericSignature(result, method.hasAllFlags(NdMethod.FLG_THROWS_SIGNATURE_PRESENT));
 		return result.getContents();
 	}
-	
+
 	private char[][] getArgumentNames(NdMethod ndMethod) {
 		// Unlike what its JavaDoc says, IBinaryType returns an empty array if no argument names are available, so
 		// we replicate this weird undocumented corner case here.

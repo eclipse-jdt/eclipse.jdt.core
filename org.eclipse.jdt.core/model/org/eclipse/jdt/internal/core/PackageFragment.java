@@ -587,7 +587,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	String contents = getURLContents(baseLocation, String.valueOf(pathBuffer));
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) return null;
-	
+
 	contents = (new JavadocContents(contents)).getPackageDoc();
 	if (contents == null) contents = ""; //$NON-NLS-1$
 	synchronized (projectInfo.javadocCache) {

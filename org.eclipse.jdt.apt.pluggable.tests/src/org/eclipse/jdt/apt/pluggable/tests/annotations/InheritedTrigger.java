@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Walter Harley 
+ * Copyright (c) 2009 Walter Harley
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    Walter Harley - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests.annotations;

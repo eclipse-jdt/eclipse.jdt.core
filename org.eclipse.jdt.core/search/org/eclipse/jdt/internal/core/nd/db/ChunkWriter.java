@@ -34,11 +34,11 @@ public class ChunkWriter {
 	/**
 	 * Interface used to perform the uninterruptable writes when the buffer fills up.
 	 */
-	@FunctionalInterface 
+	@FunctionalInterface
 	public interface WriteCallback {
 		/**
 		 * Performs an uninterruptable write of the given bytes to the given file position.
-		 * 
+		 *
 		 * @param buffer
 		 *            the bytes to write
 		 * @param position
@@ -54,14 +54,14 @@ public class ChunkWriter {
 	@FunctionalInterface
 	public interface SleepCallback {
 		/**
-		 * Sleeps the caller for the given time (in milliseconds) 
+		 * Sleeps the caller for the given time (in milliseconds)
 		 */
 		void sleep(long millisecond) throws InterruptedException;
 	}
 
 	/**
 	 * Constructs a new {@link ChunkWriter}
-	 * 
+	 *
 	 * @param bufferSize
 	 *            size of the write buffer (the maximum number of bytes that will be written in a single write).
 	 * @param maxBytesPerMillisecond
@@ -80,7 +80,7 @@ public class ChunkWriter {
 
 	/**
 	 * Writes the given bytes to the given file position.
-	 * 
+	 *
 	 * @return true iff any attempt was made to interrupt the thread using {@link Thread#interrupt()}. The write
 	 *         succeeds regardless of the return value.
 	 * @throws IOException if unable to perform the write
@@ -104,7 +104,7 @@ public class ChunkWriter {
 
 	/**
 	 * Flushes any outstanding writes to disk immediately.
-	 * 
+	 *
 	 * @return true iff any attempt was made to interrupt the thread using {@link Thread#interrupt()}. The write
 	 *         succeeds regardless of the return value.
 	 * @throws IOException if unable to perform the write

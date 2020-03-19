@@ -2555,11 +2555,11 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 	@Override
 	public boolean atConflictScenario(int token) {
 		/* There is too much voodoo that goes on here in DiagnoseParser (multiple machines, lexer stream reset etc.)
-		   So we take a simple minded view that we will always ask for disambiguation, except there is one scenario 
+		   So we take a simple minded view that we will always ask for disambiguation, except there is one scenario
 		   that needs special handling, we let the lexer stream deal with that: In X<String>.Y<Integer>:: the second
 		   '<' should not be tagged for disambiguation. If a synthetic token gets injected there, there will be syntax
 		   error. See that this is not a problem for the regular/normal parser.
-		*/ 
+		*/
 		return (token == TokenNameLPAREN || token == TokenNameAT || (token == TokenNameLESS && !this.lexStream.awaitingColonColon()));
 	}
 

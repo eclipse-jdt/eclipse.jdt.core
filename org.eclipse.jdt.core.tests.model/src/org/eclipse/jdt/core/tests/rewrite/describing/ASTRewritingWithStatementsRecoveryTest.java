@@ -79,7 +79,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_02_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -123,7 +123,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_03_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

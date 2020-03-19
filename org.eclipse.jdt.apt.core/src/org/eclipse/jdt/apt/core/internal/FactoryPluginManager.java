@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal;
@@ -34,52 +34,52 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * Manages caches of plugins which provide annotation processors.
- * 
+ *
  * @since 3.3
  */
 public class FactoryPluginManager {
-	/** 
-	 * Map of factory names -> factories.  A single plugin factory container may 
+	/**
+	 * Map of factory names -> factories.  A single plugin factory container may
 	 * contain multiple annotation processor factories, each with a unique name.
 	 * To support lazy initialization, this should only be accessed by calling
-	 * @see #getJava5PluginFactoryMap() . 
+	 * @see #getJava5PluginFactoryMap() .
 	 */
 	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_JAVA5_FACTORY_MAP = new HashMap<>();
-	
-	/** 
-	 * Map of factory names -> factories.  A single plugin factory container may 
+
+	/**
+	 * Map of factory names -> factories.  A single plugin factory container may
 	 * contain multiple annotation processor factories, each with a unique name.
 	 * To support lazy initialization, this should only be accessed by calling
-	 * @see #getJava5PluginFactoryMap() . 
+	 * @see #getJava5PluginFactoryMap() .
 	 */
 	private static final HashMap<String, IServiceFactory> PLUGIN_JAVA6_FACTORY_MAP = new HashMap<>();
 
-	/** 
+	/**
 	 * Map of plugin names -> plugin factory containers, sorted by plugin name.
 	 * A plugin that contains annotation processor factories (and extends the
-	 * corresponding extension point) is a "plugin factory container".  
+	 * corresponding extension point) is a "plugin factory container".
 	 * To support lazy initialization, this should only be accessed by calling
-	 * @see #getPluginFactoryContainerMap() . 
+	 * @see #getPluginFactoryContainerMap() .
 	 */
 	private static final TreeMap<String, PluginFactoryContainer> PLUGIN_CONTAINER_MAP = new TreeMap<>();
 
-	/** 
+	/**
 	 * true if PLUGIN_FACTORY_MAP and PLUGIN_CONTAINER_MAP have been initialized,
 	 * by calling @see #loadPluginFactories() .
 	 */
 	private static boolean mapsInitialized = false;
-	
+
 	/**
-	 * Returns an ordered list of all the plugin factory containers that have 
-	 * been registered as plugins.  Note that this may include plugins that have 
+	 * Returns an ordered list of all the plugin factory containers that have
+	 * been registered as plugins.  Note that this may include plugins that have
 	 * been disabled by the user's configuration.  The 'enabled' attribute in the
 	 * returned map reflects the 'enableDefault' attribute in the plugin
-	 * manifest, rather than the user configuration.  
+	 * manifest, rather than the user configuration.
 	 * Ordering is alphabetic by plugin id.
 	 */
 	public static synchronized Map<FactoryContainer, FactoryPath.Attributes> getAllPluginFactoryContainers()
 	{
-		Map<FactoryContainer, FactoryPath.Attributes> map = 
+		Map<FactoryContainer, FactoryPath.Attributes> map =
 			new LinkedHashMap<>(getPluginContainerMap().size());
 		for (PluginFactoryContainer pfc : getPluginContainerMap().values()) {
 			FactoryPath.Attributes a = new FactoryPath.Attributes(pfc.getEnableDefault(), false);
@@ -87,11 +87,11 @@ public class FactoryPluginManager {
 		}
 		return map;
 	}
-	
+
 	public static synchronized AnnotationProcessorFactory getJava5FactoryFromPlugin( String factoryName )
 	{
 		AnnotationProcessorFactory apf = getJava5PluginFactoryMap().get( factoryName );
-		if ( apf == null ) 
+		if ( apf == null )
 		{
 			String s = "could not find AnnotationProcessorFactory " +  //$NON-NLS-1$
 				factoryName + " from available factories defined by plugins"; //$NON-NLS-1$
@@ -103,7 +103,7 @@ public class FactoryPluginManager {
 	public static synchronized IServiceFactory getJava6FactoryFromPlugin( String factoryName )
 	{
 		IServiceFactory isf = getJava6PluginFactoryMap().get( factoryName );
-		if ( isf == null ) 
+		if ( isf == null )
 		{
 			String s = "could not find annotation processor " +  //$NON-NLS-1$
 				factoryName + " from available factories defined by plugins"; //$NON-NLS-1$
@@ -116,13 +116,13 @@ public class FactoryPluginManager {
      * Return the factory container corresponding to the specified plugin id.
      * All plugin factories are loaded at startup time.
      * @param pluginId the id of a plugin that extends annotationProcessorFactory.
-     * @return a PluginFactoryContainer, or null if the plugin id does not 
+     * @return a PluginFactoryContainer, or null if the plugin id does not
      * identify an annotation processor plugin.
      */
 	public static synchronized FactoryContainer getPluginFactoryContainer(String pluginId) {
 		return getPluginContainerMap().get(pluginId);
 	}
-	
+
 	/**
 	 * Get the alphabetically sorted map of plugin names to plugin factory containers.
 	 * Load plugins if the map has not yet been initialized.
@@ -131,7 +131,7 @@ public class FactoryPluginManager {
 		loadFactoryPlugins();
 		return PLUGIN_CONTAINER_MAP;
 	}
-	
+
 	/**
 	 * Get the map of plugin factory names to plugin factories.
 	 * Load plugins if the map has not yet been initialized.
@@ -164,20 +164,20 @@ public class FactoryPluginManager {
 				AptPlugin.PLUGIN_ID, // name of plugin that exposes this extension point
 				"annotationProcessorFactory"); //$NON-NLS-1$ - extension id
 
-		// Iterate over all declared extensions of this extension point.  
+		// Iterate over all declared extensions of this extension point.
 		// A single plugin may extend the extension point more than once, although it's not recommended.
 		for (IExtension extension : extensionPoint.getExtensions())
 		{
 			// Iterate over the children of the extension to find one named "factories".
 			for(IConfigurationElement factories : extension.getConfigurationElements())
 			{
-				if ("factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement 
+				if ("factories".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement
 					loadJava5Factories(extension, factories);
 				}
 				else if ("java6processors".equals(factories.getName())) { //$NON-NLS-1$ - name of configElement
 					loadJava6Factories(extension, factories);
 				}
-				
+
 			}
 		}
 		mapsInitialized = true;
@@ -187,20 +187,20 @@ public class FactoryPluginManager {
 		if (!AptPlugin.canRunJava6Processors()) {
 			return;
 		}
-		
+
 		// Get enableDefault.  If the attribute is missing, default to true.
 		String enableDefaultStr = factories.getAttribute("enableDefault"); //$NON-NLS-1$
 		boolean enableDefault = true;
 		if ("false".equals(enableDefaultStr)) { //$NON-NLS-1$
 			enableDefault = false;
 		}
-		
+
 		// Create and cache a PluginFactoryContainer for this plugin.
 		String pluginId = extension.getNamespaceIdentifier();
 		//TODO: level problem.  In the extension point, enableDefault is associated with element, not ext point.
 		PluginFactoryContainer pfc = new PluginFactoryContainer(pluginId, enableDefault);
 		PLUGIN_CONTAINER_MAP.put(pluginId, pfc);
-		
+
 		// Iterate over the children of the "java6processors" element to find all the ones named "java6processor".
 		for (IConfigurationElement factory : factories.getChildren()) {
 			if (!"java6processor".equals(factory.getName())) { //$NON-NLS-1$
@@ -225,7 +225,7 @@ public class FactoryPluginManager {
 			}
 		}
 	}
-	
+
 	private static void loadJava5Factories(IExtension extension, IConfigurationElement factories) {
 		// Get enableDefault.  If the attribute is missing, default to true.
 		String enableDefaultStr = factories.getAttribute("enableDefault"); //$NON-NLS-1$
@@ -233,12 +233,12 @@ public class FactoryPluginManager {
 		if ("false".equals(enableDefaultStr)) { //$NON-NLS-1$
 			enableDefault = false;
 		}
-		
+
 		// Create and cache a PluginFactoryContainer for this plugin.
 		String pluginId = extension.getNamespaceIdentifier();
 		PluginFactoryContainer pfc = new PluginFactoryContainer(pluginId, enableDefault);
 		PLUGIN_CONTAINER_MAP.put(pluginId, pfc);
-		
+
 		// Iterate over the children of the "factories" element to find all the ones named "factory".
 		for (IConfigurationElement factory : factories.getChildren()) {
 			if (!"factory".equals(factory.getName())) { //$NON-NLS-1$
@@ -261,11 +261,11 @@ public class FactoryPluginManager {
 			}
 		}
 	}
-	
+
 	private static void reportFailureToLoadProcessor(Exception e, String factoryName, String pluginId) {
 		AptPlugin.log(e, "Unable to load annotation processor "+ factoryName + //$NON-NLS-1$
 				" from plug-in " + pluginId); //$NON-NLS-1$
 	}
-	
-	
+
+
 }

@@ -38,13 +38,13 @@ public final class RewriteEventStore {
 	 * If enabled, then {@link ASTRewrite} and {@link ListRewrite}
 	 * throw an {@link IllegalArgumentException} if a rewrite operation tries to insert an
 	 * AST node in a place where nodes of this type are not allowed (node type not a subtype of
-	 * the structural property's type). 
+	 * the structural property's type).
 	 * </p>
 	 * <p>
 	 * Disabled by default, since this hasn't been enforced from the beginning, and there are clients
 	 * (e.g. in JDT UI refactorings) that rely on a bit of leeway here.
 	 * E.g. the qualifier of a QualifiedName cannot be a MethodInvocation expression or a SimpleType, but
-	 * that's sometimes the easiest solution for such a change, and ASTRewrite has no problems with it.  
+	 * that's sometimes the easiest solution for such a change, and ASTRewrite has no problems with it.
 	 * </p>
 	 */
 	public static boolean DEBUG = false;
@@ -528,10 +528,10 @@ public final class RewriteEventStore {
 		}
 		return accessOriginalValue(parent, property);
 	}
-	
+
 	public List getChangedPropertieEvents(ASTNode parent) {
 		List changedPropertiesEvent = new ArrayList();
-		
+
 		List entriesList = (List) this.eventLookup.get(parent);
 		if (entriesList != null) {
 			for (int i= 0; i < entriesList.size(); i++) {

@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 /**
- * 
+ *
  * This class is independent of its parent class and is in fact a dummy ExportsStatement. Used to hook
  * into the existing module declaration type and is used as a placeholder for keyword completion. This can
  * be any module keyword completion and not necessarily related to exports statement.

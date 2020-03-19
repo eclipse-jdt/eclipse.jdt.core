@@ -30,7 +30,7 @@ import com.sun.mirror.declaration.Declaration;
 public class PauseAnnotationProcessor extends BaseProcessor {
 
 	private final AnnotationTypeDeclaration _annotationDecl;
-	
+
 	public PauseAnnotationProcessor(
 			Set<AnnotationTypeDeclaration> decls, AnnotationProcessorEnvironment env) {
 		super(env);

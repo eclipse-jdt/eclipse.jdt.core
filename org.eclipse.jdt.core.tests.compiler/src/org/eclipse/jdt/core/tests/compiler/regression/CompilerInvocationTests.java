@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
- *     Stephan Herrmann  - Contributions for 
+ *     Stephan Herrmann  - Contributions for
  *     							bug 236385: [compiler] Warn for potential programming problem if an object is created but not used
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *     							bug 186342 - [compiler][null] Using annotations for null checking
@@ -25,7 +25,7 @@
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 382789 - [compiler][null] warn when syntactically-nonnull expression is compared against null
- *								bug 402028 - [1.8][compiler] null analysis for reference expressions 
+ *								bug 402028 - [1.8][compiler] null analysis for reference expressions
  *								bug 401796 - [1.8][compiler] don't treat default methods as overriding an independent inherited abstract method
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
@@ -615,7 +615,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IncompatibleTypesInConditionalOperator", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IncompatibleTypesInEqualityOperator", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IncompatibleTypesInForeach", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-		
+
 		expectedProblemAttributes.put("IncorrectArityForParameterizedConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IncorrectArityForParameterizedMethod", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IncorrectArityForParameterizedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));

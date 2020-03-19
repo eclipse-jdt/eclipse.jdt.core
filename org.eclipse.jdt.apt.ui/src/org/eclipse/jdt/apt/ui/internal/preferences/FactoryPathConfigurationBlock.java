@@ -128,7 +128,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
         }
 
 	}
-	
+
 	private class FactoryPathLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
@@ -148,7 +148,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			}
 		}
 	}
-	
+
 	/**
 	 * The factory path is a list of containers, plus some information about
 	 * each container.  That makes it a list of FactoryPathEntry.
@@ -157,7 +157,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		/* shallow copies - beware! */
 		public final FactoryContainer _fc;
 		public FactoryPath.Attributes _attr;
-		
+
 		// CONSTRUCTORS
 		public FactoryPathEntry(FactoryContainer fc, FactoryPath.Attributes attr) {
 			_fc = fc;
@@ -192,9 +192,9 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		public int hashCode() {
 			return _fc.hashCode() ^ _attr.hashCode();
 		}
-		
+
 	}
-	
+
 	private PixelConverter fPixelConverter;
 	private Composite fBlockControl; // the control representing the entire configuration block
 
@@ -203,7 +203,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * Use this to see if anything changed at save time.
 	 */
 	private List<FactoryPathEntry> fOriginalPath;
-	
+
 	private final IJavaProject fJProj;
 
 	/**
@@ -211,7 +211,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * are of type FactoryPathEntry.
 	 */
 	private CheckedListDialogField<FactoryPathEntry> fFactoryPathList;
-	
+
 	/**
 	 * True while inside setListContents().  Used in order to efficiently
 	 * and correctly add new elements to the factory list: short-circuits
@@ -222,12 +222,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	public FactoryPathConfigurationBlock(IStatusChangeListener context,
 			IProject project, IWorkbenchPreferenceContainer container) {
 		super(context, project, new Key[] {}, container);
-		
+
 		fJProj = JavaCore.create(project);
-		
+
 		FactoryPathAdapter adapter= new FactoryPathAdapter();
 		FactoryPathLabelProvider labelProvider = new FactoryPathLabelProvider();
-		
+
 		fFactoryPathList= new CheckedListDialogField<>(adapter, buttonLabels, labelProvider);
 		fFactoryPathList.setDialogFieldListener(adapter);
 		fFactoryPathList.setLabelText(Messages.FactoryPathConfigurationBlock_pluginsAndJars);
@@ -269,30 +269,30 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			newEntries= openJarFileDialog(null);
 			addEntries(newEntries);
 			break;
-			
+
 		case IDX_ADDEXTJAR: // add external jars
 			newEntries= openExtJarFileDialog(null);
 			addEntries(newEntries);
 			break;
-			
+
 		case IDX_ADDVAR: // add jar from classpath variable
 			newEntries= openVariableSelectionDialog(null);
 			addEntries(newEntries);
 			break;
-			
+
 		case IDX_EDIT: // edit selected item
 			if (canEdit()) {
 				editSelectedItem();
 			}
 			break;
-			
+
 		case IDX_ADVANCED: // advanced options
 			advancedOptionsDialog();
 			break;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Can't remove a selection that contains a plugin.
 	 */
@@ -307,7 +307,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 		return !containsPlugin;
 	}
-	
+
 	/**
 	 * Can only edit a single item at a time.  Can't edit plugins.
 	 */
@@ -364,14 +364,14 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 */
 	protected Control createContents(Composite parent) {
 		setShell(parent.getShell());
-		
+
 		fPixelConverter= new PixelConverter(parent);
-		
+
 		fBlockControl= new Composite(parent, SWT.NONE);
 		fBlockControl.setFont(parent.getFont());
 
 		Dialog.applyDialogFont(fBlockControl);
-		
+
 		LayoutUtil.doDefaultLayout(fBlockControl, new DialogField[] { fFactoryPathList }, true, SWT.DEFAULT, SWT.DEFAULT);
 		LayoutUtil.setHorizontalGrabbing(fFactoryPathList.getListControl(null));
 
@@ -381,10 +381,10 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		fFactoryPathList.enableButton(IDX_EDIT, false);
 		int buttonBarWidth= fPixelConverter.convertWidthInCharsToPixels(24);
 		fFactoryPathList.setButtonsMinWidth(buttonBarWidth);
-		
+
 		return fBlockControl;
 	}
-	
+
 	@Override
 	public boolean hasProjectSpecificOptionsNoCache(IProject project) {
 		return (project == null) ? false : AptConfig.hasProjectSpecificFactoryPath(JavaCore.create(project));
@@ -412,7 +412,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		fOriginalPath = FactoryPathEntry.pathListFromMap(path);
 		super.cacheOriginalValues();
 	}
-	
+
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
@@ -420,7 +420,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		List<FactoryPathEntry> contents= fFactoryPathList.getElements();
 		return contents;
 	}
-	
+
 	/*
 	 * Helper method to get rid of unchecked conversion warning
 	 */
@@ -428,7 +428,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		List<FactoryPathEntry> contents= fFactoryPathList.getSelectedElements();
 		return contents;
 	}
-	
+
 	/**
 	 * Add new entries to the list control.  Differs from setListContents()
 	 * in that the list is not cleared first, and the entries are not copied
@@ -457,7 +457,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			fSettingListContents = false;
 		}
 	}
-	
+
 	/**
 	 * Set the contents of the list control.  The FPEs in the input list
 	 * will be copied; the originals are left untouched, so that if the
@@ -519,12 +519,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 		return some;
 	}
-	
+
 	/**
 	 * Launch the "advanced options" dialog, which displays the factory classes
 	 * contained by the selected container and allows the user to specify
 	 * options that are needed only in certain special cases.
-	 * 
+	 *
 	 * We treat advanced options as an attribute of the factory path, not of the
 	 * container; the same container may have different advanced options in different
 	 * projects.  We treat advanced options the same way as the "enabled" flag.
@@ -555,7 +555,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return null;
 		}
 		IWorkspaceRoot root= fJProj.getProject().getWorkspace().getRoot();
-		
+
 		if (original == null) {
 			IPath[] results= BuildPathDialogAccess.chooseJAREntries(getShell(), fJProj.getPath(), new IPath[0]);
 			if (results == null) {
@@ -629,7 +629,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return edited;
 		}
 	}
-	
+
 	/**
 	 * Add or edit an external (not project-relative) jar file whose
 	 * location includes a classpath variable name.
@@ -666,7 +666,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			return edited;
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#updateModel(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 	 */
@@ -680,7 +680,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
 		// TODO: validate that all the specified factory containers exist?
 	}
-	
+
 	protected void saveSettings() {
 		FactoryPath fp;
 		if ((fJProj != null) && !fBlockControl.isEnabled()) {
@@ -697,7 +697,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			fp = new FactoryPath();
 			fp.setContainers(map);
 		}
-		
+
 		try {
 			AptConfig.setFactoryPath(fJProj, fp);
 		}
@@ -706,10 +706,10 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			final String message = Messages.FactoryPathConfigurationBlock_unableToSaveFactorypath_message;
 			ExceptionHandler.handle(e, fBlockControl.getShell(), title, message);
 		}
-		
+
 		super.saveSettings();
 	}
-	
+
 	/**
 	 * If per-project, restore list contents to current workspace settings;
 	 * the per-project settings checkbox will be cleared for us automatically.
@@ -724,7 +724,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		setListContents(defaults);
 		super.performDefaults();
 	}
-	
+
 	/**
 	 * @return true if settings or project-specificness changed since
 	 * the pane was launched - that is, if there is anything to save.
@@ -740,5 +740,5 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		List<FactoryPathEntry> newPath = getListContents();
 		return !fOriginalPath.equals(newPath);
 	}
-	
+
 }

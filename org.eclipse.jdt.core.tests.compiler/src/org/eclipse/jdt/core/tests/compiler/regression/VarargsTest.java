@@ -805,15 +805,15 @@ public class VarargsTest extends AbstractComparableTest {
 				"	public static void count(int[] array, int[] ... values) { System.out.print(2); }\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	Y.count(new int[0]);\n" + 
-			"	  ^^^^^\n" + 
-			"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Y.count(new int[0]);\n" +
+			"	  ^^^^^\n" +
+			"The method count(int[], int[]) is ambiguous for the type Y\n" +
 			"----------\n"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
 	public void test015_tolerate() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
@@ -834,11 +834,11 @@ public class VarargsTest extends AbstractComparableTest {
 							"	public static void count(int[] array, int[] ... values) { System.out.print(2); }\n" +
 							"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	Y.count(new int[0]);\n" + 
-				"	  ^^^^^\n" + 
-				"The method count(int[], int[]) is ambiguous for the type Y\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	Y.count(new int[0]);\n" +
+				"	  ^^^^^\n" +
+				"The method count(int[], int[]) is ambiguous for the type Y\n" +
 				"----------\n",
 				null, true, options);
 			} else {
@@ -855,7 +855,7 @@ public class VarargsTest extends AbstractComparableTest {
 							"	public static void count(int[] array, int[] ... values) { System.out.print(2); }\n" +
 							"}\n",
 				},
-				"1", 
+				"1",
 				null, true, null, options, null);
 			}
 		} finally {
@@ -1318,16 +1318,16 @@ public class VarargsTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	x.a(true);\n" + 
-			"	  ^\n" + 
-			"The method a(boolean, Object[]) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	x.a(true, \"foobar\");\n" + 
-			"	  ^\n" + 
-			"The method a(boolean, Object[]) is ambiguous for the type X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	x.a(true);\n" +
+			"	  ^\n" +
+			"The method a(boolean, Object[]) is ambiguous for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	x.a(true, \"foobar\");\n" +
+			"	  ^\n" +
+			"The method a(boolean, Object[]) is ambiguous for the type X\n" +
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -1393,16 +1393,16 @@ public class VarargsTest extends AbstractComparableTest {
 						"	}\n" +
 						"}\n",
 					},
-					"----------\n" + 
-					"1. ERROR in X.java (at line 6)\n" + 
-					"	x.a(true);\n" + 
-					"	  ^\n" + 
-					"The method a(boolean, Object[]) is ambiguous for the type X\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 7)\n" + 
-					"	x.a(true, \"foobar\");\n" + 
-					"	  ^\n" + 
-					"The method a(boolean, Object[]) is ambiguous for the type X\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 6)\n" +
+					"	x.a(true);\n" +
+					"	  ^\n" +
+					"The method a(boolean, Object[]) is ambiguous for the type X\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 7)\n" +
+					"	x.a(true, \"foobar\");\n" +
+					"	  ^\n" +
+					"The method a(boolean, Object[]) is ambiguous for the type X\n" +
 					"----------\n",
 					null, true, options);
 			} else {
@@ -1535,16 +1535,16 @@ public class VarargsTest extends AbstractComparableTest {
 			"The method foo3(String, V, String[]) is ambiguous for the type V\n" +
 			"----------\n"
 			: // one fewer ambiguity in 1.8:
-				"----------\n" + 
-				"1. ERROR in V.java (at line 4)\n" + 
-				"	v.foo2(null, \"\");\n" + 
-				"	  ^^^^\n" + 
-				"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
-				"----------\n" + 
-				"2. ERROR in V.java (at line 5)\n" + 
-				"	v.foo2(null, \"\", \"\");\n" + 
-				"	  ^^^^\n" + 
-				"The method foo2(String, Object[]) is ambiguous for the type V\n" + 
+				"----------\n" +
+				"1. ERROR in V.java (at line 4)\n" +
+				"	v.foo2(null, \"\");\n" +
+				"	  ^^^^\n" +
+				"The method foo2(String, Object[]) is ambiguous for the type V\n" +
+				"----------\n" +
+				"2. ERROR in V.java (at line 5)\n" +
+				"	v.foo2(null, \"\", \"\");\n" +
+				"	  ^^^^\n" +
+				"The method foo2(String, Object[]) is ambiguous for the type V\n" +
 				"----------\n")
 			);
 	}
@@ -2299,7 +2299,7 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=223427
 	public void test061() {
-		String expectedOutput = 
+		String expectedOutput =
 				"----------\n" +
 				"1. WARNING in X.java (at line 5)\n" +
 				"	Collections.addAll(constantClassSet, String.class, Object.class);\n" +
@@ -2312,7 +2312,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 		if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
-			expectedOutput = 
+			expectedOutput =
 					"----------\n" +
 					"1. ERROR in X.java (at line 6)\n" +
 					"	Zork z;\n" +
@@ -2339,26 +2339,26 @@ public class VarargsTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\r\n" + 
-				"	private static final String CONST = \"\";\r\n" + 
-				"\r\n" + 
-				"	public static class A {\r\n" + 
-				"		A(Integer i, String... tab) {}\r\n" + 
-				"	}\r\n" + 
-				"	\r\n" + 
-				"	Object foo(final Float f) {\r\n" + 
-				"		return new A(Integer.valueOf(0), CONST) {\r\n" + 
-				"			public String toString() {\r\n" + 
-				"				return f.toString();\r\n" + 
-				"			}\r\n" + 
-				"		};\r\n" + 
-				"	}\r\n" + 
+				"public class X {\r\n" +
+				"	private static final String CONST = \"\";\r\n" +
+				"\r\n" +
+				"	public static class A {\r\n" +
+				"		A(Integer i, String... tab) {}\r\n" +
+				"	}\r\n" +
+				"	\r\n" +
+				"	Object foo(final Float f) {\r\n" +
+				"		return new A(Integer.valueOf(0), CONST) {\r\n" +
+				"			public String toString() {\r\n" +
+				"				return f.toString();\r\n" +
+				"			}\r\n" +
+				"		};\r\n" +
+				"	}\r\n" +
 				"}",
 			},
 			"");
 		String expectedOutput =
-			"  // Method descriptor #10 (LX;Ljava/lang/Integer;[Ljava/lang/String;Ljava/lang/Float;)V\n" + 
-			"  // Stack: 3, Locals: 5\n" + 
+			"  // Method descriptor #10 (LX;Ljava/lang/Integer;[Ljava/lang/String;Ljava/lang/Float;)V\n" +
+			"  // Stack: 3, Locals: 5\n" +
 			"  X$1(X arg0, java.lang.Integer $anonymous0, java.lang.String... $anonymous1, java.lang.Float arg3);\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
 	}
@@ -2372,8 +2372,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"import java.util.List;\n" +
 				"public class Y {\r\n" +
 				"	@SafeVarargs\n" +
-				"	public static <T> List<T> asList(T... a) {\n" + 
-				"		return null;\n" + 
+				"	public static <T> List<T> asList(T... a) {\n" +
+				"		return null;\n" +
 				"	}\n" +
 				"}",
 			},
@@ -2409,8 +2409,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"import java.util.List;\n" +
 				"public class X {\r\n" +
 				"	@SafeVarargs\n" +
-				"	public static <T> List<T> asList(T... a) {\n" + 
-				"		return null;\n" + 
+				"	public static <T> List<T> asList(T... a) {\n" +
+				"		return null;\n" +
 				"	}\n" +
 				"	public void bar() {\n" +
 				"		List<? extends Class<?>> classes = X.asList(String.class, Boolean.class);\n" +
@@ -2435,8 +2435,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"import java.util.List;\n" +
 				"public class X {\r\n" +
 				"	@SafeVarargs\n" +
-				"	public static <T> List<T> asList(T... a) {\n" + 
-				"		return null;\n" + 
+				"	public static <T> List<T> asList(T... a) {\n" +
+				"		return null;\n" +
 				"	}\n" +
 				"	public void bar() {\n" +
 				"		List<List<String>> classes = X.asList(X.asList(\"Hello\", \"World\"));\n" +
@@ -2479,26 +2479,26 @@ public class VarargsTest extends AbstractComparableTest {
 					"}\n", // =================
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_7 ?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 18)\n" + 
-				"	new IteratorChain<Number>(null, null);\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 18)\n" +
+				"	new IteratorChain<Number>(null, null);\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" +
 				"----------\n":
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	public IteratorChain(Collection<? extends T> a, Collection<? extends T> b, Collection<? extends T> ... collections) {\n" + 
-				"	                                                                                                       ^^^^^^^^^^^\n" + 
-				"Type safety: Potential heap pollution via varargs parameter collections\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 18)\n" + 
-				"	new IteratorChain<Number>(null, null);\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	public IteratorChain(Collection<? extends T> a, Collection<? extends T> b, Collection<? extends T> ... collections) {\n" +
+				"	                                                                                                       ^^^^^^^^^^^\n" +
+				"Type safety: Potential heap pollution via varargs parameter collections\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 18)\n" +
+				"	new IteratorChain<Number>(null, null);\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type safety: A generic array of Collection<? extends Number> is created for a varargs parameter\n" +
 				"----------\n",
-				null, 
+				null,
 				true,
-				options);		
+				options);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
 	public void test067() throws Exception {
@@ -2538,26 +2538,26 @@ public class VarargsTest extends AbstractComparableTest {
 				"	public  <T> List<T> asList(T ... t);\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	public static <T> List<T> asList() {  // Error, not varargs\n" + 
-			"	                          ^^^^^^^^\n" + 
-			"@SafeVarargs annotation cannot be applied to fixed arity method asList\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	public <T> List<T> asList2(T ... a) {    // error not static or final\n" + 
-			"	                   ^^^^^^^^^^^^^^^^\n" + 
-			"@SafeVarargs annotation cannot be applied to non-final instance method asList2\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 23)\n" + 
-			"	@SafeVarargs\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"The annotation @SafeVarargs is disallowed for this location\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 28)\n" + 
-			"	public  <T> List<T> asList(T ... t);\n" + 
-			"	                    ^^^^^^^^^^^^^^^\n" + 
-			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	public static <T> List<T> asList() {  // Error, not varargs\n" +
+			"	                          ^^^^^^^^\n" +
+			"@SafeVarargs annotation cannot be applied to fixed arity method asList\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	public <T> List<T> asList2(T ... a) {    // error not static or final\n" +
+			"	                   ^^^^^^^^^^^^^^^^\n" +
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList2\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 23)\n" +
+			"	@SafeVarargs\n" +
+			"	^^^^^^^^^^^^\n" +
+			"The annotation @SafeVarargs is disallowed for this location\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 28)\n" +
+			"	public  <T> List<T> asList(T ... t);\n" +
+			"	                    ^^^^^^^^^^^^^^^\n" +
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
@@ -2578,11 +2578,11 @@ public class VarargsTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	public X() {  // Error, not varargs\n" + 
-			"	       ^^^\n" + 
-			"@SafeVarargs annotation cannot be applied to fixed arity method X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	public X() {  // Error, not varargs\n" +
+			"	       ^^^\n" +
+			"@SafeVarargs annotation cannot be applied to fixed arity method X\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is no warning if vararg parameter is reifiable)
@@ -2607,11 +2607,11 @@ public class VarargsTest extends AbstractComparableTest {
 				"   }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	public <T> List<T> asList(Zork t, String ... a) {\n" + 
-			"	                          ^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	public <T> List<T> asList(Zork t, String ... a) {\n" +
+			"	                          ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is a warning if vararg parameter is not reifiable)
@@ -2636,26 +2636,26 @@ public class VarargsTest extends AbstractComparableTest {
 				"   }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public <T> X(T ... a) {\n" + 
-			"	                   ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter a\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	public <T> X(int i, T ... a) {\n" + 
-			"	                          ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter a\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
-			"	public <T> List<T> asList(T ... a) {\n" + 
-			"	                                ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter a\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 10)\n" + 
-			"	public <T> List<T> asList(T t, T ... a) {\n" + 
-			"	                                     ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter a\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public <T> X(T ... a) {\n" +
+			"	                   ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter a\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	public <T> X(int i, T ... a) {\n" +
+			"	                          ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter a\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 7)\n" +
+			"	public <T> List<T> asList(T ... a) {\n" +
+			"	                                ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter a\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 10)\n" +
+			"	public <T> List<T> asList(T t, T ... a) {\n" +
+			"	                                     ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter a\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
@@ -2684,16 +2684,16 @@ public class VarargsTest extends AbstractComparableTest {
 				"   }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	public <T> List<T> asList(T ... a) {\n" + 
-			"	                   ^^^^^^^^^^^^^^^\n" + 
-			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 14)\n" + 
-			"	public <T> List<T> asList(T t, T ... a) {\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	public <T> List<T> asList(T ... a) {\n" +
+			"	                   ^^^^^^^^^^^^^^^\n" +
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	public <T> List<T> asList(T t, T ... a) {\n" +
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
+			"@SafeVarargs annotation cannot be applied to non-final instance method asList\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
@@ -2720,16 +2720,16 @@ public class VarargsTest extends AbstractComparableTest {
 				"   }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
-			"	public static <T> List<T> asList2(T ... a) {\n" + 
-			"	                                        ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter a\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 13)\n" + 
-			"	classes = X.asList2(String.class, Boolean.class);\n" + 
-			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 7)\n" +
+			"	public static <T> List<T> asList2(T ... a) {\n" +
+			"	                                        ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter a\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 13)\n" +
+			"	classes = X.asList2(String.class, Boolean.class);\n" +
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
@@ -2757,11 +2757,11 @@ public class VarargsTest extends AbstractComparableTest {
 				"   }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 14)\n" + 
-			"	classes = X.asList2(String.class, Boolean.class);\n" + 
-			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 14)\n" +
+			"	classes = X.asList2(String.class, Boolean.class);\n" +
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042
@@ -2787,11 +2787,11 @@ public class VarargsTest extends AbstractComparableTest {
 				" }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in p2\\C.java (at line 6)\n" + 
-			"	(new B()).foo(new B(), new B());\n" + 
-			"	          ^^^\n" + 
-			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
+			"----------\n" +
+			"1. ERROR in p2\\C.java (at line 6)\n" +
+			"	(new B()).foo(new B(), new B());\n" +
+			"	          ^^^\n" +
+			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
@@ -2811,7 +2811,7 @@ public class VarargsTest extends AbstractComparableTest {
 			},
 			"Done");
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
 	public void test070_tolerate() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
@@ -2831,12 +2831,12 @@ public class VarargsTest extends AbstractComparableTest {
 						"        }\n" +
 						"}\n"
 					},
-					"----------\n" + 
-					"1. ERROR in X.java (at line 5)\n" + 
-					"	foo(1, 2, 3);\n" + 
-					"	^^^\n" + 
-					"The method foo(int[]) is ambiguous for the type X\n" + 
-					"----------\n", 
+					"----------\n" +
+					"1. ERROR in X.java (at line 5)\n" +
+					"	foo(1, 2, 3);\n" +
+					"	^^^\n" +
+					"The method foo(int[]) is ambiguous for the type X\n" +
+					"----------\n",
 					null, true, options);
 			} else {
 				this.runConformTest(
@@ -2851,15 +2851,15 @@ public class VarargsTest extends AbstractComparableTest {
 							"        }\n" +
 							"}\n"
 						},
-						"Done", 
+						"Done",
 						null, true, null, options, null);
 			}
 		} finally {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "false");
 		}
-		
+
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
 	public void test070_tolerate2() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
@@ -2869,7 +2869,7 @@ public class VarargsTest extends AbstractComparableTest {
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 				this.runNegativeTest(
 					false /* skipJavac */,
-					this.complianceLevel == ClassFileConstants.JDK1_7 ? 
+					this.complianceLevel == ClassFileConstants.JDK1_7 ?
 							JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 					new String[] {
 						"X.java",
@@ -2884,12 +2884,12 @@ public class VarargsTest extends AbstractComparableTest {
 						"        }\n" +
 						"}\n"
 					},
-					"----------\n" + 
-					"1. ERROR in X.java (at line 10)\n" + 
-					"	test(1);\n" + 
-					"	^^^^\n" + 
-					"The method test(int[]) is ambiguous for the type X\n" + 
-					"----------\n", 
+					"----------\n" +
+					"1. ERROR in X.java (at line 10)\n" +
+					"	test(1);\n" +
+					"	^^^^\n" +
+					"The method test(int[]) is ambiguous for the type X\n" +
+					"----------\n",
 					null, true, options);
 			} else {
 				this.runConformTest(
@@ -2906,13 +2906,13 @@ public class VarargsTest extends AbstractComparableTest {
 								"        }\n" +
 								"}\n"
 						},
-						"[1]", 
+						"[1]",
 						null, true, null, options, null);
 			}
 		} finally {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "false");
 		}
-		
+
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
 	public void test070a() throws Exception {
@@ -2950,12 +2950,12 @@ public class VarargsTest extends AbstractComparableTest {
 						"        }\n" +
 						"}\n"
 					},
-					"----------\n" + 
-					"1. ERROR in X.java (at line 5)\n" + 
-					"	foo(1, 2, 3);\n" + 
-					"	^^^\n" + 
-					"The method foo(int[]) is ambiguous for the type X\n" + 
-					"----------\n", 
+					"----------\n" +
+					"1. ERROR in X.java (at line 5)\n" +
+					"	foo(1, 2, 3);\n" +
+					"	^^^\n" +
+					"The method foo(int[]) is ambiguous for the type X\n" +
+					"----------\n",
 					null, true, options);
 			} else {
 				this.runConformTest(
@@ -2970,7 +2970,7 @@ public class VarargsTest extends AbstractComparableTest {
 							"        }\n" +
 							"}\n"
 						},
-						"Done", 
+						"Done",
 						null, true, null, options, null);
 			}
 		} finally {
@@ -2989,11 +2989,11 @@ public class VarargsTest extends AbstractComparableTest {
 				"        public static void main(String[] args) {\n" +
 				"            foo(1, 2, 3);     // foo NOT flagged ambiguous\n" +
 				"        }\n" +
-				"}\n" 
+				"}\n"
 			},
 			"");
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
 	public void test070b_tolerate() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
@@ -3005,7 +3005,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"        public static void main(String[] args) {\n" +
 				"            foo(1, 2, 3);     // foo NOT flagged ambiguous\n" +
 				"        }\n" +
-				"}\n" 
+				"}\n"
 			};
 		try {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
@@ -3016,18 +3016,18 @@ public class VarargsTest extends AbstractComparableTest {
 			} else {
 				this.runNegativeTest(
 						src,
-						"----------\n" + 
-						"1. ERROR in X.java (at line 5)\n" + 
-						"	foo(1, 2, 3);     // foo NOT flagged ambiguous\n" + 
-						"	^^^\n" + 
-						"The method foo(int[]) is ambiguous for the type X\n" + 
+						"----------\n" +
+						"1. ERROR in X.java (at line 5)\n" +
+						"	foo(1, 2, 3);     // foo NOT flagged ambiguous\n" +
+						"	^^^\n" +
+						"The method foo(int[]) is ambiguous for the type X\n" +
 						"----------\n");
 			}
 		} finally {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "false");
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
 	public void test070c() { // check behaviour of Scope.mostSpecificMethodBinding()
 		this.runNegativeTest(
@@ -3043,21 +3043,21 @@ public class VarargsTest extends AbstractComparableTest {
 				"    public static void count(int i, int ... values) {}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	count(1);\n" + 
-			"	^^^^^\n" + 
-			"The method count(int[]) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	count(1, 1);\n" + 
-			"	^^^^^\n" + 
-			"The method count(int[]) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	count(1, 1, 1);\n" + 
-			"	^^^^^\n" + 
-			"The method count(int[]) is ambiguous for the type X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	count(1);\n" +
+			"	^^^^^\n" +
+			"The method count(int[]) is ambiguous for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	count(1, 1);\n" +
+			"	^^^^^\n" +
+			"The method count(int[]) is ambiguous for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	count(1, 1, 1);\n" +
+			"	^^^^^\n" +
+			"The method count(int[]) is ambiguous for the type X\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346038
@@ -3115,7 +3115,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383780
 	public void test071_tolerate() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
-		String[] src = 
+		String[] src =
 			new String[] {
 				"X.java",
 				"public class X implements IClass{\n" +
@@ -3143,11 +3143,11 @@ public class VarargsTest extends AbstractComparableTest {
 			} else {
 				this.runNegativeTest(
 						src,
-						"----------\n" + 
-						"1. ERROR in X.java (at line 11)\n" + 
-						"	X t2 = new X(c, t);     // incorrectly flagged ambiguous\n" + 
-						"	       ^^^^^^^^^^^\n" + 
-						"The constructor X(IClass, X, IType[]) is ambiguous\n" + 
+						"----------\n" +
+						"1. ERROR in X.java (at line 11)\n" +
+						"	X t2 = new X(c, t);     // incorrectly flagged ambiguous\n" +
+						"	       ^^^^^^^^^^^\n" +
+						"The constructor X(IClass, X, IType[]) is ambiguous\n" +
 						"----------\n");
 			}
 		} finally {
@@ -3159,17 +3159,17 @@ public class VarargsTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	private class Z {}\n" + 
-				"	public void foo() {\n" + 
-				"			Z[] zs = null;\n" + 
-				"			Y.bar(zs, new Z());\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {}\n" + 
+				"public class X {\n" +
+				"	private class Z {}\n" +
+				"	public void foo() {\n" +
+				"			Z[] zs = null;\n" +
+				"			Y.bar(zs, new Z());\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {}\n" +
 				"}",
 				"Y.java",
-				"public class Y {\n" + 
-				"	public native static <T> void bar(T[] t, T t1, T... t2);\n" + 
+				"public class Y {\n" +
+				"	public native static <T> void bar(T[] t, T t1, T... t2);\n" +
 				"}"
 			},
 			"");
@@ -3179,25 +3179,25 @@ public class VarargsTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static final String CONSTANT = \"\";\n" + 
-				"	private static class A {\n" + 
-				"		A(String s, String s2, String s3, A... a) {}\n" + 
-				"	}\n" + 
-				"	private static class B extends A {\n" + 
-				"		B(String s, String s2) {\n" + 
-				"			super(s, s2, CONSTANT);\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"	private static void foo(Object o, A ... a) {\n" + 
-				"	}\n" + 
-				"	private static B bar() {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		Object o = null;\n" + 
-				"		foo(o, bar(), bar());\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public static final String CONSTANT = \"\";\n" +
+				"	private static class A {\n" +
+				"		A(String s, String s2, String s3, A... a) {}\n" +
+				"	}\n" +
+				"	private static class B extends A {\n" +
+				"		B(String s, String s2) {\n" +
+				"			super(s, s2, CONSTANT);\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private static void foo(Object o, A ... a) {\n" +
+				"	}\n" +
+				"	private static B bar() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Object o = null;\n" +
+				"		foo(o, bar(), bar());\n" +
+				"	}\n" +
 				"}"
 			},
 			"");
@@ -3222,18 +3222,18 @@ public class VarargsTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in p2\\C.java (at line 5)\n" + 
-			"	new B(new B(), new B());\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The constructor B(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
+			"----------\n" +
+			"1. ERROR in p2\\C.java (at line 5)\n" +
+			"	new B(new B(), new B());\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The constructor B(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" +
 			"----------\n");
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=382469
 	public void testBug382469() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
-		String[] src = 
+		String[] src =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3257,27 +3257,27 @@ public class VarargsTest extends AbstractComparableTest {
 			} else {
 				this.runNegativeTest(
 						src,
-						"----------\n" + 
-						"1. WARNING in X.java (at line 5)\n" + 
-						"	private static void bar(int intValue, Object... objs) {\n" + 
-						"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-						"The method bar(int, Object...) from the type X is never used locally\n" + 
-						"----------\n" + 
-						"2. ERROR in X.java (at line 9)\n" + 
-						"	bar(5);\n" + 
-						"	^^^\n" + 
-						"The method bar(Object[]) is ambiguous for the type X\n" + 
+						"----------\n" +
+						"1. WARNING in X.java (at line 5)\n" +
+						"	private static void bar(int intValue, Object... objs) {\n" +
+						"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+						"The method bar(int, Object...) from the type X is never used locally\n" +
+						"----------\n" +
+						"2. ERROR in X.java (at line 9)\n" +
+						"	bar(5);\n" +
+						"	^^^\n" +
+						"The method bar(Object[]) is ambiguous for the type X\n" +
 						"----------\n");
 			}
 		} finally {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "false");
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386361
 	public void testBug386361() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
-		String[] src = 
+		String[] src =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -3301,11 +3301,11 @@ public class VarargsTest extends AbstractComparableTest {
 			} else {
 				this.runNegativeTest(
 						src,
-						"----------\n" + 
-						"1. ERROR in X.java (at line 9)\n" + 
-						"	test(1,\"test\");\n" + 
-						"	^^^^\n" + 
-						"The method test(int, Object[]) is ambiguous for the type X\n" + 
+						"----------\n" +
+						"1. ERROR in X.java (at line 9)\n" +
+						"	test(1,\"test\");\n" +
+						"	^^^^\n" +
+						"The method test(int, Object[]) is ambiguous for the type X\n" +
 						"----------\n");
 			}
 		} finally {
@@ -3323,7 +3323,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"        new B().foo(null, null);\n" +
 				"    }\n" +
 				"}\n",
-					
+
 				"p/B.java",
 				"package p;\n" +
 				"class A {\n" +
@@ -3333,11 +3333,11 @@ public class VarargsTest extends AbstractComparableTest {
 				"    public void foo(Object... o) { System.out.println(\"MB:O\"); }\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	new B().foo(null, null);\n" + 
-			"	        ^^^\n" + 
-			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	new B().foo(null, null);\n" +
+			"	        ^^^\n" +
+			"The method foo(A...) of type B is not applicable as the formal varargs element type A is not accessible here\n" +
 			"----------\n"); // check and adjust,
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436474, [codegen]Problem with varargs and List.toString
@@ -3345,17 +3345,17 @@ public class VarargsTest extends AbstractComparableTest {
 		runConformTest(
 			new String[] {
 				"Scratch.java",
-				"import java.util.Arrays;\n" + 
-				"import java.util.List;\n" + 
-				"public class Scratch {\n" + 
-				"    public static void vararg(String... strs) {\n" + 
-				"    	System.out.println(strs[0]);\n" + 
-				"    }\n" + 
-				"    \n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        List<String> l = Arrays.asList(\"a\");\n" + 
-				"        vararg(l.toArray(new String[0]));\n" + 
-				"    }\n" + 
+				"import java.util.Arrays;\n" +
+				"import java.util.List;\n" +
+				"public class Scratch {\n" +
+				"    public static void vararg(String... strs) {\n" +
+				"    	System.out.println(strs[0]);\n" +
+				"    }\n" +
+				"    \n" +
+				"    public static void main(String[] args) {\n" +
+				"        List<String> l = Arrays.asList(\"a\");\n" +
+				"        vararg(l.toArray(new String[0]));\n" +
+				"    }\n" +
 				"}",
 			},
 			"a");
@@ -3586,18 +3586,18 @@ public class VarargsTest extends AbstractComparableTest {
 			runConformTest(
 			new String[] {
 				"TestVarargs.java",
-				"import java.util.*;\n" + 
-				"public class TestVarargs {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        bar(new Class<?>[]{});\n" + 
-				"        foo(new Class<?>[]{});\n" + 
-				"    }\n" + 
-				"    public static Object foo(Class<?>[] sig) {\n" + 
-				"        return Arrays.asList(Arrays.copyOfRange(sig, 0, sig.length));\n" + 
-				"    }\n" + 
-				"    public static List<Class<?>> bar(Class<?>[] sig) {\n" + 
-				"        return Arrays.asList(Arrays.copyOfRange(sig, 0, sig.length));\n" + 
-				"    }\n" + 
+				"import java.util.*;\n" +
+				"public class TestVarargs {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        bar(new Class<?>[]{});\n" +
+				"        foo(new Class<?>[]{});\n" +
+				"    }\n" +
+				"    public static Object foo(Class<?>[] sig) {\n" +
+				"        return Arrays.asList(Arrays.copyOfRange(sig, 0, sig.length));\n" +
+				"    }\n" +
+				"    public static List<Class<?>> bar(Class<?>[] sig) {\n" +
+				"        return Arrays.asList(Arrays.copyOfRange(sig, 0, sig.length));\n" +
+				"    }\n" +
 				"}"
 			},
 			"");
@@ -3631,11 +3631,11 @@ public class VarargsTest extends AbstractComparableTest {
 					"	}\n"+
 					"}\n"
 				},
-				"----------\n" + 
-				"1. WARNING in X.java (at line 4)\n" + 
-				"	private <T> Y<T> foo(T ... a) {\n" + 
-				"	                           ^\n" + 
-				"Type safety: Potential heap pollution via varargs parameter a\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	private <T> Y<T> foo(T ... a) {\n" +
+				"	                           ^\n" +
+				"Type safety: Potential heap pollution via varargs parameter a\n" +
 				"----------\n");
 
 		}

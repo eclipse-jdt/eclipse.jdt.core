@@ -132,7 +132,7 @@ public void testBug529434_001() throws CoreException {
 			"}\n"
 			);
 	search("B", CONSTRUCTOR, REFERENCES, EXACT_RULE);
-	assertSearchResults("src/X.java void X.main(String[]) [new B()] EXACT_MATCH"); 
+	assertSearchResults("src/X.java void X.main(String[]) [new B()] EXACT_MATCH");
 }
 // Add more tests here
 }

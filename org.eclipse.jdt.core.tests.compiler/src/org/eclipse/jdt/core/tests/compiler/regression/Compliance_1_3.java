@@ -115,21 +115,21 @@ public void test011() {
 			"	}	\n" +
 			"} \n"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\X.java (at line 5)\n" + 
-		"	while (false) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\X.java (at line 9)\n" + 
-		"	for (;false;) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"3. WARNING in p1\\X.java (at line 11)\n" + 
-		"	if (false)System.out.println(\"unreachable\");		\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\X.java (at line 5)\n" +
+		"	while (false) System.out.println(\"unreachable\");	\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"2. ERROR in p1\\X.java (at line 9)\n" +
+		"	for (;false;) System.out.println(\"unreachable\");	\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"3. WARNING in p1\\X.java (at line 11)\n" +
+		"	if (false)System.out.println(\"unreachable\");		\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n");
 }
 // binary compatibility
@@ -1036,22 +1036,22 @@ public void test032() {
 			"	String bar = \"X2.bar\";	\n" +
 			"}	\n",
 		},
-		"----------\n" + 
-		"1. ERROR in p\\X.java (at line 4)\n" + 
-		"	System.out.println(new q.X2().foo);	\n" + 
-		"	                              ^^^\n" + 
-		"The field X2.foo is not visible\n" + 
-		"----------\n" + 
-		"2. ERROR in p\\X.java (at line 5)\n" + 
-		"	System.out.println(new q.X2().bar);	\n" + 
-		"	                              ^^^\n" + 
-		"The field X2.bar is not visible\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in q\\X2.java (at line 3)\n" + 
-		"	protected String foo = \"X2.foo\";	\n" + 
-		"	                 ^^^\n" + 
-		"The field X2.foo is hiding a field from type X1\n" + 
+		"----------\n" +
+		"1. ERROR in p\\X.java (at line 4)\n" +
+		"	System.out.println(new q.X2().foo);	\n" +
+		"	                              ^^^\n" +
+		"The field X2.foo is not visible\n" +
+		"----------\n" +
+		"2. ERROR in p\\X.java (at line 5)\n" +
+		"	System.out.println(new q.X2().bar);	\n" +
+		"	                              ^^^\n" +
+		"The field X2.bar is not visible\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in q\\X2.java (at line 3)\n" +
+		"	protected String foo = \"X2.foo\";	\n" +
+		"	                 ^^^\n" +
+		"The field X2.foo is hiding a field from type X1\n" +
 		"----------\n");
 }
 /*
@@ -2593,24 +2593,24 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Hello.java (at line 1)\n" + 
-		"	void ___eval() {\n" + 
-		"	^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
-		"----------\n" + 
-		"2. ERROR in Hello.java (at line 2)\n" + 
-		"	new Runnable() {\n" + 
-		"		int ___run() throws Throwable {\n" + 
-		"			return blah;\n" + 
-		"		}\n" + 
-		"		private String blarg;\n" + 
-		"		public void run() {\n" + 
-		"		}\n" + 
-		"	};\n" + 
-		"}\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
+		"----------\n" +
+		"1. ERROR in Hello.java (at line 1)\n" +
+		"	void ___eval() {\n" +
+		"	^^^^^^^^^^^^^^\n" +
+		"Syntax error on tokens, delete these tokens\n" +
+		"----------\n" +
+		"2. ERROR in Hello.java (at line 2)\n" +
+		"	new Runnable() {\n" +
+		"		int ___run() throws Throwable {\n" +
+		"			return blah;\n" +
+		"		}\n" +
+		"		private String blarg;\n" +
+		"		public void run() {\n" +
+		"		}\n" +
+		"	};\n" +
+		"}\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error on tokens, delete these tokens\n" +
 		"----------\n"
 	);
 }
@@ -3484,21 +3484,21 @@ public void test107() {
 			"	public void xyz() { System.out.println(1); }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	c.xyz();\n" + 
-		"	^^^^^^^\n" + 
-		"Unhandled exception type AException\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	class AException extends Exception { }\n" + 
-		"	      ^^^^^^^^^^\n" + 
-		"The serializable class AException does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 8)\n" + 
-		"	class BException extends Exception { }\n" + 
-		"	      ^^^^^^^^^^\n" + 
-		"The serializable class BException does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	c.xyz();\n" +
+		"	^^^^^^^\n" +
+		"Unhandled exception type AException\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	class AException extends Exception { }\n" +
+		"	      ^^^^^^^^^^\n" +
+		"The serializable class AException does not declare a static final serialVersionUID field of type long\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 8)\n" +
+		"	class BException extends Exception { }\n" +
+		"	      ^^^^^^^^^^\n" +
+		"The serializable class BException does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n");
 }
 }

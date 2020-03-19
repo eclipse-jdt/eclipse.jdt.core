@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     BEA Systems, Inc. - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ import org.osgi.framework.BundleContext;
 public class Apt6TestsPlugin extends Plugin {
 
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.pluggable.tests"; //$NON-NLS-1$
-	
+
 	private static Apt6TestsPlugin _thePlugin = null;
 
 	@Override
@@ -32,7 +32,7 @@ public class Apt6TestsPlugin extends Plugin {
 	public Apt6TestsPlugin() {
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	public static Apt6TestsPlugin thePlugin() {
 		return _thePlugin;
 	}

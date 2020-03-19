@@ -36,13 +36,13 @@ public class PerformanceTests extends TestBase
 	private final static int PAUSE_EVERY = 200; // wait for indexer to catch up after creating this many files
 	private final static int PAUSE_TIME = 2000; // milliseconds to wait for indexer
 	private final static boolean INCLUDE_APT_DISABLED = true;
-	
+
 	private final static String CMD_PROFILER_PREFIX = "java -jar c:/opt/yourkit-8.0.13/lib/yjp-controller-api-redist.jar localhost 10001";
 	private final static String CMD_START_CPU_PROFILING = CMD_PROFILER_PREFIX + " start-cpu-sampling noj2ee";
 	private final static String CMD_STOP_CPU_PROFILING =  CMD_PROFILER_PREFIX + " stop-cpu-profiling";
 	private final static String CMD_PERF_SNAPSHOT =       CMD_PROFILER_PREFIX + " capture-performance-snapshot";
 	private final static String CMD_HEAP_SNAPSHOT =       CMD_PROFILER_PREFIX + " capture-memory-snapshot";
-	
+
 	public PerformanceTests(String name) {
 		super(name);
 	}
@@ -56,13 +56,13 @@ public class PerformanceTests extends TestBase
 	{
 		super.setUp();
 	}
-	
+
 	/**
 	 * Create files that contain annotations that won't be processed.
 	 */
 	private void createBoringFiles(int numFiles, IJavaProject jproj)
 	{
-		String srcTemplate = 
+		String srcTemplate =
 			"package p;\n" +
 			"import java.util.List;\n" +
 			"@SuppressWarnings(\"unchecked\")\n" +
@@ -73,13 +73,13 @@ public class PerformanceTests extends TestBase
 		String nameTemplate = "TestB%05d";
 		createFiles(numFiles, nameTemplate, srcTemplate, jproj);
 	}
-	
+
 	/**
 	 * Create files that contain annotations that will be processed with a Java 6 processor.
 	 */
 	private void createInterestingFilesWithJ6(int numFiles, IJavaProject jproj)
 	{
-		String srcTemplate = 
+		String srcTemplate =
 			"package p;\n" +
 			"import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger;\n" +
 			"import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;\n" +
@@ -97,33 +97,33 @@ public class PerformanceTests extends TestBase
 		String nameTemplate = "TestI6%05d";
 		createFiles(numFiles, nameTemplate, srcTemplate, jproj);
 	}
-	
+
 	/**
 	 * Create files that have annotations that cause other files to be generated.
 	 */
 	private void createGeneratingFiles(int numFiles, IJavaProject jproj)
 	{
-		String srcTemplate = 
+		String srcTemplate =
 			"package p;\n" +
 			"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
 			"@GenClass6(pkg=\"g\", name=\"Generated%05d\")\n" +
 			"public class TestG%05d {}";
-		
+
 		String nameTemplate = "TestG%05d";
-		createFiles(numFiles, nameTemplate, srcTemplate, jproj);		
+		createFiles(numFiles, nameTemplate, srcTemplate, jproj);
 	}
-	
+
 	private void createFiles(int numFiles, String nameTemplate, String srcTemplate, IJavaProject jproj)
 	{
 		IProject project = jproj.getProject();
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
-		
+
 		for (int i = 1; i <= numFiles; ++i) {
 			String name = String.format(nameTemplate, i);
 			String contents = String.format(srcTemplate, i, i);
 			env.addClass( srcRoot, "p", name, contents ); //$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			// pause to let indexer catch up
 			if (i % PAUSE_EVERY == 0) {
 				if (VERBOSE)
@@ -135,11 +135,11 @@ public class PerformanceTests extends TestBase
 				}
 			}
 		}
-		
+
 		if (VERBOSE)
 			System.out.println("Done creating source files");
 	}
-	
+
 	/**
 	 * Performance with files that contain annotations that won't be processed.
 	 */
@@ -151,11 +151,11 @@ public class PerformanceTests extends TestBase
 		IProject project = jproj.getProject();
 
 		createBoringFiles(FILES_TO_GENERATE, jproj);
-		
+
 		Runtime run = Runtime.getRuntime();
-		
+
 		long start;
-		
+
 		if (INCLUDE_APT_DISABLED) {
 			AptConfig.setEnabled(jproj, false);
 			start = System.currentTimeMillis();
@@ -166,10 +166,10 @@ public class PerformanceTests extends TestBase
 			run.exec(CMD_PERF_SNAPSHOT).waitFor();
 			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 			expectingNoProblems();
-			
+
 //			System.gc();
 //			Thread.sleep(1000);
-//			
+//
 //			AptConfig.setEnabled(jproj, false);
 //			start = System.currentTimeMillis();
 //			fullBuild( project.getFullPath() );
@@ -180,10 +180,10 @@ public class PerformanceTests extends TestBase
 //			run.exec(CMD_HEAP_SNAPSHOT).waitFor();
 //			expectingNoProblems();
 		}
-		
+
 		System.gc();
 		Thread.sleep(1000);
-		
+
 		AptConfig.setEnabled(jproj, true);
 		start = System.currentTimeMillis();
 		if (VERBOSE)
@@ -195,10 +195,10 @@ public class PerformanceTests extends TestBase
 		}
 		run.exec(CMD_HEAP_SNAPSHOT).waitFor();
 		expectingNoProblems();
-		
+
 		System.gc();
 		Thread.sleep(1000);
-		
+
 		AptConfig.setEnabled(jproj, true);
 		start = System.currentTimeMillis();
 		if (VERBOSE)
@@ -210,10 +210,10 @@ public class PerformanceTests extends TestBase
 		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 		expectingNoProblems();
-		
+
 		System.gc();
 		Thread.sleep(1000);
-		
+
 		AptConfig.setEnabled(jproj, true);
 		start = System.currentTimeMillis();
 		if (VERBOSE)
@@ -225,14 +225,14 @@ public class PerformanceTests extends TestBase
 		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 		expectingNoProblems();
-		
+
 		// Now delete the project!
 		if (VERBOSE)
 			System.out.println("Deleting workspace");
 		ResourcesPlugin.getWorkspace().delete(new IResource[] { project }, true, null);
 
 	}
-	
+
 	/**
 	 * Performance with files that contain annotations that will be processed
 	 * with a Java 6 processor, but no file generation.
@@ -245,11 +245,11 @@ public class PerformanceTests extends TestBase
 		IProject project = jproj.getProject();
 
 		createInterestingFilesWithJ6(FILES_TO_GENERATE, jproj);
-		
+
 		Runtime run = Runtime.getRuntime();
-		
+
 		long start;
-		
+
 		if (INCLUDE_APT_DISABLED) {
 			AptConfig.setEnabled(jproj, false);
 			start = System.currentTimeMillis();
@@ -260,10 +260,10 @@ public class PerformanceTests extends TestBase
 			run.exec(CMD_PERF_SNAPSHOT).waitFor();
 			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 			expectingNoProblems();
-			
+
 //			System.gc();
 //			Thread.sleep(1000);
-//			
+//
 //			AptConfig.setEnabled(jproj, false);
 //			start = System.currentTimeMillis();
 //			run.exec(CMD_START_CPU_PROFILING).waitFor();
@@ -274,10 +274,10 @@ public class PerformanceTests extends TestBase
 //			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 //			expectingNoProblems();
 		}
-		
+
 		System.gc();
 		Thread.sleep(1000);
-		
+
 		AptConfig.setEnabled(jproj, true);
 		start = System.currentTimeMillis();
 		if (VERBOSE)
@@ -289,10 +289,10 @@ public class PerformanceTests extends TestBase
 		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 		expectingNoProblems();
-		
+
 //		System.gc();
 //		Thread.sleep(1000);
-//		
+//
 //		AptConfig.setEnabled(jproj, true);
 //		start = System.currentTimeMillis();
 //		if (VERBOSE)
@@ -304,7 +304,7 @@ public class PerformanceTests extends TestBase
 //		run.exec(CMD_PERF_SNAPSHOT).waitFor();
 //		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
 //		expectingNoProblems();
-		
+
 		// Now delete the project!
 		if (VERBOSE)
 			System.out.println("Deleting workspace");
@@ -313,7 +313,7 @@ public class PerformanceTests extends TestBase
 		if (VERBOSE)
 			System.out.println("Test complete");
 	}
-	
+
 	/**
 	 * Test with files that have meaningful processing (generation of additional types).
 	 * Currently disabled.
@@ -326,17 +326,17 @@ public class PerformanceTests extends TestBase
 		IProject project = jproj.getProject();
 
 		createGeneratingFiles(FILES_TO_GENERATE, jproj);
-		
+
 		// Set some per-project preferences
 		AptConfig.setEnabled(jproj, true);
-		
+
 		long start = System.currentTimeMillis();
 		fullBuild( project.getFullPath() );
 		if (VERBOSE)
 			System.out.println("Done with build after " + ((System.currentTimeMillis() - start)/1000L) + " sec");
-		
+
 		expectingNoProblems();
-		
+
 		IPath projPath = jproj.getProject().getLocation();
 		for (int i = 1; i <= FILES_TO_GENERATE; ++i) {
 			// check that file was generated
@@ -348,7 +348,7 @@ public class PerformanceTests extends TestBase
 			File genClass = new File(projPath.append(genClassName).toOSString());
 			assertTrue("Compiled file " + genClassName + " was not found", genClass != null && genClass.exists());
 		}
-		
+
 		if (VERBOSE)
 			System.out.println("Done checking output");
 

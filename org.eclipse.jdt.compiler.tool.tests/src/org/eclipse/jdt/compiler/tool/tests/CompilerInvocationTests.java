@@ -85,13 +85,13 @@ protected void checkClassFiles(String[] fileNames) {
 	}
 }
 void runTest(
-		boolean shouldCompileOK, 
+		boolean shouldCompileOK,
 		String[] sourceFiles,
 		StandardJavaFileManager standardJavaFileManager,
 		List<String> options,
 		String[] compileFileNames,
 		String expectedOutOutputString,
-		String expectedErrOutputString, 
+		String expectedErrOutputString,
 		boolean shouldFlushOutputDirectory,
 		String[] classFileNames) {
 	List<String> opt = options == null ? new ArrayList<>() : new ArrayList<>(options);
@@ -99,7 +99,7 @@ void runTest(
 	opt.add("1.6");
 	super.runTest(
 		shouldCompileOK,
-		sourceFiles, 
+		sourceFiles,
 		new CompilerInvocationTestsArguments(standardJavaFileManager, opt, compileFileNames),
 		expectedOutOutputString,
 		expectedErrOutputString,
@@ -222,7 +222,7 @@ class GetJavaFileForInputDetector extends GetJavaFileDetector  {
 	@Override
 	public FileObject getFileForInput(Location location, String packageName,
 			String relativeName) throws IOException {
-		FileObject result = 
+		FileObject result =
 			super.getFileForInput(location, packageName, relativeName);
 		if (result instanceof JavaFileObject) {
 			return detector((JavaFileObject) result);
@@ -269,7 +269,7 @@ class GetJavaFileForOutputDetector extends GetJavaFileDetector  {
 	@Override
 	public FileObject getFileForOutput(Location location, String packageName,
 			String relativeName, FileObject sibling) throws IOException {
-		FileObject result = 
+		FileObject result =
 			super.getFileForOutput(location, packageName, relativeName, sibling);
 		if (result instanceof JavaFileObject) {
 			return detector((JavaFileObject) result);
@@ -334,13 +334,13 @@ public void test001_basic() {
 		new String [] { /* sourceFiles */
 			"X.java",
 			"public class X {}",
-		}, 
+		},
 		null /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR) /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR) /* options */,
 		new String[] { /* compileFileNames */
 			"X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -360,13 +360,13 @@ public void test002_dash_d_option() {
 		new String [] { /* sourceFiles */
 			"X.java",
 			"public class X {}",
-		}, 
+		},
 		javacStandardJavaFileManager /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR) /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR) /* options */,
 		new String[] { /* compileFileNames */
 			"X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -388,13 +388,13 @@ public void test003_dash_d_option() {
 		new String [] { /* sourceFiles */
 			"src/X.java",
 			"public class X {}",
-		}, 
+		},
 		javacStandardJavaFileManager /* standardJavaFileManager */,
-		Arrays.asList("-d", outputDir) /* options */, 
+		Arrays.asList("-d", outputDir) /* options */,
 		new String[] { /* compileFileNames */
 			"src/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -414,20 +414,20 @@ public void test004_no_dash_d_option() throws IOException {
 	binDirectory.mkdirs();
 	StandardJavaFileManager javacStandardJavaFileManager =  JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 	javacStandardJavaFileManager.setLocation(
-			StandardLocation.CLASS_OUTPUT, 
+			StandardLocation.CLASS_OUTPUT,
 			Arrays.asList(binDirectory));
 	runTest(
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src/X.java",
 			"public class X {}",
-		}, 
+		},
 		javacStandardJavaFileManager /* standardJavaFileManager */,
-		null /* options */, 
+		null /* options */,
 		new String[] { /* compileFileNames */
 			"src/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -435,7 +435,7 @@ public void test004_no_dash_d_option() throws IOException {
 		});
 }
 // exploring -d / FileManager interaction
-// ecj does not call setLocation on standard Java file managers; it uses 
+// ecj does not call setLocation on standard Java file managers; it uses
 // handleOption instead; javac does the same
 public void test005_dash_d_option_custom_file_manager() {
 	if (JAVAC_COMPILER == null) {
@@ -445,20 +445,20 @@ public void test005_dash_d_option_custom_file_manager() {
 	StandardJavaFileManager javacJavaFileManager = JAVAC_COMPILER.getStandardFileManager(null, null, null);
 	SetLocationDetector customJavaFileManager =
 		new SetLocationDetector(
-				javacJavaFileManager, 
+				javacJavaFileManager,
 				StandardLocation.CLASS_OUTPUT);
 	runTest(
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"X.java",
 			"public class X {}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR) /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR) /* options */,
 		new String[] { /* compileFileNames */
 			"X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -467,10 +467,10 @@ public void test005_dash_d_option_custom_file_manager() {
 	compareFileLocations(new String[]{OUTPUT_DIR}, customJavaFileManager.getLocation(StandardLocation.CLASS_OUTPUT).iterator());
 	assertFalse(customJavaFileManager.matchFound());
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
-		customJavaFileManager =	new SetLocationDetector(javacJavaFileManager, 
+		customJavaFileManager =	new SetLocationDetector(javacJavaFileManager,
 					StandardLocation.CLASS_OUTPUT);
-		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
-				Arrays.asList("-d", OUTPUT_DIR), null, 
+		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null,
+				Arrays.asList("-d", OUTPUT_DIR), null,
 				customJavaFileManager.getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java")))).call());
 		assertFalse(customJavaFileManager.matchFound());
@@ -490,20 +490,20 @@ public void test006_no_dash_d_option_custom_file_manager() throws IOException {
 				JAVAC_COMPILER.getStandardFileManager(null, null, null),
 				StandardLocation.CLASS_OUTPUT);
 	customJavaFileManager.setLocation(
-			StandardLocation.CLASS_OUTPUT, 
+			StandardLocation.CLASS_OUTPUT,
 			Arrays.asList(binDirectory));
 	runTest(
 		true /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"src/X.java",
 			"public class X {}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		null /* options */, 
+		null /* options */,
 		new String[] { /* compileFileNames */
 			"src/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -516,13 +516,13 @@ public void test006_no_dash_d_option_custom_file_manager() throws IOException {
 // behaves the same on an option that is supported by both compilers
 public void test007_options_consumption() throws IOException {
 	List<String> remainingAsList = Arrays.asList("output", "remainder");
-	StandardJavaFileManager ecjStandardJavaFileManager = 
+	StandardJavaFileManager ecjStandardJavaFileManager =
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	Iterator<String> remaining = remainingAsList.iterator();
 	assertTrue("does not support -d option", ecjStandardJavaFileManager.handleOption("-d", remaining));
 	assertEquals("unexpected consumption rate", "remainder", remaining.next());
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
-		StandardJavaFileManager javacStandardJavaFileManager =  
+		StandardJavaFileManager javacStandardJavaFileManager =
 			JAVAC_COMPILER.getStandardFileManager(null, null, null); // will pick defaults up
 		remaining = remainingAsList.iterator();
 		assertTrue("does not support -d option", javacStandardJavaFileManager.handleOption("-d", remaining));
@@ -536,7 +536,7 @@ public void test007_options_consumption() throws IOException {
 public void test008_options_consumption() throws IOException {
 	final String REMAINDER = "remainder";
 	List<String> remainingAsList = Arrays.asList("output", REMAINDER);
-	StandardJavaFileManager ecjStandardJavaFileManager = 
+	StandardJavaFileManager ecjStandardJavaFileManager =
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	for (String option: CompilerToolTests.ZERO_ARG_OPTIONS) {
 		if (ecjStandardJavaFileManager.isSupportedOption(option) != -1) { // some options that the compiler support could well not be supported by the file manager
@@ -559,7 +559,7 @@ public void test008_options_consumption() throws IOException {
 public void test009_options_consumption() throws IOException {
 	final String REMAINDER = "remainder";
 	List<String> remainingAsList = Arrays.asList("utf-8", REMAINDER);
-	StandardJavaFileManager ecjStandardJavaFileManager = 
+	StandardJavaFileManager ecjStandardJavaFileManager =
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	for (String option: CompilerToolTests.ONE_ARG_OPTIONS) {
 		if (isOnJRE9() && (option.equals("-extdirs") || option.equals("-endorseddirs")))
@@ -589,7 +589,7 @@ public void test010_inappropriate_encoding_diagnosis() throws IOException {
 	assertFalse("does not catch inappropriate -encoding option", passed);
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		// this fails, which may be deemed appropriate or not; but at least
-		// test #11 shows that the behavior that can be observed from the 
+		// test #11 shows that the behavior that can be observed from the
 		// outside is inappropriate
 		passed = true;
 		try {
@@ -610,13 +610,13 @@ public void test011_inappropriate_encoding_diagnosis() {
 		new String [] { /* sourceFiles */
 			"X.java",
 			"public class X {}",
-		}, 
+		},
 		null /* standardJavaFileManager */,
-		options /* options */, 
+		options /* options */,
 		new String[] { /* compileFileNames */
 			"X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		null /* classFileNames */);
@@ -629,7 +629,7 @@ public void test011_inappropriate_encoding_diagnosis() {
 		// bug
 		passed = true;
 		try {
-			passed = JAVAC_COMPILER.getTask(null, null, null, options, null, 
+			passed = JAVAC_COMPILER.getTask(null, null, null, options, null,
 					JAVAC_COMPILER.getStandardFileManager(null, null, null).getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java")))).call();
 		} catch (Throwable t) {
@@ -654,13 +654,13 @@ public void test012_files_access_read() throws IOException {
 		new String [] { /* sourceFiles */
 			"X.java",
 			"public class X {}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR) /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR) /* options */,
 		new String[] { /* compileFileNames */
 			"X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -669,8 +669,8 @@ public void test012_files_access_read() throws IOException {
 	assertTrue(customJavaFileManager.matchFound);
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
-		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
-				Arrays.asList("-d", OUTPUT_DIR), null, 
+		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null,
+				Arrays.asList("-d", OUTPUT_DIR), null,
 				customJavaFileManager.getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java")))).call());
 		assertTrue(customJavaFileManager.matchFound);
@@ -689,7 +689,7 @@ public void _test013_files_access_read() throws IOException {
 				COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
 				"Y.java", Kind.SOURCE);
 	List<String> options = Arrays.asList(
-			"-d", OUTPUT_DIR, 
+			"-d", OUTPUT_DIR,
 			"-sourcepath", OUTPUT_DIR + File.separator + "src2");
 	runTest(
 		true /* shouldCompileOK */,
@@ -700,13 +700,13 @@ public void _test013_files_access_read() throws IOException {
 			"}",
 			"src2/Y.java",
 			"public class Y {}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		options /* options */, 
+		options /* options */,
 		new String[] { /* compileFileNames */
 			"src1/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -715,8 +715,8 @@ public void _test013_files_access_read() throws IOException {
 	assertTrue(customJavaFileManager.matchFound);
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
-		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
-				options, null, 
+		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null,
+				options, null,
 				customJavaFileManager.getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "src1/X.java")))).call());
 		assertTrue(customJavaFileManager.matchFound);
@@ -738,13 +738,13 @@ public void _test014_files_access_read() throws IOException {
 			new String [] { /* sourceFiles */
 				"src2/Y.java",
 				"public class Y {}",
-			}, 
+			},
 			customJavaFileManager /* standardJavaFileManager */,
-			options /* options */, 
+			options /* options */,
 			new String[] { /* compileFileNames */
 				"src2/Y.java"
-			}, 
-			"" /* expectedOutOutputString */, 
+			},
+			"" /* expectedOutOutputString */,
 			"" /* expectedErrOutputString */,
 			true /* shouldFlushOutputDirectory */,
 			new String[] { /* classFileNames */
@@ -757,13 +757,13 @@ public void _test014_files_access_read() throws IOException {
 			"public class X {\n" +
 			"  Y y;\n" +
 			"}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		options /* options */, 
+		options /* options */,
 		new String[] { /* compileFileNames */
 			"src1/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		false /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -774,8 +774,8 @@ public void _test014_files_access_read() throws IOException {
 		// javac merely throws an exception, which is due to be a bug on their
 		// side
 		customJavaFileManager.matchFound = false;
-		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
-				options, null, 
+		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null,
+				options, null,
 				customJavaFileManager.getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "src1/X.java")))).call());
 		assertTrue(customJavaFileManager.matchFound);
@@ -796,13 +796,13 @@ public void test015_files_access_write() throws IOException {
 			"src/X.java",
 			"public class X {\n" +
 			"}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		options /* options */, 
+		options /* options */,
 		new String[] { /* compileFileNames */
 			"src/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -811,8 +811,8 @@ public void test015_files_access_write() throws IOException {
 	assertTrue(customJavaFileManager.matchFound);
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
-		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
-				options, null, 
+		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null,
+				options, null,
 				customJavaFileManager.getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "src/X.java")))).call());
 		assertTrue(customJavaFileManager.matchFound);
@@ -838,13 +838,13 @@ public void test016_files_access_write() throws IOException {
 			"src2/Y.java",
 			"public class Y {\n" +
 			"}",
-		}, 
+		},
 		customJavaFileManager /* standardJavaFileManager */,
-		options /* options */, 
+		options /* options */,
 		new String[] { /* compileFileNames */
 			"src/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -853,8 +853,8 @@ public void test016_files_access_write() throws IOException {
 	assertTrue(customJavaFileManager.matchFound);
 	if (RUN_JAVAC && JAVAC_COMPILER != null) {
 		customJavaFileManager.matchFound = false;
-		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null, 
-				options, null, 
+		assertTrue(JAVAC_COMPILER.getTask(null, customJavaFileManager, null,
+				options, null,
 				customJavaFileManager.getJavaFileObjectsFromFiles(
 						Arrays.asList(new File(OUTPUT_DIR + File.separator + "src/X.java")))).call());
 		assertTrue(customJavaFileManager.matchFound);
@@ -871,15 +871,15 @@ public void test017_sourcepath_without_destination() throws IOException {
 			"}",
 			"src2/Y.java",
 			"public class Y {}",
-		}, 
+		},
 		null /* standardJavaFileManager */,
 		Arrays.asList(
 				"-d", OUTPUT_DIR + "/bin1", /* options */
-				"-sourcepath", OUTPUT_DIR + "/src2"), 
+				"-sourcepath", OUTPUT_DIR + "/src2"),
 		new String[] { /* compileFileNames */
 			"src1/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -900,15 +900,15 @@ public void _test018_sourcepath_with_destination() throws IOException {
 			"}",
 			"src2/Y.java",
 			"public class Y {}",
-		}, 
+		},
 		null /* standardJavaFileManager */,
 		Arrays.asList(
 				"-d", OUTPUT_DIR + "/bin1", /* options */
-				"-sourcepath", "\"" + OUTPUT_DIR + "/src2\"[-d \"" + OUTPUT_DIR + "/bin2\"]"), 
+				"-sourcepath", "\"" + OUTPUT_DIR + "/src2\"[-d \"" + OUTPUT_DIR + "/bin2\"]"),
 		new String[] { /* compileFileNames */
 			"src1/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -929,7 +929,7 @@ public void test019_sourcepath_without_destination() throws IOException {
 	StandardJavaFileManager ecjStandardJavaFileManager =
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	assertTrue(ecjStandardJavaFileManager.handleOption(
-			"-sourcepath", 
+			"-sourcepath",
 			Arrays.asList(OUTPUT_DIR + "/src2").iterator()));
 	runTest(
 		true /* shouldCompileOK */,
@@ -940,13 +940,13 @@ public void test019_sourcepath_without_destination() throws IOException {
 			"}",
 			"src2/Y.java",
 			"public class Y {}",
-		}, 
+		},
 		ecjStandardJavaFileManager /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR + "/bin1") /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR + "/bin1") /* options */,
 		new String[] { /* compileFileNames */
 			"src1/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -959,7 +959,7 @@ public void _test020_sourcepath_with_destination() throws IOException {
 	StandardJavaFileManager ecjStandardJavaFileManager =
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	assertTrue(ecjStandardJavaFileManager.handleOption(
-			"-sourcepath", 
+			"-sourcepath",
 			Arrays.asList("\"" + OUTPUT_DIR + "/src2\"[-d \"" + OUTPUT_DIR + "/bin2\"]").iterator()));
 	runTest(
 		true /* shouldCompileOK */,
@@ -970,13 +970,13 @@ public void _test020_sourcepath_with_destination() throws IOException {
 			"}",
 			"src2/Y.java",
 			"public class Y {}",
-		}, 
+		},
 		ecjStandardJavaFileManager /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR + "/bin1") /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR + "/bin1") /* options */,
 		new String[] { /* compileFileNames */
 			"src1/X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"" /* expectedErrOutputString */,
 		true /* shouldFlushOutputDirectory */,
 		new String[] { /* classFileNames */
@@ -986,13 +986,13 @@ public void _test020_sourcepath_with_destination() throws IOException {
 }
 // most basic output test
 public void test021_output_streams() throws IOException {
-	ByteArrayOutputStream 
+	ByteArrayOutputStream
 			outBuffer = new ByteArrayOutputStream(),
 			errBuffer = new ByteArrayOutputStream();
 	CompilationTask task = COMPILER.getTask(
-		new PrintWriter(outBuffer), 
-		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
-		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
+		new PrintWriter(outBuffer),
+		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
+		new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)),
 		Arrays.asList("-v"), null, null);
 	assertTrue(task.call());
 	Properties properties = new Properties();
@@ -1010,18 +1010,18 @@ public void test021_output_streams() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236814
 public void test022_output_streams() throws IOException {
-	ByteArrayOutputStream 
+	ByteArrayOutputStream
 	outBuffer = new ByteArrayOutputStream(),
 	errBuffer = new ByteArrayOutputStream();
-	PrintStream 
+	PrintStream
 	systemOut = System.out,
 	systemErr = System.err;
 	System.setOut(new PrintStream(outBuffer));
 	System.setErr(new PrintStream(errBuffer));
 	CompilationTask task = COMPILER.getTask(
-			null, 
-			COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */), 
-			new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)), 
+			null,
+			COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */),
+			new CompilerInvocationDiagnosticListener(new PrintWriter(errBuffer)),
 			Arrays.asList("-v"), null, null);
 	try {
 		assertTrue(task.call());
@@ -1034,26 +1034,26 @@ public void test022_output_streams() throws IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236817
 // according to JavaCompiler#getTask, out should receive supplementary compiler
-// output only; errors should be funneled through the diagnostic listener 
+// output only; errors should be funneled through the diagnostic listener
 public void _test023_output_streams() throws IOException {
 	runTest(
 		false /* shouldCompileOK */,
 		new String [] { /* sourceFiles */
 			"X.java",
 			"public class Y {}",
-		}, 
+		},
 		null /* standardJavaFileManager */,
-		Arrays.asList("-d", OUTPUT_DIR) /* options */, 
+		Arrays.asList("-d", OUTPUT_DIR) /* options */,
 		new String[] { /* compileFileNames */
 			"X.java"
-		}, 
-		"" /* expectedOutOutputString */, 
+		},
+		"" /* expectedOutOutputString */,
 		"----------\n" + /* expectedErrOutputString */
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public class Y {}\n" + 
-		"	             ^\n" + 
-		"The public type Y must be defined in its own file\n" + 
-		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public class Y {}\n" +
+		"	             ^\n" +
+		"The public type Y must be defined in its own file\n" +
+		"----------\n" +
 		"1 problem (1 error)",
 		true /* shouldFlushOutputDirectory */,
 		null /* classFileNames */);

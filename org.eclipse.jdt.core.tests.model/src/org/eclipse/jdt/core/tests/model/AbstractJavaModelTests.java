@@ -152,13 +152,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS12 = AST.JLS12;
-	
+
 	/**
 	 * Internal synonym for constant AST.JSL13
 	 * to alleviate deprecation warnings once AST.JLS13 is deprecated in future.
 	 */
 	protected static final int AST_INTERNAL_JLS13 = AST.JLS13;
-	
+
 	/**
 	 * Internal synonym for constant AST.JSL14
 	 * to alleviate deprecation warnings once AST.JLS14 is deprecated in future.
@@ -174,7 +174,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Internal synonym for the latest AST level.
-	 * 
+	 *
 	 */
 	protected static final int AST_INTERNAL_LATEST = AST.JLS14;
 
@@ -233,7 +233,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		private int eventType;
 
 		private ByteArrayOutputStream stackTraces;
-		
+
 		private boolean gotResourceDelta;
 
 		public DeltaListener() {
@@ -251,7 +251,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
 				copy[this.deltas.length]= event.getDelta();
 				this.deltas= copy;
-	
+
 				new Throwable("Caller of IElementChangedListener#elementChanged").printStackTrace(new PrintStream(this.stackTraces));
 			}
 		}
@@ -268,14 +268,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				return delta.getCompilationUnitAST();
 			return null;
 		}
-		
+
 		/**
 		 * Returns the last delta for the given element from the cached delta.
 		 */
 		public IJavaElementDelta getDeltaFor(IJavaElement element) {
 			return getDeltaFor(element, false);
 		}
-		
+
 		/**
 		 * Returns the delta for the given element from the cached delta.
 		 * If the boolean is true returns the first delta found.
@@ -294,7 +294,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 			return result;
 		}
-		
+
 		public synchronized IJavaElementDelta getLastDelta() {
 			return this.deltas[this.deltas.length - 1];
 		}
@@ -624,7 +624,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	static IClasspathAttribute[] externalAnnotationExtraAttributes(String path) {
 		return new IClasspathAttribute[] {
-				new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, path)	
+				new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, path)
 		};
 	}
 
@@ -1175,7 +1175,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (!actual.equals(expected)) {
 		 	System.out.print(displayString(actual, 2));
 		}
-		assertEquals(expected, actual);		
+		assertEquals(expected, actual);
 	}
 	/**
 	 * Ensures the element is present after creation.
@@ -1253,7 +1253,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		StringBuilder buf = new StringBuilder();
 		String[] lines = text.split("\n");
 		int idx = 0;
-		
+
 		// prefix before first module:
 		while (idx < lines.length) {
 			String line = lines[idx];
@@ -1499,7 +1499,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void createJar(String[] javaPathsAndContents, String jarPath) throws IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, jarPath, "1.4");
 	}
-	
+
 	protected void createJar(String[] javaPathsAndContents, String jarPath, Map options) throws IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, null, "1.4", options);
 	}
@@ -1820,22 +1820,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			final String compliance,
 			final boolean simulateImport) throws CoreException {
 		return createJavaProject(
-				projectName, 
-				sourceFolders, 
-				libraries, 
-				librariesInclusionPatterns, 
-				librariesExclusionPatterns, 
-				projects, 
-				projectsInclusionPatterns, 
-				projectsExclusionPatterns, 
-				combineAccessRestrictions, 
-				exportedProjects, 
-				projectOutput, 
-				sourceOutputs, 
-				inclusionPatterns, 
-				exclusionPatterns, 
-				compliance, 
-				false, 
+				projectName,
+				sourceFolders,
+				libraries,
+				librariesInclusionPatterns,
+				librariesExclusionPatterns,
+				projects,
+				projectsInclusionPatterns,
+				projectsExclusionPatterns,
+				combineAccessRestrictions,
+				exportedProjects,
+				projectOutput,
+				sourceOutputs,
+				inclusionPatterns,
+				exclusionPatterns,
+				compliance,
+				false,
 				simulateImport);
 	}
 	protected IJavaProject createJavaProject(
@@ -1972,7 +1972,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 						IClasspathAttribute[] extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
-						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9 
+						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9
 								&& (lib.startsWith("JCL") || lib.startsWith("CONVERTER_JCL"))) {
 							extraAttributes = new IClasspathAttribute[] {
 								JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")
@@ -3330,7 +3330,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						new String[] {"JCL18_FULL", "JCL18_SRC", "JCL_SRCROOT"},
 						new IPath[] {new Path(getExternalJCLPathString("1.8", true)), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
 						null);
-				} 
+				}
 			} else if (JavaCore.getClasspathVariable("JCL18_LIB") == null) {
 						setupExternalJCL("jclMin1.8");
 						JavaCore.setClasspathVariables(

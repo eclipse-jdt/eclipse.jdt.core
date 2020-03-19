@@ -103,7 +103,7 @@ public class BasicModule implements ISourceModule {
 	Service[] provides;
 	IModule.IPackageExport[] opens;
 	private ICompilationUnit compilationUnit;
-	
+
 	public BasicModule(ModuleDeclaration descriptor, IModulePathEntry root) {
 		this.compilationUnit = descriptor.compilationResult().compilationUnit;
 		this.name = descriptor.moduleName;

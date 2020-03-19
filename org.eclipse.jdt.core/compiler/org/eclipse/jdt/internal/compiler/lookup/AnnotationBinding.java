@@ -160,7 +160,7 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 		arraysize++;
 	if ((bits & TagBits.AnnotationForRecordComponent) != 0)
 		arraysize++;
-	
+
 	Object[] value = new Object[arraysize];
 	if (arraysize > 0) {
 		ReferenceBinding elementType = env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE, null);
@@ -249,7 +249,7 @@ public String toString() {
 	if (this.pairs != null && this.pairs.length > 0) {
 		buffer.append('(');
 		if (this.pairs.length == 1 && CharOperation.equals(this.pairs[0].getName(), TypeConstants.VALUE)) {
-			buffer.append(this.pairs[0].value); 
+			buffer.append(this.pairs[0].value);
 		} else {
 			for (int i = 0, max = this.pairs.length; i < max; i++) {
 				if (i > 0) buffer.append(", "); //$NON-NLS-1$
@@ -284,7 +284,7 @@ public boolean equals(Object object) {
 	final ElementValuePair[] thisElementValuePairs = this.getElementValuePairs();
 	final ElementValuePair[] thatElementValuePairs = that.getElementValuePairs();
 	final int length = thisElementValuePairs.length;
-	if (length != thatElementValuePairs.length) 
+	if (length != thatElementValuePairs.length)
 		return false;
 	loop: for (int i = 0; i < length; i++) {
 		ElementValuePair thisPair = thisElementValuePairs[i];

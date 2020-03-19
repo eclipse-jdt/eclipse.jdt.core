@@ -45,7 +45,7 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunAllJava8Tests extends TestCase {
-	
+
 	public RunAllJava8Tests(String name) {
 		super(name);
 	}
@@ -63,7 +63,7 @@ public class RunAllJava8Tests extends TestCase {
 			JavaElement8Tests.class,
 		};
 	}
-	
+
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
 				TypeAnnotationsConverterTest.class,

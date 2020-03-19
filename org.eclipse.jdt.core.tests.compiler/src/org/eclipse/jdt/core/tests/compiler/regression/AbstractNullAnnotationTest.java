@@ -98,10 +98,10 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 				this.LIBS[len] = bundleFile.getPath();
 		}
 	}
-	
+
 	// Conditionally augment problem detection settings
 	static boolean setNullRelatedOptions = true;
-	
+
 	protected Map getCompilerOptions() {
 	    Map defaultOptions = super.getCompilerOptions();
 	    if (setNullRelatedOptions) {
@@ -117,7 +117,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 
 			defaultOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.ERROR);
 			defaultOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.WARNING);
-			
+
 			// leave other new options at these defaults:
 //			defaultOptions.put(CompilerOptions.OPTION_ReportNullContractViolation, JavaCore.ERROR);
 //			defaultOptions.put(CompilerOptions.OPTION_ReportPotentialNullContractViolation, JavaCore.ERROR);
@@ -159,7 +159,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			    false);
 	}
 	/** Test with JDT null annotations, expecting a null-error from ecj, none from javac. */
-	void runNegativeTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions, 
+	void runNegativeTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions,
 			String expectedErrorLog, boolean skipJavaC) {
 		runNegativeTest(
 				shouldFlushOutputDirectory,

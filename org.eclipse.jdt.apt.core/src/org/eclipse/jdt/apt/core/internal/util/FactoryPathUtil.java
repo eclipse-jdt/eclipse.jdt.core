@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.util;
 
@@ -51,26 +51,26 @@ import org.xml.sax.SAXException;
  * Utility class for dealing with the factory path
  */
 public final class FactoryPathUtil {
-	
+
 	private static final String FACTORYPATH_TAG = "factorypath"; //$NON-NLS-1$
 	private static final String FACTORYPATH_ENTRY_TAG = "factorypathentry"; //$NON-NLS-1$
 	private static final String KIND = "kind"; //$NON-NLS-1$
 	private static final String ID = "id"; //$NON-NLS-1$
 	private static final String ENABLED = "enabled"; //$NON-NLS-1$
 	private static final String RUN_IN_BATCH_MODE = "runInBatchMode"; //$NON-NLS-1$
-	
+
 	private static final String FACTORYPATH_FILE = ".factorypath"; //$NON-NLS-1$
-	
+
 	// four spaces for indent
 	private static final String INDENT = "    "; //$NON-NLS-1$
 
 	// Private c-tor to prevent construction
 	private FactoryPathUtil() {}
-	
+
 	/**
 	 * Test whether a resource is a factory path file.  The criteria are
-	 * that it is a file, it belongs to a project, it is located in the root 
-	 * of that project, and it is named ".factorypath".  Note that the 
+	 * that it is a file, it belongs to a project, it is located in the root
+	 * of that project, and it is named ".factorypath".  Note that the
 	 * workspace-wide factorypath file does NOT meet these criteria.
 	 * @param res any sort of IResource, or null.
 	 * @return true if the resource is a project-specific factory path file.
@@ -85,12 +85,12 @@ public final class FactoryPathUtil {
 		}
 		return FACTORYPATH_FILE.equals(path.lastSegment());
 	}
-	
+
 	/**
 	 * Loads a map of factory containers from the factory path for a given
 	 * project. If no factorypath file was found, returns null.
 	 */
-	public static Map<FactoryContainer, FactoryPath.Attributes> readFactoryPathFile(IJavaProject jproj) 
+	public static Map<FactoryContainer, FactoryPath.Attributes> readFactoryPathFile(IJavaProject jproj)
 		throws CoreException
 	{
 		String data = null;
@@ -114,17 +114,17 @@ public final class FactoryPathUtil {
 		catch (IOException e) {
 			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
 		}
-		
+
 		return FactoryPathUtil.decodeFactoryPath(data);
 	}
-	
+
 	/**
 	 * Stores a map of factory containers to the factorypath file
 	 * for a given project. If null is passed in, the factorypath file
 	 * is deleted.
 	 */
-	public static void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, FactoryPath.Attributes> containers) 
-		throws CoreException 
+	public static void saveFactoryPathFile(IJavaProject jproj, Map<FactoryContainer, FactoryPath.Attributes> containers)
+		throws CoreException
 	{
 		IFile projFile;
 		File wkspFile;
@@ -136,7 +136,7 @@ public final class FactoryPathUtil {
 			wkspFile = getFileForWorkspace();
 			projFile = null;
 		}
-		
+
 		try {
 			if (containers != null) {
 				String data = FactoryPathUtil.encodeFactoryPath(containers);
@@ -161,7 +161,7 @@ public final class FactoryPathUtil {
 			throw new CoreException(new Status(IStatus.ERROR, AptPlugin.PLUGIN_ID, -1, Messages.FactoryPathUtil_status_ioException, e));
 		}
 	}
-	
+
 	/**
 	 * Returns an XML string encoding all of the factories.
 	 * @param factories
@@ -181,19 +181,19 @@ public final class FactoryPathUtil {
 			sb.append(RUN_IN_BATCH_MODE).append("=\"").append(attr.runInBatchMode()).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		sb.append("</").append(FACTORYPATH_TAG).append(">\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		return sb.toString();
 	}
-	
+
 	/**
-	 * Create a factory container based on an external jar file (not in the 
+	 * Create a factory container based on an external jar file (not in the
 	 * workspace).
 	 * @param jar a java.io.File representing the jar file.
 	 */
 	public static FactoryContainer newExtJarFactoryContainer(File jar) {
 		return new ExtJarFactoryContainer(jar);
 	}
-	
+
 	/**
 	 * Create a factory container based on a jar file in the workspace.
 	 * @param jar an Eclipse IPath representing the jar file; the path is
@@ -202,9 +202,9 @@ public final class FactoryPathUtil {
 	public static FactoryContainer newWkspJarFactoryContainer(IPath jar) {
 		return new WkspJarFactoryContainer(jar);
 	}
-	
+
 	/**
-	 * Create a factory container based on an external jar file specified 
+	 * Create a factory container based on an external jar file specified
 	 * by a classpath variable (and possibly a path relative to that variable).
 	 * @param jar an Eclipse IPath representing the jar file; the first
 	 * segment of the path is assumed to be the variable name.
@@ -213,7 +213,7 @@ public final class FactoryPathUtil {
 		return new VarJarFactoryContainer(jar);
 	}
 
-	public static Map<FactoryContainer, FactoryPath.Attributes> decodeFactoryPath(final String xmlFactoryPath) 
+	public static Map<FactoryContainer, FactoryPath.Attributes> decodeFactoryPath(final String xmlFactoryPath)
 	throws CoreException
 	{
 		Map<FactoryContainer, FactoryPath.Attributes> result = new LinkedHashMap<>();
@@ -221,7 +221,7 @@ public final class FactoryPathUtil {
 		Element fpElement = null;
 
 		try {
-			DocumentBuilder parser = 
+			DocumentBuilder parser =
 				DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			fpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 
@@ -255,7 +255,7 @@ public final class FactoryPathUtil {
 				}
 				String idString = element.getAttribute(ID);
 				String enabledString = element.getAttribute(ENABLED);
-				String runInAptModeString = element.getAttribute(RUN_IN_BATCH_MODE); 
+				String runInAptModeString = element.getAttribute(RUN_IN_BATCH_MODE);
 				FactoryType kind = FactoryType.valueOf(kindString);
 				FactoryContainer container = null;
 				switch (kind) {
@@ -281,7 +281,7 @@ public final class FactoryPathUtil {
 				}
 
 				if (null != container) {
-					FactoryPath.Attributes a = new FactoryPath.Attributes( 
+					FactoryPath.Attributes a = new FactoryPath.Attributes(
 							Boolean.parseBoolean(enabledString), Boolean.parseBoolean(runInAptModeString));
 					result.put(container, a);
 				}
@@ -290,7 +290,7 @@ public final class FactoryPathUtil {
 
 		return result;
 	}
-	
+
 	/**
 	 * Get a file designator for the workspace-level factory path settings file.
 	 * Typically this is [workspace]/.metadata/plugins/org.eclipse.jdt.apt.core/.factorypath
@@ -334,7 +334,7 @@ public final class FactoryPathUtil {
 	 * on the set of plugins that were found at load time of this Eclipse instance.
 	 * Returns all containers for the provided project, including disabled ones.
 	 * @param jproj The java project in question, or null for the workspace
-	 * @return an ordered map, where the key is the container and the value 
+	 * @return an ordered map, where the key is the container and the value
 	 * indicates whether the container is enabled.
 	 */
 	private static synchronized Map<FactoryContainer, FactoryPath.Attributes> calculatePath(IJavaProject jproj) {
@@ -366,16 +366,16 @@ public final class FactoryPathUtil {
 		updatePluginContainers(map, disableNewPlugins);
 		return map;
 	}
-	
+
 	/**
-	 * Removes missing plugin containers, and adds any plugin containers 
+	 * Removes missing plugin containers, and adds any plugin containers
 	 * that were added since the map was originally created.  The order
 	 * of the original list will be maintained, and new entries will be
-	 * added to the end of the list in alphabetic order.  The resulting 
-	 * list has the same contents as PLUGIN_FACTORY_MAP (that is, all the 
+	 * added to the end of the list in alphabetic order.  The resulting
+	 * list has the same contents as PLUGIN_FACTORY_MAP (that is, all the
 	 * loaded plugins and nothing else), but the order is as close as possible
 	 * to the input.
-	 * 
+	 *
 	 * @param path the factory path (in raw Map form) to be modified.
 	 * @param disableNewPlugins if true, newly discovered plugins will be
 	 * disabled.  If false, they will be enabled or disabled according to
@@ -383,10 +383,10 @@ public final class FactoryPathUtil {
 	 */
 	private static void updatePluginContainers(
 			Map<FactoryContainer, FactoryPath.Attributes> path, boolean disableNewPlugins) {
-		
+
 		// Get the alphabetically-ordered list of all plugins we found at startup.
 		Map<FactoryContainer, FactoryPath.Attributes> pluginContainers = FactoryPluginManager.getAllPluginFactoryContainers();
-		
+
 		// Remove from the path any plugins which we did not find at startup
 		for (Iterator<FactoryContainer> i = path.keySet().iterator(); i.hasNext(); ) {
 			FactoryContainer fc = i.next();
@@ -394,7 +394,7 @@ public final class FactoryPathUtil {
 				i.remove();
 			}
 		}
-		
+
 		// Add to the end any plugins which are not in the path (i.e., which
 		// have been discovered since the config was last saved)
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : pluginContainers.entrySet()) {
@@ -414,7 +414,7 @@ public final class FactoryPathUtil {
 	/**
 	 * Get a factory path corresponding to the default values: if jproj is
 	 * non-null, return the current workspace factory path (workspace prefs
-	 * are the default for a project); if jproj is null, return the default 
+	 * are the default for a project); if jproj is null, return the default
 	 * list of plugin factories (which is the "factory default").
 	 */
 	public static IFactoryPath getDefaultFactoryPath(IJavaProject jproj) {
@@ -435,12 +435,12 @@ public final class FactoryPathUtil {
 		return fp;
 	}
 
-	public static void setFactoryPath(IJavaProject jproj, FactoryPath path) 
+	public static void setFactoryPath(IJavaProject jproj, FactoryPath path)
 			throws CoreException {
 		Map<FactoryContainer, FactoryPath.Attributes> map = (path != null) ?
 				path.getAllContainers() : null;
 		saveFactoryPathFile(jproj, map);
 	}
-	
+
 
 }

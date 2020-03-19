@@ -43,7 +43,7 @@ public class AddJrtToIndex extends BinaryContainer {
 	private IndexLocation indexFileURL;
 	private final boolean forceIndexUpdate;
 	static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
-	
+
 	enum FILE_INDEX_STATE {
 		EXISTS,
 		DELETED
@@ -79,9 +79,9 @@ public class AddJrtToIndex extends BinaryContainer {
 			return this.containerPath.hashCode();
 		return -1;
 	}
-	
+
 	private class JrtTraverser implements org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<java.nio.file.Path> {
-		
+
 		SimpleLookupTable indexedFileNames;
 		public JrtTraverser() {
 		}
@@ -99,7 +99,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			String name = JRTUtil.sanitizedFileName(path);
-			if (Util.isClassFileName(name) && 
+			if (Util.isClassFileName(name) &&
 					isValidPackageNameForClassOrisModule(name)) {
 				this.indexedFileNames.put(name, FILE_INDEX_STATE.EXISTS);
 			}
@@ -110,7 +110,7 @@ public class AddJrtToIndex extends BinaryContainer {
 			return FileVisitResult.CONTINUE;
 		}
 	}
-	
+
 	private class JrtIndexer extends JrtTraverser {
 		final SearchParticipant participant;
 		final IPath indexPath;
@@ -133,7 +133,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			String name = JRTUtil.sanitizedFileName(path);
-			if (Util.isClassFileName(name) && 
+			if (Util.isClassFileName(name) &&
 					isValidPackageNameForClassOrisModule(name)) {
 				try {
 					String fullPath = path.toString();
@@ -157,7 +157,7 @@ public class AddJrtToIndex extends BinaryContainer {
 
 		if (hasPreBuiltIndex()) {
 			boolean added = this.manager.addIndex(this.containerPath, this.indexFileURL);
-			if (added) return true;	
+			if (added) return true;
 			this.indexFileURL = null;
 		}
 
@@ -211,7 +211,7 @@ public class AddJrtToIndex extends BinaryContainer {
 					container =  this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
-					
+
 					fileName = this.containerPath.toOSString();
 					container = this.containerPath;
 				}
@@ -228,12 +228,12 @@ public class AddJrtToIndex extends BinaryContainer {
 					 * If not, then we want to check that there is no missing entry, if
 					 * one entry is missing then we recreate the index
 					 */
-					
+
 					final SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 					for (int i = 0; i < max; i++)
 						indexedFileNames.put(paths[i], FILE_INDEX_STATE.DELETED);
-					
-					org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(new File(fileName), 
+
+					org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(new File(fileName),
 							new JrtTraverser(indexedFileNames), JRTUtil.NOTIFY_FILES);
 
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
@@ -263,9 +263,9 @@ public class AddJrtToIndex extends BinaryContainer {
 					this.manager.removeIndex(this.containerPath);
 					return false;
 				}
-				
+
 				File jrt = new File(fileName);
-				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(jrt, 
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(jrt,
 						new JrtIndexer(jrt, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager), JRTUtil.NOTIFY_FILES);
 
 				if(this.forceIndexUpdate) {
@@ -296,7 +296,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		if (this.resource != null)
 			return super.getJobFamily();
 		return this.containerPath.toOSString(); // external jar
-	}	
+	}
 	@Override
 	protected Integer updatedIndexState() {
 

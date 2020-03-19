@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -78,7 +78,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		super(name);
 		this.endChar = "";
 	}
-	
+
 	static {
 		//TESTS_NAMES = new String[] {"testBug378390"};
 	}
@@ -110,10 +110,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib325418.jar", "JCL15_LIB" }, "", "1.5");
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p325418M/Missing.java",
-					"package p325418M;\n" + 
-					"public class Missing{}\n" }, 
+					"package p325418M;\n" +
+					"public class Missing{}\n" },
 					p.getProject().getLocation().append("lib325418M.jar").toOSString(), "1.5");
-			
+
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 							new String[] {
 							"p325418/Test.java",
@@ -144,7 +144,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject("P");
 		}
 	}
-	
+
 	/**
 	 * @bug 123836: [1.5][search] for references to overriding method with bound type variable is not polymorphic
 	 * @test Search for references to an overridden method with bound variables should yield.
@@ -154,8 +154,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Sub.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
 					"    public void use(C owner) { m (owner); }\n" +
@@ -178,8 +178,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Sub.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
 					"    public void use(C owner) { m (owner); }\n" +
@@ -194,7 +194,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IMethod method = type.getMethod("m", new String[]{"QSub;"});
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
 			assertSearchResults("");
-			
+
 		} finally {
 			deleteProject(project);
 		}
@@ -205,8 +205,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -223,7 +223,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IType type = getCompilationUnit("/P/Test.java").getType("StringProperty");
 			IMethod method = type.getMethod("compute", new String[]{"QString;"});
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -235,8 +235,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -250,11 +250,11 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"abstract class Property<E> {\n"+
 				"    public abstract void compute(E e);\n"+
 				"}");
-				
+
 			IType type = getCompilationUnit("/P/Test.java").getType("Test").getType("StringProperty");
 			IMethod method = type.getMethod("compute", new String[]{"QString;"});
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -266,8 +266,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -284,7 +284,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}");
 			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 3);
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -296,8 +296,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -314,7 +314,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}");
 			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 3);
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -326,8 +326,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"	{\n" +
 				"		new Property<String>() {\n" +
@@ -344,7 +344,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}");
 			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 1);
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -356,8 +356,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"	static {\n" +
 				"		new Property<String>() {\n" +
@@ -374,7 +374,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}");
 			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 1);
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -386,8 +386,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"	Property <?>p = new Property<String>() {\n" +
 				"			@Override public void compute(String e) {}\n" +
@@ -402,7 +402,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}");
 			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 1);
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -413,8 +413,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Test.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Test.java",
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -437,7 +437,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}");
 			IMethod method = selectMethod(getCompilationUnit("/P/Test.java"), "compute", 6);
 			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" + 
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
 								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH");
 		} finally {
 			deleteProject(project);
@@ -449,8 +449,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Sub.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
 					"    public void use(C owner) { m (owner); }\n" +
@@ -465,7 +465,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			SearchPattern pattern = SearchPattern.createPattern("Sub.m(String)", METHOD, REFERENCES, EXACT_RULE);
 			search(pattern, SearchEngine.createWorkspaceScope(), this.resultCollector);
 			assertSearchResults("Sub.java void Sup.use(C) [m (owner)] EXACT_MATCH");
-			
+
 		} finally {
 			deleteProject(project);
 		}
@@ -476,8 +476,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
-			createFile("/P/Sub.java", 
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
 					"    public void use(C owner) { m (owner); }\n" +
@@ -491,7 +491,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			SearchPattern pattern = SearchPattern.createPattern("Sub.m(Sub)", METHOD, REFERENCES, EXACT_RULE);
 			search(pattern, SearchEngine.createWorkspaceScope(), this.resultCollector);
 			assertSearchResults("");
-			
+
 		} finally {
 			deleteProject(project);
 		}
@@ -682,16 +682,16 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			search("getSquare", METHOD, DECLARATIONS, EXACT_RULE, scope, this.resultCollector);
-			assertSearchResults("b342393/Generic.java A b342393.Generic$A.ONE:<anonymous>#1.getSquare() [getSquare] EXACT_MATCH\n" + 
-					"b342393/Generic.java A b342393.Generic$A.TWO:<anonymous>#1.getSquare() [getSquare] EXACT_MATCH\n" + 
+			assertSearchResults("b342393/Generic.java A b342393.Generic$A.ONE:<anonymous>#1.getSquare() [getSquare] EXACT_MATCH\n" +
+					"b342393/Generic.java A b342393.Generic$A.TWO:<anonymous>#1.getSquare() [getSquare] EXACT_MATCH\n" +
 					"b342393/Generic.java A b342393.Generic$A.getSquare() [getSquare] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}
 	}
-	
+
 	/**
-	 * @bug 376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it 
+	 * @bug 376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it
 	 * @test Search for DBCS type should report the match
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673"
 	 */
@@ -702,7 +702,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				return;
 			}
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
-			String content = "package pkg;\n" + 
+			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {}\n";
 			createFolder("/P/pkg");
 			try {
@@ -727,7 +727,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				return;
 			}
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
-			String content = "package pkg;\n" + 
+			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {" +
 					"	public void \uD842\uDF9Fm() {}\n" +
 					"}\n";
@@ -754,7 +754,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				return;
 			}
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
-			String content = "package pkg;\n" + 
+			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {" +
 					"	public \uD842\uDF9F1() {}\n" +
 					"}\n";
@@ -781,7 +781,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				return;
 			}
 			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
-			String content = "package pkg;\n" + 
+			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {" +
 					"	public int \uD842\uDF9Ff;\n" +
 					"}\n";
@@ -814,7 +814,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "", "1.7");
 		IPath jarPath = p.getProject().getLocation().append("lib376673.jar");
-		
+
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 						new String[] {
 						"p\uD842\uDF9F/i\uD842\uDF9F/Test.java",
@@ -898,7 +898,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	
+
 	// search for the method name should also not return matches if not-overridden because of package-visible
 	public void testBug357547b() throws CoreException {
 		IJavaProject project = null;
@@ -934,8 +934,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
-	
-	// search for the method name should return the match if same package 
+
+	// search for the method name should return the match if same package
 	public void testBug357547c() throws CoreException {
 		IJavaProject project = null;
 		try
@@ -1015,10 +1015,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL15_LIB" }, "", "1.5");
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p2/A.java",
-					"package p2;\n" + 
-					"public class A{}\n" }, 
+					"package p2;\n" +
+					"public class A{}\n" },
 					project.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
-			
+
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] {
 						"p1/B.java",
@@ -1027,7 +1027,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 						"public class B extends A {\n" +
 						"long k(){\n" +
 						"return 0;\n" +
-						"}\n" + 
+						"}\n" +
 						"}\n"},
 					null,
 					project.getProject().getLocation().append("lib357547.jar").toOSString(),
@@ -1063,10 +1063,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL15_LIB" }, "", "1.5");
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p2/A.java",
-					"package p2;\n" + 
-					"public class A{}\n" }, 
+					"package p2;\n" +
+					"public class A{}\n" },
 					project.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
-			
+
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] {
 						"p2/B.java",
@@ -1075,7 +1075,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 						"public class B extends A {\n" +
 						"long k(){\n" +
 						"return 0;\n" +
-						"}\n" + 
+						"}\n" +
 						"}\n"},
 					null,
 					project.getProject().getLocation().append("lib357547.jar").toOSString(),
@@ -1169,8 +1169,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"class B extends A {\n" +
 					"long k(){\n" +
 					"return 0;\n" +
-			  		"}\n" +	
-			  		"}\n" +	
+			  		"}\n" +
+			  		"}\n" +
 					"long k(){\n" +
 					"return 0;\n" +
 			  		"}\n" +
@@ -1338,7 +1338,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IMethod method = selectMethod(unit, "addListener");
 			this.resultCollector.showRule();
 			search(method, REFERENCES, ERASURE_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] EXACT_MATCH\n" + 
+			assertSearchResults("ClassB.java void ClassB.doSomething() [addListener()] EXACT_MATCH\n" +
 								"ClassC.java void ClassC.doSomething() [addListener()] ERASURE_MATCH");
 		} finally {
 			deleteProject("P");
@@ -1675,7 +1675,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug395348() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");	
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFile("/P/X.java",
 					"public class X {\n"+
 					"   static void f() {\n" +
@@ -1691,7 +1691,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"}\n" +
 					"class C2 {}\n"
 			);
-			IMethod method = selectMethod(getCompilationUnit("/P/X.java"), "compare", 0);		
+			IMethod method = selectMethod(getCompilationUnit("/P/X.java"), "compare", 0);
 			MethodPattern pattern = (MethodPattern) SearchPattern.createPattern(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, EQUIVALENT_RULE|EXACT_RULE);
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			search(pattern,  scope, this.resultCollector);
@@ -1723,21 +1723,21 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					// this class contains the method we search for, possibleMatch #402
 					// (must be > 401 possibleMatches to trigger environment cleanup)
 					"p2/B.java",
-					"package p2;\n" + 
+					"package p2;\n" +
 					"public class B<T> {\n" +
 					"	public int test(T t) {\n" +
 					"		return 0;\n" +
 					"	}\n" +
 					"}\n"
-				}, 
+				},
 				p.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
 			refresh(p);
-			
+
 			createFolder("/P/src/pkg");
 			// 400 matches, which populate MatchLocator.unitScope
-			// all 400 matches are processed in one go of MatchLocator.locateMatches(JavaProject, PossibleMatch[], int, int)	
+			// all 400 matches are processed in one go of MatchLocator.locateMatches(JavaProject, PossibleMatch[], int, int)
 			// next round will call nameEnvironment.cleanup() but reuse MatchLocator.unitScope ==> BOOM
-			for (int i = 0; i < 400; i++) {				
+			for (int i = 0; i < 400; i++) {
 				createFile("/P/src/pkg/Bug"+i+".java",
 						"package pkg;\n"+
 						"public class Bug"+i+" {\n"+
@@ -1746,7 +1746,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 						"	}\n" +
 						"}");
 			}
-			
+
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p },
 					IJavaSearchScope.SOURCES|IJavaSearchScope.SYSTEM_LIBRARIES|IJavaSearchScope.APPLICATION_LIBRARIES);
@@ -1801,8 +1801,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			search(field, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
 
 			assertSearchResults(
-					"src/com/test/Test2.java com.test.Test2.{} [fi] EXACT_MATCH\n" + 
-					"src/com/test/Test2.java FI com.test.Test2.fun1(FI) [fi] EXACT_MATCH\n" + 
+					"src/com/test/Test2.java com.test.Test2.{} [fi] EXACT_MATCH\n" +
+					"src/com/test/Test2.java FI com.test.Test2.fun1(FI) [fi] EXACT_MATCH\n" +
 					"src/com/test/Test2.java FI com.test.Test2.fun1(FI) [fi] EXACT_MATCH");
 		} finally {
 			deleteProject("P");
@@ -1814,7 +1814,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try	{
 			jgit = createJavaProject("jgit", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFolder("/jgit/base");
-			createFile("/jgit/base/AbstractPlotRenderer.java", 
+			createFile("/jgit/base/AbstractPlotRenderer.java",
 					"package base;\n" +
 					"public abstract class AbstractPlotRenderer<TLane extends PlotLane, TColor> {\n"+
 					"	protected abstract TColor laneColor(TLane myLane);\n"+
@@ -1825,24 +1825,24 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"		final TColor myColor = laneColor(myLane);\n"+
 					"	}\n"+
 					"}\n");
-			createFile("/jgit/base/PlotCommit.java", 
+			createFile("/jgit/base/PlotCommit.java",
 					"package base;\n"+
 					"public class PlotCommit<L extends PlotLane> {\n"+
 					"	public L getLane() {\n"+
 					"		return null;\n"+
 					"	}\n"+
 					"}");
-			createFile("/jgit/base/PlotLane.java", 
+			createFile("/jgit/base/PlotLane.java",
 					"package base;\n"+
 					"public class PlotLane {\n"+
 					"}");
 			egit = createJavaProject("egit", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 			createFolder("/egit/bug");
-			createFile("/egit/bug/SWTPlotLane.java", 
+			createFile("/egit/bug/SWTPlotLane.java",
 					"package bug;\n" +
 					"import base.PlotLane;\n" +
 					"public class SWTPlotLane extends PlotLane {}");
-			createFile("/egit/bug/SWTPlotRenderer.java", 
+			createFile("/egit/bug/SWTPlotRenderer.java",
 					"package bug;\n" +
 					"import base.AbstractPlotRenderer;\n" +
 					"class SWTPlotRenderer extends AbstractPlotRenderer<SWTPlotLane, Integer> {\n" +
@@ -1852,7 +1852,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"    }\n" +
 					"}");
 			addClasspathEntry(egit, JavaCore.newProjectEntry(jgit.getPath()));
-			
+
 			// search
 			IType type  = getCompilationUnit("/egit/bug/SWTPlotRenderer.java").getType("SWTPlotRenderer");
 			IMethod method = type.getMethods()[0];
@@ -1904,9 +1904,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES);
 			search(method, REFERENCES, scope);
 			assertSearchResults(
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
 					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -1934,11 +1934,11 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			"	void goo() {\n" +
 			"		final Y y = new Y();\n" +
 			"		new X() {\n" +
-			"			void goo() {\n" + 
+			"			void goo() {\n" +
 			"		        new X() {\n" +
 			"			        void goo() { y.bar();}\n" +
 			"		        };\n" +
-			"               y.bar();\n" + 
+			"               y.bar();\n" +
 			"           }\n" +
 			"		};\n" +
 			"		new X() {\n" +
@@ -1962,10 +1962,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES);
 			search(method, REFERENCES, scope);
 			assertSearchResults(
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
-					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" +
 					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -2006,7 +2006,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					p.getProject().getLocation().append("lib473921.jar").toOSString(),
 					"1.7");
 			refresh(p);
-			
+
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p });
 			class Collector extends TypeNameMatchRequestor {
 				List<TypeNameMatch> matches = new ArrayList<>();
@@ -2027,7 +2027,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(0).getAccessibility());
 			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(1).getAccessibility()); // bug 482309
 			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(2).getAccessibility()); // bug 482309 (double-nested type)
-			
+
 			collector = new Collector();
 			new SearchEngine().searchAllTypeNames(
 					null,
@@ -2051,14 +2051,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void foo01() {}\n" +
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2067,9 +2067,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
 					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 					requestor
 			);
@@ -2084,14 +2084,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void foo01() {}\n" +
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2100,9 +2100,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
 					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 					requestor
 			);
@@ -2115,7 +2115,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void foo() {}\n" +
@@ -2123,7 +2123,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2132,7 +2132,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				List<MethodNameMatch> matches = new ArrayList<>();
 				@Override
 				public void acceptMethodNameMatch(MethodNameMatch match) {
-					this.matches.add(match);					
+					this.matches.add(match);
 				}
 			}
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -2155,7 +2155,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
 					"class Y<T> {}\n" +
 					"class X<T> {}\n" +
@@ -2164,7 +2164,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"  public int foo02(Object o) {return null;}\n" +
 					"  public char foo03(Object o, String s) {return null;}\n" +
 					"}");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 					"package p478042;\n" +
 					"public class AllMethodDeclarations01b {\n" +
 					"  public Integer fooInt() {return null;}\n" +
@@ -2173,9 +2173,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.foo01(Y t)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.foo01(Y t)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
 					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 					requestor
 			);
@@ -2205,14 +2205,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
 				"1.5");
 			refresh(p);
-			
+
 			MethodDeclarationsCollector requestor = new MethodDeclarationsCollector();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
 			searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/lib478042.jar|p478042/AllMethodDeclarations02.class char p478042.AllMethodDeclarations02.foo03(java.lang.Object o,java.lang.String s)\n" + 
-					"/P/lib478042.jar|p478042/AllMethodDeclarations02.class int p478042.AllMethodDeclarations02.foo02(java.lang.Object o)\n" + 
-					"/P/lib478042.jar|p478042/AllMethodDeclarations02.class p478042.Y p478042.AllMethodDeclarations02.foo01(p478042.Y t)\n" + 
+					"/P/lib478042.jar|p478042/AllMethodDeclarations02.class char p478042.AllMethodDeclarations02.foo03(java.lang.Object o,java.lang.String s)\n" +
+					"/P/lib478042.jar|p478042/AllMethodDeclarations02.class int p478042.AllMethodDeclarations02.foo02(java.lang.Object o)\n" +
+					"/P/lib478042.jar|p478042/AllMethodDeclarations02.class p478042.Y p478042.AllMethodDeclarations02.foo01(p478042.Y t)\n" +
 					"/P/lib478042.jar|p478042/AllMethodDeclarations02b.class void p478042.AllMethodDeclarations02b.fooInt()",
 					requestor
 			);
@@ -2239,13 +2239,13 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
 				"1.5");
 			refresh(p);
-			
+
 			MethodDeclarationsCollector requestor = new MethodDeclarationsCollector();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
 			searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class char p478042.Inner.foo03(java.lang.Object o,java.lang.String s)\n" + 
-					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class int p478042.Inner.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class char p478042.Inner.foo03(java.lang.Object o,java.lang.String s)\n" +
+					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class int p478042.Inner.foo02(java.lang.Object o)\n" +
 					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class void p478042.Inner.foo01()",
 					requestor
 			);
@@ -2272,15 +2272,15 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
 				"1.5");
 			refresh(p);
-			
+
 			MethodDeclarationsCollector requestor = new MethodDeclarationsCollector();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
 			searchAllMethodNames(
 					"Inner", SearchPattern.R_EXACT_MATCH,
 					"foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class char p478042.Inner.foo03(java.lang.Object o,java.lang.String s)\n" + 
-					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class int p478042.Inner.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class char p478042.Inner.foo03(java.lang.Object o,java.lang.String s)\n" +
+					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class int p478042.Inner.foo02(java.lang.Object o)\n" +
 					"/P/lib478042.jar|p478042/AllMethodDeclarations01$Nested$Inner.class void p478042.Inner.foo01()",
 					requestor
 			);
@@ -2295,7 +2295,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
 					"public class AllMethodDeclarations01 {\n" +
 					"    public class Nested {\n" +
@@ -2310,8 +2310,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested .Inner.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested .Inner.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested .Inner.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested .Inner.foo02(Object o)\n" +
 					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.Nested .Inner.foo01()",
 					requestor
 			);
@@ -2326,7 +2326,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void m1(int i) {}\n" +
@@ -2334,7 +2334,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2343,7 +2343,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				List<MethodNameMatch> matches = new ArrayList<>();
 				@Override
 				public void acceptMethodNameMatch(MethodNameMatch match) {
-					this.matches.add(match);					
+					this.matches.add(match);
 				}
 			}
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -2368,14 +2368,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void foo01() {}\n" +
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2389,9 +2389,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
 					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 					collector
 			);
@@ -2406,14 +2406,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void foo01() {}\n" +
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2427,9 +2427,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
 					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 					collector
 			);
@@ -2442,7 +2442,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void foo() {}\n" +
@@ -2450,7 +2450,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2459,7 +2459,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				List<MethodNameMatch> matches = new ArrayList<>();
 				@Override
 				public void acceptMethodNameMatch(MethodNameMatch match) {
-					this.matches.add(match);					
+					this.matches.add(match);
 				}
 			}
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -2480,7 +2480,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
 					"class Y<T> {}\n" +
 					"class X<T> {}\n" +
@@ -2489,7 +2489,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"  public int foo02(Object o) {return null;}\n" +
 					"  public char foo03(Object o, String s) {return null;}\n" +
 					"}");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 					"package p478042;\n" +
 					"public class AllMethodDeclarations01b {\n" +
 					"  public Integer fooInt() {return null;}\n" +
@@ -2503,9 +2503,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
 			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 			assertSearchResults(
-					"/P/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.foo01(Y t)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.foo01(Y t)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
 					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 					collector
 			);
@@ -2535,7 +2535,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
 				"1.5");
 			refresh(p);
-			
+
 			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
 				@Override
 				public String toString() {
@@ -2545,9 +2545,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
 			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 			assertSearchResults(
-					"/P/lib478042.jar p478042.Y p478042.AllMethodDeclarations02.foo01(p478042.Y t)\n" + 
-					"/P/lib478042.jar void p478042.AllMethodDeclarations02b.fooInt()\n" + 
-					"/P/lib478042.jar int p478042.AllMethodDeclarations02.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar p478042.Y p478042.AllMethodDeclarations02.foo01(p478042.Y t)\n" +
+					"/P/lib478042.jar void p478042.AllMethodDeclarations02b.fooInt()\n" +
+					"/P/lib478042.jar int p478042.AllMethodDeclarations02.foo02(java.lang.Object o)\n" +
 					"/P/lib478042.jar char p478042.AllMethodDeclarations02.foo03(java.lang.Object o,java.lang.String s)",
 					collector
 			);
@@ -2574,7 +2574,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
 				"1.5");
 			refresh(p);
-			
+
 			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
 				@Override
 				public String toString() {
@@ -2584,8 +2584,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
 			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 			assertSearchResults(
-					"/P/lib478042.jar void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
-					"/P/lib478042.jar int p478042.AllMethodDeclarations01.Nested.Inner.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" +
+					"/P/lib478042.jar int p478042.AllMethodDeclarations01.Nested.Inner.foo02(java.lang.Object o)\n" +
 					"/P/lib478042.jar char p478042.AllMethodDeclarations01.Nested.Inner.foo03(java.lang.Object o,java.lang.String s)",
 					collector
 			);
@@ -2612,7 +2612,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
 				"1.5");
 			refresh(p);
-			
+
 			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
 				@Override
 				public String toString() {
@@ -2624,8 +2624,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"*Inner", SearchPattern.R_PATTERN_MATCH,
 					"foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 			assertSearchResults(
-					"/P/lib478042.jar void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
-					"/P/lib478042.jar int p478042.AllMethodDeclarations01.Nested.Inner.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" +
+					"/P/lib478042.jar int p478042.AllMethodDeclarations01.Nested.Inner.foo02(java.lang.Object o)\n" +
 					"/P/lib478042.jar char p478042.AllMethodDeclarations01.Nested.Inner.foo03(java.lang.Object o,java.lang.String s)",
 					collector
 			);
@@ -2640,7 +2640,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// create the common project and create an interface
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
 					"public class AllMethodDeclarations01 {\n" +
 					"    public class Nested {\n" +
@@ -2671,7 +2671,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try {
 			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
 			createFolder("P/src/p478042");
-			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01 {\n" +
 				"  public void m1(int i) {}\n" +
@@ -2679,7 +2679,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"  public int foo02(Object o) {return null;}\n" +
 				"  public char foo03(Object o, String s) {return null;}\n" +
 				"    }");
-			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java",
 				"package p478042;\n" +
 				"public class AllMethodDeclarations01b {\n" +
 				"  public Integer fooInt() {return null;}\n" +
@@ -2688,7 +2688,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				List<MethodNameMatch> matches = new ArrayList<>();
 				@Override
 				public void acceptMethodNameMatch(MethodNameMatch match) {
-					this.matches.add(match);					
+					this.matches.add(match);
 				}
 			}
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -2709,10 +2709,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/p1p2.jar", "JCL15_LIB" }, "bin", "1.5");
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p1/MissingClass.java",
-					"package p1;\n" + 
-					"public class MissingClass{}\n" }, 
+					"package p1;\n" +
+					"public class MissingClass{}\n" },
 					p.getProject().getLocation().append("p1.jar").toOSString(), "1.5");
-			
+
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p1/p2/BinaryWithField.java",
 					"package p1.p2;\n" +
@@ -2737,7 +2737,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					new String[] { p.getProject().getLocation().append("p1.jar").toOSString() },
 					"1.5");
 			createFolder("/P/src/test");
-			createFile("/P/src/test/A.java", 
+			createFile("/P/src/test/A.java",
 					"package test;\n" +
 					"import p1.MissingClass;\n" +
 					"public class A {\n" +
@@ -2745,7 +2745,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"    return null;\n" +
 					"  }\n" +
 					"}\n");
-			createFile("/P/src/test/TestSearchBug.java", 
+			createFile("/P/src/test/TestSearchBug.java",
 					"package test;\n" +
 					"\n" +
 					"public class TestSearchBug {\n" +

@@ -97,7 +97,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 						packageName,
 						typeModifiers,
 						extraFlags));
-		
+
 		if (parameterTypes != null) {
 			for (int i = 0; i < argCount; i++)
 				addTypeReference(parameterTypes[i]);

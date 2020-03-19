@@ -1826,7 +1826,7 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" + 
+				"import java.util.*;\n" +
 				"public class X extends java.util.AbstractMap {\n" +
 				"	public java.util.Set entrySet() { return null; }\n" +
 				"}\n"
@@ -2064,16 +2064,16 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"class Y<T extends I&J> {}\n" +
 				"class Z<T extends J&I> {}"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	public class X<T extends A&I> {}\n" + 
-			"	               ^\n" + 
-			"The return types are incompatible for the inherited methods I.foo(), A.foo()\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	interface J extends I { Object foo(); }\n" + 
-			"	                        ^^^^^^\n" + 
-			"The return type is incompatible with I.foo()\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	public class X<T extends A&I> {}\n" +
+			"	               ^\n" +
+			"The return types are incompatible for the inherited methods I.foo(), A.foo()\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	interface J extends I { Object foo(); }\n" +
+			"	                        ^^^^^^\n" +
+			"The return type is incompatible with I.foo()\n" +
 			"----------\n"
 			// foo() in A cannot implement foo() in I; attempting to use incompatible return type
 		);
@@ -2369,11 +2369,11 @@ public class MethodVerifyTest extends AbstractComparableTest {
 									"interface Equivalent<T> { boolean equalTo(T other); }\n" +
 									"interface EqualityComparable<T> { boolean equalTo(T other); }\n"
 					},
-					"----------\n" + 
-					"1. ERROR in Y.java (at line 1)\n" + 
-					"	abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
-					"	               ^\n" + 
-					"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
+					"----------\n" +
+					"1. ERROR in Y.java (at line 1)\n" +
+					"	abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" +
+					"	               ^\n" +
+					"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" +
 					"----------\n");
 		}
 	}
@@ -2401,21 +2401,21 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" +
 			"----------\n" :
 			// name clash: equalTo(java.lang.Object) in Y and equalTo(T) in Equivalent<java.lang.String> have the same erasure, yet neither overrides the other
-			"----------\n" + 
-			"1. ERROR in Y.java (at line 1)\n" + 
-			"	abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
-			"	               ^\n" + 
-			"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
-			"----------\n" + 
-			"2. ERROR in Y.java (at line 2)\n" + 
-			"	public abstract boolean equalTo(Object other);\n" + 
-			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type EqualityComparable<T> but does not override it\n" + 
-			"----------\n" + 
-			"3. ERROR in Y.java (at line 2)\n" + 
-			"	public abstract boolean equalTo(Object other);\n" + 
-			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
+			"----------\n" +
+			"1. ERROR in Y.java (at line 1)\n" +
+			"	abstract class Y implements Equivalent<String>, EqualityComparable<Integer> {\n" +
+			"	               ^\n" +
+			"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" +
+			"----------\n" +
+			"2. ERROR in Y.java (at line 2)\n" +
+			"	public abstract boolean equalTo(Object other);\n" +
+			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type EqualityComparable<T> but does not override it\n" +
+			"----------\n" +
+			"3. ERROR in Y.java (at line 2)\n" +
+			"	public abstract boolean equalTo(Object other);\n" +
+			"	                        ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method equalTo(Object) of type Y has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" +
 			"----------\n"
 		);
 	}
@@ -2479,58 +2479,58 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface K extends I { void foo(A<String> a); }\n" +
 				"class A<T> {}"
 			},
-			this.complianceLevel < ClassFileConstants.JDK1_7 ? 
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	class YYY implements J, I { public void foo(A a) {} }\n" + 
-			"	                                            ^\n" + 
-			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	class XXX implements I, J { public void foo(A a) {} }\n" + 
-			"	                                            ^\n" + 
-			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 6)\n" + 
-			"	class ZZZ implements K { public void foo(A a) {} }\n" + 
-			"	                                         ^\n" + 
-			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 7)\n" + 
-			"	interface I { void foo(A a); }\n" + 
-			"	                       ^\n" + 
-			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 9)\n" + 
-			"	interface K extends I { void foo(A<String> a); }\n" + 
-			"	                             ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
-			"----------\n" : 
-				"----------\n" + 
-				"1. WARNING in X.java (at line 4)\n" + 
-				"	class YYY implements J, I { public void foo(A a) {} }\n" + 
-				"	                                            ^\n" + 
-				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 5)\n" + 
-				"	class XXX implements I, J { public void foo(A a) {} }\n" + 
-				"	                                            ^\n" + 
-				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 6)\n" + 
-				"	class ZZZ implements K { public void foo(A a) {} }\n" + 
-				"	                                         ^\n" + 
-				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 7)\n" + 
-				"	interface I { void foo(A a); }\n" + 
-				"	                       ^\n" + 
-				"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 9)\n" + 
-				"	interface K extends I { void foo(A<String> a); }\n" + 
-				"	                             ^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	class YYY implements J, I { public void foo(A a) {} }\n" +
+			"	                                            ^\n" +
+			"A is a raw type. References to generic type A<T> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	class XXX implements I, J { public void foo(A a) {} }\n" +
+			"	                                            ^\n" +
+			"A is a raw type. References to generic type A<T> should be parameterized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	class ZZZ implements K { public void foo(A a) {} }\n" +
+			"	                                         ^\n" +
+			"A is a raw type. References to generic type A<T> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 7)\n" +
+			"	interface I { void foo(A a); }\n" +
+			"	                       ^\n" +
+			"A is a raw type. References to generic type A<T> should be parameterized\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 9)\n" +
+			"	interface K extends I { void foo(A<String> a); }\n" +
+			"	                             ^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" +
+			"----------\n" :
+				"----------\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	class YYY implements J, I { public void foo(A a) {} }\n" +
+				"	                                            ^\n" +
+				"A is a raw type. References to generic type A<T> should be parameterized\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 5)\n" +
+				"	class XXX implements I, J { public void foo(A a) {} }\n" +
+				"	                                            ^\n" +
+				"A is a raw type. References to generic type A<T> should be parameterized\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 6)\n" +
+				"	class ZZZ implements K { public void foo(A a) {} }\n" +
+				"	                                         ^\n" +
+				"A is a raw type. References to generic type A<T> should be parameterized\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 7)\n" +
+				"	interface I { void foo(A a); }\n" +
+				"	                       ^\n" +
+				"A is a raw type. References to generic type A<T> should be parameterized\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 9)\n" +
+				"	interface K extends I { void foo(A<String> a); }\n" +
+				"	                             ^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" +
 				"----------\n");
 	}
 	public void test037a() { // test inheritance scenarios
@@ -2569,46 +2569,46 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"interface K extends I { void foo(A<String> a); }\n" +
 				"class A<T> {}"
 			},
-			"----------\n" + 
-			"1. ERROR in XX.java (at line 1)\n" + 
-			"	public class XX implements I, J { public void foo(A<String> a) {} }\n" + 
-			"	             ^^\n" + 
-			"The type XX must implement the inherited abstract method I.foo(A)\n" + 
-			"----------\n" + 
-			"2. ERROR in XX.java (at line 1)\n" + 
-			"	public class XX implements I, J { public void foo(A<String> a) {} }\n" + 
-			"	                                              ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(A<String>) of type XX has the same erasure as foo(A) of type I but does not override it\n" + 
-			"----------\n" + 
-			"3. ERROR in XX.java (at line 2)\n" + 
-			"	class YY implements J, I { public void foo(A<String> a) {} }\n" + 
-			"	      ^^\n" + 
-			"The type YY must implement the inherited abstract method I.foo(A)\n" + 
-			"----------\n" + 
-			"4. ERROR in XX.java (at line 2)\n" + 
-			"	class YY implements J, I { public void foo(A<String> a) {} }\n" + 
-			"	                                       ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(A<String>) of type YY has the same erasure as foo(A) of type I but does not override it\n" + 
-			"----------\n" + 
-			"5. ERROR in XX.java (at line 3)\n" + 
-			"	class ZZ implements K { public void foo(A<String> a) {} }\n" + 
-			"	      ^^\n" + 
-			"The type ZZ must implement the inherited abstract method I.foo(A)\n" + 
-			"----------\n" + 
-			"6. ERROR in XX.java (at line 3)\n" + 
-			"	class ZZ implements K { public void foo(A<String> a) {} }\n" + 
-			"	                                    ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(A<String>) of type ZZ has the same erasure as foo(A) of type I but does not override it\n" + 
-			"----------\n" + 
-			"7. WARNING in XX.java (at line 4)\n" + 
-			"	interface I { void foo(A a); }\n" + 
-			"	                       ^\n" + 
-			"A is a raw type. References to generic type A<T> should be parameterized\n" + 
-			"----------\n" + 
-			"8. ERROR in XX.java (at line 6)\n" + 
-			"	interface K extends I { void foo(A<String> a); }\n" + 
-			"	                             ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" + 
+			"----------\n" +
+			"1. ERROR in XX.java (at line 1)\n" +
+			"	public class XX implements I, J { public void foo(A<String> a) {} }\n" +
+			"	             ^^\n" +
+			"The type XX must implement the inherited abstract method I.foo(A)\n" +
+			"----------\n" +
+			"2. ERROR in XX.java (at line 1)\n" +
+			"	public class XX implements I, J { public void foo(A<String> a) {} }\n" +
+			"	                                              ^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(A<String>) of type XX has the same erasure as foo(A) of type I but does not override it\n" +
+			"----------\n" +
+			"3. ERROR in XX.java (at line 2)\n" +
+			"	class YY implements J, I { public void foo(A<String> a) {} }\n" +
+			"	      ^^\n" +
+			"The type YY must implement the inherited abstract method I.foo(A)\n" +
+			"----------\n" +
+			"4. ERROR in XX.java (at line 2)\n" +
+			"	class YY implements J, I { public void foo(A<String> a) {} }\n" +
+			"	                                       ^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(A<String>) of type YY has the same erasure as foo(A) of type I but does not override it\n" +
+			"----------\n" +
+			"5. ERROR in XX.java (at line 3)\n" +
+			"	class ZZ implements K { public void foo(A<String> a) {} }\n" +
+			"	      ^^\n" +
+			"The type ZZ must implement the inherited abstract method I.foo(A)\n" +
+			"----------\n" +
+			"6. ERROR in XX.java (at line 3)\n" +
+			"	class ZZ implements K { public void foo(A<String> a) {} }\n" +
+			"	                                    ^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(A<String>) of type ZZ has the same erasure as foo(A) of type I but does not override it\n" +
+			"----------\n" +
+			"7. WARNING in XX.java (at line 4)\n" +
+			"	interface I { void foo(A a); }\n" +
+			"	                       ^\n" +
+			"A is a raw type. References to generic type A<T> should be parameterized\n" +
+			"----------\n" +
+			"8. ERROR in XX.java (at line 6)\n" +
+			"	interface K extends I { void foo(A<String> a); }\n" +
+			"	                             ^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(A<String>) of type K has the same erasure as foo(A) of type I but does not override it\n" +
 			"----------\n"
 		);
 	}
@@ -3122,60 +3122,60 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			this.complianceLevel < ClassFileConstants.JDK1_7 ?
-			"----------\n" + 
-			"1. WARNING in p\\X.java (at line 6)\n" + 
-			"	public X() { foo(data.l); }\n" + 
-			"	             ^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
-			"----------\n" + 
-			"2. WARNING in p\\X.java (at line 6)\n" + 
-			"	public X() { foo(data.l); }\n" + 
-			"	             ^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Z\n" + 
-			"----------\n" + 
-			"3. WARNING in p\\X.java (at line 6)\n" + 
-			"	public X() { foo(data.l); }\n" + 
-			"	                 ^^^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in p\\Y.java (at line 4)\n" + 
-			"	List l = null;\n" + 
-			"	^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" +
+			"1. WARNING in p\\X.java (at line 6)\n" +
+			"	public X() { foo(data.l); }\n" +
+			"	             ^^^^^^^^^^^\n" +
+			"Type safety: A generic array of List<Object> is created for a varargs parameter\n" +
+			"----------\n" +
+			"2. WARNING in p\\X.java (at line 6)\n" +
+			"	public X() { foo(data.l); }\n" +
+			"	             ^^^^^^^^^^^\n" +
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Z\n" +
+			"----------\n" +
+			"3. WARNING in p\\X.java (at line 6)\n" +
+			"	public X() { foo(data.l); }\n" +
+			"	                 ^^^^^^\n" +
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in p\\Y.java (at line 4)\n" +
+			"	List l = null;\n" +
+			"	^^^^\n" +
+			"List is a raw type. References to generic type List<E> should be parameterized\n" +
 			"----------\n" :
-				"----------\n" + 
-				"1. WARNING in p\\X.java (at line 6)\n" + 
-				"	public X() { foo(data.l); }\n" + 
-				"	             ^^^^^^^^^^^\n" + 
-				"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
-				"----------\n" + 
-				"2. WARNING in p\\X.java (at line 6)\n" + 
-				"	public X() { foo(data.l); }\n" + 
-				"	             ^^^^^^^^^^^\n" + 
-				"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Z\n" + 
-				"----------\n" + 
-				"3. WARNING in p\\X.java (at line 6)\n" + 
-				"	public X() { foo(data.l); }\n" + 
-				"	                 ^^^^^^\n" + 
-				"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
-				"----------\n" + 
-				"----------\n" + 
-				"1. WARNING in p\\Y.java (at line 4)\n" + 
-				"	List l = null;\n" + 
-				"	^^^^\n" + 
-				"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-				"----------\n" + 
-				"2. WARNING in p\\Y.java (at line 5)\n" + 
-				"	public static <T> void foo(T... e) {}\n" + 
-				"	                                ^\n" + 
-				"Type safety: Potential heap pollution via varargs parameter e\n" + 
-				"----------\n" + 
-				"----------\n" + 
-				"1. WARNING in p\\Z.java (at line 4)\n" + 
-				"	public static <T> void foo(List<T>... e) {}\n" + 
-				"	                                      ^\n" + 
-				"Type safety: Potential heap pollution via varargs parameter e\n" + 
+				"----------\n" +
+				"1. WARNING in p\\X.java (at line 6)\n" +
+				"	public X() { foo(data.l); }\n" +
+				"	             ^^^^^^^^^^^\n" +
+				"Type safety: A generic array of List<Object> is created for a varargs parameter\n" +
+				"----------\n" +
+				"2. WARNING in p\\X.java (at line 6)\n" +
+				"	public X() { foo(data.l); }\n" +
+				"	             ^^^^^^^^^^^\n" +
+				"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Z\n" +
+				"----------\n" +
+				"3. WARNING in p\\X.java (at line 6)\n" +
+				"	public X() { foo(data.l); }\n" +
+				"	                 ^^^^^^\n" +
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" +
+				"----------\n" +
+				"----------\n" +
+				"1. WARNING in p\\Y.java (at line 4)\n" +
+				"	List l = null;\n" +
+				"	^^^^\n" +
+				"List is a raw type. References to generic type List<E> should be parameterized\n" +
+				"----------\n" +
+				"2. WARNING in p\\Y.java (at line 5)\n" +
+				"	public static <T> void foo(T... e) {}\n" +
+				"	                                ^\n" +
+				"Type safety: Potential heap pollution via varargs parameter e\n" +
+				"----------\n" +
+				"----------\n" +
+				"1. WARNING in p\\Z.java (at line 4)\n" +
+				"	public static <T> void foo(List<T>... e) {}\n" +
+				"	                                      ^\n" +
+				"Type safety: Potential heap pollution via varargs parameter e\n" +
 				"----------\n"
 			// unchecked conversion warnings
 		);
@@ -3201,59 +3201,59 @@ public class MethodVerifyTest extends AbstractComparableTest {
 				"}\n"
 			},
 			this.complianceLevel < ClassFileConstants.JDK1_7 ?
-			"----------\n" + 
-			"1. WARNING in p\\X.java (at line 5)\n" + 
-			"	public X() { foo(data.l); }\n" + 
-			"	             ^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
-			"----------\n" + 
-			"2. WARNING in p\\X.java (at line 5)\n" + 
-			"	public X() { foo(data.l); }\n" + 
-			"	             ^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Y\n" + 
-			"----------\n" + 
-			"3. WARNING in p\\X.java (at line 5)\n" + 
-			"	public X() { foo(data.l); }\n" + 
-			"	                 ^^^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in p\\Y.java (at line 4)\n" + 
-			"	List l = null;\n" + 
-			"	^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+			"----------\n" +
+			"1. WARNING in p\\X.java (at line 5)\n" +
+			"	public X() { foo(data.l); }\n" +
+			"	             ^^^^^^^^^^^\n" +
+			"Type safety: A generic array of List<Object> is created for a varargs parameter\n" +
+			"----------\n" +
+			"2. WARNING in p\\X.java (at line 5)\n" +
+			"	public X() { foo(data.l); }\n" +
+			"	             ^^^^^^^^^^^\n" +
+			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Y\n" +
+			"----------\n" +
+			"3. WARNING in p\\X.java (at line 5)\n" +
+			"	public X() { foo(data.l); }\n" +
+			"	                 ^^^^^^\n" +
+			"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in p\\Y.java (at line 4)\n" +
+			"	List l = null;\n" +
+			"	^^^^\n" +
+			"List is a raw type. References to generic type List<E> should be parameterized\n" +
 			"----------\n" :
-				"----------\n" + 
-				"1. WARNING in p\\X.java (at line 5)\n" + 
-				"	public X() { foo(data.l); }\n" + 
-				"	             ^^^^^^^^^^^\n" + 
-				"Type safety: A generic array of List<Object> is created for a varargs parameter\n" + 
-				"----------\n" + 
-				"2. WARNING in p\\X.java (at line 5)\n" + 
-				"	public X() { foo(data.l); }\n" + 
-				"	             ^^^^^^^^^^^\n" + 
-				"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Y\n" + 
-				"----------\n" + 
-				"3. WARNING in p\\X.java (at line 5)\n" + 
-				"	public X() { foo(data.l); }\n" + 
-				"	                 ^^^^^^\n" + 
-				"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" + 
-				"----------\n" + 
-				"----------\n" + 
-				"1. WARNING in p\\Y.java (at line 4)\n" + 
-				"	List l = null;\n" + 
-				"	^^^^\n" + 
-				"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-				"----------\n" + 
-				"2. WARNING in p\\Y.java (at line 5)\n" + 
-				"	public static <T> void foo(T... e) {}\n" + 
-				"	                                ^\n" + 
-				"Type safety: Potential heap pollution via varargs parameter e\n" + 
-				"----------\n" + 
-				"3. WARNING in p\\Y.java (at line 6)\n" + 
-				"	public static <T> void foo(List<T>... e) {}\n" + 
-				"	                                      ^\n" + 
-				"Type safety: Potential heap pollution via varargs parameter e\n" + 
+				"----------\n" +
+				"1. WARNING in p\\X.java (at line 5)\n" +
+				"	public X() { foo(data.l); }\n" +
+				"	             ^^^^^^^^^^^\n" +
+				"Type safety: A generic array of List<Object> is created for a varargs parameter\n" +
+				"----------\n" +
+				"2. WARNING in p\\X.java (at line 5)\n" +
+				"	public X() { foo(data.l); }\n" +
+				"	             ^^^^^^^^^^^\n" +
+				"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>...) of type Y\n" +
+				"----------\n" +
+				"3. WARNING in p\\X.java (at line 5)\n" +
+				"	public X() { foo(data.l); }\n" +
+				"	                 ^^^^^^\n" +
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<Object>\n" +
+				"----------\n" +
+				"----------\n" +
+				"1. WARNING in p\\Y.java (at line 4)\n" +
+				"	List l = null;\n" +
+				"	^^^^\n" +
+				"List is a raw type. References to generic type List<E> should be parameterized\n" +
+				"----------\n" +
+				"2. WARNING in p\\Y.java (at line 5)\n" +
+				"	public static <T> void foo(T... e) {}\n" +
+				"	                                ^\n" +
+				"Type safety: Potential heap pollution via varargs parameter e\n" +
+				"----------\n" +
+				"3. WARNING in p\\Y.java (at line 6)\n" +
+				"	public static <T> void foo(List<T>... e) {}\n" +
+				"	                                      ^\n" +
+				"Type safety: Potential heap pollution via varargs parameter e\n" +
 				"----------\n"
 			// unchecked conversion warnings
 		);
@@ -3431,27 +3431,27 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X1.java (at line 2)\n" + 
-				"	public class X1 extends LinkedHashMap<String, String> {\n" + 
-				"	             ^^\n" + 
-				"The serializable class X1 does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"2. WARNING in X1.java (at line 3)\n" + 
-				"	public Object putAll(Map<String,String> a) { return null; }\n" + 
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method putAll(Map<String,String>) of type X1 has the same erasure as putAll(Map<? extends K,? extends V>) of type HashMap<K,V> but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X1.java (at line 2)\n" +
+				"	public class X1 extends LinkedHashMap<String, String> {\n" +
+				"	             ^^\n" +
+				"The serializable class X1 does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"2. WARNING in X1.java (at line 3)\n" +
+				"	public Object putAll(Map<String,String> a) { return null; }\n" +
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method putAll(Map<String,String>) of type X1 has the same erasure as putAll(Map<? extends K,? extends V>) of type HashMap<K,V> but does not override it\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. WARNING in X1.java (at line 2)\n" + 
-					"	public class X1 extends LinkedHashMap<String, String> {\n" + 
-					"	             ^^\n" + 
-					"The serializable class X1 does not declare a static final serialVersionUID field of type long\n" + 
-					"----------\n" + 
-					"2. ERROR in X1.java (at line 3)\n" + 
-					"	public Object putAll(Map<String,String> a) { return null; }\n" + 
-					"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method putAll(Map<String,String>) of type X1 has the same erasure as putAll(Map<? extends K,? extends V>) of type HashMap<K,V> but does not override it\n" + 
+					"----------\n" +
+					"1. WARNING in X1.java (at line 2)\n" +
+					"	public class X1 extends LinkedHashMap<String, String> {\n" +
+					"	             ^^\n" +
+					"The serializable class X1 does not declare a static final serialVersionUID field of type long\n" +
+					"----------\n" +
+					"2. ERROR in X1.java (at line 3)\n" +
+					"	public Object putAll(Map<String,String> a) { return null; }\n" +
+					"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method putAll(Map<String,String>) of type X1 has the same erasure as putAll(Map<? extends K,? extends V>) of type HashMap<K,V> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3476,17 +3476,17 @@ X.java:4: name clash: putAll(Map<String,String>) in X1 and putAll(Map<? extends 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048a() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X2.java (at line 2)\n" + 
-				"	public Object foo(I<String> z) { return null; }\n" + 
-				"	              ^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(I<String>) of type X2 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
-				"----------\n":		
-					"----------\n" + 
-					"1. ERROR in X2.java (at line 2)\n" + 
-					"	public Object foo(I<String> z) { return null; }\n" + 
-					"	              ^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method foo(I<String>) of type X2 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X2.java (at line 2)\n" +
+				"	public Object foo(I<String> z) { return null; }\n" +
+				"	              ^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(I<String>) of type X2 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
+				"----------\n":
+					"----------\n" +
+					"1. ERROR in X2.java (at line 2)\n" +
+					"	public Object foo(I<String> z) { return null; }\n" +
+					"	              ^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method foo(I<String>) of type X2 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3546,17 +3546,17 @@ X.java:2: name clash: foo(I<String>) in X3 and foo(I<? extends T>) in Y have the
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048c() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X4.java (at line 2)\n" + 
-				"	public String foo(I<String> z) { return null; }\n" + 
-				"	              ^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(I<String>) of type X4 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X4.java (at line 2)\n" +
+				"	public String foo(I<String> z) { return null; }\n" +
+				"	              ^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(I<String>) of type X4 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X4.java (at line 2)\n" + 
-					"	public String foo(I<String> z) { return null; }\n" + 
-					"	              ^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method foo(I<String>) of type X4 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+					"----------\n" +
+					"1. ERROR in X4.java (at line 2)\n" +
+					"	public String foo(I<String> z) { return null; }\n" +
+					"	              ^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method foo(I<String>) of type X4 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3585,17 +3585,17 @@ X.java:2: name clash: foo(I<String>) in X4 and foo(I<? extends T>) in Y have the
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048d() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X5.java (at line 2)\n" + 
-				"	public Object foo(I<String> z) { return null; }\n" + 
-				"	              ^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(I<String>) of type X5 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X5.java (at line 2)\n" +
+				"	public Object foo(I<String> z) { return null; }\n" +
+				"	              ^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(I<String>) of type X5 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X5.java (at line 2)\n" + 
-					"	public Object foo(I<String> z) { return null; }\n" + 
-					"	              ^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method foo(I<String>) of type X5 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+					"----------\n" +
+					"1. ERROR in X5.java (at line 2)\n" +
+					"	public Object foo(I<String> z) { return null; }\n" +
+					"	              ^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method foo(I<String>) of type X5 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3625,17 +3625,17 @@ X.java:2: name clash: foo(I<String>) in X5 and foo(I<? extends T>) in Y have the
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048e() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X6.java (at line 2)\n" + 
-				"	public void foo(I<String> z) {}\n" + 
-				"	            ^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(I<String>) of type X6 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X6.java (at line 2)\n" +
+				"	public void foo(I<String> z) {}\n" +
+				"	            ^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(I<String>) of type X6 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X6.java (at line 2)\n" + 
-					"	public void foo(I<String> z) {}\n" + 
-					"	            ^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method foo(I<String>) of type X6 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+					"----------\n" +
+					"1. ERROR in X6.java (at line 2)\n" +
+					"	public void foo(I<String> z) {}\n" +
+					"	            ^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method foo(I<String>) of type X6 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3664,17 +3664,17 @@ X.java:2: name clash: foo(I<String>) in X6 and foo(I<? extends T>) in Y have the
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=85900
 	public void test048f() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X7.java (at line 2)\n" + 
-				"	public String foo(I<String> z) { return null; }\n" + 
-				"	              ^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(I<String>) of type X7 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X7.java (at line 2)\n" +
+				"	public String foo(I<String> z) { return null; }\n" +
+				"	              ^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(I<String>) of type X7 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X7.java (at line 2)\n" + 
-					"	public String foo(I<String> z) { return null; }\n" + 
-					"	              ^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method foo(I<String>) of type X7 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" + 
+					"----------\n" +
+					"1. ERROR in X7.java (at line 2)\n" +
+					"	public String foo(I<String> z) { return null; }\n" +
+					"	              ^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method foo(I<String>) of type X7 has the same erasure as foo(I<? extends T>) of type Y<T> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3793,42 +3793,42 @@ X.java:2: name clash: foo(I<String>) in X8 and foo(I<? extends T>) in Y have the
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" + 
-				"	                              ^^^^^\n" + 
-				"Duplicate method foo() in type X\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
-				"	                              ^^^^^\n" + 
-				"Duplicate method foo() in type X\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
-				"	new X().<B>foo();\n" + 
-				"	^^^^^^^^^^^^^^^^\n" + 
-				"The static method foo() from the type X should be accessed in a static way\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" +
+				"	                              ^^^^^\n" +
+				"Duplicate method foo() in type X\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
+				"	                              ^^^^^\n" +
+				"Duplicate method foo() in type X\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 7)\n" +
+				"	new X().<B>foo();\n" +
+				"	^^^^^^^^^^^^^^^^\n" +
+				"The static method foo() from the type X should be accessed in a static way\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" + 
-					"	                              ^^^^^\n" + 
-					"Duplicate method foo() in type X\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
-					"	                              ^^^^^\n" + 
-					"Duplicate method foo() in type X\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 6)\n" + 
-					"	X.<B>foo();\n" + 
-					"	     ^^^\n" + 
-					"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type B is not a valid substitute for the bounded parameter <S extends A>\n" + 
-					"----------\n" + 
-					"4. ERROR in X.java (at line 7)\n" + 
-					"	new X().<B>foo();\n" + 
-					"	           ^^^\n" + 
-					"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type B is not a valid substitute for the bounded parameter <S extends A>\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	public static <S extends A> S foo() { System.out.print(\"A\"); return null; }\n" +
+					"	                              ^^^^^\n" +
+					"Duplicate method foo() in type X\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
+					"	                              ^^^^^\n" +
+					"Duplicate method foo() in type X\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 6)\n" +
+					"	X.<B>foo();\n" +
+					"	     ^^^\n" +
+					"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type B is not a valid substitute for the bounded parameter <S extends A>\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 7)\n" +
+					"	new X().<B>foo();\n" +
+					"	           ^^^\n" +
+					"Bound mismatch: The generic method foo() of type X is not applicable for the arguments (). The inferred type B is not a valid substitute for the bounded parameter <S extends A>\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3870,37 +3870,37 @@ X.java:7: method foo in class X cannot be applied to given types
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94754
 	public void test050a() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	public static <S extends A> void foo() { System.out.print(\"A\"); }\n" + 
-				"	                                 ^^^^^\n" + 
-				"Duplicate method foo() in type X\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
-				"	                              ^^^^^\n" + 
-				"Duplicate method foo() in type X\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	X.foo();\n" + 
-				"	  ^^^\n" + 
-				"The method foo() is ambiguous for the type X\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 6)\n" + 
-				"	foo();\n" + 
-				"	^^^\n" + 
-				"The method foo() is ambiguous for the type X\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	public static <S extends A> void foo() { System.out.print(\"A\"); }\n" +
+				"	                                 ^^^^^\n" +
+				"Duplicate method foo() in type X\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
+				"	                              ^^^^^\n" +
+				"Duplicate method foo() in type X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	X.foo();\n" +
+				"	  ^^^\n" +
+				"The method foo() is ambiguous for the type X\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 6)\n" +
+				"	foo();\n" +
+				"	^^^\n" +
+				"The method foo() is ambiguous for the type X\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	public static <S extends A> void foo() { System.out.print(\"A\"); }\n" + 
-					"	                                 ^^^^^\n" + 
-					"Duplicate method foo() in type X\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" + 
-					"	                              ^^^^^\n" + 
-					"Duplicate method foo() in type X\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	public static <S extends A> void foo() { System.out.print(\"A\"); }\n" +
+					"	                                 ^^^^^\n" +
+					"Duplicate method foo() in type X\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	public static <N extends B> N foo() { System.out.print(\"B\"); return null; }\n" +
+					"	                              ^^^^^\n" +
+					"Duplicate method foo() in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -3932,87 +3932,87 @@ X.java:3: name clash: <N>foo() and <S>foo() have the same erasure
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050b() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	Y foo(Object o) {  return null; } // duplicate\n" + 
-				"	  ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C1\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	Z foo(Object o) {  return null; } // duplicate\n" + 
-				"	  ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C1\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
-				"	<T extends Y> T foo(Object o) {  return null; } // duplicate\n" + 
-				"	                ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C2\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 8)\n" + 
-				"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
-				"	                ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C2\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 11)\n" + 
-				"	A<Y> foo(Object o) {  return null; } // duplicate\n" + 
-				"	     ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C3\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 12)\n" + 
-				"	A<Z> foo(Object o) {  return null; } // duplicate\n" + 
-				"	     ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C3\n" + 
-				"----------\n" + 
-				"7. ERROR in X.java (at line 15)\n" + 
-				"	Y foo(Object o) {  return null; } // duplicate\n" + 
-				"	  ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C4\n" + 
-				"----------\n" + 
-				"8. ERROR in X.java (at line 16)\n" + 
-				"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
-				"	                ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C4\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	Y foo(Object o) {  return null; } // duplicate\n" +
+				"	  ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C1\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	Z foo(Object o) {  return null; } // duplicate\n" +
+				"	  ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C1\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 7)\n" +
+				"	<T extends Y> T foo(Object o) {  return null; } // duplicate\n" +
+				"	                ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C2\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 8)\n" +
+				"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
+				"	                ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C2\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 11)\n" +
+				"	A<Y> foo(Object o) {  return null; } // duplicate\n" +
+				"	     ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C3\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 12)\n" +
+				"	A<Z> foo(Object o) {  return null; } // duplicate\n" +
+				"	     ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C3\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 15)\n" +
+				"	Y foo(Object o) {  return null; } // duplicate\n" +
+				"	  ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C4\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 16)\n" +
+				"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
+				"	                ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C4\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 3)\n" + 
-					"	Y foo(Object o) {  return null; } // duplicate\n" + 
-					"	  ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C1\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 4)\n" + 
-					"	Z foo(Object o) {  return null; } // duplicate\n" + 
-					"	  ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C1\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 7)\n" + 
-					"	<T extends Y> T foo(Object o) {  return null; } // duplicate\n" + 
-					"	                ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C2\n" + 
-					"----------\n" + 
-					"4. ERROR in X.java (at line 8)\n" + 
-					"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
-					"	                ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C2\n" + 
-					"----------\n" + 
-					"5. ERROR in X.java (at line 11)\n" + 
-					"	A<Y> foo(Object o) {  return null; } // duplicate\n" + 
-					"	     ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C3\n" + 
-					"----------\n" + 
-					"6. ERROR in X.java (at line 12)\n" + 
-					"	A<Z> foo(Object o) {  return null; } // duplicate\n" + 
-					"	     ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C3\n" + 
-					"----------\n" + 
-					"7. ERROR in X.java (at line 15)\n" + 
-					"	Y foo(Object o) {  return null; } // duplicate\n" + 
-					"	  ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C4\n" + 
-					"----------\n" + 
-					"8. ERROR in X.java (at line 16)\n" + 
-					"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" + 
-					"	                ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C4\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 3)\n" +
+					"	Y foo(Object o) {  return null; } // duplicate\n" +
+					"	  ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C1\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 4)\n" +
+					"	Z foo(Object o) {  return null; } // duplicate\n" +
+					"	  ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C1\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 7)\n" +
+					"	<T extends Y> T foo(Object o) {  return null; } // duplicate\n" +
+					"	                ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C2\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 8)\n" +
+					"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
+					"	                ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C2\n" +
+					"----------\n" +
+					"5. ERROR in X.java (at line 11)\n" +
+					"	A<Y> foo(Object o) {  return null; } // duplicate\n" +
+					"	     ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C3\n" +
+					"----------\n" +
+					"6. ERROR in X.java (at line 12)\n" +
+					"	A<Z> foo(Object o) {  return null; } // duplicate\n" +
+					"	     ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C3\n" +
+					"----------\n" +
+					"7. ERROR in X.java (at line 15)\n" +
+					"	Y foo(Object o) {  return null; } // duplicate\n" +
+					"	  ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C4\n" +
+					"----------\n" +
+					"8. ERROR in X.java (at line 16)\n" +
+					"	<T extends Z> T foo(Object o) {  return null; } // duplicate\n" +
+					"	                ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C4\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4063,46 +4063,46 @@ X.java:16: foo(Object) is already defined in X.C4
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050c() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" + 
-				"	     ^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" +
+				"	     ^^^^^^^^^^^\n" +
 				"Erasure of method foo(A<Y>) is the same as another method in type X.C5\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" + 
-				"	     ^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" +
+				"	     ^^^^^^^^^^^\n" +
 				"Erasure of method foo(A<Z>) is the same as another method in type X.C5\n" +
-				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
-				"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" + 
-				"	                ^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"3. WARNING in X.java (at line 7)\n" +
+				"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" +
+				"	                ^^^^^^^^^^^\n" +
 				"Erasure of method foo(A<Y>) is the same as another method in type X.C6\n" +
-				"----------\n" + 
-				"4. WARNING in X.java (at line 8)\n" + 
-				"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" + 
-				"	                ^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"4. WARNING in X.java (at line 8)\n" +
+				"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" +
+				"	                ^^^^^^^^^^^\n" +
 				"Erasure of method foo(A<Z>) is the same as another method in type X.C6\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 3)\n" + 
-					"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" + 
-					"	     ^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 3)\n" +
+					"	A<Y> foo(A<Y> o) {  return null; } // duplicate\n" +
+					"	     ^^^^^^^^^^^\n" +
 					"Erasure of method foo(A<Y>) is the same as another method in type X.C5\n" +
-					"----------\n" + 
-					"2. ERROR in X.java (at line 4)\n" + 
-					"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" + 
-					"	     ^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 4)\n" +
+					"	A<Z> foo(A<Z> o) {  return null; } // duplicate\n" +
+					"	     ^^^^^^^^^^^\n" +
 					"Erasure of method foo(A<Z>) is the same as another method in type X.C5\n" +
-					"----------\n" + 
-					"3. ERROR in X.java (at line 7)\n" + 
-					"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" + 
-					"	                ^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"3. ERROR in X.java (at line 7)\n" +
+					"	<T extends Y> T foo(A<Y> o) {  return null; } // ok\n" +
+					"	                ^^^^^^^^^^^\n" +
 					"Erasure of method foo(A<Y>) is the same as another method in type X.C6\n" +
-					"----------\n" + 
-					"4. ERROR in X.java (at line 8)\n" + 
-					"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" + 
-					"	                ^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"4. ERROR in X.java (at line 8)\n" +
+					"	<T extends Z> T foo(A<Z> o) {  return null; } // ok\n" +
+					"	                ^^^^^^^^^^^\n" +
 					"Erasure of method foo(A<Z>) is the same as another method in type X.C6\n" +
 					"----------\n";
 		this.runNegativeTest(
@@ -4140,27 +4140,27 @@ X.java:8: name clash: <T#1>foo(A<Z>) and <T#2>foo(A<Y>) have the same erasure
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423 - variation
 	public void test050d() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
-				"	<T extends Y, U> T foo(Object o) {  return null; } // ok\n" + 
-				"	                   ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C7\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 4)\n" + 
-				"	<T extends Z> T foo(Object o) {  return null; } // ok\n" + 
-				"	                ^^^^^^^^^^^^^\n" + 
-				"Duplicate method foo(Object) in type X.C7\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	<T extends Y, U> T foo(Object o) {  return null; } // ok\n" +
+				"	                   ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C7\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 4)\n" +
+				"	<T extends Z> T foo(Object o) {  return null; } // ok\n" +
+				"	                ^^^^^^^^^^^^^\n" +
+				"Duplicate method foo(Object) in type X.C7\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 3)\n" + 
-					"	<T extends Y, U> T foo(Object o) {  return null; } // ok\n" + 
-					"	                   ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C7\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 4)\n" + 
-					"	<T extends Z> T foo(Object o) {  return null; } // ok\n" + 
-					"	                ^^^^^^^^^^^^^\n" + 
-					"Duplicate method foo(Object) in type X.C7\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 3)\n" +
+					"	<T extends Y, U> T foo(Object o) {  return null; } // ok\n" +
+					"	                   ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C7\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 4)\n" +
+					"	<T extends Z> T foo(Object o) {  return null; } // ok\n" +
+					"	                ^^^^^^^^^^^^^\n" +
+					"Duplicate method foo(Object) in type X.C7\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4192,66 +4192,66 @@ X.java:4: name clash: <T#1>foo(Object) and <T#2,U>foo(Object) have the same eras
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050e() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	<N extends B> N a(A<String> s) { return null; }\n" + 
-				"	                ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	<N extends B> N a(A<String> s) { return null; }\n" +
+				"	                ^^^^^^^^^^^^^^\n" +
 				"Erasure of method a(A<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<N> Object a(A<Number> n) { return null; }\n" + 
-				"	           ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	<N> Object a(A<Number> n) { return null; }\n" +
+				"	           ^^^^^^^^^^^^^^\n" +
 				"Erasure of method a(A<Number>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	<N extends B> void b(A<String> s) {}\n" + 
-				"	                   ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"3. WARNING in X.java (at line 4)\n" +
+				"	<N extends B> void b(A<String> s) {}\n" +
+				"	                   ^^^^^^^^^^^^^^\n" +
 				"Erasure of method b(A<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"4. WARNING in X.java (at line 5)\n" + 
-				"	<N extends B> B b(A<Number> n) { return null; }\n" + 
-				"	                ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"4. WARNING in X.java (at line 5)\n" +
+				"	<N extends B> B b(A<Number> n) { return null; }\n" +
+				"	                ^^^^^^^^^^^^^^\n" +
 				"Erasure of method b(A<Number>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"5. WARNING in X.java (at line 6)\n" + 
-				"	void c(A<String> s) {}\n" + 
-				"	     ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"5. WARNING in X.java (at line 6)\n" +
+				"	void c(A<String> s) {}\n" +
+				"	     ^^^^^^^^^^^^^^\n" +
 				"Erasure of method c(A<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"6. WARNING in X.java (at line 7)\n" + 
-				"	B c(A<Number> n) { return null; }\n" + 
-				"	  ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"6. WARNING in X.java (at line 7)\n" +
+				"	B c(A<Number> n) { return null; }\n" +
+				"	  ^^^^^^^^^^^^^^\n" +
 				"Erasure of method c(A<Number>) is the same as another method in type X\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	<N extends B> N a(A<String> s) { return null; }\n" + 
-					"	                ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	<N extends B> N a(A<String> s) { return null; }\n" +
+					"	                ^^^^^^^^^^^^^^\n" +
 					"Erasure of method a(A<String>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	<N> Object a(A<Number> n) { return null; }\n" + 
-					"	           ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	<N> Object a(A<Number> n) { return null; }\n" +
+					"	           ^^^^^^^^^^^^^^\n" +
 					"Erasure of method a(A<Number>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"3. ERROR in X.java (at line 4)\n" + 
-					"	<N extends B> void b(A<String> s) {}\n" + 
-					"	                   ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"3. ERROR in X.java (at line 4)\n" +
+					"	<N extends B> void b(A<String> s) {}\n" +
+					"	                   ^^^^^^^^^^^^^^\n" +
 					"Erasure of method b(A<String>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"4. ERROR in X.java (at line 5)\n" + 
-					"	<N extends B> B b(A<Number> n) { return null; }\n" + 
-					"	                ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"4. ERROR in X.java (at line 5)\n" +
+					"	<N extends B> B b(A<Number> n) { return null; }\n" +
+					"	                ^^^^^^^^^^^^^^\n" +
 					"Erasure of method b(A<Number>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"5. ERROR in X.java (at line 6)\n" + 
-					"	void c(A<String> s) {}\n" + 
-					"	     ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"5. ERROR in X.java (at line 6)\n" +
+					"	void c(A<String> s) {}\n" +
+					"	     ^^^^^^^^^^^^^^\n" +
 					"Erasure of method c(A<String>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"6. ERROR in X.java (at line 7)\n" + 
-					"	B c(A<Number> n) { return null; }\n" + 
-					"	  ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"6. ERROR in X.java (at line 7)\n" +
+					"	B c(A<Number> n) { return null; }\n" +
+					"	  ^^^^^^^^^^^^^^\n" +
 					"Erasure of method c(A<Number>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
@@ -4392,46 +4392,46 @@ X.java:3: name clash: c(A<Number>) and c(A<String>) have the same erasure
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=90423
 	public void test050i() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	<N extends B> N a(A<Number> s) { return null; }\n" + 
-				"	                ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method a(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<N> Object a(A<Number> n) { return null; }\n" + 
-				"	           ^^^^^^^^^^^^^^\n" + 
-				"Duplicate method a(A<Number>) in type X\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	<N extends B> N b(A<Number> s) { return null; }\n" + 
-				"	                ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	<N extends B> N a(A<Number> s) { return null; }\n" +
+				"	                ^^^^^^^^^^^^^^\n" +
+				"Duplicate method a(A<Number>) in type X\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	<N> Object a(A<Number> n) { return null; }\n" +
+				"	           ^^^^^^^^^^^^^^\n" +
+				"Duplicate method a(A<Number>) in type X\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 4)\n" +
+				"	<N extends B> N b(A<Number> s) { return null; }\n" +
+				"	                ^^^^^^^^^^^^^^\n" +
 				"Erasure of method b(A<Number>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"4. WARNING in X.java (at line 5)\n" + 
-				"	<N> Object b(A<String> n) { return null; }\n" + 
-				"	           ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"4. WARNING in X.java (at line 5)\n" +
+				"	<N> Object b(A<String> n) { return null; }\n" +
+				"	           ^^^^^^^^^^^^^^\n" +
 				"Erasure of method b(A<String>) is the same as another method in type X\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	<N extends B> N a(A<Number> s) { return null; }\n" + 
-					"	                ^^^^^^^^^^^^^^\n" + 
-					"Duplicate method a(A<Number>) in type X\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	<N> Object a(A<Number> n) { return null; }\n" + 
-					"	           ^^^^^^^^^^^^^^\n" + 
-					"Duplicate method a(A<Number>) in type X\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 4)\n" + 
-					"	<N extends B> N b(A<Number> s) { return null; }\n" + 
-					"	                ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	<N extends B> N a(A<Number> s) { return null; }\n" +
+					"	                ^^^^^^^^^^^^^^\n" +
+					"Duplicate method a(A<Number>) in type X\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	<N> Object a(A<Number> n) { return null; }\n" +
+					"	           ^^^^^^^^^^^^^^\n" +
+					"Duplicate method a(A<Number>) in type X\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 4)\n" +
+					"	<N extends B> N b(A<Number> s) { return null; }\n" +
+					"	                ^^^^^^^^^^^^^^\n" +
 					"Erasure of method b(A<Number>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"4. ERROR in X.java (at line 5)\n" + 
-					"	<N> Object b(A<String> n) { return null; }\n" + 
-					"	           ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"4. ERROR in X.java (at line 5)\n" +
+					"	<N> Object b(A<String> n) { return null; }\n" +
+					"	           ^^^^^^^^^^^^^^\n" +
 					"Erasure of method b(A<String>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
@@ -4580,31 +4580,31 @@ X.java:5: <N>b(A<Number>) is already defined in X
 				"class A<T> {}\n" +
 				"class B {}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	void a(A<Number> s) {}\n" + 
-			"	     ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method a(A<Number>) in type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	B a(A<Number> n) { return null; }\n" + 
-			"	  ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method a(A<Number>) in type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\n" + 
-			"	Object b(A<Number> s) {}\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method b(A<Number>) in type X\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 4)\n" + 
-			"	Object b(A<Number> s) {}\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"This method must return a result of type Object\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 5)\n" + 
-			"	B b(A<Number> n) { return null; }\n" + 
-			"	  ^^^^^^^^^^^^^^\n" + 
-			"Duplicate method b(A<Number>) in type X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void a(A<Number> s) {}\n" +
+			"	     ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	B a(A<Number> n) { return null; }\n" +
+			"	  ^^^^^^^^^^^^^^\n" +
+			"Duplicate method a(A<Number>) in type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	Object b(A<Number> s) {}\n" +
+			"	       ^^^^^^^^^^^^^^\n" +
+			"Duplicate method b(A<Number>) in type X\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 4)\n" +
+			"	Object b(A<Number> s) {}\n" +
+			"	       ^^^^^^^^^^^^^^\n" +
+			"This method must return a result of type Object\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	B b(A<Number> n) { return null; }\n" +
+			"	  ^^^^^^^^^^^^^^\n" +
+			"Duplicate method b(A<Number>) in type X\n" +
 			"----------\n"
 		);
 /* javac 7
@@ -4679,26 +4679,26 @@ X.java:3: name clash: foo(A<Integer>) and foo(A<String>) have the same erasure
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=89470
 	public void test051b() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	void foo(A<String> a) {}\n" + 
-				"	     ^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	void foo(A<String> a) {}\n" +
+				"	     ^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method foo(A<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	Object foo(A<Integer> a) { return null; }\n" + 
-				"	       ^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	Object foo(A<Integer> a) { return null; }\n" +
+				"	       ^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method foo(A<Integer>) is the same as another method in type X\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	void foo(A<String> a) {}\n" + 
-					"	     ^^^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	void foo(A<String> a) {}\n" +
+					"	     ^^^^^^^^^^^^^^^^\n" +
 					"Erasure of method foo(A<String>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	Object foo(A<Integer> a) { return null; }\n" + 
-					"	       ^^^^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	Object foo(A<Integer> a) { return null; }\n" +
+					"	       ^^^^^^^^^^^^^^^^^\n" +
 					"Erasure of method foo(A<Integer>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
@@ -4863,87 +4863,87 @@ X.java:3: a(Object) is already defined in X
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054a() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	<T1, T2> String aaa(X x) {  return null; }\n" + 
-				"	                ^^^^^^^^\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	<T1, T2> String aaa(X x) {  return null; }\n" +
+				"	                ^^^^^^^^\n" +
 				"Erasure of method aaa(X) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<T extends X> T aaa(T x) {  return null; }\n" + 
-				"	                ^^^^^^^^\n" + 
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	<T extends X> T aaa(T x) {  return null; }\n" +
+				"	                ^^^^^^^^\n" +
 				"Erasure of method aaa(T) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	<T> String aa(X x) {  return null; }\n" + 
-				"	           ^^^^^^^\n" + 
+				"----------\n" +
+				"3. WARNING in X.java (at line 4)\n" +
+				"	<T> String aa(X x) {  return null; }\n" +
+				"	           ^^^^^^^\n" +
 				"Erasure of method aa(X) is the same as another method in type X\n" +
-				"----------\n" + 
-				"4. WARNING in X.java (at line 5)\n" + 
-				"	<T extends X> T aa(T x) {  return null; }\n" + 
-				"	                ^^^^^^^\n" + 
+				"----------\n" +
+				"4. WARNING in X.java (at line 5)\n" +
+				"	<T extends X> T aa(T x) {  return null; }\n" +
+				"	                ^^^^^^^\n" +
 				"Erasure of method aa(T) is the same as another method in type X\n" +
-				"----------\n" + 
-				"5. ERROR in X.java (at line 6)\n" + 
-				"	String a(X x) {  return null; }\n" + 
-				"	       ^^^^^^\n" + 
+				"----------\n" +
+				"5. ERROR in X.java (at line 6)\n" +
+				"	String a(X x) {  return null; }\n" +
+				"	       ^^^^^^\n" +
 				"Erasure of method a(X) is the same as another method in type X\n" +
-				"----------\n" + 
-				"6. ERROR in X.java (at line 7)\n" + 
-				"	<T extends X> T a(T x) {  return null; }\n" + 
-				"	                ^^^^^^\n" + 
+				"----------\n" +
+				"6. ERROR in X.java (at line 7)\n" +
+				"	<T extends X> T a(T x) {  return null; }\n" +
+				"	                ^^^^^^\n" +
 				"Erasure of method a(T) is the same as another method in type X\n" +
-				"----------\n" + 
-				"7. WARNING in X.java (at line 8)\n" + 
-				"	<T> String z(X x) { return null; }\n" + 
-				"	           ^^^^^^\n" + 
-				"Duplicate method z(X) in type X\n" + 
-				"----------\n" + 
-				"8. WARNING in X.java (at line 9)\n" + 
-				"	<T, S> Object z(X x) { return null; }\n" + 
-				"	              ^^^^^^\n" + 
-				"Duplicate method z(X) in type X\n" + 
+				"----------\n" +
+				"7. WARNING in X.java (at line 8)\n" +
+				"	<T> String z(X x) { return null; }\n" +
+				"	           ^^^^^^\n" +
+				"Duplicate method z(X) in type X\n" +
+				"----------\n" +
+				"8. WARNING in X.java (at line 9)\n" +
+				"	<T, S> Object z(X x) { return null; }\n" +
+				"	              ^^^^^^\n" +
+				"Duplicate method z(X) in type X\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	<T1, T2> String aaa(X x) {  return null; }\n" + 
-					"	                ^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	<T1, T2> String aaa(X x) {  return null; }\n" +
+					"	                ^^^^^^^^\n" +
 					"Erasure of method aaa(X) is the same as another method in type X\n" +
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	<T extends X> T aaa(T x) {  return null; }\n" + 
-					"	                ^^^^^^^^\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	<T extends X> T aaa(T x) {  return null; }\n" +
+					"	                ^^^^^^^^\n" +
 					"Erasure of method aaa(T) is the same as another method in type X\n" +
-					"----------\n" + 
-					"3. ERROR in X.java (at line 4)\n" + 
-					"	<T> String aa(X x) {  return null; }\n" + 
-					"	           ^^^^^^^\n" + 
+					"----------\n" +
+					"3. ERROR in X.java (at line 4)\n" +
+					"	<T> String aa(X x) {  return null; }\n" +
+					"	           ^^^^^^^\n" +
 					"Erasure of method aa(X) is the same as another method in type X\n" +
-					"----------\n" + 
-					"4. ERROR in X.java (at line 5)\n" + 
-					"	<T extends X> T aa(T x) {  return null; }\n" + 
-					"	                ^^^^^^^\n" + 
+					"----------\n" +
+					"4. ERROR in X.java (at line 5)\n" +
+					"	<T extends X> T aa(T x) {  return null; }\n" +
+					"	                ^^^^^^^\n" +
 					"Erasure of method aa(T) is the same as another method in type X\n" +
-					"----------\n" + 
-					"5. ERROR in X.java (at line 6)\n" + 
-					"	String a(X x) {  return null; }\n" + 
-					"	       ^^^^^^\n" + 
+					"----------\n" +
+					"5. ERROR in X.java (at line 6)\n" +
+					"	String a(X x) {  return null; }\n" +
+					"	       ^^^^^^\n" +
 					"Erasure of method a(X) is the same as another method in type X\n" +
-					"----------\n" + 
-					"6. ERROR in X.java (at line 7)\n" + 
-					"	<T extends X> T a(T x) {  return null; }\n" + 
-					"	                ^^^^^^\n" + 
+					"----------\n" +
+					"6. ERROR in X.java (at line 7)\n" +
+					"	<T extends X> T a(T x) {  return null; }\n" +
+					"	                ^^^^^^\n" +
 					"Erasure of method a(T) is the same as another method in type X\n" +
-					"----------\n" + 
-					"7. ERROR in X.java (at line 8)\n" + 
-					"	<T> String z(X x) { return null; }\n" + 
-					"	           ^^^^^^\n" + 
-					"Duplicate method z(X) in type X\n" + 
-					"----------\n" + 
-					"8. ERROR in X.java (at line 9)\n" + 
-					"	<T, S> Object z(X x) { return null; }\n" + 
-					"	              ^^^^^^\n" + 
-					"Duplicate method z(X) in type X\n" + 
+					"----------\n" +
+					"7. ERROR in X.java (at line 8)\n" +
+					"	<T> String z(X x) { return null; }\n" +
+					"	           ^^^^^^\n" +
+					"Duplicate method z(X) in type X\n" +
+					"----------\n" +
+					"8. ERROR in X.java (at line 9)\n" +
+					"	<T, S> Object z(X x) { return null; }\n" +
+					"	              ^^^^^^\n" +
+					"Duplicate method z(X) in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -4991,27 +4991,27 @@ X.java:9: name clash: <T#1,S>z(X) and <T#3>z(X) have the same erasure
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054b() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	Object foo(X<T> t) { return null; }\n" + 
-				"	       ^^^^^^^^^^^\n" + 
-				"Duplicate method foo(X<T>) in type X<T>\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<S> String foo(X<T> s) { return null; }\n" + 
-				"	           ^^^^^^^^^^^\n" + 
-				"Duplicate method foo(X<T>) in type X<T>\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	Object foo(X<T> t) { return null; }\n" +
+				"	       ^^^^^^^^^^^\n" +
+				"Duplicate method foo(X<T>) in type X<T>\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	<S> String foo(X<T> s) { return null; }\n" +
+				"	           ^^^^^^^^^^^\n" +
+				"Duplicate method foo(X<T>) in type X<T>\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	Object foo(X<T> t) { return null; }\n" + 
-					"	       ^^^^^^^^^^^\n" + 
-					"Duplicate method foo(X<T>) in type X<T>\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	<S> String foo(X<T> s) { return null; }\n" + 
-					"	           ^^^^^^^^^^^\n" + 
-					"Duplicate method foo(X<T>) in type X<T>\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	Object foo(X<T> t) { return null; }\n" +
+					"	       ^^^^^^^^^^^\n" +
+					"Duplicate method foo(X<T>) in type X<T>\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	<S> String foo(X<T> s) { return null; }\n" +
+					"	           ^^^^^^^^^^^\n" +
+					"Duplicate method foo(X<T>) in type X<T>\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -5067,46 +5067,46 @@ X.java:3: <T1>dupT() is already defined in X
 	// more duplicate tests, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=94897
 	public void test054d() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 2)\n" + 
-				"	<T> T a(A<T> t) {return null;}\n" + 
-				"	      ^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	<T> T a(A<T> t) {return null;}\n" +
+				"	      ^^^^^^^^^\n" +
 				"Erasure of method a(A<T>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	<T> String a(A<Object> o) {return null;}\n" + 
-				"	           ^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	<T> String a(A<Object> o) {return null;}\n" +
+				"	           ^^^^^^^^^^^^^^\n" +
 				"Erasure of method a(A<Object>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	<T> T aa(A<T> t) {return null;}\n" + 
-				"	      ^^^^^^^^^^\n" + 
+				"----------\n" +
+				"3. WARNING in X.java (at line 4)\n" +
+				"	<T> T aa(A<T> t) {return null;}\n" +
+				"	      ^^^^^^^^^^\n" +
 				"Erasure of method aa(A<T>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"4. WARNING in X.java (at line 5)\n" + 
-				"	String aa(A<Object> o) {return null;}\n" + 
-				"	       ^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"4. WARNING in X.java (at line 5)\n" +
+				"	String aa(A<Object> o) {return null;}\n" +
+				"	       ^^^^^^^^^^^^^^^\n" +
 				"Erasure of method aa(A<Object>) is the same as another method in type X\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 2)\n" + 
-					"	<T> T a(A<T> t) {return null;}\n" + 
-					"	      ^^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 2)\n" +
+					"	<T> T a(A<T> t) {return null;}\n" +
+					"	      ^^^^^^^^^\n" +
 					"Erasure of method a(A<T>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	<T> String a(A<Object> o) {return null;}\n" + 
-					"	           ^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	<T> String a(A<Object> o) {return null;}\n" +
+					"	           ^^^^^^^^^^^^^^\n" +
 					"Erasure of method a(A<Object>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"3. ERROR in X.java (at line 4)\n" + 
-					"	<T> T aa(A<T> t) {return null;}\n" + 
-					"	      ^^^^^^^^^^\n" + 
+					"----------\n" +
+					"3. ERROR in X.java (at line 4)\n" +
+					"	<T> T aa(A<T> t) {return null;}\n" +
+					"	      ^^^^^^^^^^\n" +
 					"Erasure of method aa(A<T>) is the same as another method in type X\n" +
-					"----------\n" + 
-					"4. ERROR in X.java (at line 5)\n" + 
-					"	String aa(A<Object> o) {return null;}\n" + 
-					"	       ^^^^^^^^^^^^^^^\n" + 
+					"----------\n" +
+					"4. ERROR in X.java (at line 5)\n" +
+					"	String aa(A<Object> o) {return null;}\n" +
+					"	       ^^^^^^^^^^^^^^^\n" +
 					"Erasure of method aa(A<Object>) is the same as another method in type X\n" +
 					"----------\n";
 		this.runNegativeTest(
@@ -5245,56 +5245,56 @@ X.java:5: name clash: aa(A<Object>) and <T>aa(A<T>) have the same erasure
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
 	public void test058a() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	new X<Object>().foo(\"X\");\n" + 
-				"	                ^^^\n" + 
-				"The method foo(String) is ambiguous for the type X<Object>\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	new X<Object>().foo2(\"X\");\n" + 
-				"	                ^^^^\n" + 
-				"The method foo2(String) is ambiguous for the type X<Object>\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 6)\n" + 
-				"	<T> T foo(T t) {return null;}\n" + 
-				"	      ^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	new X<Object>().foo(\"X\");\n" +
+				"	                ^^^\n" +
+				"The method foo(String) is ambiguous for the type X<Object>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	new X<Object>().foo2(\"X\");\n" +
+				"	                ^^^^\n" +
+				"The method foo2(String) is ambiguous for the type X<Object>\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 6)\n" +
+				"	<T> T foo(T t) {return null;}\n" +
+				"	      ^^^^^^^^\n" +
 				"Erasure of method foo(T) is the same as another method in type X<A>\n" +
-				"----------\n" + 
-				"4. WARNING in X.java (at line 7)\n" + 
-				"	void foo(A a) {}\n" + 
-				"	     ^^^^^^^^\n" + 
+				"----------\n" +
+				"4. WARNING in X.java (at line 7)\n" +
+				"	void foo(A a) {}\n" +
+				"	     ^^^^^^^^\n" +
 				"Erasure of method foo(A) is the same as another method in type X<A>\n" +
-				"----------\n" + 
-				"5. WARNING in X.java (at line 8)\n" + 
-				"	<T> T foo2(T t) {return null;}\n" + 
-				"	      ^^^^^^^^^\n" + 
+				"----------\n" +
+				"5. WARNING in X.java (at line 8)\n" +
+				"	<T> T foo2(T t) {return null;}\n" +
+				"	      ^^^^^^^^^\n" +
 				"Erasure of method foo2(T) is the same as another method in type X<A>\n" +
-				"----------\n" + 
-				"6. WARNING in X.java (at line 9)\n" + 
-				"	<T> void foo2(A a) {}\n" + 
-				"	         ^^^^^^^^^\n" + 
+				"----------\n" +
+				"6. WARNING in X.java (at line 9)\n" +
+				"	<T> void foo2(A a) {}\n" +
+				"	         ^^^^^^^^^\n" +
 				"Erasure of method foo2(A) is the same as another method in type X<A>\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. ERROR in X.java (at line 6)\n" + 
-					"	<T> T foo(T t) {return null;}\n" + 
-					"	      ^^^^^^^^\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 6)\n" +
+					"	<T> T foo(T t) {return null;}\n" +
+					"	      ^^^^^^^^\n" +
 					"Erasure of method foo(T) is the same as another method in type X<A>\n" +
-					"----------\n" + 
-					"2. ERROR in X.java (at line 7)\n" + 
-					"	void foo(A a) {}\n" + 
-					"	     ^^^^^^^^\n" + 
+					"----------\n" +
+					"2. ERROR in X.java (at line 7)\n" +
+					"	void foo(A a) {}\n" +
+					"	     ^^^^^^^^\n" +
 					"Erasure of method foo(A) is the same as another method in type X<A>\n" +
-					"----------\n" + 
-					"3. ERROR in X.java (at line 8)\n" + 
-					"	<T> T foo2(T t) {return null;}\n" + 
-					"	      ^^^^^^^^^\n" + 
+					"----------\n" +
+					"3. ERROR in X.java (at line 8)\n" +
+					"	<T> T foo2(T t) {return null;}\n" +
+					"	      ^^^^^^^^^\n" +
 					"Erasure of method foo2(T) is the same as another method in type X<A>\n" +
-					"----------\n" + 
-					"4. ERROR in X.java (at line 9)\n" + 
-					"	<T> void foo2(A a) {}\n" + 
-					"	         ^^^^^^^^^\n" + 
+					"----------\n" +
+					"4. ERROR in X.java (at line 9)\n" +
+					"	<T> void foo2(A a) {}\n" +
+					"	         ^^^^^^^^^\n" +
 					"Erasure of method foo2(A) is the same as another method in type X<A>\n" +
 					"----------\n";
 		this.runNegativeTest(
@@ -5333,47 +5333,47 @@ X.java:9: name clash: <T#1>foo2(A) and <T#3>foo2(T#3) have the same erasure
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=94898
 	public void test058b() {
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	new X<Object>().foo(\"X\");\n" + 
-				"	                ^^^\n" + 
-				"The method foo(String) is ambiguous for the type X<Object>\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	new X<Object>().foo2(\"X\");\n" + 
-				"	                ^^^^\n" + 
-				"The method foo2(String) is ambiguous for the type X<Object>\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 6)\n" + 
-				"	<T> T foo(T t) {return null;}\n" + 
-				"	      ^^^^^^^^\n" + 
-				"Name clash: The method foo(T) of type X<A> has the same erasure as foo(A) of type Y<A> but does not override it\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 7)\n" + 
-				"	<T> T foo2(T t) {return null;}\n" + 
-				"	      ^^^^^^^^^\n" + 
-				"Name clash: The method foo2(T) of type X<A> has the same erasure as foo2(A) of type Y<A> but does not override it\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	new X<Object>().foo(\"X\");\n" +
+				"	                ^^^\n" +
+				"The method foo(String) is ambiguous for the type X<Object>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	new X<Object>().foo2(\"X\");\n" +
+				"	                ^^^^\n" +
+				"The method foo2(String) is ambiguous for the type X<Object>\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 6)\n" +
+				"	<T> T foo(T t) {return null;}\n" +
+				"	      ^^^^^^^^\n" +
+				"Name clash: The method foo(T) of type X<A> has the same erasure as foo(A) of type Y<A> but does not override it\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 7)\n" +
+				"	<T> T foo2(T t) {return null;}\n" +
+				"	      ^^^^^^^^^\n" +
+				"Name clash: The method foo2(T) of type X<A> has the same erasure as foo2(A) of type Y<A> but does not override it\n" +
 				"----------\n":
 					"----------\n" +
-					"1. ERROR in X.java (at line 3)\n" + 
-					"	new X<Object>().foo(\"X\");\n" + 
-					"	                ^^^\n" + 
-					"The method foo(String) is ambiguous for the type X<Object>\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 4)\n" + 
-					"	new X<Object>().foo2(\"X\");\n" + 
-					"	                ^^^^\n" + 
-					"The method foo2(String) is ambiguous for the type X<Object>\n" + 
-					"----------\n" + 
-					"3. ERROR in X.java (at line 6)\n" + 
-					"	<T> T foo(T t) {return null;}\n" + 
-					"	      ^^^^^^^^\n" + 
-					"Name clash: The method foo(T) of type X<A> has the same erasure as foo(A) of type Y<A> but does not override it\n" + 
-					"----------\n" + 
-					"4. ERROR in X.java (at line 7)\n" + 
-					"	<T> T foo2(T t) {return null;}\n" + 
-					"	      ^^^^^^^^^\n" + 
-					"Name clash: The method foo2(T) of type X<A> has the same erasure as foo2(A) of type Y<A> but does not override it\n" + 
+					"1. ERROR in X.java (at line 3)\n" +
+					"	new X<Object>().foo(\"X\");\n" +
+					"	                ^^^\n" +
+					"The method foo(String) is ambiguous for the type X<Object>\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 4)\n" +
+					"	new X<Object>().foo2(\"X\");\n" +
+					"	                ^^^^\n" +
+					"The method foo2(String) is ambiguous for the type X<Object>\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 6)\n" +
+					"	<T> T foo(T t) {return null;}\n" +
+					"	      ^^^^^^^^\n" +
+					"Name clash: The method foo(T) of type X<A> has the same erasure as foo(A) of type Y<A> but does not override it\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 7)\n" +
+					"	<T> T foo2(T t) {return null;}\n" +
+					"	      ^^^^^^^^^\n" +
+					"Name clash: The method foo2(T) of type X<A> has the same erasure as foo2(A) of type Y<A> but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -6563,36 +6563,36 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 			"	                             ^^^^^^^^^^\n" +
 			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. WARNING in Parent.java (at line 3)\n" + 
-				"	static void staticCase1(Collection c) {}\n" + 
-				"	                        ^^^^^^^^^^\n" + 
-				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-				"----------\n" + 
-				"2. WARNING in Parent.java (at line 5)\n" + 
-				"	void instanceCase1(Collection c) {}\n" + 
-				"	                   ^^^^^^^^^^\n" + 
-				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-				"----------\n" + 
-				"3. ERROR in Parent.java (at line 9)\n" + 
-				"	static void staticCase1(Collection<String> c) {}\n" + 
-				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method staticCase1(Collection<String>) of type Child has the same erasure as staticCase1(Collection) of type Parent but does not hide it\n" + 
-				"----------\n" + 
-				"4. WARNING in Parent.java (at line 10)\n" + 
-				"	static void staticCase2(Collection c) {}\n" + 
-				"	                        ^^^^^^^^^^\n" + 
-				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-				"----------\n" + 
-				"5. ERROR in Parent.java (at line 11)\n" + 
-				"	void instanceCase1(Collection<String> c) {}\n" + 
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method instanceCase1(Collection<String>) of type Child has the same erasure as instanceCase1(Collection) of type Parent but does not override it\n" + 
-				"----------\n" + 
-				"6. WARNING in Parent.java (at line 12)\n" + 
-				"	@Override void instanceCase2(Collection c) {}\n" + 
-				"	                             ^^^^^^^^^^\n" + 
-				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
+				"----------\n" +
+				"1. WARNING in Parent.java (at line 3)\n" +
+				"	static void staticCase1(Collection c) {}\n" +
+				"	                        ^^^^^^^^^^\n" +
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+				"----------\n" +
+				"2. WARNING in Parent.java (at line 5)\n" +
+				"	void instanceCase1(Collection c) {}\n" +
+				"	                   ^^^^^^^^^^\n" +
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+				"----------\n" +
+				"3. ERROR in Parent.java (at line 9)\n" +
+				"	static void staticCase1(Collection<String> c) {}\n" +
+				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method staticCase1(Collection<String>) of type Child has the same erasure as staticCase1(Collection) of type Parent but does not hide it\n" +
+				"----------\n" +
+				"4. WARNING in Parent.java (at line 10)\n" +
+				"	static void staticCase2(Collection c) {}\n" +
+				"	                        ^^^^^^^^^^\n" +
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+				"----------\n" +
+				"5. ERROR in Parent.java (at line 11)\n" +
+				"	void instanceCase1(Collection<String> c) {}\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method instanceCase1(Collection<String>) of type Child has the same erasure as instanceCase1(Collection) of type Parent but does not override it\n" +
+				"----------\n" +
+				"6. WARNING in Parent.java (at line 12)\n" +
+				"	@Override void instanceCase2(Collection c) {}\n" +
+				"	                             ^^^^^^^^^^\n" +
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
 				"----------\n"
 			// @Override is an error for instanceCase1
 			// name clash: instanceCase1(Collection<String>) in Child and instanceCase1(Collection) in Parent have the same erasure, yet neither overrides the other
@@ -7393,47 +7393,47 @@ public void test100() {
 // name conflict
 public void test101() {
 	String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	Integer getX(List<Integer> l) {\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	Integer getX(List<Integer> l) {\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method getX(List<Integer>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 6)\n" + 
-			"	String getX(List<String> l) {\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 6)\n" +
+			"	String getX(List<String> l) {\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method getX(List<String>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"3. ERROR in X.java (at line 11)\n" + 
-			"	Integer getX(List<Integer> l) {\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method getX(List<Integer>) in type Y\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 14)\n" + 
-			"	String getX(List<Integer> l) {\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate method getX(List<Integer>) in type Y\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	Integer getX(List<Integer> l) {\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate method getX(List<Integer>) in type Y\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 14)\n" +
+			"	String getX(List<Integer> l) {\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate method getX(List<Integer>) in type Y\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	Integer getX(List<Integer> l) {\n" + 
-				"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	Integer getX(List<Integer> l) {\n" +
+				"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method getX(List<Integer>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	String getX(List<String> l) {\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	String getX(List<String> l) {\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method getX(List<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 11)\n" + 
-				"	Integer getX(List<Integer> l) {\n" + 
-				"	        ^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Duplicate method getX(List<Integer>) in type Y\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 14)\n" + 
-				"	String getX(List<Integer> l) {\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Duplicate method getX(List<Integer>) in type Y\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	Integer getX(List<Integer> l) {\n" +
+				"	        ^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Duplicate method getX(List<Integer>) in type Y\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 14)\n" +
+				"	String getX(List<Integer> l) {\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Duplicate method getX(List<Integer>) in type Y\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -8510,26 +8510,26 @@ public void test120() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202830
 public void test120a() {
 	String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-			"----------\n" + 
-			"1. WARNING in Bar.java (at line 2)\n" + 
-			"	int getThing(V v) { return 1; }\n" + 
-			"	    ^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in Bar.java (at line 2)\n" +
+			"	int getThing(V v) { return 1; }\n" +
+			"	    ^^^^^^^^^^^^^\n" +
 			"Erasure of method getThing(V) is the same as another method in type Foo<V,E>\n" +
-			"----------\n" + 
-			"2. WARNING in Bar.java (at line 3)\n" + 
-			"	boolean getThing(E e) { return true; }\n" + 
-			"	        ^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in Bar.java (at line 3)\n" +
+			"	boolean getThing(E e) { return true; }\n" +
+			"	        ^^^^^^^^^^^^^\n" +
 			"Erasure of method getThing(E) is the same as another method in type Foo<V,E>\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in Bar.java (at line 2)\n" + 
-				"	int getThing(V v) { return 1; }\n" + 
-				"	    ^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in Bar.java (at line 2)\n" +
+				"	int getThing(V v) { return 1; }\n" +
+				"	    ^^^^^^^^^^^^^\n" +
 				"Erasure of method getThing(V) is the same as another method in type Foo<V,E>\n" +
-				"----------\n" + 
-				"2. ERROR in Bar.java (at line 3)\n" + 
-				"	boolean getThing(E e) { return true; }\n" + 
-				"	        ^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in Bar.java (at line 3)\n" +
+				"	boolean getThing(E e) { return true; }\n" +
+				"	        ^^^^^^^^^^^^^\n" +
 				"Erasure of method getThing(E) is the same as another method in type Foo<V,E>\n" +
 				"----------\n";
 	this.runNegativeTest(
@@ -9089,7 +9089,7 @@ public void test138() {
 		"1. WARNING in X.java (at line 6)\n" +
 		"	A<XX> foo(Number n);\n" +
 		"	^\n" +
-		"Type safety: The return type A<XX> for foo(Number) from the type J needs unchecked conversion to conform to A<Exception&Cloneable> from the type I\n" + 
+		"Type safety: The return type A<XX> for foo(Number) from the type J needs unchecked conversion to conform to A<Exception&Cloneable> from the type I\n" +
 		"----------\n"
 	);
 }
@@ -9245,16 +9245,16 @@ public void test144() {
 			"}\n" +
 			"class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}"
 		},
-		"----------\n" + 
-		"1. ERROR in PurebredCatShopImpl.java (at line 6)\n" + 
-		"	<V extends Pet> List<? extends Cat> getPets();\n" + 
-		"	                                    ^^^^^^^^^\n" + 
-		"Name clash: The method getPets() of type CatShop has the same erasure as getPets() of type PetShop but does not override it\n" + 
-		"----------\n" + 
-		"2. WARNING in PurebredCatShopImpl.java (at line 10)\n" + 
-		"	public List<Pet> getPets() { return null; }\n" + 
-		"	       ^^^^\n" + 
-		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+		"----------\n" +
+		"1. ERROR in PurebredCatShopImpl.java (at line 6)\n" +
+		"	<V extends Pet> List<? extends Cat> getPets();\n" +
+		"	                                    ^^^^^^^^^\n" +
+		"Name clash: The method getPets() of type CatShop has the same erasure as getPets() of type PetShop but does not override it\n" +
+		"----------\n" +
+		"2. WARNING in PurebredCatShopImpl.java (at line 10)\n" +
+		"	public List<Pet> getPets() { return null; }\n" +
+		"	       ^^^^\n" +
+		"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" +
 		"----------\n"
 	);
 }
@@ -9409,78 +9409,78 @@ public void test149() {
 			"class Y<T> {}"
 		},
 		this.complianceLevel < ClassFileConstants.JDK1_7 ?
-		"----------\n" + 
-		"1. ERROR in B.java (at line 2)\n" + 
-		"	static void a(X x) {}\n" + 
-		"	            ^^^^^^\n" + 
-		"This static method cannot hide the instance method from A\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in B2.java (at line 2)\n" + 
-		"	static void b(Y<Integer> y) {}\n" + 
-		"	            ^^^^^^^^^^^^^^^\n" + 
-		"This static method cannot hide the instance method from A\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in C.java (at line 3)\n" + 
-		"	void b(Y<String> y) {}\n" + 
-		"	     ^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" + 
-		"----------\n" + 
-		"2. ERROR in C.java (at line 4)\n" + 
-		"	void c(X x) {}\n" + 
-		"	     ^^^^^^\n" + 
-		"This instance method cannot override the static method from A\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in C2.java (at line 3)\n" + 
-		"	void d(Y<Integer> y) {}\n" + 
-		"	     ^^^^^^^^^^^^^^^\n" + 
-		"This instance method cannot override the static method from A\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 2)\n" +
+		"	static void a(X x) {}\n" +
+		"	            ^^^^^^\n" +
+		"This static method cannot hide the instance method from A\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in B2.java (at line 2)\n" +
+		"	static void b(Y<Integer> y) {}\n" +
+		"	            ^^^^^^^^^^^^^^^\n" +
+		"This static method cannot hide the instance method from A\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in C.java (at line 3)\n" +
+		"	void b(Y<String> y) {}\n" +
+		"	     ^^^^^^^^^^^^^^\n" +
+		"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" +
+		"----------\n" +
+		"2. ERROR in C.java (at line 4)\n" +
+		"	void c(X x) {}\n" +
+		"	     ^^^^^^\n" +
+		"This instance method cannot override the static method from A\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in C2.java (at line 3)\n" +
+		"	void d(Y<Integer> y) {}\n" +
+		"	     ^^^^^^^^^^^^^^^\n" +
+		"This instance method cannot override the static method from A\n" +
 		"----------\n" :
-			"----------\n" + 
-			"1. ERROR in B.java (at line 2)\n" + 
-			"	static void a(X x) {}\n" + 
-			"	            ^^^^^^\n" + 
-			"This static method cannot hide the instance method from A\n" + 
-			"----------\n" + 
-			"2. ERROR in B.java (at line 3)\n" + 
-			"	static void b(Y<String> y) {}\n" + 
-			"	            ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method b(Y<String>) of type B has the same erasure as b(Y<Integer>) of type A but does not hide it\n" + 
-			"----------\n" + 
-			"3. ERROR in B.java (at line 5)\n" + 
-			"	static void d(Y<String> y) {}\n" + 
-			"	            ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method d(Y<String>) of type B has the same erasure as d(Y<Integer>) of type A but does not hide it\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in B2.java (at line 2)\n" + 
-			"	static void b(Y<Integer> y) {}\n" + 
-			"	            ^^^^^^^^^^^^^^^\n" + 
-			"This static method cannot hide the instance method from A\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in C.java (at line 3)\n" + 
-			"	void b(Y<String> y) {}\n" + 
-			"	     ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" + 
-			"----------\n" + 
-			"2. ERROR in C.java (at line 4)\n" + 
-			"	void c(X x) {}\n" + 
-			"	     ^^^^^^\n" + 
-			"This instance method cannot override the static method from A\n" + 
-			"----------\n" + 
-			"3. ERROR in C.java (at line 5)\n" + 
-			"	void d(Y<String> y) {}\n" + 
-			"	     ^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method d(Y<String>) of type C has the same erasure as d(Y<Integer>) of type A but does not hide it\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in C2.java (at line 3)\n" + 
-			"	void d(Y<Integer> y) {}\n" + 
-			"	     ^^^^^^^^^^^^^^^\n" + 
-			"This instance method cannot override the static method from A\n" + 
+			"----------\n" +
+			"1. ERROR in B.java (at line 2)\n" +
+			"	static void a(X x) {}\n" +
+			"	            ^^^^^^\n" +
+			"This static method cannot hide the instance method from A\n" +
+			"----------\n" +
+			"2. ERROR in B.java (at line 3)\n" +
+			"	static void b(Y<String> y) {}\n" +
+			"	            ^^^^^^^^^^^^^^\n" +
+			"Name clash: The method b(Y<String>) of type B has the same erasure as b(Y<Integer>) of type A but does not hide it\n" +
+			"----------\n" +
+			"3. ERROR in B.java (at line 5)\n" +
+			"	static void d(Y<String> y) {}\n" +
+			"	            ^^^^^^^^^^^^^^\n" +
+			"Name clash: The method d(Y<String>) of type B has the same erasure as d(Y<Integer>) of type A but does not hide it\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in B2.java (at line 2)\n" +
+			"	static void b(Y<Integer> y) {}\n" +
+			"	            ^^^^^^^^^^^^^^^\n" +
+			"This static method cannot hide the instance method from A\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in C.java (at line 3)\n" +
+			"	void b(Y<String> y) {}\n" +
+			"	     ^^^^^^^^^^^^^^\n" +
+			"Name clash: The method b(Y<String>) of type C has the same erasure as b(Y<Integer>) of type A but does not override it\n" +
+			"----------\n" +
+			"2. ERROR in C.java (at line 4)\n" +
+			"	void c(X x) {}\n" +
+			"	     ^^^^^^\n" +
+			"This instance method cannot override the static method from A\n" +
+			"----------\n" +
+			"3. ERROR in C.java (at line 5)\n" +
+			"	void d(Y<String> y) {}\n" +
+			"	     ^^^^^^^^^^^^^^\n" +
+			"Name clash: The method d(Y<String>) of type C has the same erasure as d(Y<Integer>) of type A but does not hide it\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in C2.java (at line 3)\n" +
+			"	void d(Y<Integer> y) {}\n" +
+			"	     ^^^^^^^^^^^^^^^\n" +
+			"This instance method cannot override the static method from A\n" +
 			"----------\n"
 	);
 }
@@ -9875,21 +9875,21 @@ public void test159() {
 			"abstract class Y extends X {}\n" +
 			"class Z extends X {}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	public abstract class X extends Root implements AFoo, BFoo {}\n" + 
-		"	                      ^\n" + 
-		"The return types are incompatible for the inherited methods AFoo.bar(), BFoo.bar()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 16)\n" + 
-		"	abstract class Y extends X {}\n" + 
-		"	               ^\n" + 
-		"The return types are incompatible for the inherited methods AFoo.bar(), BFoo.bar()\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 17)\n" + 
-		"	class Z extends X {}\n" + 
-		"	      ^\n" + 
-		"The type Z must implement the inherited abstract method BFoo.bar()\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 15)\n" +
+		"	public abstract class X extends Root implements AFoo, BFoo {}\n" +
+		"	                      ^\n" +
+		"The return types are incompatible for the inherited methods AFoo.bar(), BFoo.bar()\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 16)\n" +
+		"	abstract class Y extends X {}\n" +
+		"	               ^\n" +
+		"The return types are incompatible for the inherited methods AFoo.bar(), BFoo.bar()\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 17)\n" +
+		"	class Z extends X {}\n" +
+		"	      ^\n" +
+		"The type Z must implement the inherited abstract method BFoo.bar()\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208010
@@ -10027,11 +10027,11 @@ public void test166() {
 			"	public void foo(String item) {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	class X extends A implements I<String> {}\n" + 
-		"	      ^\n" + 
-		"Name clash: The method foo(Object) of type A has the same erasure as foo(T) of type I<T> but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X extends A implements I<String> {}\n" +
+		"	      ^\n" +
+		"Name clash: The method foo(Object) of type A has the same erasure as foo(T) of type I<T> but does not override it\n" +
 		"----------\n"
 	);
 }
@@ -10064,40 +10064,40 @@ public void test168() {
 			"	<V> M<V> bar() { return null; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 1)\n" + 
-		"	class X<T> extends Y {\n" + 
-		"	                   ^\n" + 
-		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	@Override <V> void foo(M m) { }\n" + 
-		"	                   ^^^^^^^^\n" + 
-		"Name clash: The method foo(Y.M) of type X<T> has the same erasure as foo(Y.M) of type Y but does not override it\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 2)\n" + 
-		"	@Override <V> void foo(M m) { }\n" + 
-		"	                   ^^^^^^^^\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	class X<T> extends Y {\n" +
+		"	                   ^\n" +
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	@Override <V> void foo(M m) { }\n" +
+		"	                   ^^^^^^^^\n" +
+		"Name clash: The method foo(Y.M) of type X<T> has the same erasure as foo(Y.M) of type Y but does not override it\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 2)\n" +
+		"	@Override <V> void foo(M m) { }\n" +
+		"	                   ^^^^^^^^\n" +
 		mustOverrideMessage("foo(Y.M)", "X<T>") +
-		"----------\n" + 
-		"4. WARNING in X.java (at line 2)\n" + 
-		"	@Override <V> void foo(M m) { }\n" + 
-		"	                       ^\n" + 
-		"Y.M is a raw type. References to generic type Y<T>.M<V> should be parameterized\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 3)\n" + 
-		"	@Override <V> M bar() { return null; }\n" + 
-		"	              ^\n" + 
-		"Y.M is a raw type. References to generic type Y<T>.M<V> should be parameterized\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 3)\n" + 
-		"	@Override <V> M bar() { return null; }\n" + 
-		"	                ^^^^^\n" + 
-		"Name clash: The method bar() of type X<T> has the same erasure as bar() of type Y but does not override it\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 3)\n" + 
-		"	@Override <V> M bar() { return null; }\n" + 
-		"	                ^^^^^\n" + 
+		"----------\n" +
+		"4. WARNING in X.java (at line 2)\n" +
+		"	@Override <V> void foo(M m) { }\n" +
+		"	                       ^\n" +
+		"Y.M is a raw type. References to generic type Y<T>.M<V> should be parameterized\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 3)\n" +
+		"	@Override <V> M bar() { return null; }\n" +
+		"	              ^\n" +
+		"Y.M is a raw type. References to generic type Y<T>.M<V> should be parameterized\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 3)\n" +
+		"	@Override <V> M bar() { return null; }\n" +
+		"	                ^^^^^\n" +
+		"Name clash: The method bar() of type X<T> has the same erasure as bar() of type Y but does not override it\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 3)\n" +
+		"	@Override <V> M bar() { return null; }\n" +
+		"	                ^^^^^\n" +
 		mustOverrideMessage("bar()", "X<T>") +
 		"----------\n"
 	);
@@ -10120,16 +10120,16 @@ public void test169() {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	public R foo(A a, I i) { return null; }\n" + 
-		"	       ^\n" + 
-		"R is a raw type. References to generic type R<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	public R foo(A a, I i) { return null; }\n" + 
-		"	                  ^\n" + 
-		"X.I is a raw type. References to generic type X.I<S> should be parameterized\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	public R foo(A a, I i) { return null; }\n" +
+		"	       ^\n" +
+		"R is a raw type. References to generic type R<T> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	public R foo(A a, I i) { return null; }\n" +
+		"	                  ^\n" +
+		"X.I is a raw type. References to generic type X.I<S> should be parameterized\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings
 	);
@@ -10152,16 +10152,16 @@ public void test169a() {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public R foo(X<String>.B b, I i) { return null; }\n" + 
-		"	       ^\n" + 
-		"R is a raw type. References to generic type R<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
-		"	public R foo(X<String>.B b, I i) { return null; }\n" + 
-		"	                            ^\n" + 
-		"I is a raw type. References to generic type I<S> should be parameterized\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public R foo(X<String>.B b, I i) { return null; }\n" +
+		"	       ^\n" +
+		"R is a raw type. References to generic type R<T> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 3)\n" +
+		"	public R foo(X<String>.B b, I i) { return null; }\n" +
+		"	                            ^\n" +
+		"I is a raw type. References to generic type I<S> should be parameterized\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings
 	);
@@ -10197,7 +10197,7 @@ public void test171() {
 		false,
 		new String[] {
 			"X.java",
-			"public enum X {\n" + 
+			"public enum X {\n" +
 			"  FOO { @Override void foo() { super.foo(); } };\n"+
 			"  synchronized void foo() { }\n"+
 			"}"
@@ -10221,7 +10221,7 @@ public void test172() {
 		false,
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
+			"public class X {\n" +
 			"  void bar() { new X() { @Override void foo() {} }; }\n"+
 			"  synchronized void foo() { }\n"+
 			"}"
@@ -10272,11 +10272,11 @@ public void test174() {
 			"interface I { String m(); }\n" +
 			"interface J { Object m(); }\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	class X extends Y implements I { }\n" + 
-		"	      ^\n" + 
-		"The type X must implement the inherited abstract method I.m() to override Y.m()\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X extends Y implements I { }\n" +
+		"	      ^\n" +
+		"The type X must implement the inherited abstract method I.m() to override Y.m()\n" +
 		"----------\n"
 	);
 }
@@ -10295,11 +10295,11 @@ public void test175() {
 		},
 		null,
 		options,
-		"----------\n" + 
-		"1. WARNING in A.java (at line 1)\n" + 
-		"	class A {\n" + 
-		"	      ^\n" + 
-		"The type A should also implement hashCode() since it overrides Object.equals()\n" + 
+		"----------\n" +
+		"1. WARNING in A.java (at line 1)\n" +
+		"	class A {\n" +
+		"	      ^\n" +
+		"The type A should also implement hashCode() since it overrides Object.equals()\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -10334,57 +10334,57 @@ public void test176() {
 public void test177() {
 	if (new CompilerOptions(getCompilerOptions()).complianceLevel >= ClassFileConstants.JDK1_6) { // see test187()
 		String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
-				"	class A extends LinkedHashMap {\n" + 
-				"	      ^\n" + 
-				"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	class A extends LinkedHashMap {\n" + 
-				"	                ^^^^^^^^^^^^^\n" + 
-				"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 4)\n" + 
-				"	public A foo(Collection c) { return this; }\n" + 
-				"	             ^^^^^^^^^^\n" + 
-				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 6)\n" + 
-				"	class X extends A implements I {\n" + 
-				"	      ^\n" + 
-				"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"5. WARNING in X.java (at line 7)\n" + 
-				"	@Override public X foo(Collection<?> c) { return this; }\n" + 
-				"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	class A extends LinkedHashMap {\n" +
+				"	      ^\n" +
+				"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	class A extends LinkedHashMap {\n" +
+				"	                ^^^^^^^^^^^^^\n" +
+				"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 4)\n" +
+				"	public A foo(Collection c) { return this; }\n" +
+				"	             ^^^^^^^^^^\n" +
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 6)\n" +
+				"	class X extends A implements I {\n" +
+				"	      ^\n" +
+				"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"5. WARNING in X.java (at line 7)\n" +
+				"	@Override public X foo(Collection<?> c) { return this; }\n" +
+				"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" +
 				"----------\n":
-					"----------\n" + 
-					"1. WARNING in X.java (at line 3)\n" + 
-					"	class A extends LinkedHashMap {\n" + 
-					"	      ^\n" + 
-					"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
-					"----------\n" + 
-					"2. WARNING in X.java (at line 3)\n" + 
-					"	class A extends LinkedHashMap {\n" + 
-					"	                ^^^^^^^^^^^^^\n" + 
-					"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" + 
-					"----------\n" + 
-					"3. WARNING in X.java (at line 4)\n" + 
-					"	public A foo(Collection c) { return this; }\n" + 
-					"	             ^^^^^^^^^^\n" + 
-					"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-					"----------\n" + 
-					"4. WARNING in X.java (at line 6)\n" + 
-					"	class X extends A implements I {\n" + 
-					"	      ^\n" + 
-					"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-					"----------\n" + 
-					"5. ERROR in X.java (at line 7)\n" + 
-					"	@Override public X foo(Collection<?> c) { return this; }\n" + 
-					"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
+					"----------\n" +
+					"1. WARNING in X.java (at line 3)\n" +
+					"	class A extends LinkedHashMap {\n" +
+					"	      ^\n" +
+					"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
+					"----------\n" +
+					"2. WARNING in X.java (at line 3)\n" +
+					"	class A extends LinkedHashMap {\n" +
+					"	                ^^^^^^^^^^^^^\n" +
+					"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" +
+					"----------\n" +
+					"3. WARNING in X.java (at line 4)\n" +
+					"	public A foo(Collection c) { return this; }\n" +
+					"	             ^^^^^^^^^^\n" +
+					"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+					"----------\n" +
+					"4. WARNING in X.java (at line 6)\n" +
+					"	class X extends A implements I {\n" +
+					"	      ^\n" +
+					"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+					"----------\n" +
+					"5. ERROR in X.java (at line 7)\n" +
+					"	@Override public X foo(Collection<?> c) { return this; }\n" +
+					"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
+					"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" +
 					"----------\n";
 		this.runNegativeTest(
 			new String[] {
@@ -10413,36 +10413,36 @@ public void test177() {
 				"	@Override public X foo(Collection<?> c) { return this; }\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	class A extends LinkedHashMap {\n" + 
-			"	      ^\n" + 
-			"The serializable class A does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 3)\n" + 
-			"	class A extends LinkedHashMap {\n" + 
-			"	                ^^^^^^^^^^^^^\n" + 
-			"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
-			"	public A foo(Collection c) { return this; }\n" + 
-			"	             ^^^^^^^^^^\n" + 
-			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 6)\n" + 
-			"	class X extends A implements I {\n" + 
-			"	      ^\n" + 
-			"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 7)\n" + 
-			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" + 
 			"----------\n" +
-			"6. ERROR in X.java (at line 7)\n" + 
-			"	@Override public X foo(Collection<?> c) { return this; }\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method foo(Collection<?>) of type X must override a superclass method\n" + 
+			"1. WARNING in X.java (at line 3)\n" +
+			"	class A extends LinkedHashMap {\n" +
+			"	      ^\n" +
+			"The serializable class A does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	class A extends LinkedHashMap {\n" +
+			"	                ^^^^^^^^^^^^^\n" +
+			"LinkedHashMap is a raw type. References to generic type LinkedHashMap<K,V> should be parameterized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 4)\n" +
+			"	public A foo(Collection c) { return this; }\n" +
+			"	             ^^^^^^^^^^\n" +
+			"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 6)\n" +
+			"	class X extends A implements I {\n" +
+			"	      ^\n" +
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 7)\n" +
+			"	@Override public X foo(Collection<?> c) { return this; }\n" +
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(Collection<?>) of type X has the same erasure as foo(Collection) of type A but does not override it\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 7)\n" +
+			"	@Override public X foo(Collection<?> c) { return this; }\n" +
+			"	                   ^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method foo(Collection<?>) of type X must override a superclass method\n" +
 			"----------\n"
 		);
 	}
@@ -10468,37 +10468,37 @@ public void test179() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface Adaptable {\n" + 
-			"	public Object getAdapter(Class clazz);	\n" + 
-			"}\n" + 
-			"\n" + 
-			"public class X implements Adaptable {\n" + 
-			"	@Override\n" + 
-			"	public Object getAdapter(Class<?> clazz) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"interface Adaptable {\n" +
+			"	public Object getAdapter(Class clazz);	\n" +
+			"}\n" +
+			"\n" +
+			"public class X implements Adaptable {\n" +
+			"	@Override\n" +
+			"	public Object getAdapter(Class<?> clazz) {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public Object getAdapter(Class clazz);	\n" + 
-		"	                         ^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	public class X implements Adaptable {\n" + 
-		"	             ^\n" + 
-		"The type X must implement the inherited abstract method Adaptable.getAdapter(Class)\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
-		"	public Object getAdapter(Class<?> clazz) {\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method getAdapter(Class<?>) of type X has the same erasure as getAdapter(Class) of type Adaptable but does not override it\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 7)\n" + 
-		"	public Object getAdapter(Class<?> clazz) {\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		mustOverrideMessage("getAdapter(Class<?>)", "X") + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public Object getAdapter(Class clazz);	\n" +
+		"	                         ^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	public class X implements Adaptable {\n" +
+		"	             ^\n" +
+		"The type X must implement the inherited abstract method Adaptable.getAdapter(Class)\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	public Object getAdapter(Class<?> clazz) {\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Name clash: The method getAdapter(Class<?>) of type X has the same erasure as getAdapter(Class) of type Adaptable but does not override it\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 7)\n" +
+		"	public Object getAdapter(Class<?> clazz) {\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		mustOverrideMessage("getAdapter(Class<?>)", "X") +
 		"----------\n"
 	);
 }
@@ -10518,26 +10518,26 @@ public void test180() {
 			"	void test() { foo(); }\n" + // no secondary error
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	foo() { return null; }\n" + 
-		"	^^^^^\n" + 
-		"Return type for the method is missing\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	foo() { return null; }\n" + 
-		"	^^^^^\n" + 
-		"Duplicate method foo() in type X\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
-		"	@Override String foo() { return null; }\n" + 
-		"	                 ^^^^^\n" + 
-		"Duplicate method foo() in type X\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 7)\n" + 
-		"	Number foo() { return null; }\n" + 
-		"	       ^^^^^\n" + 
-		"Duplicate method foo() in type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	foo() { return null; }\n" +
+		"	^^^^^\n" +
+		"Return type for the method is missing\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	foo() { return null; }\n" +
+		"	^^^^^\n" +
+		"Duplicate method foo() in type X\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	@Override String foo() { return null; }\n" +
+		"	                 ^^^^^\n" +
+		"Duplicate method foo() in type X\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 7)\n" +
+		"	Number foo() { return null; }\n" +
+		"	       ^^^^^\n" +
+		"Duplicate method foo() in type X\n" +
 		"----------\n"
 	);
 }
@@ -10570,63 +10570,63 @@ public void test181() {
 			"B2.java",
 			"class B2 extends A2 implements I {}"
 		},
-		"----------\n" + 
-		"1. ERROR in I.java (at line 13)\n" + 
-		"	class A2 {\n" + 
-		"	      ^^\n" + 
-		"The type A2 must be an abstract class to define abstract methods\n" + 
-		"----------\n" + 
-		"2. ERROR in I.java (at line 14)\n" + 
-		"	public abstract Object m();\n" + 
-		"	                       ^^^\n" + 
-		"The abstract method m in type A2 can only be defined by an abstract class\n" + 
-		"----------\n" + 
-		"3. ERROR in I.java (at line 15)\n" + 
-		"	public abstract String n();\n" + 
-		"	                       ^^^\n" + 
-		"The abstract method n in type A2 can only be defined by an abstract class\n" + 
-		"----------\n" + 
-		"4. ERROR in I.java (at line 16)\n" + 
-		"	abstract Object o();\n" + 
-		"	                ^^^\n" + 
-		"The abstract method o in type A2 can only be defined by an abstract class\n" + 
-		"----------\n" + 
-		"5. ERROR in I.java (at line 17)\n" + 
-		"	abstract String p();\n" + 
-		"	                ^^^\n" + 
-		"The abstract method p in type A2 can only be defined by an abstract class\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method A.p()\n" + 
-		"----------\n" + 
-		"2. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method I.o() to override A.o()\n" + 
-		"----------\n" + 
-		"3. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method A.n()\n" + 
-		"----------\n" + 
-		"4. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in B2.java (at line 1)\n" + 
-		"	class B2 extends A2 implements I {}\n" + 
-		"	      ^^\n" + 
-		"The type B2 must implement the inherited abstract method I.o() to override A2.o()\n" + 
-		"----------\n" + 
-		"2. ERROR in B2.java (at line 1)\n" + 
-		"	class B2 extends A2 implements I {}\n" + 
-		"	      ^^\n" + 
-		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n" +
+		"1. ERROR in I.java (at line 13)\n" +
+		"	class A2 {\n" +
+		"	      ^^\n" +
+		"The type A2 must be an abstract class to define abstract methods\n" +
+		"----------\n" +
+		"2. ERROR in I.java (at line 14)\n" +
+		"	public abstract Object m();\n" +
+		"	                       ^^^\n" +
+		"The abstract method m in type A2 can only be defined by an abstract class\n" +
+		"----------\n" +
+		"3. ERROR in I.java (at line 15)\n" +
+		"	public abstract String n();\n" +
+		"	                       ^^^\n" +
+		"The abstract method n in type A2 can only be defined by an abstract class\n" +
+		"----------\n" +
+		"4. ERROR in I.java (at line 16)\n" +
+		"	abstract Object o();\n" +
+		"	                ^^^\n" +
+		"The abstract method o in type A2 can only be defined by an abstract class\n" +
+		"----------\n" +
+		"5. ERROR in I.java (at line 17)\n" +
+		"	abstract String p();\n" +
+		"	                ^^^\n" +
+		"The abstract method p in type A2 can only be defined by an abstract class\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method A.p()\n" +
+		"----------\n" +
+		"2. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method I.o() to override A.o()\n" +
+		"----------\n" +
+		"3. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method A.n()\n" +
+		"----------\n" +
+		"4. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in B2.java (at line 1)\n" +
+		"	class B2 extends A2 implements I {}\n" +
+		"	      ^^\n" +
+		"The type B2 must implement the inherited abstract method I.o() to override A2.o()\n" +
+		"----------\n" +
+		"2. ERROR in B2.java (at line 1)\n" +
+		"	class B2 extends A2 implements I {}\n" +
+		"	      ^^\n" +
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" +
 		"----------\n",
 		null,
 		true,
@@ -10642,37 +10642,37 @@ public void test181() {
 			"B2.java",
 			"class B2 extends A2 implements I {}"
 		},
-		"----------\n" + 
-		"1. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method A.p()\n" + 
-		"----------\n" + 
-		"2. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method I.o() to override A.o()\n" + 
-		"----------\n" + 
-		"3. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method A.n()\n" + 
-		"----------\n" + 
-		"4. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in B2.java (at line 1)\n" + 
-		"	class B2 extends A2 implements I {}\n" + 
-		"	      ^^\n" + 
-		"The type B2 must implement the inherited abstract method I.o() to override A2.o()\n" + 
-		"----------\n" + 
-		"2. ERROR in B2.java (at line 1)\n" + 
-		"	class B2 extends A2 implements I {}\n" + 
-		"	      ^^\n" + 
-		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method A.p()\n" +
+		"----------\n" +
+		"2. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method I.o() to override A.o()\n" +
+		"----------\n" +
+		"3. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method A.n()\n" +
+		"----------\n" +
+		"4. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in B2.java (at line 1)\n" +
+		"	class B2 extends A2 implements I {}\n" +
+		"	      ^^\n" +
+		"The type B2 must implement the inherited abstract method I.o() to override A2.o()\n" +
+		"----------\n" +
+		"2. ERROR in B2.java (at line 1)\n" +
+		"	class B2 extends A2 implements I {}\n" +
+		"	      ^^\n" +
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" +
 		"----------\n",
 		null,
 		false
@@ -10701,17 +10701,17 @@ public void test182() {
 			"B2.java",
 			"class B2 extends A2 implements I {}"
 		},
-		"----------\n" + 
-		"1. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in B2.java (at line 1)\n" + 
-		"	class B2 extends A2 implements I {}\n" + 
-		"	      ^^\n" + 
-		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in B2.java (at line 1)\n" +
+		"	class B2 extends A2 implements I {}\n" +
+		"	      ^^\n" +
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" +
 		"----------\n"
 	);
 	this.runNegativeTest(
@@ -10721,17 +10721,17 @@ public void test182() {
 			"B2.java",
 			"class B2 extends A2 implements I {}"
 		},
-		"----------\n" + 
-		"1. ERROR in B.java (at line 1)\n" + 
-		"	class B extends A implements I {}\n" + 
-		"	      ^\n" + 
-		"The type B must implement the inherited abstract method I.m() to override A.m()\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in B2.java (at line 1)\n" + 
-		"	class B2 extends A2 implements I {}\n" + 
-		"	      ^^\n" + 
-		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 1)\n" +
+		"	class B extends A implements I {}\n" +
+		"	      ^\n" +
+		"The type B must implement the inherited abstract method I.m() to override A.m()\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in B2.java (at line 1)\n" +
+		"	class B2 extends A2 implements I {}\n" +
+		"	      ^^\n" +
+		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" +
 		"----------\n",
 		null,
 		false
@@ -10758,26 +10758,26 @@ public void test183() {
 			"class C {}\n" +
 			"class G<T2> {}"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	@Override void a(G g) {}\n" + 
-		"	                 ^\n" + 
-		"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 10)\n" + 
-		"	@Override void c(G g) {}\n" + 
-		"	                 ^\n" + 
-		"G is a raw type. References to generic type G<T2> should be parameterized\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
-		"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" + 
-		"	                                             ^^^^^^^\n" + 
-		"Name clash: The method d(S) of type X has the same erasure as d(S) of type XX but does not override it\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
-		"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" + 
-		"	                                             ^^^^^^^\n" + 
-		mustOverrideMessage("d(S)", "X") + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	@Override void a(G g) {}\n" +
+		"	                 ^\n" +
+		"G is a raw type. References to generic type G<T2> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 10)\n" +
+		"	@Override void c(G g) {}\n" +
+		"	                 ^\n" +
+		"G is a raw type. References to generic type G<T2> should be parameterized\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 11)\n" +
+		"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" +
+		"	                                             ^^^^^^^\n" +
+		"Name clash: The method d(S) of type X has the same erasure as d(S) of type XX but does not override it\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 11)\n" +
+		"	@Override <T extends C, S extends G<C>> void d(S gc) {}\n" +
+		"	                                             ^^^^^^^\n" +
+		mustOverrideMessage("d(S)", "X") +
 		"----------\n"
 	);
 }
@@ -10816,46 +10816,46 @@ public void test184() {
 			"	@Override <T extends M> V n(Class<T> c) { return null; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. WARNING in A.java (at line 6)\n" + 
-		"	<T extends Integer> T z() { return null; }\n" + 
-		"	           ^^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"2. WARNING in A.java (at line 9)\n" + 
-		"	@Override A a() { return null; }\n" + 
-		"	          ^\n" + 
-		"A is a raw type. References to generic type A<U> should be parameterized\n" + 
-		"----------\n" + 
-		"3. WARNING in A.java (at line 9)\n" + 
-		"	@Override A a() { return null; }\n" + 
-		"	          ^\n" + 
-		"Type safety: The return type A for a() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
-		"----------\n" + 
-		"4. WARNING in A.java (at line 11)\n" + 
-		"	@Override Integer x() { return 1; }\n" + 
-		"	          ^^^^^^^\n" + 
-		"Type safety: The return type Integer for x() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
-		"----------\n" + 
-		"5. WARNING in A.java (at line 12)\n" + 
-		"	@Override Integer y() { return 1; }\n" + 
-		"	          ^^^^^^^\n" + 
-		"Type safety: The return type Integer for y() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
-		"----------\n" + 
-		"6. WARNING in A.java (at line 13)\n" + 
-		"	@Override Integer z() { return 1; }\n" + 
-		"	          ^^^^^^^\n" + 
-		"Type safety: The return type Integer for z() from the type B needs unchecked conversion to conform to T from the type A<U>\n" + 
-		"----------\n" + 
-		"7. WARNING in A.java (at line 15)\n" + 
-		"	class C extends A {\n" + 
-		"	                ^\n" + 
-		"A is a raw type. References to generic type A<U> should be parameterized\n" + 
-		"----------\n" + 
-		"8. WARNING in A.java (at line 16)\n" + 
-		"	@Override A a() { return null; }\n" + 
-		"	          ^\n" + 
-		"A is a raw type. References to generic type A<U> should be parameterized\n" + 
+		"----------\n" +
+		"1. WARNING in A.java (at line 6)\n" +
+		"	<T extends Integer> T z() { return null; }\n" +
+		"	           ^^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
+		"----------\n" +
+		"2. WARNING in A.java (at line 9)\n" +
+		"	@Override A a() { return null; }\n" +
+		"	          ^\n" +
+		"A is a raw type. References to generic type A<U> should be parameterized\n" +
+		"----------\n" +
+		"3. WARNING in A.java (at line 9)\n" +
+		"	@Override A a() { return null; }\n" +
+		"	          ^\n" +
+		"Type safety: The return type A for a() from the type B needs unchecked conversion to conform to T from the type A<U>\n" +
+		"----------\n" +
+		"4. WARNING in A.java (at line 11)\n" +
+		"	@Override Integer x() { return 1; }\n" +
+		"	          ^^^^^^^\n" +
+		"Type safety: The return type Integer for x() from the type B needs unchecked conversion to conform to T from the type A<U>\n" +
+		"----------\n" +
+		"5. WARNING in A.java (at line 12)\n" +
+		"	@Override Integer y() { return 1; }\n" +
+		"	          ^^^^^^^\n" +
+		"Type safety: The return type Integer for y() from the type B needs unchecked conversion to conform to T from the type A<U>\n" +
+		"----------\n" +
+		"6. WARNING in A.java (at line 13)\n" +
+		"	@Override Integer z() { return 1; }\n" +
+		"	          ^^^^^^^\n" +
+		"Type safety: The return type Integer for z() from the type B needs unchecked conversion to conform to T from the type A<U>\n" +
+		"----------\n" +
+		"7. WARNING in A.java (at line 15)\n" +
+		"	class C extends A {\n" +
+		"	                ^\n" +
+		"A is a raw type. References to generic type A<U> should be parameterized\n" +
+		"----------\n" +
+		"8. WARNING in A.java (at line 16)\n" +
+		"	@Override A a() { return null; }\n" +
+		"	          ^\n" +
+		"A is a raw type. References to generic type A<U> should be parameterized\n" +
 		"----------\n"
 	);
 }
@@ -10868,11 +10868,11 @@ public void test185() {
 			"interface J { J hello(); }\n" +
 			"class A implements I, J {}"
 		},
-		"----------\n" + 
-		"1. ERROR in A.java (at line 3)\n" + 
-		"	class A implements I, J {}\n" + 
-		"	      ^\n" + 
-		"The type A must implement the inherited abstract method J.hello()\n" + 
+		"----------\n" +
+		"1. ERROR in A.java (at line 3)\n" +
+		"	class A implements I, J {}\n" +
+		"	      ^\n" +
+		"The type A must implement the inherited abstract method J.hello()\n" +
 		"----------\n"
 	);
 }
@@ -10893,17 +10893,17 @@ public void test186() {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in p2\\B.java (at line 2)\n" + 
-		"	public class B extends p1.A { void m() {} }\n" + 
-		"	                                   ^^^\n" + 
-		"The method B.m() does not override the inherited method from A since it is private to a different package\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p1\\C.java (at line 2)\n" + 
-		"	public class C extends p2.B { @Override void m() {} }\n" + 
-		"	                                             ^^^\n" + 
-		"The method C.m() does not override the inherited method from B since it is private to a different package\n" + 
+		"----------\n" +
+		"1. WARNING in p2\\B.java (at line 2)\n" +
+		"	public class B extends p1.A { void m() {} }\n" +
+		"	                                   ^^^\n" +
+		"The method B.m() does not override the inherited method from A since it is private to a different package\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p1\\C.java (at line 2)\n" +
+		"	public class C extends p2.B { @Override void m() {} }\n" +
+		"	                                             ^^^\n" +
+		"The method C.m() does not override the inherited method from B since it is private to a different package\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings
 	);
@@ -10912,36 +10912,36 @@ public void test186() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=?
 public void test187() {
 	String expectedCompilerLog = (this.complianceLevel == ClassFileConstants.JDK1_6 )?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	double f(List<Integer> l) {return 0;}\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 13)\n" + 
-			"	int f(List<String> l) {return 0;}\n" + 
-			"	    ^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	double f(List<Integer> l) {return 0;}\n" +
+			"	       ^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 13)\n" +
+			"	int f(List<String> l) {return 0;}\n" +
+			"	    ^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method f(List<String>) is the same as another method in type XX\n" +
-			"----------\n" + 
-			"3. WARNING in X.java (at line 14)\n" + 
-			"	double f(List<Integer> l) {return 0;}\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"3. WARNING in X.java (at line 14)\n" +
+			"	double f(List<Integer> l) {return 0;}\n" +
+			"	       ^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method f(List<Integer>) is the same as another method in type XX\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	double f(List<Integer> l) {return 0;}\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 13)\n" + 
-				"	int f(List<String> l) {return 0;}\n" + 
-				"	    ^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	double f(List<Integer> l) {return 0;}\n" +
+				"	       ^^^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method f(List<Integer>) of type Y has the same erasure as f(List<String>) of type X but does not override it\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
+				"	int f(List<String> l) {return 0;}\n" +
+				"	    ^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method f(List<String>) is the same as another method in type XX\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 14)\n" + 
-				"	double f(List<Integer> l) {return 0;}\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 14)\n" +
+				"	double f(List<Integer> l) {return 0;}\n" +
+				"	       ^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method f(List<Integer>) is the same as another method in type XX\n" +
 				"----------\n";
 	this.runNegativeTest(
@@ -10980,11 +10980,11 @@ public void test188() {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in Y.java (at line 5)\n" + 
-		"	class Z extends Y {}\n" + 
-		"	                ^\n" + 
-		"Y is a raw type. References to generic type Y<T> should be parameterized\n" + 
+		"----------\n" +
+		"1. WARNING in Y.java (at line 5)\n" +
+		"	class Z extends Y {}\n" +
+		"	                ^\n" +
+		"Y is a raw type. References to generic type Y<T> should be parameterized\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings
 	);
@@ -10994,26 +10994,26 @@ public void test189() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"interface Interface {\n" + 
-			"    void foo() throws CloneNotSupportedException, InterruptedException;\n" + 
-			"}\n" + 
-			"abstract class AbstractClass1 {\n" + 
-			"    public abstract void foo() throws ClassNotFoundException, CloneNotSupportedException;\n" + 
-			"}\n" + 
-			"abstract class AbstractClass2 extends AbstractClass1  implements Interface {\n" + 
-			"	void bar() {\n" + 
-			"        try {\n" + 
-			"        	foo();\n" + 
-			"        } catch (CloneNotSupportedException e) {\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class X extends AbstractClass2 {\n" + 
-			"	@Override\n" + 
-			"	public void foo() throws CloneNotSupportedException {\n" + 
-			"	}\n" + 
-			"}\n" + 
+			"interface Interface {\n" +
+			"    void foo() throws CloneNotSupportedException, InterruptedException;\n" +
+			"}\n" +
+			"abstract class AbstractClass1 {\n" +
+			"    public abstract void foo() throws ClassNotFoundException, CloneNotSupportedException;\n" +
+			"}\n" +
+			"abstract class AbstractClass2 extends AbstractClass1  implements Interface {\n" +
+			"	void bar() {\n" +
+			"        try {\n" +
+			"        	foo();\n" +
+			"        } catch (CloneNotSupportedException e) {\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"class X extends AbstractClass2 {\n" +
+			"	@Override\n" +
+			"	public void foo() throws CloneNotSupportedException {\n" +
+			"	}\n" +
+			"}\n" +
 			"class Y extends AbstractClass2 {\n" +
 			"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException {}\n" +
 			"}\n" +
@@ -11024,26 +11024,26 @@ public void test189() {
 			"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 22)\n" + 
-		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException {}\n" + 
-		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Exception ClassNotFoundException is not compatible with throws clause in Interface.foo()\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 25)\n" + 
-		"	@Override public void foo() throws CloneNotSupportedException, InterruptedException {}\n" + 
-		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 28)\n" + 
-		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" + 
-		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Exception ClassNotFoundException is not compatible with throws clause in Interface.foo()\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 28)\n" + 
-		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" + 
-		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 22)\n" +
+		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException {}\n" +
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Exception ClassNotFoundException is not compatible with throws clause in Interface.foo()\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 25)\n" +
+		"	@Override public void foo() throws CloneNotSupportedException, InterruptedException {}\n" +
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 28)\n" +
+		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" +
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Exception ClassNotFoundException is not compatible with throws clause in Interface.foo()\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 28)\n" +
+		"	@Override public void foo() throws ClassNotFoundException, CloneNotSupportedException, InterruptedException {}\n" +
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Exception InterruptedException is not compatible with throws clause in AbstractClass1.foo()\n" +
 		"----------\n"
 	);
 }
@@ -11052,32 +11052,32 @@ public void test190() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	@Override public int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	@Override public int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	@Override public int foo() { return 0; }\n" + 
-		"	                 ^^^\n" + 
-		"The return type is incompatible with A.foo()\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p2\\C.java (at line 3)\n" + 
-		"	public int foo() { return 1; }\n" + 
-		"	           ^^^^^\n" + 
-		"The method C.foo() does not override the inherited method from A since it is private to a different package\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	@Override public int foo() { return 0; }\n" +
+		"	                 ^^^\n" +
+		"The return type is incompatible with A.foo()\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p2\\C.java (at line 3)\n" +
+		"	public int foo() { return 1; }\n" +
+		"	           ^^^^^\n" +
+		"The method C.foo() does not override the inherited method from A since it is private to a different package\n" +
 		"----------\n"
 	);
 }
@@ -11086,26 +11086,26 @@ public void test191() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	static void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	static void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	public static int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	public static int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public static int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public static int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public static int foo() { return 0; }\n" + 
-		"	              ^^^\n" + 
-		"The return type is incompatible with A.foo()\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	public static int foo() { return 0; }\n" +
+		"	              ^^^\n" +
+		"The return type is incompatible with A.foo()\n" +
 		"----------\n"
 	);
 }
@@ -11114,26 +11114,26 @@ public void test192() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	public static int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	public static int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public static int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public static int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public static int foo() { return 0; }\n" + 
-		"	                  ^^^^^\n" + 
-		"This static method cannot hide the instance method from A\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	public static int foo() { return 0; }\n" +
+		"	                  ^^^^^\n" +
+		"This static method cannot hide the instance method from A\n" +
 		"----------\n"
 	);
 }
@@ -11142,31 +11142,31 @@ public void test193() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	@Override public int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	@Override public int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public static int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public static int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	@Override public int foo() { return 0; }\n" + 
-		"	                 ^^^\n" + 
-		"The return type is incompatible with A.foo()\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\B.java (at line 3)\n" + 
-		"	@Override public int foo() { return 0; }\n" + 
-		"	                     ^^^^^\n" + 
-		"This instance method cannot override the static method from C\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	@Override public int foo() { return 0; }\n" +
+		"	                 ^^^\n" +
+		"The return type is incompatible with A.foo()\n" +
+		"----------\n" +
+		"2. ERROR in p1\\B.java (at line 3)\n" +
+		"	@Override public int foo() { return 0; }\n" +
+		"	                     ^^^^^\n" +
+		"This instance method cannot override the static method from C\n" +
 		"----------\n"
 	);
 }
@@ -11175,31 +11175,31 @@ public void test194() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	static void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	static void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	public int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	public int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public static int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public static int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public int foo() { return 0; }\n" + 
-		"	           ^^^^^\n" + 
-		"This instance method cannot override the static method from A\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public int foo() { return 0; }\n" + 
-		"	           ^^^^^\n" + 
-		"This instance method cannot override the static method from C\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	public int foo() { return 0; }\n" +
+		"	           ^^^^^\n" +
+		"This instance method cannot override the static method from A\n" +
+		"----------\n" +
+		"2. ERROR in p1\\B.java (at line 3)\n" +
+		"	public int foo() { return 0; }\n" +
+		"	           ^^^^^\n" +
+		"This instance method cannot override the static method from C\n" +
 		"----------\n"
 	);
 }
@@ -11208,26 +11208,26 @@ public void test195() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	static void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	static void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	@Override public int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	@Override public int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	@Override public int foo() { return 0; }\n" + 
-		"	                     ^^^^^\n" + 
-		"This instance method cannot override the static method from A\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	@Override public int foo() { return 0; }\n" +
+		"	                     ^^^^^\n" +
+		"This instance method cannot override the static method from A\n" +
 		"----------\n"
 	);
 }
@@ -11236,31 +11236,31 @@ public void test196() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	static void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	static void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	public static int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	public static int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public static int foo() { return 0; }\n" + 
-		"	              ^^^\n" + 
-		"The return type is incompatible with A.foo()\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public static int foo() { return 0; }\n" + 
-		"	                  ^^^^^\n" + 
-		"This static method cannot hide the instance method from C\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	public static int foo() { return 0; }\n" +
+		"	              ^^^\n" +
+		"The return type is incompatible with A.foo()\n" +
+		"----------\n" +
+		"2. ERROR in p1\\B.java (at line 3)\n" +
+		"	public static int foo() { return 0; }\n" +
+		"	                  ^^^^^\n" +
+		"This static method cannot hide the instance method from C\n" +
 		"----------\n"
 	);
 }
@@ -11269,37 +11269,37 @@ public void test197() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/A.java",
-			"package p1;\n" + 
-			"public class A {\n" + 
-			"	void foo() {}\n" + 
+			"package p1;\n" +
+			"public class A {\n" +
+			"	void foo() {}\n" +
 			"}",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends p2.C {\n" + 
-			"	public static int foo() { return 0; }\n" + 
+			"package p1;\n" +
+			"public class B extends p2.C {\n" +
+			"	public static int foo() { return 0; }\n" +
 			"}",
 			"p2/C.java",
-			"package p2;\n" + 
-			"public class C extends p1.A {\n" + 
-			"	public int foo() { return 1; }\n" + 
+			"package p2;\n" +
+			"public class C extends p1.A {\n" +
+			"	public int foo() { return 1; }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public static int foo() { return 0; }\n" + 
-		"	                  ^^^^^\n" + 
-		"This static method cannot hide the instance method from A\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\B.java (at line 3)\n" + 
-		"	public static int foo() { return 0; }\n" + 
-		"	                  ^^^^^\n" + 
-		"This static method cannot hide the instance method from C\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p2\\C.java (at line 3)\n" + 
-		"	public int foo() { return 1; }\n" + 
-		"	           ^^^^^\n" + 
-		"The method C.foo() does not override the inherited method from A since it is private to a different package\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\B.java (at line 3)\n" +
+		"	public static int foo() { return 0; }\n" +
+		"	                  ^^^^^\n" +
+		"This static method cannot hide the instance method from A\n" +
+		"----------\n" +
+		"2. ERROR in p1\\B.java (at line 3)\n" +
+		"	public static int foo() { return 0; }\n" +
+		"	                  ^^^^^\n" +
+		"This static method cannot hide the instance method from C\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p2\\C.java (at line 3)\n" +
+		"	public int foo() { return 1; }\n" +
+		"	           ^^^^^\n" +
+		"The method C.foo() does not override the inherited method from A since it is private to a different package\n" +
 		"----------\n"
 	);
 }
@@ -11310,50 +11310,50 @@ public void test198() {
 	this.runConformTest(
 		new String[] {
 			"MyAnnotation.java",
-			"@interface MyAnnotation {\n" + 
-			"    MyEnum value();\n" + 
+			"@interface MyAnnotation {\n" +
+			"    MyEnum value();\n" +
 			"}",
 			"MyClass.java",
-			"public class MyClass implements MyInterface {\n" + 
-			"    @Override public void foo() {}\n" + 
+			"public class MyClass implements MyInterface {\n" +
+			"    @Override public void foo() {}\n" +
 			"}",
 			"MyEnum.java",
-			"enum MyEnum implements Runnable {\n" + 
-			"	G {\n" + 
-			"		@Override public void methodA() {\n" + 
-			"			new Runnable() {\n" + 
-			"				@Override public void run() {}\n" + 
-			"			};\n" + 
-			"		}\n" + 
-			"	},\n" + 
-			"	D {\n" + 
-			"		@Override public void methodA() {}\n" + 
-			"	},\n" + 
-			"	A {\n" + 
-			"		@Override public void methodA() {}\n" + 
-			"		@Override public void methodB() {}\n" + 
-			"	},\n" + 
-			"	B {\n" + 
-			"		@Override public void methodA() {}\n" + 
-			"	},\n" + 
-			"	C {\n" + 
-			"		@Override public void methodA() {}\n" + 
-			"		@Override public void methodB() {}\n" + 
-			"	},\n" + 
-			"	E {\n" + 
-			"		@Override public void methodA() {}\n" + 
-			"	},\n" + 
-			"	F {\n" + 
-			"		@Override public void methodA() {}\n" + 
-			"	};\n" + 
-			"	private MyEnum() {}\n" + 
-			"	public void methodA() {}\n" + 
-			"	public void methodB() {}\n" + 
-			"	@Override public void run() {}\n" + 
+			"enum MyEnum implements Runnable {\n" +
+			"	G {\n" +
+			"		@Override public void methodA() {\n" +
+			"			new Runnable() {\n" +
+			"				@Override public void run() {}\n" +
+			"			};\n" +
+			"		}\n" +
+			"	},\n" +
+			"	D {\n" +
+			"		@Override public void methodA() {}\n" +
+			"	},\n" +
+			"	A {\n" +
+			"		@Override public void methodA() {}\n" +
+			"		@Override public void methodB() {}\n" +
+			"	},\n" +
+			"	B {\n" +
+			"		@Override public void methodA() {}\n" +
+			"	},\n" +
+			"	C {\n" +
+			"		@Override public void methodA() {}\n" +
+			"		@Override public void methodB() {}\n" +
+			"	},\n" +
+			"	E {\n" +
+			"		@Override public void methodA() {}\n" +
+			"	},\n" +
+			"	F {\n" +
+			"		@Override public void methodA() {}\n" +
+			"	};\n" +
+			"	private MyEnum() {}\n" +
+			"	public void methodA() {}\n" +
+			"	public void methodB() {}\n" +
+			"	@Override public void run() {}\n" +
 			"}",
 			"MyInterface.java",
-			"interface MyInterface {\n" + 
-			"    @MyAnnotation(MyEnum.D) public void foo();\n" + 
+			"interface MyInterface {\n" +
+			"    @MyAnnotation(MyEnum.D) public void foo();\n" +
 			"}"
 		},
 		""
@@ -11364,9 +11364,9 @@ public void test199() {
 	this.runConformTest(
 		new String[] {
 			"Bar.java",
-			"public interface Bar {\n" + 
-			"	void addError(String message, Object... arguments);\n" + 
-			"	void addError(Throwable t);\n" + 
+			"public interface Bar {\n" +
+			"	void addError(String message, Object... arguments);\n" +
+			"	void addError(Throwable t);\n" +
 			"}",
 		},
 		""
@@ -11375,10 +11375,10 @@ public void test199() {
 		false,
 		new String[] {
 			"Foo.java",
-			"public class Foo {\n" + 
-			"	void bar(Bar bar) {\n" + 
-			"		bar.addError(\"g\");\n" + 
-			"	}\n" + 
+			"public class Foo {\n" +
+			"	void bar(Bar bar) {\n" +
+			"		bar.addError(\"g\");\n" +
+			"	}\n" +
 			"}"
 		},
 		"",
@@ -11390,20 +11390,20 @@ public void test199() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=285088
 public void test200() {
 	String errorMessage =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	int foo(Collection bar) { return 0; }\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	int foo(Collection bar) { return 0; }\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method foo(Collection) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	int foo(Collection bar) { return 0; }\n" + 
-				"	        ^^^^^^^^^^\n" + 
-				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	double foo(Collection<String> bar) {return 0; }\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	int foo(Collection bar) { return 0; }\n" +
+				"	        ^^^^^^^^^^\n" +
+				"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 4)\n" +
+				"	double foo(Collection<String> bar) {return 0; }\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method foo(Collection<String>) is the same as another method in type X\n" +
 				"----------\n";
 	this.runNegativeTest(
@@ -11484,7 +11484,7 @@ public void test204() {
 		new String[] {
 			"OverrideBug.java",
 			"import java.util.List;\n" +
-			"interface Map<K, V> {\n" + 
+			"interface Map<K, V> {\n" +
 			"	public V put(K key, V value);\n" +
 			"}\n" +
 			"public class OverrideBug<K, V> implements Map<K, List<V>> {\n" +
@@ -11505,7 +11505,7 @@ public void test204a() {
 		new String[] {
 			"OverrideBug.java",
 			"import java.util.List;\n" +
-			"interface Map<K, V> {\n" + 
+			"interface Map<K, V> {\n" +
 			"	public V put(K key, V value);\n" +
 			"}\n" +
 			"public class OverrideBug<K, V> implements Map<K, List<V>> {\n" +
@@ -11517,11 +11517,11 @@ public void test204a() {
 			"}\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in OverrideBug.java (at line 9)\n" + 
-		"	public V put(final K arg0, final V arg1) {\n" + 
-		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method put(K, V) of type OverrideBug<K,V> has the same erasure as put(K, V) of type Map<K,V> but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in OverrideBug.java (at line 9)\n" +
+		"	public V put(final K arg0, final V arg1) {\n" +
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Name clash: The method put(K, V) of type OverrideBug<K,V> has the same erasure as put(K, V) of type Map<K,V> but does not override it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=298362
@@ -11628,32 +11628,32 @@ public void test208() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.lang.annotation.Annotation;\n"+ 
-			"import java.lang.annotation.Retention;\n"+ 
-			"import java.lang.annotation.RetentionPolicy;\n"+ 
-			"import java.lang.reflect.Method;\n"+ 
-			"\n"+ 
-			"public class Test extends Super {\n"+ 
-			"    public static void main(String[] args) {\n"+ 
-			"        try {\n"+ 
+			"import java.lang.annotation.Annotation;\n"+
+			"import java.lang.annotation.Retention;\n"+
+			"import java.lang.annotation.RetentionPolicy;\n"+
+			"import java.lang.reflect.Method;\n"+
+			"\n"+
+			"public class Test extends Super {\n"+
+			"    public static void main(String[] args) {\n"+
+			"        try {\n"+
 			"            Method m = Test.class.getMethod(\"setFoo\", String.class);\n"+
-			"            Annotation a = m.getAnnotation(Anno.class);\n"+ 
-			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+ 
-			"\"found\");\n"+ 
-			"        } catch (Exception e) {\n"+ 
-			"            e.printStackTrace();\n"+ 
-			"        }\n"+ 
-			"    }\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"class Super {\n"+ 
-			"    @Anno\n"+ 
-			"    public void setFoo(String foo) {}\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"@Retention(RetentionPolicy.RUNTIME)\n"+ 
-			"@interface Anno {\n"+ 
-			"\n"+ 
+			"            Annotation a = m.getAnnotation(Anno.class);\n"+
+			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+
+			"\"found\");\n"+
+			"        } catch (Exception e) {\n"+
+			"            e.printStackTrace();\n"+
+			"        }\n"+
+			"    }\n"+
+			"}\n"+
+			"\n"+
+			"class Super {\n"+
+			"    @Anno\n"+
+			"    public void setFoo(String foo) {}\n"+
+			"}\n"+
+			"\n"+
+			"@Retention(RetentionPolicy.RUNTIME)\n"+
+			"@interface Anno {\n"+
+			"\n"+
 			"}\n"
 		},
 		"Annotation was found");
@@ -11665,33 +11665,33 @@ public void test208a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.lang.annotation.Annotation;\n"+ 
-			"import java.lang.annotation.Retention;\n"+ 
-			"import java.lang.annotation.RetentionPolicy;\n"+ 
-			"import java.lang.reflect.Method;\n"+ 
-			"\n"+ 
+			"import java.lang.annotation.Annotation;\n"+
+			"import java.lang.annotation.Retention;\n"+
+			"import java.lang.annotation.RetentionPolicy;\n"+
+			"import java.lang.reflect.Method;\n"+
+			"\n"+
 			"public class Test extends Super {\n"+
 			"    public void setFoo() {}\n" +
-			"    public static void main(String[] args) {\n"+ 
-			"        try {\n"+ 
+			"    public static void main(String[] args) {\n"+
+			"        try {\n"+
 			"            Method m = Test.class.getMethod(\"setFoo\", String.class);\n"+
-			"            Annotation a = m.getAnnotation(Anno.class);\n"+ 
-			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+ 
-			"\"found\");\n"+ 
-			"        } catch (Exception e) {\n"+ 
-			"            e.printStackTrace();\n"+ 
-			"        }\n"+ 
-			"    }\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"class Super {\n"+ 
-			"    @Anno\n"+ 
-			"    public void setFoo(String foo) {}\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"@Retention(RetentionPolicy.RUNTIME)\n"+ 
-			"@interface Anno {\n"+ 
-			"\n"+ 
+			"            Annotation a = m.getAnnotation(Anno.class);\n"+
+			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+
+			"\"found\");\n"+
+			"        } catch (Exception e) {\n"+
+			"            e.printStackTrace();\n"+
+			"        }\n"+
+			"    }\n"+
+			"}\n"+
+			"\n"+
+			"class Super {\n"+
+			"    @Anno\n"+
+			"    public void setFoo(String foo) {}\n"+
+			"}\n"+
+			"\n"+
+			"@Retention(RetentionPolicy.RUNTIME)\n"+
+			"@interface Anno {\n"+
+			"\n"+
 			"}\n"
 		},
 		"Annotation was found");
@@ -11721,11 +11721,11 @@ public void test209() {
 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Concrete.java (at line 1)\n" + 
-		"	class Bar extends Zork {}\n" + 
-		"	                  ^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in Concrete.java (at line 1)\n" +
+		"	class Bar extends Zork {}\n" +
+		"	                  ^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321548
@@ -11746,11 +11746,11 @@ public void test210() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in ErasureTest.java (at line 7)\n" + 
-		"	public class ErasureTest extends Zork implements Interface1<String>, Interface2<Double> {\n" + 
-		"	                                 ^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in ErasureTest.java (at line 7)\n" +
+		"	public class ErasureTest extends Zork implements Interface1<String>, Interface2<Double> {\n" +
+		"	                                 ^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83162
@@ -11775,11 +11775,11 @@ public void test211() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in SomeClass.java (at line 9)\n" + 
-		"	public class SomeClass implements Equivalent<String>, EqualityComparable<Integer> {\n" + 
-		"	             ^^^^^^^^^\n" + 
-		"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in SomeClass.java (at line 9)\n" +
+		"	public class SomeClass implements Equivalent<String>, EqualityComparable<Integer> {\n" +
+		"	             ^^^^^^^^^\n" +
+		"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(T) of type Equivalent<T> but does not override it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323693
@@ -11801,14 +11801,14 @@ public void test212() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Derived.java (at line 9)\n" + 
-		"	public class Derived extends Base<String> implements Interface<Integer> {\n" + 
-		"	             ^^^^^^^\n" + 
-		"Name clash: The method foo(T) of type Interface<T> has the same erasure as foo(T) of type Base<T> but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in Derived.java (at line 9)\n" +
+		"	public class Derived extends Base<String> implements Interface<Integer> {\n" +
+		"	             ^^^^^^^\n" +
+		"Name clash: The method foo(T) of type Interface<T> has the same erasure as foo(T) of type Base<T> but does not override it\n" +
 		"----------\n");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
 public void test213() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
@@ -11817,17 +11817,17 @@ public void test213() {
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"public abstract class Y implements I<Y> {\n" + 
-			"		public final Y foo(Object o, J<Y> j) {\n" + 
-			"			return null;\n" + 
-			"		}\n" + 
-			"	public final void bar(Object o, J<Y> j, Y y) {\n" + 
-			"	}\n" + 
+			"public abstract class Y implements I<Y> {\n" +
+			"		public final Y foo(Object o, J<Y> j) {\n" +
+			"			return null;\n" +
+			"		}\n" +
+			"	public final void bar(Object o, J<Y> j, Y y) {\n" +
+			"	}\n" +
 			"}",
 			"I.java",
-			"public interface I<S> {\n" + 
-			"	public S foo(Object o, J<S> j);\n" + 
-			"	public void bar(Object o, J<S> j, S s);\n" + 
+			"public interface I<S> {\n" +
+			"	public S foo(Object o, J<S> j);\n" +
+			"	public void bar(Object o, J<S> j, S s);\n" +
 			"}",
 			"J.java",
 			"public interface J<S> {}"
@@ -11838,7 +11838,7 @@ public void test213() {
 		null,
 		compilerOptions15,
 		null);
-	
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -11846,10 +11846,10 @@ public void test213() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public Object foo() {\n" + 
-			"		return new Y() {};\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public Object foo() {\n" +
+			"		return new Y() {};\n" +
+			"	}\n" +
 			"}"
 		},
 		"",
@@ -11859,7 +11859,7 @@ public void test213() {
 		compilerOptions14,
 		null);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
 public void test213a() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
@@ -11868,17 +11868,17 @@ public void test213a() {
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"public abstract class Y implements I<Y> {\n" + 
-			"		public final Y foo(Object o, J<Y, I<Y>> j) {\n" + 
-			"			return null;\n" + 
-			"		}\n" + 
-			"	public final void bar(Object o, J<Y, String> j, Y y) {\n" + 
-			"	}\n" + 
+			"public abstract class Y implements I<Y> {\n" +
+			"		public final Y foo(Object o, J<Y, I<Y>> j) {\n" +
+			"			return null;\n" +
+			"		}\n" +
+			"	public final void bar(Object o, J<Y, String> j, Y y) {\n" +
+			"	}\n" +
 			"}",
 			"I.java",
-			"public interface I<S> {\n" + 
-			"	public S foo(Object o, J<S, I<S>> j);\n" + 
-			"	public void bar(Object o, J<S, String> j, S s);\n" + 
+			"public interface I<S> {\n" +
+			"	public S foo(Object o, J<S, I<S>> j);\n" +
+			"	public void bar(Object o, J<S, String> j, S s);\n" +
 			"}",
 			"J.java",
 			"public interface J<S, T> {}"
@@ -11889,7 +11889,7 @@ public void test213a() {
 		null,
 		compilerOptions15,
 		null);
-	
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -11897,10 +11897,10 @@ public void test213a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public Object foo() {\n" + 
-			"		return new Y() {};\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public Object foo() {\n" +
+			"		return new Y() {};\n" +
+			"	}\n" +
 			"}"
 		},
 		"",
@@ -12047,7 +12047,7 @@ public void test326354() {
 			""
 	);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827
 public void test328827() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
@@ -12057,10 +12057,10 @@ public void test328827() {
 		new String[] {
 			"Map.java",
 			"public interface Map<K,V> {}\n",
-			
+
 			"EventProperties.java",
 			"public class EventProperties implements Map<String, Object> {}\n",
-			
+
 			"Event.java",
 			"public class Event {\n" +
 			"    public Event(Map<String, ?> properties) {}\n" +
@@ -12072,7 +12072,7 @@ public void test328827() {
 		null,
 		compilerOptions15,
 		null);
-	
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -12081,11 +12081,11 @@ public void test328827() {
 		new String[] {
 				"Map.java",
 				"public interface Map {}\n",
-				
+
 				"X.java",
 				"public class X {\n" +
 				"    public void start() {\n" +
-				"        Event event = new Event(new EventProperties());\n" + 
+				"        Event event = new Event(new EventProperties());\n" +
 				"	}\n" +
 				"}"
 		},
@@ -12096,7 +12096,7 @@ public void test328827() {
 		compilerOptions14,
 		null);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329584
 public void test329584() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
@@ -12117,7 +12117,7 @@ public void test329584() {
 		null,
 		compilerOptions15,
 		null);
-	
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -12138,7 +12138,7 @@ public void test329584() {
 		compilerOptions14,
 		null);
 }
-//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
 public void test329588() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
@@ -12161,7 +12161,7 @@ public void test329588() {
 		null,
 		compilerOptions15,
 		null);
-	
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -12172,8 +12172,8 @@ public void test329588() {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(A a) {\n" +
-			"		O o = (O) a.foo();\n" + 
-			"		System.out.println(o);\n" + 
+			"		O o = (O) a.foo();\n" +
+			"		System.out.println(o);\n" +
 			"	}\n" +
 			"}",
 			"O.java",
@@ -12186,7 +12186,7 @@ public void test329588() {
 		compilerOptions14,
 		null);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330445 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330445
 public void test330445() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
@@ -12195,10 +12195,10 @@ public void test330445() {
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"import java.util.Map;\n" + 
-			"public class Y {\n" + 
-			"	static void foo(Map<String, String> map) {\n" + 
-			"	}\n" + 
+			"import java.util.Map;\n" +
+			"public class Y {\n" +
+			"	static void foo(Map<String, String> map) {\n" +
+			"	}\n" +
 			"}",
 		},
 		"",
@@ -12207,7 +12207,7 @@ public void test330445() {
 		null,
 		compilerOptions15,
 		null);
-	
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -12216,11 +12216,11 @@ public void test330445() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.Properties;\n" + 
-			"public class X {\n" + 
-			"    static void bar(Object[] args) {\n" + 
-			"        Y.foo(new Properties());\n" + 
-			"    }\n" + 
+			"import java.util.Properties;\n" +
+			"public class X {\n" +
+			"    static void bar(Object[] args) {\n" +
+			"        Y.foo(new Properties());\n" +
+			"    }\n" +
 			"}",
 		},
 		"",
@@ -12230,7 +12230,7 @@ public void test330445() {
 		compilerOptions14,
 		null);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330435 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330435
 public void test330435() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
@@ -12240,13 +12240,13 @@ public void test330435() {
 		new String[] {
 			"A.java",
 			"public class A {\n" +
-			"	public static <T> B<T> asList(T... tab) {\n" + 
-			"		return null;\n" + 
+			"	public static <T> B<T> asList(T... tab) {\n" +
+			"		return null;\n" +
 			"	}\n" +
 			"}",
 			"B.java",
 			"public interface B<V> {\n" +
-			"	<T> T[] toArray(T[] tab);\n" + 
+			"	<T> T[] toArray(T[] tab);\n" +
 			"}\n",
 		},
 		"",
@@ -12255,7 +12255,7 @@ public void test330435() {
 		null,
 		compilerOptions15,
 		null);
-	    
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -12264,24 +12264,24 @@ public void test330435() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String[] foo(Object[] args) {\n" + 
-			"		String[] a = A.asList(args).toArray(new String[0]);\n" + 
-			"		return a;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	String[] foo(Object[] args) {\n" +
+			"		String[] a = A.asList(args).toArray(new String[0]);\n" +
+			"		return a;\n" +
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	String[] a = A.asList(args).toArray(new String[0]);\n" + 
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object[] to String[]\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	String[] a = A.asList(args).toArray(new String[0]);\n" +
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Object[] to String[]\n" +
 		"----------\n",
 		null,
 		false,
 		compilerOptions14);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330264 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=330264
 public void test330264() {
 	Map compilerOptions15 = getCompilerOptions();
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
@@ -12302,7 +12302,7 @@ public void test330264() {
 		null,
 		compilerOptions15,
 		null);
-	    
+
 	Map compilerOptions14 = getCompilerOptions();
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
@@ -12317,11 +12317,11 @@ public void test330264() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in Activator.java (at line 3)\n" + 
-		"	Runnable r = context.getService(ref);\n" + 
-		"	             ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to Runnable\n" + 
+		"----------\n" +
+		"1. ERROR in Activator.java (at line 3)\n" +
+		"	Runnable r = context.getService(ref);\n" +
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Object to Runnable\n" +
 		"----------\n",
 		null,
 		false,
@@ -12336,27 +12336,27 @@ public void test331446() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.Comparator;\n" + 
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class Test {\n" + 
-			"	public static <T> void assertEquals(String message,\n" + 
-			"			Comparator<T> comparator, List<T> expected, List<T> actual) {\n" + 
-			"		if (expected.size() != actual.size()) {\n" + 
-			"			//failNotEquals(message, expected, actual);\n" + 
-			"		}\n" + 
-			"		for (int i = 0, l = expected.size(); i < l; i++) {\n" + 
-			"			assertEquals(message, comparator, expected.get(i), actual.get(i));\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public static <T> void assertEquals(String message,\n" + 
-			"			Comparator<T> comparator, T expected, T actual) {\n" + 
-			"		if (comparator.compare(expected, actual) == 0) {\n" + 
-			"			return;\n" + 
-			"		}\n" + 
-			"		//failNotEquals(message, expected, actual);\n" + 
-			"	}\n" + 
-			"}\n" + 
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	public static <T> void assertEquals(String message,\n" +
+			"			Comparator<T> comparator, List<T> expected, List<T> actual) {\n" +
+			"		if (expected.size() != actual.size()) {\n" +
+			"			//failNotEquals(message, expected, actual);\n" +
+			"		}\n" +
+			"		for (int i = 0, l = expected.size(); i < l; i++) {\n" +
+			"			assertEquals(message, comparator, expected.get(i), actual.get(i));\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static <T> void assertEquals(String message,\n" +
+			"			Comparator<T> comparator, T expected, T actual) {\n" +
+			"		if (comparator.compare(expected, actual) == 0) {\n" +
+			"			return;\n" +
+			"		}\n" +
+			"		//failNotEquals(message, expected, actual);\n" +
+			"	}\n" +
+			"}\n" +
 			""
 		},
 		"",
@@ -12374,20 +12374,20 @@ public void test331446() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" + 
-			"import java.util.Comparator;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	public static void testAmbiguity() {\n" + 
-			"		Comparator comparator = new Comparator() {\n" + 
-			"			\n" + 
-			"			public int compare(Object o1, Object o2) {\n" + 
-			"				return 0;\n" + 
-			"			}\n" + 
-			"		};\n" + 
-			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
-			"	}\n" + 
-			"}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.Comparator;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void testAmbiguity() {\n" +
+			"		Comparator comparator = new Comparator() {\n" +
+			"			\n" +
+			"			public int compare(Object o1, Object o2) {\n" +
+			"				return 0;\n" +
+			"			}\n" +
+			"		};\n" +
+			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" +
+			"	}\n" +
+			"}\n" +
 			"",
 		},
 		"",
@@ -12406,27 +12406,27 @@ public void test331446a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.Comparator;\n" + 
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public class Test {\n" + 
-			"	public static  void assertEquals(String message,\n" + 
-			"			Comparator comparator, List expected, List actual) {\n" + 
-			"		if (expected.size() != actual.size()) {\n" + 
-			"			//failNotEquals(message, expected, actual);\n" + 
-			"		}\n" + 
-			"		for (int i = 0, l = expected.size(); i < l; i++) {\n" + 
-			"			assertEquals(message, comparator, expected.get(i), actual.get(i));\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public static void assertEquals(String message,\n" + 
-			"			Comparator comparator, Object expected, Object actual) {\n" + 
-			"		if (comparator.compare(expected, actual) == 0) {\n" + 
-			"			return;\n" + 
-			"		}\n" + 
-			"		//failNotEquals(message, expected, actual);\n" + 
-			"	}\n" + 
-			"}\n" + 
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	public static  void assertEquals(String message,\n" +
+			"			Comparator comparator, List expected, List actual) {\n" +
+			"		if (expected.size() != actual.size()) {\n" +
+			"			//failNotEquals(message, expected, actual);\n" +
+			"		}\n" +
+			"		for (int i = 0, l = expected.size(); i < l; i++) {\n" +
+			"			assertEquals(message, comparator, expected.get(i), actual.get(i));\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void assertEquals(String message,\n" +
+			"			Comparator comparator, Object expected, Object actual) {\n" +
+			"		if (comparator.compare(expected, actual) == 0) {\n" +
+			"			return;\n" +
+			"		}\n" +
+			"		//failNotEquals(message, expected, actual);\n" +
+			"	}\n" +
+			"}\n" +
 			""
 		},
 		"",
@@ -12444,20 +12444,20 @@ public void test331446a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" + 
-			"import java.util.Comparator;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	public static void testAmbiguity() {\n" + 
-			"		Comparator comparator = new Comparator() {\n" + 
-			"			\n" + 
-			"			public int compare(Object o1, Object o2) {\n" + 
-			"				return 0;\n" + 
-			"			}\n" + 
-			"		};\n" + 
-			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" + 
-			"	}\n" + 
-			"}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.Comparator;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void testAmbiguity() {\n" +
+			"		Comparator comparator = new Comparator() {\n" +
+			"			\n" +
+			"			public int compare(Object o1, Object o2) {\n" +
+			"				return 0;\n" +
+			"			}\n" +
+			"		};\n" +
+			"		Test.assertEquals(\"Test\", comparator, new ArrayList(), new ArrayList());\n" +
+			"	}\n" +
+			"}\n" +
 			"",
 		},
 		"",
@@ -12618,15 +12618,15 @@ public void test1415Mix() {
 			"public class Concrete extends Abstract {\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in Concrete.java (at line 1)\n" + 
-		"	public class Concrete extends Abstract {\n" + 
-		"	             ^^^^^^^^\n" + 
-		"The type Concrete must implement the inherited abstract method Generic<String>.foo(String)\n" + 
+		"----------\n" +
+		"1. ERROR in Concrete.java (at line 1)\n" +
+		"	public class Concrete extends Abstract {\n" +
+		"	             ^^^^^^^^\n" +
+		"The type Concrete must implement the inherited abstract method Generic<String>.foo(String)\n" +
 		"----------\n",
 		null,
 		false,
-		compilerOptions14);	
+		compilerOptions14);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=331446
 public void test1415Mix2() {
@@ -12767,10 +12767,10 @@ public void test339447() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X implements Cloneable {\n" + 
-			"	public synchronized X clone() {\n" + 
-			"		return this;\n" + 
-			"	}\n" + 
+			"public class X implements Cloneable {\n" +
+			"	public synchronized X clone() {\n" +
+			"		return this;\n" +
+			"	}\n" +
 			"}", // =================
 		},
 		"");
@@ -12810,11 +12810,11 @@ public void test322740() throws Exception {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	public class X extends Base implements EqualityComparable<String> {\n" + 
-		"	             ^\n" + 
-		"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(Object) of type Base but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	public class X extends Base implements EqualityComparable<String> {\n" +
+		"	             ^\n" +
+		"Name clash: The method equalTo(T) of type EqualityComparable<T> has the same erasure as equalTo(Object) of type Base but does not override it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=334306
@@ -12830,11 +12830,11 @@ public void test334306() throws Exception {
 			"    void foo(X<Integer> p);\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	void foo(X<Integer> p);\n" + 
-		"	     ^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method foo(X<Integer>) of type J has the same erasure as foo(X<Number>) of type I but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	void foo(X<Integer> p);\n" +
+		"	     ^^^^^^^^^^^^^^^^^\n" +
+		"Name clash: The method foo(X<Integer>) of type J has the same erasure as foo(X<Number>) of type I but does not override it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=342819
@@ -12859,11 +12859,11 @@ public void test342819() throws Exception {
 			"    }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in TwoWayDTOAdapter.java (at line 2)\n" + 
-		"	public A convert(B b);\n" + 
-		"	         ^^^^^^^^^^^^\n" + 
-		"Name clash: The method convert(B) of type TwoWayDTOAdapter<A,B> has the same erasure as convert(A) of type DTOAdapter<A,B> but does not override it\n" + 
+		"----------\n" +
+		"1. ERROR in TwoWayDTOAdapter.java (at line 2)\n" +
+		"	public A convert(B b);\n" +
+		"	         ^^^^^^^^^^^^\n" +
+		"Name clash: The method convert(B) of type TwoWayDTOAdapter<A,B> has the same erasure as convert(A) of type DTOAdapter<A,B> but does not override it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
@@ -12883,16 +12883,16 @@ public void test346029() throws Exception {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	public class X extends B<String> {\n" + 
-		"	             ^\n" + 
-		"Duplicate methods named f with the parameters (T) and (String) are inherited from the types B<String> and A<String>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	x.f(\"\");\n" + 
-		"	  ^\n" + 
-		"The method f(String) is ambiguous for the type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	public class X extends B<String> {\n" +
+		"	             ^\n" +
+		"Duplicate methods named f with the parameters (T) and (String) are inherited from the types B<String> and A<String>\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	x.f(\"\");\n" +
+		"	  ^\n" +
+		"The method f(String) is ambiguous for the type X\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
@@ -12912,11 +12912,11 @@ public void test346029b() throws Exception {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
@@ -12938,11 +12938,11 @@ public void test346029c() throws Exception {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	public void f(String t) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	public void f(String t) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -12965,11 +12965,11 @@ public void test346029d() throws Exception {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	public void f(String t) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	public void f(String t) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -12992,11 +12992,11 @@ public void test346029e() throws Exception {
 		},
 		null,
 		null,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	void f(String s) {\n" + 
-		"	     ^^^^^^^^^^^\n" + 
-		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	void f(String s) {\n" +
+		"	     ^^^^^^^^^^^\n" +
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -13017,16 +13017,16 @@ public void test346029f() throws Exception {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	void f(String s) {\n" + 
-		"	     ^^^^^^^^^^^\n" + 
-		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	super.f(s);\n" + 
-		"	      ^\n" + 
-		"The method f(String) is ambiguous for the type B<String>\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 8)\n" +
+		"	void f(String s) {\n" +
+		"	     ^^^^^^^^^^^\n" +
+		"The method f(String) of type X should be tagged with @Override since it actually overrides a superclass method\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	super.f(s);\n" +
+		"	      ^\n" +
+		"The method f(String) is ambiguous for the type B<String>\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
@@ -13070,46 +13070,46 @@ public void test353089b() throws Exception {
 			"    public void d(Zork z);\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	void c(List i, List<String> j);\n" + 
-		"	       ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	public void a(List<String> i, List j);\n" + 
-		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method a(List<String>, List) of type X has the same erasure as a(List<String>, List<String>) of type I but does not override it\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 8)\n" + 
-		"	public void a(List<String> i, List j);\n" + 
-		"	                              ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 9)\n" + 
-		"	public void b(List i, List j);\n" + 
-		"	              ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 9)\n" + 
-		"	public void b(List i, List j);\n" + 
-		"	                      ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 10)\n" + 
-		"	public void c(List i, List j);\n" + 
-		"	              ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 10)\n" + 
-		"	public void c(List i, List j);\n" + 
-		"	                      ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 11)\n" + 
-		"	public void d(Zork z);\n" + 
-		"	              ^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 5)\n" +
+		"	void c(List i, List<String> j);\n" +
+		"	       ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	public void a(List<String> i, List j);\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Name clash: The method a(List<String>, List) of type X has the same erasure as a(List<String>, List<String>) of type I but does not override it\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 8)\n" +
+		"	public void a(List<String> i, List j);\n" +
+		"	                              ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 9)\n" +
+		"	public void b(List i, List j);\n" +
+		"	              ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 9)\n" +
+		"	public void b(List i, List j);\n" +
+		"	                      ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 10)\n" +
+		"	public void c(List i, List j);\n" +
+		"	              ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 10)\n" +
+		"	public void c(List i, List j);\n" +
+		"	                      ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 11)\n" +
+		"	public void d(Zork z);\n" +
+		"	              ^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=353089
@@ -13125,72 +13125,72 @@ public void test353089c() throws Exception {
 			"    public void doTest(Integer i, List<String> iList, List iList2);\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	public void doTest(Integer i, List<String> iList, List iList2);\n" + 
-		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method doTest(Integer, List<String>, List) of type Impl has the same erasure as doTest(Integer, List<String>, List<String>) of type IFtest but does not override it\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	public void doTest(Integer i, List<String> iList, List iList2);\n" + 
-		"	                                                  ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	public void doTest(Integer i, List<String> iList, List iList2);\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Name clash: The method doTest(Integer, List<String>, List) of type Impl has the same erasure as doTest(Integer, List<String>, List<String>) of type IFtest but does not override it\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	public void doTest(Integer i, List<String> iList, List iList2);\n" +
+		"	                                                  ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	public <T extends List> T foo() { return null; }\n" + 
-			"	                  ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	public <T extends List> T foo() { return null; }\n" + 
-			"	                          ^^^^^\n" + 
-			"Duplicate method foo() in type X\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 5)\n" + 
-			"	public <T extends Set> T foo() { return null; }\n" + 
-			"	                  ^^^\n" + 
-			"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 5)\n" + 
-			"	public <T extends Set> T foo() { return null; }\n" + 
-			"	                         ^^^^^\n" + 
-			"Duplicate method foo() in type X\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 6)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	public <T extends List> T foo() { return null; }\n" +
+			"	                  ^^^^\n" +
+			"List is a raw type. References to generic type List<E> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	public <T extends List> T foo() { return null; }\n" +
+			"	                          ^^^^^\n" +
+			"Duplicate method foo() in type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 5)\n" +
+			"	public <T extends Set> T foo() { return null; }\n" +
+			"	                  ^^^\n" +
+			"Set is a raw type. References to generic type Set<E> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 5)\n" +
+			"	public <T extends Set> T foo() { return null; }\n" +
+			"	                         ^^^^^\n" +
+			"Duplicate method foo() in type X\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. WARNING in X.java (at line 4)\n" + 
-				"	public <T extends List> T foo() { return null; }\n" + 
-				"	                  ^^^^\n" + 
-				"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	public <T extends List> T foo() { return null; }\n" + 
-				"	                          ^^^^^\n" + 
-				"Duplicate method foo() in type X\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 5)\n" + 
-				"	public <T extends Set> T foo() { return null; }\n" + 
-				"	                  ^^^\n" + 
-				"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 5)\n" + 
-				"	public <T extends Set> T foo() { return null; }\n" + 
-				"	                         ^^^^^\n" + 
-				"Duplicate method foo() in type X\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 6)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	public <T extends List> T foo() { return null; }\n" +
+				"	                  ^^^^\n" +
+				"List is a raw type. References to generic type List<E> should be parameterized\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	public <T extends List> T foo() { return null; }\n" +
+				"	                          ^^^^^\n" +
+				"Duplicate method foo() in type X\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 5)\n" +
+				"	public <T extends Set> T foo() { return null; }\n" +
+				"	                  ^^^\n" +
+				"Set is a raw type. References to generic type Set<E> should be parameterized\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 5)\n" +
+				"	public <T extends Set> T foo() { return null; }\n" +
+				"	                         ^^^^^\n" +
+				"Duplicate method foo() in type X\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 6)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13208,37 +13208,37 @@ public void testBug317719() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719a() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	public Integer same(List<Integer> a) { return null; }\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	public Integer same(List<Integer> a) { return null; }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method same(List<Integer>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 5)\n" + 
-			"	public String same(List<String> b) { return null; }\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	public String same(List<String> b) { return null; }\n" +
+			"	              ^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method same(List<String>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	public Integer same(List<Integer> a) { return null; }\n" + 
-				"	               ^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	public Integer same(List<Integer> a) { return null; }\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method same(List<Integer>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	public String same(List<String> b) { return null; }\n" + 
-				"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	public String same(List<String> b) { return null; }\n" +
+				"	              ^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method same(List<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 6)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13256,37 +13256,37 @@ public void testBug317719a() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719b() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public static String doIt(final List<String> arg) { return null; }\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public static String doIt(final List<String> arg) { return null; }\n" +
+			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method doIt(List<String>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	public static CharSequence doIt(final List<CharSequence> arg) { return null; }\n" + 
-			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	public static CharSequence doIt(final List<CharSequence> arg) { return null; }\n" +
+			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method doIt(List<CharSequence>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	public static String doIt(final List<String> arg) { return null; }\n" + 
-				"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	public static String doIt(final List<String> arg) { return null; }\n" +
+				"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method doIt(List<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	public static CharSequence doIt(final List<CharSequence> arg) { return null; }\n" + 
-				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	public static CharSequence doIt(final List<CharSequence> arg) { return null; }\n" +
+				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method doIt(List<CharSequence>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13303,47 +13303,47 @@ public void testBug317719b() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719c() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" + 
-			"	                            ^^^^^^\n" + 
-			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 3)\n" + 
-			"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" + 
-			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" +
+			"	                            ^^^^^^\n" +
+			"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" +
+			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
-			"	protected static <T extends Number> T same(Collection<? extends T> p_col) { return null; }\n" + 
-			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"3. WARNING in X.java (at line 4)\n" +
+			"	protected static <T extends Number> T same(Collection<? extends T> p_col) { return null; }\n" +
+			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
-				"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" + 
-				"	                            ^^^^^^\n" + 
-				"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" + 
-				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	protected static <T extends Number> T same(Collection<? extends T> p_col) { return null; }\n" + 
-				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" +
+				"	                            ^^^^^^\n" +
+				"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 3)\n" +
+				"	protected static <T extends String> T same(Collection<? extends T> p_col) { return null; }\n" +
+				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"3. ERROR in X.java (at line 4)\n" +
+				"	protected static <T extends Number> T same(Collection<? extends T> p_col) { return null; }\n" +
+				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Erasure of method same(Collection<? extends T>) is the same as another method in type X\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 5)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13360,37 +13360,37 @@ public void testBug317719c() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719d() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public static boolean foo(List<String> x) { return true; }\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public static boolean foo(List<String> x) { return true; }\n" +
+			"	                      ^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method foo(List<String>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	public static int foo(List<Integer> x) { return 2; }\n" + 
-			"	                  ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	public static int foo(List<Integer> x) { return 2; }\n" +
+			"	                  ^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method foo(List<Integer>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	public static boolean foo(List<String> x) { return true; }\n" + 
-				"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	public static boolean foo(List<String> x) { return true; }\n" +
+				"	                      ^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method foo(List<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	public static int foo(List<Integer> x) { return 2; }\n" + 
-				"	                  ^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	public static int foo(List<Integer> x) { return 2; }\n" +
+				"	                  ^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method foo(List<Integer>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13407,37 +13407,37 @@ public void testBug317719d() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719e() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public String getFirst (ArrayList<String> ss) { return ss.get(0); }\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public String getFirst (ArrayList<String> ss) { return ss.get(0); }\n" +
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method getFirst(ArrayList<String>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	public Integer getFirst (ArrayList<Integer> ss) { return ss.get(0); }\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	public Integer getFirst (ArrayList<Integer> ss) { return ss.get(0); }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method getFirst(ArrayList<Integer>) is the same as another method in type X\n" +
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	public String getFirst (ArrayList<String> ss) { return ss.get(0); }\n" + 
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	public String getFirst (ArrayList<String> ss) { return ss.get(0); }\n" +
+				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method getFirst(ArrayList<String>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	public Integer getFirst (ArrayList<Integer> ss) { return ss.get(0); }\n" + 
-				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	public Integer getFirst (ArrayList<Integer> ss) { return ss.get(0); }\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method getFirst(ArrayList<Integer>) is the same as another method in type X\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13454,47 +13454,47 @@ public void testBug317719e() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719f() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
-			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" +
+			"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method forAccountSet(List) is the same as another method in type X<Z>\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 3)\n" + 
-			"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
-			"	                                                    ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
-			"	public static <R extends Object> ChildX<R> forAccountSet(List<R> list) { return null; }\n" + 
-			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" +
+			"	                                                    ^^^^\n" +
+			"List is a raw type. References to generic type List<E> should be parameterized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 4)\n" +
+			"	public static <R extends Object> ChildX<R> forAccountSet(List<R> list) { return null; }\n" +
+			"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method forAccountSet(List<R>) is the same as another method in type X<Z>\n" +
-			"----------\n" + 
-			"4. ERROR in X.java (at line 5)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
-				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" +
+				"	                                      ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method forAccountSet(List) is the same as another method in type X<Z>\n" +
-				"----------\n" + 
-				"2. WARNING in X.java (at line 3)\n" + 
-				"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" + 
-				"	                                                    ^^^^\n" + 
-				"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 4)\n" + 
-				"	public static <R extends Object> ChildX<R> forAccountSet(List<R> list) { return null; }\n" + 
-				"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. WARNING in X.java (at line 3)\n" +
+				"	public static <R extends Object> X<R> forAccountSet(List list) { return null; }\n" +
+				"	                                                    ^^^^\n" +
+				"List is a raw type. References to generic type List<E> should be parameterized\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 4)\n" +
+				"	public static <R extends Object> ChildX<R> forAccountSet(List<R> list) { return null; }\n" +
+				"	                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method forAccountSet(List<R>) is the same as another method in type X<Z>\n" +
-				"----------\n" + 
-				"4. ERROR in X.java (at line 5)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"4. ERROR in X.java (at line 5)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13512,57 +13512,57 @@ public void testBug317719f() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719g() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	public static int[] doIt(Collection<int[]> col) { return new int[1]; }\n" + 
-			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public static int[] doIt(Collection<int[]> col) { return new int[1]; }\n" +
+			"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method doIt(Collection<int[]>) is the same as another method in type X<Z>\n" +
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	public static int[][] doIt(Collection<int[][]> col) { return new int[0][0]; }\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	public static int[][] doIt(Collection<int[][]> col) { return new int[0][0]; }\n" +
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method doIt(Collection<int[][]>) is the same as another method in type X<Z>\n" +
-			"----------\n" + 
-			"3. WARNING in X.java (at line 5)\n" + 
-			"	public int[] doIt2(Collection<int[]> col) { return new int[0]; }\n" + 
-			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"3. WARNING in X.java (at line 5)\n" +
+			"	public int[] doIt2(Collection<int[]> col) { return new int[0]; }\n" +
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method doIt2(Collection<int[]>) is the same as another method in type X<Z>\n" +
-			"----------\n" + 
-			"4. WARNING in X.java (at line 6)\n" + 
-			"	public int[][] doIt2(Collection<int[][]> col) { return new int[0][0]; }\n" + 
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"4. WARNING in X.java (at line 6)\n" +
+			"	public int[][] doIt2(Collection<int[][]> col) { return new int[0][0]; }\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method doIt2(Collection<int[][]>) is the same as another method in type X<Z>\n" +
-			"----------\n" + 
-			"5. ERROR in X.java (at line 7)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"5. ERROR in X.java (at line 7)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	public static int[] doIt(Collection<int[]> col) { return new int[1]; }\n" + 
-				"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	public static int[] doIt(Collection<int[]> col) { return new int[1]; }\n" +
+				"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method doIt(Collection<int[]>) is the same as another method in type X<Z>\n" +
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	public static int[][] doIt(Collection<int[][]> col) { return new int[0][0]; }\n" + 
-				"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	public static int[][] doIt(Collection<int[][]> col) { return new int[0][0]; }\n" +
+				"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method doIt(Collection<int[][]>) is the same as another method in type X<Z>\n" +
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	public int[] doIt2(Collection<int[]> col) { return new int[0]; }\n" + 
-				"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	public int[] doIt2(Collection<int[]> col) { return new int[0]; }\n" +
+				"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method doIt2(Collection<int[]>) is the same as another method in type X<Z>\n" +
-				"----------\n" + 
-				"4. ERROR in X.java (at line 6)\n" + 
-				"	public int[][] doIt2(Collection<int[][]> col) { return new int[0][0]; }\n" + 
-				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"4. ERROR in X.java (at line 6)\n" +
+				"	public int[][] doIt2(Collection<int[][]> col) { return new int[0][0]; }\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Erasure of method doIt2(Collection<int[][]>) is the same as another method in type X<Z>\n" +
-				"----------\n" + 
-				"5. ERROR in X.java (at line 7)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"5. ERROR in X.java (at line 7)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13582,47 +13582,47 @@ public void testBug317719g() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
 public void testBug317719h() throws Exception {
 	String output = this.complianceLevel == ClassFileConstants.JDK1_6 ?
-			"----------\n" + 
-			"1. WARNING in Test.java (at line 3)\n" + 
-			"	public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" + 
-			"	             ^^^^\n" + 
-			"The serializable class Test does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. WARNING in Test.java (at line 4)\n" + 
-			"	public Collection<Value> put(Key k, Value v) { return null; }\n" + 
-			"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method put(Key, Value) of type Test<Key,Value> has the same erasure as put(K, V) of type HashMap<K,V> but does not override it\n" + 
-			"----------\n" + 
-			"3. WARNING in Test.java (at line 5)\n" + 
-			"	public Collection<Value> get(Key k) { return null; }\n" + 
-			"	                         ^^^^^^^^^^\n" + 
-			"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type HashMap<K,V> but does not override it\n" + 
-			"----------\n" + 
-			"4. ERROR in Test.java (at line 6)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. WARNING in Test.java (at line 3)\n" +
+			"	public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" +
+			"	             ^^^^\n" +
+			"The serializable class Test does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"2. WARNING in Test.java (at line 4)\n" +
+			"	public Collection<Value> put(Key k, Value v) { return null; }\n" +
+			"	                         ^^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method put(Key, Value) of type Test<Key,Value> has the same erasure as put(K, V) of type HashMap<K,V> but does not override it\n" +
+			"----------\n" +
+			"3. WARNING in Test.java (at line 5)\n" +
+			"	public Collection<Value> get(Key k) { return null; }\n" +
+			"	                         ^^^^^^^^^^\n" +
+			"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type HashMap<K,V> but does not override it\n" +
+			"----------\n" +
+			"4. ERROR in Test.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n":
-				"----------\n" + 
-				"1. WARNING in Test.java (at line 3)\n" + 
-				"	public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" + 
-				"	             ^^^^\n" + 
-				"The serializable class Test does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"2. ERROR in Test.java (at line 4)\n" + 
-				"	public Collection<Value> put(Key k, Value v) { return null; }\n" + 
-				"	                         ^^^^^^^^^^^^^^^^^^^\n" + 
-				"Name clash: The method put(Key, Value) of type Test<Key,Value> has the same erasure as put(K, V) of type HashMap<K,V> but does not override it\n" + 
-				"----------\n" + 
-				"3. ERROR in Test.java (at line 5)\n" + 
-				"	public Collection<Value> get(Key k) { return null; }\n" + 
-				"	                         ^^^^^^^^^^\n" + 
-				"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type HashMap<K,V> but does not override it\n" + 
-				"----------\n" + 
-				"4. ERROR in Test.java (at line 6)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"1. WARNING in Test.java (at line 3)\n" +
+				"	public class Test<Key, Value> extends HashMap<Key, Collection<Value>> {\n" +
+				"	             ^^^^\n" +
+				"The serializable class Test does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"2. ERROR in Test.java (at line 4)\n" +
+				"	public Collection<Value> put(Key k, Value v) { return null; }\n" +
+				"	                         ^^^^^^^^^^^^^^^^^^^\n" +
+				"Name clash: The method put(Key, Value) of type Test<Key,Value> has the same erasure as put(K, V) of type HashMap<K,V> but does not override it\n" +
+				"----------\n" +
+				"3. ERROR in Test.java (at line 5)\n" +
+				"	public Collection<Value> get(Key k) { return null; }\n" +
+				"	                         ^^^^^^^^^^\n" +
+				"Name clash: The method get(Key) of type Test<Key,Value> has the same erasure as get(Object) of type HashMap<K,V> but does not override it\n" +
+				"----------\n" +
+				"4. ERROR in Test.java (at line 6)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13650,41 +13650,41 @@ public void test345949a() throws Exception {
 			"	 public static void foo(A<Integer> p) {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Sub.java (at line 6)\n" + 
-		"	public static void foo(A<Integer> p) {}\n" + 
-		"	                   ^^^^^^^^^^^^^^^^^\n" + 
-		"Name clash: The method foo(A<Integer>) of type Sub has the same erasure as foo(A<Number>) of type Super but does not hide it\n" + 
+		"----------\n" +
+		"1. ERROR in Sub.java (at line 6)\n" +
+		"	public static void foo(A<Integer> p) {}\n" +
+		"	                   ^^^^^^^^^^^^^^^^^\n" +
+		"Name clash: The method foo(A<Integer>) of type Sub has the same erasure as foo(A<Number>) of type Super but does not hide it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=355838
 public void testBug355838() throws Exception {
-	String output = 		
-			"----------\n" + 
-			"1. ERROR in ErasureBug.java (at line 4)\n" + 
-			"	public String output(List<String> integers) {\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	String output =
+			"----------\n" +
+			"1. ERROR in ErasureBug.java (at line 4)\n" +
+			"	public String output(List<String> integers) {\n" +
+			"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method output(List<String>) is the same as another method in type ErasureBug\n" +
-			"----------\n" + 
-			"2. ERROR in ErasureBug.java (at line 7)\n" + 
-			"	public String output(List doubles) {\n" + 
-			"	              ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"----------\n" +
+			"2. ERROR in ErasureBug.java (at line 7)\n" +
+			"	public String output(List doubles) {\n" +
+			"	              ^^^^^^^^^^^^^^^^^^^^\n" +
 			"Erasure of method output(List) is the same as another method in type ErasureBug\n" +
-			"----------\n" + 
-			"3. WARNING in ErasureBug.java (at line 7)\n" + 
-			"	public String output(List doubles) {\n" + 
-			"	                     ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in ErasureBug.java (at line 10)\n" + 
-			"	public static void main(String[] args) { new ErasureBug().output(new ArrayList()); }\n" + 
-			"	                                                                 ^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>\n" + 
-			"----------\n" + 
-			"5. WARNING in ErasureBug.java (at line 10)\n" + 
-			"	public static void main(String[] args) { new ErasureBug().output(new ArrayList()); }\n" + 
-			"	                                                                     ^^^^^^^^^\n" + 
-			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n" +
+			"3. WARNING in ErasureBug.java (at line 7)\n" +
+			"	public String output(List doubles) {\n" +
+			"	                     ^^^^\n" +
+			"List is a raw type. References to generic type List<E> should be parameterized\n" +
+			"----------\n" +
+			"4. WARNING in ErasureBug.java (at line 10)\n" +
+			"	public static void main(String[] args) { new ErasureBug().output(new ArrayList()); }\n" +
+			"	                                                                 ^^^^^^^^^^^^^^^\n" +
+			"Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>\n" +
+			"----------\n" +
+			"5. WARNING in ErasureBug.java (at line 10)\n" +
+			"	public static void main(String[] args) { new ErasureBug().output(new ArrayList()); }\n" +
+			"	                                                                     ^^^^^^^^^\n" +
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
 			"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -13711,32 +13711,32 @@ public void test288658() {
 		new String[] {
 			"pkg/Test.java",
 			"package pkg;\n" +
-			"import java.lang.annotation.Annotation;\n"+ 
-			"import java.lang.annotation.Retention;\n"+ 
-			"import java.lang.annotation.RetentionPolicy;\n"+ 
-			"import java.lang.reflect.Method;\n"+ 
-			"\n"+ 
-			"public class Test extends Super {\n"+ 
-			"    public static void main(String[] args) {\n"+ 
-			"        try {\n"+ 
+			"import java.lang.annotation.Annotation;\n"+
+			"import java.lang.annotation.Retention;\n"+
+			"import java.lang.annotation.RetentionPolicy;\n"+
+			"import java.lang.reflect.Method;\n"+
+			"\n"+
+			"public class Test extends Super {\n"+
+			"    public static void main(String[] args) {\n"+
+			"        try {\n"+
 			"            Method m = Test.class.getMethod(\"setFoo\", String.class);\n"+
-			"            Annotation a = m.getAnnotation(Anno.class);\n"+ 
-			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+ 
-			"\"found\");\n"+ 
-			"        } catch (Exception e) {\n"+ 
-			"            e.printStackTrace();\n"+ 
-			"        }\n"+ 
-			"    }\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"class Super {\n"+ 
-			"    @Anno\n"+ 
-			"    public void setFoo(String foo) {}\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"@Retention(RetentionPolicy.RUNTIME)\n"+ 
-			"@interface Anno {\n"+ 
-			"\n"+ 
+			"            Annotation a = m.getAnnotation(Anno.class);\n"+
+			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+
+			"\"found\");\n"+
+			"        } catch (Exception e) {\n"+
+			"            e.printStackTrace();\n"+
+			"        }\n"+
+			"    }\n"+
+			"}\n"+
+			"\n"+
+			"class Super {\n"+
+			"    @Anno\n"+
+			"    public void setFoo(String foo) {}\n"+
+			"}\n"+
+			"\n"+
+			"@Retention(RetentionPolicy.RUNTIME)\n"+
+			"@interface Anno {\n"+
+			"\n"+
 			"}\n"
 		},
 		"Annotation was found");
@@ -13749,33 +13749,33 @@ public void test288658a() {
 		new String[] {
 			"pkg/Test.java",
 			"package pkg;\n" +
-			"import java.lang.annotation.Annotation;\n"+ 
-			"import java.lang.annotation.Retention;\n"+ 
-			"import java.lang.annotation.RetentionPolicy;\n"+ 
-			"import java.lang.reflect.Method;\n"+ 
-			"\n"+ 
+			"import java.lang.annotation.Annotation;\n"+
+			"import java.lang.annotation.Retention;\n"+
+			"import java.lang.annotation.RetentionPolicy;\n"+
+			"import java.lang.reflect.Method;\n"+
+			"\n"+
 			"public class Test extends Super {\n"+
 			"    public void setFoo() {}\n" +
-			"    public static void main(String[] args) {\n"+ 
-			"        try {\n"+ 
+			"    public static void main(String[] args) {\n"+
+			"        try {\n"+
 			"            Method m = Test.class.getMethod(\"setFoo\", String.class);\n"+
-			"            Annotation a = m.getAnnotation(Anno.class);\n"+ 
-			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+ 
-			"\"found\");\n"+ 
-			"        } catch (Exception e) {\n"+ 
-			"            e.printStackTrace();\n"+ 
-			"        }\n"+ 
-			"    }\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"class Super {\n"+ 
-			"    @Anno\n"+ 
-			"    public void setFoo(String foo) {}\n"+ 
-			"}\n"+ 
-			"\n"+ 
-			"@Retention(RetentionPolicy.RUNTIME)\n"+ 
-			"@interface Anno {\n"+ 
-			"\n"+ 
+			"            Annotation a = m.getAnnotation(Anno.class);\n"+
+			"            System.out.println(\"Annotation was \" + (a == null ? \"not \" : \"\") +\n"+
+			"\"found\");\n"+
+			"        } catch (Exception e) {\n"+
+			"            e.printStackTrace();\n"+
+			"        }\n"+
+			"    }\n"+
+			"}\n"+
+			"\n"+
+			"class Super {\n"+
+			"    @Anno\n"+
+			"    public void setFoo(String foo) {}\n"+
+			"}\n"+
+			"\n"+
+			"@Retention(RetentionPolicy.RUNTIME)\n"+
+			"@interface Anno {\n"+
+			"\n"+
 			"}\n"
 		},
 		"Annotation was found");
@@ -13798,22 +13798,22 @@ public void test354229() {
 			"}\n"
 		},
 		this.complianceLevel <= ClassFileConstants.JDK1_6 ?
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
 				"----------\n" :
-					"----------\n" + 
-					"1. ERROR in X.java (at line 8)\n" + 
-					"	interface C  extends A, B { \n" + 
-					"	          ^\n" + 
-					"Name clash: The method get(List<Integer>) of type B has the same erasure as get(List<String>) of type A but does not override it\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 10)\n" + 
-					"	Zork z;\n" + 
-					"	^^^^\n" + 
-					"Zork cannot be resolved to a type\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 8)\n" +
+					"	interface C  extends A, B { \n" +
+					"	          ^\n" +
+					"Name clash: The method get(List<Integer>) of type B has the same erasure as get(List<String>) of type A but does not override it\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 10)\n" +
+					"	Zork z;\n" +
+					"	^^^^\n" +
+					"Zork cannot be resolved to a type\n" +
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
@@ -13833,16 +13833,16 @@ public void test354229b() {
 			"    Zork z;\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 9)\n" + 
-		"	int get(List l);      // name clash error here\n" + 
-		"	        ^^^^\n" + 
-		"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 9)\n" +
+		"	int get(List l);      // name clash error here\n" +
+		"	        ^^^^\n" +
+		"List is a raw type. References to generic type List<E> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
@@ -13863,23 +13863,23 @@ public void test354229c() {
 			"}\n"
 
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	Zork z;\n" + 
-				"	^^^^\n" + 
-				"Zork cannot be resolved to a type\n" + 
-				"----------\n" : 
-					"----------\n" + 
-					"1. ERROR in X.java (at line 7)\n" + 
-					"	interface E extends X, Y {\n" + 
-					"	          ^\n" + 
-					"Name clash: The method e(Action<S>) of type Y has the same erasure as e(Action<T>) of type X but does not override it\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 10)\n" + 
-					"	Zork z;\n" + 
-					"	^^^^\n" + 
-					"Zork cannot be resolved to a type\n" + 
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	Zork z;\n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n" :
+					"----------\n" +
+					"1. ERROR in X.java (at line 7)\n" +
+					"	interface E extends X, Y {\n" +
+					"	          ^\n" +
+					"Name clash: The method e(Action<S>) of type Y has the same erasure as e(Action<T>) of type X but does not override it\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 10)\n" +
+					"	Zork z;\n" +
+					"	^^^^\n" +
+					"Zork cannot be resolved to a type\n" +
 					"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=354229
@@ -13894,15 +13894,15 @@ public void test354229d() {
 			"class Action<T> {\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	<T> T e(Action<T> p);\n" + 
-		"	      ^^^^^^^^^^^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	<T> T e(Action<T> p);\n" +
+		"	      ^^^^^^^^^^^^^^\n" +
 		"Erasure of method e(Action<T>) is the same as another method in type X\n" +
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	<S, T> S e(Action<S> t);\n" + 
-		"	         ^^^^^^^^^^^^^^\n" + 
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	<S, T> S e(Action<S> t);\n" +
+		"	         ^^^^^^^^^^^^^^\n" +
 		"Erasure of method e(Action<S>) is the same as another method in type X\n" +
 		"----------\n");
 }
@@ -13922,21 +13922,21 @@ public void testBug384580() {
 			"	\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	interface Z extends X, Y {}  \n" + 
-		"	                       ^\n" + 
-		"Y is a raw type. References to generic type Y<K> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	class Foo implements Z {\n" + 
-		"	      ^^^\n" + 
-		"The type Foo must implement the inherited abstract method Y.m()\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
-		"	public <T> List<T> m() {\n" + 
-		"	                   ^^^\n" + 
-		"Name clash: The method m() of type Foo has the same erasure as m() of type Y but does not override it\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	interface Z extends X, Y {}  \n" +
+		"	                       ^\n" +
+		"Y is a raw type. References to generic type Y<K> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	class Foo implements Z {\n" +
+		"	      ^^^\n" +
+		"The type Foo must implement the inherited abstract method Y.m()\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	public <T> List<T> m() {\n" +
+		"	                   ^^^\n" +
+		"Name clash: The method m() of type Foo has the same erasure as m() of type Y but does not override it\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/406928 - computation of inherited methods seems damaged (affecting @Overrides)
@@ -13972,47 +13972,47 @@ public void testBug410325() {
 	runConformTest(
 		new String[] {
 			"Main.java",
-			"public class Main {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		F3 f3 = new F3();\n" + 
-			"		SubSub sub = new SubSub();\n" + 
-			"		sub.foo(f3);\n" + 
-			"\n" + 
-			"		Sub<F3> sub2 = sub;\n" + 
-			"		Base<F3> base = sub;\n" + 
-			"		sub2.foo(f3);\n" + 
-			"		base.foo(f3);\n" + 
-			"\n" + 
-			"		F2 f2 = new F2();\n" + 
-			"		sub2.foo(f2);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static class F1 {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static class F2 extends F1 {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static class F3 extends F2 {\n" + 
-			"		public void bar() {\n" + 
-			"			System.out.println(\"bar in F3\");\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static abstract class Base<T extends F1> {\n" + 
-			"		public abstract void foo(T bar);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static abstract class Sub<T extends F2> extends Base<T> {\n" + 
-			"		@Override\n" + 
-			"		public void foo(F2 bar) {\n" + 
-			"			System.out.println(getClass().getSimpleName() + \": F2 + \"\n" + 
-			"					+ bar.getClass().getSimpleName());\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static class SubSub extends Sub<F3> {\n" + 
-			"	}\n" + 
+			"public class Main {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		F3 f3 = new F3();\n" +
+			"		SubSub sub = new SubSub();\n" +
+			"		sub.foo(f3);\n" +
+			"\n" +
+			"		Sub<F3> sub2 = sub;\n" +
+			"		Base<F3> base = sub;\n" +
+			"		sub2.foo(f3);\n" +
+			"		base.foo(f3);\n" +
+			"\n" +
+			"		F2 f2 = new F2();\n" +
+			"		sub2.foo(f2);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static class F1 {\n" +
+			"	}\n" +
+			"\n" +
+			"	public static class F2 extends F1 {\n" +
+			"	}\n" +
+			"\n" +
+			"	public static class F3 extends F2 {\n" +
+			"		public void bar() {\n" +
+			"			System.out.println(\"bar in F3\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public static abstract class Base<T extends F1> {\n" +
+			"		public abstract void foo(T bar);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static abstract class Sub<T extends F2> extends Base<T> {\n" +
+			"		@Override\n" +
+			"		public void foo(F2 bar) {\n" +
+			"			System.out.println(getClass().getSimpleName() + \": F2 + \"\n" +
+			"					+ bar.getClass().getSimpleName());\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public static class SubSub extends Sub<F3> {\n" +
+			"	}\n" +
 			"}"
 		});
 }
@@ -14022,18 +14022,18 @@ public void testBug411811() {
 	runConformTest(
 		new String[] {
 			"FaultyType.java",
-			"    class ParamType {}\n" + 
-			"\n" + 
-			"    abstract class AbstractType<T extends ParamType> {\n" + 
-			"        public abstract void foo(T t);\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    abstract class SubAbstractType<T extends ParamType> extends AbstractType<T> {\n" + 
-			"        @Override public void foo(ParamType t) {}\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    class SubParamType extends ParamType {}\n" + 
-			"    \n" + 
+			"    class ParamType {}\n" +
+			"\n" +
+			"    abstract class AbstractType<T extends ParamType> {\n" +
+			"        public abstract void foo(T t);\n" +
+			"    }\n" +
+			"\n" +
+			"    abstract class SubAbstractType<T extends ParamType> extends AbstractType<T> {\n" +
+			"        @Override public void foo(ParamType t) {}\n" +
+			"    }\n" +
+			"\n" +
+			"    class SubParamType extends ParamType {}\n" +
+			"    \n" +
 			"public class FaultyType extends SubAbstractType<SubParamType> {}"
 		});
 }
@@ -14043,17 +14043,17 @@ public void testBug415600() {
 	runConformTest(
 		new String[] {
 			"A.java",
-			"import java.io.Reader;\n" + 
-			"import java.io.StringReader;\n" + 
-			"\n" + 
-			"public abstract class A<E extends Reader> {\n" + 
-			"	protected abstract void create(E element);\n" + 
-			"}\n" + 
-			"\n" + 
-			"abstract class B<T extends Reader> extends A<T> {\n" + 
-			"	public void create(Reader element) { }\n" + 
-			"}\n" + 
-			"\n" + 
+			"import java.io.Reader;\n" +
+			"import java.io.StringReader;\n" +
+			"\n" +
+			"public abstract class A<E extends Reader> {\n" +
+			"	protected abstract void create(E element);\n" +
+			"}\n" +
+			"\n" +
+			"abstract class B<T extends Reader> extends A<T> {\n" +
+			"	public void create(Reader element) { }\n" +
+			"}\n" +
+			"\n" +
 			"class C extends B<StringReader> { }\n"
 		});
 }
@@ -14085,23 +14085,23 @@ public void testBug426546() {
 	runConformTest(
 		new String[] {
 			"C.java",
-			"class A {\n" + 
-			"   A getMe() { return null; }\n" + 
-			"}\n" + 
-			"class B extends A {\n" + 
-			"   B getMe() { return null; }\n" + 
-			"}\n" + 
-			"public class C extends B {\n" + 
+			"class A {\n" +
+			"   A getMe() { return null; }\n" +
+			"}\n" +
+			"class B extends A {\n" +
+			"   B getMe() { return null; }\n" +
+			"}\n" +
+			"public class C extends B {\n" +
 			"   C getMe() { return this; }\n" +
-			"   public String toString() { return \"C\"; }\n" + 
-			"   public static void main(String[] args) {\n" + 
-			"      C c = new C();\n" + 
-			"      System.out.print(c.getMe());\n" + 
-			"      B b = c;\n" + 
-			"      System.out.print(b.getMe());\n" + 
-			"      A a = c;\n" + 
-			"      System.out.print(a.getMe()); \n" + 
-			"   }\n" + 
+			"   public String toString() { return \"C\"; }\n" +
+			"   public static void main(String[] args) {\n" +
+			"      C c = new C();\n" +
+			"      System.out.print(c.getMe());\n" +
+			"      B b = c;\n" +
+			"      System.out.print(b.getMe());\n" +
+			"      A a = c;\n" +
+			"      System.out.print(a.getMe()); \n" +
+			"   }\n" +
 			"}\n"
 		},
 		"CCC");
@@ -14111,19 +14111,19 @@ public void testBug438812() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.Collection;\n" + 
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public interface A {\n" + 
-			"    Iterable getIterable();\n" + 
-			"}\n" + 
-			"\n" + 
-			"class B implements A {\n" + 
-			"    public Collection getIterable() { return null; }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class C extends B {\n" + 
-			"    public List getIterable() { return null; }\n" + 
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public interface A {\n" +
+			"    Iterable getIterable();\n" +
+			"}\n" +
+			"\n" +
+			"class B implements A {\n" +
+			"    public Collection getIterable() { return null; }\n" +
+			"}\n" +
+			"\n" +
+			"class C extends B {\n" +
+			"    public List getIterable() { return null; }\n" +
 			"}",
 		},
 		"");
@@ -14146,20 +14146,20 @@ public void testBug469454() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"TestClass.java",
-			"public class TestClass {\n" + 
-			"    public static class A {\n" + 
-			"        public static A method() {\n" + 
-			"            return null;\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static class B extends A {\n" + 
-			"        public static B method() {\n" + 
-			"            return null;\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"        System.out.println(B.class.getDeclaredMethods().length);\n" + 
-			"    }\n" + 
+			"public class TestClass {\n" +
+			"    public static class A {\n" +
+			"        public static A method() {\n" +
+			"            return null;\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class B extends A {\n" +
+			"        public static B method() {\n" +
+			"            return null;\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(B.class.getDeclaredMethods().length);\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"1");
@@ -14169,28 +14169,28 @@ public void testBug469454a() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"TestClass.java",
-			"public class TestClass {\n" + 
-			"    public static class A {\n" + 
-			"        public final A method() {\n" + 
-			"            return null;\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static class B extends A {\n" + 
-			"        @Override\n" + 
-			"        public B method() {\n" + 
-			"            return null;\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"        System.out.println(B.class.getDeclaredMethods().length);\n" + 
-			"    }\n" + 
+			"public class TestClass {\n" +
+			"    public static class A {\n" +
+			"        public final A method() {\n" +
+			"            return null;\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static class B extends A {\n" +
+			"        @Override\n" +
+			"        public B method() {\n" +
+			"            return null;\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(B.class.getDeclaredMethods().length);\n" +
+			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in TestClass.java (at line 9)\n" + 
-		"	public B method() {\n" + 
-		"	         ^^^^^^^^\n" + 
-		"Cannot override the final method from TestClass.A\n" + 
+		"----------\n" +
+		"1. ERROR in TestClass.java (at line 9)\n" +
+		"	public B method() {\n" +
+		"	         ^^^^^^^^\n" +
+		"Cannot override the final method from TestClass.A\n" +
 		"----------\n",
 		null,
 		true,
@@ -14217,19 +14217,19 @@ public void testBug438812a() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"A.java",
-			"import java.util.Collection;\n" + 
-			"import java.util.List;\n" + 
-			"\n" + 
-			"public abstract class A {\n" + 
-			"    abstract Iterable getIterable();\n" + 
-			"}\n" + 
-			"\n" + 
-			"class B extends A {\n" + 
-			"    public Collection getIterable() { return null; }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class C extends B {\n" + 
-			"    public List getIterable() { return null; }\n" + 
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public abstract class A {\n" +
+			"    abstract Iterable getIterable();\n" +
+			"}\n" +
+			"\n" +
+			"class B extends A {\n" +
+			"    public Collection getIterable() { return null; }\n" +
+			"}\n" +
+			"\n" +
+			"class C extends B {\n" +
+			"    public List getIterable() { return null; }\n" +
 			"}",
 		},
 		"");
@@ -14253,26 +14253,26 @@ public void testBug461529() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"foo/IBarable.java",
-			"package foo;\n" + 
-			"public interface IBarable<T extends IBarable<T>> {\n" + 
-			"    default IBar<T> createBar() {\n" + 
-			"        throw new UnsupportedOperationException();\n" + 
-			"    }\n" + 
+			"package foo;\n" +
+			"public interface IBarable<T extends IBarable<T>> {\n" +
+			"    default IBar<T> createBar() {\n" +
+			"        throw new UnsupportedOperationException();\n" +
+			"    }\n" +
 			"}\n",
 			"foo/IBar.java",
-			"package foo;\n" + 
-			"public interface IBar<T extends IBarable<T>> {\n" + 
-			"    T bar();\n" + 
+			"package foo;\n" +
+			"public interface IBar<T extends IBarable<T>> {\n" +
+			"    T bar();\n" +
 			"}\n",
 			"foo/Foo.java",
-			"package foo;\n" + 
-			"public abstract class Foo implements IBarable<Foo> {\n" + 
-			"    public abstract static class Builder implements IBar<Foo> {}\n" + 
-			"    @Override\n" + 
-			"    public abstract Builder createBar();\n" + 
+			"package foo;\n" +
+			"public abstract class Foo implements IBarable<Foo> {\n" +
+			"    public abstract static class Builder implements IBar<Foo> {}\n" +
+			"    @Override\n" +
+			"    public abstract Builder createBar();\n" +
 			"}\n",
 			"foo/ChildFoo.java",
-			"package foo;\n" + 
+			"package foo;\n" +
 			"public abstract class ChildFoo extends Foo {}\n"
 		});
 }
@@ -14283,25 +14283,25 @@ public void testBug467776_regression() {
 	runConformTest(
 		new String[] {
 			"ITeam.java",
-			"public interface ITeam {\n" + 
-			"        <T> T getRole(Object o, Class<T> clazz);\n" + 
+			"public interface ITeam {\n" +
+			"        <T> T getRole(Object o, Class<T> clazz);\n" +
 			"}\n",
 			"Team.java",
-			"public class Team implements ITeam {\n" + 
-			"\n" + 
-			"        @Override\n" + 
-			"        public <T> T getRole(Object o, Class<T> clazz) {\n" + 
-			"                return null;\n" + 
-			"        }\n" + 
+			"public class Team implements ITeam {\n" +
+			"\n" +
+			"        @Override\n" +
+			"        public <T> T getRole(Object o, Class<T> clazz) {\n" +
+			"                return null;\n" +
+			"        }\n" +
 			"}\n",
 			"MyTeam.java",
-			"public class MyTeam extends Team {\n" + 
-			"        @Override\n" + 
-			"        public <T> T getRole(Object o, Class<T> clazz) {\n" + 
-			"                return super.getRole(o, clazz);\n" + 
-			"        }\n" + 
+			"public class MyTeam extends Team {\n" +
+			"        @Override\n" +
+			"        public <T> T getRole(Object o, Class<T> clazz) {\n" +
+			"                return super.getRole(o, clazz);\n" +
+			"        }\n" +
 			"}\n"
-			
+
 		},
 		compilerOptions);
 }
@@ -14309,29 +14309,29 @@ public void testBug500673() {
 	runNegativeTest(
 		new String[] {
 			"mfi.java",
-			"interface mfi {\n" + 
-			"    public transient void a(Throwable throwable);\n" + 
+			"interface mfi {\n" +
+			"    public transient void a(Throwable throwable);\n" +
 			"}\n",
 			"mfa.java",
-			"final class mfa implements mfi {\n" + 
+			"final class mfa implements mfi {\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in mfi.java (at line 2)\n" + 
-		"	public transient void a(Throwable throwable);\n" + 
+		"----------\n" +
+		"1. ERROR in mfi.java (at line 2)\n" +
+		"	public transient void a(Throwable throwable);\n" +
 		"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Illegal modifier for the interface method a; only public & abstract are permitted\n"
-		: this.complianceLevel < ClassFileConstants.JDK9 ? 
+		: this.complianceLevel < ClassFileConstants.JDK9 ?
 				"Illegal modifier for the interface method a; only public, abstract, default, static and strictfp are permitted\n" :
 				"Illegal modifier for the interface method a; only public, private, abstract, default, static and strictfp are permitted\n"
 		) +
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in mfa.java (at line 1)\n" + 
-		"	final class mfa implements mfi {\n" + 
-		"	            ^^^\n" + 
-		"The type mfa must implement the inherited abstract method mfi.a(Throwable)\n" + 
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in mfa.java (at line 1)\n" +
+		"	final class mfa implements mfi {\n" +
+		"	            ^^^\n" +
+		"The type mfa must implement the inherited abstract method mfi.a(Throwable)\n" +
 		"----------\n");
 }
 public void testBug506653() {
@@ -14339,36 +14339,36 @@ public void testBug506653() {
 		false, // flushOutputDirectory
 		new String[] {
 			"A.java",
-			"   public class A {\n" + 
-			"    public class B {\n" + 
-			"        <E extends Object, F extends E> E bar(F x) {\n" + 
-			"            return null;\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"   public class A {\n" +
+			"    public class B {\n" +
+			"        <E extends Object, F extends E> E bar(F x) {\n" +
+			"            return null;\n" +
+			"        }\n" +
+			"    }\n" +
 			"    public class C extends B {\n" +
-			"		 @Override\n" + 
-			"        public String bar(Object x) {\n" + 
-			"            return \"Oops\";\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static void main(String... args) {\n" + 
-			"        new A().test();\n" + 
-			"    }\n" + 
-			"    void test() {\n" + 
+			"		 @Override\n" +
+			"        public String bar(Object x) {\n" +
+			"            return \"Oops\";\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String... args) {\n" +
+			"        new A().test();\n" +
+			"    }\n" +
+			"    void test() {\n" +
 			"        B b = new C();\n" +
-			"		 try {\n" + 
+			"		 try {\n" +
 			"        	Integer i = b.bar(1);\n" +
 			"		 } catch (ClassCastException cce) {\n" +
 			"			System.out.print(\"cce\");\n" +
-			"		 }\n" + 
-			"    }\n" + 
+			"		 }\n" +
+			"    }\n" +
 			"   }\n"
 		},
-		"----------\n" + 
-		"1. WARNING in A.java (at line 9)\n" + 
-		"	public String bar(Object x) {\n" + 
-		"	       ^^^^^^\n" + 
-		"Type safety: The return type String for bar(Object) from the type A.C needs unchecked conversion to conform to E from the type A.B\n" + 
+		"----------\n" +
+		"1. WARNING in A.java (at line 9)\n" +
+		"	public String bar(Object x) {\n" +
+		"	       ^^^^^^\n" +
+		"Type safety: The return type String for bar(Object) from the type A.C needs unchecked conversion to conform to E from the type A.B\n" +
 		"----------\n",
 		"cce",
 		"",
@@ -14378,15 +14378,15 @@ public void testBug536593() {
 	runConformTest(
 		new String[] {
 			"AbstractComp.java",
-			"public abstract class AbstractComp {\n" + 
-			"	protected abstract boolean isReadOnly();\n" + 
+			"public abstract class AbstractComp {\n" +
+			"	protected abstract boolean isReadOnly();\n" +
 			"}\n",
 			"HasValue.java",
-			"public interface HasValue<T> {\n" + 
-			"	boolean isReadOnly();\n" + 
+			"public interface HasValue<T> {\n" +
+			"	boolean isReadOnly();\n" +
 			"}\n",
 			"Factory.java",
-			"public class Factory<T, F extends AbstractComp & HasValue<T>> {\n" + 
+			"public class Factory<T, F extends AbstractComp & HasValue<T>> {\n" +
 			"}\n"
 		});
 }
@@ -14394,88 +14394,88 @@ public void testBug536978_comment2() {
 	runNegativeTest(
 			new String[] {
 				"SimpleDemo.java",
-				"abstract interface AbstractResult {\n" + 
-				"	public abstract int test();\n" + 
-				"}\n" + 
-				"\n" + 
-				"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" + 
-				"	protected abstract Response test(Request request);\n" + 
+				"abstract interface AbstractResult {\n" +
+				"	public abstract int test();\n" +
+				"}\n" +
+				"\n" +
+				"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" +
+				"	protected abstract Response test(Request request);\n" +
 				"}\n" +
 				"\n" +
 				"interface SimpleResult extends AbstractResult {};\n" +
-				"\n" + 
-				"class Result1 implements SimpleResult {\n" + 
-				"    public int test() { return 1; }\n" + 
-				"}\n" + 
-				"class OtherResult implements AbstractResult {\n" + 
-				"    public int test() { return 2; }\n" + 
-				"}\n" + 
-				"\n" + 
-				"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> \n" + 
-				"extends AbstractDemo<Request, Response> {\n" + 
-				"\n" + 
-				"    @Override\n" + 
-				"    protected SimpleResult test(AbstractResult request) {\n" + 
-				"        return new Result1();\n" + 
-				"    }\n" + 
-				"    \n" + 
-				"    public static void main(String... args) {\n" + 
-				"        AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<OtherResult,OtherResult>();\n" + 
-				"        OtherResult result = demo.test(new OtherResult());\n" + 
-				"    }\n" + 
-				"\n" + 
+				"\n" +
+				"class Result1 implements SimpleResult {\n" +
+				"    public int test() { return 1; }\n" +
+				"}\n" +
+				"class OtherResult implements AbstractResult {\n" +
+				"    public int test() { return 2; }\n" +
+				"}\n" +
+				"\n" +
+				"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> \n" +
+				"extends AbstractDemo<Request, Response> {\n" +
+				"\n" +
+				"    @Override\n" +
+				"    protected SimpleResult test(AbstractResult request) {\n" +
+				"        return new Result1();\n" +
+				"    }\n" +
+				"    \n" +
+				"    public static void main(String... args) {\n" +
+				"        AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<OtherResult,OtherResult>();\n" +
+				"        OtherResult result = demo.test(new OtherResult());\n" +
+				"    }\n" +
+				"\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in SimpleDemo.java (at line 22)\n" + 
-			"	protected SimpleResult test(AbstractResult request) {\n" + 
-			"	          ^^^^^^^^^^^^\n" + 
-			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" + 
+			"----------\n" +
+			"1. ERROR in SimpleDemo.java (at line 22)\n" +
+			"	protected SimpleResult test(AbstractResult request) {\n" +
+			"	          ^^^^^^^^^^^^\n" +
+			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" +
 			"----------\n");
 }
 public void testBug536978_comment5() {
-	String errMsg = isJRE11Plus 
+	String errMsg = isJRE11Plus
 			? "class Result1 cannot be cast to class OtherResult (Result1 and OtherResult are in unnamed module of loader"
 			: "Result1 cannot be cast to OtherResult";
 	runConformTest(
 		new String[] {
 			"SimpleDemo.java",
-			"\n" + 
-			"abstract interface AbstractResult {\n" + 
-			"	public abstract int test();\n" + 
-			"}\n" + 
-			"\n" + 
-			"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" + 
-			"	protected abstract Response test(Request request);\n" + 
-			"\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Result1 implements AbstractResult {\n" + 
-			"	public int test() {\n" + 
-			"		return 1;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class OtherResult implements AbstractResult {\n" + 
-			"	public int test() {\n" + 
-			"		return 2;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> extends AbstractDemo<Request, Response> {\n" + 
-			"	@Override @SuppressWarnings(\"unchecked\")\n" + 
-			"	protected AbstractResult test(AbstractResult request) {\n" + 
-			"		return new Result1();\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static void main(String... args) {\n" + 
+			"\n" +
+			"abstract interface AbstractResult {\n" +
+			"	public abstract int test();\n" +
+			"}\n" +
+			"\n" +
+			"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" +
+			"	protected abstract Response test(Request request);\n" +
+			"\n" +
+			"}\n" +
+			"\n" +
+			"class Result1 implements AbstractResult {\n" +
+			"	public int test() {\n" +
+			"		return 1;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class OtherResult implements AbstractResult {\n" +
+			"	public int test() {\n" +
+			"		return 2;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> extends AbstractDemo<Request, Response> {\n" +
+			"	@Override @SuppressWarnings(\"unchecked\")\n" +
+			"	protected AbstractResult test(AbstractResult request) {\n" +
+			"		return new Result1();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String... args) {\n" +
 			"		AbstractDemo<OtherResult, OtherResult> demo = new SimpleDemo<OtherResult, OtherResult>();\n" +
-			"		try {\n" + 
+			"		try {\n" +
 			"			OtherResult result = demo.test(new OtherResult());\n" +
 			"		} catch (ClassCastException e) {\n" +
 			"			System.out.println(e.getMessage());\n" + // omit the stack trace for test robustness
-			"		}\n" + 
-			"	}\n" + 
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		},
 		errMsg);

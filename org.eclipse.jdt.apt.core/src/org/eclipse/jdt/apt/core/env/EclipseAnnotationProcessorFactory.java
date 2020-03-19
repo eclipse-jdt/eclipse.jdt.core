@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *    tyeung@bea.com - initial API    
+ *    tyeung@bea.com - initial API
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.env;
 
@@ -20,25 +20,25 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 /**
- * Extend the APT annotation processor factory API to provide extra features.  
- * Implementation of this annotation processor is treated just like 
+ * Extend the APT annotation processor factory API to provide extra features.
+ * Implementation of this annotation processor is treated just like
  * the regular annotation processor during build and reconcile.
  * @author tyeung
  *
  */
 public interface EclipseAnnotationProcessorFactory extends
-		AnnotationProcessorFactory 
+		AnnotationProcessorFactory
 {
 	/**
 	 * Returns an annotation processor for a set of annotation types.
-	 * Implementation of this API is guaranteed to be invoked with an 
-	 * extended annotation processor environment for both 
+	 * Implementation of this API is guaranteed to be invoked with an
+	 * extended annotation processor environment for both
 	 * {@link #getProcessorFor} version of the method.
-	 *  
+	 *
 	 * @param atds the set of annotation types
 	 * @param env the environment for processing.
 	 * @return an annotation processor or null if the processor cannot be created.
 	 */
-	AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds, 
-										EclipseAnnotationProcessorEnvironment env);	
+	AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds,
+										EclipseAnnotationProcessorEnvironment env);
 }

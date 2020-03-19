@@ -56,7 +56,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"",
-			"Value in position 1 must not be null\n" + 
+			"Value in position 1 must not be null\n" +
 			"Shouldn\'t!");
 	}
 
@@ -94,7 +94,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"",
-			"Value in position 1 must not be null\n" + 
+			"Value in position 1 must not be null\n" +
 			"Shouldn\'t!");
 	}
 
@@ -204,7 +204,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"npe:null\n" +
 			"Shouldn\'t!");
 	}
-	
+
 	public void testIsNull() {
 		Map<String, String> compilerOptions = getCompilerOptions();
 		compilerOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
@@ -229,14 +229,14 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 				"	public static void main(String... args) {\n" +
 				"		test(hide(null), new X(), new X());\n" +
 				"	}\n" +
-				"}\n"					
+				"}\n"
 			},
 			compilerOptions,
 			"",
 			"IS NULL\n" +
 			"IS ANY NULL 1");
 	}
-	
+
 	public void testAsNullable() {
 		runConformTestWithLibs(
 			new String[] {
@@ -254,13 +254,13 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 				"	public static void main(String... args) {\n" +
 				"		test(Optional.ofNullable(null));\n" +
 				"	}\n" +
-				"}\n"					
+				"}\n"
 			},
 			getCompilerOptions(),
 			"",
 			"NULL");
 	}
-	
+
 	public void testNonNullElse() {
 		runConformTestWithLibs(
 			new String[] {
@@ -278,7 +278,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 				"	public static void main(String... args) {\n" +
 				"		test(\"good\", null, () -> \"ELSE4\");\n" +
 				"	}\n" +
-				"}\n"					
+				"}\n"
 			},
 			getCompilerOptions(),
 			"",
@@ -287,7 +287,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"good\n" +
 			"ELSE4");
 	}
-	
+
 	public void _testIfNonNull() { // FIXME: see https://bugs.eclipse.org/489609 - [1.8][null] null annotation on wildcard is dropped during inference
 		runConformTestWithLibs(
 			new String[] {
@@ -304,7 +304,7 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 				"	public static void main(String... args) {\n" +
 				"		test(\"good\");\n" +
 				"	}\n" +
-				"}\n"					
+				"}\n"
 			},
 			getCompilerOptions(),
 			"",

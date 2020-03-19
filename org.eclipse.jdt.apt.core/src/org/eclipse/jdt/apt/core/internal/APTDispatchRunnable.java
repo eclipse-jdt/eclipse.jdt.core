@@ -57,10 +57,10 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 public class APTDispatchRunnable implements IWorkspaceRunnable
 {
 	/**
-	 * This callback method is passed to a ReconcileEnv to be called within 
+	 * This callback method is passed to a ReconcileEnv to be called within
 	 * an AST pipeline in order to process a type during reconcile.
 	 * Reconciles involve only one type at a time, but can recurse, so
-	 * that multiple instances of this class are on the stack at one time. 
+	 * that multiple instances of this class are on the stack at one time.
 	 */
 	private final class ReconcileEnvCallback implements EnvCallback {
 		private final ReconcileContext _context;
@@ -76,23 +76,23 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		public void run(AbstractCompilationEnv env) {
 			// This is a ReconcileEnvCallback, so we better be dealing with a ReconcileEnv!
 			ReconcileEnv reconcileEnv = (ReconcileEnv)env;
-			
+
 			// Dispatch the annotation processors.  Env will keep track of problems and generated types.
 			try {
 				dispatchToFileBasedProcessor(reconcileEnv, true, true);
 			} catch (Throwable t) {
 				AptPlugin.log(t, "Processor failure during reconcile"); //$NON-NLS-1$
 			}
-			
+
 			// "Remove" any types that were generated in the past but not on this round.
-			// Because this is a reconcile, if a file exists on disk we can't really remove 
-			// it, we can only create a blank WorkingCopy that hides it; thus, we can only 
+			// Because this is a reconcile, if a file exists on disk we can't really remove
+			// it, we can only create a blank WorkingCopy that hides it; thus, we can only
 			// remove Java source files, not arbitrary files.
 			ICompilationUnit parentWC = _context.getWorkingCopy();
 			Set<IFile> newlyGeneratedFiles = reconcileEnv.getAllGeneratedFiles();
 			_gfm.deleteObsoleteTypesAfterReconcile(parentWC, newlyGeneratedFiles);
-			
-			// Report problems to the ReconcileContext. 
+
+			// Report problems to the ReconcileContext.
 			final List<? extends CategorizedProblem> problemList = reconcileEnv.getProblems();
 			final int numProblems = problemList.size();
 			if (numProblems > 0) {
@@ -101,13 +101,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				AptPlugin.APT_COMPILATION_PROBLEM_MARKER, problemList
 						.toArray(aptCatProblems));
 			}
-			
-			// Tell the Env that the round is complete.  
+
+			// Tell the Env that the round is complete.
 			// This also calls resetAST() on the context.
 			reconcileEnv.close();
 		}
 	}
-	
+
 	private static final BuildContext[] NO_FILES_TO_PROCESS = new BuildContext[0];
 	private static final int MAX_FILES_PER_ITERATION = 1000;
 	private /*final*/ BuildContext[] _filesWithAnnotation = null;
@@ -123,32 +123,32 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private static final boolean SPLIT_FILES;
 	private static final String SPLIT_FILES_PROPERTY = "org.eclipse.jdt.apt.core.split_files"; //$NON-NLS-1$
 	private final boolean _isTestCode;
-	
+
 	static {
 		String setting = System.getProperty(SPLIT_FILES_PROPERTY);
 		SPLIT_FILES = setting == null || setting.equalsIgnoreCase("true"); //$NON-NLS-1$
 	}
-	
+
 	public static Set<AnnotationProcessorFactory> runAPTDuringBuild(
-			BuildContext[] filesWithAnnotations, 
+			BuildContext[] filesWithAnnotations,
 			BuildContext[] filesWithoutAnnotations,
 			Map<IFile, CategorizedProblem[]> problemRecorder,
-			AptProject aptProject, 
+			AptProject aptProject,
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 			boolean isFullBuild, boolean isTestCode){
-		
+
 		 if( filesWithAnnotations == null ){
 			 filesWithAnnotations = NO_FILES_TO_PROCESS;
 		 }
 		// If we're building, types can be generated, so we
 		// want to run this as an atomic workspace operation
-		 APTDispatchRunnable runnable = 
-			 new APTDispatchRunnable( 
+		 APTDispatchRunnable runnable =
+			 new APTDispatchRunnable(
 					 filesWithAnnotations,
 					 filesWithoutAnnotations,
 					 problemRecorder,
-					 aptProject, factories, 
+					 aptProject, factories,
 					 dispatchedBatchFactories, isFullBuild, isTestCode );
 		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		 try {
@@ -159,26 +159,26 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		 }
 		 return runnable._currentDispatchBatchFactories;
 	}
-	
+
 	public static void runAPTDuringReconcile(
 			ReconcileContext reconcileContext,
-			AptProject aptProject, 
+			AptProject aptProject,
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			boolean test)
 	{
 		// Reconciling, so we do not want to run this as an atomic workspace
 		// operation. If we do, it is easy to have locking issues when someone
 		// calls a reconcile from within a workspace lock
-		APTDispatchRunnable runnable = new APTDispatchRunnable( aptProject, factories, test);	
+		APTDispatchRunnable runnable = new APTDispatchRunnable( aptProject, factories, test);
 		runnable.reconcile(reconcileContext, aptProject.getJavaProject(), test);
 	}
-	
+
 	/** create a runnable used during build */
-	private APTDispatchRunnable( 
+	private APTDispatchRunnable(
 			BuildContext[] filesWithAnnotation,
 			BuildContext[] filesWithoutAnnotation,
 			Map<IFile, CategorizedProblem[]> problemRecorder,
-			AptProject aptProject, 
+			AptProject aptProject,
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
 			boolean isFullBuild,
@@ -193,13 +193,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		_dispatchedBatchFactories = dispatchedBatchFactories;
 		_isFullBuild = isFullBuild;
 		_isTestCode = isTestCode;
-	}	
+	}
 	/** create a runnable used during reconcile */
 	private APTDispatchRunnable(
 			AptProject aptProject,
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			boolean test)
-	{	
+	{
 		_aptProject = aptProject;
 		_factories = factories;
 		_isTestCode = test;
@@ -208,7 +208,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		// reconcile and no apt rounding ever occur as a result.
 		_dispatchedBatchFactories = Collections.emptySet();
 	}
-	
+
 	private void reconcile(final ReconcileContext reconcileContext,
 			   IJavaProject javaProject, boolean test)
 	{
@@ -220,7 +220,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			//TODO: clean up generated working copies here?  I think not necessary. - WSH 10/06
 			return;
 		}
-		
+
 		// Construct a reconcile time environment. This will invoke
 		// dispatch from inside the callback.
 		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(test);
@@ -228,41 +228,41 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		EnvCallback callback = new ReconcileEnvCallback(reconcileContext, gfm);
 		AbstractCompilationEnv.newReconcileEnv(reconcileContext, callback);
 
-	}	
-	
+	}
+
 	@Override
-	public void run(IProgressMonitor monitor) 
-	{	
+	public void run(IProgressMonitor monitor)
+	{
 		build();
 	}
-	
+
 	/**
 	 * Determine whether there are files to be processed.
 	 * @return <code>true</code> iff APT processing should occur, return <code>false</code>
 	 * otherwise.
-	 * 
+	 *
 	 * APT should should run one of the following is true
-	 * 1) There are files with annotations 
+	 * 1) There are files with annotations
 	 * 2) There are factories dispatched in an earlier round
 	 */
 	private boolean shouldBuild()
 	{
 		if( (_factories == null || _factories.size() == 0) && _dispatchedBatchFactories.isEmpty() )
 			return false;
-	
+
 		int totalFiles = _filesWithAnnotation == null ? 0 : _filesWithAnnotation.length;
 		// We are required to dispatch even though there are no files with annotations.
 		// This is a documented behavior in the mirror spec.
 		return totalFiles > 0 || !_dispatchedBatchFactories.isEmpty();
 	}
-	
+
 	private void build(){
-	
+
 		if ( !shouldBuild() )
 		{
 			// tracing
-			if ( AptPlugin.DEBUG ) 
-			{			
+			if ( AptPlugin.DEBUG )
+			{
 				String msg;
 				if ( (_factories == null || _factories.size() == 0) && _dispatchedBatchFactories.isEmpty() )
 					msg = "no AnnotationProcessoryFactory instances registered."; //$NON-NLS-1$
@@ -278,7 +278,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		{
 			assert _filesWithAnnotation != null :
 				   "should never be invoked unless we are in build mode!"; //$NON-NLS-1$
-			
+
 			EnvCallback buildCallback = new EnvCallback() {
 				@Override
 				public void run(AbstractCompilationEnv env) {
@@ -301,25 +301,25 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=301894
 				for (int index = 0; index < _filesWithAnnotation.length;) {
 					int numberToProcess = (index + MAX_FILES_PER_ITERATION) > _filesWithAnnotation.length ? _filesWithAnnotation.length - index : MAX_FILES_PER_ITERATION;
-					BuildContext[] filesToProcess = new BuildContext[numberToProcess];			 
+					BuildContext[] filesToProcess = new BuildContext[numberToProcess];
 					System.arraycopy(_filesWithAnnotation, index, filesToProcess, 0, numberToProcess);
 					// Construct build environment, this invokes the build inside a callback
 					// in order to keep open the DOM AST pipeline
-					BuildEnv.newBuildEnv( 
-							filesToProcess, 
-							_filesWithoutAnnotation, 
+					BuildEnv.newBuildEnv(
+							filesToProcess,
+							_filesWithoutAnnotation,
 							_aptProject.getJavaProject(),
 							buildCallback);
 					 index += numberToProcess;
 				}
 			}
 		}
-		
+
 		// We need to save the file dependency state regardless of whether any Java 5 processing
 		// was performed, because it may also contain Java 6 information.
 		_aptProject.getGeneratedFileManager(_isTestCode).writeState();
 	}
-	
+
 	/**
 	 * @param factories
 	 * @return <code>true</code> iff there are factories that can only be run in batch mode.
@@ -331,9 +331,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				return true;
 		}
 		return false;
-		
+
 	}
-	
+
 	/**
 	 * Batch processor should only be invoked during a clean build.
 	 * @param factories
@@ -343,16 +343,16 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * there are no batch processors.
 	 */
 	private boolean shouldDispatchToBatchProcessor(final AbstractCompilationEnv processorEnv )
-	{	
+	{
 		return ( _isFullBuild && processorEnv.getPhase() == Phase.BUILD && hasBatchFactory() );
 	}
-	
+
 	private void runAPTInFileBasedMode(final BuildEnv processorEnv)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 		boolean projectEnablesReconcile = AptConfig.shouldProcessDuringReconcile(_aptProject.getJavaProject());
-		for (BuildContext curResult : cpResults ) {			
+		for (BuildContext curResult : cpResults ) {
 			processorEnv.beginFileProcessing(curResult);
 			dispatchToFileBasedProcessor(processorEnv, projectEnablesReconcile, false);
 			reportResult(
@@ -366,13 +366,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			processorEnv.completedFileProcessing();
 		}
 	}
-	
+
 	/**
 	 * @param curResult
 	 * @param lastGeneratedFiles files generated from previous apt run.
 	 * @param generatedFiles all files generated from current apt run.
 	 * @param modifiedGeneratedFiles new generated files or files differs from those from
-	 *        previous run.   
+	 *        previous run.
 	 * @param problems problems from current apt run.
 	 * @param deps
 	 * @param gfm
@@ -384,7 +384,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			Set<IFile> modifiedGeneratedFiles,
 			List<? extends CategorizedProblem> problems,
 			Set<String> deps,
-			GeneratedFileManager gfm, 
+			GeneratedFileManager gfm,
 			BuildEnv processorEnv)
 	{
 		// Combine files generated by Java 5 and Java 6 processing phases
@@ -407,13 +407,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				allGeneratedFiles.addAll(java5GeneratedFiles);
 			}
 		}
-		
+
 		// figure out exactly what got deleted
-		final List<IFile> deletedFiles = new ArrayList<>(); 
+		final List<IFile> deletedFiles = new ArrayList<>();
 		IFile parentFile = curResult.getFile();
 		cleanupNoLongerGeneratedFiles(
-				parentFile, 
-				allGeneratedFiles, 
+				parentFile,
+				allGeneratedFiles,
 				gfm,
 				processorEnv,
 				deletedFiles);
@@ -423,14 +423,14 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			final IFile[] newFilesArray = new IFile[numNewFiles];
 			curResult.recordAddedGeneratedFiles(modifiedGeneratedFiles.toArray(newFilesArray));
 		}
-		
+
 		// report deleted file.
 		int numDeletedFiles = deletedFiles.size();
 		if(numDeletedFiles > 0){
 			final IFile[] deletedFilesArray = new IFile[numDeletedFiles];
 			curResult.recordDeletedGeneratedFiles(deletedFiles.toArray(deletedFilesArray));
 		}
-		
+
 		// report problems
 		final int numProblems = problems.size();
 		if( numProblems > 0 ){
@@ -440,7 +440,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// again without reprocessing if a file is resubmitted.
 			_problemRecorder.put(curResult.getFile(), catProblemsArray);
 		}
-		
+
 		// report dependency
 		final int numDeps = deps.size();
 		if( numDeps > 0 ){
@@ -448,51 +448,51 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			curResult.recordDependencies(deps.toArray(depsArray));
 		}
 	}
-							  
-	
+
+
 	/**
-	 * mixed mode - allow batch processor to be run as well as filed based ones.	
+	 * mixed mode - allow batch processor to be run as well as filed based ones.
 	 * @param processorEnv
-	 * @param currentRoundDispatchedBatchFactories output parameter. At return contains the 
+	 * @param currentRoundDispatchedBatchFactories output parameter. At return contains the
 	 * set of batch factories that has been dispatched.
 	 */
 	private void runAPTInMixedMode(final BuildEnv processorEnv)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
-		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
+		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2AnnotationDecls =
 			new HashMap<>(cpResults.length * 4/3 + 1);
-		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
+		final Map<String, AnnotationTypeDeclaration> annotationDecls =
 			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);
-		
+
 		if (annotationDecls.isEmpty() && _dispatchedBatchFactories.isEmpty() )
 		{
-			if ( AptPlugin.DEBUG ) 
+			if ( AptPlugin.DEBUG )
 				trace( "runAPT:  leaving early because annotationDecls is empty", //$NON-NLS-1$
-					   processorEnv); 
+					   processorEnv);
 			return;
 		}
-		
+
 		if( AptPlugin.DEBUG )
 			trace( "annotations found " + annotationDecls.keySet(), processorEnv); //$NON-NLS-1$
 
 		// file based processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> fileFactory2Annos =
 			new HashMap<>( _factories.size() * 4/3 + 1 );
-		
+
 		// batch processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> batchFactory2Annos =
 			new HashMap<>( _factories.size() * 4/3 + 1 );
-		
+
 		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
 			AnnotationProcessorFactory factory = entry.getKey();
 			Set<AnnotationTypeDeclaration> annotationTypes = getFactorySupportedAnnotations(factory, annotationDecls);
 			if( annotationTypes != null ){
-				
+
 				boolean batch = entry.getValue().runInBatchMode();
-				Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration> > factory2Annos = 
+				Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration> > factory2Annos =
 					batch ? batchFactory2Annos : fileFactory2Annos;
 				if( annotationTypes.size() == 0 ){
-					// this factory is claiming all (remaining) annotations. 
+					// this factory is claiming all (remaining) annotations.
 					annotationTypes = new HashSet<>(annotationDecls.values());
 					factory2Annos.put(factory, annotationTypes);
 					annotationDecls.clear();
@@ -505,30 +505,30 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if( annotationDecls.isEmpty() )
 				break;
 		}
-		
+
 		if( ! annotationDecls.isEmpty() ){
 			// TODO: (theodora) log unclaimed annotations?
 		}
-		
+
 		// Dispatch to the batch process factories first.
 		// Batch processors only get executed on a full/clean build
-		if( !batchFactory2Annos.isEmpty() || 
-			(_dispatchedBatchFactories != null && !_dispatchedBatchFactories.isEmpty()) ){ 
-				
+		if( !batchFactory2Annos.isEmpty() ||
+			(_dispatchedBatchFactories != null && !_dispatchedBatchFactories.isEmpty()) ){
+
 			processorEnv.beginBatchProcessing();
 			if( !batchFactory2Annos.isEmpty()){
 				// Once we figure out which factory claims what annotation,
 				// the order of the factory doesn't matter.
-				// But in order to make things consists between runs, will 
+				// But in order to make things consists between runs, will
 				// dispatch base on factory order.
 				_currentDispatchBatchFactories = new LinkedHashSet<>();
-				for(AnnotationProcessorFactory factory : _factories.keySet() ){			
+				for(AnnotationProcessorFactory factory : _factories.keySet() ){
 					final Set<AnnotationTypeDeclaration> annotationTypes = batchFactory2Annos.get(factory);
 					if( annotationTypes == null ) continue;
-					final AnnotationProcessor processor = 
+					final AnnotationProcessor processor =
 						factory.getProcessorFor(annotationTypes, processorEnv);
 					if( processor != null ){
-						if ( AptPlugin.DEBUG ) 
+						if ( AptPlugin.DEBUG )
 							trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 									processorEnv);
 						_currentDispatchBatchFactories.add(factory);
@@ -537,16 +537,16 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						processorEnv.setCurrentProcessorFactory(null, false);
 					}
 				}
-			}	
+			}
 			// We have to dispatch to factories even though we may not have discovered any annotations.
 			// This is a documented APT behavior that we have to observe.
 			for( AnnotationProcessorFactory prevRoundFactory : _dispatchedBatchFactories ){
 				if(_currentDispatchBatchFactories.contains(prevRoundFactory))
 					continue;
-				final AnnotationProcessor processor = 
+				final AnnotationProcessor processor =
 					prevRoundFactory.getProcessorFor(Collections.<AnnotationTypeDeclaration>emptySet(), processorEnv);
 				if( processor != null ){
-					if ( AptPlugin.DEBUG ) 
+					if ( AptPlugin.DEBUG )
 						trace( "runAPT: invoking batch processor " + processor.getClass().getName(), //$NON-NLS-1$
 								processorEnv);
 					processorEnv.setCurrentProcessorFactory(prevRoundFactory, false);
@@ -554,16 +554,16 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					processorEnv.setCurrentProcessorFactory(null, false);
 				}
 			}
-			
+
 			// Currently, we are putting everything in the first file annotations.
 			// TODO: Is this correct?
 			// Why is it ok (today):
-			// 1) Problems are reported as IMarkers and not IProblem thru the 
-			// BuildContext API. 
+			// 1) Problems are reported as IMarkers and not IProblem thru the
+			// BuildContext API.
 			// 2) jdt is currently not doing anything about the parent->generated file relation
-			//    so it doesn't matter which BuildContext we attach the 
+			//    so it doesn't matter which BuildContext we attach the
 			//    creation/modification/deletion of generated files. -theodora
-			BuildContext firstResult = null; 
+			BuildContext firstResult = null;
 			if( cpResults.length > 0 )
 				firstResult = cpResults[0];
 			else{
@@ -571,23 +571,23 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				if(others != null && others.length > 0 )
 					firstResult = others[0];
 			}
-			
+
 			// If there are no files to be built, apt will not be involved.
 			assert firstResult != null : "don't know where to report results"; //$NON-NLS-1$
 			if(firstResult != null ){
 				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 				reportResult(
-						firstResult,  // just put it all in 
+						firstResult,  // just put it all in
 						processorEnv.getAllGeneratedFiles(),
-						processorEnv.getModifiedGeneratedFiles(), 
+						processorEnv.getModifiedGeneratedFiles(),
 						processorEnv.getProblems(),  // this is empty in batch mode.
 						processorEnv.getTypeDependencies(),  // this is empty in batch mode.
-						gfm, 
+						gfm,
 						processorEnv);
 			}
 			processorEnv.completedBatchProcessing();
 		}
-		
+
 		// Now, do the file based dispatch
 		if( !fileFactory2Annos.isEmpty() ){
 			boolean projectEnablesReconcile = AptConfig.shouldProcessDuringReconcile(_aptProject.getJavaProject());
@@ -597,15 +597,15 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					continue;
 				for(AnnotationProcessorFactory factory : _factories.keySet() ){
 					final Set<AnnotationTypeDeclaration> annotationTypesForFactory = fileFactory2Annos.get(factory);
-					if( annotationTypesForFactory == null || annotationTypesForFactory.isEmpty() ) 
+					if( annotationTypesForFactory == null || annotationTypesForFactory.isEmpty() )
 						continue;
 					final Set<AnnotationTypeDeclaration> intersect = setIntersect(annotationTypesInFile, annotationTypesForFactory);
 					if( intersect != null && !intersect.isEmpty() ){
 						processorEnv.beginFileProcessing(curResult);
-						final AnnotationProcessor processor = 
+						final AnnotationProcessor processor =
 							factory.getProcessorFor(intersect, processorEnv);
 						if( processor != null ){
-							if ( AptPlugin.DEBUG ) 
+							if ( AptPlugin.DEBUG )
 								trace( "runAPT: invoking file-based processor " + processor.getClass().getName(), //$NON-NLS-1$
 										processorEnv );
 							//TODO in 3.4: also consider factory path attributes
@@ -616,7 +616,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 						}
 					}
 				}
-				
+
 				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 				reportResult(
 						curResult,
@@ -630,7 +630,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			}
 		}
 	}
-	
+
 	/**
 	 * @param projectEnablesReconcile true if reconcile-time processing is enabled in the current project
 	 * @param isReconcile true if this call is during reconcile, e.g., processorEnv is a ReconcileEnv
@@ -638,13 +638,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private void dispatchToFileBasedProcessor(
 			final AbstractCompilationEnv processorEnv,
 			boolean projectEnablesReconcile, boolean isReconcile){
-		
+
 		Map<String, AnnotationTypeDeclaration> annotationDecls = processorEnv.getAnnotationTypes();
 		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
 			if( entry.getValue().runInBatchMode() ) continue;
 			AnnotationProcessorFactory factory = entry.getKey();
 			//TODO in 3.4: also consider factory path attributes
-			boolean reconcileSupported = projectEnablesReconcile && 
+			boolean reconcileSupported = projectEnablesReconcile &&
 				AbstractCompilationEnv.doesFactorySupportReconcile(factory);
 			if (isReconcile && !reconcileSupported)
 				continue;
@@ -661,11 +661,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				if (processor != null)
 				{
 					if ( AptPlugin.DEBUG ) {
-						trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + processorEnv.getFile(), //$NON-NLS-1$ //$NON-NLS-2$ 
-								processorEnv); 
+						trace( "runAPT: invoking file-based processor " + processor.getClass().getName() + " on " + processorEnv.getFile(), //$NON-NLS-1$ //$NON-NLS-2$
+								processorEnv);
 					}
 					processorEnv.setCurrentProcessorFactory(factory, reconcileSupported);
-					processor.process();						
+					processor.process();
 					processorEnv.setCurrentProcessorFactory(null, false);
 				}
 			}
@@ -677,9 +677,9 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// TODO: (theodora) log unclaimed annotations.
 		}
 	}
-	
+
 	/**
-	 * @param processorEnv 
+	 * @param processorEnv
 	 * @param filesWithMissingType
 	 * @param internalRound
 	 * @param result output parameter
@@ -710,7 +710,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if( _filesWithoutAnnotation != null ){
 				cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation);
 			}
-			
+
 
 			// log unclaimed annotations.
 		}
@@ -720,24 +720,24 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if (t.getClass().getName().startsWith("junit.framework")) //$NON-NLS-1$
 				throw t;
 			AptPlugin.logWarning(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
-		} 
+		}
 		catch (Throwable t) {
 			AptPlugin.logWarning(t, "Unexpected failure running APT on the file(s): " + getFileNamesForPrinting(processorEnv)); //$NON-NLS-1$
 		}
 		finally {
 			processorEnv.close();
 		}
-		
+
 		return Collections.emptySet();
 	}
-	
+
 	/**
 	 * @param one
 	 * @param two
 	 * @return the set intersect of the two given sets
 	 */
 	private Set<AnnotationTypeDeclaration> setIntersect(Set<AnnotationTypeDeclaration> one, Set<AnnotationTypeDeclaration> two ){
-		Set<AnnotationTypeDeclaration> intersect = null;	
+		Set<AnnotationTypeDeclaration> intersect = null;
 		for( AnnotationTypeDeclaration obj : one ){
 			if( two.contains(obj) ){
 				if( intersect == null )
@@ -747,12 +747,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 		return intersect;
 	}
-	
+
 	private void cleanupAllGeneratedFiles(){
 		cleanupAllGeneratedFilesFrom(_filesWithAnnotation);
 		cleanupAllGeneratedFilesFrom(_filesWithoutAnnotation);
 	}
-	
+
 	private void cleanupAllGeneratedFilesFrom(BuildContext[] cpResults){
 		if (cpResults == null) {
 			return;
@@ -762,20 +762,20 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		Set<IFile> java6GeneratedFiles = AptCompilationParticipant.getInstance().getJava6GeneratedFiles();
 		for( BuildContext cpResult : cpResults){
 			final IFile parentFile = cpResult.getFile();
-			cleanupNoLongerGeneratedFiles( 
-					parentFile, 
-					java6GeneratedFiles, 
+			cleanupNoLongerGeneratedFiles(
+					parentFile,
+					java6GeneratedFiles,
 					gfm,
-					null, 
+					null,
 					deleted);
-			
+
 			if( deleted.size() > 0 ){
 				final IFile[] deletedFilesArray = new IFile[deleted.size()];
 				cpResult.recordDeletedGeneratedFiles(deleted.toArray(deletedFilesArray));
 			}
 		}
-	}	
-	
+	}
+
 	/**
 	 * Remove all the files that were previously generated
 	 * from a particular parent file, but that were not generated
@@ -783,12 +783,12 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * <p>
 	 * Must be called during build phase, not reconcile
 	 *
-	 * @param parent the BuildContext associated with a single 
+	 * @param parent the BuildContext associated with a single
 	 * compiled parent file
-	 * @param lastGeneratedFiles the files generated from parent 
+	 * @param lastGeneratedFiles the files generated from parent
 	 * on the previous build; typically obtained from the GFM just
 	 * prior to beginning the current build.
-	 * @param newGeneratedFiles the files generated from parent 
+	 * @param newGeneratedFiles the files generated from parent
 	 * on the current build; typically stored in the BuildEnv, but
 	 * an empty set can be passed in to remove all generated files
 	 * of this parent.
@@ -799,7 +799,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private void cleanupNoLongerGeneratedFiles(
 			IFile parentFile,
 			Set<IFile> newGeneratedFiles,
-			GeneratedFileManager gfm,		
+			GeneratedFileManager gfm,
 			BuildEnv processorEnv,
 			Collection<IFile> deleted)
 	{
@@ -832,11 +832,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if (typeName.equals("*")) { //$NON-NLS-1$
 				fDecls.addAll(declarations.values());
 				declarations.clear();
-				
+
 				// Warn that * was claimed, which is non-optimal
 				AptPlugin.logWarning(null, "Processor Factory " + factory +  //$NON-NLS-1$
 						" claimed all annotations (*), which prevents any following factories from being dispatched."); //$NON-NLS-1$
-				
+
 			} else if (typeName.endsWith("*")) { //$NON-NLS-1$
 				final String prefix = typeName.substring(0,
 						typeName.length() - 2);
@@ -861,7 +861,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		}
 		return fDecls.isEmpty() ? null : fDecls;
 	}
-	
+
 	private static void trace( String s, AbstractCompilationEnv processorEnv )
 	{
 		if (AptPlugin.DEBUG)
@@ -869,10 +869,10 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			if (processorEnv != null) {
 				s = "[ phase = " + processorEnv.getPhase() + ", file = " + getFileNamesForPrinting(processorEnv) +" ]  " + s; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
-			AptPlugin.trace( s ); 
+			AptPlugin.trace( s );
 		}
 	}
-	
+
 	private static String getFileNamesForPrinting(final AbstractCompilationEnv env){
 		if( env instanceof ReconcileEnv ){
 			return env.getFile().getName();
@@ -881,10 +881,10 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			return getFileNamesForPrinting((BuildEnv)env);
 		}
 	}
-	
+
 	/**
 	 * For debugging statements only!!
-	 * @return the names of the files that we are currently processing. 
+	 * @return the names of the files that we are currently processing.
 	 */
 	private static String getFileNamesForPrinting(final BuildEnv processorEnv){
 		final IFile file = processorEnv.getFile();

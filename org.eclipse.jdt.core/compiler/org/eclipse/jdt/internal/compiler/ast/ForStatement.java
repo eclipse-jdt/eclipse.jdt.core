@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -89,7 +89,7 @@ public class ForStatement extends Statement {
 		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst == null ||  (cst != Constant.NotAConstant && cst.booleanValue() == true);
 		boolean isConditionOptimizedFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
-		
+
 		// process the condition
 		LoopingFlowContext condLoopContext = null;
 		FlowInfo condInfo = flowInfo.nullInfoLessUnconditionalCopy();
@@ -448,10 +448,10 @@ public class ForStatement extends Statement {
 		boolean isConditionTrue = cst == null || cst != Constant.NotAConstant && cst.booleanValue() == true;
 		cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedTrue = cst == null ? true : cst != Constant.NotAConstant && cst.booleanValue() == true;
-		
+
 		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut(null));
 	}
-	
+
 	@Override
 	public boolean completesByContinue() {
 		return this.action.continuesAtOuterLabel();

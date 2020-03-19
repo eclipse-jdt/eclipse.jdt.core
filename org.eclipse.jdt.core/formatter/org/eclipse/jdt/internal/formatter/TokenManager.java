@@ -332,7 +332,7 @@ public class TokenManager implements Iterable<Token> {
 	/**
 	 * Calculates the length of a source code fragment.
 	 * @param originalStart the first position of the source code fragment
-	 * @param originalEnd the last position of the source code fragment 
+	 * @param originalEnd the last position of the source code fragment
 	 * @param startPosition position in line of the first character (affects tabs calculation)
 	 * @return length, considering tabs and escaping characters as HTML entities
 	 */

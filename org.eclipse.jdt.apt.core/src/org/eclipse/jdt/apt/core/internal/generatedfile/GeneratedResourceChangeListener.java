@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
@@ -37,29 +37,29 @@ import org.eclipse.jdt.core.JavaCore;
 /**
  * A jdt.core pre-process resource change listener that manages generated resources.
  * <p>
- * 
- * Note that this is both a pre-build listener and a post-change listener, 
+ *
+ * Note that this is both a pre-build listener and a post-change listener,
  * because there is a bug in the resource change event notification in the platform:
  * sometimes they fail to send out deletion notifications for files in pre-build,
- * but they do send them out in post-change. 
+ * but they do send them out in post-change.
  */
-public class GeneratedResourceChangeListener implements IResourceChangeListener 
+public class GeneratedResourceChangeListener implements IResourceChangeListener
 {
-	// Synchronized collection, as post-change notifications could come in 
+	// Synchronized collection, as post-change notifications could come in
 	// simultaneously. Note that pre-build will not though, as it holds the
 	// workspace lock
-	private final Set<IResource> deletedResources = 
+	private final Set<IResource> deletedResources =
 		Collections.synchronizedSet(new HashSet<IResource>());
-	
+
 	public GeneratedResourceChangeListener(){}
-	
+
 	@Override
-	public void resourceChanged(IResourceChangeEvent event) 
+	public void resourceChanged(IResourceChangeEvent event)
 	{
 		if ( event.getType() == IResourceChangeEvent.PRE_CLOSE )
 		{
 			IProject p = (IProject)event.getResource();
-			if( AptPlugin.DEBUG_GFM ) 
+			if( AptPlugin.DEBUG_GFM )
 				AptPlugin.trace(
 						"generated resource change listener got a pre-close event: project = " + p.getName()); //$NON-NLS-1$
 			IJavaProject jp = JavaCore.create(p);
@@ -70,7 +70,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			// TODO:  need to update projectDeleted() to delete the generated_src folder
 			// in an async thread.  The resource tree is locked here.
 			IProject p = (IProject)event.getResource();
-			if( AptPlugin.DEBUG_GFM ) 
+			if( AptPlugin.DEBUG_GFM )
 				AptPlugin.trace(
 						"generated resource change listener got a pre-delete event: project = " + p.getName()); //$NON-NLS-1$
 			IJavaProject jp = JavaCore.create(p);
@@ -80,22 +80,22 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		else if ( event.getType() == IResourceChangeEvent.PRE_BUILD )
 		{
 			try
-			{ 
-				if( AptPlugin.DEBUG_GFM ) 
+			{
+				if( AptPlugin.DEBUG_GFM )
 					AptPlugin.trace("generated resource change listener got a pre-build event"); //$NON-NLS-1$
-				
+
 				final PreBuildVisitor pbv = new PreBuildVisitor();
-				
+
 				// First we need to handle previously deleted resources (from the post-change event),
 				// because we could not perform file i/o during that event
 				for (IResource resource : deletedResources) {
 					pbv.handleDeletion(resource);
 				}
-				
+
 				event.getDelta().accept( pbv );
 				addGeneratedSrcFolderTo(pbv.getProjectsThatNeedGenSrcFolder(), false);
 				addGeneratedSrcFolderTo(pbv.getProjectsThatNeedGenTestSrcFolder(), true);
-				
+
 				// Now clear the set of deleted resources,
 				// as we don't want to re-handle them
 				deletedResources.clear();
@@ -106,7 +106,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			}
 		}
 		else if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
-			if( AptPlugin.DEBUG_GFM ) 
+			if( AptPlugin.DEBUG_GFM )
 				AptPlugin.trace(
 						"generated resource change listener got a post-change event"); //$NON-NLS-1$
 			PostChangeVisitor pcv = new PostChangeVisitor();
@@ -118,19 +118,19 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			}
 		}
 	}
-	
+
 	private void addGeneratedSrcFolderTo(final Set<IProject> projs, boolean isTestCode){
-		
+
 		for(IProject proj : projs ){
 			final IJavaProject javaProj = JavaCore.create(proj);
 			if(javaProj.getProject().isOpen() && AptConfig.isEnabled(javaProj)){
 				final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager(isTestCode);
 				gsfm.ensureFolderExists();
-			}	
+			}
 		}
 
 	}
-	
+
 	/**
 	 * We need a post-change visitor, as there is a bug in the platform for
 	 * resource change notification -- some items will be reported *only* in the post-change event,
@@ -147,10 +147,10 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 				}
 				deletedResources.add(delta.getResource());
 			}
-			
+
 			return true;
 		}
-		
+
 	}
 
 	private class PreBuildVisitor implements IResourceDeltaVisitor
@@ -162,32 +162,32 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		// any projects that is closed or about to be deleted
 		private final Set<IProject> _removedProjects = new HashSet<>();
 		@Override
-		public boolean visit(IResourceDelta delta) throws CoreException 
+		public boolean visit(IResourceDelta delta) throws CoreException
 		{
 			IResource r = delta.getResource();
 			IProject project = r.getProject();
-			
-			if ( project == null ) 
+
+			if ( project == null )
 				return true;
-			
+
 			if( delta.getKind() == IResourceDelta.REMOVED ){
 				if (!deletedResources.contains(r)) {
 					handleDeletion(r);
 				}
 			}
 			else if( r instanceof IProject ){
-				final IProject proj = (IProject)delta.getResource();		
+				final IProject proj = (IProject)delta.getResource();
 				if( canUpdate(proj) ){
 					_addGenFolderTo.add(proj);
 					_addGenTestFolderTo.add(proj);
-				}				
+				}
 				else
 					_removedProjects.add(proj);
 			}
 
 			return true;
-		}	
-		
+		}
+
 		private void handleDeletion(IResource resource) throws CoreException {
 			if (AptPlugin.DEBUG_GFM) {
 				AptPlugin.trace("handleDeletion: resource = " + resource.getName()); //$NON-NLS-1$
@@ -200,9 +200,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 				IFile f = (IFile)resource;
 				gfm.fileDeleted(f);
 				aptProj.getGeneratedFileManager(true).fileDeleted(f);
-			}				
-			else if( resource instanceof IFolder ){			
-				IFolder f = (IFolder) resource;					
+			}
+			else if( resource instanceof IFolder ){
+				IFolder f = (IFolder) resource;
 				final GeneratedSourceFolderManager gsfm = aptProj.getGeneratedSourceFolderManager(false);
 				if ( gsfm.isGeneratedSourceFolder( f ) ){
 					gsfm.folderDeleted();
@@ -211,7 +211,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 						_addGenFolderTo.add(project);
 					}
 					// if the project is already closed or in the process of being
-					// deleted, will ignore this deletion since we cannot correct 
+					// deleted, will ignore this deletion since we cannot correct
 					// the classpath anyways.
 				}
 				final GeneratedSourceFolderManager testgsfm = aptProj.getGeneratedSourceFolderManager(true);
@@ -222,15 +222,15 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 						_addGenTestFolderTo.add(project);
 					}
 					// if the project is already closed or in the process of being
-					// deleted, will ignore this deletion since we cannot correct 
+					// deleted, will ignore this deletion since we cannot correct
 					// the classpath anyways.
 				}
 			}
-			else if( resource instanceof IProject ){	
+			else if( resource instanceof IProject ){
 				_removedProjects.add((IProject)resource);
 			}
 		}
-		
+
 		Set<IProject> getProjectsThatNeedGenSrcFolder(){
 			_addGenFolderTo.removeAll(_removedProjects);
 			return _addGenFolderTo;

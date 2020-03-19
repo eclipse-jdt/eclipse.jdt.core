@@ -77,7 +77,7 @@ public class Java12ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements5", null, "modules5", true);
 	}
-	@SuppressWarnings({ "rawtypes", "unchecked" }) 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea,
 				boolean processBinariesAgain) throws IOException {
 		if (!canRunJava12()) {
@@ -90,7 +90,7 @@ public class Java12ElementsTests extends TestCase {
 		} else {
 			BatchTestUtils.copyResource("mod_locations/" + resourceArea + "/" + testClass, targetFolder);
 		}
-		
+
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);

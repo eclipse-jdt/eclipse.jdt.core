@@ -105,7 +105,7 @@ public class JavaNames {
 		char[] className = CharArrayUtils.subarray(fieldDescriptor, separatorPosition + 1, fieldDescriptor.length - 1);
 		return className;
 	}
-	
+
 	/**
 	 * Converts a field descriptor to a java name. If fullyQualified is true, it returns a fully qualified class name.
 	 * If it is false, it returns a source name.

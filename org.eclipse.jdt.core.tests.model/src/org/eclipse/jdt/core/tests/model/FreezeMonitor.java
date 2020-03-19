@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.jobs.Job;
 
 public class FreezeMonitor {
 
-	private static /* @Nullable */ Job monitorJob;  
+	private static /* @Nullable */ Job monitorJob;
 
 	public static void expectCompletionIn(final long millis) {
 		done();

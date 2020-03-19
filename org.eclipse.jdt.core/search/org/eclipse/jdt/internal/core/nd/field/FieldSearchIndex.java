@@ -41,7 +41,7 @@ public class FieldSearchIndex<T extends NdNode> extends BaseField implements IDe
 			return 1;
 		}
 	};
- 
+
 	public static final class SearchCriteria {
 		private boolean matchCase = true;
 		private boolean isPrefix = false;

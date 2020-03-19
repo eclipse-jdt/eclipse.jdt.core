@@ -36,20 +36,20 @@ public class CompilationUnitHelper
 
 	/**
 	 * Update the contents of a working copy and commit it to disk.
-	 * @throws JavaModelException 
+	 * @throws JavaModelException
 	 */
 	public void commitNewContents(ICompilationUnit wc, String contents, IProgressMonitor monitor) throws JavaModelException {
 		IBuffer b = wc.getBuffer();
 		b.setContents(contents);
 		wc.commitWorkingCopy(true, monitor);
 	}
-	
+
 	/**
 	 * Get an in-memory working copy.  This does not create the type or package on disk.
 	 * <p>
 	 * The methods called by this routine are all read-only with respect to the resource
 	 * tree, so they do not require taking any scheduling locks.  Therefore we think
-	 * it's safe to call this method within a synchronized block. 
+	 * it's safe to call this method within a synchronized block.
 	 * @param typeName the fully qualified type name, e.g., "foo.Bar"
 	 * @param root the package fragment root within which the type will be created
 	 * @return a working copy that is ready to be modified.  The working copy may not
@@ -79,7 +79,7 @@ public class CompilationUnitHelper
 
 	/**
 	 * Discard a working copy, ie, remove it from memory. Each call to
-	 * {@link #getWorkingCopy(String typeName, IPackageFragmentRoot root)} 
+	 * {@link #getWorkingCopy(String typeName, IPackageFragmentRoot root)}
 	 * must be balanced with exactly one call to this method.
 	 */
 	public void discardWorkingCopy(ICompilationUnit wc)
@@ -94,10 +94,10 @@ public class CompilationUnitHelper
 			AptPlugin.log(e, "Unable to discard working copy: " + wc.getElementName()); //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
 	 * Update the contents of an existing working copy.
-	 * 
+	 *
 	 * @param contents
 	 *            the new text.
 	 * @param reconcile
@@ -136,7 +136,7 @@ public class CompilationUnitHelper
 
 	/**
 	 * Create a package fragment on disk.
-	 * @param pkgName the name of the package. 
+	 * @param pkgName the name of the package.
 	 * @param root the package fragment root under which to place the package.
 	 * @param progressMonitor
 	 * @return a package fragment, or null if there was an error.
@@ -149,7 +149,7 @@ public class CompilationUnitHelper
 		} catch (JavaModelException e) {
 			AptPlugin.log(e, "Unable to create package fragment for package " + pkgName); //$NON-NLS-1$
 		}
-		
+
 		return pkgFrag;
 	}
 
@@ -157,7 +157,7 @@ public class CompilationUnitHelper
 	 * Given a fully qualified type name, generate the package name and the local filename
 	 * including the extension. For instance, type name <code>foo.bar.Baz</code> is
 	 * turned into package <code>foo.bar</code> and filename <code>Baz.java</code>.
-	 * 
+	 *
 	 * @param qualifiedName
 	 *            a fully qualified type name
 	 * @return a String array containing {package name, filename}
@@ -170,7 +170,7 @@ public class CompilationUnitHelper
 		if ( idx > 0 )
 		{
 		    pkgName = qualifiedName.substring( 0, idx );
-		    fname = 
+		    fname =
 				qualifiedName.substring(idx + 1, qualifiedName.length()) + ".java"; //$NON-NLS-1$
 		}
 		else

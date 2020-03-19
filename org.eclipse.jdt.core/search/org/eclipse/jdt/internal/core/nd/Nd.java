@@ -171,7 +171,7 @@ public final class Nd {
 	}
 
 	/**
-	 * Inserts a cookie that can be later retrieved via getData(String). 
+	 * Inserts a cookie that can be later retrieved via getData(String).
 	 */
 	public <T> void setData(Class<T> key, T value) {
 		synchronized (this.cookies) {
@@ -711,7 +711,7 @@ public final class Nd {
 	}
 
 	/**
-	 * Creates a {@link IndexExceptionBuilder} object that collects information about database corruption after it is 
+	 * Creates a {@link IndexExceptionBuilder} object that collects information about database corruption after it is
 	 * detected.
 	 */
 	public IndexExceptionBuilder describeProblem() {

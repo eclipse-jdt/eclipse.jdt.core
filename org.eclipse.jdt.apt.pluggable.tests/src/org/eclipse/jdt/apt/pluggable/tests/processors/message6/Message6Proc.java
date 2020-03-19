@@ -55,7 +55,7 @@ public class Message6Proc extends AbstractProcessor {
 	 */
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
-			RoundEnvironment roundEnv) 
+			RoundEnvironment roundEnv)
 	{
 		if (!annotations.isEmpty()) {
 			round(annotations, roundEnv);

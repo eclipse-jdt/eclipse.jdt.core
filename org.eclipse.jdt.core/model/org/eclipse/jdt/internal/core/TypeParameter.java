@@ -40,28 +40,28 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		TypeParameterElementInfo info = (TypeParameterElementInfo) getElementInfo();
 		return CharOperation.toStrings(info.bounds);
 	}
-	
+
 	@Override
 	public String[] getBoundsSignatures() throws JavaModelException {
-		
+
 		String[] boundSignatures = null;
 		TypeParameterElementInfo info = (TypeParameterElementInfo) this.getElementInfo();
-		
+
 		// For a binary type or method, the signature is already available from the .class file.
 		// No need to construct again
 		if (this.parent instanceof BinaryMember) {
 			char[][] boundsSignatures = info.boundsSignatures;
 			if (boundsSignatures == null || boundsSignatures.length == 0) {
-				return CharOperation.NO_STRINGS;	
+				return CharOperation.NO_STRINGS;
 			}
 			return CharOperation.toStrings(info.boundsSignatures);
 		}
-		
+
 		char[][] bounds = info.bounds;
 		if (bounds == null || bounds.length == 0) {
 			return CharOperation.NO_STRINGS;
 		}
-	
+
 		int boundsLength = bounds.length;
 		boundSignatures = new String[boundsLength];
 		for (int i = 0; i < boundsLength; i++) {
@@ -69,7 +69,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 		}
 		return boundSignatures;
 	}
-	
+
 	@Override
 	public IMember getDeclaringMember() {
 		return (IMember) getParent();
@@ -89,18 +89,18 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	protected char getHandleMementoDelimiter() {
 		return JavaElement.JEM_TYPE_PARAMETER;
 	}
-	
+
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		StringBuilder buf = new StringBuilder();
 		if (this.parent instanceof IType) {
 			if (this.parent instanceof BinaryType)
 				buf.append(((BinaryType) this.parent).getKey(forceOpen));
-			else 
+			else
 				buf.append(((IType) this.parent).getKey());
 		} else if (this.parent instanceof IMember) {
 			if (this.parent instanceof BinaryMember)
 				buf.append(((BinaryMember) this.parent).getKey(forceOpen));
-			else 
+			else
 				buf.append(((IMethod) this.parent).getKey());
 		}
 		buf.append(":T"); //$NON-NLS-1$
@@ -145,7 +145,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	public IClassFile getClassFile() {
 		return ((JavaElement)getParent()).getClassFile();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @since 3.7

@@ -78,7 +78,7 @@ public class IrritantSet {
 
 	public static final IrritantSet JAVADOC = new IrritantSet(CompilerOptions.InvalidJavadoc);
 	public static final IrritantSet PREVIEW = new IrritantSet(CompilerOptions.PreviewFeatureUsed);
-	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default	
+	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default
 	public static final IrritantSet COMPILER_DEFAULT_WARNINGS = new IrritantSet(0); // see static initializer below
 	public static final IrritantSet COMPILER_DEFAULT_INFOS = new IrritantSet(0); // see static initializer below
 	static {
@@ -88,7 +88,7 @@ public class IrritantSet {
 			CompilerOptions.UnlikelyEqualsArgumentType
 			| CompilerOptions.SuppressWarningsNotAnalysed
 			| CompilerOptions.AnnotatedTypeArgumentToUnannotated);
-		
+
 		COMPILER_DEFAULT_WARNINGS
 			// group-0 warnings enabled by default
 			.set(
@@ -187,7 +187,7 @@ public class IrritantSet {
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$
 			UNCHECKED.set(CompilerOptions.RawTypeReference);
 		}
-		
+
 		JAVADOC
 			.set(CompilerOptions.MissingJavadocComments)
 			.set(CompilerOptions.MissingJavadocTags);
@@ -236,7 +236,7 @@ public class IrritantSet {
 
 	/**
 	 * Initialize a set of irritants in one group
-	 * 
+	 *
 	 * @param singleGroupIrritants
 	 */
 	public void initialize(int singleGroupIrritants) {
@@ -295,7 +295,7 @@ public class IrritantSet {
 
 	/**
 	 * Return updated irritantSet or null if it was a no-op
-	 * 
+	 *
 	 * @param other
 	 */
 	public IrritantSet set(IrritantSet other) {
@@ -313,7 +313,7 @@ public class IrritantSet {
 		}
 		return wasNoOp ? null : this;
 	}
-	
+
 	public IrritantSet setAll() {
 		for (int i = 0; i < GROUP_MAX; i++) {
 			this.bits[i] |= 0xFFFFFFFF & ~GROUP_MASK; // erase the group

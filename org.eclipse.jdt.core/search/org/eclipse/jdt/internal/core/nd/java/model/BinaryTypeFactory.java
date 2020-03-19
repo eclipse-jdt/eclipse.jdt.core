@@ -121,7 +121,7 @@ public class BinaryTypeFactory {
 	 * Reads the given binary type. If the type can be found in the index with a fingerprint that exactly matches
 	 * the file on disk, the type is read from the index. Otherwise the type is read from disk. Returns null if
 	 * no such type exists.
-	 * @throws ClassFormatException 
+	 * @throws ClassFormatException
 	 */
 	public static IBinaryType readType(BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
 
@@ -147,7 +147,7 @@ public class BinaryTypeFactory {
 	/**
 	 * Read the class file from disk, circumventing the index's cache. This should only be used by callers
 	 * that need to read information from the class file which aren't present in the index (such as method bodies).
-	 * 
+	 *
 	 * @return the newly-created ClassFileReader or null if the given class file does not exist.
 	 * @throws ClassFormatException if the class file existed but was corrupt
 	 * @throws JavaModelException if unable to read the class file due to a transient failure
@@ -210,7 +210,7 @@ public class BinaryTypeFactory {
 	 * able to determine that the requested class does not exist in that file.
 	 */
 	public static IBinaryType readFromIndex(JavaIndex index, BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, NotInIndexException {
-		// If the new index is enabled, check if we have this class file cached in the index already		
+		// If the new index is enabled, check if we have this class file cached in the index already
 		char[] fieldDescriptor = descriptor.fieldDescriptor;
 
 		Nd nd = index.getNd();

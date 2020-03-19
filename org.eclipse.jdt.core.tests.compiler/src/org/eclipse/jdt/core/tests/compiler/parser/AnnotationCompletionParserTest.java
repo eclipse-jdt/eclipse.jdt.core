@@ -3322,7 +3322,7 @@ public void test0087(){
 	String expectedReplacedSource = "foo";
 	String expectedUnitDisplayString =
 		"public class X {\n" +
-		"  @Annot(zzz = {<CompleteOnName:foo>})\n" + 
+		"  @Annot(zzz = {<CompleteOnName:foo>})\n" +
 		"  public X() {\n" +
 		"  }\n" +
 		"  void bar() {\n" +

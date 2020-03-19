@@ -42,12 +42,12 @@ import org.eclipse.jdt.internal.core.search.matching.ModulePattern;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexSelector {
-	
+
 	//TODO: Bug 386113: "Search references" and "Type hierarchy" show inconsistent results with "External Plug-in Libraries" project
 	public static final int PROJECT_CAN_SEE_FOCUS= 0;
 	public static final int PROJECT_SOURCE_CAN_NOT_SEE_FOCUS= 1;
 	public static final int PROJECT_CAN_NOT_SEE_FOCUS= 2;
-	
+
 	IJavaSearchScope searchScope;
 	SearchPattern pattern;
 	IndexLocation[] indexLocations; // cache of the keys for looking index up
@@ -216,7 +216,7 @@ private void initializeIndexLocations() {
 	} else {
 		try {
 			// See whether the state builder might be used to reduce the number of index locations
-		
+
 			// find the projects from projectsAndJars that see the focus then walk those projects looking for the jars from projectsAndJars
 			int length = projectsAndJars.length;
 			JavaProject[] projectsCanSeeFocus = new JavaProject[length];
@@ -329,7 +329,7 @@ private char[][][] getQualifiedNames(ObjectVector types) {
 		if (primaryType != null) {
 			focusQualifiedNames = new char[size+1][][];
 			focusQualifiedNames[index++] = CharOperation.splitOn('.', primaryType.getFullyQualifiedName().toCharArray());
-		} 
+		}
 	}
 	if (focusQualifiedNames == null) {
 		focusQualifiedNames = new char[size][][];

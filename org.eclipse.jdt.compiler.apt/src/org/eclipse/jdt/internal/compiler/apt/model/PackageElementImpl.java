@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2017 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -47,7 +47,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	PackageElementImpl(BaseProcessingEnvImpl env, PackageBinding binding) {
 		super(env, binding);
 	}
-	
+
 	@Override
 	public <R, P> R accept(ElementVisitor<R, P> v, P p)
 	{
@@ -76,7 +76,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		if (nameEnvironment instanceof FileSystem) {
 			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName);
 		}
-		HashSet<Element> set = new HashSet<>(); 
+		HashSet<Element> set = new HashSet<>();
 		Set<ReferenceBinding> types = new HashSet<>();
 		if (typeNames != null) {
 			for (char[][] typeName : typeNames) {

@@ -37,7 +37,7 @@ public class ComponentInfo extends ClassFileStruct implements IComponent, Compar
 
 public static ComponentInfo createComponent(byte classFileBytes[], int offsets[], int offset, long version) {
 	ComponentInfo componentInfo = new ComponentInfo(classFileBytes, offsets, offset, version);
-	
+
 	int attributesCount = componentInfo.u2At(4);
 	int readOffset = 6;
 	AnnotationInfo[] annotations = null;
@@ -90,7 +90,7 @@ public static ComponentInfo createComponent(byte classFileBytes[], int offsets[]
 		readOffset += (6 + componentInfo.u4At(readOffset + 2));
 	}
 	componentInfo.attributeBytes = readOffset;
-	
+
 	if (typeAnnotations != null)
 		return new ComponentInfoWithTypeAnnotation(componentInfo, annotations, typeAnnotations);
 	if (annotations != null)

@@ -71,7 +71,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		internalNamePropertyFactory(RecordDeclaration.class);
 
-	
+
 	/**
 	 * The "superInterfaceTypes" structural property of this node type (element type: {@link Type}).
 	 * @since 3.22
@@ -85,7 +85,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
-	
+
 	/**
 	 * The "recordComponents" structural property of this node type (element type: {@link SingleVariableDeclaration}).
 	 * @since 3.22
@@ -99,7 +99,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(RecordDeclaration.class);
-	
+
 
 	/**
 	 * A character index into the original restricted identifier source string,
@@ -195,7 +195,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * @since 3.22
 	 */
 	private ASTNode.NodeList superInterfaceTypes =  new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
-	
+
 	/**
 	 * The parameters (element type: {@link SingleVariableDeclaration}).
 	 * defaults to an empty list
@@ -203,7 +203,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * @since 3.22
 	 */
 	private ASTNode.NodeList recordComponents = new ASTNode.NodeList(RECORD_COMPONENTS_PROPERTY);
-	
+
 
 	/**
 	 * Creates a new AST node for a type declaration owned by the given
@@ -231,7 +231,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
-	
+
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
 		return propertyDescriptors(apiLevel, previewEnabled);
@@ -373,7 +373,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	public List superInterfaceTypes() {
 		return this.superInterfaceTypes;
 	}
-	
+
 	/**
 	 * Returns the live ordered list of recordComponents of record declaration.
 	 *

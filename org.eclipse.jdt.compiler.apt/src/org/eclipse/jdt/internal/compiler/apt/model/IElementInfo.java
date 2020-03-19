@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2011 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,13 +10,13 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 /**
- * Additional information available for Elements that are implemented 
+ * Additional information available for Elements that are implemented
  * within the Eclipse APT framework.
  * @see javax.lang.model.element.Element
  * @since 3.3

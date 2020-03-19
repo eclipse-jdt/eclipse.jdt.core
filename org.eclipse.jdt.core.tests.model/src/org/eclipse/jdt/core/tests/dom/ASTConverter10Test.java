@@ -32,7 +32,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 //	private static final String jcl9lib = "CONVERTER_JCL9_LIB";
-	
+
 
 	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
@@ -78,7 +78,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 				"	}\n" +
 				"}";
 			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
-			ASTNode node = buildAST(contents, this.workingCopy); 
+			ASTNode node = buildAST(contents, this.workingCopy);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			node = getASTNode((CompilationUnit)node, 0, 0);
 			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -136,7 +136,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 		String contents =
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
-				"		var list = new Y<String>();\n" + 
+				"		var list = new Y<String>();\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y<T> {}";
@@ -157,7 +157,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 		String contents =
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
-				"		var s = new Y();\n" + 
+				"		var s = new Y();\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {}";
@@ -185,8 +185,8 @@ public class ASTConverter10Test extends ConverterTestSetup {
 		String contents =
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
-				"for (var x= 10; x < 20; x++) {\n" + 
-				"		// do nothing\n" + 
+				"for (var x= 10; x < 20; x++) {\n" +
+				"		// do nothing\n" +
 				"	}\n" +
 				"}\n" +
 				"class Y {}";
@@ -219,22 +219,22 @@ public class ASTConverter10Test extends ConverterTestSetup {
 			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
 			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
-	
+
 			String srcFolderInWS = "/Converter10/src";
 			createFolder(srcFolderInWS + "/cardManager/");
-	
+
 			String srcFilePathInWS = srcFolderInWS + "/cardManager/CardManagerFragment.java";
-			createFile(srcFilePathInWS, 
-					"package cardManager;\n" + 
-					"\n" + 
-					"public class CardManagerFragment {\n" + 
-					"    private view.View i;\n" + 
-					"\n" + 
-					"    private <T> T a() {\n" + 
-					"        return this.i.findViewById(-1);\n" + 
-					"    }\n" + 
+			createFile(srcFilePathInWS,
+					"package cardManager;\n" +
+					"\n" +
+					"public class CardManagerFragment {\n" +
+					"    private view.View i;\n" +
+					"\n" +
+					"    private <T> T a() {\n" +
+					"        return this.i.findViewById(-1);\n" +
+					"    }\n" +
 					"}\n");
-	
+
 			jarPath = getWorkspacePath() + "Converter10/P.jar";
 			createJar(new String[] {
 				"view/View.java",
@@ -245,7 +245,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 				},
 				jarPath,
 				options);
-	
+
 			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS10);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(true);
@@ -253,7 +253,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 		    parser.setCompilerOptions(options);
 			parser.setEnvironment(new String[] {jarPath}, new String[] {getWorkspacePath() + srcFolderInWS}, null, true);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
-	
+
 			class MyFileASTRequestor extends FileASTRequestor {
 				boolean accepted = false;
 				@SuppressWarnings("synthetic-access")

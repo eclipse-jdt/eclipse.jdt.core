@@ -99,7 +99,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see junit.framework.TestCase#setUp()
 	 */
 

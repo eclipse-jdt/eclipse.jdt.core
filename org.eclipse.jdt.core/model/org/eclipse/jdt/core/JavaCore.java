@@ -109,7 +109,7 @@
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *     Karsten Thoms - Bug 532505 - Reduce memory footprint of ClasspathAccessRule
- *     
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.core;
@@ -611,7 +611,7 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Compiler option ID: Reporting Unused Type Parameter.
-	 * <p>When enabled, the compiler will issue an error or a warning whenever it encounters an 
+	 * <p>When enabled, the compiler will issue an error or a warning whenever it encounters an
 	 * unused type parameter. </p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedTypeParameter"</code></dd>
@@ -1183,7 +1183,7 @@ public final class JavaCore extends Plugin {
 	 * </dl>
 	 * @since 3.5
 	 * @category CompilerOptionID
-	 */	
+	 */
 	public static final String COMPILER_PB_DEAD_CODE_IN_TRIVIAL_IF_STATEMENT = PLUGIN_ID + ".compiler.problem.deadCodeInTrivialIfStatement"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Incomplete Enum Switch.
@@ -1219,7 +1219,7 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT = PLUGIN_ID + ".compiler.problem.missingEnumCaseDespiteDefault"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Missing Default Case In Switch.
-	 * <p>When enabled, the compiler will issue an error or a warning 
+	 * <p>When enabled, the compiler will issue an error or a warning
 	 * 		against each switch statement that lacks a default case.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingDefaultCase"</code></dd>
@@ -1378,7 +1378,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting Missing Javadoc Tags for Method Type Parameters.
 	 * <p>Specify whether a missing <code>@param</code> for a type parameter in a method declaration should be reported.
-	 *    When enabled, the compiler will issue a missing Javadoc tag error or warning for a type parameter without a 
+	 *    When enabled, the compiler will issue a missing Javadoc tag error or warning for a type parameter without a
 	 *    corresponding <code>@param</code> tag.</p>
 	 * <p>This option only has an effect if the compiler compliance is 1.5 or greater.</p>
 	 * <dl>
@@ -1513,7 +1513,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting a resource that is not closed properly.
 	 * <p>When enabled, the compiler will issue an error or a warning if
-	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
+	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7)
 	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.</p>
 	 * <dl>
@@ -1528,9 +1528,9 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting a resource that may not be closed properly.
 	 * <p>When enabled, the compiler will issue an error or a warning if
-	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7) 
+	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7)
 	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
-	 *    flow analysis shows that the method <code>close()</code> is 
+	 *    flow analysis shows that the method <code>close()</code> is
 	 *    not invoked locally on that value for all execution paths.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable"</code></dd>
@@ -1543,7 +1543,7 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE = PLUGIN_ID + ".compiler.problem.potentiallyUnclosedCloseable"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting a resource that is not managed by try-with-resources.
-	 * <p>When enabled, the compiler will issue an error or a warning if a local variable 
+	 * <p>When enabled, the compiler will issue an error or a warning if a local variable
 	 * 	  holds a value of type <code>java.lang.AutoCloseable</code>, and if the method
 	 *    <code>close()</code> is explicitly invoked on that resource, but the resource is
 	 *    not managed by a try-with-resources block.</p>
@@ -1594,7 +1594,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting a method invocation providing an argument of an unlikely type to method 'equals'.
 	 * <p>
-	 * When enabled, the compiler will issue an error or warning when {@link java.lang.Object#equals(Object)} is used with an argument type 
+	 * When enabled, the compiler will issue an error or warning when {@link java.lang.Object#equals(Object)} is used with an argument type
 	 * that seems to be not related to the receiver's type, or correspondingly when the arguments of {@link java.util.Objects#equals(Object, Object)}
 	 * have types that seem to be not related to each other.
 	 * </p>
@@ -1604,7 +1604,7 @@ public final class JavaCore extends Plugin {
 	 * <dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"info"</code></dd>
 	 * </dl>
-	 * 
+	 *
 	 * @since 3.13
 	 * @category CompilerOptionID
 	 */
@@ -1628,12 +1628,12 @@ public final class JavaCore extends Plugin {
 	 * <dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
-	 * 
+	 *
 	 * @since 3.14
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_API_LEAKS = PLUGIN_ID + ".compiler.problem.APILeak"; //$NON-NLS-1$
-	
+
 	/**
 	 * Compiler option ID: Reporting when a module requires an auto module with an unstable name.
 	 * <p>
@@ -1648,7 +1648,7 @@ public final class JavaCore extends Plugin {
 	 * <dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
-	 * 
+	 *
 	 * @since 3.14
 	 * @category CompilerOptionID
 	 */
@@ -1664,19 +1664,19 @@ public final class JavaCore extends Plugin {
 	 * <p>
 	 * When enabled, the compiler will issue an error, warning or info when a {@code @SuppressWarnings} annotation
 	 * was not observed to be necessary, but analysis of the suppressed group of problems was incomplete.
-	 *  
+	 *
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.suppressWarningsNotFullyAnalysed"</code></dd>
 	 * <dt>Possible values:</dt>
 	 * <dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"info"</code></dd>
 	 * </dl>
-	 * 
+	 *
 	 * @since 3.20
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_SUPPRESS_WARNINGS_NOT_FULLY_ANALYSED = PLUGIN_ID + ".compiler.problem.suppressWarningsNotFullyAnalysed"; //$NON-NLS-1$
-	
+
 	/**
 	 * Compiler option ID: Annotation-based Null Analysis.
 	 * <p>This option controls whether the compiler will use null annotations for
@@ -1840,7 +1840,7 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting missing default nullness annotation.
 	 * <p>When enabled, the compiler will issue an error or a warning in the following cases:</p>
 	 * <ul>
-	 * <li> When a package does not contain a default nullness annotation, as a result of missing package-info.java 
+	 * <li> When a package does not contain a default nullness annotation, as a result of missing package-info.java
 	 * or missing default nullness annotation in package-info.java.</li>
 	 * <li> When a type inside a default package does not contain a default nullness annotation.</li>
 	 * </ul>
@@ -1895,7 +1895,7 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_NULL_SPECIFICATION_VIOLATION = PLUGIN_ID + ".compiler.problem.nullSpecViolation"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Reporting conflicts between declared null annotation and inferred null value 
+	 * Compiler option ID: Reporting conflicts between declared null annotation and inferred null value
 	 * <p>When enabled, the compiler will issue an error or a warning whenever one of the
 	 *    following situations is detected:</p>
 	 *    <ol>
@@ -2010,7 +2010,7 @@ public final class JavaCore extends Plugin {
 	 *    after transitively applying inheritance and after applying any default nullness
 	 *    (see {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}) at the site of the overridden method.</p>
 	 * <p>If different implicit null annotations (from a nonnull default and/or overridden methods) are applicable
-	 *    to the same type in a method signature, this is flagged as an error 
+	 *    to the same type in a method signature, this is flagged as an error
 	 *    and an explicit null annotation must be used to disambiguate.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.inheritNullAnnotations"</code></dd>
@@ -2023,7 +2023,7 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_INHERIT_NULL_ANNOTATIONS = JavaCore.PLUGIN_ID+".compiler.annotation.inheritNullAnnotations"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Dropped Nonnull Parameter Annotations.
-	 * <p>When enabled, the compiler will issue an error or a warning against a parameter of 
+	 * <p>When enabled, the compiler will issue an error or a warning against a parameter of
 	 *    a method that overrides an inherited method
 	 *    if all of the following hold:</p>
 	 * <ul>
@@ -2036,7 +2036,7 @@ public final class JavaCore extends Plugin {
 	 *    because the compiler's null ananysis cannot decide wither <code>null</code> is or is not a legal value for this parameter.
 	 *    However, the annotation in the overridden method <em>suggests</em> that the parameter should also be annotated as non-null.
 	 *    If that is not intended or possible, it is recommended to annotate the parameter as nullable,
-	 *    in order to make this (legal) change of contract explicit.</p>   
+	 *    in order to make this (legal) change of contract explicit.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
@@ -2058,7 +2058,7 @@ public final class JavaCore extends Plugin {
 	 * </ul>
 	 * <p>This particular situation leverages the option to consistently substitute all occurrences of a type variable
 	 *  with a nonnull type, but it bears the risk that the library type may not be aware of null annotations thus lacking
-	 *  a necessary <code>@Nullable</code> annotation for a particular occurrence of a type variable.</p>   
+	 *  a necessary <code>@Nullable</code> annotation for a particular occurrence of a type variable.</p>
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled and when
 	 *  the configured set of null annotations declares the target <code>TYPE_USE</code></p>
 	 * <dl>
@@ -2130,7 +2130,7 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, the compiler will compile against the system libraries from release
 	 * of the specified compliance level</p>
 	 * <p>Setting this option sets the {@link #COMPILER_CODEGEN_TARGET_PLATFORM}) and {@link #COMPILER_SOURCE} to
-	 * the same level as the compiler compliance. This option is available to a project only when a supporting 
+	 * the same level as the compiler compliance. This option is available to a project only when a supporting
 	 * JDK is found in the project's build path</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.release"</code></dd>
@@ -2253,7 +2253,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Further Determining the Effect of <code>@SuppressWarnings</code> if also
 	 * {@link #COMPILER_PB_SUPPRESS_WARNINGS} is enabled.
-	 * <p>When enabled, the <code>@SuppressWarnings</code> annotation can additionally be used to suppress 
+	 * <p>When enabled, the <code>@SuppressWarnings</code> annotation can additionally be used to suppress
 	 * optional compiler diagnostics that have been configured as {@link #ERROR}.</p>
 	 * <p>When disabled, all <code>@SuppressWarnings</code> annotations only affects warnings.</p>
 	 * <dl>
@@ -2583,7 +2583,7 @@ public final class JavaCore extends Plugin {
 	 * Core option ID: Reporting an output location overlapping another source location.
 	 * <p> Indicate the severity of the problem reported when a source entry's output location overlaps another
 	 * source entry.</p>
-	 * 
+	 *
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.classpath.outputOverlappingAnotherSource"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
@@ -2595,9 +2595,9 @@ public final class JavaCore extends Plugin {
 
 	/**
 	 * Core option ID: Reporting if a project which has only main sources depends on a project with only test sources.
-	 * <p> Indicate the severity of the problem reported when a project that has one or more main source folders but 
+	 * <p> Indicate the severity of the problem reported when a project that has one or more main source folders but
 	 * no test source folders has a project on its build path that only has one or more test source folders, but no main source folders.</p>
-	 * 
+	 *
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.classpath.mainOnlyProjectHasTestOnlyDependency"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "ignore" }</code></dd>
@@ -3129,9 +3129,9 @@ public final class JavaCore extends Plugin {
 			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11, VERSION_12, VERSION_13, VERSION_14));
 
 	/**
-	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their 
+	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their
 	 * introduction. For e.g., {@link JavaCore#VERSION_1_8} appears before {@link JavaCore#VERSION_10}
-	 * 
+	 *
 	 * @return all available versions
 	 * @since 3.14
 	 */
@@ -3140,13 +3140,13 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Returns whether the given version of Java or Java Runtime is supported 
+	 * Returns whether the given version of Java or Java Runtime is supported
 	 * by the Java Development Toolkit.
-	 * 
+	 *
 	 * A true indicates that the given version is supported. For e.g., if the argument
-	 * is <code>11.0.1</code> and {@link #getAllVersions()} contains <code>11</code>, 
+	 * is <code>11.0.1</code> and {@link #getAllVersions()} contains <code>11</code>,
 	 * the method returns <code>true</code>.
-	 * 
+	 *
 	 * @return a boolean indicating support for the given version of Java or Java Runtime.
 	 * @since 3.16
 	 */
@@ -4827,7 +4827,7 @@ public final class JavaCore extends Plugin {
 	 *                     {@link IAccessRule#IGNORE_IF_BETTER}
 	 * @return a new access rule
 	 * @since 3.1
-	 * 
+	 *
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	public static IAccessRule newAccessRule(IPath filePattern, int kind) {
@@ -5108,7 +5108,7 @@ public final class JavaCore extends Plugin {
 	 * to the workspace root), or externally to the workspace (absolute path in the file system).
 	 * The target root folder can also be defined internally to the workspace (absolute path relative
 	 * to the workspace root), or - since 3.4 - externally to the workspace (absolute path in the file system).
-	 * Since 3.5, the path to the library can also be relative to the project using ".." as the first segment. 
+	 * Since 3.5, the path to the library can also be relative to the project using ".." as the first segment.
 	 * </p>
 	 * <p>
 	 * e.g. Here are some examples of binary path usage
@@ -5691,28 +5691,28 @@ public final class JavaCore extends Plugin {
 			false, // no access rules to combine
 			extraAttributes);
 	}
-	
+
 	/**
-	 * Returns an array of classpath entries that are referenced directly or indirectly 
-	 * by a given classpath entry. For the entry kind {@link IClasspathEntry#CPE_LIBRARY}, 
-	 * the method returns the libraries that are included in the Class-Path section of 
-	 * the MANIFEST.MF file. If a referenced JAR file has further references to other library 
-	 * entries, they are processed recursively and added to the list. For entry kinds other 
+	 * Returns an array of classpath entries that are referenced directly or indirectly
+	 * by a given classpath entry. For the entry kind {@link IClasspathEntry#CPE_LIBRARY},
+	 * the method returns the libraries that are included in the Class-Path section of
+	 * the MANIFEST.MF file. If a referenced JAR file has further references to other library
+	 * entries, they are processed recursively and added to the list. For entry kinds other
 	 * than {@link IClasspathEntry#CPE_LIBRARY}, this method returns an empty array.
-	 * <p> 
-	 * When a non-null project is passed, any additional attributes that may have been stored 
-	 * previously in the project's .classpath file are retrieved and populated in the 
+	 * <p>
+	 * When a non-null project is passed, any additional attributes that may have been stored
+	 * previously in the project's .classpath file are retrieved and populated in the
 	 * corresponding referenced entry. If the project is <code>null</code>, the raw referenced
-	 * entries are returned without any persisted attributes. 
-	 * For more details on storing referenced entries, see 
-	 * {@link IJavaProject#setRawClasspath(IClasspathEntry[], IClasspathEntry[], IPath, 
-	 * IProgressMonitor)}. 
+	 * entries are returned without any persisted attributes.
+	 * For more details on storing referenced entries, see
+	 * {@link IJavaProject#setRawClasspath(IClasspathEntry[], IClasspathEntry[], IPath,
+	 * IProgressMonitor)}.
 	 * </p>
-	 * 
-	 * @param libraryEntry the library entry whose referenced entries are sought 
+	 *
+	 * @param libraryEntry the library entry whose referenced entries are sought
 	 * @param project project where the persisted referenced entries to be retrieved from. If <code>null</code>
 	 * 			persisted attributes are not attempted to be retrieved.
-	 * @return an array of classpath entries that are referenced directly or indirectly by the given entry. 
+	 * @return an array of classpath entries that are referenced directly or indirectly by the given entry.
 	 * 			If not applicable, returns an empty array.
 	 * @since 3.6
 	 */
@@ -5804,10 +5804,10 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Deletes the index, then rebuilds any portions of the index that are
 	 * currently needed by the workspace.
-	 * 
+	 *
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting and cancellation are not desired
-	 * @throws CoreException 
+	 * @throws CoreException
 	 * @since 3.13
 	 */
 	public static void rebuildIndex(IProgressMonitor monitor) throws CoreException {
@@ -5993,7 +5993,7 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Sets the value of the given classpath variable.
 	 * The path must not be null.
-	 * Since 3.5, the path to a library can also be relative to the project using ".." as the first segment. 
+	 * Since 3.5, the path to a library can also be relative to the project using ".." as the first segment.
 	 * <p>
 	 * This functionality cannot be used while the resource tree is locked.
 	 * </p>
@@ -6222,10 +6222,10 @@ public final class JavaCore extends Plugin {
 		return Long.compare(CompilerOptions.versionToJdkLevel(first), CompilerOptions.versionToJdkLevel(second));
 	}
 	/**
-	 * Returns an array of module names referenced by this project indirectly. 
-	 * This is a helper method that can be used to construct a Java module 
-	 * description of an existing project. The referenced modules can either be 
-	 * system modules or user modules found in project build path in the form of 
+	 * Returns an array of module names referenced by this project indirectly.
+	 * This is a helper method that can be used to construct a Java module
+	 * description of an existing project. The referenced modules can either be
+	 * system modules or user modules found in project build path in the form of
 	 * libraries.
 	 * The prerequisites for this to be effective are:
 	 * <ul>
@@ -6244,14 +6244,14 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Returns the <code>IModuleDescription</code> that the given java element contains 
+	 * Returns the <code>IModuleDescription</code> that the given java element contains
 	 * when regarded as an automatic module. The element must be an <code>IPackageFragmentRoot</code>
 	 * or an <code>IJavaProject</code>.
-	 * 
+	 *
 	 * <p>The returned module descriptor has a name (<code>getElementName()</code>) following
 	 * the specification of <code>java.lang.module.ModuleFinder.of(Path...)</code>, but it
 	 * contains no other useful information.</p>
-	 * 
+	 *
 	 * @return the <code>IModuleDescription</code> representing this java element as an automatic module,
 	 * 		never <code>null</code>.
 	 * @throws JavaModelException
@@ -6303,7 +6303,7 @@ public final class JavaCore extends Plugin {
 	 * @param module handle for the <code>module-info.java</code> file to be compiled.
 	 * @param classFileAttributes map of attribute names and values to be used during class file generation
 	 * @return the compiled byte code
-	 * 
+	 *
 	 * @throws JavaModelException
 	 * @throws IllegalArgumentException if the map of classFileAttributes contains an unsupported key.
 	 * @since 3.14
@@ -6318,7 +6318,7 @@ public final class JavaCore extends Plugin {
 	 * Returns the module name computed for a jar. If the file is a jar and contains a module-info.class, the name
 	 * specified in it is used, otherwise, the algorithm for automatic module naming is used, which first looks for a
 	 * module name in the Manifest.MF and as last resort computes it from the file name.
-	 * 
+	 *
 	 * @param file the jar to examine
 	 * @return null if file is not a file, otherwise the module name.
 	 * @since 3.14
@@ -6346,11 +6346,11 @@ public final class JavaCore extends Plugin {
 		}
 		return new String(moduleName);
 	}
-	
+
 	/**
 	 * Returns the names of the modules required by the module-info.class in the jar. If the file is not jar or a jar
 	 * that has no module-info.class is present, the empty set is returned.
-	 * 
+	 *
 	 * @param file the jar to examine
 	 * @return set of module names.
 	 * @since 3.14

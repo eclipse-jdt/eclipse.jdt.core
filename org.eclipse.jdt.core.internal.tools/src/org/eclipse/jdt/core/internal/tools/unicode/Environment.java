@@ -20,7 +20,7 @@ public abstract class Environment {
 	 * @return <code>true</code> if the given category is a valid one for the current environment, <code>false</code> otherwise.
 	 */
 	public abstract boolean hasCategory(String value);
-	
+
 	/**
 	 * Returns the resource file name for the given environment.
 	 * @return the resource file name for the given environment.

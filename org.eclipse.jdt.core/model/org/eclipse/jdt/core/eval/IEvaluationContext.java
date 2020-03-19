@@ -178,7 +178,7 @@ public interface IEvaluationContext {
 		int position,
 		CompletionRequestor requestor)
 		throws JavaModelException;
-	
+
 	/**
 	 * Performs a code completion at the given position in the given code snippet,
 	 * reporting results to the given completion requestor.
@@ -189,7 +189,7 @@ public interface IEvaluationContext {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
-	 * 
+	 *
 	 * <pre>
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
@@ -224,7 +224,7 @@ public interface IEvaluationContext {
 		CompletionRequestor requestor,
 		IProgressMonitor monitor)
 		throws JavaModelException;
-	
+
 	/**
 	 * Performs a code completion at the given position in the given code snippet,
 	 * reporting results to the given completion requestor.
@@ -258,7 +258,7 @@ public interface IEvaluationContext {
 		CompletionRequestor requestor,
 		WorkingCopyOwner owner)
 		throws JavaModelException;
-	
+
 	/**
 	 * Performs a code completion at the given position in the given code snippet,
 	 * reporting results to the given completion requestor.
@@ -276,7 +276,7 @@ public interface IEvaluationContext {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
-	 * 
+	 *
 	 * <pre>
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
@@ -313,7 +313,7 @@ public interface IEvaluationContext {
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor)
 		throws JavaModelException;
-	
+
 	/**
 	 * Resolves and returns a collection of Java elements corresponding to the source
 	 * code at the given positions in the given code snippet.

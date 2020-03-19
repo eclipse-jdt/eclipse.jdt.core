@@ -186,7 +186,7 @@ protected void addModuleNames(char[] modNames) {
 	final String explicit_unnamed = new String(IJavaSearchConstants.ALL_UNNAMED);
 	String[] names = new String(modNames).split(String.valueOf(CharOperation.COMMA_SEPARATOR));
 	int len = names.length;
-	if (this.allowModuleRegex && len > 0 && names[0] != null && names[0].length() > 0 
+	if (this.allowModuleRegex && len > 0 && names[0] != null && names[0].length() > 0
 			&& names[0].charAt(0) == IIndexConstants.ZERO_CHAR) { //pattern
 		names[0] = names[0].substring(1);
 		this.modulePatterns = new Pattern[len];

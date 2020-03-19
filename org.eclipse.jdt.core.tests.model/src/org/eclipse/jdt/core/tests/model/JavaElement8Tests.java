@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.SourceMethod;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class JavaElement8Tests extends AbstractJavaModelTests { 
+public class JavaElement8Tests extends AbstractJavaModelTests {
 
 	static {
 //		TESTS_NAMES = new String[] {"testBug428178"};
@@ -93,9 +93,9 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					 "		System.out.println(\"Hello\");\n" +
 					 "	}\n" +
 					 "}";
-			addLibrary(project, 
-							"lib.jar", 
-							"src.zip", new 
+			addLibrary(project,
+							"lib.jar",
+							"src.zip", new
 							String[] {"p/Test.java", fileContent},
 							JavaCore.VERSION_1_8);
 				IType type = getPackageFragmentRoot("Bug428178", "lib.jar").getPackageFragment("p").getOrdinaryClassFile("Test.class").getType();
@@ -116,8 +116,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					 "	static void main(String[] args) {\n" +
 					 "		I i = (x) -> {};\n" +
 					 "	}\n" +
-					 "}\n" + 
-					 "interface I {\n" + 
+					 "}\n" +
+					 "interface I {\n" +
 					 "  public void foo(int x);\n" +
 					 "}";
 			createFolder("/Bug429641/src/p");
@@ -143,8 +143,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					 "	static void main(String[] args) {\n" +
 					 "		I i = (x) -> {};\n" +
 					 "	}\n" +
-					 "}\n" + 
-					 "interface I {\n" + 
+					 "}\n" +
+					 "interface I {\n" +
 					 "  public void foo(int x);\n" +
 					 "}";
 			createFolder("/Bug429641/src/p");
@@ -166,7 +166,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug429948", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface Supplier<T> {\n" +
 					"    T get();\n" +
 					"}\n" +
@@ -192,9 +192,9 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IType type = getCompilationUnit("/Bug429948/src/X.java").getType("X");
 			ITypeHierarchy h = type.newSupertypeHierarchy(null);
 			assertHierarchyEquals(
-					"Focus: X [in X.java [in <default> [in src [in Bug429948]]]]\n" + 
-					"Super types:\n" + 
-					"  Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]\n" + 
+					"Focus: X [in X.java [in <default> [in src [in Bug429948]]]]\n" +
+					"Super types:\n" +
+					"  Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]\n" +
 					"Sub types:\n",
 					h);
 		}
@@ -207,7 +207,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug429948", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface Supplier<T> {\n" +
 					"    T get();\n" +
 					"}\n" +
@@ -237,9 +237,9 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IType type = getCompilationUnit("/Bug429948/src/X.java").getType("X");
 			ITypeHierarchy h = type.newSupertypeHierarchy(null);
 			assertHierarchyEquals(
-					"Focus: X [in X.java [in <default> [in src [in Bug429948]]]]\n" + 
-					"Super types:\n" + 
-					"  Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]\n" + 
+					"Focus: X [in X.java [in <default> [in src [in Bug429948]]]]\n" +
+					"Super types:\n" +
+					"  Object [in Object.class [in java.lang [in "+ getExternalPath() + "jclMin1.8.jar]]]\n" +
 					"Sub types:\n",
 					h);
 		}
@@ -253,7 +253,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface Supplier<T> {\n" +
 					"    T get();\n" +
 					"}\n" +
@@ -283,10 +283,10 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IType type = getCompilationUnit(fileName).getType("Runnable");
 			ITypeHierarchy h = type.newTypeHierarchy(null);
 			assertHierarchyEquals(
-					"Focus: Runnable [in X.java [in <default> [in src [in Bug429966]]]]\n" + 
-					"Super types:\n" + 
-					"Sub types:\n" + 
-					"  <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]\n" + 
+					"Focus: Runnable [in X.java [in <default> [in src [in Bug429966]]]]\n" +
+					"Super types:\n" +
+					"Sub types:\n" +
+					"  <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]\n" +
 					"  <lambda #1> [in run() [in <lambda #1> [in get() [in <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug429966]]]]]]]]]]\n",
 					h);
 		}
@@ -305,8 +305,8 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					 "	static void main(String[] args) {\n" +
 					 "		I<String> i = (x) -> {};\n" +
 					 "	}\n" +
-					 "}\n" + 
-					 "interface I<T> {\n" + 
+					 "}\n" +
+					 "interface I<T> {\n" +
 					 "  public void foo(List<T> x);\n" +
 					 "}";
 			createFolder("/Bug429910/src/p");
@@ -366,7 +366,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface MyFunction<T, R> {\n" +
 					"    R apply(T t);\n" +
 					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
@@ -375,7 +375,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"}\n";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
-			
+
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("v");
 			IJavaElement[] elements = unit.codeSelect(start, 1);
@@ -391,7 +391,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface MyFunction<T, R> {\n" +
 					"    R apply(T t);\n" +
 					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
@@ -400,7 +400,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"}\n";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
-			
+
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("v");
 			IJavaElement[] elements = unit.codeSelect(start, 1);
@@ -410,9 +410,9 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			deleteProject(projectName);
 		}
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430033, [1.8][model] Lambda elements missing in ancestry for binary elements 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430033, [1.8][model] Lambda elements missing in ancestry for binary elements
 	public void test430033() throws CoreException, IOException {
-		
+
 		String jarName = "Elements.jar";
 		String srcName = "Elements_src.zip";
 		String projectName = "Bug430033";
@@ -420,7 +420,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-		
+
 			String[] pathAndContents = new String[] {
 					"IntPredicate.java",
 					"public interface IntPredicate {\n" +
@@ -430,12 +430,12 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"    }\n" +
 					"}\n"
 				};
-			
+
 				HashMap libraryOptions = new HashMap(project.getOptions(true));
 				libraryOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 				addLibrary(project, jarName, srcName, pathAndContents, JavaCore.VERSION_1_8, libraryOptions);
-				
-				
+
+
 			IPackageFragmentRoot[] packageFragmentRoots = project.getPackageFragmentRoots();
 			IPackageFragment packageFragment = packageFragmentRoots[2].getPackageFragment("");
 			IClassFile classFile = packageFragment.getClassFile("IntPredicate.class");
@@ -454,7 +454,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug430141", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 							"interface I {\n" +
 							"	void doit();\n" +
 							"}\n" +
@@ -470,10 +470,10 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IType type = getCompilationUnit("/Bug430141/src/X.java").getType("I");
 			ITypeHierarchy h = type.newTypeHierarchy(null);
 			assertHierarchyEquals(
-							"Focus: I [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
-							"Super types:\n" + 
-							"Sub types:\n" + 
-							"  J [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
+							"Focus: I [in X.java [in <default> [in src [in Bug430141]]]]\n" +
+							"Super types:\n" +
+							"Sub types:\n" +
+							"  J [in X.java [in <default> [in src [in Bug430141]]]]\n" +
 							"    <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
 					h);
 		}
@@ -486,7 +486,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Bug430141", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 							"interface I {\n" +
 							"	void doit();\n" +
 							"}\n" +
@@ -502,10 +502,10 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IType type = getCompilationUnit("/Bug430141/src/X.java").getType("J");
 			ITypeHierarchy h = type.newTypeHierarchy(null);
 			assertHierarchyEquals(
-					"Focus: J [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
-							"Super types:\n" + 
-							"  I [in X.java [in <default> [in src [in Bug430141]]]]\n" + 
-							"Sub types:\n" + 
+					"Focus: J [in X.java [in <default> [in src [in Bug430141]]]]\n" +
+							"Super types:\n" +
+							"  I [in X.java [in <default> [in src [in Bug430141]]]]\n" +
+							"Sub types:\n" +
 							"  <lambda #1> [in main(String[]) [in X [in X.java [in <default> [in src [in Bug430141]]]]]]\n",
 					h);
 		}
@@ -519,7 +519,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface MyFunction<T, R> {\n" +
 					"    R apply(T t);\n" +
 					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
@@ -528,7 +528,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"}\n";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
-			
+
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("v");
 			IJavaElement[] elements = unit.codeSelect(start, 1);
@@ -550,7 +550,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"public interface X<T> {\n" +
 					"    default void asIntStream() {\n" +
 					"    	mapToInt((long l) -> (int) l);" +
@@ -561,7 +561,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"}\n";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
-			
+
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("l)");
 			IJavaElement[] elements = unit.codeSelect(start, 1);
@@ -608,7 +608,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.open(null);
-			String fileContent = 
+			String fileContent =
 					"interface MyFunction<T, R> {\n" +
 					"    R apply(T t);\n" +
 					"    default <V> MyFunction<V, R> compose(MyFunction<? super V, ? extends T> before) {\n" +
@@ -617,7 +617,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 					"}\n";
 			String fileName = "/" + projectName + "/src/X.java";
 			createFile(fileName, fileContent);
-			
+
 			ICompilationUnit unit = getCompilationUnit(fileName);
 			int start = fileContent.indexOf("v");
 			IJavaElement[] elements = unit.codeSelect(start, 1);

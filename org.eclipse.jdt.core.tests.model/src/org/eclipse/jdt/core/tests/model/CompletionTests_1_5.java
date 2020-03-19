@@ -4384,7 +4384,7 @@ public void test0154() throws JavaModelException {
 				"expectedTypesKeys={I}",
 				result.context);
 
-		assertResults(				
+		assertResults(
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0154, Ltest0154.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZClass[TYPE_REF]{ZZClass, test0154, Ltest0154.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"zzint[FIELD_REF]{zzint, Ltest0154.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
@@ -11994,7 +11994,7 @@ public void test0374() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106821
 public void test0375() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
-	
+
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;\n"+
@@ -12027,20 +12027,20 @@ public void test0375() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114116
 public void test0376() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
-	
+
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;\n"+
 		"public class Test {\n"+
 		"        MyCollection<String> \n"+
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/MyCollection.java",
 		"package test;\n"+
 		"public abstract class MyCollection<T> implements java.util.Collection<T> {\n"+
 		"}");
-	
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "MyCollection<String> ";
@@ -12056,20 +12056,20 @@ public void test0376() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114116
 public void test0377() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
-	
+
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;\n"+
 		"public class Test {\n"+
 		"        MyCollection \n"+
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/MyCollection.java",
 		"package test;\n"+
 		"public abstract class MyCollection<T> implements java.util.Collection<T> {\n"+
 		"}");
-	
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "MyCollection ";
@@ -12084,20 +12084,20 @@ public void test0377() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114116
 public void test0378() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
-	
+
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/Test.java",
 		"package test;\n"+
 		"public class Test {\n"+
 		"        MyCollection<String, String> \n"+
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src/test/MyCollection.java",
 		"package test;\n"+
 		"public abstract class MyCollection<T, U> implements java.util.Collection<T> {\n"+
 		"}");
-	
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "MyCollection<String, String> ";
@@ -13588,7 +13588,7 @@ public void testCompletionOnExtends4() throws JavaModelException {
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246832
- * To test whether camel case completion works for imported static methods 
+ * To test whether camel case completion works for imported static methods
  */
 public void testCamelCaseStaticMethodImport() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
@@ -13603,7 +13603,7 @@ public void testCamelCaseStaticMethodImport() throws JavaModelException {
 				"package a;\n" +
 				"public class A{\n" +
 				"public static void testMethodWithLongName(){}\n" +
-				"public static void testMethodWithLongName2(){}\n" +				
+				"public static void testMethodWithLongName2(){}\n" +
 				"}}");
 
 		this.workingCopies[1] = getWorkingCopy(
@@ -13613,7 +13613,7 @@ public void testCamelCaseStaticMethodImport() throws JavaModelException {
 				"public void b() {\n" +
 				"tMWLN \n" +
 				"}}");
-		
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(
 				true);
 		String str = this.workingCopies[1].getSource();
@@ -13623,7 +13623,7 @@ public void testCamelCaseStaticMethodImport() throws JavaModelException {
 
 			assertResults(
 					"testMethodWithLongName[METHOD_REF]{testMethodWithLongName(), La.A;, ()V, testMethodWithLongName, null, " +
-					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}", 
+					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 					requestor.getResults());
 	} finally {
 		JavaCore.setOptions(this.oldOptions);
@@ -13631,7 +13631,7 @@ public void testCamelCaseStaticMethodImport() throws JavaModelException {
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
- * to test that the methods with Boxed/unboxed return types get higher relevance than the ones that return void  
+ * to test that the methods with Boxed/unboxed return types get higher relevance than the ones that return void
  */
 public void testCompletionWithUnboxing() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
@@ -13668,12 +13668,12 @@ public void testCompletionWithUnboxing() throws JavaModelException {
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()I, myMethod3, null, " +
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());	
+			requestor.getResults());
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
- * Additional tests for bug 84720  
- * 
+ * Additional tests for bug 84720
+ *
  * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273991 also
  */
 public void testCompletionWithUnboxing_1() throws JavaModelException {
@@ -13701,7 +13701,7 @@ public void testCompletionWithUnboxing_1() throws JavaModelException {
 			"package java.lang;\n" +
 			"public class Float {\n" +
 			"}");
-	
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 
 	String str = this.workingCopies[0].getSource();
@@ -13720,11 +13720,11 @@ public void testCompletionWithUnboxing_1() throws JavaModelException {
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myMethod3[METHOD_REF]{myMethod3(), Ltest.C;, ()Ljava.lang.Long;, myMethod3, null, " +
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}" ,
-			requestor.getResults());	
+			requestor.getResults());
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
- * Additional tests for bug 84720  
+ * Additional tests for bug 84720
  */
 public void testCompletionWithUnboxing_2() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[2];
@@ -13740,7 +13740,7 @@ public void testCompletionWithUnboxing_2() throws JavaModelException {
 			"	if(myVar \n" +
 			"}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src3/java/lang/Test.java",
 			"package java.lang;\n" +
@@ -13762,7 +13762,7 @@ public void testCompletionWithUnboxing_2() throws JavaModelException {
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"myVariable3[FIELD_REF]{myVariable3, Ltest.C;, Z, myVariable3, null, " +
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
-			requestor.getResults());	
+			requestor.getResults());
 }
 //bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=274466
 //Check for boolean methods with higher relevance in assert statement's conditional part
@@ -13773,7 +13773,7 @@ public void test274466() throws JavaModelException {
 			"package test;" +
 			"public class Test274466 {\n" +
 			"	boolean methodReturningBoolean() { return true; }\n" +
-			"	Boolean methodReturningBooleanB() { return true; }\n" +			
+			"	Boolean methodReturningBooleanB() { return true; }\n" +
 			"   void methodReturningBlah() { return; }\n" +
 			"	int foo(int p) {\n" +
 			"     assert methodR : \"Exception Message\";" +
@@ -13784,7 +13784,7 @@ public void test274466() throws JavaModelException {
 			"package java.lang;\n" +
 			"public class Boolean {\n" +
 			"}");
-	
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "methodR";
@@ -13792,13 +13792,13 @@ public void test274466() throws JavaModelException {
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test274466;, ()V, methodReturningBlah, " + 
+			"methodReturningBlah[METHOD_REF]{methodReturningBlah(), Ltest.Test274466;, ()V, methodReturningBlah, " +
 					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_VOID + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"methodReturningBooleanB[METHOD_REF]{methodReturningBooleanB(), Ltest.Test274466;, ()Ljava.lang.Boolean;, methodReturningBooleanB, " + 
+			"methodReturningBooleanB[METHOD_REF]{methodReturningBooleanB(), Ltest.Test274466;, ()Ljava.lang.Boolean;, methodReturningBooleanB, " +
 					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXPECTED_TYPE + R_NON_RESTRICTED) + "}\n" +
-			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test274466;, ()Z, methodReturningBoolean, " + 
+			"methodReturningBoolean[METHOD_REF]{methodReturningBoolean(), Ltest.Test274466;, ()Z, methodReturningBoolean, " +
 					(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) + "}",
-			requestor.getResults());	
+			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=307486
 public void testLabel() throws JavaModelException {
@@ -13809,9 +13809,9 @@ public void testLabel() throws JavaModelException {
 		"public class Test {\n" +
 		"  void foo() {\n" +
 		"    \ud842\udf9fabc :\n" +
-		"    while (true) {\n" + 
-		"        break \ud842\udf9fabc;\n" + 
-		"    }\n" + 
+		"    while (true) {\n" +
+		"        break \ud842\udf9fabc;\n" +
+		"    }\n" +
 		"  }\n" +
 		"}\n");
 
@@ -13894,9 +13894,9 @@ public void testBug343865a() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-		"name[ANNOTATION_ATTRIBUTE_REF]{name = , Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " + 
+		"name[ANNOTATION_ATTRIBUTE_REF]{name = , Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " +
 						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-		"val[ANNOTATION_ATTRIBUTE_REF]{val = , Ltestxxx.YAAnnot;, I, val, null, " + 
+		"val[ANNOTATION_ATTRIBUTE_REF]{val = , Ltestxxx.YAAnnot;, I, val, null, " +
 						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 		requestor.getResults());
 }
@@ -13916,11 +13916,11 @@ public void testBug343865b() throws JavaModelException {
 			"expectedTypesSignatures={Ljava.lang.String;}\n" +
 			"expectedTypesKeys={Ljava/lang/String;}",
 			requestor.getContext());
-	
+
 	assertResults(
-		"xxyy[FIELD_REF]{xxyy, Ltestxxx.TestType2;, I, xxyy, null, " + 
+		"xxyy[FIELD_REF]{xxyy, Ltestxxx.TestType2;, I, xxyy, null, " +
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-		"xxyy1[FIELD_REF]{xxyy1, Ltestxxx.TestType2;, Ljava.lang.String;, xxyy1, null, " + 
+		"xxyy1[FIELD_REF]{xxyy1, Ltestxxx.TestType2;, Ljava.lang.String;, xxyy1, null, " +
 				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 		requestor.getResults());
 }
@@ -13944,7 +13944,7 @@ public void testBug351426() throws JavaModelException {
 
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
@@ -13973,7 +13973,7 @@ public void testBug351426b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
@@ -14004,7 +14004,7 @@ public void testBug351426c() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>.X1<Ljava/lang/String;>;}",
@@ -14037,7 +14037,7 @@ public void testBug351426d() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.Object;>.X11<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>.X1<Ljava/lang/Object;>.X11<Ljava/lang/String;>;}",
@@ -14069,7 +14069,7 @@ public void testBug351426e() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X$X1<Ljava/lang/String;>;}",
@@ -14099,7 +14099,7 @@ public void testBug351426f() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
@@ -14130,7 +14130,7 @@ public void testBug351426g() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<TT;>.X1<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ltest/X;:TT;>.X1<Ljava/lang/String;>;}",
@@ -14161,7 +14161,7 @@ public void testBug351426h() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X$X1<Ljava/lang/String;>;}",
@@ -14189,7 +14189,7 @@ public void testBug351426i() throws JavaModelException {
 
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;>;}",
@@ -14221,7 +14221,7 @@ public void testBug351426j() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X$X1<Ljava/lang/String;>;}",
@@ -14251,7 +14251,7 @@ public void testBug351426k() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X<Ljava/lang/String;Ljava/lang/String;>;}",
@@ -14286,7 +14286,7 @@ public void testBug351426l() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
-	
+
 	assertResults(
 			"expectedTypesSignatures={Ltest.X1<Ljava.lang.String;>;}\n" +
 			"expectedTypesKeys={Ltest/X1<Ljava/lang/String;>;}",
@@ -14497,26 +14497,26 @@ public void testBug525421() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/Complete.java",
-		"class List<T> {\n" + 
-		"}\n" + 
-		"\n" + 
-		"enum Flag {\n" + 
-		"	YES, NO;\n" + 
-		"}\n" + 
-		"\n" + 
-		"public class Complete {\n" + 
-		"	private <T> List<T> emptyList() {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	static boolean f(List<String> generic, Flag e) {\n" + 
-		"		return generic != null && e == Flag.YES;\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	void fails() {\n" + 
-		"		f(emptyList(), Y);\n" + 
-		"	}\n" + 
-		"}\n" + 
+		"class List<T> {\n" +
+		"}\n" +
+		"\n" +
+		"enum Flag {\n" +
+		"	YES, NO;\n" +
+		"}\n" +
+		"\n" +
+		"public class Complete {\n" +
+		"	private <T> List<T> emptyList() {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"\n" +
+		"	static boolean f(List<String> generic, Flag e) {\n" +
+		"		return generic != null && e == Flag.YES;\n" +
+		"	}\n" +
+		"\n" +
+		"	void fails() {\n" +
+		"		f(emptyList(), Y);\n" +
+		"	}\n" +
+		"}\n" +
 		"");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -14526,7 +14526,7 @@ public void testBug525421() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"YES[FIELD_REF]{Flag.YES, LFlag;, LFlag;, YES, null, 104}", 
+			"YES[FIELD_REF]{Flag.YES, LFlag;, LFlag;, YES, null, 104}",
 			requestor.getResults());
 }
 
@@ -14557,7 +14557,7 @@ public void testBug526590() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
+			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" +
 			"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
@@ -14589,7 +14589,7 @@ public void testBug526590b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
+			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" +
 			"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
@@ -14599,11 +14599,11 @@ public void test536983() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/SingleLineForEach.java",
-			"package test;\n" +	
+			"package test;\n" +
 			 		"public class SingleLineForEach {\n" +
-			 		"	private void meth() {	\n" +	
+			 		"	private void meth() {	\n" +
 			 		"	Object[] f= {new Object(), new Object() };\n" +
-			 		"	for (Object abc : f) abc.\n" +	 		
+			 		"	for (Object abc : f) abc.\n" +
 			 		"}\n" +
 			 		"}\n");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);

@@ -88,7 +88,7 @@ public class UnconditionalFlowInfo extends FlowInfo {
 		1110	prot. null
 		1111	prot. non null
  */
-	public long 
+	public long
 		iNBit,	// can an incoming null value reach the current point?
 		iNNBit;	// can an incoming nonnull value reach the current point?
 
@@ -110,12 +110,12 @@ public class UnconditionalFlowInfo extends FlowInfo {
 	public static final int IN = 6;
 	public static final int INN = 7;
 
-/* fakeInitializedFlowInfo: For Lambda expressions tentative analysis during overload resolution. 
-   We presume that any and all outer locals touched by the lambda are definitely assigned and 
+/* fakeInitializedFlowInfo: For Lambda expressions tentative analysis during overload resolution.
+   We presume that any and all outer locals touched by the lambda are definitely assigned and
    effectively final. Whether they are or not is immaterial for overload analysis (errors encountered
-   in the body are not supposed to influence the resolution. It is pertinent only for the eventual 
+   in the body are not supposed to influence the resolution. It is pertinent only for the eventual
    resolution/analysis post overload resolution. For lambda's the problem is that we start the control/data
-   flow analysis abruptly at the start of the lambda, so we need to present a cogent world view and hence 
+   flow analysis abruptly at the start of the lambda, so we need to present a cogent world view and hence
    all this charade.
 */
 public static UnconditionalFlowInfo fakeInitializedFlowInfo(int localsCount, int maxFieldCount) {
@@ -147,7 +147,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 		// union of potentially set ones
 		this.potentialInits |= otherInits.potentialInits;
 	}
-	
+
 	// combine null information
 	boolean thisHadNulls = (this.tagBits & NULL_FLAG_MASK) != 0,
 		otherHasNulls = (otherInits.tagBits & NULL_FLAG_MASK) != 0;
@@ -182,7 +182,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			long protNN1111 = a1&a2&a3&a4;
 
 			// filter 'a' using iNBit,iNNBit from otherInits:
-			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.			
+			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.
 			long acceptNonNull = otherInits.iNNBit;
 			long acceptNull = otherInits.iNBit
 								| protNN1111; // for 1111 don't bother suppressing incoming null, logic operation would produce wrong result
@@ -193,7 +193,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			a3 = dontResetToStart & acceptNonNull & a3;
 			a4 &= dontResetToStart;
 			a1 &= (a2 | a3 | a4);		// translate 1000 (undefined state) to 0000
-			
+
 			this.nullBit1 = (b1 = otherInits.nullBit1)
                 				| a1 & (a3
                 					& a4 & (nb2 = ~(b2 = otherInits.nullBit2))
@@ -309,7 +309,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			for (; i < copyLimit; i++) {
 				this.extra[0][i] = otherInits.extra[0][i];
 				this.extra[1][i] = otherInits.extra[1][i];
-			
+
 			}
 		}
 		// tweak limits for nulls
@@ -332,7 +332,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			long protNN1111 = a1&a2&a3&a4;
 
 			// filter 'a' using iNBit,iNNBit from otherInits:
-			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.			
+			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.
 			long acceptNonNull = otherInits.extra[INN][i];
 			long acceptNull = otherInits.extra[IN][i]
 								| protNN1111; // for 1111 don't bother suppressing incoming null, logic operation would produce wrong result
@@ -345,7 +345,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			a1 &= (a2 | a3 | a4);		// translate 1000 (undefined state) to 0000
 
 			this.extra[1 + 1][i] = (b1 = otherInits.extra[1 + 1][i])
-                				| a1 & (a3 
+                				| a1 & (a3
                 					& a4 & (nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
                 					& (nb4 = ~(b4 = otherInits.extra[4 + 1][i]))
                         		| ((na4 = ~a4) | (na3 = ~a3))
@@ -1796,7 +1796,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 	} else if (thisHadNulls) {
     	if (otherHasNulls) {
     		this.nullBit1 = (a1 = this.nullBit1) & (b1 = otherInits.nullBit1) & (
-    				((a2 = this.nullBit2) & (((b2 = otherInits.nullBit2) & 
+    				((a2 = this.nullBit2) & (((b2 = otherInits.nullBit2) &
     											~(((a3=this.nullBit3) & (a4=this.nullBit4)) ^ ((b3=otherInits.nullBit3) & (b4=otherInits.nullBit4))))
     										|(a3 & a4 & (nb2 = ~b2))))
     				|((na2 = ~a2) & ((b2 & b3 & b4)
@@ -1940,7 +1940,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		// compose nulls
 		for (i = 0; i < mergeLimit; i++) {
     		this.extra[1 + 1][i] = (a1=this.extra[1+1][i]) & (b1=otherInits.extra[1+1][i]) & (
-    				((a2=this.extra[2+1][i]) & (((b2=otherInits.extra[2+1][i]) & 
+    				((a2=this.extra[2+1][i]) & (((b2=otherInits.extra[2+1][i]) &
     												~(((a3=this.extra[3+1][i]) & (a4=this.extra[4+1][i])) ^ ((b3=otherInits.extra[3+1][i]) & (b4=otherInits.extra[4+1][i]))))
     											|(a3 & a4 & (nb2=~b2))))
     				|((na2=~a2) & ((b2 & b3 & b4)
@@ -2069,7 +2069,7 @@ public FlowInfo safeInitsWhenTrue() {
 public FlowInfo setReachMode(int reachMode) {
 	if (this == DEAD_END) {// cannot modify DEAD_END
 		return this;
-	}	
+	}
 	if (reachMode == REACHABLE ) {
 		this.tagBits &= ~UNREACHABLE;
 	} else if (reachMode == UNREACHABLE_BY_NULLANALYSIS ) {

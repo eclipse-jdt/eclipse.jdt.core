@@ -39,12 +39,12 @@ public class TypeMirrorImpl implements TypeMirror {
 	// Caution: _env will be NULL for unannotated primitive types (PrimitiveTypeImpl).
 	protected final BaseProcessingEnvImpl _env;
 	protected final Binding _binding;
-	
+
 	/* package */ TypeMirrorImpl(BaseProcessingEnvImpl env, Binding binding) {
 		_env = env;
 		_binding = binding;
 	}
-	
+
 	/* package */ Binding binding() {
 		return _binding;
 	}
@@ -63,7 +63,7 @@ public class TypeMirrorImpl implements TypeMirror {
 	@Override
 	public TypeKind getKind() {
 		switch (_binding.kind()) {
-		// case Binding.TYPE: 
+		// case Binding.TYPE:
 		// case Binding.RAW_TYPE:
 		// case Binding.GENERIC_TYPE:
 		// case Binding.PARAMETERIZED_TYPE:
@@ -124,13 +124,13 @@ public class TypeMirrorImpl implements TypeMirror {
 	public final AnnotationBinding [] getPackedAnnotationBindings() {
 		return Factory.getPackedAnnotationBindings(getAnnotationBindings());
 	}
-	
+
 	protected AnnotationBinding[] getAnnotationBindings() {
 		return ((TypeBinding)_binding).getTypeAnnotations();
 	}
 
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
-		return _env == null ? Factory.EMPTY_ANNOTATION_MIRRORS : 
+		return _env == null ? Factory.EMPTY_ANNOTATION_MIRRORS :
 								_env.getFactory().getAnnotationMirrors(getPackedAnnotationBindings());
 	}
 

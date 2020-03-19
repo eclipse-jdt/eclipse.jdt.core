@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.listener.ListenerProcessor;
 
 /**
- * 
+ *
  */
 public class ListenerTests extends APTTestBase
 {
@@ -35,14 +35,14 @@ public class ListenerTests extends APTTestBase
 	{
 		return new TestSuite(ListenerTests.class);
 	}
-	
+
 	public void testListenerCalled() throws Exception
 	{
 		clearProcessorResult(ListenerProcessor.class);
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
-		
-		String code = 
+
+		String code =
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.listener.ListenerAnnotation;" + "\n" +
 				"@ListenerAnnotation" + "\n" +

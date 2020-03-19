@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ import javax.lang.model.element.TypeElement;
 @SupportedAnnotationTypes({"org.eclipse.jdt.apt.pluggable.tests.annotations.Module"})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class BugsProc extends AbstractProcessor {
-	
+
 	private static final String[] ELEMENT_NAMES = new String[] {"targets.bug407841.ModuleCore", "targets.bug407841.ModuleLegacy"};
 	private static HashSet<String> expectedElements = new HashSet<String>(2);
 	private static int _numRounds = 0;
@@ -53,7 +53,7 @@ public class BugsProc extends AbstractProcessor {
 	public static int getNumRounds() {
 		return _numRounds;
 	}
-	
+
 	public static int getUnprocessedElements() {
 		return expectedElements.size();
 	}

@@ -37,7 +37,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
     // Tests counter
     private static int TESTS_COUNT = 0;
 	private final static int ITERATIONS_COUNT = 10;

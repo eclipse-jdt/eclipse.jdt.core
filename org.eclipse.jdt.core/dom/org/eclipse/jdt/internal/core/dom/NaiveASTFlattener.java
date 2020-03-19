@@ -50,7 +50,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.4
 	 */
 	private static final int JLS2 = AST.JLS2;
-	
+
 	/**
 	 * Internal synonym for {@link AST#JLS3}. Use to alleviate
 	 * deprecation warnings.
@@ -82,7 +82,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.14
 	 */
 	private static final int JLS9 = AST.JLS9;
-	
+
 	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
@@ -252,7 +252,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append('>');
 		}
 	}
-	
+
 	private void visitTypeAnnotations(AnnotatableType node) {
 		if (node.getAST().apiLevel() >= JLS8) {
 			visitAnnotationsList(node.annotations());
@@ -266,7 +266,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append(' ');
 		}
 	}
-	
+
 	/**
 	 * Resets this printer so that it can be used again.
 	 */
@@ -596,7 +596,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(CreationReference node) {
 		node.getType().accept(this);
@@ -1035,11 +1035,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 					if (it.hasNext()) {
 						this.buffer.append(", ");//$NON-NLS-1$
 					}
-				}				
+				}
 				this.buffer.append(" ");//$NON-NLS-1$
-			} 
+			}
 		} else {
-			if (!node.thrownExceptionTypes().isEmpty()) {				
+			if (!node.thrownExceptionTypes().isEmpty()) {
 				this.buffer.append(" throws ");//$NON-NLS-1$
 				for (Iterator it = node.thrownExceptionTypes().iterator(); it.hasNext(); ) {
 					Type n = (Type) it.next();
@@ -1047,8 +1047,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 					if (it.hasNext()) {
 						this.buffer.append(", ");//$NON-NLS-1$
 					}
-				}	
-				this.buffer.append(" ");//$NON-NLS-1$				
+				}
+				this.buffer.append(" ");//$NON-NLS-1$
 			}
 		}
 		if (node.getBody() == null) {
@@ -1315,7 +1315,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("record ");//$NON-NLS-1$
 		node.getName().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		
+
 		if (!node.typeParameters().isEmpty()) {
 			this.buffer.append("<");//$NON-NLS-1$
 			for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
@@ -1360,7 +1360,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("}\n");//$NON-NLS-1$
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(RequiresDirective node) {
 		printIndent();
@@ -1533,7 +1533,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(SuperMethodReference)
-	 * 
+	 *
 	 * @since 3.10
 	 */
 	@Override
@@ -1609,14 +1609,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.indent--;
 		printIndent();
 		this.buffer.append("}\n");//$NON-NLS-1$
-			
+
 	}
 	@Override
 	public boolean visit(SwitchExpression node) {
 		visitSwitchNode(node);
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(SwitchStatement node) {
 		visitSwitchNode(node);
@@ -1680,7 +1680,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(node.getEscapedValue());
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(TextElement node) {
 		this.buffer.append(node.getText());
@@ -1832,7 +1832,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(TypeMethodReference)
-	 * 
+	 *
 	 * @since 3.10
 	 */
 	@Override
@@ -1972,7 +1972,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(YieldStatement node) {
 		if ((node.getAST().apiLevel() >= AST.JLS14) && node.isImplicit()  && node.getExpression() == null) {

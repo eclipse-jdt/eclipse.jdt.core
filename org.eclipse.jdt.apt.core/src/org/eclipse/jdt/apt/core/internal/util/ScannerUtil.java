@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal.util;
@@ -39,12 +39,12 @@ public class ScannerUtil {
 	 * scan the source code to see if there are any annotation tokens
 	 */
 	public static boolean hasAnnotationInstance( IFile f ) {
-		
+
 		InputStreamReader reader = null;
 		InputStream input = null;
 		try {
 			AnnotationScanner scanner;
-			// If this is a single byte encoding, we can deal directly 
+			// If this is a single byte encoding, we can deal directly
 			// with the bytes, which is *much* faster
 			if (SINGLE_BYTE_ENCODINGS.contains(f.getCharset())) {
 				input = BuildEnv.getInputStream(f);
@@ -64,8 +64,8 @@ public class ScannerUtil {
 			if (input != null) { try {input.close();} catch (IOException ioe) {} }
 		}
 	}
-	
-	
+
+
 	public static boolean hasAnnotationInstance( ICompilationUnit cu ) {
 		try {
 			IBuffer b = cu.getBuffer();
@@ -79,12 +79,12 @@ public class ScannerUtil {
 		}
 	}
 
-	
+
 	public static boolean hasAnnotationInstance( char[] source ) {
-		try {		
+		try {
 			if ( source == null )
 				return false;
-			IScanner scanner = ToolFactory.createScanner( 
+			IScanner scanner = ToolFactory.createScanner(
 				false, false, false, JavaCore.VERSION_1_5 );
 			scanner.setSource( source );
 			int token = scanner.getNextToken();
@@ -95,7 +95,7 @@ public class ScannerUtil {
 					//
 					// found an @ sign, see if next token is "interface"
 					// @interface is an annotation decl and not an annotation
-					// instance.  
+					// instance.
 					//
 					token = scanner.getNextToken();
 					if ( token != ITerminalSymbols.TokenNameinterface )
@@ -116,7 +116,7 @@ public class ScannerUtil {
 			return false;
 		}
 	}
-	
+
 	private static final String[] SINGLE_BYTE_ENCODING_ARRAY = {
 		"ASCII", //$NON-NLS-1$
 		"Cp1250", //$NON-NLS-1$
@@ -135,14 +135,14 @@ public class ScannerUtil {
 		"ISO8859_15", //$NON-NLS-1$
 		"UTF8" //$NON-NLS-1$
 	};
-	
-	private static final Set<String> SINGLE_BYTE_ENCODINGS = 
+
+	private static final Set<String> SINGLE_BYTE_ENCODINGS =
 		new HashSet<>(SINGLE_BYTE_ENCODING_ARRAY.length);
-		
+
 	static {
 		for (String encoding : SINGLE_BYTE_ENCODING_ARRAY) {
 			SINGLE_BYTE_ENCODINGS.add(encoding);
 		}
 	}
-	
+
 }

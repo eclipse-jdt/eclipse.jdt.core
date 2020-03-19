@@ -61,7 +61,7 @@ public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDec
     }
 
     // start of implementation of EnumType API
-    
+
     // end of implementation of EnumType API
     @Override
 	public void accept(TypeVisitor visitor)

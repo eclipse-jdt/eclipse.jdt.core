@@ -26,27 +26,27 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToIntArray;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class JavadocContents {
-	private static final int[] UNKNOWN_FORMAT = new int[0]; 
-	
+	private static final int[] UNKNOWN_FORMAT = new int[0];
+
 	private BinaryType type;
 	private char[] content;
-	
+
 	private int childrenStart;
-	
+
 	private boolean hasComputedChildrenSections = false;
 	private int indexOfFieldDetails;
 	private int indexOfConstructorDetails;
 	private int indexOfMethodDetails;
 	private int indexOfEndOfClassData;
-	
+
 	private int indexOfFieldsBottom;
 	private int indexOfAllMethodsTop;
 	private int indexOfAllMethodsBottom;
-	
+
 	private int[] typeDocRange;
 	private HashtableOfObjectToIntArray fieldDocRanges;
 	private HashtableOfObjectToIntArray methodDocRanges;
-	
+
 	private int[] fieldAnchorIndexes;
 	private int fieldAnchorIndexesCount;
 	private int fieldLastAnchorFoundIndex;
@@ -59,12 +59,12 @@ public class JavadocContents {
 	private int[] tempAnchorIndexes;
 	private int tempAnchorIndexesCount;
 	private int tempLastAnchorFoundIndex;
-	
+
 	public JavadocContents(BinaryType type, String content) {
 		this(content);
 		this.type = type;
 	}
-	
+
 	public JavadocContents(String content) {
 		this.content = content != null ? content.toCharArray() : null;
 	}
@@ -73,20 +73,20 @@ public class JavadocContents {
 	 */
 	public String getTypeDoc() throws JavaModelException {
 		if (this.content == null) return null;
-		
+
 		synchronized (this) {
 			if (this.typeDocRange == null) {
 				computeTypeRange();
 			}
 		}
-		
+
 		if (this.typeDocRange != null) {
 			if (this.typeDocRange == UNKNOWN_FORMAT) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this.type));
 			return String.valueOf(CharOperation.subarray(this.content, this.typeDocRange[0], this.typeDocRange[1]));
 		}
 		return null;
 	}
-	
+
 	public String getPackageDoc() throws JavaModelException {
 		if (this.content == null) return null;
 		int[] range = null;
@@ -97,7 +97,7 @@ public class JavadocContents {
 		if (index != -1) {
 			index = CharOperation.indexOf(JavadocConstants.ANCHOR_SUFFIX, this.content, false, index);
 			if (index == -1) return null;
-			
+
 			int start = CharOperation.indexOf(JavadocConstants.H2_PREFIX, this.content, false, index);
 			if (start != -1) {
 				start = CharOperation.indexOf(JavadocConstants.H2_SUFFIX, this.content, false, start);
@@ -114,7 +114,7 @@ public class JavadocContents {
 		}
 		return null;
 	}
-	
+
 	public String getModuleDoc() throws JavaModelException {
 		if (this.content == null) return null;
 		int index = CharOperation.indexOf(JavadocConstants.MODULE_DESCRIPTION_START, this.content, false, 0);
@@ -123,13 +123,13 @@ public class JavadocContents {
 		if (end == -1) end = this.content.length -1;
 		return String.valueOf(CharOperation.subarray(this.content, index, end));
 	}
-	
+
 	/*
 	 * Returns the part of the javadoc that describe a field of the type
 	 */
 	public String getFieldDoc(IField child) throws JavaModelException {
 		if (this.content == null) return null;
-		
+
 		int[] range = null;
 		synchronized (this) {
 			if (this.fieldDocRanges == null) {
@@ -137,26 +137,26 @@ public class JavadocContents {
 			} else {
 				range = this.fieldDocRanges.get(child);
 			}
-			
+
 			if (range == null) {
 				range = computeFieldRange(child);
 				this.fieldDocRanges.put(child, range);
 			}
 		}
-		
+
 		if (range != null) {
 			if (range == UNKNOWN_FORMAT) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, child));
 			return String.valueOf(CharOperation.subarray(this.content, range[0], range[1]));
 		}
 		return null;
 	}
-	
+
 	/*
 	 * Returns the part of the javadoc that describe a method of the type
 	 */
 	public String getMethodDoc(IMethod child) throws JavaModelException {
 		if (this.content == null) return null;
-		
+
 		int[] range = null;
 		synchronized (this) {
 			if (this.methodDocRanges == null) {
@@ -164,13 +164,13 @@ public class JavadocContents {
 			} else {
 				range = this.methodDocRanges.get(child);
 			}
-			
+
 			if (range == null) {
 				range = computeMethodRange(child);
 				this.methodDocRanges.put(child, range);
 			}
 		}
-		
+
 		if (range != null) {
 			if (range == UNKNOWN_FORMAT) {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, child));
@@ -179,29 +179,29 @@ public class JavadocContents {
 		}
 		return null;
 	}
-	
+
 	/*
 	 * Compute the ranges of the parts of the javadoc that describe each method of the type
 	 */
 	private int[] computeChildRange(char[] anchor, int indexOfSectionBottom) throws JavaModelException {
-		
+
 		// checks each known anchor locations
 		if (this.tempAnchorIndexesCount > 0) {
 			for (int i = 0; i < this.tempAnchorIndexesCount; i++) {
 				int anchorEndStart = this.tempAnchorIndexes[i];
-				
+
 				if (anchorEndStart != -1 && CharOperation.prefixEquals(anchor, this.content, false, anchorEndStart)) {
-					
+
 					this.tempAnchorIndexes[i] = -1;
-					
+
 					return computeChildRange(anchorEndStart, anchor, indexOfSectionBottom);
 				}
 			}
 		}
-		
+
 		int fromIndex = this.tempLastAnchorFoundIndex;
 		int[] index;
-		
+
 		// check each next unknown anchor locations
 		index = getAnchorIndex(fromIndex);
 		while (index[0] != -1 && (index[0] < indexOfSectionBottom || indexOfSectionBottom == -1)) {
@@ -210,19 +210,19 @@ public class JavadocContents {
 			int anchorEndStart = index[0] + index[1];
 
 			this.tempLastAnchorFoundIndex = anchorEndStart;
-			
+
 			if (CharOperation.prefixEquals(anchor, this.content, false, anchorEndStart)) {
 				return computeChildRange(anchorEndStart, anchor, indexOfSectionBottom);
 			} else {
 				if (this.tempAnchorIndexes.length == this.tempAnchorIndexesCount) {
 					System.arraycopy(this.tempAnchorIndexes, 0, this.tempAnchorIndexes = new int[this.tempAnchorIndexesCount + 20], 0, this.tempAnchorIndexesCount);
 				}
-				
+
 				this.tempAnchorIndexes[this.tempAnchorIndexesCount++] = anchorEndStart;
 			}
 			index = getAnchorIndex(fromIndex);
 		}
-		
+
 		return null;
 	}
 	private int[] getAnchorIndex(int fromIndex) {
@@ -241,7 +241,7 @@ public class JavadocContents {
 	}
 	private int[] computeChildRange(int anchorEndStart, char[] anchor, int indexOfBottom) {
 		int[] range = null;
-				
+
 		// try to find the bottom of the section
 		if (indexOfBottom != -1) {
 			// try to find the end of the anchor
@@ -249,7 +249,7 @@ public class JavadocContents {
 			if (indexOfEndLink != -1) {
 				// try to find the next anchor
 				int indexOfNextElement = getAnchorIndex(indexOfEndLink)[0];
-				
+
 				int javadocStart = indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH;
 				int javadocEnd = indexOfNextElement == -1 ? indexOfBottom : Math.min(indexOfNextElement, indexOfBottom);
 				range = new int[]{javadocStart, javadocEnd};
@@ -261,7 +261,7 @@ public class JavadocContents {
 			// the detail section has no bottom
 			range = UNKNOWN_FORMAT;
 		}
-		
+
 		return range;
 	}
 
@@ -273,31 +273,31 @@ public class JavadocContents {
 		// try to find field detail start
 		this.indexOfFieldDetails = CharOperation.indexOf(JavadocConstants.FIELD_DETAIL, this.content, false, lastIndex);
 		lastIndex = this.indexOfFieldDetails == -1 ? lastIndex : this.indexOfFieldDetails;
-		
+
 		// try to find constructor detail start
 		this.indexOfConstructorDetails = CharOperation.indexOf(JavadocConstants.CONSTRUCTOR_DETAIL, this.content, false, lastIndex);
 		lastIndex = this.indexOfConstructorDetails == -1 ? lastIndex : this.indexOfConstructorDetails;
-		
+
 		// try to find method detail start
 		this.indexOfMethodDetails = CharOperation.indexOf(JavadocConstants.METHOD_DETAIL, this.content, false, lastIndex);
 		lastIndex = this.indexOfMethodDetails == -1 ? lastIndex : this.indexOfMethodDetails;
-		
+
 		// we take the end of class data
 		this.indexOfEndOfClassData = CharOperation.indexOf(JavadocConstants.END_OF_CLASS_DATA, this.content, false, lastIndex);
-		
+
 		// try to find the field detail end
 		this.indexOfFieldsBottom =
 			this.indexOfConstructorDetails != -1 ? this.indexOfConstructorDetails :
 				this.indexOfMethodDetails != -1 ? this.indexOfMethodDetails:
 					this.indexOfEndOfClassData;
-		
+
 		this.indexOfAllMethodsTop =
 			this.indexOfConstructorDetails != -1 ?
 					this.indexOfConstructorDetails :
 						this.indexOfMethodDetails;
-		
+
 		this.indexOfAllMethodsBottom = this.indexOfEndOfClassData;
-	
+
 		this.hasComputedChildrenSections = true;
 	}
 
@@ -308,13 +308,13 @@ public class JavadocContents {
 		if (!this.hasComputedChildrenSections) {
 			computeChildrenSections();
 		}
-		
+
 		StringBuffer buffer = new StringBuffer(field.getElementName());
 		buffer.append(JavadocConstants.ANCHOR_PREFIX_END);
 		char[] anchor = String.valueOf(buffer).toCharArray();
-		
+
 		int[] range = null;
-		
+
 		if (this.indexOfFieldDetails == -1 || this.indexOfFieldsBottom == -1) {
 			// the detail section has no top or bottom, so the doc has an unknown format
 			if (this.unknownFormatAnchorIndexes == null) {
@@ -322,13 +322,13 @@ public class JavadocContents {
 				this.unknownFormatAnchorIndexesCount = 0;
 				this.unknownFormatLastAnchorFoundIndex = this.childrenStart;
 			}
-			
+
 			this.tempAnchorIndexes = this.unknownFormatAnchorIndexes;
 			this.tempAnchorIndexesCount = this.unknownFormatAnchorIndexesCount;
 			this.tempLastAnchorFoundIndex = this.unknownFormatLastAnchorFoundIndex;
-			
+
 			range = computeChildRange(anchor, this.indexOfFieldsBottom);
-			
+
 			this.unknownFormatLastAnchorFoundIndex = this.tempLastAnchorFoundIndex;
 			this.unknownFormatAnchorIndexesCount = this.tempAnchorIndexesCount;
 			this.unknownFormatAnchorIndexes = this.tempAnchorIndexes;
@@ -338,21 +338,21 @@ public class JavadocContents {
 				this.fieldAnchorIndexesCount = 0;
 				this.fieldLastAnchorFoundIndex = this.indexOfFieldDetails;
 			}
-			
+
 			this.tempAnchorIndexes = this.fieldAnchorIndexes;
 			this.tempAnchorIndexesCount = this.fieldAnchorIndexesCount;
 			this.tempLastAnchorFoundIndex = this.fieldLastAnchorFoundIndex;
-			
+
 			range = computeChildRange(anchor, this.indexOfFieldsBottom);
-			
+
 			this.fieldLastAnchorFoundIndex = this.tempLastAnchorFoundIndex;
 			this.fieldAnchorIndexesCount = this.tempAnchorIndexesCount;
 			this.fieldAnchorIndexes = this.tempAnchorIndexes;
 		}
-		
+
 		return range;
 	}
-	
+
 	/*
 	 * Compute the ranges of the parts of the javadoc that describe each method of the type
 	 */
@@ -360,11 +360,11 @@ public class JavadocContents {
 		if (!this.hasComputedChildrenSections) {
 			computeChildrenSections();
 		}
-		
+
 		char[] anchor = computeMethodAnchorPrefixEnd((BinaryMethod)method).toCharArray();
-		
+
 		int[] range = null;
-		
+
 		if (this.indexOfAllMethodsTop == -1 || this.indexOfAllMethodsBottom == -1) {
 			// the detail section has no top or bottom, so the doc has an unknown format
 			if (this.unknownFormatAnchorIndexes == null) {
@@ -372,43 +372,43 @@ public class JavadocContents {
 				this.unknownFormatAnchorIndexesCount = 0;
 				this.unknownFormatLastAnchorFoundIndex = this.childrenStart;
 			}
-			
+
 			this.tempAnchorIndexes = this.unknownFormatAnchorIndexes;
 			this.tempAnchorIndexesCount = this.unknownFormatAnchorIndexesCount;
 			this.tempLastAnchorFoundIndex = this.unknownFormatLastAnchorFoundIndex;
-			
+
 			range = computeChildRange(anchor, this.indexOfFieldsBottom);
 			if (range == null) {
 				range = computeChildRange(getJavadoc8Anchor(anchor), this.indexOfAllMethodsBottom);
 			}
-			
+
 			this.unknownFormatLastAnchorFoundIndex = this.tempLastAnchorFoundIndex;
 			this.unknownFormatAnchorIndexesCount = this.tempAnchorIndexesCount;
 			this.unknownFormatAnchorIndexes = this.tempAnchorIndexes;
-		} else {			
+		} else {
 			if (this.methodAnchorIndexes == null) {
 				this.methodAnchorIndexes = new int[this.type.getFields().length];
 				this.methodAnchorIndexesCount = 0;
 				this.methodLastAnchorFoundIndex = this.indexOfAllMethodsTop;
 			}
-			
+
 			this.tempAnchorIndexes = this.methodAnchorIndexes;
 			this.tempAnchorIndexesCount = this.methodAnchorIndexesCount;
 			this.tempLastAnchorFoundIndex = this.methodLastAnchorFoundIndex;
-			
+
 			range = computeChildRange(anchor, this.indexOfAllMethodsBottom);
 			if (range == null) {
 				range = computeChildRange(getJavadoc8Anchor(anchor), this.indexOfAllMethodsBottom);
 			}
-			
+
 			this.methodLastAnchorFoundIndex = this.tempLastAnchorFoundIndex;
 			this.methodAnchorIndexesCount = this.tempAnchorIndexesCount;
 			this.methodAnchorIndexes = this.tempAnchorIndexes;
 		}
-		
+
 		return range;
 	}
-	
+
 	private static char[] getJavadoc8Anchor(char[] anchor) {
 		// fix for bug 432284: [1.8] Javadoc-8-style anchors not found by IMethod#getAttachedJavadoc(..)
 		char[] anchor8 = new char[anchor.length];
@@ -454,7 +454,7 @@ public class JavadocContents {
 		} else {
 			typeQualifiedName = this.type.getElementName();
 		}
-		
+
 		String methodName = method.getElementName();
 		if (method.isConstructor()) {
 			methodName = typeQualifiedName;
@@ -493,7 +493,7 @@ public class JavadocContents {
 		}
 		return anchor + JavadocConstants.ANCHOR_PREFIX_END;
 	}
-	
+
 	/*
 	 * Compute the range of the part of the javadoc that describe the type
 	 */
@@ -533,7 +533,7 @@ public class JavadocContents {
 			// try to find method summary start
 			indexOfNextSummary = CharOperation.indexOf(JavadocConstants.METHOD_SUMMARY, this.content, false, indexOfNextSeparator);
 		}
-		
+
 		if (indexOfNextSummary == -1) {
 			// we take the end of class data
 			indexOfNextSummary = CharOperation.indexOf(JavadocConstants.END_OF_CLASS_DATA, this.content, false, indexOfNextSeparator);
@@ -541,7 +541,7 @@ public class JavadocContents {
 			// improve performance of computation of children ranges
 			this.childrenStart = indexOfNextSummary + 1;
 		}
-		
+
 		if (indexOfNextSummary == -1) {
 			this.typeDocRange = UNKNOWN_FORMAT;
 			return;
@@ -564,7 +564,7 @@ public class JavadocContents {
 		if (afterHierarchy != indexOfNextSummary) {
 			start = afterHierarchy;
 		}
-		
+
 		this.typeDocRange = new int[]{start, indexOfNextSummary};
 	}
 }

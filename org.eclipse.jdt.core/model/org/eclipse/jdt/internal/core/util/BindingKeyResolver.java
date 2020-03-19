@@ -89,7 +89,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 			}
 			return this.key;
 		}
-		
+
 		@Override
 		public MethodBinding getEnclosingMethod() {
 			return this.enclosingMethod;
@@ -125,7 +125,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	TypeBinding typeBinding;
 	TypeDeclaration typeDeclaration;
 	ArrayList types = new ArrayList();
-	
+
 	int wildcardRank;
 
 	CompilationUnitDeclaration outerMostParsedUnit;
@@ -630,7 +630,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	public void consumeWildcardRank(int aRank) {
 		this.wildcardRank = aRank;
 	}
-	
+
 	@Override
 	public void consumeWildCard(int kind) {
 		switch (kind) {

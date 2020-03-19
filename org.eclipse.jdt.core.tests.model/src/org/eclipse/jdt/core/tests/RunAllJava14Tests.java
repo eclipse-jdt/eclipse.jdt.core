@@ -27,7 +27,7 @@ import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunAllJava14Tests extends TestCase {
-	
+
 	public RunAllJava14Tests(String name) {
 		super(name);
 	}
@@ -37,16 +37,16 @@ public class RunAllJava14Tests extends TestCase {
 
 		};
 	}
-	
+
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
-			
+
 		};
 	}
 
 	public static Class[] getCompilerClasses() {
 		return new Class[] {
-			
+
 		};
 	}
 

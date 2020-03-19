@@ -79,7 +79,7 @@ public static Test suite() {
 
 private static void addClass(TestSuite ts, File inputDir, String profile, Map workspaces) {
 	Class testClass = FormatterMassiveRegressionTests.class;
-	
+
 	// call the suite() method and add the resulting suite to the suite
 	try {
 		Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[] { File.class, String.class, Map.class }); //$NON-NLS-1$
@@ -92,7 +92,7 @@ private static void addClass(TestSuite ts, File inputDir, String profile, Map wo
 	} catch (NoSuchMethodException e) {
 		e.printStackTrace();
 	}
-	
+
 }
 public RunFormatterMassiveTests(String name) {
 	super(name);

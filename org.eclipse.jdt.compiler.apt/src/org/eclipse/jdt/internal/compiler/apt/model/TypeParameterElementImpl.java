@@ -39,15 +39,15 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
- * 
+ *
  */
 public class TypeParameterElementImpl extends ElementImpl implements TypeParameterElement
 {
 	private final Element _declaringElement;
-	
+
 	// Cache the bounds, because they're expensive to compute
 	private List<? extends TypeMirror> _bounds = null;
-	
+
 	/* package */ TypeParameterElementImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding, Element declaringElement) {
 		super(env, binding);
 		_declaringElement = declaringElement;
@@ -66,7 +66,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		}
 		return _bounds;
 	}
-	
+
 	// This code is drawn from org.eclipse.jdt.core.dom.TypeBinding.getTypeBounds()
 	private List<? extends TypeMirror> calculateBounds() {
 		TypeVariableBinding typeVariableBinding = (TypeVariableBinding)_binding;
@@ -143,7 +143,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 	{
 		return ((TypeVariableBinding)_binding).getTypeAnnotations();
 	}
-	
+
 	private boolean shouldEmulateJavacBug() {
 		if (_env.getLookupEnvironment().globalOptions.emulateJavacBug8031744) {
 			AnnotationBinding [] annotations = getAnnotationBindings();
@@ -158,14 +158,14 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		}
 		return false;
 	}
-	
+
 	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		if (shouldEmulateJavacBug())
 			return Collections.emptyList();
 		return super.getAnnotationMirrors();
 	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked") // for the cast to A
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
@@ -173,7 +173,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 			return (A[]) Array.newInstance(annotationType, 0);
 		return super.getAnnotationsByType(annotationType);
 	}
-	
+
 	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		if (shouldEmulateJavacBug())
@@ -215,7 +215,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 		// TODO what is the package of a type parameter?
 		return null;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new String(_binding.readableName());

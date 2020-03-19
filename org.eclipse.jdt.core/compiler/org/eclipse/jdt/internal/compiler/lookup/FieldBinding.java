@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class FieldBinding extends VariableBinding {
 	public ReferenceBinding declaringClass;
 	public int compoundUseFlag = 0; // number or accesses via postIncrement or compoundAssignment
-	
+
 protected FieldBinding() {
 	super(null, null, 0, null);
 	// for creating problem field
@@ -269,7 +269,7 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 			this.tagBits |= TagBits.AnnotationNonNull;
 		} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
 			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
-		}		
+		}
 	}
 }
 

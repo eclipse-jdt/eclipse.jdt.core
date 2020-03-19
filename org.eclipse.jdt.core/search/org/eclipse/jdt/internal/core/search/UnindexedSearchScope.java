@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 
 public class UnindexedSearchScope extends AbstractSearchScope {
 	private IJavaSearchScope searchScope;
-	
+
 	private UnindexedSearchScope(IJavaSearchScope scope) {
 		this.searchScope = scope;
 	}
@@ -34,7 +34,7 @@ public class UnindexedSearchScope extends AbstractSearchScope {
 	public static IJavaSearchScope filterEntriesCoveredByTheNewIndex(IJavaSearchScope scope) {
 		return new UnindexedSearchScope(scope);
 	}
-	
+
 	@Override
 	public boolean encloses(String resourcePathString) {
 		int separatorIndex = resourcePathString.indexOf(JAR_FILE_ENTRY_SEPARATOR);
@@ -76,9 +76,9 @@ public class UnindexedSearchScope extends AbstractSearchScope {
 	@Override
 	public IPath[] enclosingProjectsAndJars() {
 		IPath[] unfiltered = this.searchScope.enclosingProjectsAndJars();
-		
+
 		List<IPath> result = new ArrayList<>();
-		
+
 		for (IPath next : unfiltered) {
 			if (isJarFile(next.lastSegment())) {
 				continue;
@@ -92,7 +92,7 @@ public class UnindexedSearchScope extends AbstractSearchScope {
 	public void processDelta(IJavaElementDelta delta, int eventType) {
 		if (this.searchScope instanceof AbstractSearchScope) {
 			AbstractSearchScope inner = (AbstractSearchScope) this.searchScope;
-			
+
 			inner.processDelta(delta, eventType);
 		}
 	}

@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -82,7 +82,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (isConditionOptimizedTrue) {
 		elseFlowInfo.setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
 	}
-	if (((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) && 
+	if (((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) &&
 			((thenFlowInfo.tagBits & FlowInfo.UNREACHABLE) != 0)) {
 		// Mark then block as unreachable
 		// No need if the whole if-else construct itself lies in unreachable code

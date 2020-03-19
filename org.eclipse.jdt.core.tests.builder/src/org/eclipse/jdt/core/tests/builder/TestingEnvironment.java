@@ -138,7 +138,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	}
 
 	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName) throws JavaModelException {
-		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null); 
+		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null);
 	}
 
 	public IPath addTestPackageFragmentRoot(IPath projectPath, String sourceFolderName) throws JavaModelException {

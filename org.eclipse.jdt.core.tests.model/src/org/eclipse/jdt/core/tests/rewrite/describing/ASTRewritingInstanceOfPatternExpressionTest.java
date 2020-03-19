@@ -57,7 +57,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
-	 	
+
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test001() throws Exception {
 		if (this.apiLevel != 14) {
@@ -98,7 +98,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			ifStatement.setThenStatement(ast.newEmptyStatement());
 			rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY).insertLast(ifStatement, null);
 		}
-		
+
 		String preview= evaluateRewrite(cu, rewrite);
 
 		buf= new StringBuffer();
@@ -111,6 +111,6 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 		buf.append("}\n");
 
 		assertEqualString(preview, buf.toString());
-		
+
 	}
 }

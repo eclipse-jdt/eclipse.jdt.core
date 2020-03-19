@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     wharley@bea.com - initial API and implementation
  *     Alexander Fedorov <alexander.fedorov@arsysop.ru> - Bug 549442
@@ -28,10 +28,10 @@ public class AptUIPlugin extends AbstractUIPlugin {
 
 	//The shared instance.
 	private static AptUIPlugin plugin;
-	
+
 	// The plugin ID
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.ui"; //$NON-NLS-1$
-	
+
 	/**
 	 * Status IDs for system log entries.  Must be unique per plugin.
 	 */
@@ -70,7 +70,7 @@ public class AptUIPlugin extends AbstractUIPlugin {
 	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		return getDefault().getWorkbench().getActiveWorkbenchWindow();
 	}
-	
+
 	public static Shell getActiveWorkbenchShell() {
 		 IWorkbenchWindow window= getActiveWorkbenchWindow();
 		 if (window != null) {
@@ -78,13 +78,13 @@ public class AptUIPlugin extends AbstractUIPlugin {
 		 }
 		 return null;
 	}
-	
+
 	public static void log(IStatus status) {
 		getDefault().getLog().log(status);
 	}
-	
+
 	public static void log(Throwable e) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, Messages.AptUIPlugin_exceptionThrown, e)); 
+		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, Messages.AptUIPlugin_exceptionThrown, e));
 	}
-	
+
 }

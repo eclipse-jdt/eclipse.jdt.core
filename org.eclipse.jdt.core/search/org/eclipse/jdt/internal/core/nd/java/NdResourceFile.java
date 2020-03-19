@@ -79,7 +79,7 @@ public class NdResourceFile extends NdNode {
 		type.done();
 	}
 
-	private long jdkLevel; 
+	private long jdkLevel;
 
 	public NdResourceFile(Nd dom, long address) {
 		super(dom, address);

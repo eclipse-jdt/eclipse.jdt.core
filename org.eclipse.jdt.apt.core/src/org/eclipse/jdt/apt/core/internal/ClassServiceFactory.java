@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.core.internal;
@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 
 class ClassServiceFactory implements IServiceFactory {
 	private final Class<?> _clazz;
-	
+
 	public ClassServiceFactory(Class<?> clazz) {
 		_clazz = clazz;
 	}
@@ -29,14 +29,14 @@ class ClassServiceFactory implements IServiceFactory {
 		try {
 			return _clazz.newInstance();
 		} catch (InstantiationException e) {
-			throw new CoreException(AptPlugin.createWarningStatus(e, 
+			throw new CoreException(AptPlugin.createWarningStatus(e,
 					"Unable to create instance of annotation processor " + _clazz.getName())); //$NON-NLS-1$
 		} catch (IllegalAccessException e) {
-			throw new CoreException(AptPlugin.createWarningStatus(e, 
+			throw new CoreException(AptPlugin.createWarningStatus(e,
 					"Unable to create instance of annotation processor " + _clazz.getName())); //$NON-NLS-1$
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		if (_clazz == null) {

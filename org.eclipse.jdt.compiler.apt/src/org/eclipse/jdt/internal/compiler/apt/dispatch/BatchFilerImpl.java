@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2018 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,13 +40,13 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  * dependencies.
  */
 public class BatchFilerImpl implements Filer {
-	
+
 	protected final BaseAnnotationProcessorManager _dispatchManager;
 	protected final BaseProcessingEnvImpl _env;
 	protected final JavaFileManager _fileManager;
 	protected final HashSet<URI> _createdFiles;
 
-	public BatchFilerImpl(BaseAnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env) 
+	public BatchFilerImpl(BaseAnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env)
 	{
 		_dispatchManager = dispatchManager;
 		_fileManager = env._fileManager;
@@ -57,7 +57,7 @@ public class BatchFilerImpl implements Filer {
 	public void addNewUnit(ICompilationUnit unit) {
 		_env.addNewUnit(unit);
 	}
-	
+
 	public void addNewClassFile(ReferenceBinding binding) {
 		_env.addNewClassFile(binding);
 	}
@@ -159,7 +159,7 @@ public class BatchFilerImpl implements Filer {
 		// hook the file object's writers to create compilation unit and add to addedUnits()
 		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.Filer#getResource(javax.tools.JavaFileManager.Location, java.lang.CharSequence, java.lang.CharSequence)
 	 */

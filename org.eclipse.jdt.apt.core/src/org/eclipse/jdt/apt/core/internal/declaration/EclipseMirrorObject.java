@@ -21,7 +21,7 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
  *
  */
 public interface EclipseMirrorObject {
-	
+
 	public enum MirrorKind
     {
         CONSTRUCTOR,
@@ -46,10 +46,10 @@ public interface EclipseMirrorObject {
     }
 
     public MirrorKind kind();
-    
+
 	/**
 	 * @return the processor environment associated with the object.
-	 * return null for primitive, void and error type. 
+	 * return null for primitive, void and error type.
 	 */
 	public BaseProcessorEnv getEnvironment();
 

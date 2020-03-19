@@ -40,13 +40,13 @@ public interface TagBits {
 
 	// for method
 	long HasUncheckedTypeArgumentForBoundCheck = ASTNode.Bit9;
-	
+
 	// local variable
 	long ForcedToBeRawType = ASTNode.Bit10;
 
 	// set when method has argument(s) that couldn't be resolved
 	long HasUnresolvedArguments = ASTNode.Bit10;
-	
+
 	// for the type cycle hierarchy check used by ClassScope
 	long BeginHierarchyCheck = ASTNode.Bit9;  // type
 	long EndHierarchyCheck = ASTNode.Bit10; // type
@@ -59,7 +59,7 @@ public interface TagBits {
 
 	long IsArgument = ASTNode.Bit11; // local
 	long ClearPrivateModifier = ASTNode.Bit10; // constructor binding
-	
+
 	// for java 7 - this bit is also set if the variable is explicitly or implicitly final
 	long IsEffectivelyFinal = ASTNode.Bit12; // local
 	long MultiCatchParameter = ASTNode.Bit13; // local
@@ -68,7 +68,7 @@ public interface TagBits {
 	// for java 14 Records Canonical constructor (preview)
 	long IsCanonicalConstructor = ASTNode.Bit12; // constructor
 	long isImplicit  = ASTNode.Bit13; // constructor and method
-	
+
 	// have implicit null annotations been collected (inherited(?) & default)?
 	long IsNullnessKnown = ASTNode.Bit13; // method
 
@@ -92,7 +92,7 @@ public interface TagBits {
 
 	// set for parameterized type NOT of the form X<?,?>
 	long IsBoundParameterizedType = ASTNode.Bit24; // PTB only.
-	
+
 	long HasAnnotatedVariants = ASTNode.Bit24; // TVB, STB
 
 	// used by BinaryTypeBinding
@@ -181,18 +181,18 @@ public interface TagBits {
 				| AnnotationNonNullByDefault
 				| AnnotationNullUnspecifiedByDefault
 				| AnnotationRepeatable;
-	
+
 	long AnnotationNullMASK = AnnotationNullable | AnnotationNonNull;
 	/** @since 3.10 marks a type that has a nullness annotation directly or on a detail (array dimension/type argument). */
 	long HasNullTypeAnnotation = ASTNode.Bit21;
 
 	long HasTypeAnnotations = ASTNode.Bit22;
-	
+
 	long DefaultValueResolved = ASTNode.Bit60L;
 
 	// set when type contains non-private constructor(s)
 	long HasNonPrivateConstructor = ASTNode.Bit61L;
-	
+
 	// set when type binding has a captured wildcard somewhere
 	long HasCapturedWildcard = ASTNode.Bit62L;
 }

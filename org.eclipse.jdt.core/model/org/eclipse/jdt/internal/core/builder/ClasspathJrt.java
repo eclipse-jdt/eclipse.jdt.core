@@ -82,7 +82,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) 
 	PackageCache.put(zipFileName, packagesInModule);
 	try {
 		final File imageFile = new File(zipFileName);
-		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imageFile, 
+		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imageFile,
 				new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 			SimpleSet packageSet = null;
 			@Override
@@ -164,7 +164,7 @@ protected String getKey() {
 	return this.zipFilename;
 }
 void acceptModule(byte[] content) {
-	if (content == null) 
+	if (content == null)
 		return;
 	ClassFileReader reader = null;
 	try {
@@ -252,7 +252,7 @@ public int hashCode() {
 @Override
 public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
 	List<String> moduleNames = JRTUtil.getModulesDeclaringPackage(new File(this.zipFilename), qualifiedPackageName, moduleName);
-	return CharOperation.toCharArrays(moduleNames); 
+	return CharOperation.toCharArrays(moduleNames);
 }
 @Override
 public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
@@ -335,7 +335,7 @@ protected void addRequired(String mod, Set<String> allModules) {
 }
 @Override
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
-	// 
+	//
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 /** TEST ONLY */

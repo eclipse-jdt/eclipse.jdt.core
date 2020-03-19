@@ -32,11 +32,11 @@ public class DefaultConstantProcessor extends BaseProcessor {
 	}
 	public void process() {
 		final AnnotationTypeDeclaration trigger = (AnnotationTypeDeclaration)_env.getTypeDeclaration("test.Trigger");
-		
+
 		final Messager msger = _env.getMessager();
 		if( trigger == null)
 			msger.printError("cannot find test.Trigger");
-		
+
 		final Collection<Declaration> decls = _env.getDeclarationsAnnotatedWith(trigger);
 		for(Declaration decl : decls ){
 			if( decl instanceof TypeDeclaration ){
@@ -53,7 +53,7 @@ public class DefaultConstantProcessor extends BaseProcessor {
 									final Collection<? extends MethodDeclaration> annotationMethods = nestedType.getMethods();
 									for( MethodDeclaration annotationMethod : annotationMethods ){
 										if( "value".equals(annotationMethod.getSimpleName()) ){
-											final AnnotationTypeElementDeclaration value = 
+											final AnnotationTypeElementDeclaration value =
 												(AnnotationTypeElementDeclaration)annotationMethod;
 											final String defaultString = value.getDefaultValue() == null ? "" :
 												value.getDefaultValue().toString();
@@ -64,7 +64,7 @@ public class DefaultConstantProcessor extends BaseProcessor {
 									}
 								}
 							}
-							
+
 							final Collection<FieldDeclaration> nestedAnnoFields = fieldType.getDeclaration().getFields();
 							for(FieldDeclaration nestedAnnoField : nestedAnnoFields ){
 								if(nestedAnnoField.getSimpleName().equals("FOUR")){
@@ -80,9 +80,9 @@ public class DefaultConstantProcessor extends BaseProcessor {
 						else{
 							msger.printError("found unexpected field " + field );
 						}
-						
+
 					}
-					
+
 					continue;
 				}
 			}

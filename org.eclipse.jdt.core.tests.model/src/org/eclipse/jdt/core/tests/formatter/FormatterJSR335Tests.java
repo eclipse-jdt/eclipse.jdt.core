@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Jesper Steen Moller - initial API and implementation
  *                           Contribution for bug 402819
@@ -42,7 +42,7 @@ public class FormatterJSR335Tests extends AbstractJavaModelTests {
 	public static final String OUT = "_out";
 	public static final boolean DEBUG = false;
 	static final String LINE_SEPARATOR = System.getProperty("line.separator");
-	private static final String PROJECT_NAME = "FormatterJSR335"; 
+	private static final String PROJECT_NAME = "FormatterJSR335";
 
 	DefaultCodeFormatterOptions formatterPrefs;
 	Map formatterOptions;
@@ -98,14 +98,14 @@ public class FormatterJSR335Tests extends AbstractJavaModelTests {
 		super.tearDownSuite();
 	}
 
-	/* 
+	/*
 	 * helper function for tests that are compatible with earlier page width
 	 */
 	private void setPageWidth80() {
 		this.formatterPrefs.page_width = 80;
 	}
 
-	/* 
+	/*
 	 * helper function for tests that are compatible with earlier page width
 	 */
 	private void setPageWidth80(DefaultCodeFormatterOptions preferences) {
@@ -154,7 +154,7 @@ public class FormatterJSR335Tests extends AbstractJavaModelTests {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(codeFormatterOptions, this.formatterOptions);
 		runTest(codeFormatter, packageName, compilationUnitName, CodeFormatter.K_COMPILATION_UNIT, 0);
 	}
-	
+
 	private void runTest(String packageName, String compilationUnitName) {
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs, this.formatterOptions);
 		runTest(codeFormatter, packageName, compilationUnitName, CodeFormatter.K_COMPILATION_UNIT, 0);

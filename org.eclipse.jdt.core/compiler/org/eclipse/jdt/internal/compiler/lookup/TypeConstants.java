@@ -124,7 +124,7 @@ public interface TypeConstants {
     // jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_PARAMETER_TARGET = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
-    
+
     // common 3rd party package components:
     char[] ORG = "org".toCharArray(); //$NON-NLS-1$
     char[] ECLIPSE = "eclipse".toCharArray(); //$NON-NLS-1$
@@ -143,7 +143,7 @@ public interface TypeConstants {
     char[] DOM = "dom".toCharArray(); //$NON-NLS-1$
     char[] ITYPEBINDING = "ITypeBinding".toCharArray(); //$NON-NLS-1$
     char[] SPRING = "springframework".toCharArray(); //$NON-NLS-1$
-    
+
 	// Constant compound names
 	char[][] JAVA_LANG = {JAVA, LANG};
 	char[][] JAVA_IO = {JAVA, IO};
@@ -255,7 +255,7 @@ public interface TypeConstants {
 		new CloseMethodRecord(GUAVA_CLOSEABLES, CLOSE, 1),
 		new CloseMethodRecord(APACHE_IOUTILS, CLOSE_QUIETLY, 1),
 		new CloseMethodRecord(APACHE_DBUTILS, CLOSE, 1),
-		new CloseMethodRecord(APACHE_DBUTILS, CLOSE_QUIETLY, 3), // closeQuietly(Connection,Statement,ResultSet) 
+		new CloseMethodRecord(APACHE_DBUTILS, CLOSE_QUIETLY, 3), // closeQuietly(Connection,Statement,ResultSet)
 		new CloseMethodRecord(APACHE_DBUTILS, "commitAndClose".toCharArray(), 1), //$NON-NLS-1$
 		new CloseMethodRecord(APACHE_DBUTILS, "commitAndCloseQuietly".toCharArray(), 1), //$NON-NLS-1$
 		new CloseMethodRecord(APACHE_DBUTILS, "rollbackAndClose".toCharArray(), 1), //$NON-NLS-1$
@@ -305,7 +305,7 @@ public interface TypeConstants {
 		{JAVA, "beans".toCharArray(), "XMLDecoder".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$
 		{JAVAX, "sound".toCharArray(), "sampled".toCharArray(), "AudioInputStream".toCharArray()}, //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	};
-	char[][] JAVA_IO_RESOURCE_FREE_CLOSEABLES = new char[][] {			
+	char[][] JAVA_IO_RESOURCE_FREE_CLOSEABLES = new char[][] {
 		"StringReader".toCharArray(), //$NON-NLS-1$
 		"StringWriter".toCharArray(), //$NON-NLS-1$
 		"ByteArrayInputStream".toCharArray(), //$NON-NLS-1$
@@ -348,7 +348,7 @@ public interface TypeConstants {
 	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, ASSERT_CLASS };
 	// ... methods:
 	char[] IS_NOTNULL = "isNotNull".toCharArray(); //$NON-NLS-1$
-	
+
 	char[] JUNIT = "junit".toCharArray(); //$NON-NLS-1$
 	char[] FRAMEWORK = "framework".toCharArray(); //$NON-NLS-1$
 	char[] JUPITER = "jupiter".toCharArray(); //$NON-NLS-1$
@@ -364,7 +364,7 @@ public interface TypeConstants {
 	// ... annotations:
 	char[] METHOD_SOURCE = "MethodSource".toCharArray(); //$NON-NLS-1$
 	char[][] ORG_JUNIT_METHOD_SOURCE = new char[][] { ORG, JUNIT, JUPITER, PARAMS, PROVIDER, METHOD_SOURCE };
-	
+
 	char[] VALIDATE_CLASS = "Validate".toCharArray(); //$NON-NLS-1$
 	char[][] ORG_APACHE_COMMONS_LANG_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG, VALIDATE_CLASS };
 	char[][] ORG_APACHE_COMMONS_LANG3_VALIDATE = new char[][] { ORG, APACHE, COMMONS, LANG3, VALIDATE_CLASS };
@@ -375,7 +375,7 @@ public interface TypeConstants {
 	char[] IS_TRUE = "isTrue".toCharArray(); //$NON-NLS-1$
 	char[] NOT_NULL = "notNull".toCharArray(); //$NON-NLS-1$
 
-	char[][] COM_GOOGLE_COMMON_BASE_PRECONDITIONS = new char[][] { 
+	char[][] COM_GOOGLE_COMMON_BASE_PRECONDITIONS = new char[][] {
 			COM, GOOGLE, "common".toCharArray(), "base".toCharArray(), "Preconditions".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// ... methods:
 	char[] CHECK_NOT_NULL = "checkNotNull".toCharArray(); //$NON-NLS-1$
@@ -384,7 +384,7 @@ public interface TypeConstants {
 
 	// ... methods in java.util.Objects:
 	char[] REQUIRE_NON_NULL = "requireNonNull".toCharArray(); //$NON-NLS-1$
-	
+
 	// different @Inject annotations are relevant for @NonNull fields
 	char[] INJECT_PACKAGE = "inject".toCharArray(); //$NON-NLS-1$
 	char[] INJECT_TYPE = "Inject".toCharArray(); //$NON-NLS-1$
@@ -392,7 +392,7 @@ public interface TypeConstants {
 	char[][] COM_GOOGLE_INJECT_INJECT = new char[][] {COM, GOOGLE, INJECT_PACKAGE, INJECT_TYPE };
 	//    detail for the above:
 	char[] OPTIONAL = "optional".toCharArray(); //$NON-NLS-1$
-	
+
 	// well-known methods with "dangerous" signatures:
 	char[][] JAVA_UTIL_MAP = new char[][] { JAVA, UTIL, "Map".toCharArray() }; //$NON-NLS-1$
 	char[] GET = "get".toCharArray(); //$NON-NLS-1$

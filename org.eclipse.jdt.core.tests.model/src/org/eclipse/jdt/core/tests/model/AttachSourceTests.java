@@ -172,12 +172,12 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"class AType<E> {\n" + // type name containing character 'T'
 		"}",
 		"Container.java",
-		"public class Container {\n" + 
-		"	class Inner<S> {\n" + 
-		"		Inner(String st, Class<S> s) {\n" + 
-		"			super();\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class Container {\n" +
+		"	class Inner<S> {\n" +
+		"		Inner(String st, Class<S> s) {\n" +
+		"			super();\n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	};
 	addLibrary("generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
@@ -377,7 +377,7 @@ public void testClassFileGetElementAt04() throws JavaModelException {
 /*
  * Ensures that the source of a .class file is implicetely attached when prj=src=bin
  * (regression test for bug 41444 [navigation] error dialog on opening class file)
- * 
+ *
  * Note: The test case is being modified as part of fix for bug
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=398490
  */
@@ -921,16 +921,16 @@ public void testInnerClass1() throws JavaModelException {
 		"    V(String s) {\n" +
 		"    }\n" +
 		"  }\n" +
-		"  class Inner {\n" + 
-		"    Inner() {\n" + 
-		"    }\n" + 
-		"    class WW {\n" + 
-		"      WW() {}\n" + 
-		"      class WWW {\n" + 
-		"        WWW() {}\n" + 
-		"      }\n" + 
-		"    }\n" + 
-		"  }\n" + 
+		"  class Inner {\n" +
+		"    Inner() {\n" +
+		"    }\n" +
+		"    class WW {\n" +
+		"      WW() {}\n" +
+		"      class WWW {\n" +
+		"        WWW() {}\n" +
+		"      }\n" +
+		"    }\n" +
+		"  }\n" +
 		"}",
 		type.getSource());
 	attachSource(root, null, null); // detach source
@@ -1086,18 +1086,18 @@ public void testInnerClass10() throws JavaModelException {
 	IType type = fragment.getOrdinaryClassFile("X$Inner$WW.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class WW {\n" + 
-		"      WW() {}\n" + 
-		"      class WWW {\n" + 
-		"        WWW() {}\n" + 
-		"      }\n" + 
+		"class WW {\n" +
+		"      WW() {}\n" +
+		"      class WWW {\n" +
+		"        WWW() {}\n" +
+		"      }\n" +
 		"    }",
 		type.getSource());
 	type = fragment.getOrdinaryClassFile("X$Inner$WW$WWW.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
-		"class WWW {\n" + 
-		"        WWW() {}\n" + 
+		"class WWW {\n" +
+		"        WWW() {}\n" +
 		"      }",
 		type.getSource());
 	attachSource(root, null, null); // detach source
@@ -1629,7 +1629,7 @@ public void testRootPath13() throws JavaModelException {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(this.getFile("/AttachSourceTests/test7.jar"));
 	attachSource(root, "/AttachSourceTests/test7src/", null);
-	
+
 	IOrdinaryClassFile cf = root.getPackageFragment("p1.p2").getOrdinaryClassFile("X.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
@@ -1698,28 +1698,28 @@ public void test267046() throws JavaModelException {
 	IOrdinaryClassFile cf = root.getPackageFragment("test").getOrdinaryClassFile("Foo.class");
 	assertSourceEquals(
 		"Unexpected source for class file",
-		"package test;\n" + 
-		"\n" + 
-		"public class Foo {\n" + 
-		"	public static class Bar<A, B> {\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	public static void gotchaFunc1(Bar<byte[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc2(Bar<boolean[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc3(Bar<char[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc4(Bar<double[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc5(Bar<float[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc6(Bar<int[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc7(Bar<long[], Object> bar) {\n" + 
-		"	}\n" + 
-		"	public static void gotchaFunc8(Bar<short[], Object> bar) {\n" + 
-		"	}\n" + 
+		"package test;\n" +
+		"\n" +
+		"public class Foo {\n" +
+		"	public static class Bar<A, B> {\n" +
+		"	}\n" +
+		"\n" +
+		"	public static void gotchaFunc1(Bar<byte[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc2(Bar<boolean[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc3(Bar<char[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc4(Bar<double[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc5(Bar<float[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc6(Bar<int[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc7(Bar<long[], Object> bar) {\n" +
+		"	}\n" +
+		"	public static void gotchaFunc8(Bar<short[], Object> bar) {\n" +
+		"	}\n" +
 		"}\n",
 		cf.getSource());
 	IType type = cf.getType();
@@ -1769,7 +1769,7 @@ public void testConstructorAccess() throws JavaModelException {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/generic.jar"));
 	attachSource(root, "/AttachSourceTests/genericsrc.zip", null);
-	
+
 	IOrdinaryClassFile cf = root.getPackageFragment("").getOrdinaryClassFile("Container$Inner.class");
 	final IType type = cf.getType();
 	final IMethod[] methods = type.getMethods();
@@ -1777,8 +1777,8 @@ public void testConstructorAccess() throws JavaModelException {
 	assertTrue("Not a constructor", methods[0].isConstructor());
 	assertSourceEquals(
 		"Unexpected source for generic constructor",
-		"Inner(String st, Class<S> s) {\n" + 
-		"			super();\n" + 
+		"Inner(String st, Class<S> s) {\n" +
+		"			super();\n" +
 		"		}",
 		methods[0].getSource());
 	attachSource(root, null, null); // detach source
@@ -1792,17 +1792,17 @@ public void testBug336046() throws Exception {
 	Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 	IJavaProject importedProject = null;
 	try {
-		
+
 		String classpathContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 		"<classpath>\n" +
 		"    <classpathentry kind=\"lib\" path=\"attach.jar\"/>\n" +
 		"    <classpathentry kind=\"lib\" path=\"attach2.jar\"/>\n" +
-		"    <classpathentry kind=\"lib\" path=\"test.jar\"/>\n" + 
-		"    <classpathentry kind=\"lib\" path=\"update.jar\"/>\n" +   
+		"    <classpathentry kind=\"lib\" path=\"test.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"update.jar\"/>\n" +
 		"    <classpathentry kind=\"lib\" path=\"full.jar\"/>\n" +
-		"    <classpathentry kind=\"lib\" path=\"test2.jar\"/>\n" +  
-		"    <classpathentry kind=\"lib\" path=\"test4.jar\"/>  \n" +  
-		"    <classpathentry kind=\"lib\" path=\"test5.jar\"/>  \n" +  
+		"    <classpathentry kind=\"lib\" path=\"test2.jar\"/>\n" +
+		"    <classpathentry kind=\"lib\" path=\"test4.jar\"/>  \n" +
+		"    <classpathentry kind=\"lib\" path=\"test5.jar\"/>  \n" +
 		"    <classpathentry kind=\"lib\" path=\"test6.jar\"/>\n" +
 		"    <classpathentry kind=\"lib\" path=\"test7.jar\"/>\n" +
 		"    <classpathentry kind=\"lib\" path=\"267046.jar\"/>\n" +
@@ -1813,7 +1813,7 @@ public void testBug336046() throws Exception {
 		"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 		"</classpath>";
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		
+
 		IPath sourceLocation = project.getProject().getLocation();
 		IPath destination = new Path(getExternalFolder()).append("ImportedProject");
 		String classpathLocation = destination.append(".classpath").toString();
@@ -1866,7 +1866,7 @@ public void testModule1() throws CoreException, IOException {
 			"	exports test1;\n" +
 			"}\n");
 
-		String modOneSrc = 
+		String modOneSrc =
 			"\n" +
 			"/** The no. one module. */\n" +
 			"module mod.one {\n" +
@@ -1877,7 +1877,7 @@ public void testModule1() throws CoreException, IOException {
 			modOneSrc,
 			"m/o/p/C.java",
 			"package m.o.p;\n" +
-			"public class C {\n" + 
+			"public class C {\n" +
 			"}"
 		};
 		addLibrary(javaProject, "mod.one.jar", "mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);

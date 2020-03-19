@@ -90,7 +90,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		}
 		@Override
 		public IBinaryTypeAnnotation[] getTypeAnnotations() {
-			return null; 
+			return null;
 		}
 		@Override
 		public char[] getSelector() {
@@ -143,7 +143,7 @@ public IBinaryAnnotation[] getAnnotations() {
 }
 @Override
 public IBinaryTypeAnnotation[] getTypeAnnotations() {
-	return null; 
+	return null;
 }
 @Override
 public char[] getEnclosingMethod() {

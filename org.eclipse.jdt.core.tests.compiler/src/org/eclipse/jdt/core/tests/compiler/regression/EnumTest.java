@@ -218,20 +218,20 @@ public void test003() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public BLEU, \n" + 
-		"	       ^^^^\n" + 
-		"Illegal modifier for the enum constant BLEU; no modifier is allowed\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	transient BLANC, \n" + 
-		"	          ^^^^^\n" + 
-		"Illegal modifier for the enum constant BLANC; no modifier is allowed\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
-		"	abstract RED {\n" + 
-		"	         ^^^\n" + 
-		"Illegal modifier for the enum constant RED; no modifier is allowed\n" + 
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public BLEU, \n" +
+		"	       ^^^^\n" +
+		"Illegal modifier for the enum constant BLEU; no modifier is allowed\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	transient BLANC, \n" +
+		"	          ^^^^^\n" +
+		"Illegal modifier for the enum constant BLANC; no modifier is allowed\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	abstract RED {\n" +
+		"	         ^^^\n" +
+		"Illegal modifier for the enum constant RED; no modifier is allowed\n" +
 		"----------\n");
 }
 // check using an enum constant
@@ -740,21 +740,21 @@ public void test022() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	case MX.BLEU : break;\n" + 
-		"	     ^^^^^^^\n" + 
-		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	case MX.BLANC : break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	case MX.ROUGE : break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	case MX.BLEU : break;\n" +
+		"	     ^^^^^^^\n" +
+		"The qualified case label X.MX.BLEU must be replaced with the unqualified enum constant BLEU\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	case MX.BLANC : break;\n" +
+		"	     ^^^^^^^^\n" +
+		"The qualified case label X.MX.BLANC must be replaced with the unqualified enum constant BLANC\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	case MX.ROUGE : break;\n" +
+		"	     ^^^^^^^^\n" +
+		"The qualified case label X.MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" +
 		"----------\n");
 }
 
@@ -1864,7 +1864,7 @@ public void test062() {
 		"1. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
 		"	        ^\n" +
-		"The switch over the enum type X should have a default case\n" + 
+		"The switch over the enum type X should have a default case\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	switch (x) {\n" +
@@ -4754,7 +4754,7 @@ public void test135() {
 			"    }\n" +
 			"}",
         },
-        "----------\n" + 
+        "----------\n" +
 		"1. ERROR in X.java (at line 12)\n" +
 		"	return b;\n" +
 		"	       ^\n" +
@@ -4950,15 +4950,15 @@ public void test138() {
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	MINUS {\n" + 
-		"	^^^^^\n" + 
-		"The enum constant MINUS cannot define abstract methods\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	abstract double eval(double x, double y);\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The method eval cannot be abstract in the enum constant MINUS\n" + 
+		"2. ERROR in X.java (at line 7)\n" +
+		"	MINUS {\n" +
+		"	^^^^^\n" +
+		"The enum constant MINUS cannot define abstract methods\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	abstract double eval(double x, double y);\n" +
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method eval cannot be abstract in the enum constant MINUS\n" +
 		"----------\n"
 	);
 }
@@ -4987,20 +4987,20 @@ public void test139() {
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The method eval(double, double) of type new X(){} should be tagged with @Override since it actually overrides a superclass method\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	MINUS {\n" + 
-		"	^^^^^\n" + 
-		"The enum constant MINUS cannot define abstract methods\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
-		"	MINUS {\n" + 
-		"	^^^^^\n" + 
-		"The enum constant MINUS must implement the abstract method eval(double, double)\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 8)\n" + 
-		"	abstract double eval2(double x, double y);\n" + 
-		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The method eval2 cannot be abstract in the enum constant MINUS\n" + 
+		"2. ERROR in X.java (at line 7)\n" +
+		"	MINUS {\n" +
+		"	^^^^^\n" +
+		"The enum constant MINUS cannot define abstract methods\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	MINUS {\n" +
+		"	^^^^^\n" +
+		"The enum constant MINUS must implement the abstract method eval(double, double)\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 8)\n" +
+		"	abstract double eval2(double x, double y);\n" +
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method eval2 cannot be abstract in the enum constant MINUS\n" +
 		"----------\n"
 	);
 }
@@ -5078,15 +5078,15 @@ public void test143() {
 				"}",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	A {\n" + 
-		"	^\n" + 
-		"The enum constant A cannot define abstract methods\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	public abstract String a();\n" + 
-		"	                       ^^^\n" + 
-		"The method a cannot be abstract in the enum constant A\n" + 
+		"1. ERROR in X.java (at line 2)\n" +
+		"	A {\n" +
+		"	^\n" +
+		"The enum constant A cannot define abstract methods\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	public abstract String a();\n" +
+		"	                       ^^^\n" +
+		"The method a cannot be abstract in the enum constant A\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=186822
@@ -5770,39 +5770,39 @@ public void test162() {
 	this.runNegativeTest(
 			new String[] {
 				"Status.java", // =================
-				"import java.util.HashMap;\n" + 
-				"import java.util.Map;\n" + 
-				"\n" + 
-				"public enum Status {\n" + 
-				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" + 
-				"\n" + 
-				"	private static Map<Byte, Status> mapping;\n" + 
-				"\n" + 
-				"	private Status(final byte newValue) {\n" + 
-				"\n" + 
-				"		if (Status.mapping == null) {\n" + 
-				"			Status.mapping = new HashMap<Byte, Status>();\n" + 
-				"		}\n" + 
-				"\n" + 
-				"		Status.mapping.put(newValue, this);\n" + 
-				"	}\n" + 
+				"import java.util.HashMap;\n" +
+				"import java.util.Map;\n" +
+				"\n" +
+				"public enum Status {\n" +
+				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" +
+				"\n" +
+				"	private static Map<Byte, Status> mapping;\n" +
+				"\n" +
+				"	private Status(final byte newValue) {\n" +
+				"\n" +
+				"		if (Status.mapping == null) {\n" +
+				"			Status.mapping = new HashMap<Byte, Status>();\n" +
+				"		}\n" +
+				"\n" +
+				"		Status.mapping.put(newValue, this);\n" +
+				"	}\n" +
 				"}\n", // =================
 			},
-			"----------\n" + 
-			"1. ERROR in Status.java (at line 11)\n" + 
-			"	if (Status.mapping == null) {\n" + 
-			"	           ^^^^^^^\n" + 
-			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
-			"----------\n" + 
-			"2. ERROR in Status.java (at line 12)\n" + 
-			"	Status.mapping = new HashMap<Byte, Status>();\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
-			"----------\n" + 
-			"3. ERROR in Status.java (at line 15)\n" + 
-			"	Status.mapping.put(newValue, this);\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot refer to the static enum field Status.mapping within an initializer\n" + 
+			"----------\n" +
+			"1. ERROR in Status.java (at line 11)\n" +
+			"	if (Status.mapping == null) {\n" +
+			"	           ^^^^^^^\n" +
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" +
+			"----------\n" +
+			"2. ERROR in Status.java (at line 12)\n" +
+			"	Status.mapping = new HashMap<Byte, Status>();\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" +
+			"----------\n" +
+			"3. ERROR in Status.java (at line 15)\n" +
+			"	Status.mapping.put(newValue, this);\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot refer to the static enum field Status.mapping within an initializer\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225 - variation
@@ -5810,22 +5810,22 @@ public void test163() {
 	this.runConformTest(
 			new String[] {
 				"Status.java", // =================
-				"import java.util.HashMap;\n" + 
-				"import java.util.Map;\n" + 
-				"\n" + 
-				"enum Status {\n" + 
-				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" + 
-				"	private byte value;\n" + 
-				"	private static Map<Byte, Status> mapping;\n" + 
-				"	private Status(final byte newValue) {\n" + 
-				"		this.value = newValue;\n" + 
-				"	}\n" + 
-				"	static {\n" + 
-				"		Status.mapping = new HashMap<Byte, Status>();\n" + 
-				"		for (Status s : values()) {\n" + 
-				"			Status.mapping.put(s.value, s);\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"import java.util.HashMap;\n" +
+				"import java.util.Map;\n" +
+				"\n" +
+				"enum Status {\n" +
+				"	GOOD((byte) 0x00), BAD((byte) 0x02);\n" +
+				"	private byte value;\n" +
+				"	private static Map<Byte, Status> mapping;\n" +
+				"	private Status(final byte newValue) {\n" +
+				"		this.value = newValue;\n" +
+				"	}\n" +
+				"	static {\n" +
+				"		Status.mapping = new HashMap<Byte, Status>();\n" +
+				"		for (Status s : values()) {\n" +
+				"			Status.mapping.put(s.value, s);\n" +
+				"		}\n" +
+				"	}\n" +
 				"}\n", // =================
 			},
 			"");
@@ -5853,95 +5853,95 @@ public void test165() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"class Other {\n" + 
-			"	int dupField;//1\n" + 
-			"	int dupField;//2\n" + 
-			"	int dupField;//3\n" + 
-			"	int dupField;//4\n" + 
-			"	void dupMethod(int i) {}//5\n" + 
-			"	void dupMethod(int i) {}//6\n" + 
-			"	void dupMethod(int i) {}//7\n" + 
-			"	void dupMethod(int i) {}//8\n" + 
-			"	void foo() {\n" + 
-			"		int i = dupMethod(dupField);\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"\n" + 
-			"public enum X {\n" + 
-			"        ;\n" + 
-			"        private X valueOf(String arg0) { return null; }//9\n" + 
-			"        private X valueOf(String arg0) { return null; }//10\n" + 
-			"        private X valueOf(String arg0) { return null; }//11\n" + 
-			"        void foo() {\n" + 
-			"        	int i = valueOf(\"\");\n" + 
-			"        }\n" + 
+			"class Other {\n" +
+			"	int dupField;//1\n" +
+			"	int dupField;//2\n" +
+			"	int dupField;//3\n" +
+			"	int dupField;//4\n" +
+			"	void dupMethod(int i) {}//5\n" +
+			"	void dupMethod(int i) {}//6\n" +
+			"	void dupMethod(int i) {}//7\n" +
+			"	void dupMethod(int i) {}//8\n" +
+			"	void foo() {\n" +
+			"		int i = dupMethod(dupField);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"public enum X {\n" +
+			"        ;\n" +
+			"        private X valueOf(String arg0) { return null; }//9\n" +
+			"        private X valueOf(String arg0) { return null; }//10\n" +
+			"        private X valueOf(String arg0) { return null; }//11\n" +
+			"        void foo() {\n" +
+			"        	int i = valueOf(\"\");\n" +
+			"        }\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	int dupField;//1\n" + 
-		"	    ^^^^^^^^\n" + 
-		"Duplicate field Other.dupField\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	int dupField;//2\n" + 
-		"	    ^^^^^^^^\n" + 
-		"Duplicate field Other.dupField\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 4)\n" + 
-		"	int dupField;//3\n" + 
-		"	    ^^^^^^^^\n" + 
-		"Duplicate field Other.dupField\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 5)\n" + 
-		"	int dupField;//4\n" + 
-		"	    ^^^^^^^^\n" + 
-		"Duplicate field Other.dupField\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 6)\n" + 
-		"	void dupMethod(int i) {}//5\n" + 
-		"	     ^^^^^^^^^^^^^^^^\n" + 
-		"Duplicate method dupMethod(int) in type Other\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 7)\n" + 
-		"	void dupMethod(int i) {}//6\n" + 
-		"	     ^^^^^^^^^^^^^^^^\n" + 
-		"Duplicate method dupMethod(int) in type Other\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 8)\n" + 
-		"	void dupMethod(int i) {}//7\n" + 
-		"	     ^^^^^^^^^^^^^^^^\n" + 
-		"Duplicate method dupMethod(int) in type Other\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 9)\n" + 
-		"	void dupMethod(int i) {}//8\n" + 
-		"	     ^^^^^^^^^^^^^^^^\n" + 
-		"Duplicate method dupMethod(int) in type Other\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 11)\n" + 
-		"	int i = dupMethod(dupField);\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from void to int\n" + 
-		"----------\n" + 
-		"10. ERROR in X.java (at line 17)\n" + 
-		"	private X valueOf(String arg0) { return null; }//9\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The enum X already defines the method valueOf(String) implicitly\n" + 
-		"----------\n" + 
-		"11. ERROR in X.java (at line 18)\n" + 
-		"	private X valueOf(String arg0) { return null; }//10\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The enum X already defines the method valueOf(String) implicitly\n" + 
-		"----------\n" + 
-		"12. ERROR in X.java (at line 19)\n" + 
-		"	private X valueOf(String arg0) { return null; }//11\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The enum X already defines the method valueOf(String) implicitly\n" + 
-		"----------\n" + 
-		"13. ERROR in X.java (at line 21)\n" + 
-		"	int i = valueOf(\"\");\n" + 
-		"	        ^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from X to int\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	int dupField;//1\n" +
+		"	    ^^^^^^^^\n" +
+		"Duplicate field Other.dupField\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	int dupField;//2\n" +
+		"	    ^^^^^^^^\n" +
+		"Duplicate field Other.dupField\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	int dupField;//3\n" +
+		"	    ^^^^^^^^\n" +
+		"Duplicate field Other.dupField\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 5)\n" +
+		"	int dupField;//4\n" +
+		"	    ^^^^^^^^\n" +
+		"Duplicate field Other.dupField\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 6)\n" +
+		"	void dupMethod(int i) {}//5\n" +
+		"	     ^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method dupMethod(int) in type Other\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 7)\n" +
+		"	void dupMethod(int i) {}//6\n" +
+		"	     ^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method dupMethod(int) in type Other\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 8)\n" +
+		"	void dupMethod(int i) {}//7\n" +
+		"	     ^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method dupMethod(int) in type Other\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 9)\n" +
+		"	void dupMethod(int i) {}//8\n" +
+		"	     ^^^^^^^^^^^^^^^^\n" +
+		"Duplicate method dupMethod(int) in type Other\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 11)\n" +
+		"	int i = dupMethod(dupField);\n" +
+		"	        ^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from void to int\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 17)\n" +
+		"	private X valueOf(String arg0) { return null; }//9\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" +
+		"The enum X already defines the method valueOf(String) implicitly\n" +
+		"----------\n" +
+		"11. ERROR in X.java (at line 18)\n" +
+		"	private X valueOf(String arg0) { return null; }//10\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" +
+		"The enum X already defines the method valueOf(String) implicitly\n" +
+		"----------\n" +
+		"12. ERROR in X.java (at line 19)\n" +
+		"	private X valueOf(String arg0) { return null; }//11\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^\n" +
+		"The enum X already defines the method valueOf(String) implicitly\n" +
+		"----------\n" +
+		"13. ERROR in X.java (at line 21)\n" +
+		"	int i = valueOf(\"\");\n" +
+		"	        ^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from X to int\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251814
@@ -5949,24 +5949,24 @@ public void test166() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"public enum X {\n" + 
-			"        ;\n" + 
-			"        private int valueOf(String arg0) { return 0; }//11\n" + 
-			"        void foo() {\n" + 
-			"        	int i = valueOf(\"\");\n" + 
-			"        }\n" + 
+			"public enum X {\n" +
+			"        ;\n" +
+			"        private int valueOf(String arg0) { return 0; }//11\n" +
+			"        void foo() {\n" +
+			"        	int i = valueOf(\"\");\n" +
+			"        }\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	private int valueOf(String arg0) { return 0; }//11\n" + 
-		"	            ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	private int valueOf(String arg0) { return 0; }//11\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^^\n" +
 		"The enum X already defines the method valueOf(String) implicitly\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
 		"	int i = valueOf(\"\");\n" +
 		"	        ^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from X to int\n" + 
+		"Type mismatch: cannot convert from X to int\n" +
 		"----------\n",
 		null,
 		true, // flush output
@@ -5976,33 +5976,33 @@ public void test166() throws Exception {
 		false);
 	// check for presence of #valueOf(...) in problem type
 	String expectedOutput =
-		"public final enum X {\n" + 
-		"  \n" + 
-		"  // Method descriptor #6 (Ljava/lang/String;I)V\n" + 
-		"  // Stack: 3, Locals: 3\n" + 
-		"  private X(java.lang.String arg0, int arg1);\n" + 
-		"     0  new java.lang.Error [8]\n" + 
-		"     3  dup\n" + 
-		"     4  ldc <String \"Unresolved compilation problems: \\n\\tThe enum X already defines the method valueOf(String) implicitly\\n\\tType mismatch: cannot convert from X to int\\n\"> [10]\n" + 
-		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
-		"     9  athrow\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 3]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
-		"  \n" + 
-		"  // Method descriptor #20 ()V\n" + 
-		"  // Stack: 3, Locals: 1\n" + 
-		"  void foo();\n" + 
-		"     0  new java.lang.Error [8]\n" + 
-		"     3  dup\n" + 
-		"     4  ldc <String \"Unresolved compilation problem: \\n\\tType mismatch: cannot convert from X to int\\n\"> [21]\n" + 
-		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
-		"     9  athrow\n" + 
-		"      Line numbers:\n" + 
-		"        [pc: 0, line: 5]\n" + 
-		"      Local variable table:\n" + 
-		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+		"public final enum X {\n" +
+		"  \n" +
+		"  // Method descriptor #6 (Ljava/lang/String;I)V\n" +
+		"  // Stack: 3, Locals: 3\n" +
+		"  private X(java.lang.String arg0, int arg1);\n" +
+		"     0  new java.lang.Error [8]\n" +
+		"     3  dup\n" +
+		"     4  ldc <String \"Unresolved compilation problems: \\n\\tThe enum X already defines the method valueOf(String) implicitly\\n\\tType mismatch: cannot convert from X to int\\n\"> [10]\n" +
+		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" +
+		"     9  athrow\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 3]\n" +
+		"      Local variable table:\n" +
+		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+		"  \n" +
+		"  // Method descriptor #20 ()V\n" +
+		"  // Stack: 3, Locals: 1\n" +
+		"  void foo();\n" +
+		"     0  new java.lang.Error [8]\n" +
+		"     3  dup\n" +
+		"     4  ldc <String \"Unresolved compilation problem: \\n\\tType mismatch: cannot convert from X to int\\n\"> [21]\n" +
+		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" +
+		"     9  athrow\n" +
+		"      Line numbers:\n" +
+		"        [pc: 0, line: 5]\n" +
+		"      Local variable table:\n" +
+		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
 		"}";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
@@ -6012,21 +6012,21 @@ public void test167() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"public enum X {\n" + 
-			"    ;\n" + 
-			"    static int valueOf(String arg0) { return 0; }//9\n" + 
-			"    void foo() {\n" + 
+			"public enum X {\n" +
+			"    ;\n" +
+			"    static int valueOf(String arg0) { return 0; }//9\n" +
+			"    void foo() {\n" +
 			"    	int i = X.valueOf(\"\");\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}\n",
 			"Other.java",// =================
-			"public class Other {\n" + 
-			"    void foo() {\n" + 
-			"    	int i = X.valueOf(\"\");\n" + 
-			"    }\n" + 
+			"public class Other {\n" +
+			"    void foo() {\n" +
+			"    	int i = X.valueOf(\"\");\n" +
+			"    }\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
+		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	static int valueOf(String arg0) { return 0; }//9\n" +
 		"	           ^^^^^^^^^^^^^^^^^^^^\n" +
@@ -6053,10 +6053,10 @@ public void test167() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 				"Other.java",// =================
-				"public class Other {\n" + 
-				"    void foo() {\n" + 
-				"    	int i = X.valueOf(\"\");\n" + 
-				"    }\n" + 
+				"public class Other {\n" +
+				"    void foo() {\n" +
+				"    	int i = X.valueOf(\"\");\n" +
+				"    }\n" +
 				"}\n", // =================
 		},
 		"----------\n" +
@@ -6077,63 +6077,63 @@ public void test168() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"enum BadEnum {\n" + 
-			"    CRAZY(CRAZY), // <-- illegal forward reference reported by all compilers\n" + 
-			"    IMPOSSIBLE(BadEnum.IMPOSSIBLE); // <-- illegal forward reference (javac 1.6 only)\n" + 
-			"    private BadEnum(BadEnum self) {\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"    X x1 = new X(x1);//1 - WRONG\n" + 
-			"    static X X2 = new X(X.X2);//2 - OK\n" + 
-			"    X x3 = new X(this.x3);//3 - OK\n" + 
-			"    X(X x) {}\n" + 
-			"    X(int i) {}\n" + 
-			"    static int VALUE() { return 13; }\n" + 
-			"    int value() { return 14; }\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
-			"    X x1 = new X(x1);//6 - WRONG\n" + 
-			"    static X X2 = new X(Y.X2);//7 - OK\n" + 
-			"    X x3 = new X(this.x3);//8 - OK\n" + 
-			"    Y(Y y) { super(y); }\n" + 
+			"enum BadEnum {\n" +
+			"    CRAZY(CRAZY), // <-- illegal forward reference reported by all compilers\n" +
+			"    IMPOSSIBLE(BadEnum.IMPOSSIBLE); // <-- illegal forward reference (javac 1.6 only)\n" +
+			"    private BadEnum(BadEnum self) {\n" +
+			"    }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    X x1 = new X(x1);//1 - WRONG\n" +
+			"    static X X2 = new X(X.X2);//2 - OK\n" +
+			"    X x3 = new X(this.x3);//3 - OK\n" +
+			"    X(X x) {}\n" +
+			"    X(int i) {}\n" +
+			"    static int VALUE() { return 13; }\n" +
+			"    int value() { return 14; }\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"    X x1 = new X(x1);//6 - WRONG\n" +
+			"    static X X2 = new X(Y.X2);//7 - OK\n" +
+			"    X x3 = new X(this.x3);//8 - OK\n" +
+			"    Y(Y y) { super(y); }\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	CRAZY(CRAZY), // <-- illegal forward reference reported by all compilers\n" + 
-		"	      ^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	IMPOSSIBLE(BadEnum.IMPOSSIBLE); // <-- illegal forward reference (javac 1.6 only)\n" + 
-		"	                   ^^^^^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
-		"	X x1 = new X(x1);//1 - WRONG\n" + 
-		"	             ^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 17)\n" + 
-		"	X x1 = new X(x1);//6 - WRONG\n" + 
-		"	  ^^\n" + 
-		"The field Y.x1 is hiding a field from type X\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 17)\n" + 
-		"	X x1 = new X(x1);//6 - WRONG\n" + 
-		"	             ^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 18)\n" + 
-		"	static X X2 = new X(Y.X2);//7 - OK\n" + 
-		"	         ^^\n" + 
-		"The field Y.X2 is hiding a field from type X\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 19)\n" + 
-		"	X x3 = new X(this.x3);//8 - OK\n" + 
-		"	  ^^\n" + 
-		"The field Y.x3 is hiding a field from type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	CRAZY(CRAZY), // <-- illegal forward reference reported by all compilers\n" +
+		"	      ^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	IMPOSSIBLE(BadEnum.IMPOSSIBLE); // <-- illegal forward reference (javac 1.6 only)\n" +
+		"	                   ^^^^^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
+		"	X x1 = new X(x1);//1 - WRONG\n" +
+		"	             ^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 17)\n" +
+		"	X x1 = new X(x1);//6 - WRONG\n" +
+		"	  ^^\n" +
+		"The field Y.x1 is hiding a field from type X\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 17)\n" +
+		"	X x1 = new X(x1);//6 - WRONG\n" +
+		"	             ^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 18)\n" +
+		"	static X X2 = new X(Y.X2);//7 - OK\n" +
+		"	         ^^\n" +
+		"The field Y.X2 is hiding a field from type X\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 19)\n" +
+		"	X x3 = new X(this.x3);//8 - OK\n" +
+		"	  ^^\n" +
+		"The field Y.x3 is hiding a field from type X\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=255452 - variation
@@ -6141,76 +6141,76 @@ public void test169() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"enum BadEnum {\n" + 
-			"    NOWAY(BadEnum.NOWAY.CONST),\n" + 
-			"    INVALID(INVALID.CONST),\n" + 
-			"    WRONG(WRONG.VALUE()),\n" + 
-			"    ILLEGAL(ILLEGAL.value());\n" + 
-			"    final static int CONST = 12;\n" + 
-			"    private BadEnum(int i) {\n" + 
-			"    }\n" + 
-			"    static int VALUE() { return 13; }\n" + 
-			"    int value() { return 14; }\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"    final static int CONST = 12;\n" + 
-			"    X x4 = new X(x4.CONST);//4 - WRONG\n" + 
-			"    X x5 = new X(x5.value());//5 - WRONG\n" + 
-			"    X(int i) {}\n" + 
-			"    static int VALUE() { return 13; }\n" + 
-			"    int value() { return 14; }\n" + 
+			"enum BadEnum {\n" +
+			"    NOWAY(BadEnum.NOWAY.CONST),\n" +
+			"    INVALID(INVALID.CONST),\n" +
+			"    WRONG(WRONG.VALUE()),\n" +
+			"    ILLEGAL(ILLEGAL.value());\n" +
+			"    final static int CONST = 12;\n" +
+			"    private BadEnum(int i) {\n" +
+			"    }\n" +
+			"    static int VALUE() { return 13; }\n" +
+			"    int value() { return 14; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    final static int CONST = 12;\n" +
+			"    X x4 = new X(x4.CONST);//4 - WRONG\n" +
+			"    X x5 = new X(x5.value());//5 - WRONG\n" +
+			"    X(int i) {}\n" +
+			"    static int VALUE() { return 13; }\n" +
+			"    int value() { return 14; }\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
-		"	              ^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\n" + 
-		"	NOWAY(BadEnum.NOWAY.CONST),\n" + 
-		"	                    ^^^^^\n" + 
-		"The static field BadEnum.CONST should be accessed in a static way\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
-		"	INVALID(INVALID.CONST),\n" + 
-		"	        ^^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 3)\n" + 
-		"	INVALID(INVALID.CONST),\n" + 
-		"	                ^^^^^\n" + 
-		"The static field BadEnum.CONST should be accessed in a static way\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 4)\n" + 
-		"	WRONG(WRONG.VALUE()),\n" + 
-		"	      ^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 4)\n" + 
-		"	WRONG(WRONG.VALUE()),\n" + 
-		"	      ^^^^^^^^^^^^^\n" + 
-		"The static method VALUE() from the type BadEnum should be accessed in a static way\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 5)\n" + 
-		"	ILLEGAL(ILLEGAL.value());\n" + 
-		"	        ^^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 14)\n" + 
-		"	X x4 = new X(x4.CONST);//4 - WRONG\n" + 
-		"	             ^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"9. WARNING in X.java (at line 14)\n" + 
-		"	X x4 = new X(x4.CONST);//4 - WRONG\n" + 
-		"	                ^^^^^\n" + 
-		"The static field X.CONST should be accessed in a static way\n" + 
-		"----------\n" + 
-		"10. ERROR in X.java (at line 15)\n" + 
-		"	X x5 = new X(x5.value());//5 - WRONG\n" + 
-		"	             ^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	NOWAY(BadEnum.NOWAY.CONST),\n" +
+		"	              ^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 2)\n" +
+		"	NOWAY(BadEnum.NOWAY.CONST),\n" +
+		"	                    ^^^^^\n" +
+		"The static field BadEnum.CONST should be accessed in a static way\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	INVALID(INVALID.CONST),\n" +
+		"	        ^^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 3)\n" +
+		"	INVALID(INVALID.CONST),\n" +
+		"	                ^^^^^\n" +
+		"The static field BadEnum.CONST should be accessed in a static way\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 4)\n" +
+		"	WRONG(WRONG.VALUE()),\n" +
+		"	      ^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 4)\n" +
+		"	WRONG(WRONG.VALUE()),\n" +
+		"	      ^^^^^^^^^^^^^\n" +
+		"The static method VALUE() from the type BadEnum should be accessed in a static way\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 5)\n" +
+		"	ILLEGAL(ILLEGAL.value());\n" +
+		"	        ^^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 14)\n" +
+		"	X x4 = new X(x4.CONST);//4 - WRONG\n" +
+		"	             ^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"9. WARNING in X.java (at line 14)\n" +
+		"	X x4 = new X(x4.CONST);//4 - WRONG\n" +
+		"	                ^^^^^\n" +
+		"The static field X.CONST should be accessed in a static way\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 15)\n" +
+		"	X x5 = new X(x5.value());//5 - WRONG\n" +
+		"	             ^^\n" +
+		"Cannot reference a field before it is defined\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=263877
@@ -6218,46 +6218,46 @@ public void test170() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"enum Days {\n" + 
-			"    Monday(\"Mon\", Days.OFFSET + 0),    // should not complain\n" + 
-			"    Tuesday(\"Tue\", Days.Wednesday.hashCode()),   // should complain since enum constant\n" + 
-			"    Wednesday(\"Wed\", OFFSET + 2);   // should complain since unqualified\n" + 
-			"    public static final int OFFSET = 0;  // cannot move this above, else more errors\n" + 
-			"    Days(String abbr, int index) {\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class X {\n" + 
-			"    public static final int FOO = X.OFFSET + 0;\n" + 
-			"    public static final int BAR = OFFSET + 1;\n" + 
-			"    public static final int OFFSET = 0;  // cannot move this above, else more errors\n" + 
+			"enum Days {\n" +
+			"    Monday(\"Mon\", Days.OFFSET + 0),    // should not complain\n" +
+			"    Tuesday(\"Tue\", Days.Wednesday.hashCode()),   // should complain since enum constant\n" +
+			"    Wednesday(\"Wed\", OFFSET + 2);   // should complain since unqualified\n" +
+			"    public static final int OFFSET = 0;  // cannot move this above, else more errors\n" +
+			"    Days(String abbr, int index) {\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"    public static final int FOO = X.OFFSET + 0;\n" +
+			"    public static final int BAR = OFFSET + 1;\n" +
+			"    public static final int OFFSET = 0;  // cannot move this above, else more errors\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Tuesday(\"Tue\", Days.Wednesday.hashCode()),   // should complain since enum constant\n" + 
-		"	                    ^^^^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	Wednesday(\"Wed\", OFFSET + 2);   // should complain since unqualified\n" + 
-		"	                 ^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
-		"	public static final int BAR = OFFSET + 1;\n" + 
-		"	                              ^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	Tuesday(\"Tue\", Days.Wednesday.hashCode()),   // should complain since enum constant\n" +
+		"	                    ^^^^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	Wednesday(\"Wed\", OFFSET + 2);   // should complain since unqualified\n" +
+		"	                 ^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 12)\n" +
+		"	public static final int BAR = OFFSET + 1;\n" +
+		"	                              ^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
 		"----------\n");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=267670. Make sure we don't emit any unused
-// warnings about enumerators. Since these could be used in indirect ways not obvious. 
+// warnings about enumerators. Since these could be used in indirect ways not obvious.
 public void test171() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 	this.runConformTest(
-		true,	
+		true,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -6275,7 +6275,7 @@ public void test171() {
 		},
 		null, customOptions,
 		"",
-		"BLEUBLANCROUGE", null, 
+		"BLEUBLANCROUGE", null,
 		JavacTestOptions.DEFAULT);
 }
 
@@ -6287,11 +6287,11 @@ public void test172() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 	this.runConformTest(
-		true,	
+		true,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
-			"    private enum Greet {\n" + 
+			"    private enum Greet {\n" +
 			"	     HELLO, HOWDY, BONJOUR; \n" +
 			"    }\n" +
 			"	 private enum Colors {\n" +
@@ -6301,7 +6301,7 @@ public void test172() {
             "       WARNING, ERROR, FATAL_ERROR, PANIC;\n" +
             "   }\n" +
 			"	public static void main(String[] args) {\n" +
-			"		Greet g = Greet.valueOf(\"HELLO\");\n" +	
+			"		Greet g = Greet.valueOf(\"HELLO\");\n" +
 		    "		System.out.print(g);\n" +
 		    "       Colors c = Enum.valueOf(Colors.class, \"RED\");\n" +
 		    "		System.out.print(c);\n" +
@@ -6315,7 +6315,7 @@ public void test172() {
 		"	             ^^^^^^^^^\n" +
 		"The type X.Complaint is never used locally\n" +
 		"----------\n",
-		"HELLORED", null, 
+		"HELLORED", null,
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=273990
@@ -6335,17 +6335,17 @@ public void test173() {
 			"	private E2(final int i) {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in E.java (at line 2)\n" + 
-		"	A(E.STATIK);\n" + 
-		"	    ^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in E2.java (at line 2)\n" + 
-		"	A(E2.STATIK);\n" + 
-		"	     ^^^^^^\n" + 
-		"Cannot reference a field before it is defined\n" + 
+		"----------\n" +
+		"1. ERROR in E.java (at line 2)\n" +
+		"	A(E.STATIK);\n" +
+		"	    ^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in E2.java (at line 2)\n" +
+		"	A(E2.STATIK);\n" +
+		"	     ^^^^^^\n" +
+		"Cannot reference a field before it is defined\n" +
 		"----------\n"
 	);
 }
@@ -6411,18 +6411,18 @@ public void test176() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public enum X {\n" + 
-			"	A(\"\"), B(\"SUCCESS\"), C(\"Hello\");\n" + 
-			"	\n" + 
-			"	String message;\n" + 
-			"	\n" + 
-			"	X(@Deprecated String s) {\n" + 
-			"		this.message = s;\n" + 
-			"	}\n" + 
-			"	@Override\n" + 
-			"	public String toString() {\n" + 
-			"		return this.message;\n" + 
-			"	}\n" + 
+			"public enum X {\n" +
+			"	A(\"\"), B(\"SUCCESS\"), C(\"Hello\");\n" +
+			"	\n" +
+			"	String message;\n" +
+			"	\n" +
+			"	X(@Deprecated String s) {\n" +
+			"		this.message = s;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public String toString() {\n" +
+			"		return this.message;\n" +
+			"	}\n" +
 			"}"
 		},
 		""
@@ -6433,10 +6433,10 @@ public void test176() {
 		false,
 		new String[] {
 			"Y.java",
-			"public class Y {\n" + 
+			"public class Y {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		System.out.println(X.B);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}"
 		},
 		null,
@@ -6454,22 +6454,22 @@ public void test177() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public enum X {\n" + 
-			"	A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" + 
-			"	\n" + 
-			"	private String message;\n" + 
-			"	private int index;\n" + 
-			"	private String name;\n" + 
-			"	\n" + 
-			"	X(@Deprecated String s, int i, @Deprecated String name) {\n" + 
-			"		this.message = s;\n" + 
-			"		this.index = i;\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	@Override\n" + 
-			"	public String toString() {\n" + 
-			"		return this.message + this.name;\n" + 
-			"	}\n" + 
+			"public enum X {\n" +
+			"	A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" +
+			"	\n" +
+			"	private String message;\n" +
+			"	private int index;\n" +
+			"	private String name;\n" +
+			"	\n" +
+			"	X(@Deprecated String s, int i, @Deprecated String name) {\n" +
+			"		this.message = s;\n" +
+			"		this.index = i;\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public String toString() {\n" +
+			"		return this.message + this.name;\n" +
+			"	}\n" +
 			"}"
 		},
 		""
@@ -6480,10 +6480,10 @@ public void test177() {
 		false,
 		new String[] {
 			"Y.java",
-			"public class Y {\n" + 
+			"public class Y {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		System.out.println(X.B);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}"
 		},
 		null,
@@ -6502,22 +6502,22 @@ public void test178() {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	public static enum Y {\n" + 
-			"		A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" + 
-			"		\n" + 
-			"		private String message;\n" + 
-			"		private int index;\n" + 
-			"		private String name;\n" + 
-			"		Y(@Deprecated String s, int i, @Deprecated String name) {\n" + 
-			"			this.message = s;\n" + 
-			"			this.index = i;\n" + 
-			"			this.name = name;\n" + 
-			"		}\n" + 
-			"		@Override\n" + 
-			"		public String toString() {\n" + 
-			"			return this.message + this.name;\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"	public static enum Y {\n" +
+			"		A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" +
+			"		\n" +
+			"		private String message;\n" +
+			"		private int index;\n" +
+			"		private String name;\n" +
+			"		Y(@Deprecated String s, int i, @Deprecated String name) {\n" +
+			"			this.message = s;\n" +
+			"			this.index = i;\n" +
+			"			this.name = name;\n" +
+			"		}\n" +
+			"		@Override\n" +
+			"		public String toString() {\n" +
+			"			return this.message + this.name;\n" +
+			"		}\n" +
+			"	}\n" +
 			"}"
 		},
 		""
@@ -6528,10 +6528,10 @@ public void test178() {
 		false,
 		new String[] {
 			"Z.java",
-			"public class Z {\n" + 
+			"public class Z {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		System.out.println(X.Y.B);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}"
 		},
 		null,
@@ -6550,22 +6550,22 @@ public void test179() {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	public enum Y {\n" + 
-			"		A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" + 
-			"		\n" + 
-			"		private String message;\n" + 
-			"		private int index;\n" + 
-			"		private String name;\n" + 
-			"		Y(@Deprecated String s, int i, @Deprecated String name) {\n" + 
-			"			this.message = s;\n" + 
-			"			this.index = i;\n" + 
-			"			this.name = name;\n" + 
-			"		}\n" + 
-			"		@Override\n" + 
-			"		public String toString() {\n" + 
-			"			return this.message + this.name;\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"	public enum Y {\n" +
+			"		A(\"\", 0, \"A\"), B(\"SUCCESS\", 0, \"B\"), C(\"Hello\", 0, \"C\");\n" +
+			"		\n" +
+			"		private String message;\n" +
+			"		private int index;\n" +
+			"		private String name;\n" +
+			"		Y(@Deprecated String s, int i, @Deprecated String name) {\n" +
+			"			this.message = s;\n" +
+			"			this.index = i;\n" +
+			"			this.name = name;\n" +
+			"		}\n" +
+			"		@Override\n" +
+			"		public String toString() {\n" +
+			"			return this.message + this.name;\n" +
+			"		}\n" +
+			"	}\n" +
 			"}"
 		},
 		""
@@ -6576,10 +6576,10 @@ public void test179() {
 		false,
 		new String[] {
 			"Z.java",
-			"public class Z {\n" + 
+			"public class Z {\n" +
 			"	public static void main(String[] args) {\n" +
 			"		System.out.println(X.Y.B);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}"
 		},
 		null,
@@ -6594,28 +6594,28 @@ public void test180() {
 	this.runConformTest(
 		new String[] {
 			"p/package-info.java",
-			"@p.Annot(state=p.MyEnum.BROKEN)\n" + 
+			"@p.Annot(state=p.MyEnum.BROKEN)\n" +
 			"package p;",
 			"p/Annot.java",
-			"package p;\n" + 
-			"@Annot(state=MyEnum.KO)\n" + 
-			"public @interface Annot {\n" + 
-			"	MyEnum state() default MyEnum.KO;\n" + 
+			"package p;\n" +
+			"@Annot(state=MyEnum.KO)\n" +
+			"public @interface Annot {\n" +
+			"	MyEnum state() default MyEnum.KO;\n" +
 			"}",
 			"p/MyEnum.java",
-			"package p;\n" + 
-			"@Annot(state=MyEnum.KO)\n" + 
-			"public enum MyEnum {\n" + 
-			"	WORKS, OK, KO, BROKEN, ;\n" + 
+			"package p;\n" +
+			"@Annot(state=MyEnum.KO)\n" +
+			"public enum MyEnum {\n" +
+			"	WORKS, OK, KO, BROKEN, ;\n" +
 			"}",
 			"test180/package-info.java",
-			"@p.Annot(state=p.MyEnum.OK)\n" + 
+			"@p.Annot(state=p.MyEnum.OK)\n" +
 			"package test180;",
 			"test180/Test.java",
 			"package test180;\n" +
-			"import p.MyEnum;\n" + 
-			"import p.Annot;\n" + 
-			"@Annot(state=MyEnum.OK)\n" + 
+			"import p.MyEnum;\n" +
+			"import p.Annot;\n" +
+			"@Annot(state=MyEnum.OK)\n" +
 			"public class Test {}",
 		},
 		""
@@ -6627,10 +6627,10 @@ public void test180() {
 		new String[] {
 			"X.java",
 			"import test180.Test;\n" +
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(Test.class);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(Test.class);\n" +
+			"	}\n" +
 			"}"
 		},
 		null,
@@ -6642,35 +6642,35 @@ public void test180() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=289892
 // in interaction with null annotations
-// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=365519#c4 item (6) 
+// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=365519#c4 item (6)
 public void test180a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 	this.runConformTest(
 		new String[] {
 			"p/package-info.java",
-			"@p.Annot(state=p.MyEnum.BROKEN)\n" + 
+			"@p.Annot(state=p.MyEnum.BROKEN)\n" +
 			"package p;",
 			"p/Annot.java",
-			"package p;\n" + 
-			"@Annot(state=MyEnum.KO)\n" + 
-			"public @interface Annot {\n" + 
-			"	MyEnum state() default MyEnum.KO;\n" + 
+			"package p;\n" +
+			"@Annot(state=MyEnum.KO)\n" +
+			"public @interface Annot {\n" +
+			"	MyEnum state() default MyEnum.KO;\n" +
 			"}",
 			"p/MyEnum.java",
-			"package p;\n" + 
-			"@Annot(state=MyEnum.KO)\n" + 
-			"public enum MyEnum {\n" + 
-			"	WORKS, OK, KO, BROKEN, ;\n" + 
+			"package p;\n" +
+			"@Annot(state=MyEnum.KO)\n" +
+			"public enum MyEnum {\n" +
+			"	WORKS, OK, KO, BROKEN, ;\n" +
 			"}",
 			"test180/package-info.java",
-			"@p.Annot(state=p.MyEnum.OK)\n" + 
+			"@p.Annot(state=p.MyEnum.OK)\n" +
 			"package test180;",
 			"test180/Test.java",
 			"package test180;\n" +
-			"import p.MyEnum;\n" + 
-			"import p.Annot;\n" + 
-			"@Annot(state=MyEnum.OK)\n" + 
+			"import p.MyEnum;\n" +
+			"import p.Annot;\n" +
+			"@Annot(state=MyEnum.OK)\n" +
 			"public class Test {}",
 		},
 		"",
@@ -6687,10 +6687,10 @@ public void test180a() {
 		new String[] {
 			"X.java",
 			"import test180.Test;\n" +
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(Test.class);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(Test.class);\n" +
+			"	}\n" +
 			"}"
 		},
 		null,
@@ -6705,22 +6705,22 @@ public void test181() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"public enum X {\n" + 
-				"	A {\n" + 
-				"		@Override\n" + 
-				"		public Object foo(final String s) {\n" + 
-				"			class Local {\n" + 
-				"				public String toString() {\n" + 
-				"					return s;\n" + 
-				"				}\n" + 
-				"			}\n" + 
-				"			return new Local();\n" + 
-				"		}\n" + 
-				"	};\n" + 
-				"	public abstract Object foo(String s);\n" + 
-				"	public static void main(String... args) {\n" + 
-				"		 System.out.println(A.foo(\"SUCCESS\"));\n" + 
-				"	}\n" + 
+				"public enum X {\n" +
+				"	A {\n" +
+				"		@Override\n" +
+				"		public Object foo(final String s) {\n" +
+				"			class Local {\n" +
+				"				public String toString() {\n" +
+				"					return s;\n" +
+				"				}\n" +
+				"			}\n" +
+				"			return new Local();\n" +
+				"		}\n" +
+				"	};\n" +
+				"	public abstract Object foo(String s);\n" +
+				"	public static void main(String... args) {\n" +
+				"		 System.out.println(A.foo(\"SUCCESS\"));\n" +
+				"	}\n" +
 				"}"
 		},
 		"SUCCESS");
@@ -6733,30 +6733,30 @@ public void test182() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String argv[])   {\n" + 
-			"		foo();\n" + 
-			"	}\n" + 
-			"	public static void foo() {\n" + 
-			"		int n = 0;\n" + 
-			"		for (E e : E.values()) {\n" + 
-			"			if (e.val() == E.VALUES[n++] ) {\n" + 
-			"				System.out.print(e.val());\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String argv[])   {\n" +
+			"		foo();\n" +
+			"	}\n" +
+			"	public static void foo() {\n" +
+			"		int n = 0;\n" +
+			"		for (E e : E.values()) {\n" +
+			"			if (e.val() == E.VALUES[n++] ) {\n" +
+			"				System.out.print(e.val());\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
 			"}",
 			"E.java",
-			"enum E {\n" + 
-			"	a1(1), a2(2);\n" + 
-			"	static int[] VALUES = { 1, 2 };\n" + 
-			"	private int value;\n" + 
-			"	E(int v) {\n" + 
-			"		this.value = v;\n" + 
-			"	}\n" + 
-			"	public int val() {\n" + 
-			"		return this.value;\n" + 
-			"	}\n" + 
+			"enum E {\n" +
+			"	a1(1), a2(2);\n" +
+			"	static int[] VALUES = { 1, 2 };\n" +
+			"	private int value;\n" +
+			"	E(int v) {\n" +
+			"		this.value = v;\n" +
+			"	}\n" +
+			"	public int val() {\n" +
+			"		return this.value;\n" +
+			"	}\n" +
 			"}"
 		},
 		"12",
@@ -6774,29 +6774,29 @@ public void test183() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String argv[]) {\n" + 
-			"	}\n" + 
-			"	static {\n" + 
-			"		int n = 0;\n" + 
-			"		for (E e : E.values()) {\n" + 
-			"			if (e.val() == E.VALUES[n++] ) {\n" + 
-			"				System.out.print(e.val());\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String argv[]) {\n" +
+			"	}\n" +
+			"	static {\n" +
+			"		int n = 0;\n" +
+			"		for (E e : E.values()) {\n" +
+			"			if (e.val() == E.VALUES[n++] ) {\n" +
+			"				System.out.print(e.val());\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
 			"}",
 			"E.java",
-			"enum E {\n" + 
-			"	a1(1), a2(2);\n" + 
-			"	static int[] VALUES = { 1, 2 };\n" + 
-			"	private int value;\n" + 
-			"	E(int v) {\n" + 
-			"		this.value = v;\n" + 
-			"	}\n" + 
-			"	public int val() {\n" + 
-			"		return this.value;\n" + 
-			"	}\n" + 
+			"enum E {\n" +
+			"	a1(1), a2(2);\n" +
+			"	static int[] VALUES = { 1, 2 };\n" +
+			"	private int value;\n" +
+			"	E(int v) {\n" +
+			"		this.value = v;\n" +
+			"	}\n" +
+			"	public int val() {\n" +
+			"		return this.value;\n" +
+			"	}\n" +
 			"}"
 		},
 		"12",
@@ -6814,30 +6814,30 @@ public void test184() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
+			"public class X {\n" +
 			"	public static void main(String argv[]) {\n" +
 			"		new X();\n" +
-			"	}\n" + 
-			"	X() {\n" + 
-			"		int n = 0;\n" + 
-			"		for (E e : E.values()) {\n" + 
-			"			if (e.val() == E.VALUES[n++] ) {\n" + 
-			"				System.out.print(e.val());\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"	}\n" +
+			"	X() {\n" +
+			"		int n = 0;\n" +
+			"		for (E e : E.values()) {\n" +
+			"			if (e.val() == E.VALUES[n++] ) {\n" +
+			"				System.out.print(e.val());\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
 			"}",
 			"E.java",
-			"enum E {\n" + 
-			"	a1(1), a2(2);\n" + 
-			"	static int[] VALUES = { 1, 2 };\n" + 
-			"	private int value;\n" + 
-			"	E(int v) {\n" + 
-			"		this.value = v;\n" + 
-			"	}\n" + 
-			"	public int val() {\n" + 
-			"		return this.value;\n" + 
-			"	}\n" + 
+			"enum E {\n" +
+			"	a1(1), a2(2);\n" +
+			"	static int[] VALUES = { 1, 2 };\n" +
+			"	private int value;\n" +
+			"	E(int v) {\n" +
+			"		this.value = v;\n" +
+			"	}\n" +
+			"	public int val() {\n" +
+			"		return this.value;\n" +
+			"	}\n" +
 			"}"
 		},
 		"12",
@@ -6852,22 +6852,22 @@ public void test185() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public enum X {\n" + 
-			"  A, B;\n" + 
-			"  private X() throws Exception {\n" + 
-			"  }\n" + 
+			"public enum X {\n" +
+			"  A, B;\n" +
+			"  private X() throws Exception {\n" +
+			"  }\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	A, B;\n" + 
-		"	^\n" + 
-		"Unhandled exception type Exception\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	A, B;\n" + 
-		"	   ^\n" + 
-		"Unhandled exception type Exception\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	A, B;\n" +
+		"	^\n" +
+		"Unhandled exception type Exception\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	A, B;\n" +
+		"	   ^\n" +
+		"Unhandled exception type Exception\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
@@ -6877,8 +6877,8 @@ public void test186() {
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"enum X {\n" + 
-			"  A, B;\n" + 
+			"enum X {\n" +
+			"  A, B;\n" +
 			"}\n" +
 			"public class Y {\n" +
 			"    void test(X x) {\n" +
@@ -6889,11 +6889,11 @@ public void test186() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in Y.java (at line 6)\n" + 
-		"	switch (x) {\n" + 
-		"	        ^\n" + 
-		"The enum constant B should have a corresponding case label in this enum switch on X. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" + 
+		"----------\n" +
+		"1. WARNING in Y.java (at line 6)\n" +
+		"	switch (x) {\n" +
+		"	        ^\n" +
+		"The enum constant B should have a corresponding case label in this enum switch on X. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the 'default:'\n" +
 		"----------\n",
 		null, // classlibs
 		true, // flush
@@ -6914,8 +6914,8 @@ public void test187() {
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"enum X {\n" + 
-			"  A, B;\n" + 
+			"enum X {\n" +
+			"  A, B;\n" +
 			"}\n" +
 			"public class Y {\n" +
 			"    void test(X x) {\n" +
@@ -6942,8 +6942,8 @@ public void test187a() {
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"enum X {\n" + 
-			"  A, B;\n" + 
+			"enum X {\n" +
+			"  A, B;\n" +
 			"}\n" +
 			"public class Y {\n" +
 			"    void test(X x) {\n" +
@@ -6954,11 +6954,11 @@ public void test187a() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in Y.java (at line 6)\n" + 
-		"	switch (x) {\n" + 
-		"	        ^\n" + 
-		"The enum constant B needs a corresponding case label in this enum switch on X\n" + 
+		"----------\n" +
+		"1. WARNING in Y.java (at line 6)\n" +
+		"	switch (x) {\n" +
+		"	        ^\n" +
+		"The enum constant B needs a corresponding case label in this enum switch on X\n" +
 		"----------\n",
 		null, // classlibs
 		true, // flush
@@ -6979,8 +6979,8 @@ public void test187b() {
 	this.runConformTest(
 		new String[] {
 			"Y.java",
-			"enum X {\n" + 
-			"  A, B;\n" + 
+			"enum X {\n" +
+			"  A, B;\n" +
 			"}\n" +
 			"public class Y {\n" +
 			"    @SuppressWarnings(\"incomplete-switch\")\n" +
@@ -7005,8 +7005,8 @@ public void test188() {
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"enum X {\n" + 
-			"  A, B;\n" + 
+			"enum X {\n" +
+			"  A, B;\n" +
 			"}\n" +
 			"public class Y {\n" +
 			"    void test(X x) {\n" +
@@ -7017,11 +7017,11 @@ public void test188() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in Y.java (at line 6)\n" + 
-		"	switch (x) {\n" + 
-		"	        ^\n" + 
-		"The switch over the enum type X should have a default case\n" + 
+		"----------\n" +
+		"1. WARNING in Y.java (at line 6)\n" +
+		"	switch (x) {\n" +
+		"	        ^\n" +
+		"The switch over the enum type X should have a default case\n" +
 		"----------\n",
 		null, // classlibs
 		true, // flush
@@ -7041,8 +7041,8 @@ public void test189() {
 	this.runNegativeTest(
 		new String[] {
 			"Y.java",
-			"enum X {\n" + 
-			"  A, B;\n" + 
+			"enum X {\n" +
+			"  A, B;\n" +
 			"}\n" +
 			"public class Y {\n" +
 			"    int test(X x) {\n" +
@@ -7053,11 +7053,11 @@ public void test189() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in Y.java (at line 5)\n" + 
-		"	int test(X x) {\n" + 
-		"	    ^^^^^^^^^\n" + 
-		"This method must return a result of type int. Note that a problem regarding missing 'default:' on 'switch' has been suppressed, which is perhaps related to this problem\n" + 
+		"----------\n" +
+		"1. ERROR in Y.java (at line 5)\n" +
+		"	int test(X x) {\n" +
+		"	    ^^^^^^^^^\n" +
+		"This method must return a result of type int. Note that a problem regarding missing 'default:' on 'switch' has been suppressed, which is perhaps related to this problem\n" +
 		"----------\n",
 		null, // classlibs
 		true, // flush
@@ -7071,15 +7071,15 @@ public void test433060() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public enum X<T> {\n" + 
-			"	OBJ;\n" + 
+			"public enum X<T> {\n" +
+			"	OBJ;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public enum X<T> {\n" + 
-		"	              ^\n" + 
-		"Syntax error, enum declaration cannot have type parameters\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public enum X<T> {\n" +
+		"	              ^\n" +
+		"Syntax error, enum declaration cannot have type parameters\n" +
 		"----------\n",
 		null,
 		true,
@@ -7125,45 +7125,45 @@ public void test476281() {
 		return;
 	this.runConformTest(new String[] {
 			"LambdaEnumLocalClassBug.java",
-			"public enum LambdaEnumLocalClassBug {\n" + 
-			"  A(() -> {\n" + 
-			"    class Foo {\n" + 
-			"    }\n" + 
-			"    new Foo();\n" + 
+			"public enum LambdaEnumLocalClassBug {\n" +
+			"  A(() -> {\n" +
+			"    class Foo {\n" +
+			"    }\n" +
+			"    new Foo();\n" +
 			"    System.out.println(\"Success\");\n" +
-			"  })\n" + 
-			";\n" + 
-			"  private final Runnable runnable;\n" + 
-			"  private LambdaEnumLocalClassBug(Runnable runnable) {\n" + 
-			"    this.runnable = runnable;\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    A.runnable.run();\n" + 
-			"  }\n" + 
+			"  })\n" +
+			";\n" +
+			"  private final Runnable runnable;\n" +
+			"  private LambdaEnumLocalClassBug(Runnable runnable) {\n" +
+			"    this.runnable = runnable;\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    A.runnable.run();\n" +
+			"  }\n" +
 			"}"},
 			"Success");
 }
 public void test476281a() {
 	this.runConformTest(new String[] {
 			"Test.java",
-			"public enum Test {\n" + 
-			"  B(new Runnable() {\n" + 
-			"	public void run() {\n" + 
-			"		//\n" + 
-			"		class Foo {\n" + 
-			"			\n" + 
-			"		}\n" + 
-			"		new Foo();\n" + 
+			"public enum Test {\n" +
+			"  B(new Runnable() {\n" +
+			"	public void run() {\n" +
+			"		//\n" +
+			"		class Foo {\n" +
+			"			\n" +
+			"		}\n" +
+			"		new Foo();\n" +
 			"    System.out.println(\"Success\");\n" +
-			"	}\n" + 
-			"});\n" + 
-			"  private final Runnable runnable;\n" + 
-			"  private Test(Runnable runnable) {\n" + 
-			"    this.runnable = runnable;\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    B.runnable.run();\n" + 
-			"  }\n" + 
+			"	}\n" +
+			"});\n" +
+			"  private final Runnable runnable;\n" +
+			"  private Test(Runnable runnable) {\n" +
+			"    this.runnable = runnable;\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    B.runnable.run();\n" +
+			"  }\n" +
 			"}"},
 			"Success");
 }

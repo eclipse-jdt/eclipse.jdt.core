@@ -20,11 +20,11 @@ package org.eclipse.jdt.annotation;
  * @since 2.0
  */
 public enum DefaultLocation {
-	
+
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * parameters of any method or constructor within the scope of the annotated declaration.
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(PARAMETER)
 	 * interface X {
@@ -35,11 +35,11 @@ public enum DefaultLocation {
 	 * </p>
 	 */
 	PARAMETER,
-	
+
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * method return types within the scope of the annotated declaration.
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(RETURN_TYPE)
 	 * interface X {
@@ -50,11 +50,11 @@ public enum DefaultLocation {
 	 * </p>
 	 */
 	RETURN_TYPE,
-	
+
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * field types within the scope of the annotated declaration.
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(FIELD)
 	 * class X {
@@ -65,11 +65,11 @@ public enum DefaultLocation {
 	 * </p>
 	 */
 	FIELD,
-	
+
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * type parameter declarations within the scope of the annotated declaration.
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(TYPE_PARAMETER)
 	 * class X {
@@ -80,13 +80,13 @@ public enum DefaultLocation {
 	 * </p>
 	 */
 	TYPE_PARAMETER,
-	
+
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * explicit type bounds within the scope of the annotated declaration. A type bound of
 	 * type {@link java.lang.Object} is <strong>never</strong> considered as an explicit bound,
 	 * i.e., <code>T extends Object</code> is never affected by {@link NonNullByDefault}.
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(TYPE_BOUND)
 	 * interface X {
@@ -97,12 +97,12 @@ public enum DefaultLocation {
 	 * </p>
 	 */
 	TYPE_BOUND,
-	
+
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * type arguments within the scope of the annotated declaration (except wildcards and
 	 * type variables).
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(TYPE_ARGUMENT)
 	 * interface X&lt;T&gt; {
@@ -118,7 +118,7 @@ public enum DefaultLocation {
 	/**
 	 * Defines that a given {@link NonNullByDefault} annotation should affect all unannotated
 	 * array components within the scope of the annotated declaration.
-	 * 
+	 *
 	 * <h2>Example</h2>
 	 * <pre> @NonNullByDefault(ARRAY_CONTENTS)
 	 * interface X {
@@ -132,7 +132,7 @@ public enum DefaultLocation {
 	 *    &#64;NonNull Number [] @NonNull[] n2;</pre>
 	 * <p>
 	 * I.e., both fields can still be <code>null</code> (see the unannotated left-most pair
-	 * of brackets) but none of the <em>contents</em> of these arrays is allowed to be 
+	 * of brackets) but none of the <em>contents</em> of these arrays is allowed to be
 	 * <code>null</code> (at any dimension).
 	 * </p>
 	 */

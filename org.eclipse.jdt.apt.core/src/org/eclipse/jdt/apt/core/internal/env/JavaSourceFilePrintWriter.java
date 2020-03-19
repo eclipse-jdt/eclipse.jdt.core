@@ -30,11 +30,11 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 	private final StringWriter _sw;
     private final String _typeName;
     private final AbstractCompilationEnv _env;
-	
+
     /**
      * @throws CoreException if type name is not valid
      */
-	public JavaSourceFilePrintWriter( String typeName, StringWriter sw, AbstractCompilationEnv env ) 
+	public JavaSourceFilePrintWriter( String typeName, StringWriter sw, AbstractCompilationEnv env )
     	throws CoreException
     {
         super( sw );
@@ -43,29 +43,29 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
         _env = env;
 		_env.validateTypeName(typeName);
     }
-	
+
     @Override
 	public void close()
-    {	
+    {
     	try {
 	    	String contents = _sw.toString();
 	        super.close();
 	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager(_env.isTestCode());
 	        Phase phase = _env.getPhase();
-			
+
 	        FileGenerationResult result = null;
 	        if ( phase == Phase.RECONCILE && _env.currentProcessorSupportsRTTG() )
 	        {
 	        	ReconcileEnv reconcileEnv = (ReconcileEnv)_env;
 	        	ICompilationUnit parentCompilationUnit = reconcileEnv.getCompilationUnit();
-	            result  = gfm.generateFileDuringReconcile( 
+	            result  = gfm.generateFileDuringReconcile(
 	                parentCompilationUnit, _typeName, contents );
 	            // Need to call ReconcileContext.resetAst() for this to be effective;
 	            // that will happen in ReconcileEnv.close().
 	        }
 	        else if ( phase == Phase.BUILD)	{
-		        result = gfm.generateFileDuringBuild( 
-						Collections.singletonList(_env.getFile()),  _typeName, contents, 
+		        result = gfm.generateFileDuringBuild(
+						Collections.singletonList(_env.getFile()),  _typeName, contents,
 						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );
 	        }
 	        if (result != null) {

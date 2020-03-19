@@ -37,93 +37,93 @@ import org.eclipse.ui.PlatformUI;
  * Dialog to edit or add an APT processor option
  */
 public class ProcessorOptionInputDialog extends StatusDialog {
-	
+
 	private class FieldAdapter implements IDialogFieldListener {
 		public void dialogFieldChanged(DialogField field) {
 			doValidation();
-		}			
+		}
 	}
-	
+
 	private StringDialogField fKeyField;
 	private StringDialogField fValueField;
-	
+
 	private List<String> fExistingNames;
-		
+
 	public ProcessorOptionInputDialog(Shell parent, ProcessorOption option, List<ProcessorOption> existingEntries) {
 		super(parent);
-		
+
 		fExistingNames= new ArrayList<>(existingEntries.size());
 		for (ProcessorOption o : existingEntries) {
 			if (!o.equals(option)) {
 				fExistingNames.add(o.key);
 			}
 		}
-		
+
 		if (option == null) {
-			setTitle(Messages.ProcessorOptionInputDialog_newProcessorOption); 
+			setTitle(Messages.ProcessorOptionInputDialog_newProcessorOption);
 		} else {
-			setTitle(Messages.ProcessorOptionInputDialog_editProcessorOption); 
+			setTitle(Messages.ProcessorOptionInputDialog_editProcessorOption);
 		}
 
 		FieldAdapter adapter= new FieldAdapter();
 
 		fKeyField= new StringDialogField();
-		fKeyField.setLabelText(Messages.ProcessorOptionInputDialog_key); 
+		fKeyField.setLabelText(Messages.ProcessorOptionInputDialog_key);
 		fKeyField.setDialogFieldListener(adapter);
-		
+
 		fValueField= new StringDialogField();
-		fValueField.setLabelText(Messages.ProcessorOptionInputDialog_value); 
+		fValueField.setLabelText(Messages.ProcessorOptionInputDialog_value);
 		fValueField.setDialogFieldListener(adapter);
-		
+
 		fKeyField.setText((option != null) ? option.key : ""); //$NON-NLS-1$
 		fValueField.setText((option != null) ? option.value : ""); //$NON-NLS-1$
 	}
-	
+
 	public ProcessorOption getResult() {
 		ProcessorOption option = new ProcessorOption();
 		option.key= fKeyField.getText().trim();
 		option.value= fValueField.getText().trim();
-		
+
 		return option;
 	}
-	
+
 	protected Control createDialogArea(Composite parent) {
 		Composite composite= (Composite) super.createDialogArea(parent);
-		
+
 		Composite inner= new Composite(composite, SWT.NONE);
 		GridLayout layout= new GridLayout();
 		layout.marginHeight= 0;
 		layout.marginWidth= 0;
 		layout.numColumns= 2;
 		inner.setLayout(layout);
-		
+
 		fKeyField.doFillIntoGrid(inner, 2);
 		fValueField.doFillIntoGrid(inner, 2);
-		
+
 		LayoutUtil.setHorizontalGrabbing(fKeyField.getTextControl(null));
 		LayoutUtil.setWidthHint(fKeyField.getTextControl(null), convertWidthInCharsToPixels(50));
 		LayoutUtil.setHorizontalGrabbing(fValueField.getTextControl(null));
 		LayoutUtil.setWidthHint(fValueField.getTextControl(null), convertWidthInCharsToPixels(50));
-		
+
 		fKeyField.postSetFocusOnDialogField(parent.getDisplay());
-		
-		applyDialogFont(composite);		
+
+		applyDialogFont(composite);
 		return composite;
 	}
-		
+
 	private void doValidation() {
 		StatusInfo status= new StatusInfo();
 		String newKey= fKeyField.getText();
 		String newVal= fValueField.getText();
 		// TODO: thorough validation of both key and value
 		if (newKey.length() == 0) {
-			status.setError(Messages.ProcessorOptionInputDialog_emptyKey); 
+			status.setError(Messages.ProcessorOptionInputDialog_emptyKey);
 		} else if (fExistingNames.contains(newKey)) {
 			status.setError(Messages.ProcessorOptionInputDialog_keyAlreadyInUse);
 		} else if (newVal.indexOf('=') >= 0) {
 			status.setError(Messages.ProcessorOptionInputDialog_equalsSignNotValid);
 		} else if (AptConfig.isAutomaticProcessorOption(newKey)) {
-			status.setWarning(Messages.AptConfigurationBlock_warningIgnoredOptions); 
+			status.setWarning(Messages.AptConfigurationBlock_warningIgnoredOptions);
 		}
 		updateStatus(status);
 	}

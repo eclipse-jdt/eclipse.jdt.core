@@ -511,7 +511,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 					+ "	 * @see VisibilityPackage#unknown Invalid ref to non existent field of other package non visible class\n"
 					+ "	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
 					+ "	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"	
+					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
 					+ "	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
 					+ "	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
 					+ "	 */\n"

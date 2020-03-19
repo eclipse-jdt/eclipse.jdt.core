@@ -1085,7 +1085,7 @@ public class NameLookup implements SuffixConstants {
 	public boolean isPackage(String[] pkgName, IPackageFragmentRoot[] moduleContext) {
 		if (moduleContext == null) // includes the case where looking for module UNNAMED or ANY
 			return isPackage(pkgName);
-		
+
 		for (IPackageFragmentRoot moduleRoot : moduleContext) {
 			if (moduleRoot.getPackageFragment(String.join(".", pkgName)).exists()) //$NON-NLS-1$
 				return true;
@@ -1172,16 +1172,16 @@ public class NameLookup implements SuffixConstants {
 	 * @param partialMatch partial name matches qualify when <code>true</code>;
 	 *	only exact name matches qualify when <code>false</code>
 	 */
-	public void seekTypes(String pkgName, String name, boolean partialMatch, IJavaElementRequestor requestor, 
+	public void seekTypes(String pkgName, String name, boolean partialMatch, IJavaElementRequestor requestor,
 			int acceptFlags, IPackageFragmentRoot[] moduleContext, String moduleName) {
 		Selector selector = new Selector(moduleName);
-		seekPackageFragments(pkgName, true /*partialMatch*/, selector, moduleContext);	
+		seekPackageFragments(pkgName, true /*partialMatch*/, selector, moduleContext);
 		if (selector.pkgFragments.size() == 0) return;
 		for (IPackageFragment pkg : selector.pkgFragments) {
 			seekTypes(name, pkg, partialMatch, acceptFlags, requestor);
 		}
 	}
-	
+
 	private void seekModuleAwarePartialPackageFragments(String name, IJavaElementRequestor requestor, IPackageFragmentRoot[] moduleContext) {
 		boolean allPrefixMatch = CharOperation.equals(name.toCharArray(), CharOperation.ALL_PREFIX);
 		String lName = name.toLowerCase();
@@ -1292,8 +1292,8 @@ public class NameLookup implements SuffixConstants {
 	}
 	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor) {
 
-		IPrefixMatcherCharArray prefixMatcher = prefixMatch 
-				? CharOperation.equals(name, CharOperation.ALL_PREFIX) 
+		IPrefixMatcherCharArray prefixMatcher = prefixMatch
+				? CharOperation.equals(name, CharOperation.ALL_PREFIX)
 						? (x, y, isCaseSensitive) -> true
 						: CharOperation::prefixEquals
 				: CharOperation::equals;

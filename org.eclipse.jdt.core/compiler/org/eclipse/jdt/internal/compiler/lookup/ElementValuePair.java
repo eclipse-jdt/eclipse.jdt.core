@@ -23,7 +23,7 @@ public class ElementValuePair {
 	char[] name;
 	public Object value;
 	public MethodBinding binding;
-	
+
 	/**
 	 * We want to avoid eagerly resolving of all enums that are used in annotations.
 	 * This class encapsulates an unresolved enum constant as referenced in an ElementValuePair.

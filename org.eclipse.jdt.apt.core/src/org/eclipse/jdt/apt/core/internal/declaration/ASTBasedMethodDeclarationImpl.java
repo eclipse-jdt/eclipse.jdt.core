@@ -23,24 +23,24 @@ import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public class ASTBasedMethodDeclarationImpl 
-	extends ASTBasedExecutableDeclarationImpl 
+public class ASTBasedMethodDeclarationImpl
+	extends ASTBasedExecutableDeclarationImpl
 	implements MethodDeclaration{
 
 	public ASTBasedMethodDeclarationImpl(
-			final org.eclipse.jdt.core.dom.BodyDeclaration astNode, 
+			final org.eclipse.jdt.core.dom.BodyDeclaration astNode,
 			final IFile file,
 			final BaseProcessorEnv env)
 	{
 		super(astNode, file, env);
 	}
-	
+
 	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitMethodDeclaration(this);
     }
-	
+
     @Override
 	public TypeMirror getReturnType()
     {
@@ -61,7 +61,7 @@ public class ASTBasedMethodDeclarationImpl
             return type;
         }
     }
-    
+
     @Override
 	public MirrorKind kind(){ return MirrorKind.METHOD; }
 

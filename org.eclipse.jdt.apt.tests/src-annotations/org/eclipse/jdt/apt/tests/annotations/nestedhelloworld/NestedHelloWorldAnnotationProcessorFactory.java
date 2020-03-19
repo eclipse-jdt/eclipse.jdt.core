@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 
@@ -35,11 +35,11 @@ public class NestedHelloWorldAnnotationProcessorFactory extends BaseFactory
 
 	public AnnotationProcessor getProcessorFor(
 			Set<AnnotationTypeDeclaration> atds,
-			AnnotationProcessorEnvironment env) 
+			AnnotationProcessorEnvironment env)
 	{
 		return new NestedHelloWorldAnnotationProcessor( env );
 	}
-	
+
 	public Collection<String> supportedOptions() {
 		return Collections.singletonList(AptPreferenceConstants.RTTG_ENABLED_OPTION);
 	}

@@ -21,7 +21,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 public class GenericFactory extends BaseFactory {
 	public static AbstractGenericProcessor PROCESSOR;
 	public static AnnotationProcessor fact;
-	
+
 	public static void setProcessor(AbstractGenericProcessor p) {
 		PROCESSOR = p;
 	}

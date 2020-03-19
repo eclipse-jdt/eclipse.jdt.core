@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
  * Represents a 1-to-0..1 relationship in a Nd database.
  */
 public class FieldOneToOne<T extends INdStruct> extends BaseField implements IDestructableField, IRefCountedField {
-	public final StructDef<T> nodeType; 
+	public final StructDef<T> nodeType;
 	FieldOneToOne<?> backPointer;
 	private boolean pointsToOwner;
 	private final Tag putTag;

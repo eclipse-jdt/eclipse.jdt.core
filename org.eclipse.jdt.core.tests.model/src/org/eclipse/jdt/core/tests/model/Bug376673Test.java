@@ -68,13 +68,13 @@ public class Bug376673Test extends ModifyingResourceTests {
 			List<String> errors = new ArrayList<>();
 			StringBuilder markersToString = new StringBuilder();
 			for (IMarker marker : markers) {
-				
+
 				Integer severity = (Integer) marker.getAttribute(IMarker.SEVERITY);
 				String message = (String) marker.getAttribute(IMarker.MESSAGE);
 				if (severity.intValue() == IMarker.SEVERITY_ERROR) {
 					errors.add(message);
 				}
-				
+
 				markersToString.append("Marker with severity: ");
 				markersToString.append(severity);
 				markersToString.append(", and message: ");

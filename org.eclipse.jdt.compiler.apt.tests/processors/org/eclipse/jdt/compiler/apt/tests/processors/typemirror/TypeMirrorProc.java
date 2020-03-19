@@ -35,8 +35,8 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
  * A processor that explores the "model" target hierarchy with an emphasis
- * on exploring the TypeMirror APIs.  To enable this processor, add 
- * -Aorg.eclipse.jdt.compiler.apt.tests.processors.typemirror.TypeMirrorProc 
+ * on exploring the TypeMirror APIs.  To enable this processor, add
+ * -Aorg.eclipse.jdt.compiler.apt.tests.processors.typemirror.TypeMirrorProc
  * to the command line.
  * @since 3.3
  */
@@ -64,19 +64,19 @@ public class TypeMirrorProc extends BaseProcessor
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
+
 		if (!collectElements()) {
 			return false;
 		}
-		
+
 		if (!examineGetEnclosingType()) {
 			return false;
 		}
-		
+
 		if (!examineGetTypeArguments()) {
 			return false;
 		}
-		
+
 		reportSuccess();
 		return false;
 	}
@@ -101,14 +101,14 @@ public class TypeMirrorProc extends BaseProcessor
 			reportError("element AC was not found or was not a class");
 			return false;
 		}
-		
+
 		TypeElement e = _elementUtils.getTypeElement("java.lang.String");
 		_typeString = e.asType();
 		e = _elementUtils.getTypeElement("java.lang.Number");
 		_typeNumber = e.asType();
 		return true;
 	}
-	
+
 	/**
 	 * Examine the DeclaredType.getEnclosingType() implementation
 	 * @return true if all tests passed
@@ -131,7 +131,7 @@ public class TypeMirrorProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Examine the DeclaredType.getTypeArguments() implementation
 	 * @return true if all tests passed

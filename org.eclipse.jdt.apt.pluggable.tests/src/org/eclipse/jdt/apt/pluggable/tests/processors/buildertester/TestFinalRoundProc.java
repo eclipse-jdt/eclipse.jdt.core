@@ -49,11 +49,11 @@ import org.eclipse.jdt.apt.pluggable.tests.annotations.FinalRoundTestTrigger;
 @SupportedOptions( {})
 public class TestFinalRoundProc extends AbstractProcessor {
 	private static int _numRounds;
-	
+
 	public static int getNumRounds() {
 		return _numRounds;
 	}
-	
+
 	public static void resetNumRounds() {
 		_numRounds = 0;
 	}

@@ -19,25 +19,25 @@ package org.eclipse.jdt.compiler.apt.tests.annotations;
  * using the Filer.createResource() API
  */
 public @interface GenResource {
-	
+
 	/**
 	 * package location in which to generate the file, relative to generated file output location.
 	 */
 	String pkg() default "";
-	
+
 	/**
 	 * path of resource file to generate, relative to pkg.
 	 */
 	String relativeName();
-	
+
 	/**
 	 * content of generated resource, or empty string to use binaryContent
 	 */
 	String stringContent() default "";
-	
+
 	/**
 	 * content of generated resource, if stringContent is empty
 	 */
 	byte[] binaryContent() default {};
-	
+
 }

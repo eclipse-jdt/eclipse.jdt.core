@@ -72,7 +72,7 @@ public class APIDocumentationTests extends AbstractASTTests {
 //		TESTS_NUMBERS = new int[] { 78, 79, 80 };
 //		TESTS_RANGE = new int[] { 83304, -1 };
 		}
-	
+
 	/**
 	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
@@ -148,7 +148,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 	URL url = bundle.getEntry("/");
 	IPath path = new Path(FileLocator.toFileURL(url).getPath());
 	path = path.removeLastSegments(1).append(ORG_ECLIPSE_JDT_CORE);
-	String stringPath = path.toString() + "/model/" + PATH_JAVA_CORE_JAVA; 
+	String stringPath = path.toString() + "/model/" + PATH_JAVA_CORE_JAVA;
 	File javaCoreSourceFile = new File(stringPath);
 	char[] sourceChars = null;
 	if (javaCoreSourceFile.exists()) {
@@ -174,7 +174,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 			}
 		}
 	}
-	
+
 	if (sourceChars != null) {
 		// load field values in a map
 		Hashtable realOptionIDs = new Hashtable();

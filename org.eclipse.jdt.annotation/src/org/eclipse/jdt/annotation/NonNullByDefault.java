@@ -20,7 +20,7 @@ import static org.eclipse.jdt.annotation.DefaultLocation.*;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
- 
+
 /**
  * Applying this annotation to a declaration has the effect that type references,
  * which are contained in the declaration, and for which a null annotation is otherwise lacking,
@@ -28,11 +28,11 @@ import java.lang.annotation.RetentionPolicy;
  * <dl>
  * <dt>Locations</dt>
  * <dd>This annotation is permitted for these declarations:
- * {@link ElementType#PACKAGE PACKAGE}, {@link ElementType#TYPE TYPE}, 
+ * {@link ElementType#PACKAGE PACKAGE}, {@link ElementType#TYPE TYPE},
  * {@link ElementType#METHOD METHOD}, {@link ElementType#CONSTRUCTOR CONSTRUCTOR},
  * {@link ElementType#FIELD FIELD}, {@link ElementType#LOCAL_VARIABLE LOCAL_VARIABLE}.</dd>
  * <dt>Fine tuning</dt>
- * <dd>The exact effect is further controlled by the attribute {@link #value}, specifying what 
+ * <dd>The exact effect is further controlled by the attribute {@link #value}, specifying what
  * kinds of locations within the given declaration will be affected. See {@link DefaultLocation}
  * for the meaning of the available values.</dd>
  * <dt>Nested defaults</dt>
@@ -49,7 +49,7 @@ import java.lang.annotation.RetentionPolicy;
  * <code>package-info.java</code> is used.
  * </p>
  * <p>
- * <b>Note:</b> Since org.eclipse.jdt.annotation 2.0.0, this annotation also applies to field and 
+ * <b>Note:</b> Since org.eclipse.jdt.annotation 2.0.0, this annotation also applies to field and
  * local variable declarations and since 2.2.0 also to parameter and module declarations.
  * For the old API, see
  * <a href="http://help.eclipse.org/kepler/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/annotation/NonNullByDefault.html">

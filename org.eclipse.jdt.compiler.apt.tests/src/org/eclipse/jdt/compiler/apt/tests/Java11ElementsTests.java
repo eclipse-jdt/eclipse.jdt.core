@@ -65,7 +65,7 @@ public class Java11ElementsTests extends TestCase {
 		} else {
 			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
-		
+
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);

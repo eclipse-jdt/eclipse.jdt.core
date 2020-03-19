@@ -363,7 +363,7 @@ public abstract class CompletionRequestor {
 
 	/**
 	 * If this returns true, exclude test sources and dependencies.
-	 * 
+	 *
 	 * @return <code>true</code> if this requestor does not want to get any completions from test code.
 	 * @see IClasspathAttribute#TEST
 	 * @since 3.14

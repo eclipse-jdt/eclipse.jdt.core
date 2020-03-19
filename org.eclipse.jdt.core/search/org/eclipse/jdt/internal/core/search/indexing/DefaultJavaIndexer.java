@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 @SuppressWarnings("rawtypes")
 public class DefaultJavaIndexer {
 	private static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
-	
+
 	public void generateIndexForJar(String pathToJar, String pathToIndexFile) throws IOException {
 		File f = new File(pathToJar);
 		if (!f.exists()) {

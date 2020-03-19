@@ -29,10 +29,10 @@ public class AptPreferencePage extends BasePreferencePage {
 
 	public AptPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
-		
+
 		// only shown for workspace preferences
 		setDescription(Messages.AptPreferencePage_preferences);
-		
+
 		// only used when page is shown programatically
 		setTitle(Messages.AptPreferencePage_preferencesTitle);
 	}
@@ -43,7 +43,7 @@ public class AptPreferencePage extends BasePreferencePage {
 	public void createControl(Composite parent) {
 		IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer) getContainer();
 		setConfigurationBlock(new AptConfigurationBlock(getNewStatusChangedListener(), getProject(), container));
-		
+
 		super.createControl(parent);
 	}
 
@@ -58,15 +58,15 @@ public class AptPreferencePage extends BasePreferencePage {
 	protected String getPreferencePageID() {
 		return PREF_ID;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage#getPropertyPageID()
 	 */
 	protected String getPropertyPageID() {
 		return PROP_ID;
 	}
-	
-	
+
+
 
 }
 

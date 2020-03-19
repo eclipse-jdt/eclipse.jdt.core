@@ -172,7 +172,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 
 						@Override
 						public FileVisitResult visitFile(java.nio.file.Path f, BasicFileAttributes attrs) throws IOException {
-							if (attrs.isDirectory() || f.getNameCount() < 3) 
+							if (attrs.isDirectory() || f.getNameCount() < 3)
 								return FileVisitResult.CONTINUE;
 							if (f.getFileName().toString().equals(MODULE_INFO) && Files.exists(f)) {
 								byte[] content = JRTUtil.safeReadBytes(f);
@@ -222,7 +222,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 		return null;
 	}
 	void acceptModule(String name, byte[] content, Map<String, IModule> cache) {
-		if (content == null) 
+		if (content == null)
 			return;
 
 		if (cache.containsKey(name))

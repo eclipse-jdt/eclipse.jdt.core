@@ -40,7 +40,7 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 		List<String> options;
 		String[] fileNames;
 		CompilerInvocationTestsArguments(
-				StandardJavaFileManager standardJavaFileManager, 
+				StandardJavaFileManager standardJavaFileManager,
 				List<String> options,
 				String[] fileNames) {
 			this.standardJavaFileManager = standardJavaFileManager;
@@ -62,10 +62,10 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 		public static final int ERROR = 1;
 		public static final int INFO = 2;
 		public static final int WARNING = 4;
-		
+
 		private PrintWriter err;
 		public int kind;
-		
+
 		public CompilerInvocationDiagnosticListener(PrintWriter err) {
 			this.err = err;
 			this.kind = NONE;
@@ -93,7 +93,7 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 	static JavaCompiler JAVAC_COMPILER = ToolProvider.getSystemJavaCompiler();
 	@Override
 	protected boolean invokeCompiler(
-			PrintWriter out, 
+			PrintWriter out,
 			PrintWriter err,
 			Object extraArguments,
 			TestCompilationProgress compilationProgress) {
@@ -123,6 +123,6 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 			} catch (IOException e) {
 				// nop
 			}
-		}		
+		}
 	}
 }

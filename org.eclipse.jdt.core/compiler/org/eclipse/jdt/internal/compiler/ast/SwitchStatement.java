@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 265744 - Enum switch should warn about missing default
@@ -65,7 +65,7 @@ public class SwitchStatement extends Expression {
 	public final static int FALLTHROUGH = 1;
 	public final static int ESCAPING = 2;
 	public final static int BREAKING  = 3;
-	
+
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
 
@@ -75,7 +75,7 @@ public class SwitchStatement extends Expression {
 	// for local variables table attributes
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
-	
+
 	CaseStatement[] duplicateCaseStatements = null;
 	int duplicateCaseStatementsCounter = 0;
 	private LocalVariableBinding dispatchStringCopy = null;
@@ -84,7 +84,7 @@ public class SwitchStatement extends Expression {
 		if (this.switchLabeledRules) {
 			if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || stmt instanceof ThrowStatement)
 				return BREAKING;
-			
+
 			if (stmt instanceof Block) {
 				Block block = (Block) stmt;
 				if (block.doesNotCompleteNormally()) {
@@ -225,7 +225,7 @@ public class SwitchStatement extends Expression {
 				return;
 			}
 			int pc = codeStream.position;
-			
+
 			class StringSwitchCase implements Comparable {
 				int hashCode;
 				String string;
@@ -249,13 +249,13 @@ public class SwitchStatement extends Expression {
 				@Override
 				public String toString() {
 					return "StringSwitchCase :\n" + //$NON-NLS-1$
-					       "case " + this.hashCode + ":(" + this.string + ")\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$	       
+					       "case " + this.hashCode + ":(" + this.string + ")\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				}
 			}
 			/*
 			 * With multi constant case statements, the number of case statements (hence branch labels)
 			 * and number of constants (hence hashcode labels) could be different. For e.g:
-			  
+
 			  switch(s) {
 			  	case "FB", "c":
 			  		System.out.println("A/C");
@@ -263,18 +263,18 @@ public class SwitchStatement extends Expression {
 			  	case "Ea":
 					System.out.println("B");
 					break;
-					
-				With the above code, we will have 
+
+				With the above code, we will have
 				2 branch labels for FB and c
 				3 stringCases for FB, c and Ea
 				2 hashCodeCaseLabels one for FB, Ea and one for c
-				
-				Should produce something like this: 
+
+				Should produce something like this:
 				lookupswitch  { // 2
                       99: 32
                     2236: 44
                  default: 87
-				
+
 				"FB" and "Ea" producing the same hashcode values, but still belonging in different case statements.
 				First, produce the two branch labels pertaining to the case statements
 				And the three string cases and use the this.constMapping to get the correct branch label.
@@ -285,7 +285,7 @@ public class SwitchStatement extends Expression {
 			if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK12) {
 				for (int i = 0, max = this.caseCount; i < max; i++) {
 					int l = this.cases[i].constantExpressions.length;
-					this.cases[i].targetLabels = new BranchLabel[l]; 
+					this.cases[i].targetLabels = new BranchLabel[l];
 				}
 				sourceCaseLabels = new BranchLabel[this.nConstants];
 				int j = 0;
@@ -314,14 +314,14 @@ public class SwitchStatement extends Expression {
 			Arrays.sort(stringCases);
 
 			int uniqHashCount = 0;
-			int lastHashCode = 0; 
+			int lastHashCode = 0;
 			for (int i = 0, length = constSize; i < length; ++i) {
 				int hashCode = stringCases[i].hashCode;
 				if (i == 0 || hashCode != lastHashCode) {
 					lastHashCode = this.constants[uniqHashCount++] = hashCode;
 				}
 			}
-				
+
 			if (uniqHashCount != constSize) { // multiple keys hashed to the same value.
 				System.arraycopy(this.constants, 0, this.constants = new int[uniqHashCount], 0, uniqHashCount);
 				System.arraycopy(hashCodeCaseLabels, 0, hashCodeCaseLabels = new CaseLabel[uniqHashCount], 0, uniqHashCount);
@@ -336,7 +336,7 @@ public class SwitchStatement extends Expression {
 
 			// prepare the labels and constants
 			this.breakLabel.initialize(codeStream);
-			
+
 			BranchLabel defaultBranchLabel = new BranchLabel(codeStream);
 			if (hasCases) defaultBranchLabel.tagBits |= BranchLabel.USED;
 			if (this.defaultCase != null) {
@@ -391,7 +391,7 @@ public class SwitchStatement extends Expression {
 					statementGenerateCode(currentScope, codeStream, statement);
 				}
 			}
-			
+
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (this.mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
@@ -412,7 +412,7 @@ public class SwitchStatement extends Expression {
 			if (this.expectedType() != null) {
 				TypeBinding expectedType = this.expectedType().erasure();
 				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
-				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the 
+				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the
 				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
 				codeStream.recordExpressionType(expectedType, optimizedGoto ? 0 : 1, optimizedGoto);
 			}
@@ -422,7 +422,7 @@ public class SwitchStatement extends Expression {
 		}
 	}
 
-	
+
 	/**
 	 * Switch code generation
 	 *
@@ -450,7 +450,7 @@ public class SwitchStatement extends Expression {
 				for (int i = 0, max = this.caseCount; i < max; i++) {
 					int l = this.cases[i].constantExpressions.length;
 					nCaseLabels += l;
-					this.cases[i].targetLabels = new BranchLabel[l]; 
+					this.cases[i].targetLabels = new BranchLabel[l];
 				}
 				caseLabels = new CaseLabel[nCaseLabels];
 				int j = 0;
@@ -568,7 +568,7 @@ public class SwitchStatement extends Expression {
 				 * to make the stack map consistent. All cases will return a value on the stack except the missing default
 				 * case.
 				 * There is no returned value for the default case so we handle it with an exception thrown. An
-				 * IllegalClassChangeError seems legitimate as this would mean the enum type has been recompiled with more 
+				 * IllegalClassChangeError seems legitimate as this would mean the enum type has been recompiled with more
 				 * enum constants and the class that is using the switch on the enum has not been recompiled
 				 */
 				codeStream.newJavaLangIncompatibleClassChangeError();
@@ -597,7 +597,7 @@ public class SwitchStatement extends Expression {
 					switchResolveType = this.expectedType().erasure();
 				}
 				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
-				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the 
+				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the
 				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
 				codeStream.recordExpressionType(switchResolveType, optimizedGoto ? 0 : 1, optimizedGoto || isEnumSwitchWithoutDefaultCase);
 			}
@@ -715,7 +715,7 @@ public class SwitchStatement extends Expression {
 					}
 					if ((constantsList = statement.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstantList) {
 						for (Constant con : constantsList) {
-							if (con == Constant.NotAConstant) 
+							if (con == Constant.NotAConstant)
 								continue;
 							if (!isStringSwitch) {
 								int key = con.intValue();
@@ -825,11 +825,11 @@ public class SwitchStatement extends Expression {
 	private void reportDuplicateCase(final CaseStatement duplicate, final CaseStatement original, int length) {
 		if (this.duplicateCaseStatements == null) {
 			this.scope.problemReporter().duplicateCase(original);
-			if (duplicate != original) 
+			if (duplicate != original)
 				this.scope.problemReporter().duplicateCase(duplicate);
 			this.duplicateCaseStatements = new CaseStatement[length];
 			this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = original;
-			if (duplicate != original) 
+			if (duplicate != original)
 				this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = duplicate;
 		} else {
 			boolean found = false;
@@ -888,7 +888,7 @@ public class SwitchStatement extends Expression {
 		}
 		return this.statements[this.statements.length - 1].doesNotCompleteNormally();
 	}
-	
+
 	@Override
 	public boolean completesByContinue() {
 		if (this.statements == null || this.statements.length == 0)

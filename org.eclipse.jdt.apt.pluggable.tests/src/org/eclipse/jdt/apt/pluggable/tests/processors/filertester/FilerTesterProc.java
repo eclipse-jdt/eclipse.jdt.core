@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests.processors.filertester;
@@ -51,7 +51,7 @@ import org.eclipse.jdt.internal.apt.pluggable.core.filer.IdeOutputClassFileObjec
  * because the processor has very limited communication with the rest of the IDE. So, we make one
  * processor run many tests. The JUnit tests specify which test to run by passing its name in to the
  * FilerTest annotation. Test failures are reported via the Messager interface.
- * 
+ *
  * @since 3.4
  */
 @SupportedAnnotationTypes( { "org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger" })
@@ -63,13 +63,13 @@ public class FilerTesterProc extends AbstractProcessor {
 	private Filer _filer;
 	public static int roundNo = 0;
 	public static byte[] classContent = null;
-	
-	public static final String resource01FileContents = 
+
+	public static final String resource01FileContents =
 		"package g;\n" +
 		"public class Test {}\n";
 	public static final String resource01Name =
 		".apt_generated/g/Test.java";
-	
+
 	public static final String resource02FileContents =
 		"This is some test text\n";
 	public static final String resource02Name =
@@ -101,7 +101,7 @@ public class FilerTesterProc extends AbstractProcessor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
 	 */
 	@Override
@@ -113,7 +113,7 @@ public class FilerTesterProc extends AbstractProcessor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.annotation.processing.AbstractProcessor#process(java.util.Set,
 	 *      javax.annotation.processing.RoundEnvironment)
 	 */
@@ -140,7 +140,7 @@ public class FilerTesterProc extends AbstractProcessor {
 			String arg1 = filerTesterMirror.arg1();
 			if (null != testMethodName && testMethodName.length() > 0) {
 				try {
-					Method testMethod = FilerTesterProc.class.getMethod(testMethodName, 
+					Method testMethod = FilerTesterProc.class.getMethod(testMethodName,
 							Element.class, String.class, String.class);
 					testMethod.invoke(this, annotatedEl, arg0, arg1);
 				} catch (Exception e) {
@@ -150,7 +150,7 @@ public class FilerTesterProc extends AbstractProcessor {
 					// IllegalStateException probably means test method called ProcessorTestStatus.fail()
 					String msg = (t instanceof IllegalStateException) ?
 							t.getMessage() :
-							t.getClass().getSimpleName() + " invoking test method " + 
+							t.getClass().getSimpleName() + " invoking test method " +
 							testMethodName + " - see console for details";
 					ProcessorTestStatus.fail(msg);
 				}
@@ -165,7 +165,7 @@ public class FilerTesterProc extends AbstractProcessor {
 		FileObject resource = _filer.getResource(StandardLocation.SOURCE_OUTPUT, arg0, arg1);
 		checkResourceContents01(resource, resource01Name, resource01FileContents);
 	}
-	
+
 	/**
 	 * Attempt to get an existing resource from the CLASS_OUTPUT.
 	 */
@@ -173,7 +173,7 @@ public class FilerTesterProc extends AbstractProcessor {
 		FileObject resource = _filer.getResource(StandardLocation.CLASS_OUTPUT, arg0, arg1);
 		checkResourceContents01(resource, resource02Name, resource02FileContents);
 	}
-	
+
 	/**
 	 * Attempt to create a new resource in SOURCE_OUTPUT.
 	 */
@@ -192,11 +192,11 @@ public class FilerTesterProc extends AbstractProcessor {
 		// JSR269 spec does not make strict requirements about what getName() returns,
 		// but we can at least expect it to include the relative name.
 		if (!name.contains(relName)) {
-			ProcessorTestStatus.fail("File object getName() returned " + name + 
+			ProcessorTestStatus.fail("File object getName() returned " + name +
 					", expected it to contain " + relName);
 		}
 	}
-	
+
 	/**
 	 * Attempt to create new resources with null parentage.
 	 * See <a href="http://bugs.eclipse.org/285838">Bug 285838</a>.
@@ -212,7 +212,7 @@ public class FilerTesterProc extends AbstractProcessor {
 			if (pw != null)
 				pw.close();
 		}
-		
+
 		JavaFileObject jfo = _filer.createSourceFile(pkg + "/" + relName, (Element[])null);
 		pw = null;
 		try {
@@ -223,22 +223,22 @@ public class FilerTesterProc extends AbstractProcessor {
 				pw.close();
 		}
 	}
-	
+
 	/**
 	 * Test the toUri() method on various file objects.
 	 */
 	public void testURI(Element e, String pkg, String relName) throws Exception {
-		
+
 		// Generated non-source file
 		FileObject foGenNonSrc = _filer.createResource(StandardLocation.SOURCE_OUTPUT,
 				pkg, relName, e);
 		checkGenUri(foGenNonSrc, relName, helloStr, "generated non-source file");
-		
+
 		// Generated source file
 		FileObject foGenSrc = _filer.createSourceFile("g.G", e);
 		checkGenUri(foGenSrc, "G", javaStr, "generated source file");
 	}
-	
+
 	public void testBug534979(Element e, String pkg, String relName) throws Exception {
 		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
 		PrintWriter pw = null;
@@ -252,7 +252,7 @@ public class FilerTesterProc extends AbstractProcessor {
 		}
 	}
 	public void testBug542090a(Element e, String pkg, String relName) throws Exception {
-		if (++roundNo > 1) 
+		if (++roundNo > 1)
 			return;
 		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
 		PrintWriter pw = null;
@@ -292,7 +292,7 @@ public class FilerTesterProc extends AbstractProcessor {
 	public void testCreateClass1(Element e, String pkg, String relName) throws Exception {
 		Filer filer = processingEnv.getFiler();
 		try {
-			if (++roundNo == 1) 
+			if (++roundNo == 1)
 				return;
 			if (roundNo == 2) {
 				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
@@ -326,7 +326,7 @@ public class FilerTesterProc extends AbstractProcessor {
 	public void testCreateClass2(Element e, String pkg, String relName) throws Exception {
 		Filer filer = processingEnv.getFiler();
 		try {
-			if (++roundNo == 1) 
+			if (++roundNo == 1)
 				return;
 			if (roundNo == 2) {
 				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
@@ -369,7 +369,7 @@ public class FilerTesterProc extends AbstractProcessor {
 		}
 		URI uri = fo.toUri();
 		if (!uri.toString().contains(name)) {
-			ProcessorTestStatus.fail("toUri() on " + category + " returned " + uri.toString() + 
+			ProcessorTestStatus.fail("toUri() on " + category + " returned " + uri.toString() +
 					", expected it to contain " + name);
 		}
 		char buf[] = new char[256];
@@ -388,7 +388,7 @@ public class FilerTesterProc extends AbstractProcessor {
 					", but reading that URI produced \"" + new String(buf) + "\" instead of expected \"" + content + "\"");
 		}
 	}
-	
+
 	/**
 	 * Attempt to get an existing resource from the SOURCE_OUTPUT.
 	 */
@@ -402,25 +402,25 @@ public class FilerTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("getCharContent() did not return expected contents");
 		}
 	}
-	
+
 	/**
 	 * Check that the resource can be opened, examined, and its contents match
 	 * {@link #checkResourceContents01(FileObject)}getResource01FileContents
 	 */
 	private void checkResourceContents01(FileObject resource, String expectedName, String expectedContents) throws Exception {
-		
+
 		long modTime = resource.getLastModified();
 		if (modTime <= 0) {
 			ProcessorTestStatus.fail("resource had unexpected mod time: " + modTime);
 		}
-		
+
 		String actualName = resource.getName();
 		if (!expectedName.equals(actualName)) {
 			System.out.println("Resource had unexpected name.  Expected " + expectedName +
 					", actual was " + actualName);
 			ProcessorTestStatus.fail("Resource had unexpected name");
 		}
-		
+
 		InputStream stream = resource.openInputStream();
 		if (stream.available() <= 0) {
 			ProcessorTestStatus.fail("stream contained no data");
@@ -434,7 +434,7 @@ public class FilerTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("stream did not contain expected contents");
 		}
 		stream.close();
-		
+
 		char actualChars[] = new char[512];
 		Reader reader = resource.openReader(true);
 		length = reader.read(actualChars, 0, actualChars.length);
@@ -445,7 +445,7 @@ public class FilerTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("reader did not contain expected contents");
 		}
 		reader.close();
-		
+
 		CharSequence actualCharContent = resource.getCharContent(true);
 		if (!expectedContents.equals(actualCharContent.toString())) {
 			System.out.println("Expected getCharContent to return:\n" + expectedContents);

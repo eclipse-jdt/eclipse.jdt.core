@@ -224,7 +224,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					}
 					break;
 				case IN_UNBOXING:
-					checkUnboxing(scope, (Expression) location, flowInfo);	
+					checkUnboxing(scope, (Expression) location, flowInfo);
 					break;
 				default:
 					// should not happen

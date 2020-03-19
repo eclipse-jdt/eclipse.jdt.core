@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     BEA Systems, Inc. - initial API and implementation
  *    Jesper Steen Moller - Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
@@ -44,10 +44,10 @@ public class TestBase extends BuilderTests
 	protected static final String JAVA_16_COMPLIANCE = "1.6";
 	protected static final String JAVA_18_COMPLIANCE = "1.8";
 	protected static final String JAVA_9_COMPLIANCE = "9";
-	
+
 	protected String _projectName;
 	protected static int _projectSerial = 0; // used to create unique project names, to avoid resource deletion problems
-	
+
 	public TestBase(String name) {
 		super(name);
 	}
@@ -83,12 +83,12 @@ public class TestBase extends BuilderTests
 			env.addLibrary(projPath, libFile.getFullPath(), null, null);
 		}
 	}
-	
+
 	/**
 	 * Create a java project with java libraries and test annotations on classpath
 	 * (compiler level is 1.6). Use "src" as source folder and "bin" as output folder. APT
 	 * is not enabled.
-	 * 
+	 *
 	 * @param projectName
 	 * @return a java project that has been added to the current workspace.
 	 * @throws Exception
@@ -173,7 +173,7 @@ public class TestBase extends BuilderTests
 		}
 		AptConfig.setFactoryPath(jproj, fp);
 	}
-	
+
 	/**
 	 * Verify that an expected file exists within a project.
 	 * @param fileName the filename relative to the project root.
@@ -184,7 +184,7 @@ public class TestBase extends BuilderTests
 		File file = new File(path.toOSString());
 		assertTrue("Expected file " + fileName + " was missing from project", file != null && file.exists());
 	}
-	
+
 	/**
 	 * Verify that an expected file exists within a project.
 	 * @param fileName the filename relative to the project root.
@@ -203,7 +203,7 @@ public class TestBase extends BuilderTests
 		}
 		assertTrue("File " + fileName + " was expected to not exist", file == null || !exists);
 	}
-	
+
 	@Override
 	protected void setUp() throws Exception
 	{

@@ -32,12 +32,12 @@ import java.util.zip.ZipFile;
 public class Archive {
 
 	public static final Archive UNKNOWN_ARCHIVE = new Archive();
-	
+
 	ZipFile zipFile;
 	File file;
 
 	protected Hashtable<String, ArrayList<String[]>> packagesCache;
-	
+
 	protected Archive() {
 		// used to construct UNKNOWN_ARCHIVE
 	}
@@ -71,7 +71,7 @@ public class Archive {
 		ArrayList<String[]> types = this.packagesCache.get(packageName);
 		if (typeName == null) return;
 		if (types == null) {
-			
+
 			types = new ArrayList<>();
 			types.add(new String[]{typeName, null});
 			this.packagesCache.put(packageName, types);
@@ -79,26 +79,26 @@ public class Archive {
 			types.add(new String[]{typeName, null});
 		}
 	}
-	
+
 	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
 		return new ArchiveFileObject(this.file, fileName, charset);
 	}
-	
+
 	public boolean contains(String entryName) {
 		return this.zipFile.getEntry(entryName) != null;
 	}
-	
+
 	public Set<String> allPackages() {
 		if (this.packagesCache == null) {
 			this.initialize();
 		}
 		return this.packagesCache.keySet();
 	}
-	
+
 	/**
 	 * Returns an array of String - the array contains exactly two elements. The first element
 	 * is the name of the type and the second being the module that contains the type. For a regular
-	 * Jar archive, the module element will be null. This is applicable only to Jimage files 
+	 * Jar archive, the module element will be null. This is applicable only to Jimage files
 	 * where types are contained by multiple modules.
 	 */
 	public List<String[]> getTypes(String packageName) {
@@ -113,7 +113,7 @@ public class Archive {
 		}
 		return this.packagesCache.get(packageName);
 	}
-	
+
 	public void flush() {
 		this.packagesCache = null;
 	}
@@ -128,7 +128,7 @@ public class Archive {
 			// ignore
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Archive: " + (this.file == null ? "UNKNOWN_ARCHIVE" : this.file.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$

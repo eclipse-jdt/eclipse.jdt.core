@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
  *******************************************************************************/
@@ -26,19 +26,19 @@ import org.eclipse.jdt.core.dom.SimpleName;
 /*package*/ class EnvUtil {
 	/**
      * Handling the following 2 cases
-     * 1) For IProblems that does not have a starting and ending offset, 
-     * place the problem at the class name. 
-     * 
+     * 1) For IProblems that does not have a starting and ending offset,
+     * place the problem at the class name.
+     *
      * 2) For IProblems that does not have an ending offset, place the ending
-     * offset at the end of the tightest ast node. 
-     * We will only walk the ast once to determine the ending 
-     * offsets of all the problems that do not have the information set. 
+     * offset at the end of the tightest ast node.
+     * We will only walk the ast once to determine the ending
+     * offsets of all the problems that do not have the information set.
      */
     static void updateProblemLength(List<APTProblem> problems, CompilationUnit astUnit)
-    {	
+    {
     	// for those problems that doesn't have an ending offset, figure it out by
     	// traversing the ast.
-    	// we do it once just before we post the marker so we only have to walk the ast 
+    	// we do it once just before we post the marker so we only have to walk the ast
     	// once.
     	int count = 0;
     	int[] classNameRange = null;
@@ -54,7 +54,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 				count ++;
 			}
     	}
-    		
+
 		if( count > 0 ){
 			if( astUnit != null ){
 				final int[] startingOffsets = new int[count];
@@ -63,11 +63,11 @@ import org.eclipse.jdt.core.dom.SimpleName;
     				if( problem.getSourceEnd() < 0 )
     					startingOffsets[index++] = problem.getSourceStart();
     			}
-    			
+
     			final EndingOffsetFinder lfinder = new EndingOffsetFinder(startingOffsets);
-    			
+
     			astUnit.accept( lfinder );
-    	    	
+
     	    	for(IProblem problem : problems ){
     				if( problem.getSourceEnd() < 0 ){
     					int startingOffset = problem.getSourceStart();
@@ -85,16 +85,16 @@ import org.eclipse.jdt.core.dom.SimpleName;
     					problem.setSourceEnd(problem.getSourceStart());
     			}
     		}
-		}	
+		}
     }
-    
+
     /**
      * @param file
      * @return length 3 int array with the following information.
      * at index 0: contains the starting offset, always >= 0
      * at index 1: contains the ending offset, may be a negative number.
      * at index 2: the line number
-     * 
+     *
      */
     private static int[] getClassNameRange(final CompilationUnit astUnit){
     	int[] startAndEnd = null;
@@ -114,7 +114,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
     			}
     			else{
     				startAndEnd[0] = topType.getStartPosition();
-    				// let case 2 in updateProblemLength() kicks in. 
+    				// let case 2 in updateProblemLength() kicks in.
     				startAndEnd[1] = -2;
     				startAndEnd[2] = astUnit.getLineNumber(topType.getStartPosition());
     				if( startAndEnd[2] < 1 )
@@ -125,25 +125,25 @@ import org.eclipse.jdt.core.dom.SimpleName;
     	if( startAndEnd == null )
     		// let case 2 in updateProblemLength() kicks in.
     		return new int[]{0, -2, 1};
-    
+
     	return startAndEnd;
     }
-    
+
     /**
-     * Responsible for finding the ending offset of the ast node that has the tightest match 
-     * for a given offset. This ast visitor can operator on an array of offsets in one pass.   
-     * @author tyeung     
+     * Responsible for finding the ending offset of the ast node that has the tightest match
+     * for a given offset. This ast visitor can operator on an array of offsets in one pass.
+     * @author tyeung
      */
-    private static class EndingOffsetFinder extends ASTVisitor 
+    private static class EndingOffsetFinder extends ASTVisitor
     {
     	private final int[] _sortedStartingOffset;
-    	/** 
-    	 * parallel to <code>_sortedOffsets</code> and contains 
-    	 * the ending offset of the ast node that has the tightest match for the 
+    	/**
+    	 * parallel to <code>_sortedOffsets</code> and contains
+    	 * the ending offset of the ast node that has the tightest match for the
     	 * corresponding starting offset.
     	 */
     	private final int[] _endingOffsets;
-    	
+
     	/**
     	 * @param offsets the array of offsets which will be sorted.
     	 * @throws IllegalArgumentException if <code>offsets</code> is <code>null</code>.
@@ -154,36 +154,36 @@ import org.eclipse.jdt.core.dom.SimpleName;
     			throw new IllegalArgumentException("argument cannot be null."); //$NON-NLS-1$
     		// sort the array first
     		Arrays.sort(offsets);
-    	
-    		// look for duplicates.		
-    		int count = 0;	
+
+    		// look for duplicates.
+    		int count = 0;
     		for( int i=0, len=offsets.length; i<len; i++){
     			if( i > 0 && offsets[i-1] == offsets[i] )
-    				continue;			
+    				continue;
     			count ++;
-    		}	
-    	
+    		}
+
     		if( count != offsets.length ){
     			_sortedStartingOffset = new int[count];
-    	
+
     			int index = 0;
     			for( int i=0, len=offsets.length; i<len; i++){
     				if( i > 0 && offsets[i-1] == offsets[i] )
     					continue;
     				_sortedStartingOffset[index++] = offsets[i];
-    			}		
+    			}
     		}
     		else{
     			_sortedStartingOffset = offsets;
     		}
-    		
+
     		_endingOffsets = new int[count];
     		for( int i=0; i<count; i++ )
     			_endingOffsets[i] = 0;
     	}
-    	
+
     	@Override
-		public void preVisit(ASTNode node) 
+		public void preVisit(ASTNode node)
     	{
     		final int startingOffset = node.getStartPosition();
     		final int endingOffset = startingOffset + node.getLength();
@@ -192,25 +192,25 @@ import org.eclipse.jdt.core.dom.SimpleName;
     		// ending offset is exclusive
     		int endIndex = Arrays.binarySearch(_sortedStartingOffset, endingOffset);
     		if( startIndex < 0 )
-    			startIndex = - startIndex - 1;		
+    			startIndex = - startIndex - 1;
     		if( endIndex < 0 )
     			endIndex = - endIndex - 1;
-    		else 
-    			// endIndex needs to be exclusive and we want to 
+    		else
+    			// endIndex needs to be exclusive and we want to
     			// include the 'endIndex'th entry in our computation.
-    			endIndex ++; 
+    			endIndex ++;
     		if( startIndex >= _sortedStartingOffset.length )
     			return;
-    		
-    		for( int i=startIndex; i<endIndex; i++ ){    			
+
+    		for( int i=startIndex; i<endIndex; i++ ){
     			if( _endingOffsets[i] == 0 )
     				_endingOffsets[i] = endingOffset;
     			else if( endingOffset < _endingOffsets[i] )
     				_endingOffsets[i] = endingOffset;
     		}
     	}
-    	
-    	
+
+
     	public int getEndingOffset(final int startingOffset)
     	{
     		int index = Arrays.binarySearch(_sortedStartingOffset, startingOffset);

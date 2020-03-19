@@ -383,7 +383,7 @@ public class AbstractCompilerTest extends TestCase {
 				} else {
 					complianceString = "unknown";
 				}
-				
+
 			}
 
 			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+complianceString+"!");
@@ -446,7 +446,7 @@ public class AbstractCompilerTest extends TestCase {
 			String version = System.getProperty("java.version");
 			if (version.startsWith("1.8.0_")) {
 				int build = Integer.parseInt(version.substring("1.8.0_".length()));
-				reflectNestedClassUseDollar = build >= 171; 
+				reflectNestedClassUseDollar = build >= 171;
 			} else if (version.startsWith("1.8.0-")) {
 				// Some versions start with 1.8.0- but don't have build qualifier.
 				// Just assume they are > 171 build. Nothing much can be done.
@@ -520,7 +520,7 @@ public class AbstractCompilerTest extends TestCase {
 				if (possibleComplianceLevels == 0) {
 					System.out.println("Defaulting to all possible compliances");
 					possibleComplianceLevels = UNINITIALIZED;
-				}						
+				}
 			}
 			if (possibleComplianceLevels == UNINITIALIZED) {
 				if (!RUN_JAVAC) {
@@ -756,7 +756,7 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 		} else {
-			// This is already good enough to cover versions from future 
+			// This is already good enough to cover versions from future
 			// (as long as versionFromJdkLevel does its job)
 			String ver = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
 			options.put(CompilerOptions.OPTION_Compliance, ver);

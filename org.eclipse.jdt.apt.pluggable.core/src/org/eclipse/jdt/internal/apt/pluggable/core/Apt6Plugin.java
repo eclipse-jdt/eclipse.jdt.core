@@ -36,7 +36,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
 
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.pluggable.core"; //$NON-NLS-1$
-		
+
 	/**
 	 * Status IDs for system log entries.  Must be unique per plugin.
 	 */
@@ -47,7 +47,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 	public final static String APT_DEBUG_OPTION = Apt6Plugin.PLUGIN_ID + "/debug"; //$NON-NLS-1$
 
 	private static Apt6Plugin thePlugin = null; // singleton object
-	
+
 	private ServiceRegistration<DebugOptionsListener> debugRegistration;
 
 	public Apt6Plugin() {
@@ -87,23 +87,23 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 	public static void log(IStatus status) {
 		thePlugin.getLog().log(status);
 	}
-	
+
 	/**
 	 * Convenience wrapper around log(IStatus), to log an exception
 	 * with severity of ERROR.
 	 */
 	public static void log(Throwable e, String message) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e)); 
+		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e));
 	}
-	
+
 	/**
 	 * Convenience wrapper around log(IStatus), to log an exception
 	 * with severity of WARNING.
 	 */
-	public static void logWarning(Throwable e, String message) {		
+	public static void logWarning(Throwable e, String message) {
 		log(createWarningStatus(e, message));
 	}
-	
+
 	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of ERROR.
@@ -111,7 +111,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 	public static Status createStatus(Throwable e, String message) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-	
+
 	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of WARNING.
@@ -119,7 +119,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 	public static Status createWarningStatus(Throwable e, String message) {
 		return new Status(IStatus.WARNING, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-	
+
 	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of INFO.
@@ -127,7 +127,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 	public static Status createInfoStatus(Throwable e, String message) {
 		return new Status(IStatus.INFO, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-	
+
 	public static void trace(final String msg) {
 		if (DEBUG) {
 			StringBuffer sb = new StringBuffer();

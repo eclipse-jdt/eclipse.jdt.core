@@ -54,7 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public abstract class FunctionalExpression extends Expression {
-	
+
 	protected TypeBinding expectedType;
 	public MethodBinding descriptor;
 	public MethodBinding binding;                 // Code generation binding. May include synthetics. See getMethodBinding()
@@ -74,20 +74,20 @@ public abstract class FunctionalExpression extends Expression {
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
 	}
-	
+
 	public FunctionalExpression() {
 		super();
 	}
-	
+
 	@Override
 	public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope scope) {
 		return false;
 	}
-	
+
 	public void setCompilationResult(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
 	}
-	
+
 	// Return the actual (non-code generation) method binding that is void of synthetics.
 	public MethodBinding getMethodBinding() {
 		return null;
@@ -97,7 +97,7 @@ public abstract class FunctionalExpression extends Expression {
 	public void setExpectedType(TypeBinding expectedType) {
 		this.expectedType = expectedType;
 	}
-	
+
 	@Override
 	public void setExpressionContext(ExpressionContext context) {
 		this.expressionContext = context;
@@ -121,7 +121,7 @@ public abstract class FunctionalExpression extends Expression {
 	public boolean isFunctionalType() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 		if (targetType instanceof TypeVariableBinding) {
@@ -159,7 +159,7 @@ public abstract class FunctionalExpression extends Expression {
 	public TypeBinding expectedType() {
 		return this.expectedType;
 	}
-	
+
 	public boolean argumentsTypeElided() { return true; /* only exception: lambda with explicit argument types. */ }
 
 	// Notify the compilation unit that it contains some functional types, taking care not to add any transient copies. this is assumed not to be a copy
@@ -173,7 +173,7 @@ public abstract class FunctionalExpression extends Expression {
 						if (expression != expression.original) // fake universe.
 							return 0;
 					}
-					break; 
+					break;
 				case Scope.COMPILATION_UNIT_SCOPE :
 					CompilationUnitDeclaration unit = ((CompilationUnitScope) scope).referenceContext;
 					return unit.record(this);
@@ -199,7 +199,7 @@ public abstract class FunctionalExpression extends Expression {
 		if (!sam.isValidBinding() && sam.problemId() != ProblemReasons.ContradictoryNullAnnotations) {
 			return reportSamProblem(blockScope, sam);
 		}
-		
+
 		this.descriptor = sam;
 		if (skipKosherCheck || kosherDescriptor(blockScope, sam, true)) {
 			if (this.expectedType instanceof IntersectionTypeBinding18) {
@@ -217,9 +217,9 @@ public abstract class FunctionalExpression extends Expression {
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
 			}
-			return this.resolvedType = this.expectedType;		
+			return this.resolvedType = this.expectedType;
 		}
-		
+
 		return this.resolvedType = null;
 	}
 
@@ -245,7 +245,7 @@ public abstract class FunctionalExpression extends Expression {
 		private boolean shouldChatter;
         private boolean visible = true;
 		private FunctionalExpression expression;
-        
+
 		public VisibilityInspector(FunctionalExpression expression, Scope scope, boolean shouldChatter) {
 			this.scope = scope;
 			this.shouldChatter = shouldChatter;
@@ -259,20 +259,20 @@ public abstract class FunctionalExpression extends Expression {
 					this.scope.problemReporter().descriptorHasInvisibleType(this.expression, referenceBinding);
 			}
 		}
-		
+
 		@Override
 		public boolean visit(ReferenceBinding referenceBinding) {
 			checkVisibility(referenceBinding);
 			return true;
 		}
 
-		
+
 		@Override
 		public boolean visit(ParameterizedTypeBinding parameterizedTypeBinding) {
 			checkVisibility(parameterizedTypeBinding);
 			return true;
 		}
-		
+
 		@Override
 		public boolean visit(RawTypeBinding rawTypeBinding) {
 			checkVisibility(rawTypeBinding);
@@ -288,13 +288,13 @@ public abstract class FunctionalExpression extends Expression {
 			TypeBindingVisitor.visit(this, types);
 			return this.visible;
 		}
-		
+
 	}
 
 	public boolean kosherDescriptor(Scope scope, MethodBinding sam, boolean shouldChatter) {
-	
+
 		VisibilityInspector inspector = new VisibilityInspector(this, scope, shouldChatter);
-		
+
 		boolean status = true;
 		if (!inspector.visible(sam.returnType))
 			status = false;
@@ -319,7 +319,7 @@ public abstract class FunctionalExpression extends Expression {
 	public MethodBinding[] getRequiredBridges() {
 
 		class BridgeCollector {
-			
+
 			MethodBinding [] bridges;
 			MethodBinding method;
 			char [] selector;
@@ -333,19 +333,19 @@ public abstract class FunctionalExpression extends Expression {
 				this.scope = FunctionalExpression.this.enclosingScope;
 				collectBridges(new ReferenceBinding[]{functionalType});
 			}
-			
+
 			void collectBridges(ReferenceBinding[] interfaces) {
 				int length = interfaces == null ? 0 : interfaces.length;
 				for (int i = 0; i < length; i++) {
 					ReferenceBinding superInterface = interfaces[i];
-					if (superInterface == null) 
+					if (superInterface == null)
 						continue;
 					MethodBinding [] methods = superInterface.getMethods(this.selector);
 					for (int j = 0, count = methods == null ? 0 : methods.length; j < count; j++) {
 						MethodBinding inheritedMethod = methods[j];
 						if (inheritedMethod == null || this.method == inheritedMethod)  // descriptor declaring class may not be same functional interface target type.
 							continue;
-						if (inheritedMethod.isStatic() || inheritedMethod.redeclaresPublicObjectMethod(this.scope)) 
+						if (inheritedMethod.isStatic() || inheritedMethod.redeclaresPublicObjectMethod(this.scope))
 							continue;
 						inheritedMethod = MethodVerifier.computeSubstituteMethod(inheritedMethod, this.method, this.environment);
 						if (inheritedMethod == null || !MethodVerifier.isSubstituteParameterSubsignature(this.method, inheritedMethod, this.environment) ||
@@ -376,7 +376,7 @@ public abstract class FunctionalExpression extends Expression {
 				return this.bridges;
 			}
 		}
-		
+
 		ReferenceBinding functionalType;
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
 			functionalType = (ReferenceBinding) ((IntersectionTypeBinding18)this.expectedType).getSAMType(this.enclosingScope);
@@ -386,7 +386,7 @@ public abstract class FunctionalExpression extends Expression {
 		return new BridgeCollector(functionalType, this.descriptor).getBridges();
 	}
 	boolean requiresBridges() {
-		return getRequiredBridges() != null; 
+		return getRequiredBridges() != null;
 	}
 	public void cleanUp() {
 		// to be overridden by sub-classes

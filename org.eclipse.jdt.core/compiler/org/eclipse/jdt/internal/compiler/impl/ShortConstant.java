@@ -14,7 +14,7 @@
 package org.eclipse.jdt.internal.compiler.impl;
 
 public class ShortConstant extends Constant {
-	
+
 	private short value;
 
 	public static Constant fromValue(short value) {

@@ -97,7 +97,7 @@ public class CharArrayUtils {
 
 	/**
 	 * Returns {@code true} if the contents of a section of a character array are the same as contents of a string.
-	 * 
+	 *
 	 * @since 5.5
 	 */
 	public static final boolean equals(char[] str1, int start1, int length1, String str2) {

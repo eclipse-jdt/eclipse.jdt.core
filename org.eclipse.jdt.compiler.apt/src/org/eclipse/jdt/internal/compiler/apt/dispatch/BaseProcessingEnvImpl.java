@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2019 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2019 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,7 +46,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	protected Messager _messager;
 	protected Map<String, String> _processorOptions;
 	protected Compiler _compiler;
-	
+
 	// Initialized in this base class:
 	protected Elements _elementUtils;
 	protected Types _typeUtils;
@@ -74,7 +74,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	public void addNewClassFile(ReferenceBinding binding) {
 		_addedClassFiles.add(binding);
 	}
-	
+
 	public Compiler getCompiler() {
 		return _compiler;
 	}
@@ -105,7 +105,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	public Messager getMessager() {
 		return _messager;
 	}
-	
+
 	@Override
 	public Map<String, String> getOptions() {
 		return _processorOptions;
@@ -162,7 +162,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	}
 
 	/**
-	 * Called when AnnotationProcessorManager has retrieved the list of 
+	 * Called when AnnotationProcessorManager has retrieved the list of
 	 * newly generated compilation units (ie, once per round)
 	 */
 	public void reset() {

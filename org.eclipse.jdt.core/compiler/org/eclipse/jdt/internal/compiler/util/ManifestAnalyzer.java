@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,13 +32,13 @@ public class ManifestAnalyzer {
 		"Class-Path:".toCharArray(); //$NON-NLS-1$
 	private int classpathSectionsCount;
 	private ArrayList calledFilesNames;
-	
+
 	/**
 	 * Analyzes the manifest contents. The given input stream is read using a UTF-8 encoded reader.
 	 * If the contents of the input stream is not encoded using a UTF-8 encoding, the analysis will fail.
-	 * 
+	 *
 	 * @param inputStream the given input stream.
-	 * 
+	 *
 	 * @return <code>true</code> if the analysis is successful, <code>false</code> otherwise.
 	 * @throws IOException if an exception occurs while analyzing the file
 	 */
@@ -49,9 +49,9 @@ public class ManifestAnalyzer {
 
 	/**
 	 * Analyzes the manifest contents.
-	 * 
+	 *
 	 * @param chars the content of the manifest
-	 * 
+	 *
 	 * @return <code>true</code> if the analysis is successful, <code>false</code> otherwise.
 	 */
 	public boolean analyzeManifestContents(char[] chars) {

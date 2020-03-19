@@ -25,9 +25,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * types are subkinds of classes and interfaces, respectively.
  * <p>
  * Note that the element name of an anonymous source type and lambda expressions
- * is always empty. Types representing lambda expressions are pseudo-elements 
- * and not included in the children of their parent. Lambda expressions are created 
- * as the result of a <code>ICodeAssist.codeSelect(...)</code>. For more information 
+ * is always empty. Types representing lambda expressions are pseudo-elements
+ * and not included in the children of their parent. Lambda expressions are created
+ * as the result of a <code>ICodeAssist.codeSelect(...)</code>. For more information
  * on such pseudo-elements, see <code>ILocalVariable</code>.
  * </p><p>
  * If a binary type cannot be parsed, its structure remains unknown.
@@ -166,7 +166,7 @@ public interface IType extends IMember, IAnnotatable {
 		boolean isStatic,
 		CompletionRequestor requestor)
 		throws JavaModelException;
-	
+
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 *
@@ -178,7 +178,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
-	 * 
+	 *
 	 * <pre>
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
@@ -269,7 +269,7 @@ public interface IType extends IMember, IAnnotatable {
 		CompletionRequestor requestor,
 		WorkingCopyOwner owner)
 		throws JavaModelException;
-	
+
 	/**
 	 * Do code completion inside a code snippet in the context of the current type.
 	 * It considers types in the working copies with the given owner first. In other words,
@@ -288,7 +288,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
-	 * 
+	 *
 	 * <pre>
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
@@ -490,7 +490,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * <p>
 	 * The results are listed in the order in which they appear in the source or class file.
 	 * </p>
-	 * 
+	 *
 	 * @return the children for the given category.
 	 * @exception JavaModelException if this element does not exist or if an
 	 *      exception occurs while accessing its corresponding resource.
@@ -501,7 +501,7 @@ public interface IType extends IMember, IAnnotatable {
 	/**
 	 * Returns the simple name of this type, unqualified by package or enclosing type.
 	 * This is a handle-only method.
-	 * 
+	 *
 	 * Note that the element name of an anonymous source type and lambda expressions
 	 * is always empty.
 	 *
@@ -521,7 +521,7 @@ public interface IType extends IMember, IAnnotatable {
 	IField getField(String name);
 
 	/**
-	 * Returns the fields declared by this type in the order in which they appear 
+	 * Returns the fields declared by this type in the order in which they appear
 	 * in the source or class file. For binary types, this includes synthetic fields.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
@@ -601,9 +601,9 @@ public interface IType extends IMember, IAnnotatable {
 	IInitializer getInitializer(int occurrenceCount);
 
 	/**
-	 * Returns the initializers declared by this type. For binary types this is an 
-	 * empty collection. For source types, the results are listed in the order in 
-	 * which they appear in the source. 
+	 * Returns the initializers declared by this type. For binary types this is an
+	 * empty collection. For source types, the results are listed in the order in
+	 * which they appear in the source.
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
@@ -636,7 +636,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * The type signatures may be either unresolved (for source types)
 	 * or resolved (for binary types), and either basic (for basic types)
 	 * or rich (for parameterized types). See {@link Signature} for details.
-	 * Note that the parameter type signatures for binary methods are expected 
+	 * Note that the parameter type signatures for binary methods are expected
 	 * to be dot-based.
 	 * </p>
 	 *
@@ -651,7 +651,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * For binary types, this may include the special <code>&lt;clinit&gt;</code> method
 	 * and synthetic methods.
 	 * <p>
-	 * The results are listed in the order in which they appear in the source or class file. 
+	 * The results are listed in the order in which they appear in the source or class file.
 	 * </p>
 	 *
 	 * @exception JavaModelException if this element does not exist or if an
@@ -941,10 +941,10 @@ public interface IType extends IMember, IAnnotatable {
 	boolean isAnnotation() throws JavaModelException;
 
 	/**
-	 * Returns whether this type represents a local type. For an anonymous type, 
+	 * Returns whether this type represents a local type. For an anonymous type,
 	 * this method returns true.
 	 * <p>
-	 * Note: This deviates from JLS3 14.3, which states that anonymous types are 
+	 * Note: This deviates from JLS3 14.3, which states that anonymous types are
 	 * not local types since they do not have a name.
 	 * </p>
 	 *
@@ -1240,7 +1240,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * @since 3.0
 	 */
 	String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException;
-	
+
 	/**
 	 * Returns whether this type represents a lambda expression.
 	 *

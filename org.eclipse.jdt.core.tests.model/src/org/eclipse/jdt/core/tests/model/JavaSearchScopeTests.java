@@ -1090,9 +1090,9 @@ public void testBug250211() throws CoreException {
 						}
 					}
 					projects[i] = createJavaProject(projectName, new String[]{"src"}, new String[]{"JCL_LIB"}, dependents, exportedProjects, "bin");
-				}		
+				}
 			}
-		}, 
+		},
 		null);
 		SearchEngine.createJavaSearchScope(projects);
 	}
@@ -1107,7 +1107,7 @@ public void testBug250211() throws CoreException {
 public void testBug397818() throws CoreException {
 	try {
 		createJavaProject("P1", new String[] {"src"}, new String[] {}, "bin");
-		
+
 		createFolder("/P1/new folder");
 		IFile newFile = createFile("/P1/new folder/testindex.index", "");
 		try {

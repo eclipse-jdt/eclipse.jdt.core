@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 BEA Systems, Inc. 
+ * Copyright (c) 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,14 +10,14 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.base;
 
 /**
  * String constants used in representing the javax.lang.model typesystem as XML.
- * 
+ *
  * @since 3.4
  */
 public interface IXMLNames {
@@ -40,6 +40,6 @@ public interface IXMLNames {
 	static final String TYPE_TAG = "type";
 	static final String VALUE_TAG = "value";
 	static final String VARIABLE_ELEMENT_TAG = "variable-element";
-	
+
 	static final String TYPEKIND_ERROR = "ERROR"; // see javax.lang.model.type.TypeKind
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 BEA Systems, Inc. and others 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
@@ -36,19 +36,19 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 
 	protected final IFile _file;
 	private final BuildEnv _env;
-	
+
 	public BinaryFileOutputStream(IFile file, BuildEnv env) {
 		_file = file;
 		_env = env;
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		super.close();
-		
+
 		InputStream contents = new ByteArrayInputStream(toByteArray());
 		try {
-			
+
 			boolean contentsChanged = true;
 			if (!_file.exists()) {
 				saveToDisk(contents, true);
@@ -81,14 +81,14 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 		finally {
 			closeInputStream(contents);
 		}
-			
+
 		IFile parentFile = _env.getFile();
 		if (parentFile != null) {
 			_env.getAptProject().getGeneratedFileManager(_env.isTestCode()).addGeneratedFileDependency(Collections.singleton(parentFile), _file);
 			_env.addGeneratedNonSourceFile(_file);
 		}
 	}
-	
+
 	private void closeInputStream(InputStream stream) {
 		if (stream != null) {
 			try {
@@ -97,7 +97,7 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			catch (IOException ioe) {}
 		}
 	}
-	
+
 	private void saveToDisk(InputStream toSave, boolean create) throws IOException{
 		try {
 			FileSystemUtil.makeDerivedParentFolders(_file.getParent());

@@ -1018,8 +1018,8 @@ public void testBug408230a() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1043,8 +1043,8 @@ public void testBug408230b() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1068,8 +1068,8 @@ public void testBug408230c() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1091,8 +1091,8 @@ public void testBug408230d() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1114,8 +1114,8 @@ public void testBug408230e() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1137,8 +1137,8 @@ public void testBug408230f() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1163,8 +1163,8 @@ public void testBug408230g() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1189,8 +1189,8 @@ public void testBug408230h() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1215,8 +1215,8 @@ public void testBug408230i() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1241,8 +1241,8 @@ public void testBug408230j() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1267,8 +1267,8 @@ public void testBug408230k() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1293,8 +1293,8 @@ public void testBug408230l() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1319,8 +1319,8 @@ public void testBug408230m() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -1345,8 +1345,8 @@ public void testBug408230n() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
 		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
@@ -2300,7 +2300,7 @@ public void test425064a() throws JavaModelException {
 		elements, true
 	);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429845, [1.8] CCE on hover 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429845, [1.8] CCE on hover
 public void test429845() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"/Resolve/src/X.java",
@@ -2386,7 +2386,7 @@ public void test429934() throws CoreException {
 			"	} \n" +
 			"}\n"
 	);
-	
+
 	String str = this.workingCopies[0].getSource();
 	String selection = "s";
 	int start = str.lastIndexOf(selection);
@@ -2397,7 +2397,7 @@ public void test429934() throws CoreException {
 			"Unexpected elements",
 			"s [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
 			elements, true
-		);	
+		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429812, [1.8][model] Signatures returned by lambda IMethod APIs should be dot-based
 
@@ -2414,12 +2414,12 @@ public void test429812() throws CoreException {
 			"	} \n" +
 			"}\n"
 			);
-	
+
 	String str = this.workingCopies[0].getSource();
 	String selection = "x";
 	int start = str.lastIndexOf(selection);
 	int length = selection.length();
-	
+
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 	assertElementsEqual(
 			"Unexpected elements",
@@ -2444,45 +2444,45 @@ public void test430136() throws CoreException {
 			"	} \n" +
 			"}\n"
 			);
-	
+
 	String str = this.workingCopies[0].getSource();
-	
+
 	String selection = "x,";
 	int start = str.indexOf(selection);
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, 1);
 	IMethod lambda = (IMethod) elements[0].getParent();
 	String memento = lambda.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&",
 			memento);
 	IJavaElement result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	LambdaExpression expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, result);
-	
+
 	start = str.lastIndexOf(selection);
 	elements = this.workingCopies[0].codeSelect(start, 1);
 	lambda = (IMethod) elements[0].getParent();
 	memento = lambda.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=&", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=&",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=)", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!180!197!188=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!181!181!181!181!Ljava\\/util\\/List;!0!true@i!184!184!184!184!I!0!true=)",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, result);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430307,  [1.8][model] NPE trying to get children of a LambdaExpression restored from handleIdentifier 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430307,  [1.8][model] NPE trying to get children of a LambdaExpression restored from handleIdentifier
 public void test430307() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Resolve/src/X.java",
@@ -2496,16 +2496,16 @@ public void test430307() throws CoreException {
 			"	} \n" +
 			"}\n"
 			);
-	
+
 	String str = this.workingCopies[0].getSource();
-	
+
 	String selection = "x,";
 	int start = str.indexOf(selection);
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, 1);
 	ILocalVariable local = (ILocalVariable) elements[0];
 	String memento = local.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&@x!145!145!145!145!Ljava.util.List\\<LU;>;!0!true", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&@x!145!145!145!145!Ljava.util.List\\<LU;>;!0!true",
 			memento);
 	IJavaElement result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", local, result);
@@ -2514,16 +2514,16 @@ public void test430307() throws CoreException {
 	IJavaElement parentExpr = parentMethod.getParent();
 	IMethod lambda = (IMethod) elements[0].getParent();
 	memento = lambda.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=&",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", lambda, result);
 	assertEquals("Java elements should be equal", result, parentMethod);
 	LambdaExpression expression = (LambdaExpression) lambda.getParent();
 	memento = expression.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
-			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)", 
+	assertEquals("Incorrect memento string",
+			"=Resolve/src<{X.java[X~foo~QList\\<QU;>;=)=\"LGetter\\<TU;>;!144!161!152=&get!2=\"Ljava.util.List\\<TU;>;=\"x=\"I=\"i=\"TU;=\"LX\\~Getter\\<LX;:TU;>;.get\\(Ljava\\/util\\/List\\<TU;>;I)TU;@x!145!145!145!145!Ljava\\/util\\/List;!0!true@i!148!148!148!148!I!0!true=)",
 			memento);
 	LambdaExpression recreatedType = (LambdaExpression) JavaCore.create(memento);
 	assertEquals("Java elements should be equal", expression, recreatedType);
@@ -2547,7 +2547,7 @@ public void test430307a() throws JavaModelException {
 			"	}\n" +
 			"}\n");
 	String str = this.workingCopies[0].getSource();
-	
+
 	String selection = "abc)";
 	int start = str.indexOf(selection);
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, 3);
@@ -2567,16 +2567,16 @@ public void test430307a() throws JavaModelException {
 	IJavaElement parentExpr = parentMethod.getParent();
 	assertEquals("Java elements should be equal", parentMethod, local.getParent());
 	assertEquals("Java elements should be equal", parentExpr, local.getParent().getParent());
-	
+
 	selection = "xyz)";
 	start = str.lastIndexOf(selection);
 	elements = this.workingCopies[0].codeSelect(start, 3);
 	local = (ILocalVariable) elements[0];
 	memento = local.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
+	assertEquals("Incorrect memento string",
 			"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
 			+ "LI;@pqr!104!106!104!106!LI;!0!true=&=)=\"LI;!124!164!131=&doit!1=\"LI;=\"xyz=\"LI;=\"LX\\~I;.doit\\(LI;)"
-			+ "LI;@xyz!125!127!125!127!LI;!0!true=&@xyz!125!127!125!127!LI;!0!true", 
+			+ "LI;@xyz!125!127!125!127!LI;!0!true=&@xyz!125!127!125!127!LI;!0!true",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", local, result);
@@ -2585,15 +2585,15 @@ public void test430307a() throws JavaModelException {
 	parentExpr = parentMethod.getParent();
 	assertEquals("Java elements should be equal", parentMethod, local.getParent());
 	assertEquals("Java elements should be equal", parentExpr, local.getParent().getParent());
-	
+
 	selection = "pqr)";
 	start = str.indexOf(selection);
 	elements = this.workingCopies[0].codeSelect(start, 3);
 	local = (ILocalVariable) elements[0];
 	memento = local.getHandleIdentifier();
-	assertEquals("Incorrect memento string", 
+	assertEquals("Incorrect memento string",
 			"=Resolve/src<{X.java[X~main~\\[QString;=)=\"LI;!103!169!110=&doit!1=\"LI;=\"pqr=\"LI;=\"LX\\~I;.doit\\(LI;)"
-			+ "LI;@pqr!104!106!104!106!LI;!0!true=&@pqr!104!106!104!106!LI;!0!true", 
+			+ "LI;@pqr!104!106!104!106!LI;!0!true=&@pqr!104!106!104!106!LI;!0!true",
 			memento);
 	result = JavaCore.create(memento);
 	assertEquals("Java elements should be equal", local, result);
@@ -2845,31 +2845,31 @@ public void test430572() throws JavaModelException {
 		elements);
 }
 // nested poly invocation:
-public void testBug487791() throws JavaModelException {	
+public void testBug487791() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Example.java",
-			"import java.util.Comparator;\n" + 
-			"import java.util.stream.Collectors;\n" + 
-			"\n" + 
-			"interface Something {\n" + 
-			"      public int getSize();\n" + 
-			"      public Instant getTime();\n" + 
+			"import java.util.Comparator;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"\n" +
+			"interface Something {\n" +
+			"      public int getSize();\n" +
+			"      public Instant getTime();\n" +
 			"}\n" +
 			"interface Instant extends Comparable<Instant> {\n" +
-			"}\n" + 
-			"public class Example {\n" + 
-			"   public void test2() {\n" + 
-			"      java.util.stream.Collector<Something,?,java.util.Map<Integer,Something>> c = \n" + 
-			"      Collectors.collectingAndThen(\n" + 
-			"            Collectors.<Something>toList(),\n" + 
-			"            list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" + 
-			"                     // Returns Collector<Something,?,Object> - INCORRECT!\n" + 
+			"}\n" +
+			"public class Example {\n" +
+			"   public void test2() {\n" +
+			"      java.util.stream.Collector<Something,?,java.util.Map<Integer,Something>> c = \n" +
+			"      Collectors.collectingAndThen(\n" +
+			"            Collectors.<Something>toList(),\n" +
+			"            list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" +
+			"                     // Returns Collector<Something,?,Object> - INCORRECT!\n" +
 			"                     Collectors.collectingAndThen(\n" + // <-- select here
-			"                        Collectors.<Something>toList(),\n" + 
-			"                        list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
-			"                     )\n" + 
-			"                  )));\n" + 
-			"   }\n" + 
+			"                        Collectors.<Something>toList(),\n" +
+			"                        list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" +
+			"                     )\n" +
+			"                  )));\n" +
+			"   }\n" +
 			"}\n");
 	this.wc.becomeWorkingCopy(null);
 
@@ -2892,20 +2892,20 @@ public void testBug487791() throws JavaModelException {
 	assertEquals("return type", "Ljava.util.stream.Collector<LSomething;!*LSomething;>;", returnType);
 }
 // ReferenceExpression:
-public void testBug487791b() throws JavaModelException {	
+public void testBug487791b() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Example.java",
-			"import java.util.function.Function;\n" + 
-			"\n" + 
-			"public class Example {\n" + 
-			"   static <T> T id(T t) { return t; }\n" + 
-			"   static <T,X> T f1 (X x) { return null; }\n" + 
-			"   \n" + 
-			"   String test() {\n" + 
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Example {\n" +
+			"   static <T> T id(T t) { return t; }\n" +
+			"   static <T,X> T f1 (X x) { return null; }\n" +
+			"   \n" +
+			"   String test() {\n" +
 			"	   return f3(y -> y.f2(Example::f1, id(y)));\n" +  // <- select f1 here
-			"   }\n" + 
-			"   <U,V> V f2(Function<U, V> f, U u) {return f.apply(null);}\n" + 
-			"   <R> R f3(Function<Example,R> f) { return null; }\n" + 
+			"   }\n" +
+			"   <U,V> V f2(Function<U, V> f, U u) {return f.apply(null);}\n" +
+			"   <R> R f3(Function<Example,R> f) { return null; }\n" +
 			"}\n");
 	this.wc.becomeWorkingCopy(null);
 
@@ -2931,22 +2931,22 @@ public void testBug487791b() throws JavaModelException {
 public void testBug515758() throws JavaModelException {
 	this.wc = getWorkingCopy(
 			"Resolve/src/Snippet.java",
-			"import java.util.function.Function;\n" + 
-			"\n" + 
-			"public class Snippet {\n" + 
-			"    void m1() {\n" + 
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Snippet {\n" +
+			"    void m1() {\n" +
 			"    	MyObservable.range(1, 2).groupBy(integer -> {\n" +
 			"	 		return \"even\";\n" +
 			"		});\n" +
-			"    }\n" + 
-			"\n" + 
-			"}\n" + 
-			"class MyObservable<T> {\n" + 
-			"	static MyObservable<Integer> range(int i1, int i2) {\n" + 
-			"		return new MyObservable<>();\n" + 
-			"	}\n" + 
-			"	<K> void groupBy(Function<T, K> func) {\n" + 
-			"	}\n" + 
+			"    }\n" +
+			"\n" +
+			"}\n" +
+			"class MyObservable<T> {\n" +
+			"	static MyObservable<Integer> range(int i1, int i2) {\n" +
+			"		return new MyObservable<>();\n" +
+			"	}\n" +
+			"	<K> void groupBy(Function<T, K> func) {\n" +
+			"	}\n" +
 			"}");
 	String str = this.wc.getSource();
 	String selection = "range";

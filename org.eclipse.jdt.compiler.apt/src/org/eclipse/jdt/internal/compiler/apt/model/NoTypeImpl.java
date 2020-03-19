@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class NoTypeImpl extends TypeMirrorImpl implements NoType, NullType
 {
 	private final TypeKind _kind;
-	
+
 	public static final NoType NO_TYPE_NONE = new NoTypeImpl(TypeKind.NONE);
 	public static final NoType NO_TYPE_VOID = new NoTypeImpl(TypeKind.VOID, TypeBinding.VOID);
 	public static final NoType NO_TYPE_PACKAGE = new NoTypeImpl(TypeKind.PACKAGE);
@@ -45,13 +45,13 @@ public class NoTypeImpl extends TypeMirrorImpl implements NoType, NullType
 		public int kind() {
 			throw new IllegalStateException();
 		}
-	
+
 		@Override
 		public char[] readableName() {
 			throw new IllegalStateException();
 		}
 	};
-	
+
 	public NoTypeImpl(TypeKind kind) {
 		super(null, NO_TYPE_BINDING);
 		_kind = kind;
@@ -68,7 +68,7 @@ public class NoTypeImpl extends TypeMirrorImpl implements NoType, NullType
 		{
 			case NULL :
 				return v.visitNull(this, p);
-			default: 
+			default:
 				return v.visitNoType(this, p);
 		}
 	}
@@ -78,7 +78,7 @@ public class NoTypeImpl extends TypeMirrorImpl implements NoType, NullType
 	{
 		return _kind;
 	}
-	
+
 	@Override
 	public String toString()
 	{

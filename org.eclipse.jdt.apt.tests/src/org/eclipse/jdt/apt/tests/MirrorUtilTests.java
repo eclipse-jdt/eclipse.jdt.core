@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc. 
+ * Copyright (c) 2005 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -39,11 +39,11 @@ public class MirrorUtilTests extends APTTestBase {
 	{
 		return new TestSuite(MirrorUtilTests.class);
 	}
-	
+
 	public void setUp() throws Exception
-	{	
-		super.setUp();		
-		
+	{
+		super.setUp();
+
 		IProject project = env.getProject( getProjectName() );
 		IJavaProject jproj = env.getJavaProject(project.getFullPath());
 		addEnvOptions(jproj);
@@ -53,21 +53,21 @@ public class MirrorUtilTests extends APTTestBase {
 		fullBuild( project.getFullPath() );
 		assertNoUnexpectedProblems();
 	}
-	
+
 	/**
 	 * Add options which the AnnotationProcessorEnvironment should see.
 	 * The options will be verified within the processor code.
 	 */
 	private void addEnvOptions(IJavaProject jproj) {
 		for (int i = 0; i < MirrorUtilTestAnnotationProcessor.ENV_KEYS.length; ++i) {
-			AptConfig.addProcessorOption(jproj, 
-					MirrorUtilTestAnnotationProcessor.ENV_KEYS[i], 
+			AptConfig.addProcessorOption(jproj,
+					MirrorUtilTestAnnotationProcessor.ENV_KEYS[i],
 					MirrorUtilTestAnnotationProcessor.ENV_VALUES[i]);
 		}
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void assertNoUnexpectedProblems() {
 		Problem[] problems = env.getProblems();
@@ -78,7 +78,7 @@ public class MirrorUtilTests extends APTTestBase {
 			fail("Found unexpected problem: " + problem); //$NON-NLS-1$
 		}
 	}
-	
+
 	public void testMirrorUtils() throws Exception
 	{
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());

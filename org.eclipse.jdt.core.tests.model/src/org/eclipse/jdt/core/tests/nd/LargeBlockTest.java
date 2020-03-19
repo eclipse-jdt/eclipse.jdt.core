@@ -95,7 +95,7 @@ public class LargeBlockTest extends BaseTestCase {
 	 * Tests that if there is a single large free block available, that block
 	 * will be split and reused if necessary to satisfy a number of smaller
 	 * requests.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testLargeAllocationIsSplitAndReused() throws Exception {

@@ -22,7 +22,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
 /**
- * Annotation processor factory container based on a jar file 
+ * Annotation processor factory container based on a jar file
  * within the workspace.
  */
 public class WkspJarFactoryContainer extends JarFactoryContainer {
@@ -42,10 +42,10 @@ public class WkspJarFactoryContainer extends JarFactoryContainer {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IResource res = root.findMember(_id);
 		if (null == res) {
-			// The file evidently doesn't exist on disk.  Do our best to 
+			// The file evidently doesn't exist on disk.  Do our best to
 			// construct a java.io.File for it anyway.
 			_jarFile = root.getLocation().append(jar).toFile();
-			
+
 		}
 		else if (res.getType() == IResource.FILE) {
 			_jarFile = res.getLocation().toFile();

@@ -72,7 +72,7 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
     	try {
 			p = createJavaProject("mod.one", new String[] {"src"}, new String[] {"JCL19_LIB", this.ANNOTATION_LIB}, "bin", "9");
 			p.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-			
+
 			createFolder("/mod.one/src/p/q");
 			createFile("/mod.one/src/module-info.java",
 					"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
@@ -80,7 +80,7 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 					"	requires org.eclipse.jdt.annotation;\n" +
 					"	exports p.q;\n" +
 					"}\n");
-			
+
 			createFile("/mod.one/src/p/q/API.java",
 					"package p.q;\n" +
 					"public class API {\n" +
@@ -109,17 +109,17 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 					"    	}\n" +
 					"}\n";
 			createFile("/mod.two/src/client/Client.java", clientSource);
-			
+
 			this.problemRequestor.initialize(clientSource.toCharArray());
 
 			getCompilationUnit("/mod.two/src/client/Client.java").getWorkingCopy(this.wcOwner, null);
 
 			assertProblems("Unexpected problems",
 					"----------\n" +
-					"1. ERROR in /mod.two/src/client/Client.java (at line 6)\n" + 
-					"	api.id(null); // NOK\n" + 
-					"	       ^^^^\n" + 
-					"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+					"1. ERROR in /mod.two/src/client/Client.java (at line 6)\n" +
+					"	api.id(null); // NOK\n" +
+					"	       ^^^^\n" +
+					"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 					"----------\n");
     	} finally {
     		if (p != null)
@@ -157,7 +157,7 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
     			"9",
     			options);
     		p2.getResource().refreshLocal(1, null);
-			
+
 			IClasspathAttribute[] attr = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 			addClasspathEntry(p2, JavaCore.newLibraryEntry(new Path("/mod.two/mod.one.jar"), null, null, null, attr, false));
 			addClasspathEntry(p2, JavaCore.newLibraryEntry(new Path(this.ANNOTATION_LIB), null, null, null, attr, false));
@@ -179,11 +179,11 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 					"    	}\n" +
 					"}\n";
 			createFile("/mod.two/src/client/Client.java", clientSource);
-			
+
 			// full build:
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers in mod.one", 
+			assertMarkers("Unexpected markers in mod.one",
 					"Null type mismatch: required \'@NonNull String\' but the provided value is null",
 					markers);
 
@@ -193,10 +193,10 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 
 			assertProblems("Unexpected problems",
 					"----------\n" +
-					"1. ERROR in /mod.two/src/client/Client.java (at line 6)\n" + 
-					"	api.id(null); // NOK\n" + 
-					"	       ^^^^\n" + 
-					"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+					"1. ERROR in /mod.two/src/client/Client.java (at line 6)\n" +
+					"	api.id(null); // NOK\n" +
+					"	       ^^^^\n" +
+					"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 					"----------\n");
     	} finally {
     		if (p != null)

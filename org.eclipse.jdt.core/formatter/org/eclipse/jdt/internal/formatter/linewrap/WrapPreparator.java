@@ -1302,7 +1302,7 @@ public class WrapPreparator extends ASTVisitor {
 			wrapMode = WrapMode.FORCE;
 		} else if (isAlreadyWrapped) {
 			wrapMode = WrapMode.DISABLED; // to avoid triggering top priority wrapping
-		} else if (isTopPriority) { 
+		} else if (isTopPriority) {
 			wrapMode = WrapMode.TOP_PRIORITY;
 		}
 		extraIndent *= this.options.indentation_size;

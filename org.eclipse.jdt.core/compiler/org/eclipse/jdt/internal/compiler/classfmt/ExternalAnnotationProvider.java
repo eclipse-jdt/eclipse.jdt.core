@@ -59,7 +59,7 @@ public class ExternalAnnotationProvider {
 	Map<String,String> supertypeAnnotationSources;
 	private Map<String,String> methodAnnotationSources;
 	private Map<String,String> fieldAnnotationSources;
-	
+
 	/**
 	 * Create and initialize.
 	 * @param input open input stream to read the annotations from, will be closed by the constructor.
@@ -86,7 +86,7 @@ public class ExternalAnnotationProvider {
 					this.typeParametersAnnotationSource = line.substring(TYPE_PARAMETER_PREFIX.length());
 					if ((line = reader.readLine()) == null)
 						return;
-				} 
+				}
 			}
 			String pendingLine;
 			do {
@@ -171,7 +171,7 @@ public class ExternalAnnotationProvider {
 		int tail = line.indexOf(' ');
 		if (tail == -1)
 			tail = line.indexOf('\t');
-		if (tail != -1) 
+		if (tail != -1)
 			return line.substring(0, tail);
 		return line;
 	}
@@ -257,7 +257,7 @@ public class ExternalAnnotationProvider {
 		public ITypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
 			String source = ExternalAnnotationProvider.this.typeParametersAnnotationSource;
 			if (source != null) {
-				if (this.typeParametersWalker == null) 
+				if (this.typeParametersWalker == null)
 					this.typeParametersWalker = new TypeParametersAnnotationWalker(source.toCharArray(), 0, 0, null, this.environment);
 				return this.typeParametersWalker.toTypeParameter(isClassTypeParameter, rank);
 			}
@@ -305,7 +305,7 @@ public class ExternalAnnotationProvider {
 	}
 
 	abstract class BasicAnnotationWalker implements ITypeAnnotationWalker {
-		
+
 		char[] source;
 		SignatureWrapper wrapper;
 		int pos;
@@ -319,7 +319,7 @@ public class ExternalAnnotationProvider {
 			this.environment = environment;
 			initAnnotations(environment);
 		}
-		
+
 		SignatureWrapper wrapperWithStart(int start) {
 			if (this.wrapper == null)
 				this.wrapper = new SignatureWrapper(this.source);
@@ -362,10 +362,10 @@ public class ExternalAnnotationProvider {
 			}
 			int next = this.prevTypeArgStart;
 			switch (this.source[next]) {
-				case '*': 
+				case '*':
 					next = skipNullAnnotation(next+1);
 					break;
-				case '-': 
+				case '-':
 				case '+':
 					next = skipNullAnnotation(next+1);
 					//$FALL-THROUGH$
@@ -380,13 +380,13 @@ public class ExternalAnnotationProvider {
 		@Override
 		public ITypeAnnotationWalker toWildcardBound() {
 			switch (this.source[this.pos]) {
-				case '-': 
+				case '-':
 				case '+':
 					int newPos = skipNullAnnotation(this.pos+1);
 					return new MethodAnnotationWalker(this.source, newPos, this.environment);
 				default: // includes unbounded '*'
 					return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
-			}			
+			}
 		}
 
 		@Override
@@ -419,7 +419,7 @@ public class ExternalAnnotationProvider {
 							case NONNULL:
 								return new IBinaryAnnotation[]{ ExternalAnnotationProvider.this.NONNULL_ANNOTATION };
 						}
-				}				
+				}
 			}
 			return NO_ANNOTATIONS;
 		}
@@ -431,7 +431,7 @@ public class ExternalAnnotationProvider {
 				case NULLABLE:
 					return cur+1;
 				default:
-					return cur; 
+					return cur;
 			}
 		}
 	}
@@ -501,7 +501,7 @@ public class ExternalAnnotationProvider {
 				System.arraycopy(rankStarts, 0, this.rankStarts = new int[curRank], 0, curRank);
 			}
 		}
-		
+
 		@Override
 		public ITypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
 			if (rank == this.currentRank)
@@ -564,7 +564,7 @@ public class ExternalAnnotationProvider {
 						return new IBinaryAnnotation[]{ ExternalAnnotationProvider.this.NULLABLE_ANNOTATION };
 					case NONNULL:
 						return new IBinaryAnnotation[]{ ExternalAnnotationProvider.this.NONNULL_ANNOTATION };
-				}				
+				}
 			}
 			return super.getAnnotationsAtCursor(currentTypeId, mayApplyArrayContentsDefaultNullness);
 		}
@@ -611,7 +611,7 @@ public class ExternalAnnotationProvider {
 		MethodAnnotationWalker(char[] source, int pos, LookupEnvironment environment) {
 			super(source, pos, environment);
 		}
-	
+
 		int typeEnd(int start) {
 			while (this.source[start] == '[') {
 				start++;
@@ -621,7 +621,7 @@ public class ExternalAnnotationProvider {
 			int end = wrapper1.skipAngleContents(wrapper1.computeEnd());
 			return end;
 		}
-		
+
 		@Override
 		public ITypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
 			if (this.source[0] == '<') {
@@ -689,7 +689,7 @@ public class ExternalAnnotationProvider {
 			return count;
 		}
 	}
-	
+
 	class FieldAnnotationWalker extends BasicAnnotationWalker {
 		public FieldAnnotationWalker(char[] source, int pos, LookupEnvironment environment) {
 			super(source, pos, environment);

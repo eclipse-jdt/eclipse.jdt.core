@@ -260,7 +260,7 @@ public void resolve(MethodScope initializationScope) {
 				}
 			}
 		}
-		
+
 		// check @Deprecated annotation presence
 		if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
 				&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0

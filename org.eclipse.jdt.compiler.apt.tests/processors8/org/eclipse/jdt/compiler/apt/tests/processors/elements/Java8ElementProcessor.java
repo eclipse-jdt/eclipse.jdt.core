@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -65,14 +65,14 @@ import org.eclipse.jdt.compiler.apt.tests.annotations.Type$1;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the java 8 specific elements and validates the lambda and 
- * type annotated elements. To enable this processor, add 
+ * A processor that explores the java 8 specific elements and validates the lambda and
+ * type annotated elements. To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java8ElementProcessor to the command line.
  * @since 3.10
  */
 @SupportedAnnotationTypes({"targets.model8.TypeAnnot",
 							"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type1",
-							"org.eclipse.jdt.compiler.apt.tests.annotations.Type$1", 
+							"org.eclipse.jdt.compiler.apt.tests.annotations.Type$1",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Foo", "org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
@@ -80,7 +80,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
-	
+
 	private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
 	private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
 	private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
@@ -88,7 +88,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	String packageName = "targets.filer8";
 	int roundNo = 0;
 	boolean reportSuccessAlready = true;
-		
+
 	protected RoundEnvironment roundEnv = null;
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -97,7 +97,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return false;
 		}
-		
+
 		this.roundEnv = roundEnv;
 
 		Map<String, String> options = processingEnv.getOptions();
@@ -179,7 +179,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testBug526288();
 		testEnumConstArguments();
 	}
-	
+
 	public void testLambdaSpecifics() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.LambdaTest");
 		assertNotNull("Java8ElementProcessor#examineLambdaSpecifics: Type element for LambdaTest should not be null", annotatedType);
@@ -226,8 +226,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertTrue("Java8ElementProcessor#examineLambdaSpecifics: Method anotherDefault() should be a default method", method.isDefault());
 		modifiers = method.getModifiers();
 		assertModifiers(modifiers, new String[]{"public", "default"});
-		
-		
+
+
 		method = null;
 		for (ExecutableElement member : ElementFilter.methodsIn(members)) {
 			if ("staticMethod".equals(member.getSimpleName().toString())) {
@@ -276,7 +276,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			} else if ("_field11".equals(member.getSimpleName().toString())) {
 				field11 = (VariableElement) member;
 			}
-			
+
 		}
 		assertNotNull("Method should not be null", method);
 		TypeMirror typeMirror = method.getReturnType();
@@ -285,16 +285,16 @@ public class Java8ElementProcessor extends BaseProcessor {
 		List<? extends AnnotationMirror> list = typeMirror.getAnnotationMirrors();
 		assertEquals("Java8ElementProcessor#examineSE8Specifics: Incorrect no of annotation mirrors", 1, list.size());
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for field _field should not be null", field);
-		typeMirror = field.asType(); 
+		typeMirror = field.asType();
 		examineSE8AnnotationMethods("Java8ElementProcessor#examineSE8Specifics: ", typeMirror, "f");
-		
+
 		TypeMirror similar = typeMirror;
 		typeMirror = field1.asType();
 		assertFalse("Should be of same type", _typeUtils.isSameType(typeMirror, similar));
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=f1)"});
 		similar = field11.asType();
 		assertTrue("Should be of same type", _typeUtils.isSameType(typeMirror, similar));
-		
+
 		typeMirror = method2.getReturnType();
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for method noAnnotationHere should not be null", typeMirror);
 		Type annot = typeMirror.getAnnotation(Type.class);
@@ -302,7 +302,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		Type[] annots = typeMirror.getAnnotationsByType(Type.class);
 		assertEquals("Annotation is not empty list", 0, annots.length);
 	}
-	
+
 	public void testTypeAnnotations() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		TypeMirror superType = annotatedType.getSuperclass();
@@ -317,7 +317,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		superType = interfaces.get(1);
 		verifyAnnotations(superType, new String[]{"@Type(value=i2)"});
 	}
-	
+
 	public void testTypeAnnotations1() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
@@ -336,7 +336,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 	}
-	
+
 	public void testTypeAnnotations2() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.Y");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
@@ -349,7 +349,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 				field3 = (VariableElement) member;
 			}
 		}
-		
+
 		//@Type("f") String @Type("f1") [] @Type("f2") [] _field2 @Type("f3") [], _field3 @Type("f4") [][] = null;
 		assertNotNull("Java8ElementProcessor#examineSE8Specifics: Element for field _field2 should not be null", field2);
 		TypeMirror typeMirror = field2.asType();
@@ -376,7 +376,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=f2)"});
 	}
-	
+
 	public void testTypeAnnotations3() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.Y");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
@@ -419,7 +419,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		
+
 		verifyAnnotations(typeMirror, new String[]{});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
@@ -430,7 +430,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		verifyAnnotations(typeMirror, new String[]{});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
-		
+
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p5)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
@@ -438,9 +438,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p3)"});
-		
+
 	}
-	
+
 	public void testTypeAnnotations5() {
 		// void foo2() throws (@Type("e1") NullPointerException, (@Type("e2") ArrayIndexOutOfBoundsException {}
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.Y");
@@ -511,7 +511,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			}
 		}
 	}
-	
+
 	public void testTypeAnnotations8() {
 		TypeElement typeZ = _elementUtils.getTypeElement("targets.model8.Z");
 		List<? extends Element> members = _elementUtils.getAllMembers(typeZ);
@@ -524,8 +524,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 				field = (VariableElement) member;
 			}
 		}
-		
-		// public <@Type("mp1") T, @Type("mp2") U> void foo() {}	
+
+		// public <@Type("mp1") T, @Type("mp2") U> void foo() {}
 		List<? extends TypeParameterElement> typeParams = method.getTypeParameters();
 		assertEquals("Incorrect no of type params", 2, typeParams.size());
 		TypeParameterElement typeParam = typeParams.get(0);
@@ -543,7 +543,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	public void testTypeAnnotations9() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
-		
+
 		VariableElement field2 = null;
 		for (VariableElement member : ElementFilter.fieldsIn(members)) {
 			if ("_field2".equals(member.getSimpleName().toString())) {
@@ -557,7 +557,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		Type.One annot2 = typeMirror.getAnnotation(Type.One.class);
 		assertNotNull("Annotation should not be null", annot2);
 	}
-	
+
 	public void testTypeAnnotations10() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
@@ -584,14 +584,14 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		verifyAnnotations(xy, new String[]{});
 		verifyAnnotations(xy.asType(), new String[]{"@Type(value=xy)"});
-		
+
 		Set<String> expectedElementNames = new HashSet<String>(ELEMENT_NAMES.length);
 		for (String name : ELEMENT_NAMES) {
 			expectedElementNames.add(name);
 		}
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
-		
+
 		for (Element e : actualElments) {
 			if (e instanceof TypeElement) {
 				String name = ((TypeElement) e).getQualifiedName().toString();
@@ -647,11 +647,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model9.X");
 		tTypeAnnotations12(annotatedType);
 	}
-	
+
 	public void testTypeAnnotations13() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
-		
+
 		VariableElement field = null;
 		for (VariableElement member : ElementFilter.fieldsIn(members)) {
 			if ("_i".equals(member.getSimpleName().toString())) {
@@ -684,7 +684,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		ExecutableType type = (ExecutableType) main.asType();
 		typeMirror = type.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
-		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());				
+		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
 		typeMirror = constr.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
 		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
@@ -696,7 +696,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = type.getReceiverType();
 		assertNotNull("TypeMirror should not be null", typeMirror);
 		assertSame("Should be no type", TypeKind.NONE, typeMirror.getKind());
-		
+
 		members = _elementUtils.getAllMembers(XY);
 		for (Element member : members) {
 			if ("<init>".equals(member.getSimpleName().toString())) {
@@ -721,7 +721,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
-		
+
 		for (Element e : actualElments) {
 			if (e instanceof TypeParameterElement) {
 				String name = ((TypeParameterElement) e).getSimpleName().toString();
@@ -740,7 +740,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
-		
+
 		for (Element e : actualElments) {
 			if (e instanceof TypeParameterElement) {
 				String name = ((TypeParameterElement) e).getSimpleName().toString();
@@ -756,11 +756,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 0);
-		
+
 		actualElments = roundEnv.getElementsAnnotatedWith(FooContainer.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 1);
-		
+
 		for (Element e : actualElments) {
 			verifyAnnotations(e, new String[]{"@FooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo,@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)"},
 					new String [] {"@FooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo, @org.eclipse.jdt.compiler.apt.tests.annotations.Foo])"});
@@ -776,16 +776,16 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertEquals("@Foo missing", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo()", "@org.eclipse.jdt.compiler.apt.tests.annotations.Foo", annots[1].toString());
 		}
 	}
-	
+
 	public void testRepeatedAnnotations18() {
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 0);
-		
+
 		actualElments = roundEnv.getElementsAnnotatedWith(FooContainer.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 1);
-		
+
 		for (Element e : actualElments) {
 			verifyAnnotations(e, new String[]{"@FooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo,@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)"},
 					new String [] {"@FooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo, @org.eclipse.jdt.compiler.apt.tests.annotations.Foo])"});
@@ -805,11 +805,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Goo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 0);
-		
+
 		actualElments = roundEnv.getElementsAnnotatedWith(GooNonContainer.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 1);
-		
+
 		for (Element e : actualElments) {
 			verifyAnnotations(e, new String[]{"@GooNonContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Goo,@org.eclipse.jdt.compiler.apt.tests.annotations.Goo)"},
 					new String [] {"@GooNonContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Goo, @org.eclipse.jdt.compiler.apt.tests.annotations.Goo])"});
@@ -827,11 +827,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 1);
-		
+
 		actualElments = roundEnv.getElementsAnnotatedWith(FooContainer.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 1);
-		
+
 		for (Element e : actualElments) {
 			verifyAnnotations(e, new String[]{"@FooContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)", "@Foo()"},
 					new String [] {"@FooContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo])","@org.eclipse.jdt.compiler.apt.tests.annotations.Foo"});
@@ -845,16 +845,16 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertTrue("Should be 2", annots.length == 2);
 		}
 	}
-	
+
 	public void testRepeatedAnnotations21() { // Foo is wrapped by a non-declared container
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 0);
-		
+
 		actualElments = roundEnv.getElementsAnnotatedWith(FooNonContainer.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 1);
-		
+
 		for (Element e : actualElments) {
 			verifyAnnotations(e, new String[]{"@FooNonContainer(value=@org.eclipse.jdt.compiler.apt.tests.annotations.Foo,@org.eclipse.jdt.compiler.apt.tests.annotations.Foo)"},
 					new String [] {"@FooNonContainer(value=[@org.eclipse.jdt.compiler.apt.tests.annotations.Foo, @org.eclipse.jdt.compiler.apt.tests.annotations.Foo])"});
@@ -868,12 +868,12 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertTrue("Should be 0", annots.length == 0);
 		}
 	}
-	
+
 	public void testRepeatedAnnotations22() { // Repeating type annotations
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Foo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 		assertTrue("Found unexpected elements", actualElments.size() == 2);
-		
+
 		for (Element e : actualElments) {
 			if (e instanceof VariableElement) {
 				VariableElement field = (VariableElement) e;
@@ -891,7 +891,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			}
 		}
 	}
-	
+
 	public void testTypeAnnotations23() {
 		Set<? extends Element> allElements = roundEnv.getRootElements();
 		for (Element element : allElements) {
@@ -900,11 +900,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertTrue("Annotations mirrors returned by getAllAnnotationMirrors() must contain directly declared annotation mirrors", list.containsAll(list1));
 		}
 	}
-	
+
 	public void testRepeatedAnnotations24() {
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(IFoo.class); // discovery is always in terms of container
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
-		assertTrue("Found unexpected elements", actualElments.size() == 3);		
+		assertTrue("Found unexpected elements", actualElments.size() == 3);
 		for (Element e : actualElments) {
 			if ("SubClass2".equals(e.getSimpleName().toString())) {
 				IFoo annotation = e.getAnnotation(IFoo.class);
@@ -962,7 +962,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertTrue("Should be equals", annotationOnJep7.equals(annotationOnSubclass));
 	}
-	
+
 	public void testTypeAnnotations26() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.Iface");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
@@ -970,27 +970,27 @@ public class Java8ElementProcessor extends BaseProcessor {
 		for (Element member : members) {
 			if ("foo".equals(member.getSimpleName().toString())) {
 				method = (ExecutableElement) member;
-				
+
 				List<? extends VariableElement> list = method.getParameters();
 				VariableElement param = list.get(0);
 				verifyAnnotations(param, new String[]{});
 			}
 		}
 	}
-	
+
 	public void testTypeAnnotations27() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.a.Test");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
 		for (Element member : members) {
 			if ("foo".equals(member.getSimpleName().toString())) {
 				ExecutableElement method = (ExecutableElement) member;
-				
+
 				List<? extends TypeParameterElement> list = method.getTypeParameters();
 				TypeParameterElement tParam = list.get(0);
 				verifyAnnotations(tParam, new String[]{"@MarkerContainer(value=[@targets.model8.a.Marker, @targets.model8.a.Marker])"});
 			}
 		}
-		
+
 	}
 	// Disabled for now. Javac includes the CLASS element of the package-info in the root element if there's one.
 	// But ECJ includes the Package element.
@@ -1016,7 +1016,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertNotNull("Package element should not be null", packageEl);
 			assertEquals("Incorrect package name", simpleName, packageEl.getSimpleName().toString());
 			assertEquals("Incorrect package name", packageName, packageEl.getQualifiedName().toString());
-			assertFalse("Package should not be unnamed", packageEl.isUnnamed()); 
+			assertFalse("Package should not be unnamed", packageEl.isUnnamed());
 		}
 	}
 	public void testBug520540() {
@@ -1103,8 +1103,8 @@ public class Java8ElementProcessor extends BaseProcessor {
 		} finally {
 			in.close();
 		}
-	}	
-	
+	}
+
 	private String getExceptionStackTrace(Throwable t) {
 		StringBuffer buf = new StringBuffer(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
@@ -1125,7 +1125,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertEquals("Invalid annotation value", annots[i], getAnnotationString(mirror));
 		}
 	}
-	
+
 	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots, String [] alternateAnnots) {
 		List<? extends AnnotationMirror> annotations = construct.getAnnotationMirrors();
 		assertEquals("Incorrect no of annotations", annots.length, annotations.size());
@@ -1157,19 +1157,19 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertNotNull(msg + "Annotation for element " + construct.toString() + " should not be null", annot);
 		assertSame(msg + "Invalid annotation type" , Type.class, annot.annotationType());
 		assertEquals(msg + "Invalid annotation value", value, annot.value());
-		
+
 		Type[] annots = construct.getAnnotationsByType(Type.class);
 		assertEquals(msg + "Incorrect no of annotations", 1, annots.length);
 		annot = annots[0];
 		assertSame(msg + "Invalid annotation type" , Type.class, annots[0].annotationType());
 		assertEquals(msg + "Invalid annotation value", value, annot.value());
 	}
-	
+
 	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);
 	}
-	
+
 	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
 		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
 		Set<String> actual = new HashSet<String>(expected.length);
@@ -1225,14 +1225,14 @@ public class Java8ElementProcessor extends BaseProcessor {
         	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
         }
     }
-    
+
     static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
         }
         return expected.equals(actual);
     }
-    
+
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			StringBuffer buf = new StringBuffer();
@@ -1243,7 +1243,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	}
 	public void assertEquals(Object expected, Object actual) {
 		if (expected != actual) {
-			
+
 		}
 	}
 	private class AssertionFailedError extends Error {

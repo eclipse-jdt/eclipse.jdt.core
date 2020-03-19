@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 BEA Systems, Inc. 
+ * Copyright (c) 2006 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -48,7 +48,7 @@ import com.sun.mirror.util.DeclarationVisitor;
  * Tests for the JDT-APT implementation of Declaration Visitors
  */
 public class DeclarationVisitorTests extends APTTestBase {
-	
+
 	public DeclarationVisitorTests(final String name) {
 		super(name);
 	}
@@ -56,7 +56,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 	public static Test suite() {
 		return new TestSuite(DeclarationVisitorTests.class);
 	}
-	
+
 	public void testPackageDeclarationVisitor() {
 		testCaseIdentifier = Cases.PackageDeclaration;
 		runProcessorBasedTest();
@@ -71,7 +71,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 		testCaseIdentifier = Cases.EnumDeclaration;
 		runProcessorBasedTest();
 	}
-	
+
 	public void testInterfaceDeclarationVisitor() {
 		testCaseIdentifier = Cases.InterfaceDeclaration;
 		runProcessorBasedTest();
@@ -116,38 +116,38 @@ public class DeclarationVisitorTests extends APTTestBase {
 		testCaseIdentifier = Cases.TypeParameterDeclaration;
 		runProcessorBasedTest();
 	}
-	
-	
+
+
 	/**
 	 * Instantiate the AnnotationProcessor to run the actual tests
 	 */
 	void runProcessorBasedTest() {
 		DeclarationVisitorProc p = new DeclarationVisitorProc();
 		GenericFactory.PROCESSOR = p;
-		
+
 		IProject project = env.getProject(getProjectName());
 		IPath srcRoot = getSourcePath();
 
-		env.addClass(srcRoot, "test", "Test", code);		
-		
+		env.addClass(srcRoot, "test", "Test", code);
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		assertTrue("Processor not invoked", p.called);
 	}
 
-	
+
 	/**
 	 * Annotation Processor containing the actual tests
 	 */
 	class DeclarationVisitorProc extends AbstractGenericProcessor {
 		boolean called;
-		
+
 		public void _process() {
-		
+
 			called = true;
 			assertTrue(decls.size() == 1);
-			
+
 			initDeclVisitList();
 
 			TypeDeclaration typeDecl = env.getTypeDeclarations().iterator().next();
@@ -158,10 +158,10 @@ public class DeclarationVisitorTests extends APTTestBase {
 			AnnotationTypeDeclaration annoTypeDecl = null;
 			EnumConstantDeclaration enumConstantDecl = null;
 			MethodDeclaration methodDecl = null;
-			
+
 			switch (testCaseIdentifier) {
 
-			case PackageDeclaration : 
+			case PackageDeclaration :
 				PackageDeclaration packageDecl = typeDecl.getPackage();
 				packageDecl.accept(new DeclarationVisitorImpl());
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
@@ -178,7 +178,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected ClassDeclaration visitor", "ClassDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-			
+
 			case EnumDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("E")) {
@@ -189,7 +189,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected EnumDeclaration visitor", "EnumDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case InterfaceDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("I")) {
@@ -200,7 +200,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected InterfaceDeclaration visitor", "InterfaceDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case AnnotationTypeDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("A")) {
@@ -211,14 +211,14 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected AnnotationTypeDeclaration visitor", "AnnotationDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case FieldDeclaration :
 				FieldDeclaration fieldDecl = typeDecl.getFields().iterator().next();
 				fieldDecl.accept(new DeclarationVisitorImpl());
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected FieldDeclaration visitor", "FieldDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case EnumConstantDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("E")) {
@@ -230,7 +230,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected EnumConstantDeclaration visitor", "EnumConstantDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case ConstructorDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("C")) {
@@ -242,14 +242,14 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected ConstructorDeclaration visitor", "ConstructorDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case MethodDeclaration :
 				methodDecl = typeDecl.getMethods().iterator().next();
 				methodDecl.accept(new DeclarationVisitorImpl());
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected MethodDeclaration visitor", "MethodDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case AnnotationTypeElementDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("A")) {
@@ -261,7 +261,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected AnnotationTypeElementDeclaration visitor", "AnnotationElementDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case ParameterDeclaration :
 				methodDecl = typeDecl.getMethods().iterator().next();
 				ParameterDeclaration paramDecl = methodDecl.getParameters().iterator().next();
@@ -269,7 +269,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expect one visitor", 1, declarationsVisited.size());
 				assertEquals("Expected ParameterDeclaration visitor", "SourceParameterDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
-				
+
 			case TypeParameterDeclaration :
 				for(TypeDeclaration tempDecl : nestedTypes) {
 					if(tempDecl.getSimpleName().equals("P")) {
@@ -282,12 +282,12 @@ public class DeclarationVisitorTests extends APTTestBase {
 				assertEquals("Expected TypeParameterDeclaration visitor", "TypeParameterDeclarationImpl", declarationsVisited.get(0).getClass().getSimpleName());
 				break;
 			}
-		
+
 		}
-		
+
 	}
-	
-	
+
+
 	/**
 	 * DeclarationVisitor implementation for the purposes of these tests
 	 */
@@ -357,41 +357,41 @@ public class DeclarationVisitorTests extends APTTestBase {
 			declarationVisited(d);
 		}
 	}
-	
+
 
 	/*
 	 * Utilities for running the DeclarationVisitor tests
 	 */
-	
+
 	enum Cases {
-		PackageDeclaration, 
-		ClassDeclaration, 
-		EnumDeclaration, 
+		PackageDeclaration,
+		ClassDeclaration,
+		EnumDeclaration,
 		InterfaceDeclaration,
-		AnnotationTypeDeclaration, 
-		FieldDeclaration, 
-		EnumConstantDeclaration, 
+		AnnotationTypeDeclaration,
+		FieldDeclaration,
+		EnumConstantDeclaration,
 		ConstructorDeclaration,
-		MethodDeclaration, 
-		AnnotationTypeElementDeclaration, 
-		ParameterDeclaration, 
+		MethodDeclaration,
+		AnnotationTypeElementDeclaration,
+		ParameterDeclaration,
 		TypeParameterDeclaration
 	}
-	
+
 	Cases testCaseIdentifier;
-	
+
 	ArrayList<Declaration> declarationsVisited = new ArrayList<Declaration>();
-	
+
 	void declarationVisited(Declaration d) {
 			declarationsVisited.add(d);
 	}
-	
+
 	void initDeclVisitList() {
 		if(declarationsVisited.size() > 0) {
 			declarationsVisited.clear();
 		}
 	}
-	
+
 	final String code =
 		"package test;" + "\n" +
 		"import org.eclipse.jdt.apt.tests.annotations.generic.*;" + "\n" +

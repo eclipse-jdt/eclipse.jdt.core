@@ -57,7 +57,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	public boolean reportProblems;
 	protected long complianceLevel;
 	protected long sourceLevel;
-	
+
 	// Support for {@inheritDoc}
 	protected long [] inheritedPositions;
 	protected int inheritedPositionsPtr;
@@ -338,7 +338,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 								refreshInlineTagPosition(previousPosition);
 							}
-							if (!isFormatterParser && !considerTagAsPlainText) 
+							if (!isFormatterParser && !considerTagAsPlainText)
 								this.textStart = this.index;
 							setInlineTagStarted(false);
 						} else {
@@ -1093,7 +1093,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 				case TerminalTokens.TokenNameRestrictedIdentifierYield:
 					throw new InvalidInputException(); // unexpected.
-					
+
 				case TerminalTokens.TokenNameDOT :
 					if ((iToken & 1) == 0) { // dots must be even tokens
 						throw new InvalidInputException();
@@ -1599,7 +1599,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		this.inheritedPositions[this.inheritedPositionsPtr++] = position;
 	}
-	
+
 	/*
 	 * Refresh start position and length of an inline tag.
 	 */

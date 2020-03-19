@@ -59,14 +59,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	private Type getReturnType(MethodDeclaration methodDecl) { 
-		return this.apiLevel < AST.JLS3 ? methodDecl.getReturnType() : methodDecl.getReturnType2(); 
-	} 
+	private Type getReturnType(MethodDeclaration methodDecl) {
+		return this.apiLevel < AST.JLS3 ? methodDecl.getReturnType() : methodDecl.getReturnType2();
+	}
 
 	/** @deprecated using deprecated code */
-	private ChildPropertyDescriptor getMethodReturnTypeProperty(AST ast) { 
-		return ast.apiLevel() < AST.JLS3 ? INTERNAL_METHOD_RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
-	} 
+	private ChildPropertyDescriptor getMethodReturnTypeProperty(AST ast) {
+		return ast.apiLevel() < AST.JLS3 ? INTERNAL_METHOD_RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY;
+	}
 
 	/** @deprecated using deprecated code */
 	private ASTNode createNewExceptionType(AST ast, String name) {
@@ -74,14 +74,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	}
 
 	/** @deprecated using deprecated code */
-	private List getThrownExceptions(MethodDeclaration methodDecl) { 
-		return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes(); 
-	} 
+	private List getThrownExceptions(MethodDeclaration methodDecl) {
+		return this.apiLevel < AST.JLS8 ? methodDecl.thrownExceptions() : methodDecl.thrownExceptionTypes();
+	}
 
 	/** @deprecated using deprecated code */
-	private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) { 
-		return ast.apiLevel() < AST.JLS8 ? INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY; 
-	} 
+	private ChildListPropertyDescriptor getMethodThrownExceptionsProperty(AST ast) {
+		return ast.apiLevel() < AST.JLS8 ? INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY : MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY;
+	}
 
 	/** @deprecated using deprecated code */
 	private void setModifiers(ASTRewrite rewrite, MethodDeclaration methodDecl, int newModifiers) {
@@ -100,7 +100,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			}
 		}
 	}
-	
+
 	/** @deprecated using deprecated code */
 	private void setExtraDimensions(ASTRewrite rewrite, MethodDeclaration methodDecl, int extraDimensions) {
 		if (this.apiLevel < AST.JLS8) {
@@ -933,24 +933,24 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			buf.append("    public void foo( String s ) {}\n");
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
-	
-			CompilationUnit astRoot= createAST(cu);	
+
+			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			TypeDeclaration type = (TypeDeclaration) astRoot.types().get(0);
-	
+
 			{ // delete param, insert new
 				MethodDeclaration methodDecl= (MethodDeclaration) type.bodyDeclarations().get(0);
 				List parameters= methodDecl.parameters();
 				rewrite.remove((ASTNode) parameters.get(0), null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-	
+
 			buf= new StringBuffer();
 			buf.append("package test1;\n");
 			buf.append("public class E {\n");
 			buf.append("    public void foo() {}\n");
 			buf.append("}\n");
-	
+
 			assertEqualString(preview, buf.toString());
 		} finally {
 			this.project1.setOptions(options);
@@ -2446,9 +2446,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
-		
+
 		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ELLIPSIS, JavaCore.INSERT);
-		
+
 		preview= evaluateRewrite(cu, rewrite);
 
 		buf= new StringBuffer();
@@ -2758,16 +2758,16 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("    public void foo3(Object @Marker ... args) {\n");
 		buf.append("    }\n");
-		buf.append("    public void foo4(Object @Marker... args) {\n"); 
+		buf.append("    public void foo4(Object @Marker... args) {\n");
 		buf.append("    }\n");
-		buf.append("    public void foo5(Object... args) {\n"); 
+		buf.append("    public void foo5(Object... args) {\n");
 		buf.append("    }\n");
 		buf.append("    public void foo6(Object args) {\n");
 		buf.append("    }\n");
 		buf.append("    public void foo7(Object @Marker... args) {\n");
-		buf.append("    }\n");		
+		buf.append("    }\n");
 		buf.append("    public void foo8(Object @Marker... args) {\n");
-		buf.append("    }\n");		
+		buf.append("    }\n");
 		buf.append("    public void foo9(@B @C int @A... a) {\n");
 		buf.append("    }\n");
 		buf.append("    public void foo10(Object args) {\n");
@@ -2778,20 +2778,20 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("DD.java", buf.toString(), false, null);
-		
+
 		CompilationUnit astRoot= createAST(cu, false);
 		AST ast= astRoot.getAST();
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 		TypeDeclaration type= findTypeDeclaration(astRoot, "DD");
-		
+
 		{
 			// Remove annotation from first method args - boundary condition -
 			// - only one annotation should be present.
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
 			SingleVariableDeclaration param = (SingleVariableDeclaration) methodDecl.parameters().get(1);
 			rewrite.remove((ASTNode)param.varargsAnnotations().get(0), null);
-			
-			// Add one annotation to the second method - boundary condition 
+
+			// Add one annotation to the second method - boundary condition
 			// - no annotation should be present
 			methodDecl= findMethodDeclaration(type, "foo2");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
@@ -2799,23 +2799,23 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			markerAnnotation.setTypeName(ast.newSimpleName("X"));
 			ListRewrite listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
 			listRewrite.insertFirst(markerAnnotation, null);
-			
+
 			// Remove the varargs property - annotation(s) should disappear
 			methodDecl= findMethodDeclaration(type, "foo3");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
-			
+
 			// Remove the varargs property - annotation(s) should disappear
 			// - differs from the above due to the absence of a blank before ...
 			methodDecl= findMethodDeclaration(type, "foo4");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
-			
+
 			// Remove the varargs property - Existing functionality unchanged without annotations
 			methodDecl= findMethodDeclaration(type, "foo5");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
-			
+
 			// Add the varargs property  and annotation
 			methodDecl= findMethodDeclaration(type, "foo6");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
@@ -2824,20 +2824,20 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			markerAnnotation.setTypeName(ast.newSimpleName("X"));
 			listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
 			listRewrite.insertFirst(markerAnnotation, null);
-			
+
 			// Replace annotation
 			methodDecl= findMethodDeclaration(type, "foo7");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("X"));
 			rewrite.replace((ASTNode)param.varargsAnnotations().get(0), markerAnnotation, null);
-			
+
 			// Reset and Set Varargs - output should not change.
 			methodDecl= findMethodDeclaration(type, "foo8");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.TRUE, null);
-			
+
 			// Add multiple (two) annotations, remove an existing annotation
 			methodDecl= findMethodDeclaration(type, "foo9");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
@@ -2849,18 +2849,18 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			markerAnnotation.setTypeName(ast.newSimpleName("Y"));
 			listRewrite.insertFirst(markerAnnotation, null);
 			rewrite.remove((ASTNode)param.varargsAnnotations().get(0), null);
-			
+
 			// Add the varargs property
 			methodDecl= findMethodDeclaration(type, "foo10");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.TRUE, null);
-			
+
 			// Remove the annotations and varargs property as well.
 			methodDecl= findMethodDeclaration(type, "foo11");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
 			rewrite.remove((ASTNode)param.varargsAnnotations().get(0), null);
 			rewrite.set(param, SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
-			
+
 			// Add an annotation but remove the varargs property - should not add the annotation.
 			methodDecl= findMethodDeclaration(type, "foo12");
 			param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
@@ -2870,9 +2870,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			listRewrite= rewrite.getListRewrite(param, SingleVariableDeclaration.VARARGS_ANNOTATIONS_PROPERTY);
 			listRewrite.insertFirst(markerAnnotation, null);
 		}
-		
+
 		String preview= evaluateRewrite(cu, rewrite);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("@interface Marker {\n");
@@ -2891,9 +2891,9 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public void foo6(Object @X... args) {\n");
 		buf.append("    }\n");
 		buf.append("    public void foo7(Object @X... args) {\n");
-		buf.append("    }\n");		
+		buf.append("    }\n");
 		buf.append("    public void foo8(Object @Marker... args) {\n");
-		buf.append("    }\n");		
+		buf.append("    }\n");
 		buf.append("    public void foo9(@B @C int @Y @X()... a) {\n");
 		buf.append("    }\n");
 		buf.append("    public void foo10(Object... args) {\n");
@@ -2903,7 +2903,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public void foo12(Object args) {\n");
 		buf.append("    }\n");
 		buf.append("}\n");
-		assertEqualString(preview, buf.toString());	
+		assertEqualString(preview, buf.toString());
 	}
 
 	public void testMethodDeclChangesBug77538() throws Exception {
@@ -3098,20 +3098,20 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{
 			SingleVariableDeclaration decl= ast.newSingleVariableDeclaration();
-			
+
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("X"));
 			decl.modifiers().add(markerAnnotation);
-			
+
 			Type type= ast.newPrimitiveType(PrimitiveType.INT);
 			decl.setType(type);
-			
+
 			decl.setName(ast.newSimpleName("e"));
-			
+
 			ListRewrite listRewrite= rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY);
 			listRewrite.insertLast(decl, null);
 		}
-		
+
 		String preview= evaluateRewrite(cu, rewrite);
 
 		buf= new StringBuffer();
@@ -3121,11 +3121,11 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
-		
+
 		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, JavaCore.INSERT);
-		
+
 		preview= evaluateRewrite(cu, rewrite);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("class E {\n");
@@ -3148,7 +3148,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public Object foo6(int i)  @Annot1 [] @Annot2 [] throws IllegalArgumentException { return null; }\n");
 		buf.append("    public Object foo7(int i) @Annot1 []  @Annot2 [] { return null; }\n");
 		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n"); 
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
 		buf.append("@interface Annot1 {}\n");
 		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
 		buf.append("@interface Annot2 {}\n");
@@ -3174,7 +3174,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
 			dim.annotations().add(markerAnnotation);
 			listRewrite.insertAt(dim, 2, null);
-			
+
 			ASTNode exception = (ASTNode) methodDecl.thrownExceptionTypes().get(0);
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY).remove(exception, null);
 		}
@@ -3188,7 +3188,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			dim.annotations().add(markerAnnotation);
 
 			listRewrite.insertAt(dim, 1, null);
-			
+
 			Type exception= ast.newSimpleType(ast.newSimpleName("ArrayStoreException"));
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY).insertFirst(exception, null);
 		}
@@ -3267,7 +3267,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("    public Object foo6(int i)   []  [] throws IllegalArgumentException { return null; }\n");
 		buf.append("    public Object foo7(int i) { return null; }\n");
 		buf.append("}\n");
-		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n"); 
+		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
 		buf.append("@interface Annot1 {}\n");
 		buf.append("@java.lang.annotation.Target(value= {ElementType.TYPE_USE})\n");
 		buf.append("@interface Annot2 {}\n");
@@ -3453,7 +3453,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		TypeDeclaration type = (TypeDeclaration) findTypeDeclaration(astRoot, "XYZ").bodyDeclarations().get(0);
 		MethodDeclaration method1 = (MethodDeclaration) type.bodyDeclarations().get(0); // Remove the receiver type and qualifying name
 		MethodDeclaration method2 = (MethodDeclaration) type.bodyDeclarations().get(1); // Remove the receiver but not the qualifier
-		MethodDeclaration method3 = (MethodDeclaration) type.bodyDeclarations().get(2); // Remove the qualifier only 
+		MethodDeclaration method3 = (MethodDeclaration) type.bodyDeclarations().get(2); // Remove the qualifier only
 		MethodDeclaration method4 = (MethodDeclaration) type.bodyDeclarations().get(3); // Remove the qualifier and receiver annotation
 		MethodDeclaration method5 = (MethodDeclaration) type.bodyDeclarations().get(4); // Remove the receiver type and all parameters
 		MethodDeclaration method6 = (MethodDeclaration) type.bodyDeclarations().get(5); // Remove the receiver type and add a param
@@ -3704,7 +3704,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void testReceiverParam_InnerClass_since_8() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment(
 				"test1", false, null);
@@ -3725,7 +3725,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		ASTRewrite rewrite = ASTRewrite.create(astRoot.getAST());
 		TypeDeclaration type = findTypeDeclaration(astRoot, "E");
 		TypeDeclaration inner = (TypeDeclaration) type.bodyDeclarations().get(1);
-		
+
 		MethodDeclaration newMethodDeclaration = ast.newMethodDeclaration();
 		SimpleName methodName = ast.newSimpleName("Inner");
 		SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("E"));
@@ -3804,19 +3804,19 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("@interface Marker {}\n");
 
 		assertEqualString(preview, buf.toString());
-		
+
 		// still no new line if new line after annotation on parameter is enabled:
 		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, JavaCore.INSERT);
-		
+
 		preview= evaluateRewrite(cu, rewrite);
 		assertEqualString(preview, buf.toString());
-		
+
 		// do insert new line if new line after type annotation is enabled:
 		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER, JavaCore.DO_NOT_INSERT);
 		this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION, JavaCore.INSERT);
-		
+
 		preview= evaluateRewrite(cu, rewrite);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.*;\n");
@@ -3829,10 +3829,10 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		buf.append("}\n");
 		buf.append("@Target (Element.TYPE_USE);\n");
 		buf.append("@interface Marker {}\n");
-		
+
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void testBug427622b_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();

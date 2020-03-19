@@ -13,7 +13,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
  *								bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
@@ -37,12 +37,12 @@ import org.osgi.framework.Bundle;
 
 /**
  * Tests to verify that annotation changes cause recompilation of dependent types.
- * See http://bugs.eclipse.org/149768 
+ * See http://bugs.eclipse.org/149768
  */
 public class AnnotationDependencyTests extends BuilderTests {
 	private IPath srcRoot = null;
 	private IPath projectPath = null;
-	
+
 	public AnnotationDependencyTests(String name) {
 		super(name);
 	}
@@ -50,10 +50,10 @@ public class AnnotationDependencyTests extends BuilderTests {
 	public static Test suite() {
 		return buildTestSuite(AnnotationDependencyTests.class);
 	}
-	
+
 	public void setUp() throws Exception {
 		super.setUp();
-		
+
 		this.projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$
 		env.addExternalJars(this.projectPath, Util.getJavaClassLibs());
 
@@ -63,14 +63,14 @@ public class AnnotationDependencyTests extends BuilderTests {
 		this.srcRoot = env.addPackageFragmentRoot(this.projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(this.projectPath, "bin"); //$NON-NLS-1$
 	}
-	
+
 	protected void tearDown() throws Exception {
 		this.projectPath = null;
 		this.srcRoot = null;
-		
+
 		super.tearDown();
 	}
-	
+
 	private void addAnnotationType() {
 		String annoCode = "package p1;\n"
 			+ "@interface Anno {\n"
@@ -143,7 +143,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 			+ "}\n";
 		env.addClass(this.srcRoot, "p1", "AnnoClass", annoCode);
 	}
-	
+
 	void setupProjectForNullAnnotations() throws IOException, JavaModelException {
 		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[1.1.0,2.0.0)");
@@ -179,22 +179,22 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
-	
+
 	/**
-	 * This test makes sure that changing an annotation on a field within type A 
-	 * causes type B to be recompiled, if B references A.  
+	 * This test makes sure that changing an annotation on a field within type A
+	 * causes type B to be recompiled, if B references A.
 	 * See http://bugs.eclipse.org/149768
 	 */
 	public void testFieldAnnotationDependency() throws Exception
@@ -217,22 +217,22 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
-	
+
 	/**
-	 * This test makes sure that changing an annotation on a method within type A 
-	 * causes type B to be recompiled, if B references A.  
+	 * This test makes sure that changing an annotation on a method within type A
+	 * causes type B to be recompiled, if B references A.
 	 * See http://bugs.eclipse.org/149768
 	 */
 	public void testMethodAnnotationDependency() throws Exception
@@ -255,23 +255,23 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
-	
+
 	/**
-	 * This test makes sure that changing an annotation on an inner type X within type A 
-	 * causes type B to be recompiled, if B references A.  
-	 * Note that B does not directly reference A.X, only A. 
+	 * This test makes sure that changing an annotation on an inner type X within type A
+	 * causes type B to be recompiled, if B references A.
+	 * Note that B does not directly reference A.X, only A.
 	 * See http://bugs.eclipse.org/149768
 	 */
 	public void testInnerTypeAnnotationDependency() throws Exception
@@ -294,22 +294,22 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.A$X", "p1.B" });
 	}
-	
+
 	/**
 	 * This test makes sure that changing an annotation on a type A
-	 * does not cause type B to be recompiled, if B does not reference A.  
+	 * does not cause type B to be recompiled, if B does not reference A.
 	 * See http://bugs.eclipse.org/149768
 	 */
 	public void testUnrelatedTypeAnnotationDependency() throws Exception
@@ -327,15 +327,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was not recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -391,15 +391,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -431,15 +431,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -471,15 +471,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -511,15 +511,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -551,15 +551,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -591,15 +591,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -631,15 +631,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -671,15 +671,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -711,15 +711,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -751,15 +751,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -791,15 +791,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -831,15 +831,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -871,15 +871,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was NOT recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A" });
 	}
@@ -911,15 +911,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		//  verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -951,15 +951,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -991,15 +991,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B"});
 	}
@@ -1031,15 +1031,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1071,15 +1071,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1111,15 +1111,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1151,15 +1151,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1191,15 +1191,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1231,15 +1231,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1271,15 +1271,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1311,15 +1311,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1351,15 +1351,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1391,15 +1391,15 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass( this.srcRoot, "p1", "A", a1Code );
 		env.addClass( this.srcRoot, "p1", "B", bCode );
 		addAnnotationType();
-		
+
 		fullBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// edit annotation in A
 		env.addClass( this.srcRoot, "p1", "A", a2Code );
 		incrementalBuild( this.projectPath );
 		expectingNoProblems();
-		
+
 		// verify that B was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.A", "p1.B" });
 	}
@@ -1434,7 +1434,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 			"}";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
-		expectingProblemsFor(test1Path, 
+		expectingProblemsFor(test1Path,
 				"Problem : Null type mismatch: required \'@NonNull String\' but the provided value is null [ resource : </Project/src/p1/Test1.java> range : <81,85> category : <90> severity : <2>]");
 
 		// verify that Test1 was recompiled
@@ -1487,7 +1487,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 			"}";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeB );
 		incrementalBuild( this.projectPath );
-		expectingProblemsFor(test1Path, 
+		expectingProblemsFor(test1Path,
 			"Problem : Null type mismatch: required \'@NonNull Object\' but the provided value is specified as @Nullable [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <2>]");
 
 		// verify that Test1 was recompiled
@@ -1500,7 +1500,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 			"}";
 		env.addClass( this.srcRoot, "p1", "Test2", test2CodeC );
 		incrementalBuild( this.projectPath );
-		expectingProblemsFor(test1Path, 
+		expectingProblemsFor(test1Path,
 			"Problem : Null type safety: The expression of type 'Object' needs unchecked conversion to conform to \'@NonNull Object\' [ resource : </Project/src/p1/Test1.java> range : <126,143> category : <90> severity : <1>]");
 
 		// verify that Test1 was recompiled
@@ -1514,7 +1514,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 		// verify that Test1 was recompiled
 		expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2" });
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=373571
 	// incremental build that uses binary type for Test1 should not report spurious null errors.
 	public void testReturnAnnotationDependency02() throws JavaModelException, IOException {

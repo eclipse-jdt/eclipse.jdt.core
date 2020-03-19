@@ -200,7 +200,7 @@ class TypeBinding implements ITypeBinding {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public ITypeBinding getGenericTypeOfWildcardType() {
 		switch (this.binding.kind()) {
@@ -213,7 +213,7 @@ class TypeBinding implements ITypeBinding {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public int getRank() {
 		switch (this.binding.kind()) {
@@ -225,7 +225,7 @@ class TypeBinding implements ITypeBinding {
 				return -1;
 		}
 	}
-	
+
 	@Override
 	public ITypeBinding getComponentType() {
 		if (!isArray()) {
@@ -474,12 +474,12 @@ class TypeBinding implements ITypeBinding {
 			return this.resolver.getTypeBinding(((ParameterizedTypeBinding)this.binding).genericType());
 		return this.resolver.getTypeBinding(this.binding.unannotated());
 	}
-	
+
 	@Override
 	public ITypeBinding getErasure() {
 		return this.resolver.getTypeBinding(this.binding.erasure());
 	}
-	
+
 	@Override
 	public IMethodBinding getFunctionalInterfaceMethod() {
 		Scope scope = this.resolver.scope();
@@ -1092,7 +1092,7 @@ class TypeBinding implements ITypeBinding {
 	public boolean isEnum() {
 		return this.binding.isEnum();
 	}
-	
+
 	@Override
 	public boolean isRecord() {
 		return this.binding.isRecord();

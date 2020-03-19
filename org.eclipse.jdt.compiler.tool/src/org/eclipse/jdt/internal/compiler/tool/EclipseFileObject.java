@@ -47,7 +47,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	File f;
 	private Charset charset;
 	private boolean parentsExist; // parent directories exist
-	
+
 	public EclipseFileObject(String className, URI uri, Kind kind, Charset charset) {
 		super(uri, kind);
 		this.f = new File(this.uri);
@@ -130,7 +130,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	public boolean delete() {
 		return this.f.delete();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof EclipseFileObject)) {
@@ -160,7 +160,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	public String getName() {
         return this.f.getPath();
     }
-    
+
 	@Override
 	public int hashCode() {
 		return this.f.hashCode();
@@ -199,12 +199,12 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 		ensureParentDirectoriesExist();
 		return new BufferedWriter(new FileWriter(this.f));
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.f.getAbsolutePath();
 	}
-	
+
     private void ensureParentDirectoriesExist() throws IOException {
         if (!this.parentsExist) {
             File parent = this.f.getParentFile();

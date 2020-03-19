@@ -156,7 +156,7 @@ public class LabeledStatement extends Statement {
 			return false;
 		return this.statement.doesNotCompleteNormally();
 	}
-	
+
 	@Override
 	public boolean completesByContinue() {
 		return this.statement instanceof ContinueStatement; // NOT this.statement.continuesAtOuterLabel

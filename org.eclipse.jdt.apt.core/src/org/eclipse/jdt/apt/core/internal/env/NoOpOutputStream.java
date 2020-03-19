@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc. 
+ * Copyright (c) 2005 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
@@ -18,10 +18,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Dummy output stream for filer operations 
+ * Dummy output stream for filer operations
  */
 public class NoOpOutputStream extends OutputStream {
-	
+
 	public NoOpOutputStream() {
 		super();
 	}

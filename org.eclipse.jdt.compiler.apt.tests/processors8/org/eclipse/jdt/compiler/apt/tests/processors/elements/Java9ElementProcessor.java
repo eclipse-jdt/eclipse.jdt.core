@@ -58,8 +58,8 @@ import org.eclipse.jdt.compiler.apt.tests.processors.util.TestDirectiveVisitor;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
- * A processor that explores the java 9 specific elements and validates the lambda and 
- * type annotated elements. To enable this processor, add 
+ * A processor that explores the java 9 specific elements and validates the lambda and
+ * type annotated elements. To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ElementProcessor to the command line.
  * @since 3.14
  */
@@ -89,7 +89,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 				int current = Integer.parseInt(property);
 				if (current >= ver12) this.isJre12 = true;
 			}
-		} 
+		}
 	}
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -98,7 +98,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return false;
 		}
-		
+
 		this.roundEnv = roundEnv;
 		Map<String, String> options = processingEnv.getOptions();
 		if (!options.containsKey(this.getClass().getName())) {
@@ -209,8 +209,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertEquals("incorrect no of modules in root elements", 2, moduleCount);
 		assertEquals("incorrect modules among root elements", "[mod.a, mod.b]", modules.toString());
 		assertEquals("incorrect no of types in root elements", 5, typeCount);
-		assertEquals("incorrect types among root elements", 
-				"[abc.A, abc.internal.A, abc.internal.TypeInAModule, abc.internal.pqr.A, pqr.ext.B]", 
+		assertEquals("incorrect types among root elements",
+				"[abc.A, abc.internal.A, abc.internal.TypeInAModule, abc.internal.pqr.A, pqr.ext.B]",
 				types.toString());
 	}
 	// Test the types part of root elements get the modules right
@@ -233,7 +233,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertEquals("modules should be equals", module, modFromRoot);
 	}
 	/*
-	 * Test module element can be retrieved and 
+	 * Test module element can be retrieved and
 	 * annotations on module declarations can be retrieved
 	 */
 	public void testModuleAnnotation1() {
@@ -319,7 +319,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertEquals("Incorrect element kind", ElementKind.MODULE, base.getKind());
 		assertFalse("Should be named", base.isUnnamed());
 		assertFalse("Should not be open", base.isOpen());
-	
+
 	}
 	/*
 	 * Test packages can be retrieved with the Elements API with and without
@@ -391,7 +391,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertEquals("Modules should be same", mod, mElement);
 	}
 	/*
-	 * Test that a module not part of the root modules can NOT be retrieved. 
+	 * Test that a module not part of the root modules can NOT be retrieved.
 	 */
 	public void testModuleElement7() {
 		// test that a random module from system unrelated to the module we are compiling is not loaded by the compiler
@@ -704,7 +704,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 				}
 			}
 		}
-		
+
 	}
 	public void testDirectiveVisitor() {
 		ModuleElement mod = _elementUtils.getModuleElement("mod.b");
@@ -840,35 +840,35 @@ public class Java9ElementProcessor extends BaseProcessor {
 				Filer filer = processingEnv.getFiler();
 				JavaFileObject jfo = filer.createSourceFile("targets.bug535819.query.QEntity1", annotatedType);
 				Writer writer = jfo.openWriter();
-				writer.write("package targets.bug535819.query;\n" + 
-						"  \n" + 
-						"import targets.bug535819.Entity1;\n" + 
-						"public class QEntity1 {\n" + 
-						"  private static final QEntity1 _alias = new QEntity1(true);\n" + 
-						"  public QEntity1() {\n" + 
-						"    super(Entity1.class);\n" + 
-						"  }\n" + 
-						"  private QEntity1(boolean dummy) {\n" + 
-						"    super(dummy);\n" + 
-						"  }\n" + 
-						"  public static class Alias {\n" + 
-						"  }\n" + 
+				writer.write("package targets.bug535819.query;\n" +
+						"  \n" +
+						"import targets.bug535819.Entity1;\n" +
+						"public class QEntity1 {\n" +
+						"  private static final QEntity1 _alias = new QEntity1(true);\n" +
+						"  public QEntity1() {\n" +
+						"    super(Entity1.class);\n" +
+						"  }\n" +
+						"  private QEntity1(boolean dummy) {\n" +
+						"    super(dummy);\n" +
+						"  }\n" +
+						"  public static class Alias {\n" +
+						"  }\n" +
 						"}");
 				writer.close();
-				
+
 				jfo = filer.createSourceFile("targets.bug535819.assoc.QAssocEntity1", annotatedType);
 				writer = jfo.openWriter();
-				writer.write("package targets.bug535819.query.assoc;\n" + 
-						"  \n" + 
-						"import targets.bug535819.Entity1;\n" + 
-						"import targets.bug535819.query.QEntity1;\n" + 
-						"public class QAssocEntity1<R>  {\n" + 
-						"  public QAssocEntity1(String name, R root) {\n" + 
-						"    super(name, root);\n" + 
-						"  }\n" + 
-						"}\n" + 
+				writer.write("package targets.bug535819.query.assoc;\n" +
+						"  \n" +
+						"import targets.bug535819.Entity1;\n" +
+						"import targets.bug535819.query.QEntity1;\n" +
+						"public class QAssocEntity1<R>  {\n" +
+						"  public QAssocEntity1(String name, R root) {\n" +
+						"    super(name, root);\n" +
+						"  }\n" +
+						"}\n" +
 						"");
-				writer.close();	
+				writer.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -973,14 +973,14 @@ public class Java9ElementProcessor extends BaseProcessor {
         	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
         }
     }
-    
+
     static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
         }
         return expected.equals(actual);
     }
-    
+
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			StringBuffer buf = new StringBuffer();
@@ -991,7 +991,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	}
 	public void assertEquals(Object expected, Object actual) {
 		if (expected != actual) {
-			
+
 		}
 	}
 	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {

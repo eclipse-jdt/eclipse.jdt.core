@@ -58,7 +58,7 @@ public boolean equals(Object o) {
 //	if (this.module != md.module)
 //		if (this.module == null || !this.module.equals(md.module))
 //			return false;
-	return this.ignoreOptionalProblems == md.ignoreOptionalProblems 
+	return this.ignoreOptionalProblems == md.ignoreOptionalProblems
 		&& this.sourceFolder.equals(md.sourceFolder) && this.binaryFolder.equals(md.binaryFolder)
 		&& CharOperation.equals(this.inclusionPatterns, md.inclusionPatterns)
 		&& CharOperation.equals(this.exclusionPatterns, md.exclusionPatterns);

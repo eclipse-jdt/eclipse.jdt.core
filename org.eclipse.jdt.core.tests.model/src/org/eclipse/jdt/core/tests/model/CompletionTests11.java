@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -36,9 +36,9 @@ public void test_var_in_parameter_in_lambda() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/X.java",
-			"package test;\n" +	
+			"package test;\n" +
 			 		"public class X {\n" +
-			 		"	public static void main(String[] args) {	\n" +	
+			 		"	public static void main(String[] args) {	\n" +
 			 		"		I lambda = (va ) -> {}; \n" +
 			 		"		lambda.apply(10); \n" +
 			 		"		}\n" +

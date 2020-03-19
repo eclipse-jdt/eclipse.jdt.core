@@ -59,7 +59,7 @@ public class InstanceofExpression extends Expression {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
-	
+
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
@@ -125,7 +125,7 @@ public class InstanceofExpression extends Expression {
 	 * but legal, simple type.
 	 */
 	private Type rightOperand = null;
-	
+
 	/**
 	 * The patternVariable declaration.
 	 */
@@ -146,7 +146,7 @@ public class InstanceofExpression extends Expression {
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
-	
+
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
 		return propertyDescriptors(apiLevel, previewEnabled);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 BEA Systems, Inc. and others 
+ * Copyright (c) 2006, 2014 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  * dispatch manager when a new compilation unit is produced.
  */
 public class HookedJavaFileObject extends
-		ForwardingJavaFileObject<JavaFileObject> 
+		ForwardingJavaFileObject<JavaFileObject>
 {
 	// A delegating Writer that passes all commands to its contained Writer,
 	// but hooks close() to notify the annotation dispatch manager of the new unit.
@@ -120,16 +120,16 @@ public class HookedJavaFileObject extends
 			return "ForwardingWriter wrapping " + _w.toString(); //$NON-NLS-1$
 		}
 	}
-	
+
 	// A delegating Writer that passes all commands to its contained Writer,
 	// but hooks close() to notify the annotation dispatch manager of the new unit.
 	private class ForwardingOutputStream extends OutputStream {
 		private final OutputStream _os;
-		
+
 		ForwardingOutputStream(OutputStream os) {
 			_os = os;
 		}
-		
+
 		@Override
 		public void close() throws IOException {
 			_os.close();
@@ -180,28 +180,28 @@ public class HookedJavaFileObject extends
 			return "ForwardingOutputStream wrapping " + _os.toString(); //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
-	 * The Filer implementation that we need to notify when a new file is created. 
+	 * The Filer implementation that we need to notify when a new file is created.
 	 */
 	protected final BatchFilerImpl _filer;
-	
+
 	/**
 	 * The name of the file that is created; this is passed to the CompilationUnit constructor,
-	 * and ultimately to the java.io.File constructor, so it is a normal pathname, just like 
+	 * and ultimately to the java.io.File constructor, so it is a normal pathname, just like
 	 * what would be on the compiler command line.
 	 */
 	protected final String _fileName;
-	
-	
-	
+
+
+
 	/**
 	 * A compilation unit is created when the writer or stream is closed.  Only do this once.
 	 */
 	private boolean _closed = false;
 
 	private String _typeName;
-	
+
 	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer) {
 		super(fileObject);
 		_filer = filer;
@@ -218,7 +218,7 @@ public class HookedJavaFileObject extends
 	public Writer openWriter() throws IOException {
 		return new ForwardingWriter(super.openWriter());
 	}
-	
+
 	protected void closed() {
 		if (!_closed) {
 			_closed = true;
@@ -239,7 +239,7 @@ public class HookedJavaFileObject extends
 						   a SourceTypeBinding works just fine.
 						*/
 						ReferenceBinding type = this._filer._env._compiler.lookupEnvironment.getType(CharOperation.splitOn('.', _typeName.toCharArray()));
-						if (type != null) 
+						if (type != null)
 							_filer.addNewClassFile(type);
 					} catch (IOException e) {
 						// ignore

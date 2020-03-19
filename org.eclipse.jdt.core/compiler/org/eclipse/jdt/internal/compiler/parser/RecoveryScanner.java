@@ -44,7 +44,7 @@ public class RecoveryScanner extends Scanner {
 				scanner.previewEnabled);
 		setData(data);
 	}
-	
+
 	public RecoveryScanner(
 			boolean tokenizeWhiteSpace,
 			boolean checkNonExternalizedStringLiterals,
@@ -103,7 +103,7 @@ public class RecoveryScanner extends Scanner {
 		this.data.insertedTokensPosition[this.data.insertedTokensPtr] = position;
 		this.data.insertedTokenUsed[this.data.insertedTokensPtr] = false;
 	}
-	
+
 	public void insertTokenAhead(int token, int index) {
 		if(!this.record) return;
 		if (token == TerminalTokens.TokenNameRestrictedIdentifierrecord)

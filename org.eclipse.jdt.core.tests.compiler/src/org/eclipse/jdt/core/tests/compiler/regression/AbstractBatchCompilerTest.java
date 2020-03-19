@@ -149,7 +149,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 		super.setUp();
 		CASCADED_JARS_CREATED = false; // initialization needed for each subclass individually
 	}
-	
+
 	protected void createCascadedJars() {
 		if (!CASCADED_JARS_CREATED) {
 			File libDir = new File(LIB_DIR);

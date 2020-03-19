@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
- * This class is used to visit the JDT compiler internal AST to discover annotations, 
+ * This class is used to visit the JDT compiler internal AST to discover annotations,
  * in the course of dispatching to annotation processors.
  */
 public class AnnotationDiscoveryVisitor extends ASTVisitor {
@@ -100,7 +100,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					annotations,
 					constructorBinding);
 		}
-		
+
 		TypeParameter[] typeParameters = constructorDeclaration.typeParameters;
 		if (typeParameters != null) {
 			int typeParametersLength = typeParameters.length;
@@ -108,7 +108,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 				typeParameters[i].traverse(this, constructorDeclaration.scope);
 			}
 		}
-		
+
 		Argument[] arguments = constructorDeclaration.arguments;
 		if (arguments != null) {
 			int argumentLength = arguments.length;
@@ -148,7 +148,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(TypeParameter typeParameter, BlockScope scope) {
 		Annotation[] annotations = typeParameter.annotations;
@@ -157,7 +157,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			if (binding == null) {
 				return false;
 			}
-			// when we get here, it is guaranteed that class type parameters are connected, but method type parameters may not be.			
+			// when we get here, it is guaranteed that class type parameters are connected, but method type parameters may not be.
 			MethodBinding methodBinding = (MethodBinding) binding.declaringElement;
 			((SourceTypeBinding) methodBinding.declaringClass).resolveTypesFor(methodBinding);
 			this.resolveAnnotations(scope, annotations, binding);
@@ -179,7 +179,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					annotations,
 					methodBinding);
 		}
-		
+
 		TypeParameter[] typeParameters = methodDeclaration.typeParameters;
 		if (typeParameters != null) {
 			int typeParametersLength = typeParameters.length;
@@ -187,7 +187,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 				typeParameters[i].traverse(this, methodDeclaration.scope);
 			}
 		}
-		
+
 		Argument[] arguments = methodDeclaration.arguments;
 		if (arguments != null) {
 			int argumentLength = arguments.length;
@@ -241,11 +241,11 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	}
 
 	private void resolveAnnotations(BlockScope scope, Annotation[] annotations, Binding currentBinding) {
-		
+
 		int length = annotations == null ? 0 : annotations.length;
 		if (length == 0)
 			return;
-		
+
 		boolean old = scope.insideTypeAnnotation;
 		scope.insideTypeAnnotation = true;
 		currentBinding.getAnnotationTagBits();

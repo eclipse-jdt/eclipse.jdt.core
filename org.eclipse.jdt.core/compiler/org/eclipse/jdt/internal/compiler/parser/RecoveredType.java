@@ -40,7 +40,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RecoveredType extends RecoveredStatement implements TerminalTokens {
 	public static final int MAX_TYPE_DEPTH = 256;
-	
+
 	public TypeDeclaration typeDeclaration;
 
 	public RecoveredAnnotation[] annotations;
@@ -515,7 +515,7 @@ public TypeDeclaration updatedTypeDeclaration(int depth, Set<TypeDeclaration> kn
 
 	if(knownTypes.contains(this.typeDeclaration)) return null;
 	knownTypes.add(this.typeDeclaration);
-	
+
 	int lastEnd = this.typeDeclaration.bodyStart;
 	/* update annotations */
 	if (this.modifiers != 0) {
@@ -554,7 +554,7 @@ public TypeDeclaration updatedTypeDeclaration(int depth, Set<TypeDeclaration> kn
 			this.memberTypes[this.memberTypeCount - 1].typeDeclaration.declarationSourceEnd = bodyEndValue;
 			this.memberTypes[this.memberTypeCount - 1].typeDeclaration.bodyEnd =  bodyEndValue;
 		}
-		
+
 		int updatedCount = 0;
 		for (int i = 0; i < this.memberTypeCount; i++){
 			TypeDeclaration updatedTypeDeclaration = this.memberTypes[i].updatedTypeDeclaration(depth + 1, knownTypes);
@@ -566,8 +566,8 @@ public TypeDeclaration updatedTypeDeclaration(int depth, Set<TypeDeclaration> kn
 			int length = existingCount + updatedCount;
 			System.arraycopy(memberTypeDeclarations, 0, memberTypeDeclarations = new TypeDeclaration[length], 0, length);
 		}
-		
-		if (memberTypeDeclarations.length > 0) { 
+
+		if (memberTypeDeclarations.length > 0) {
 			this.typeDeclaration.memberTypes = memberTypeDeclarations;
 			if(memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd > lastEnd) {
 				lastEnd = memberTypeDeclarations[memberTypeDeclarations.length - 1].declarationSourceEnd;
@@ -595,14 +595,14 @@ public TypeDeclaration updatedTypeDeclaration(int depth, Set<TypeDeclaration> kn
 		for (int i = 0; i < this.fieldCount; i++){
 			fieldDeclarations[existingCount + i] = this.fields[i].updatedFieldDeclaration(depth, knownTypes);
 		}
-		
+
 		for (int i = this.fieldCount - 1; 0 < i; i--) {
 			if (fieldDeclarations[existingCount + i - 1].declarationSourceStart == fieldDeclarations[existingCount + i].declarationSourceStart) {
 				fieldDeclarations[existingCount + i - 1].declarationSourceEnd = fieldDeclarations[existingCount + i].declarationSourceEnd;
 				fieldDeclarations[existingCount + i - 1].declarationEnd = fieldDeclarations[existingCount + i].declarationEnd;
 			}
 		}
-		
+
 		this.typeDeclaration.fields = fieldDeclarations;
 		if(fieldDeclarations[fieldDeclarations.length - 1].declarationSourceEnd > lastEnd) {
 			lastEnd = fieldDeclarations[fieldDeclarations.length - 1].declarationSourceEnd;

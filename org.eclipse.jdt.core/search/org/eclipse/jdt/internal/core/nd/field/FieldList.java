@@ -98,7 +98,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 	/**
 	 * Creates a new {@link FieldList} in the given struct which contains elements of the given type. The resulting list
 	 * will grow by 1 element each time it overflows.
-	 * 
+	 *
 	 * @param ownerStruct
 	 *            the struct to which the new list field will be added. Must not have had {@link StructDef#done()}
 	 *            invoked on it yet.
@@ -113,7 +113,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 	/**
 	 * Creates a new {@link FieldList} in the given struct which contains elements of the given type. The resulting list
 	 * will grow by the given number of elements each time it overflows.
-	 * 
+	 *
 	 * @param ownerStruct
 	 *            the struct to which the new list field will be added. Must not have had {@link StructDef#done()}
 	 *            invoked on it yet.
@@ -142,7 +142,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 
 	/**
 	 * Returns the contents of the receiver as a {@link List}.
-	 * 
+	 *
 	 * @param nd the database to be queried.
 	 * @param address the address of the parent struct
 	 */
@@ -181,7 +181,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 		try {
 			long headerStartAddress = address + this.offset;
 			long nextBlockAddress = LAST_BLOCK_WITH_ELEMENTS.get(nd, headerStartAddress);
-	
+
 			// Ensure that there's at least one block
 			long insertionBlockAddress = nextBlockAddress;
 			if (nextBlockAddress == 0) {
@@ -190,11 +190,11 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 				FIRST_BLOCK.put(nd, headerStartAddress, newBlockAddress);
 				insertionBlockAddress = newBlockAddress;
 			}
-	
+
 			// Check if there's any free space in this block
 			int elementsInBlock = BlockHeader.ELEMENTS_IN_USE.get(nd, insertionBlockAddress);
 			int blockSize = BlockHeader.BLOCK_SIZE.get(nd, insertionBlockAddress);
-	
+
 			if (elementsInBlock >= blockSize) {
 				long nextBlock = BlockHeader.NEXT_BLOCK.get(nd, insertionBlockAddress);
 				if (nextBlock == 0) {
@@ -203,12 +203,12 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 				}
 				LAST_BLOCK_WITH_ELEMENTS.put(nd, headerStartAddress, nextBlock);
 				insertionBlockAddress = nextBlock;
-				elementsInBlock = BlockHeader.ELEMENTS_IN_USE.get(nd, insertionBlockAddress); 
+				elementsInBlock = BlockHeader.ELEMENTS_IN_USE.get(nd, insertionBlockAddress);
 			}
-	
+
 			BlockHeader.ELEMENTS_IN_USE.put(nd, insertionBlockAddress, (short) (elementsInBlock + 1));
 			int elementSize = getElementSize();
-	
+
 			long resultAddress = insertionBlockAddress + BlockHeader.BLOCK_HEADER_BYTES + elementsInBlock * elementSize;
 			assert ((resultAddress - Database.BLOCK_HEADER_SIZE) & (Database.BLOCK_SIZE_DELTA - 1)) == 0;
 			return this.elementType.getFactory().create(nd, resultAddress);
@@ -233,7 +233,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 			}
 			long headerStartAddress = address + this.offset;
 			long nextBlockAddress = LAST_BLOCK_WITH_ELEMENTS.get(nd, headerStartAddress);
-	
+
 			int maxBlockSizeThatFitsInAChunk = (int) ((MAX_BYTES_IN_A_CHUNK - BlockHeader.BLOCK_HEADER_BYTES)
 					/ getElementSize());
 
@@ -244,7 +244,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 				LAST_BLOCK_WITH_ELEMENTS.put(nd, headerStartAddress, nextBlockAddress);
 				FIRST_BLOCK.put(nd, headerStartAddress, nextBlockAddress);
 			}
-	
+
 			// Check if there's any free space in this block
 			int remainingToAllocate = numElements;
 			while (true) {
@@ -252,12 +252,12 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 				nextBlockAddress = BlockHeader.NEXT_BLOCK.get(nd, currentBlockAddress);
 				int elementsInUse = BlockHeader.ELEMENTS_IN_USE.get(nd, currentBlockAddress);
 				int blockSize = BlockHeader.BLOCK_SIZE.get(nd, currentBlockAddress);
-	
+
 				remainingToAllocate -= (blockSize - elementsInUse);
 				if (remainingToAllocate <= 0) {
 					break;
 				}
-	
+
 				if (nextBlockAddress == 0) {
 					nextBlockAddress = allocateNewBlock(nd, Math.min(maxBlockSizeThatFitsInAChunk, numElements));
 					BlockHeader.NEXT_BLOCK.put(nd, currentBlockAddress, nextBlockAddress);
@@ -302,7 +302,7 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 			short poolId = getMemoryPoolId(nd);
 			long headerStartAddress = address + this.offset;
 			long firstBlockAddress = FIRST_BLOCK.get(nd, headerStartAddress);
-	
+
 			long nextBlockAddress = firstBlockAddress;
 			while (nextBlockAddress != 0) {
 				long currentBlockAddress = nextBlockAddress;
@@ -311,11 +311,11 @@ public class FieldList<T> extends BaseField implements IDestructableField {
 				destructElements(nd, currentBlockAddress + BlockHeader.BLOCK_HEADER_BYTES, elementsInBlock);
 				db.free(currentBlockAddress, poolId);
 			}
-	
+
 			db.clearRange(headerStartAddress, getRecordSize());
 		} finally {
 			db.getLog().end(this.destructTag);
-		} 
+		}
 	}
 
 	private void destructElements(Nd nd, long nextElementAddress, int count) {

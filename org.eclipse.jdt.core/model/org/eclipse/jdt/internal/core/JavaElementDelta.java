@@ -74,12 +74,12 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	 * Empty array of IJavaElementDelta
 	 */
 	static  IJavaElementDelta[] EMPTY_DELTA= new IJavaElementDelta[] {};
-	
+
 	/**
 	 * Child index is needed iff affectedChildren.length >= NEED_CHILD_INDEX
 	*/
 	static int NEED_CHILD_INDEX = 3;
-	
+
 	/**
 	 * On-demand index into affectedChildren
 	 */

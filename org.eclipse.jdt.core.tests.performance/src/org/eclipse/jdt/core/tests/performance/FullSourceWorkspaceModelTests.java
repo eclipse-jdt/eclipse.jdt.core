@@ -89,7 +89,7 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	// Log file streams
 	private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
@@ -1376,13 +1376,13 @@ public void testReopenSingleProject() throws CoreException {
 	int length=ALL_PROJECTS.length;
 	for (int j=0; j<length; j++) {
 		ALL_PROJECTS[j].getProject().close(null);
-	}		
+	}
 	AbstractJavaModelTests.waitUntilIndexesReady();
 	AbstractJavaModelTests.waitForAutoBuild();
 	if (PRINT) {
 		System.out.println((System.currentTimeMillis()-startTime)+"ms");
 	}
-	
+
 
 	// Warm-up
 	if (PRINT) {
@@ -1471,7 +1471,7 @@ public void testRefreshExternalArchives() throws Exception {
 			files[index]  = new File(filePath);
 		}
 		BIG_PROJECT.setRawClasspath(classpath, null);
-		
+
 		// warm up
 		int max = 20;
 		int warmup = WARMUP_COUNT / 10;
@@ -1494,8 +1494,8 @@ public void testRefreshExternalArchives() throws Exception {
 		}
 
 		commitMeasurements();
-		assertPerformance();		
-		
+		assertPerformance();
+
 	} finally {
 		BIG_PROJECT.setRawClasspath(oldClasspath, null);
 		for(int index=0; index < files.length; index++) {

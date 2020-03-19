@@ -373,7 +373,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Trigger\")" +
 				"public class Trigger {\n" +
 				"}"
-		); 
+		);
 
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
@@ -398,7 +398,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"java.util\", arg1 = \"HashMap\")" +
 				"public class Trigger {\n" +
 				"}"
-		); 
+		);
 
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
@@ -422,7 +422,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Trigger\")" +
 				"public class Trigger {\n" +
 				"}"
-		); 
+		);
 
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
@@ -446,7 +446,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Other\")" +
 				"public class Trigger {\n" +
 				"}"
-		); 
+		);
 
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
@@ -470,7 +470,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug542090a\", arg0 = \"p\", arg1 = \"Other\")" +
 				"public class Trigger {\n" +
 				"}"
-		); 
+		);
 
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
@@ -480,7 +480,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug542090a\", arg0 = \"p\", arg1 = \"Other\")" +
 				"public class Trigger {\n" +
 				"}/*added comment */"
-		); 
+		);
 		incrementalBuild();
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 
@@ -490,7 +490,7 @@ public class FilerTests extends TestBase
 				"@FilerTestTrigger(test = \"testBug542090b\", arg0 = \"p\", arg1 = \"Other\")" +
 				"public class Trigger {\n" +
 				"}/*added comment */"
-		); 
+		);
 		incrementalBuild();
 		assertEquals("Processor reported errors", "FilerException invoking test method testBug542090b - see console for details", ProcessorTestStatus.getErrors());
 	}

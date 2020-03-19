@@ -32,11 +32,11 @@ public class LoaderTestAnnotationProcessorFactory implements
 		AnnotationProcessorFactory {
 
 	private static ArrayList<String> annotations = new ArrayList<String>();
-	
+
 	{
 		annotations.add( LoaderTestAnnotation.class.getName() );
 	}
-	
+
 	public Collection<String> supportedOptions() {
 		return Collections.emptyList();
 	}

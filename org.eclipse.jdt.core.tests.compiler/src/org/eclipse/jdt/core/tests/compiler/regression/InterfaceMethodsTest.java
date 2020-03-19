@@ -73,10 +73,10 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    public default strictfp void foo4() {}\n" +
 			"    public default strictfp @Annot void foo5() {}\n" +
 			"}\n",
-		}, 
+		},
 		"");
 	}
-		
+
 
 	// default methods with various modifiers, negative cases
 	public void testModifiers1a() {
@@ -92,22 +92,22 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    strictfp default void foo3() {}\n" +
 			"    public default strictfp synchronized void foo4() {}\n" +
 			"    public default strictfp synchronized @Annot void foo5() {}\n" +
-			"}\n"}, 
-			"----------\n" + 
-			"1. ERROR in I.java (at line 5)\n" + 
-			"	public default synchronized void foo2() { System.exit(0); }\n" + 
-			"	                                 ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo2; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in I.java (at line 7)\n" + 
-			"	public default strictfp synchronized void foo4() {}\n" + 
-			"	                                          ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" + 
-			"----------\n" + 
-			"3. ERROR in I.java (at line 8)\n" + 
-			"	public default strictfp synchronized @Annot void foo5() {}\n" + 
-			"	                                                 ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" + 
+			"}\n"},
+			"----------\n" +
+			"1. ERROR in I.java (at line 5)\n" +
+			"	public default synchronized void foo2() { System.exit(0); }\n" +
+			"	                                 ^^^^^^\n" +
+			"Illegal modifier for the interface method foo2; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 7)\n" +
+			"	public default strictfp synchronized void foo4() {}\n" +
+			"	                                          ^^^^^^\n" +
+			"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"3. ERROR in I.java (at line 8)\n" +
+			"	public default strictfp synchronized @Annot void foo5() {}\n" +
+			"	                                                 ^^^^^^\n" +
+			"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
 			"----------\n");
 	}
 
@@ -187,7 +187,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"----------\n" +
 			"6. ERROR in I.java (at line 8)\n" +
 			"	public strictfp synchronized @Annot void foo5();\n" +
-			"	                                         ^^^^^^\n" + 
+			"	                                         ^^^^^^\n" +
 			"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
 			"----------\n");
 	}
@@ -206,36 +206,36 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    static default void foo5() {}\n" +
 			"    default static void foo6() {}\n" +
 			"}\n"},
-			"----------\n" + 
-			"1. ERROR in I.java (at line 2)\n" + 
-			"	native void foo1();\n" + 
-			"	            ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo1; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in I.java (at line 3)\n" + 
-			"	static void foo2();\n" + 
-			"	            ^^^^^^\n" + 
-			"This method requires a body instead of a semicolon\n" + 
-			"----------\n" + 
-			"3. ERROR in I.java (at line 4)\n" + 
-			"	native default void foo3() {}\n" + 
-			"	                    ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo3; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" + 
-			"----------\n" + 
-			"4. ERROR in I.java (at line 5)\n" + 
-			"	default native void foo4() {}\n" + 
-			"	                    ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" + 
-			"----------\n" + 
-			"5. ERROR in I.java (at line 6)\n" + 
-			"	static default void foo5() {}\n" + 
-			"	                    ^^^^^^\n" + 
-			"Illegal combination of modifiers for the interface method foo5; only one of abstract, default, or static permitted\n" + 
-			"----------\n" + 
-			"6. ERROR in I.java (at line 7)\n" + 
-			"	default static void foo6() {}\n" + 
-			"	                    ^^^^^^\n" + 
-			"Illegal combination of modifiers for the interface method foo6; only one of abstract, default, or static permitted\n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 2)\n" +
+			"	native void foo1();\n" +
+			"	            ^^^^^^\n" +
+			"Illegal modifier for the interface method foo1; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 3)\n" +
+			"	static void foo2();\n" +
+			"	            ^^^^^^\n" +
+			"This method requires a body instead of a semicolon\n" +
+			"----------\n" +
+			"3. ERROR in I.java (at line 4)\n" +
+			"	native default void foo3() {}\n" +
+			"	                    ^^^^^^\n" +
+			"Illegal modifier for the interface method foo3; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"4. ERROR in I.java (at line 5)\n" +
+			"	default native void foo4() {}\n" +
+			"	                    ^^^^^^\n" +
+			"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"5. ERROR in I.java (at line 6)\n" +
+			"	static default void foo5() {}\n" +
+			"	                    ^^^^^^\n" +
+			"Illegal combination of modifiers for the interface method foo5; only one of abstract, default, or static permitted\n" +
+			"----------\n" +
+			"6. ERROR in I.java (at line 7)\n" +
+			"	default static void foo6() {}\n" +
+			"	                    ^^^^^^\n" +
+			"Illegal combination of modifiers for the interface method foo6; only one of abstract, default, or static permitted\n" +
 			"----------\n");
 	}
 
@@ -252,30 +252,30 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    void foo4() { }\n" + // implicit "abstract" without "default" doesn't allow a body, either
 			"    abstract static default void foo5() {}\n" + // double fault
 			"}\n"},
-			"----------\n" + 
-			"1. ERROR in I.java (at line 4)\n" + 
-			"	public abstract default void foo2() {}\n" + 
-			"	                             ^^^^^^\n" + 
-			"Illegal combination of modifiers for the interface method foo2; only one of abstract, default, or static permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in I.java (at line 5)\n" + 
-			"	default abstract void foo3() {}\n" + 
-			"	                      ^^^^^^\n" + 
-			"Illegal combination of modifiers for the interface method foo3; only one of abstract, default, or static permitted\n" + 
-			"----------\n" + 
-			"3. ERROR in I.java (at line 6)\n" + 
-			"	void foo4() { }\n" + 
-			"	     ^^^^^^\n" + 
-			"Abstract methods do not specify a body\n" + 
-			"----------\n" + 
-			"4. ERROR in I.java (at line 7)\n" + 
-			"	abstract static default void foo5() {}\n" + 
-			"	                             ^^^^^^\n" + 
-			"Illegal combination of modifiers for the interface method foo5; only one of abstract, default, or static permitted\n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 4)\n" +
+			"	public abstract default void foo2() {}\n" +
+			"	                             ^^^^^^\n" +
+			"Illegal combination of modifiers for the interface method foo2; only one of abstract, default, or static permitted\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 5)\n" +
+			"	default abstract void foo3() {}\n" +
+			"	                      ^^^^^^\n" +
+			"Illegal combination of modifiers for the interface method foo3; only one of abstract, default, or static permitted\n" +
+			"----------\n" +
+			"3. ERROR in I.java (at line 6)\n" +
+			"	void foo4() { }\n" +
+			"	     ^^^^^^\n" +
+			"Abstract methods do not specify a body\n" +
+			"----------\n" +
+			"4. ERROR in I.java (at line 7)\n" +
+			"	abstract static default void foo5() {}\n" +
+			"	                             ^^^^^^\n" +
+			"Illegal combination of modifiers for the interface method foo5; only one of abstract, default, or static permitted\n" +
 			"----------\n");
 	}
 
-	// class implements interface with default method. 
+	// class implements interface with default method.
 	// - no need to implement this interface method as it is not abstract
 	public void testModifiers5() {
 		runConformTest(
@@ -297,7 +297,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			);
 	}
 
-	// class implements interface with default method. 
+	// class implements interface with default method.
 	// - no need to implement this interface method as it is not abstract, but other abstract method exists
 	public void testModifiers6() {
 		runNegativeTest(
@@ -310,11 +310,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"C.java",
 				"public class C implements I {}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C.java (at line 1)\n" + 
-			"	public class C implements I {}\n" + 
-			"	             ^\n" + 
-			"The type C must implement the inherited abstract method I.bar()\n" + 
+			"----------\n" +
+			"1. ERROR in C.java (at line 1)\n" +
+			"	public class C implements I {}\n" +
+			"	             ^\n" +
+			"The type C must implement the inherited abstract method I.bar()\n" +
 			"----------\n");
 	}
 
@@ -355,17 +355,17 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I.java",
 				"public interface I {\n" +
-				"    public default String toString () { return \"\";}\n" + 
+				"    public default String toString () { return \"\";}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in I.java (at line 2)\n" + 
-			"	public default String toString () { return \"\";}\n" + 
-			"	                      ^^^^^^^^^^^\n" + 
-			"A default method cannot override a method from java.lang.Object \n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 2)\n" +
+			"	public default String toString () { return \"\";}\n" +
+			"	                      ^^^^^^^^^^^\n" +
+			"A default method cannot override a method from java.lang.Object \n" +
 			"----------\n");
 	}
-	
+
 	// JLS 9.4.2  - default method cannot override method from Object
 	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
 	// when using a type variable this is already reported as a name clash
@@ -374,17 +374,17 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"I.java",
 				"public interface I<T> {\n" +
-				"    public default boolean equals (T other) { return false;}\n" + 
+				"    public default boolean equals (T other) { return false;}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in I.java (at line 2)\n" + 
-			"	public default boolean equals (T other) { return false;}\n" + 
-			"	                       ^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method equals(T) of type I<T> has the same erasure as equals(Object) of type Object but does not override it\n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 2)\n" +
+			"	public default boolean equals (T other) { return false;}\n" +
+			"	                       ^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method equals(T) of type I<T> has the same erasure as equals(Object) of type Object but does not override it\n" +
 			"----------\n");
 	}
-	
+
 	// JLS 9.4.2  - default method cannot override method from Object
 	// Bug 382355 - [1.8][compiler] Compiler accepts erroneous default method
 	// one error for final method is enough
@@ -394,14 +394,14 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"I.java",
 				"public interface I<T> {\n" +
 				"    @Override\n" +
-				"    default public Class<?> getClass() { return null;}\n" + 
+				"    default public Class<?> getClass() { return null;}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in I.java (at line 3)\n" + 
-			"	default public Class<?> getClass() { return null;}\n" + 
-			"	                        ^^^^^^^^^^\n" + 
-			"Cannot override the final method from Object\n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 3)\n" +
+			"	default public Class<?> getClass() { return null;}\n" +
+			"	                        ^^^^^^^^^^\n" +
+			"Cannot override the final method from Object\n" +
 			"----------\n");
 	}
 
@@ -424,14 +424,14 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public interface I3 extends I1, I2 {\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in I3.java (at line 1)\n" + 
-			"	public interface I3 extends I1, I2 {\n" + 
-			"	                 ^^\n" + 
+			"----------\n" +
+			"1. ERROR in I3.java (at line 1)\n" +
+			"	public interface I3 extends I1, I2 {\n" +
+			"	                 ^^\n" +
 			"The default method foo() inherited from I2 conflicts with another method inherited from I1\n" +
 			"----------\n");
 	}
-	
+
 	// JLS 9.4.1
 	// Bug 382347 - [1.8][compiler] Compiler accepts incorrect default method inheritance
 	// an inherited default methods clashes with another inherited method
@@ -457,10 +457,10 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public interface I3 extends I1A, I2A {\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in I3.java (at line 1)\n" + 
-			"	public interface I3 extends I1A, I2A {\n" + 
-			"	                 ^^\n" + 
+			"----------\n" +
+			"1. ERROR in I3.java (at line 1)\n" +
+			"	public interface I3 extends I1A, I2A {\n" +
+			"	                 ^^\n" +
 			"The default method foo() inherited from I2 conflicts with another method inherited from I1\n" +
 			"----------\n");
 	}
@@ -489,11 +489,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"   String foo(List<String> l);\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in I3.java (at line 4)\n" + 
-			"	String foo(List<String> l);\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(List<String>) of type I3 has the same erasure as foo(List) of type I2 but does not override it\n" + 
+			"----------\n" +
+			"1. ERROR in I3.java (at line 4)\n" +
+			"	String foo(List<String> l);\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(List<String>) of type I3 has the same erasure as foo(List) of type I2 but does not override it\n" +
 			"----------\n");
 	}
 
@@ -521,11 +521,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"   String foo(List<String> l);\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in I3.java (at line 4)\n" + 
-			"	String foo(List<String> l);\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Name clash: The method foo(List<String>) of type I3 has the same erasure as foo(List) of type I2 but does not override it\n" + 
+			"----------\n" +
+			"1. ERROR in I3.java (at line 4)\n" +
+			"	String foo(List<String> l);\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^\n" +
+			"Name clash: The method foo(List<String>) of type I3 has the same erasure as foo(List) of type I2 but does not override it\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
@@ -552,11 +552,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"    U getValue();\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
@@ -583,14 +583,14 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"    U getValue();\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	}
-	
+
 	public void testDefaultNonclash3() {
 		runNegativeTest(
 			new String[] {
@@ -616,11 +616,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"    U getValue();\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390761
@@ -645,11 +645,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"    U getValue();\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 	}
 
@@ -658,19 +658,19 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X extends G implements I {\n" + 
-				"}\n" + 
-				"\n" + 
-				"interface I {\n" + 
-				"	default int foo (){\n" + 
-				"		return 0;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"class G {\n" + 
-				"	public int foo() {\n" + 
-				"		return 0;\n" + 
-				"	}\n" + 
+				"public class X extends G implements I {\n" +
+				"}\n" +
+				"\n" +
+				"interface I {\n" +
+				"	default int foo (){\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"class G {\n" +
+				"	public int foo() {\n" +
+				"		return 0;\n" +
+				"	}\n" +
 				"}\n"
 			});
 	}
@@ -740,11 +740,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public class C implements I1, I2 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C.java (at line 1)\n" + 
-			"	public class C implements I1, I2 {\n" + 
-			"	             ^\n" + 
-			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n" +
+			"1. ERROR in C.java (at line 1)\n" +
+			"	public class C implements I1, I2 {\n" +
+			"	             ^\n" +
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" +
 			"----------\n");
 			// Note: javac first complains: C is not abstract and does not override abstract method test() in I1
 			//       only when C is marked abstract does the conflict between abstract and default method surface
@@ -768,11 +768,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public class C implements I2, I1 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C.java (at line 1)\n" + 
-			"	public class C implements I2, I1 {\n" + 
-			"	             ^\n" + 
-			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n" +
+			"1. ERROR in C.java (at line 1)\n" +
+			"	public class C implements I2, I1 {\n" +
+			"	             ^\n" +
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" +
 			"----------\n");
 			// Note: javac first complains: C is not abstract and does not override abstract method test() in I1
 			//       only when C is marked abstract does the conflict between abstract and default method surface
@@ -796,11 +796,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public abstract class C implements I2, I1 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C.java (at line 1)\n" + 
-			"	public abstract class C implements I2, I1 {\n" + 
-			"	                      ^\n" + 
-			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n" +
+			"1. ERROR in C.java (at line 1)\n" +
+			"	public abstract class C implements I2, I1 {\n" +
+			"	                      ^\n" +
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" +
 			"----------\n");
 	}
 
@@ -820,11 +820,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public interface I3 extends I1, I2 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in I3.java (at line 1)\n" + 
-			"	public interface I3 extends I1, I2 {\n" + 
-			"	                 ^^\n" + 
-			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" + 
+			"----------\n" +
+			"1. ERROR in I3.java (at line 1)\n" +
+			"	public interface I3 extends I1, I2 {\n" +
+			"	                 ^^\n" +
+			"The default method test() inherited from I2 conflicts with another method inherited from I1\n" +
 			"----------\n");
 	}
 
@@ -847,7 +847,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n"
 			});
 	}
-	
+
 	// JLS 8.1.1.1 abstract Classes
 	// Default method overrides an abstract method from its super interface - class implements both
 	// same as above except for order of implements list
@@ -887,11 +887,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public class C implements I2, I1 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C.java (at line 1)\n" + 
-			"	public class C implements I2, I1 {\n" + 
-			"	             ^\n" + 
-			"The type C must implement the inherited abstract method I2.test()\n" + 
+			"----------\n" +
+			"1. ERROR in C.java (at line 1)\n" +
+			"	public class C implements I2, I1 {\n" +
+			"	             ^\n" +
+			"The type C must implement the inherited abstract method I2.test()\n" +
 			"----------\n");
 	}
 
@@ -914,11 +914,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public class C implements I2, I1 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C.java (at line 1)\n" + 
-			"	public class C implements I2, I1 {\n" + 
-			"	             ^\n" + 
-			"The type C must implement the inherited abstract method I2.test()\n" + 
+			"----------\n" +
+			"1. ERROR in C.java (at line 1)\n" +
+			"	public class C implements I2, I1 {\n" +
+			"	             ^\n" +
+			"The type C must implement the inherited abstract method I2.test()\n" +
 			"----------\n");
 	}
 
@@ -938,11 +938,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public abstract class C2 implements I1, I2 {\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in C2.java (at line 1)\n" + 
-			"	public abstract class C2 implements I1, I2 {\n" + 
-			"	                      ^^\n" + 
-			"Duplicate default methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" + 
+			"----------\n" +
+			"1. ERROR in C2.java (at line 1)\n" +
+			"	public abstract class C2 implements I1, I2 {\n" +
+			"	                      ^^\n" +
+			"Duplicate default methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" +
 			"----------\n");
 	}
 
@@ -971,16 +971,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	public Object value1() { return this; } // too week, need a method returning String\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C3.java (at line 3)\n" + 
-			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
-			"	       ^^^^^^\n" + 
-			"The return type is incompatible with I1.value1()\n" + 
-			"----------\n" + 
-			"2. ERROR in C3.java (at line 3)\n" + 
-			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
-			"	       ^^^^^^\n" + 
-			"The return type is incompatible with I2.value1()\n" + 
+			"----------\n" +
+			"1. ERROR in C3.java (at line 3)\n" +
+			"	public Object value1() { return this; } // too week, need a method returning String\n" +
+			"	       ^^^^^^\n" +
+			"The return type is incompatible with I1.value1()\n" +
+			"----------\n" +
+			"2. ERROR in C3.java (at line 3)\n" +
+			"	public Object value1() { return this; } // too week, need a method returning String\n" +
+			"	       ^^^^^^\n" +
+			"The return type is incompatible with I2.value1()\n" +
 			"----------\n");
 	}
 
@@ -1010,19 +1010,19 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	public Object value1() { return this; } // too week, need a method returning String\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C3.java (at line 3)\n" + 
-			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
-			"	       ^^^^^^\n" + 
-			"The return type is incompatible with I2.value1()\n" + 
-			"----------\n" + 
-			"2. ERROR in C3.java (at line 3)\n" + 
-			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
-			"	       ^^^^^^\n" + 
-			"The return type is incompatible with I1.value1()\n" + 
+			"----------\n" +
+			"1. ERROR in C3.java (at line 3)\n" +
+			"	public Object value1() { return this; } // too week, need a method returning String\n" +
+			"	       ^^^^^^\n" +
+			"The return type is incompatible with I2.value1()\n" +
+			"----------\n" +
+			"2. ERROR in C3.java (at line 3)\n" +
+			"	public Object value1() { return this; } // too week, need a method returning String\n" +
+			"	       ^^^^^^\n" +
+			"The return type is incompatible with I1.value1()\n" +
 			"----------\n");
 	}
-	
+
 	// abstract class method trumps otherwise conflicting default methods: conflict not resolved due to insufficient visibility
 	public void testAbstract6b() {
 		runNegativeTest(
@@ -1044,11 +1044,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public abstract class C2 extends p1.C1 implements I1, I2 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C2.java (at line 1)\n" + 
-			"	public abstract class C2 extends p1.C1 implements I1, I2 {\n" + 
-			"	                      ^^\n" + 
-			"Duplicate default methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" + 
+			"----------\n" +
+			"1. ERROR in C2.java (at line 1)\n" +
+			"	public abstract class C2 extends p1.C1 implements I1, I2 {\n" +
+			"	                      ^^\n" +
+			"Duplicate default methods named value1 with the parameters () and () are inherited from the types I2 and I1\n" +
 			"----------\n");
 	}
 
@@ -1073,11 +1073,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	public Object value1() { return this; } // too week, need a method returning String\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C3.java (at line 3)\n" + 
-			"	public Object value1() { return this; } // too week, need a method returning String\n" + 
-			"	       ^^^^^^\n" + 
-			"The return type is incompatible with I1.value1()\n" + 
+			"----------\n" +
+			"1. ERROR in C3.java (at line 3)\n" +
+			"	public Object value1() { return this; } // too week, need a method returning String\n" +
+			"	       ^^^^^^\n" +
+			"The return type is incompatible with I1.value1()\n" +
 			"----------\n");
 	}
 
@@ -1098,11 +1098,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"public class C2 extends C1 implements I1 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in C2.java (at line 1)\n" + 
-			"	public class C2 extends C1 implements I1 {\n" + 
-			"	             ^^\n" + 
-			"The type C2 must implement the inherited abstract method C1.value()\n" + 
+			"----------\n" +
+			"1. ERROR in C2.java (at line 1)\n" +
+			"	public class C2 extends C1 implements I1 {\n" +
+			"	             ^^\n" +
+			"The type C2 must implement the inherited abstract method C1.value()\n" +
 			"----------\n");
 	}
 
@@ -1115,14 +1115,14 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"    default String id() { return \"1\"; }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in I.java (at line 2)\n" + 
-			"	default String id() { return \"1\"; }\n" + 
-			"	^^^^^^^\n" + 
-			"Syntax error on token \"default\", @ expected\n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 2)\n" +
+			"	default String id() { return \"1\"; }\n" +
+			"	^^^^^^^\n" +
+			"Syntax error on token \"default\", @ expected\n" +
 			"----------\n");
 	}
-	
+
 	// basic situation similar to AmbiguousMethodTest.test009()
 	public void testSuperCall1() throws Exception {
 		this.runConformTest(
@@ -1140,12 +1140,12 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			""
 		);
 		String expectedOutput =
-				"  // Method descriptor #14 ()Ljava/util/Spliterator;\n" + 
-				"  // Signature: ()Ljava/util/Spliterator<TE;>;\n" + 
-				"  // Stack: 1, Locals: 1\n" + 
-				"  public java.util.Spliterator spliterator();\n" + 
-				"    0  aload_0 [this]\n" + 
-				"    1  invokespecial java.util.List.spliterator() : java.util.Spliterator [17]\n" + 
+				"  // Method descriptor #14 ()Ljava/util/Spliterator;\n" +
+				"  // Signature: ()Ljava/util/Spliterator<TE;>;\n" +
+				"  // Stack: 1, Locals: 1\n" +
+				"  public java.util.Spliterator spliterator();\n" +
+				"    0  aload_0 [this]\n" +
+				"    1  invokespecial java.util.List.spliterator() : java.util.Spliterator [17]\n" +
 				"    4  areturn\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "OrderedSet.class", "OrderedSet", expectedOutput);
 	}
@@ -1188,26 +1188,26 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"   default Spliterator<E> spliterator() { return List.super.spliterator(); }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in T.java (at line 6)\n" + 
-			"	return List.super.stream(); // List is not a direct super interface\n" + 
-			"	       ^^^^^^^^^^\n" + 
-			"Illegal reference to super type List, cannot bypass the more specific direct super type OrderedSet\n" + 
-			"----------\n" + 
-			"2. ERROR in T.java (at line 12)\n" + 
-			"	return OrderedSet.super.stream(); // not a super interface of the direct enclosing class\n" + 
-			"	       ^^^^^^^^^^^^^^^^\n" + 
-			"No enclosing instance of the type OrderedSet<E> is accessible in scope\n" + 
-			"----------\n" + 
-			"3. ERROR in T.java (at line 17)\n" + 
-			"	OrderedSet.super.add(o); // target not a default method\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Cannot directly invoke the abstract method add(E) for the type OrderedSet<E>\n" + 
-			"----------\n" + 
-			"4. ERROR in T.java (at line 20)\n" + 
-			"	OrderedSet.super(); // not applicable for super ctor call\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Illegal enclosing instance specification for type Object\n" + 
+			"----------\n" +
+			"1. ERROR in T.java (at line 6)\n" +
+			"	return List.super.stream(); // List is not a direct super interface\n" +
+			"	       ^^^^^^^^^^\n" +
+			"Illegal reference to super type List, cannot bypass the more specific direct super type OrderedSet\n" +
+			"----------\n" +
+			"2. ERROR in T.java (at line 12)\n" +
+			"	return OrderedSet.super.stream(); // not a super interface of the direct enclosing class\n" +
+			"	       ^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of the type OrderedSet<E> is accessible in scope\n" +
+			"----------\n" +
+			"3. ERROR in T.java (at line 17)\n" +
+			"	OrderedSet.super.add(o); // target not a default method\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot directly invoke the abstract method add(E) for the type OrderedSet<E>\n" +
+			"----------\n" +
+			"4. ERROR in T.java (at line 20)\n" +
+			"	OrderedSet.super(); // not applicable for super ctor call\n" +
+			"	^^^^^^^^^^\n" +
+			"Illegal enclosing instance specification for type Object\n" +
 			"----------\n"
 		);
 	}
@@ -1270,11 +1270,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	I1.super.print(); // illegal attempt to skip I2.print()\n" + 
-			"	^^^^^^^^\n" + 
-			"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	I1.super.print(); // illegal attempt to skip I2.print()\n" +
+			"	^^^^^^^^\n" +
+			"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" +
 			"----------\n"
 		);
 	}
@@ -1303,11 +1303,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"interface I2 extends I1 {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	I1.super.print(); // illegal attempt to skip I2.print()\n" + 
-			"	^^^^^^^^\n" + 
-			"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	I1.super.print(); // illegal attempt to skip I2.print()\n" +
+			"	^^^^^^^^\n" +
+			"Illegal reference to super type I1, cannot bypass the more specific direct super type I2\n" +
 			"----------\n"
 		);
 	}
@@ -1318,33 +1318,33 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"SuperOverride.java",
-				"interface I0 {\n" + 
-				"	default void foo() { System.out.println(\"I0\"); }\n" + 
-				"}\n" + 
-				"\n" + 
-				"interface IA extends I0 {}\n" + 
-				"\n" + 
-				"interface IB extends I0 {\n" + 
-				"	@Override default void foo() {\n" + 
-				"		System.out.println(\"IB\");\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"interface IX extends IA, IB {\n" + 
-				"	@Override default void foo() {\n" + 
-				"		IA.super.foo(); // illegal attempt to skip IB.foo()\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"public class SuperOverride implements IX {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new SuperOverride().foo();\n" + 
-				"	}\n" + 
+				"interface I0 {\n" +
+				"	default void foo() { System.out.println(\"I0\"); }\n" +
+				"}\n" +
+				"\n" +
+				"interface IA extends I0 {}\n" +
+				"\n" +
+				"interface IB extends I0 {\n" +
+				"	@Override default void foo() {\n" +
+				"		System.out.println(\"IB\");\n" +
+				"	}\n" +
+				"}\n" +
+				"interface IX extends IA, IB {\n" +
+				"	@Override default void foo() {\n" +
+				"		IA.super.foo(); // illegal attempt to skip IB.foo()\n" +
+				"	}\n" +
+				"}\n" +
+				"public class SuperOverride implements IX {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new SuperOverride().foo();\n" +
+				"	}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in SuperOverride.java (at line 14)\n" + 
-			"	IA.super.foo(); // illegal attempt to skip IB.foo()\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Illegal reference to super method foo() from type I0, cannot bypass the more specific override from type IB\n" + 
+			"----------\n" +
+			"1. ERROR in SuperOverride.java (at line 14)\n" +
+			"	IA.super.foo(); // illegal attempt to skip IB.foo()\n" +
+			"	^^^^^^^^^^^^^^\n" +
+			"Illegal reference to super method foo() from type I0, cannot bypass the more specific override from type IB\n" +
 			"----------\n"
 		);
 	}
@@ -1398,26 +1398,26 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"	abstract static void foo4() {}\n" +
 					"}"
 				},
-				"----------\n" + 
-				"1. ERROR in I.java (at line 3)\n" + 
-				"	static void foo1();\n" + 
-				"	            ^^^^^^\n" + 
-				"This method requires a body instead of a semicolon\n" + 
-				"----------\n" + 
-				"2. ERROR in I.java (at line 4)\n" + 
-				"	public static default void foo2 () {};\n" + 
-				"	                           ^^^^^^^\n" + 
-				"Illegal combination of modifiers for the interface method foo2; only one of abstract, default, or static permitted\n" + 
-				"----------\n" + 
-				"3. ERROR in I.java (at line 5)\n" + 
-				"	abstract static void foo3();\n" + 
-				"	                     ^^^^^^\n" + 
-				"Illegal combination of modifiers for the interface method foo3; only one of abstract, default, or static permitted\n" + 
-				"----------\n" + 
-				"4. ERROR in I.java (at line 6)\n" + 
-				"	abstract static void foo4() {}\n" + 
-				"	                     ^^^^^^\n" + 
-				"Illegal combination of modifiers for the interface method foo4; only one of abstract, default, or static permitted\n" + 
+				"----------\n" +
+				"1. ERROR in I.java (at line 3)\n" +
+				"	static void foo1();\n" +
+				"	            ^^^^^^\n" +
+				"This method requires a body instead of a semicolon\n" +
+				"----------\n" +
+				"2. ERROR in I.java (at line 4)\n" +
+				"	public static default void foo2 () {};\n" +
+				"	                           ^^^^^^^\n" +
+				"Illegal combination of modifiers for the interface method foo2; only one of abstract, default, or static permitted\n" +
+				"----------\n" +
+				"3. ERROR in I.java (at line 5)\n" +
+				"	abstract static void foo3();\n" +
+				"	                     ^^^^^^\n" +
+				"Illegal combination of modifiers for the interface method foo3; only one of abstract, default, or static permitted\n" +
+				"----------\n" +
+				"4. ERROR in I.java (at line 6)\n" +
+				"	abstract static void foo4() {}\n" +
+				"	                     ^^^^^^\n" +
+				"Illegal combination of modifiers for the interface method foo4; only one of abstract, default, or static permitted\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1441,26 +1441,26 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"   }\n" +
 					"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in I.java (at line 3)\n" + 
-				"	bar();\n" + 
-				"	^^^\n" + 
-				"Cannot make a static reference to the non-static method bar() from the type I\n" + 
-				"----------\n" + 
-				"2. ERROR in I.java (at line 4)\n" + 
-				"	this.bar();\n" + 
-				"	^^^^\n" + 
-				"Cannot use this in a static context\n" + 
-				"----------\n" + 
-				"3. ERROR in I.java (at line 7)\n" + 
-				"	this.foo();\n" + 
-				"	     ^^^\n" + 
+				"----------\n" +
+				"1. ERROR in I.java (at line 3)\n" +
+				"	bar();\n" +
+				"	^^^\n" +
+				"Cannot make a static reference to the non-static method bar() from the type I\n" +
+				"----------\n" +
+				"2. ERROR in I.java (at line 4)\n" +
+				"	this.bar();\n" +
+				"	^^^^\n" +
+				"Cannot use this in a static context\n" +
+				"----------\n" +
+				"3. ERROR in I.java (at line 7)\n" +
+				"	this.foo();\n" +
+				"	     ^^^\n" +
 				"This static method of interface I can only be accessed as I.foo\n" +
-				"----------\n" + 
-				"4. ERROR in I.java (at line 12)\n" + 
-				"	super.bar();\n" + 
-				"	^^^^^\n" + 
-				"Cannot use super in a static context\n" + 
+				"----------\n" +
+				"4. ERROR in I.java (at line 12)\n" +
+				"	super.bar();\n" +
+				"	^^^^^\n" +
+				"Cannot use super in a static context\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1492,29 +1492,29 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}"
 			},
 			"J#foo() invoked\n" +
-			"J#foo() invoked\n" + 
+			"J#foo() invoked\n" +
 			"I#foo() invoked");
 		String expectedOutput =
-				"  // Method descriptor #17 ([Ljava/lang/String;)V\n" + 
-				"  // Stack: 2, Locals: 2\n" + 
-				"  public static void main(java.lang.String[] args);\n" + 
-				"     0  new C [1]\n" + 
-				"     3  dup\n" + 
-				"     4  invokespecial C() [18]\n" + 
-				"     7  astore_1 [c]\n" + 
-				"     8  aload_1 [c]\n" + 
-				"     9  invokevirtual C.bar() : void [19]\n" + 
-				"    12  invokestatic J.foo() : void [22]\n" + 
-				"    15  invokestatic I.foo() : void [25]\n" + 
-				"    18  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 16]\n" + 
-				"        [pc: 8, line: 17]\n" + 
-				"        [pc: 12, line: 18]\n" + 
-				"        [pc: 15, line: 19]\n" + 
-				"        [pc: 18, line: 20]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 19] local: args index: 0 type: java.lang.String[]\n" + 
+				"  // Method descriptor #17 ([Ljava/lang/String;)V\n" +
+				"  // Stack: 2, Locals: 2\n" +
+				"  public static void main(java.lang.String[] args);\n" +
+				"     0  new C [1]\n" +
+				"     3  dup\n" +
+				"     4  invokespecial C() [18]\n" +
+				"     7  astore_1 [c]\n" +
+				"     8  aload_1 [c]\n" +
+				"     9  invokevirtual C.bar() : void [19]\n" +
+				"    12  invokestatic J.foo() : void [22]\n" +
+				"    15  invokestatic I.foo() : void [25]\n" +
+				"    18  return\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 16]\n" +
+				"        [pc: 8, line: 17]\n" +
+				"        [pc: 12, line: 18]\n" +
+				"        [pc: 15, line: 19]\n" +
+				"        [pc: 18, line: 20]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 19] local: args index: 0 type: java.lang.String[]\n" +
 				"        [pc: 8, pc: 19] local: c index: 1 type: C\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput);
 	}
@@ -1557,56 +1557,56 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						+ "	}\n"
 						+ "}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	bar();\n" + 
-				"	^^^\n" + 
-				"The method bar() is undefined for the type X\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
-				"	bar();\n" + 
-				"	^^^\n" + 
-				"The method bar() is undefined for the type X\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 8)\n" + 
-				"	II.bar();\n" + 
-				"	   ^^^\n" + 
-				"The method bar() is undefined for the type II\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 9)\n" + 
-				"	(new X()).bar();\n" + 
-				"	          ^^^\n" + 
-				"The method bar() is undefined for the type X\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 10)\n" + 
-				"	II.bar();\n" + 
-				"	   ^^^\n" + 
-				"The method bar() is undefined for the type II\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 12)\n" + 
-				"	ii.bar();\n" + 
-				"	   ^^^\n" + 
-				"The method bar() is undefined for the type II\n" + 
-				"----------\n" + 
-				"7. ERROR in X.java (at line 15)\n" + 
-				"	i.bar();\n" + 
-				"	  ^^^\n" + 
-				"This static method of interface I can only be accessed as I.bar\n" + 
-				"----------\n" + 
-				"8. ERROR in X.java (at line 16)\n" + 
-				"	new I() {}.foo();\n" + 
-				"	           ^^^\n" + 
-				"The method foo() is undefined for the type new I(){}\n" + 
-				"----------\n" + 
-				"9. ERROR in X.java (at line 21)\n" + 
-				"	bar2();\n" + 
-				"	^^^^\n" + 
-				"Cannot make a static reference to the non-static method bar2() from the type I\n" + 
-				"----------\n" + 
-				"10. ERROR in X.java (at line 29)\n" + 
-				"	bar();\n" + 
-				"	^^^\n" + 
-				"The method bar() is undefined for the type II\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	bar();\n" +
+				"	^^^\n" +
+				"The method bar() is undefined for the type X\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	bar();\n" +
+				"	^^^\n" +
+				"The method bar() is undefined for the type X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 8)\n" +
+				"	II.bar();\n" +
+				"	   ^^^\n" +
+				"The method bar() is undefined for the type II\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 9)\n" +
+				"	(new X()).bar();\n" +
+				"	          ^^^\n" +
+				"The method bar() is undefined for the type X\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 10)\n" +
+				"	II.bar();\n" +
+				"	   ^^^\n" +
+				"The method bar() is undefined for the type II\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 12)\n" +
+				"	ii.bar();\n" +
+				"	   ^^^\n" +
+				"The method bar() is undefined for the type II\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 15)\n" +
+				"	i.bar();\n" +
+				"	  ^^^\n" +
+				"This static method of interface I can only be accessed as I.bar\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 16)\n" +
+				"	new I() {}.foo();\n" +
+				"	           ^^^\n" +
+				"The method foo() is undefined for the type new I(){}\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 21)\n" +
+				"	bar2();\n" +
+				"	^^^^\n" +
+				"Cannot make a static reference to the non-static method bar2() from the type I\n" +
+				"----------\n" +
+				"10. ERROR in X.java (at line 29)\n" +
+				"	bar();\n" +
+				"	^^^\n" +
+				"The method bar() is undefined for the type II\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1635,11 +1635,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						"	void goo(int x) {}   // Error.\n" +
 						"}\n"
 						},
-						"----------\n" + 
-						"1. ERROR in X.java (at line 19)\n" + 
-						"	void goo(int x) {}   // Error.\n" + 
-						"	     ^^^^^^^^^^\n" + 
-						"This instance method cannot override the static method from Y\n" + 
+						"----------\n" +
+						"1. ERROR in X.java (at line 19)\n" +
+						"	void goo(int x) {}   // Error.\n" +
+						"	     ^^^^^^^^^^\n" +
+						"This instance method cannot override the static method from Y\n" +
 						"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1668,7 +1668,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"	}\n" +
 					"}"
 				},
-				"CONSTANT\n" + 
+				"CONSTANT\n" +
 				"LITERAL");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1683,16 +1683,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"   }\n" +
 					"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in C.java (at line 2)\n" + 
-				"	public static T foo(T t) {\n" + 
-				"	              ^\n" + 
-				"Cannot make a static reference to the non-static type T\n" + 
-				"----------\n" + 
-				"2. ERROR in C.java (at line 2)\n" + 
-				"	public static T foo(T t) {\n" + 
-				"	                    ^\n" + 
-				"Cannot make a static reference to the non-static type T\n" + 
+				"----------\n" +
+				"1. ERROR in C.java (at line 2)\n" +
+				"	public static T foo(T t) {\n" +
+				"	              ^\n" +
+				"Cannot make a static reference to the non-static type T\n" +
+				"----------\n" +
+				"2. ERROR in C.java (at line 2)\n" +
+				"	public static T foo(T t) {\n" +
+				"	                    ^\n" +
+				"Cannot make a static reference to the non-static type T\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1704,11 +1704,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"	static String foo() default \"Blah\";\n" +
 					"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in C.java (at line 2)\n" + 
-				"	static String foo() default \"Blah\";\n" + 
-				"	              ^^^^^\n" + 
-				"Illegal modifier for the annotation attribute A.foo; only public & abstract are permitted\n" + 
+				"----------\n" +
+				"1. ERROR in C.java (at line 2)\n" +
+				"	static String foo() default \"Blah\";\n" +
+				"	              ^^^^^\n" +
+				"Illegal modifier for the annotation attribute A.foo; only public & abstract are permitted\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1723,11 +1723,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						"	}\n" +
 						"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in C.java (at line 4)\n" + 
-				"	a.foo();\n" + 
-				"	  ^^^\n" + 
-				"This static method of interface A can only be accessed as A.foo\n" + 
+				"----------\n" +
+				"1. ERROR in C.java (at line 4)\n" +
+				"	a.foo();\n" +
+				"	  ^^^\n" +
+				"This static method of interface A can only be accessed as A.foo\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1743,11 +1743,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						"	}\n" +
 						"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in C.java (at line 5)\n" + 
-				"	a.foo(10);\n" + 
-				"	  ^^^\n" + 
-				"This static method of interface A can only be accessed as A.foo\n" + 
+				"----------\n" +
+				"1. ERROR in C.java (at line 5)\n" +
+				"	a.foo(10);\n" +
+				"	  ^^^\n" +
+				"This static method of interface A can only be accessed as A.foo\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1762,11 +1762,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						"    static void foo(String s) {}\n" +
 						"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in C.java (at line 5)\n" + 
-				"	static void foo(String s) {}\n" + 
-				"	            ^^^^^^^^^^^^^\n" + 
-				"This static method cannot hide the instance method from A<String>\n" + 
+				"----------\n" +
+				"1. ERROR in C.java (at line 5)\n" +
+				"	static void foo(String s) {}\n" +
+				"	            ^^^^^^^^^^^^^\n" +
+				"This static method cannot hide the instance method from A<String>\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1783,16 +1783,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						"public class X {\n" +
 						"}\n"
 				},
-				"----------\n" + 
-				"1. WARNING in C.java (at line 1)\n" + 
-				"	interface A<X> {\n" + 
-				"	            ^\n" + 
-				"The type parameter X is hiding the type X\n" + 
-				"----------\n" + 
-				"2. ERROR in C.java (at line 7)\n" + 
-				"	public class X {\n" + 
-				"	             ^\n" + 
-				"The public type X must be defined in its own file\n" + 
+				"----------\n" +
+				"1. WARNING in C.java (at line 1)\n" +
+				"	interface A<X> {\n" +
+				"	            ^\n" +
+				"The type parameter X is hiding the type X\n" +
+				"----------\n" +
+				"2. ERROR in C.java (at line 7)\n" +
+				"	public class X {\n" +
+				"	             ^\n" +
+				"The public type X must be defined in its own file\n" +
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
@@ -1807,16 +1807,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 						"   }\n" +
 						"}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in C.java (at line 3)\n" + 
-				"	System.out.println(this);\n" + 
-				"	                   ^^^^\n" + 
-				"Cannot use this in a static context\n" + 
-				"----------\n" + 
-				"2. ERROR in C.java (at line 4)\n" + 
-				"	System.out.println(super.hashCode());\n" + 
-				"	                   ^^^^^\n" + 
-				"Cannot use super in a static context\n" + 
+				"----------\n" +
+				"1. ERROR in C.java (at line 3)\n" +
+				"	System.out.println(this);\n" +
+				"	                   ^^^^\n" +
+				"Cannot use this in a static context\n" +
+				"----------\n" +
+				"2. ERROR in C.java (at line 4)\n" +
+				"	System.out.println(super.hashCode());\n" +
+				"	                   ^^^^^\n" +
+				"Cannot use super in a static context\n" +
 				"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406619, [1.8][compiler] Incorrect suggestion that method can be made static.
@@ -1826,7 +1826,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 		this.runNegativeTest(
 			new String[] {
-				"X.java", 
+				"X.java",
 				"interface X {\n" +
 				"	default int foo() {\n" +
 				"		return 10;\n" +
@@ -1840,7 +1840,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		);
 	}
 
-	// class implements interface with default method. 
+	// class implements interface with default method.
 	// - witness for NoSuchMethodError in synthetic method (SuperMethodAccess) - turned out to be a JVM bug
 	public void testSuperAccess01() {
 		runConformTest(
@@ -1862,7 +1862,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			);
 	}
 
-	// class implements interface with default method. 
+	// class implements interface with default method.
 	// - intermediate public interface
 	public void testSuperAccess02() {
 		runConformTest(
@@ -1886,30 +1886,30 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			"default");
 	}
-	
+
 	// https://bugs.eclipse.org/421796 - Bug 421796 - [1.8][compiler] java.lang.AbstractMethodError executing default method code.
 	public void testSuperAccess03() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"interface I  {\n" + 
-				"    void foo(); \n" + 
-				"}\n" + 
-				"\n" + 
-				"interface J extends I {\n" + 
-				"    default void foo() {\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"\n" + 
-				"interface K extends J {\n" + 
-				"}\n" + 
-				"\n" + 
-				"public class X implements K {\n" + 
-				"	public static void main(String argv[]) {\n" + 
-				"		X test = new X();\n" + 
-				"		((J)test).foo();\n" + 
-				"		test.foo();\n" + 
-				"	}\n" + 
+				"interface I  {\n" +
+				"    void foo(); \n" +
+				"}\n" +
+				"\n" +
+				"interface J extends I {\n" +
+				"    default void foo() {\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"interface K extends J {\n" +
+				"}\n" +
+				"\n" +
+				"public class X implements K {\n" +
+				"	public static void main(String argv[]) {\n" +
+				"		X test = new X();\n" +
+				"		((J)test).foo();\n" +
+				"		test.foo();\n" +
+				"	}\n" +
 				"}\n"
 			});
 	}
@@ -1932,16 +1932,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n" +
 				"class PurebredCatShopImpl extends CatShopImpl implements PurebredCatShop {}"
 			},
-			"----------\n" + 
-			"1. ERROR in PurebredCatShopImpl.java (at line 6)\n" + 
-			"	default <V extends Pet> List<? extends Cat> getPets() { return null; }\n" + 
-			"	                                            ^^^^^^^^^\n" + 
-			"Name clash: The method getPets() of type CatShop has the same erasure as getPets() of type PetShop but does not override it\n" + 
-			"----------\n" + 
-			"2. WARNING in PurebredCatShopImpl.java (at line 10)\n" + 
-			"	@Override public List<Pet> getPets() { return null; }\n" + 
-			"	                 ^^^^\n" + 
-			"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" + 
+			"----------\n" +
+			"1. ERROR in PurebredCatShopImpl.java (at line 6)\n" +
+			"	default <V extends Pet> List<? extends Cat> getPets() { return null; }\n" +
+			"	                                            ^^^^^^^^^\n" +
+			"Name clash: The method getPets() of type CatShop has the same erasure as getPets() of type PetShop but does not override it\n" +
+			"----------\n" +
+			"2. WARNING in PurebredCatShopImpl.java (at line 10)\n" +
+			"	@Override public List<Pet> getPets() { return null; }\n" +
+			"	                 ^^^^\n" +
+			"Type safety: The return type List<Pet> for getPets() from the type CatShopImpl needs unchecked conversion to conform to List<? extends Cat> from the type CatShop\n" +
 			"----------\n"
 		);
 	}
@@ -1979,7 +1979,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"0000"
 		);
 	}
-	
+
 	// modeled after org.eclipse.jdt.core.tests.compiler.regression.AmbiguousMethodTest.test081()
 	// see https://bugs.eclipse.org/391376 - [1.8] check interaction of default methods with bridge methods and generics
     // see https://bugs.eclipse.org/404648 - [1.8][compiler] investigate differences between compilers re AmbiguousMethodTest
@@ -1987,78 +1987,78 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		runConformTest(
 			new String[] {
 				"C.java",
-				"interface A<ModelType extends D, ValueType> extends\n" + 
-				"		I<ModelType, ValueType> {\n" + 
-				"\n" + 
-				"	@Override\n" + 
-				"	public default void doSet(ModelType valueGetter) {\n" + 
-				"		this.set((ValueType) valueGetter.getObject());\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	@Override\n" + 
-				"	public default void set(Object object) {\n" + 
-				"		System.out.println(\"In A.set(Object)\");\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"class B implements A<E, CharSequence> {\n" + 
-				"\n" + 
-				"	public void set(CharSequence string) {\n" + 
-				"		System.out.println(\"In B.set(CharSequence)\");\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"public class C extends B {\n" + 
-				"\n" + 
-				"	static public void main(String[] args) {\n" + 
-				"		C c = new C();\n" + 
-				"		c.run();\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void run() {\n" + 
-				"		E e = new E<String>(String.class);\n" + 
-				"		this.doSet(e);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"}\n" + 
-				"\n" + 
-				"class D {\n" + 
-				"	public Object getObject() {\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"class E<Type extends CharSequence> extends D {\n" + 
-				"\n" + 
-				"	private Class<Type> typeClass;\n" + 
-				"\n" + 
-				"	public E(Class<Type> typeClass) {\n" + 
-				"		this.typeClass = typeClass;\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	@Override\n" + 
-				"	public Type getObject() {\n" + 
-				"		try {\n" + 
-				"			return (Type) typeClass.newInstance();\n" + 
-				"		} catch (Exception e) {\n" + 
-				"			throw new RuntimeException(e);\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"\n" + 
-				"}\n" + 
-				"\n" + 
-				"interface I<ModelType, ValueType> {\n" + 
-				"\n" + 
-				"	public void doSet(ModelType model);\n" + 
-				"\n" + 
-				"	public void set(ValueType value);\n" + 
-				"\n" + 
+				"interface A<ModelType extends D, ValueType> extends\n" +
+				"		I<ModelType, ValueType> {\n" +
+				"\n" +
+				"	@Override\n" +
+				"	public default void doSet(ModelType valueGetter) {\n" +
+				"		this.set((ValueType) valueGetter.getObject());\n" +
+				"	}\n" +
+				"\n" +
+				"	@Override\n" +
+				"	public default void set(Object object) {\n" +
+				"		System.out.println(\"In A.set(Object)\");\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"class B implements A<E, CharSequence> {\n" +
+				"\n" +
+				"	public void set(CharSequence string) {\n" +
+				"		System.out.println(\"In B.set(CharSequence)\");\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"public class C extends B {\n" +
+				"\n" +
+				"	static public void main(String[] args) {\n" +
+				"		C c = new C();\n" +
+				"		c.run();\n" +
+				"	}\n" +
+				"\n" +
+				"	public void run() {\n" +
+				"		E e = new E<String>(String.class);\n" +
+				"		this.doSet(e);\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"\n" +
+				"class D {\n" +
+				"	public Object getObject() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"class E<Type extends CharSequence> extends D {\n" +
+				"\n" +
+				"	private Class<Type> typeClass;\n" +
+				"\n" +
+				"	public E(Class<Type> typeClass) {\n" +
+				"		this.typeClass = typeClass;\n" +
+				"	}\n" +
+				"\n" +
+				"	@Override\n" +
+				"	public Type getObject() {\n" +
+				"		try {\n" +
+				"			return (Type) typeClass.newInstance();\n" +
+				"		} catch (Exception e) {\n" +
+				"			throw new RuntimeException(e);\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"\n" +
+				"interface I<ModelType, ValueType> {\n" +
+				"\n" +
+				"	public void doSet(ModelType model);\n" +
+				"\n" +
+				"	public void set(ValueType value);\n" +
+				"\n" +
 				"}\n"
 			},
 			"In B.set(CharSequence)");
 	}
-	
-    
+
+
     // modeled after org.eclipse.jdt.core.tests.compiler.regression.AmbiguousMethodTest.test081()
     // see https://bugs.eclipse.org/391376 - [1.8] check interaction of default methods with bridge methods and generics
     // see https://bugs.eclipse.org/404648 - [1.8][compiler] investigate differences between compilers re AmbiguousMethodTest
@@ -2066,77 +2066,77 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
         runConformTest(
             new String[] {
                 "C.java",
-                "interface A<ModelType extends D, ValueType> extends\n" + 
-                "       I<ModelType, ValueType> {\n" + 
-                "\n" + 
-                "   @Override\n" + 
-                "   public default void doSet(ModelType valueGetter) {\n" + 
-                "       this.set((ValueType) valueGetter.getObject());\n" + 
-                "   }\n" + 
-                "\n" + 
-                "   @Override\n" + 
-                "   public default void set(Object object) {\n" + 
-                "       System.out.println(\"In A.set(Object)\");\n" + 
-                "   }\n" + 
-                "}\n" + 
-                "\n" + 
-                "interface B extends A<E, CharSequence> {\n" + 
-                "\n" + 
-                "   public default void set(CharSequence string) {\n" + 
-                "       System.out.println(\"In B.set(CharSequence)\");\n" + 
-                "   }\n" + 
-                "}\n" + 
-                "\n" + 
-                "public class C implements B {\n" + 
-                "\n" + 
-                "   static public void main(String[] args) {\n" + 
-                "       C c = new C();\n" + 
-                "       c.run();\n" + 
-                "   }\n" + 
-                "\n" + 
-                "   public void run() {\n" + 
-                "       E e = new E<String>(String.class);\n" + 
-                "       this.doSet(e);\n" + 
-                "   }\n" + 
-                "\n" + 
-                "}\n" + 
-                "\n" + 
-                "class D {\n" + 
-                "   public Object getObject() {\n" + 
-                "       return null;\n" + 
-                "   }\n" + 
-                "}\n" + 
-                "\n" + 
-                "class E<Type extends CharSequence> extends D {\n" + 
-                "\n" + 
-                "   private Class<Type> typeClass;\n" + 
-                "\n" + 
-                "   public E(Class<Type> typeClass) {\n" + 
-                "       this.typeClass = typeClass;\n" + 
-                "   }\n" + 
-                "\n" + 
-                "   @Override\n" + 
-                "   public Type getObject() {\n" + 
-                "       try {\n" + 
-                "           return (Type) typeClass.newInstance();\n" + 
-                "       } catch (Exception e) {\n" + 
-                "           throw new RuntimeException(e);\n" + 
-                "       }\n" + 
-                "   }\n" + 
-                "\n" + 
-                "}\n" + 
-                "\n" + 
-                "interface I<ModelType, ValueType> {\n" + 
-                "\n" + 
-                "   public void doSet(ModelType model);\n" + 
-                "\n" + 
-                "   public void set(ValueType value);\n" + 
-                "\n" + 
+                "interface A<ModelType extends D, ValueType> extends\n" +
+                "       I<ModelType, ValueType> {\n" +
+                "\n" +
+                "   @Override\n" +
+                "   public default void doSet(ModelType valueGetter) {\n" +
+                "       this.set((ValueType) valueGetter.getObject());\n" +
+                "   }\n" +
+                "\n" +
+                "   @Override\n" +
+                "   public default void set(Object object) {\n" +
+                "       System.out.println(\"In A.set(Object)\");\n" +
+                "   }\n" +
+                "}\n" +
+                "\n" +
+                "interface B extends A<E, CharSequence> {\n" +
+                "\n" +
+                "   public default void set(CharSequence string) {\n" +
+                "       System.out.println(\"In B.set(CharSequence)\");\n" +
+                "   }\n" +
+                "}\n" +
+                "\n" +
+                "public class C implements B {\n" +
+                "\n" +
+                "   static public void main(String[] args) {\n" +
+                "       C c = new C();\n" +
+                "       c.run();\n" +
+                "   }\n" +
+                "\n" +
+                "   public void run() {\n" +
+                "       E e = new E<String>(String.class);\n" +
+                "       this.doSet(e);\n" +
+                "   }\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "class D {\n" +
+                "   public Object getObject() {\n" +
+                "       return null;\n" +
+                "   }\n" +
+                "}\n" +
+                "\n" +
+                "class E<Type extends CharSequence> extends D {\n" +
+                "\n" +
+                "   private Class<Type> typeClass;\n" +
+                "\n" +
+                "   public E(Class<Type> typeClass) {\n" +
+                "       this.typeClass = typeClass;\n" +
+                "   }\n" +
+                "\n" +
+                "   @Override\n" +
+                "   public Type getObject() {\n" +
+                "       try {\n" +
+                "           return (Type) typeClass.newInstance();\n" +
+                "       } catch (Exception e) {\n" +
+                "           throw new RuntimeException(e);\n" +
+                "       }\n" +
+                "   }\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "interface I<ModelType, ValueType> {\n" +
+                "\n" +
+                "   public void doSet(ModelType model);\n" +
+                "\n" +
+                "   public void set(ValueType value);\n" +
+                "\n" +
                 "}\n"
             },
             "In B.set(CharSequence)");
     }
-    
+
     // test for different error messages in modifiers.
 	public void test400977() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
@@ -2146,7 +2146,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"public interface I {\n" +
 			"    default abstract void foo();\n" +
 			"    public abstract default strictfp final void bar();" +
-			"}\n"}, 
+			"}\n"},
 			"----------\n" +
 			"1. ERROR in I.java (at line 2)\n" +
 			"	default abstract void foo();\n" +
@@ -2185,7 +2185,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"		return foo();\n" +
 				"	}\n" +
 				"}\n"
-			}, 
+			},
 			"");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
@@ -2201,17 +2201,17 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n" +
 				"public class X implements J {\n" +
 				"}\n"
-			}, 
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	void foo();\n" + 
-			"	     ^^^^^\n" + 
-			"The method foo() of type J should be tagged with @Override since it actually overrides a superinterface method\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	public class X implements J {\n" + 
-			"	             ^\n" + 
-			"The type X must implement the inherited abstract method J.foo()\n" + 
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	void foo();\n" +
+			"	     ^^^^^\n" +
+			"The method foo() of type J should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	public class X implements J {\n" +
+			"	             ^\n" +
+			"The type X must implement the inherited abstract method J.foo()\n" +
 			"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
@@ -2227,17 +2227,17 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n" +
 				"public class X implements J {\n" +
 				"}\n"
-			}, 
-			"----------\n" + 
-			"1. WARNING in X.java (at line 5)\n" + 
-			"	void foo(J t);\n" + 
-			"	     ^^^^^^^^\n" + 
-			"The method foo(J) of type J should be tagged with @Override since it actually overrides a superinterface method\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	public class X implements J {\n" + 
-			"	             ^\n" + 
-			"The type X must implement the inherited abstract method J.foo(J)\n" + 
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	void foo(J t);\n" +
+			"	     ^^^^^^^^\n" +
+			"The method foo(J) of type J should be tagged with @Override since it actually overrides a superinterface method\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	public class X implements J {\n" +
+			"	             ^\n" +
+			"The type X must implement the inherited abstract method J.foo(J)\n" +
 			"----------\n");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421543, [1.8][compiler] Compiler fails to recognize default method being turned into abstract by subtytpe
@@ -2254,7 +2254,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}\n" +
 				"public class X implements J {\n" +
 				"}\n"
-			}, 
+			},
 			"");
 	}
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421797, [1.8][compiler] ClassFormatError with default methods & I.super.foo() syntax
@@ -2280,11 +2280,11 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"		System.out.println(new T(){}.m(\"Hello\", 1234));\n" +
 				"	}\n" +
 				"}\n"
-			}, 
+			},
 			"Hello from I.foo:1522756");
-	}	
-	
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422731, [1.8] Ambiguous method not reported on overridden default method 
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422731, [1.8] Ambiguous method not reported on overridden default method
 	public void test422731() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2306,16 +2306,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"	public void bar(int i, short s) {}\n" +
 					"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	x.foo((short)5, (short)10);\n" + 
-			"	  ^^^\n" + 
-			"The method foo(short, int) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	x.bar((short)5, (short)10);\n" + 
-			"	  ^^^\n" + 
-			"The method bar(short, int) is ambiguous for the type X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	x.foo((short)5, (short)10);\n" +
+			"	  ^^^\n" +
+			"The method foo(short, int) is ambiguous for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	x.bar((short)5, (short)10);\n" +
+			"	  ^^^\n" +
+			"The method bar(short, int) is ambiguous for the type X\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425719, [1.8][compiler] Bogus ambiguous call error from compiler
@@ -2341,7 +2341,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			"class method");
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425718, [1.8] default method changes access privilege of protected overridden method from Object 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425718, [1.8] default method changes access privilege of protected overridden method from Object
 	public void test425718() throws Exception {
 		this.runNegativeTest(
 			new String[] {
@@ -2356,16 +2356,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"    }\n" +
 					"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	I x = new I(){};\n" + 
-			"	          ^^^\n" + 
-			"The inherited method Object.clone() cannot hide the public abstract method in I\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	I x = new I(){};\n" + 
-			"	          ^^^\n" + 
-			"Exception CloneNotSupportedException in throws clause of Object.clone() is not compatible with I.clone()\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	I x = new I(){};\n" +
+			"	          ^^^\n" +
+			"The inherited method Object.clone() cannot hide the public abstract method in I\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	I x = new I(){};\n" +
+			"	          ^^^\n" +
+			"Exception CloneNotSupportedException in throws clause of Object.clone() is not compatible with I.clone()\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426318, [1.8][compiler] Bogus name clash error in the presence of default methods and varargs
@@ -2384,16 +2384,16 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"public abstract class X extends Y implements I { \n" +
 					"}\n",
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	default public <T> void foo(T... x) {};\n" + 
-			"	                                 ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter x\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
-			"	public abstract <T> void goo(T ... x);\n" + 
-			"	                                   ^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter x\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	default public <T> void foo(T... x) {};\n" +
+			"	                                 ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter x\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 7)\n" +
+			"	public abstract <T> void goo(T ... x);\n" +
+			"	                                   ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter x\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424914, [1.8][compiler] No error shown for method reference with super enclosed in an interface
@@ -2411,26 +2411,26 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	String b = super.toString();\n" + 
-			"	           ^^^^^\n" + 
-			"Cannot use super in a static context\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	System.out.println((A) super::toString);\n" + 
-			"	                       ^^^^^\n" + 
-			"super reference is illegal in interface context\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
-			"	super.toString();\n" + 
-			"	^^^^^\n" + 
-			"super reference is illegal in interface context\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 7)\n" + 
-			"	Object.super.toString();\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"No enclosing instance of the type Object is accessible in scope\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	String b = super.toString();\n" +
+			"	           ^^^^^\n" +
+			"Cannot use super in a static context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	System.out.println((A) super::toString);\n" +
+			"	                       ^^^^^\n" +
+			"super reference is illegal in interface context\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	super.toString();\n" +
+			"	^^^^^\n" +
+			"super reference is illegal in interface context\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
+			"	Object.super.toString();\n" +
+			"	^^^^^^^^^^^^\n" +
+			"No enclosing instance of the type Object is accessible in scope\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424914, [1.8][compiler] No error shown for method reference with super enclosed in an interface
@@ -2456,9 +2456,9 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 					"	}\n" +
 					"}\n",
 			},
-			"A.foo\n" + 
+			"A.foo\n" +
 			"B.foo");
-	}	
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427478, [1.8][compiler] Wrong "Duplicate default methods" error on AbstractDoubleSpliterator
 	public void test427478() throws Exception { // extracted smaller test case.
 		this.runConformTest(
@@ -2561,18 +2561,18 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			new String[] {
 				"Bar.java",
 				"@FunctionalInterface\n" +
-				"public interface Bar extends Overridden {\n" + 
-					"	void foo();\n" + 
-					"	@Override\n" + 
-					"	default void close() {\n" + 
-					"		System.out.println(\"bar\");\n" + 
-					"	}\n" + 
-					"}\n" + 
-					"\n" + 
-					"interface Overridden extends AutoCloseable {\n" + 
-					"	// Works without this overridden method\n" + 
-					"	@Override\n" + 
-					"	void close();\n" + 
+				"public interface Bar extends Overridden {\n" +
+					"	void foo();\n" +
+					"	@Override\n" +
+					"	default void close() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n" +
+					"\n" +
+					"interface Overridden extends AutoCloseable {\n" +
+					"	// Works without this overridden method\n" +
+					"	@Override\n" +
+					"	void close();\n" +
 					"}"
 			},
 			"");
@@ -2599,10 +2599,10 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"");
 		// 	ensure bridge methods are generated in interfaces.
 		String expectedOutput =
-				"  public bridge synthetic java.lang.Object reduce(java.lang.Integer arg0);\n" + 
-				"    0  aload_0 [this]\n" + 
-				"    1  aload_1 [arg0]\n" + 
-				"    2  invokeinterface DoubleInterface.reduce(java.lang.Integer) : java.lang.Double [24] [nargs: 2]\n" + 
+				"  public bridge synthetic java.lang.Object reduce(java.lang.Integer arg0);\n" +
+				"    0  aload_0 [this]\n" +
+				"    1  aload_1 [arg0]\n" +
+				"    2  invokeinterface DoubleInterface.reduce(java.lang.Integer) : java.lang.Double [24] [nargs: 2]\n" +
 				"    7  areturn\n";
 
 		File f = new File(OUTPUT_DIR + File.separator + "DoubleInterface.class");
@@ -2687,7 +2687,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n", // =================
 			},
-			"Anonymous class value: 6.0\n" + 
+			"Anonymous class value: 6.0\n" +
 			"Lambda expression value: 6.0");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437522, [1.8][compiler] Missing compile error in Java 8 mode for Interface.super.field access
@@ -2849,21 +2849,21 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"FunctionalInterface1.java",
-				"@FunctionalInterface\n" + 
-				"interface FunctionalInterface1 {\n" + 
-				"    void methodWithoutDefault();\n" + 
-				"}\n" + 
-				"@FunctionalInterface\n" + 
-				"interface FunctionalInterface2 extends FunctionalInterface1{}\n" + 
-				"@FunctionalInterface\n" + 
-				"interface FunctionalInterface3 extends FunctionalInterface1{}\n" + 
-				"@FunctionalInterface\n" + 
-				"interface FunctionalInterface4 extends FunctionalInterface2, FunctionalInterface3{}\n" + 
-				"@FunctionalInterface\n" + 
-				"interface RunnableFunctionalInterface extends Runnable, FunctionalInterface4{\n" + 
-				"	default void methodWithoutDefault(){\n" + 
-				"		// implements methodWithoutDefault\n" + 
-				"	}\n" + 
+				"@FunctionalInterface\n" +
+				"interface FunctionalInterface1 {\n" +
+				"    void methodWithoutDefault();\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface FunctionalInterface2 extends FunctionalInterface1{}\n" +
+				"@FunctionalInterface\n" +
+				"interface FunctionalInterface3 extends FunctionalInterface1{}\n" +
+				"@FunctionalInterface\n" +
+				"interface FunctionalInterface4 extends FunctionalInterface2, FunctionalInterface3{}\n" +
+				"@FunctionalInterface\n" +
+				"interface RunnableFunctionalInterface extends Runnable, FunctionalInterface4{\n" +
+				"	default void methodWithoutDefault(){\n" +
+				"		// implements methodWithoutDefault\n" +
+				"	}\n" +
 				"}\n"
 			});
 	}
@@ -2872,20 +2872,20 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runConformTest(
 			new String[] {
 				"FI1.java",
-				"interface FI1<T,R> {\n" + 
-				"	R call(T input);\n" + 
-				"}\n" + 
-				"interface FI2<U,V> {\n" + 
-				"	V call(U input);\n" + 
-				"}\n" + 
-				"@FunctionalInterface\n" + 
-				"interface FI3<X,Y> extends FI1<X,Y>, FI2<X,Y> {\n" + 
-				"	Y apply(X input);\n" + 
-				"\n" + 
-				"   @Override\n" + 
-				"   default Y call(X input) {\n" + 
-				"       return apply(input);\n" + 
-				"   }\n" + 
+				"interface FI1<T,R> {\n" +
+				"	R call(T input);\n" +
+				"}\n" +
+				"interface FI2<U,V> {\n" +
+				"	V call(U input);\n" +
+				"}\n" +
+				"@FunctionalInterface\n" +
+				"interface FI3<X,Y> extends FI1<X,Y>, FI2<X,Y> {\n" +
+				"	Y apply(X input);\n" +
+				"\n" +
+				"   @Override\n" +
+				"   default Y call(X input) {\n" +
+				"       return apply(input);\n" +
+				"   }\n" +
 				"}"
 			});
 	}
@@ -2894,22 +2894,22 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"D.java",
-				"interface A {\n" + 
+				"interface A {\n" +
 				"    public default void display() {\n" +
-				"        System.out.println(\"Display from A\");\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"interface B extends A {\n" + 
+				"        System.out.println(\"Display from A\");\n" +
+				"    }\n" +
+				"}\n" +
+				"interface B extends A {\n" +
 				"	@Override\n" +
-				"    public default void display() {\n" + 
-				"        System.out.println(\"Display from B\");\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"interface C extends A {\n" + 
+				"    public default void display() {\n" +
+				"        System.out.println(\"Display from B\");\n" +
+				"    }\n" +
+				"}\n" +
+				"interface C extends A {\n" +
 				"	@Override\n" +
-				"    public void display();\n" + 
-				"}\n" + 
-				"public interface D extends B, C {\n" + 
+				"    public void display();\n" +
+				"}\n" +
+				"public interface D extends B, C {\n" +
 				"}\n"
 			},
 			"----------\n" +
@@ -2924,22 +2924,22 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"D.java",
-				"interface A {\n" + 
-				"    public default void display() {\n" + 
-				"        System.out.println(\"Display from A\");\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"interface B extends A {\n" + 
+				"interface A {\n" +
+				"    public default void display() {\n" +
+				"        System.out.println(\"Display from A\");\n" +
+				"    }\n" +
+				"}\n" +
+				"interface B extends A {\n" +
 				"	@Override\n" +
-				"    public default void display() {\n" + 
-				"        System.out.println(\"Display from B\");\n" + 
-				"    }\n" + 
-				"}\n" + 
-				"interface C extends A {\n" + 
+				"    public default void display() {\n" +
+				"        System.out.println(\"Display from B\");\n" +
+				"    }\n" +
+				"}\n" +
+				"interface C extends A {\n" +
 				"	@Override\n" +
-				"    public void display();\n" + 
-				"}\n" + 
-				"public interface D extends C, B {\n" + 
+				"    public void display();\n" +
+				"}\n" +
+				"public interface D extends C, B {\n" +
 				"}\n"
 			},
 			"----------\n" +
@@ -2954,20 +2954,20 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Z.java",
-				"import java.util.*;\n" + 
-				"interface Z<E> extends X<E>, Y<E> {\n" + 
-				"}\n" + 
-				"interface Y<E> extends AB<E> {\n" + 
+				"import java.util.*;\n" +
+				"interface Z<E> extends X<E>, Y<E> {\n" +
+				"}\n" +
+				"interface Y<E> extends AB<E> {\n" +
 				"	@Override\n" +
-				"	default Spliterator<E> spliterator() { return null; };\n" + 
-				"}\n" + 
-				"interface X<E> extends AB<E> {\n" + 
+				"	default Spliterator<E> spliterator() { return null; };\n" +
+				"}\n" +
+				"interface X<E> extends AB<E> {\n" +
 				"	@Override\n" +
-				"	Spliterator<E> spliterator();\n" + 
-				"}\n" + 
-				"interface AB<E> {\n" + 
-				"	default Spliterator<E> spliterator() { return null; }\n" + 
-				"}\n" 
+				"	Spliterator<E> spliterator();\n" +
+				"}\n" +
+				"interface AB<E> {\n" +
+				"	default Spliterator<E> spliterator() { return null; }\n" +
+				"}\n"
 			},
 			"----------\n" +
 			"1. ERROR in Z.java (at line 2)\n" +
@@ -2981,20 +2981,20 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"Z.java",
-				"import java.util.*;\n" + 
-				"interface Z<E> extends Y<E>, X<E> {\n" + 
-				"}\n" + 
-				"interface Y<E> extends AB<E> {\n" + 
+				"import java.util.*;\n" +
+				"interface Z<E> extends Y<E>, X<E> {\n" +
+				"}\n" +
+				"interface Y<E> extends AB<E> {\n" +
 				"	@Override\n" +
-				"	default Spliterator<E> spliterator() { return null; };\n" + 
-				"}\n" + 
-				"interface X<E> extends AB<E> {\n" + 
+				"	default Spliterator<E> spliterator() { return null; };\n" +
+				"}\n" +
+				"interface X<E> extends AB<E> {\n" +
 				"	@Override\n" +
-				"	Spliterator<E> spliterator();\n" + 
-				"}\n" + 
-				"interface AB<E> {\n" + 
-				"	default Spliterator<E> spliterator() { return null; }\n" + 
-				"}\n" 
+				"	Spliterator<E> spliterator();\n" +
+				"}\n" +
+				"interface AB<E> {\n" +
+				"	default Spliterator<E> spliterator() { return null; }\n" +
+				"}\n"
 			},
 			"----------\n" +
 			"1. ERROR in Z.java (at line 2)\n" +
@@ -3008,19 +3008,19 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			this.runNegativeTest(
 				new String[] {
 					"Z.java",
-					"import java.util.*;\n" + 
-					"interface Z<E> extends X<E>, Y<E> {\n" + 
-					"}\n" + 
-					"interface Y<E> extends AB<E> {\n" + 
+					"import java.util.*;\n" +
+					"interface Z<E> extends X<E>, Y<E> {\n" +
+					"}\n" +
+					"interface Y<E> extends AB<E> {\n" +
 					"	@Override\n" +
-					"	default Spliterator<E> spliterator() { return null; };\n" + 
-					"}\n" + 
-					"interface X<E> {\n" + 
-					"	Spliterator<E> spliterator();\n" + 
-					"}\n" + 
-					"interface AB<E> {\n" + 
-					"	default Spliterator<E> spliterator() { return null; }\n" + 
-					"}\n" 
+					"	default Spliterator<E> spliterator() { return null; };\n" +
+					"}\n" +
+					"interface X<E> {\n" +
+					"	Spliterator<E> spliterator();\n" +
+					"}\n" +
+					"interface AB<E> {\n" +
+					"	default Spliterator<E> spliterator() { return null; }\n" +
+					"}\n"
 				},
 				"----------\n" +
 				"1. ERROR in Z.java (at line 2)\n" +
@@ -3034,19 +3034,19 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			this.runNegativeTest(
 				new String[] {
 					"Z.java",
-					"import java.util.*;\n" + 
-					"interface Z<E> extends Y<E>, X<E> {\n" + 
-					"}\n" + 
-					"interface Y<E> extends AB<E> {\n" + 
+					"import java.util.*;\n" +
+					"interface Z<E> extends Y<E>, X<E> {\n" +
+					"}\n" +
+					"interface Y<E> extends AB<E> {\n" +
 					"	@Override\n" +
-					"	default Spliterator<E> spliterator() { return null; };\n" + 
-					"}\n" + 
-					"interface X<E> {\n" + 
-					"	Spliterator<E> spliterator();\n" + 
-					"}\n" + 
-					"interface AB<E> {\n" + 
-					"	default Spliterator<E> spliterator() { return null; }\n" + 
-					"}\n" 
+					"	default Spliterator<E> spliterator() { return null; };\n" +
+					"}\n" +
+					"interface X<E> {\n" +
+					"	Spliterator<E> spliterator();\n" +
+					"}\n" +
+					"interface AB<E> {\n" +
+					"	default Spliterator<E> spliterator() { return null; }\n" +
+					"}\n"
 				},
 				"----------\n" +
 				"1. ERROR in Z.java (at line 2)\n" +
@@ -3059,22 +3059,22 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"JavaTest.java",
-				"public class JavaTest {\n" + 
-				"	interface A {\n" + 
-				"		default void foo() { }\n" + 
-				"	}\n" + 
-				"	interface B {\n" + 
-				"		void foo();\n" + 
-				"	}\n" + 
-				"	interface C {\n" + 
-				"		void foo();\n" + 
-				"	}\n" + 
-				"	interface D extends A, B {\n" + 
-				"		@Override default void foo() { }\n" + 
-				"	}\n" + 
-				"	class E implements A, B, C, D {\n" + 
-				"	}\n" + 
-				"}" 
+				"public class JavaTest {\n" +
+				"	interface A {\n" +
+				"		default void foo() { }\n" +
+				"	}\n" +
+				"	interface B {\n" +
+				"		void foo();\n" +
+				"	}\n" +
+				"	interface C {\n" +
+				"		void foo();\n" +
+				"	}\n" +
+				"	interface D extends A, B {\n" +
+				"		@Override default void foo() { }\n" +
+				"	}\n" +
+				"	class E implements A, B, C, D {\n" +
+				"	}\n" +
+				"}"
 			},
 			"----------\n" +
 			"1. ERROR in JavaTest.java (at line 14)\n" +
@@ -3087,22 +3087,22 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"JavaTest.java",
-				"public class JavaTest {\n" + 
-				"	interface A {\n" + 
-				"		default void foo() { }\n" + 
-				"	}\n" + 
-				"	interface B {\n" + 
-				"		void foo();\n" + 
-				"	}\n" + 
-				"	interface C {\n" + 
-				"		void foo();\n" + 
-				"	}\n" + 
-				"	interface D extends A, B {\n" + 
-				"		@Override default void foo() { }\n" + 
-				"	}\n" + 
-				"	class E implements B, C, A, D {\n" + 
-				"	}\n" + 
-				"}" 
+				"public class JavaTest {\n" +
+				"	interface A {\n" +
+				"		default void foo() { }\n" +
+				"	}\n" +
+				"	interface B {\n" +
+				"		void foo();\n" +
+				"	}\n" +
+				"	interface C {\n" +
+				"		void foo();\n" +
+				"	}\n" +
+				"	interface D extends A, B {\n" +
+				"		@Override default void foo() { }\n" +
+				"	}\n" +
+				"	class E implements B, C, A, D {\n" +
+				"	}\n" +
+				"}"
 			},
 			"----------\n" +
 			"1. ERROR in JavaTest.java (at line 14)\n" +
@@ -3116,28 +3116,28 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" + 
-			"	static <V> void m(V v) {\n" + 
-			"\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	interface Foo {\n" + 
-			"		@SuppressWarnings(\"unchecked\")\n" + 
-			"		default <U> U f() {\n" + 
-			"			return (U) new Object();\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	static class Bar implements Foo {\n" + 
-			"		@SuppressWarnings(\"unchecked\")\n" + 
-			"		@Override\n" + 
-			"		public Object f() {\n" + 
-			"			m(Foo.super.f());\n" + 
-			"			return null;\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class Test {\n" +
+			"	static <V> void m(V v) {\n" +
+			"\n" +
+			"	}\n" +
+			"\n" +
+			"	interface Foo {\n" +
+			"		@SuppressWarnings(\"unchecked\")\n" +
+			"		default <U> U f() {\n" +
+			"			return (U) new Object();\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	static class Bar implements Foo {\n" +
+			"		@SuppressWarnings(\"unchecked\")\n" +
+			"		@Override\n" +
+			"		public Object f() {\n" +
+			"			m(Foo.super.f());\n" +
+			"			return null;\n" +
+			"		}\n" +
+			"	}\n" +
 			"}",
-		}, 
+		},
 		"");
 	}
 }

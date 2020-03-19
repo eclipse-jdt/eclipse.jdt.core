@@ -36,7 +36,7 @@ public class MultiProjectTests extends BuilderTests {
 	public MultiProjectTests(String name) {
 		super(name);
 	}
-	
+
 	public static Test suite() {
 		return new OrderedTestSuite(MultiProjectTests.class);
 	}
@@ -1914,20 +1914,20 @@ public void test103_missing_required_binaries() throws JavaModelException {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=460993
 public void test104_missing_required_binaries() throws CoreException {
-	
+
 	IPath p0 = env.addProject("JRE17", "1.7");
 	env.addExternalJars(p0, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p0, "");
 	IPath root0 = env.addPackageFragmentRoot(p0, "src");
 	env.setOutputFolder(p0, "bin");
-	
+
 	IPath p1 = env.addProject("org.eclipse.jgit", "1.7");
 	env.addExternalJars(p1, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p1, "");
 	IPath root1 = env.addPackageFragmentRoot(p1, "src");
 	env.addRequiredProject(p1, p0);
 	env.setOutputFolder(p1, "bin");
-	
+
 	IPath p2 = env.addProject("org.eclipse.releng.tools", "1.5");
 	env.addExternalJars(p2, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(p2, "");
@@ -1935,54 +1935,54 @@ public void test104_missing_required_binaries() throws CoreException {
 //	env.addRequiredProject(p2, p0); - missing dependency
 	env.addRequiredProject(p2, p1);
 	env.setOutputFolder(p2, "bin");
-	
+
 	env.addClass(root0, "jre17", "AutoClosable",
 			"package jre17;\n" +
 			"public interface AutoClosable {\n" +
 			"	void closeIt();\n" +
 			"}\n"
 			);
-	
+
 	env.addClass(root1, "org.eclipse.jgit.lib", "Repository",
-			"package org.eclipse.jgit.lib;\n" + 
-			"import jre17.AutoClosable;\n" + 
+			"package org.eclipse.jgit.lib;\n" +
+			"import jre17.AutoClosable;\n" +
 			"public abstract class Repository implements AutoClosable {\n" +
-			"	public void resolve(final String revstr) { }\n" + 
+			"	public void resolve(final String revstr) { }\n" +
 			"}\n"
 			);
-	
+
 	IPath gca = env.addClass(root2, "org.eclipse.releng.tools.git", "GitCopyrightAdapter",
-			"package org.eclipse.releng.tools.git;\n" + 
-			"import org.eclipse.jgit.lib.Repository;\n" + 
-			"public class GitCopyrightAdapter {\n" + 
-			"	void foo(Repository repo) {\n" + 
-			"		repo.resolve(\"Head\");\n" + 
-			"	}\n" + 
+			"package org.eclipse.releng.tools.git;\n" +
+			"import org.eclipse.jgit.lib.Repository;\n" +
+			"public class GitCopyrightAdapter {\n" +
+			"	void foo(Repository repo) {\n" +
+			"		repo.resolve(\"Head\");\n" +
+			"	}\n" +
 			"}\n"
 			);
 	env.addClass(root2, "org.eclipse.releng.tools.preferences", "Messages",
-			"package org.eclipse.releng.tools.preferences;\n" + 
-			"final class Messages {\n" + 
-			"	{\n" + 
-			"		@SuppressWarnings(\"unused\")\n" + 
-			"		Object o = \"\"; // triggers the bug\n" + 
-			"	}\n" + 
+			"package org.eclipse.releng.tools.preferences;\n" +
+			"final class Messages {\n" +
+			"	{\n" +
+			"		@SuppressWarnings(\"unused\")\n" +
+			"		Object o = \"\"; // triggers the bug\n" +
+			"	}\n" +
 			"}\n"
 			);
-	
+
 	try {
 		env.waitForManualRefresh();
 		fullBuild();
 		env.waitForAutoBuild();
 		expectingNoProblems();
-		
+
 		IFile gcaFile = (IFile) env.getWorkspace().getRoot().findMember(gca);
 		gcaFile.touch(null);
 		env.waitForManualRefresh();
 		incrementalBuild(p2);
 		env.waitForAutoBuild();
 		expectingNoProblems();
-		
+
 	} finally {
 		env.setBuildOrder(null);
 		env.setBuildOrder(null);

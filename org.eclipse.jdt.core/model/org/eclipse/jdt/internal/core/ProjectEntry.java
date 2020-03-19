@@ -38,9 +38,9 @@ public class ProjectEntry implements IModulePathEntry {
 	}
 
 	JavaProject project;
-	
+
 	public ProjectEntry(JavaProject project) {
-		// 
+		//
 		this.project = project;
 	}
 	@Override

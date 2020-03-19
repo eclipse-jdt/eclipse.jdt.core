@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
@@ -37,29 +37,29 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
  * there is in general one of these for every Compiler that has annotation
  * processing enabled.  Within the IDE there will typically be one for every
  * Java project, because each project potentially has a separate processor path.
- *  
+ *
  * TODO: do something useful with _supportedOptions and _supportedAnnotationTypes.
  */
-public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationProcessorManager 
-		implements IProcessorProvider 
+public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationProcessorManager
+		implements IProcessorProvider
 {
 
 	protected PrintWriter _out;
 	protected PrintWriter _err;
 	protected BaseProcessingEnvImpl _processingEnv;
 	public boolean _isFirstRound = true;
-	
+
 	/**
 	 * The list of processors that have been loaded so far.  A processor on this
 	 * list has been initialized, but may not yet have been called to process().
 	 */
 	protected List<ProcessorInfo> _processors = new ArrayList<>();
-	
+
 	// Tracing
 	protected boolean _printProcessorInfo = false;
 	protected boolean _printRounds = false;
 	protected int _round;
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager#configure(org.eclipse.jdt.internal.compiler.batch.Main, java.lang.String[])
 	 */

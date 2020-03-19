@@ -2809,7 +2809,7 @@ public void test065() {
 				+ "\t}\n"
 				+ "\tprivate <U>A65(int i) {;\n"
 				+ "\t\tthis.i = i;\n"
-				+ "\t}\n"               
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -2858,8 +2858,8 @@ public void test066() {
 				+ "\tpublic A66() {;\n"
 				+ "\t}\n"
 				+ "\tprivate <U> int foo(int i) {;\n"
-				+ "\t\treturn i;\n"    
-				+ "\t}\n"               
+				+ "\t\treturn i;\n"
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";
@@ -2965,7 +2965,7 @@ public void test068() {
 				+ "\tpublic SuperA68() {\n"
 				+ "\t}\n"
 				+ "\tpublic <U> int foo(int i) {;\n"
-				+ "\t\treturn i;\n"    
+				+ "\t\treturn i;\n"
 				+ "\t}\n"
 				+ "}";
 		compileAndDeploy15(sourceSuperA68, "SuperA68");
@@ -2975,8 +2975,8 @@ public void test068() {
 				+ "\tpublic A68() {\n"
 				+ "\t}\n"
 				+ "\tpublic <U> int foo(int i) {\n"
-				+ "\t\treturn i;\n"    
-				+ "\t}\n"               
+				+ "\t\treturn i;\n"
+				+ "\t}\n"
 				+ "\tpublic void bar() {\n"
 				+ "\t}\n"
 				+ "}";

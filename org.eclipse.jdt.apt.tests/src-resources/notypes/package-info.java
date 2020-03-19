@@ -1,1 +1,1 @@
-@question.SimpleAnnotation("foo") package notypes; 
+@question.SimpleAnnotation("foo") package notypes;

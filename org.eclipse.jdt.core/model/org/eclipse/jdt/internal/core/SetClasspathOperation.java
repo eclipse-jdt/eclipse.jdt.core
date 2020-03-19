@@ -45,7 +45,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 
 		this(project, newRawClasspath, null, newOutputLocation, canChangeResource);
 	}
-	
+
 	/**
 	 * When executed, this operation sets the raw classpath and output location of the given project.
 	 */
@@ -84,7 +84,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 			done();
 		}
 	}
-	
+
 	@Override
 	protected ISchedulingRule getSchedulingRule() {
 		if (this.canChangeResources) {
@@ -92,7 +92,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 			return new MultiRule(new ISchedulingRule[] {
 				// use project modification rule as this is needed to create the .classpath file if it doesn't exist yet, or to update project references
 				ruleFactory.modifyRule(this.project.getProject()),
-				
+
 				// and external project modification rule in case the external folders are modified
 				ruleFactory.modifyRule(JavaModelManager.getExternalManager().getExternalFoldersProject())
 			});

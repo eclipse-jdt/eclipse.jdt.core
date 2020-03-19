@@ -44,7 +44,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 	public ExternalAnnotations9Test(String name) {
 		super(name, "9", "JCL19_LIB");
 	}
-	
+
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
@@ -88,37 +88,37 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 	public void testBug525712() throws Exception {
 		myCreateJavaProject("TestLibs");
 		String lib1Content =
-				"package libs;\n" + 
+				"package libs;\n" +
 				"\n" +
 				"public abstract class Lib1 {\n" +
 				"	public abstract void take(X x);\n" +
 				"}\n";
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
 				"/UnannotatedLib/module-info.java",
-				"module testlib {\n" + 
-				"	exports libs;\n" + 
+				"module testlib {\n" +
+				"	exports libs;\n" +
 				"}\n",
 				"/UnannotatedLib/libs/Lib1.java",
 				lib1Content,
 
 				"/UnannotatedLib/libs/X.java",
-				"package libs;\n" + 
+				"package libs;\n" +
 				"public abstract class X {\n" +
-				"}\n", 
-				
-				
+				"}\n",
+
+
 			}, null);
 
 		// type check sources:
 		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
-				"package tests;\n" + 
-				"import org.eclipse.jdt.annotation.*;\n" + 
-				"import libs.Lib1;\n" + 
-				"import libs.X;\n" + 
-				"\n" + 
-				"@NonNullByDefault\n" + 
-				"public abstract class Test1 extends Lib1 {\n" + 
+				"package tests;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import libs.Lib1;\n" +
+				"import libs.X;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"public abstract class Test1 extends Lib1 {\n" +
 				"	public abstract void take(X x);\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
@@ -137,14 +137,14 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		parser.setBindingsRecovery(false);
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 		libWorkingCopy.discardWorkingCopy();
-		
+
 		// find type binding:
 		int start = lib1Content.indexOf("take");
 		ASTNode name = NodeFinder.perform(unit, start, 0);
 		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
 		ASTNode method = name.getParent();
 		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
-		
+
 		// find annotation file (not yet existing):
 		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
 		assertFalse("file should not exist", annotationFile.exists());
@@ -153,8 +153,8 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		// annotate:
 		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
 		ExternalAnnotationUtil.annotateMember("libs/Lib1", annotationFile,
-				"take", 
-				originalSignature, 
+				"take",
+				originalSignature,
 				"(L1libs/X;)V",
 				MergeStrategy.OVERWRITE_ANNOTATIONS, null);
 		assertTrue("file should exist", annotationFile.exists());

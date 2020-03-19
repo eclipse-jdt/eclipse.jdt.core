@@ -132,8 +132,8 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 				mod.requires[i+1].modifiers = refs[i].modifiers;
 			}
 		} else {
-			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_BASE) 
-					? NO_REQUIRES 
+			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_BASE)
+					? NO_REQUIRES
 					: new ModuleReferenceInfo[] { getJavaBaseReference() };
 		}
 		if (module.exportsCount > 0) {

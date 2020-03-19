@@ -64,20 +64,20 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
  */
 public class Factory {
-	
+
 	// using auto-boxing to take advantage of caching, if any.
 	// the dummy value picked here falls within the caching range.
-	public static final Byte DUMMY_BYTE = 0; 
-	public static final Character DUMMY_CHAR = '0'; 
+	public static final Byte DUMMY_BYTE = 0;
+	public static final Character DUMMY_CHAR = '0';
 	public static final Double DUMMY_DOUBLE = 0d;
 	public static final Float DUMMY_FLOAT = 0f;
-	public static final Integer DUMMY_INTEGER = 0;  
+	public static final Integer DUMMY_INTEGER = 0;
 	public static final Long DUMMY_LONG = 0l;
 	public static final Short DUMMY_SHORT = 0;
 
 	private final BaseProcessingEnvImpl _env;
 	public static List<? extends AnnotationMirror> EMPTY_ANNOTATION_MIRRORS = Collections.emptyList();
-	
+
 	/**
 	 * This object should only be constructed by the BaseProcessingEnvImpl.
 	 */
@@ -100,14 +100,14 @@ public class Factory {
 		}
 		return Collections.unmodifiableList(list);
 	}
-	
+
 	@SuppressWarnings("unchecked") // for the cast to A
 	public <A extends Annotation> A[] getAnnotationsByType(AnnotationBinding[] annoInstances, Class<A> annotationClass) {
 		A[] result = getAnnotations(annoInstances, annotationClass, false);
 		return result == null ? (A[]) Array.newInstance(annotationClass, 0) : result;
 	}
-	
-	
+
+
 	public <A extends Annotation> A getAnnotation(AnnotationBinding[] annoInstances, Class<A> annotationClass) {
 		A[] result = getAnnotations(annoInstances, annotationClass, true);
 		return result == null ? null : result[0];
@@ -115,7 +115,7 @@ public class Factory {
 
 	@SuppressWarnings("unchecked") // for cast of newProxyInstance() to A
 	private <A extends Annotation> A[] getAnnotations(AnnotationBinding[] annoInstances, Class<A> annotationClass, boolean justTheFirst) {
-		if(annoInstances == null || annoInstances.length == 0 || annotationClass == null ) 
+		if(annoInstances == null || annoInstances.length == 0 || annotationClass == null )
 			return null;
 
 		String annoTypeName = annotationClass.getName();
@@ -125,7 +125,7 @@ public class Factory {
 		for(AnnotationBinding annoInstance : annoInstances) {
 			if (annoInstance == null)
 				continue;
-			
+
 			AnnotationMirrorImpl annoMirror = createAnnotationMirror(annoTypeName, annoInstance);
 			if (annoMirror != null) {
 				list.add((A)Proxy.newProxyInstance(annotationClass.getClassLoader(), new Class[]{ annotationClass }, annoMirror));
@@ -159,7 +159,7 @@ public class Factory {
 			result.add(modifier);
 		}
 	}
-	
+
 	private static void decodeModifiers(Set<Modifier> result, int modifiers, int[] checkBits) {
 		if (checkBits == null) return;
 		for (int i = 0, max = checkBits.length; i < max; i++) {
@@ -207,7 +207,7 @@ public class Factory {
 			}
 		}
 	}
-	
+
     public static Object getMatchingDummyValue(final Class<?> expectedType){
     	if( expectedType.isPrimitive() ){
     		if(expectedType == boolean.class)
@@ -232,7 +232,7 @@ public class Factory {
     	else
     		return null;
     }
-    
+
 	public TypeMirror getReceiverType(MethodBinding binding) {
 		if (binding != null) {
 			if (binding.receiver != null) {
@@ -240,13 +240,13 @@ public class Factory {
 			}
 			if (binding.declaringClass != null) {
 				if (!binding.isStatic() && (!binding.isConstructor() || binding.declaringClass.isMemberType())) {
-					return _env.getFactory().newTypeMirror(binding.declaringClass);	
+					return _env.getFactory().newTypeMirror(binding.declaringClass);
 				}
 			}
 		}
 		return NoTypeImpl.NO_TYPE_NONE;
 	}
-    
+
 	public static Set<Modifier> getModifiers(int modifiers, ElementKind kind) {
 		return getModifiers(modifiers, kind, false);
 	}
@@ -339,7 +339,7 @@ public class Factory {
 	{
 		return new AnnotationMirrorImpl(_env, binding);
 	}
-	
+
 	/**
 	 * Create a new element that knows what kind it is even if the binding is unresolved.
 	 */
@@ -382,7 +382,7 @@ public class Factory {
 		}
 		return null;
 	}
-	
+
 	public Element newElement(Binding binding) {
 		return newElement(binding, null);
 	}
@@ -400,7 +400,7 @@ public class Factory {
 		}
 		return new PackageElementImpl(_env, binding);
 	}
-	
+
 	public NullType getNullType() {
 		return NoTypeImpl.NULL_TYPE;
 	}
@@ -448,7 +448,7 @@ public class Factory {
 			throw new IllegalArgumentException();
 		}
 	}
-	
+
 	public PrimitiveTypeImpl getPrimitiveType(BaseTypeBinding binding) {
 		AnnotationBinding[] annotations = binding.getTypeAnnotations();
 		if (annotations == null || annotations.length == 0) {
@@ -467,16 +467,16 @@ public class Factory {
 		case Binding.VARIABLE:
 			// For variables, return the type of the variable
 			return newTypeMirror(((VariableBinding)binding).type);
-			
+
 		case Binding.PACKAGE:
 			return getNoType(TypeKind.PACKAGE);
-			
+
 		case Binding.IMPORT:
 			throw new UnsupportedOperationException("NYI: import type " + binding.kind()); //$NON-NLS-1$
 
 		case Binding.METHOD:
 			return new ExecutableTypeImpl(_env, (MethodBinding) binding);
-			
+
 		case Binding.TYPE:
 		case Binding.RAW_TYPE:
 		case Binding.GENERIC_TYPE:
@@ -486,10 +486,10 @@ public class Factory {
 				return getErrorType(referenceBinding);
 			}
 			return new DeclaredTypeImpl(_env, (ReferenceBinding)binding);
-			
+
 		case Binding.ARRAY_TYPE:
 			return new ArrayTypeImpl(_env, (ArrayBinding)binding);
-			
+
 		case Binding.BASE_TYPE:
 			BaseTypeBinding btb = (BaseTypeBinding)binding;
 			switch (btb.id) {
@@ -527,44 +527,44 @@ public class Factory {
 
 	/**
      * This method is derived from code in org.eclipse.jdt.apt.core.
-     * 
+     *
      * This method is designed to be invoked by the invocation handler and anywhere that requires
      * a AnnotationValue (AnnotationMirror member values and default values from annotation member).
-     * 
-     * Regardless of the path, there are common primitive type conversion that needs to take place. 
+     *
+     * Regardless of the path, there are common primitive type conversion that needs to take place.
      * The type conversions respect the type widening and narrowing rules from JLS 5.1.2 and 5.1.2.
-     * 
+     *
      * The only question remains is what is the type of the return value when the type conversion fails?
-     * When <code>avoidReflectException</code> is set to <code>true</code> 
+     * When <code>avoidReflectException</code> is set to <code>true</code>
      * Return <code>false</code> if the expected type is <code>boolean</code>
      * Return numeric 0 for all numeric primitive types and '0' for <code>char</code>
-     * 
+     *
      * Otherwise:
-     * Return the value unchanged. 
-     *  
-     * In the invocation handler case: 
-     * The value returned by {@link java.lang.reflect.InvocationHandler#invoke} 
-     * will be converted into the expected type by the {@link java.lang.reflect.Proxy}. 
-     * If the value and the expected type does not agree, and the value is not null, 
-     * a ClassCastException will be thrown. A NullPointerException will result if the 
+     * Return the value unchanged.
+     *
+     * In the invocation handler case:
+     * The value returned by {@link java.lang.reflect.InvocationHandler#invoke}
+     * will be converted into the expected type by the {@link java.lang.reflect.Proxy}.
+     * If the value and the expected type does not agree, and the value is not null,
+     * a ClassCastException will be thrown. A NullPointerException will result if the
      * expected type is a primitive type and the value is null.
      * This behavior causes annotation processors a lot of pain and the decision is
-     * to not throw such unchecked exception. In the case where a ClassCastException or 
-     * NullPointerException will be thrown return some dummy value. Otherwise, return 
+     * to not throw such unchecked exception. In the case where a ClassCastException or
+     * NullPointerException will be thrown return some dummy value. Otherwise, return
      * the original value.
-     * Chosen dummy values:  
+     * Chosen dummy values:
      * Return <code>false</code> if the expected type is <code>boolean</code>
      * Return numeric 0 for all numeric primitive types and '0' for <code>char</code>
-     * 
+     *
      * This behavior is triggered by setting <code>avoidReflectException</code> to <code>true</code>
-     * 
+     *
      * Note: the new behavior deviates from what's documented in
-     * {@link java.lang.reflect.InvocationHandler#invoke} and also deviates from 
+     * {@link java.lang.reflect.InvocationHandler#invoke} and also deviates from
      * Sun's implementation.
      *
      * @param value the current value from the annotation instance.
      * @param expectedType the expected type of the value.
-     * 
+     *
      */
     public static Object performNecessaryPrimitiveTypeConversion(
     		final Class<?> expectedType,
@@ -588,7 +588,7 @@ public class Factory {
 			case 'b':
 				if(nameLen == 4) // byte
 					return value; // exact match.
-				else 
+				else
 					return avoidReflectException ? Boolean.FALSE : value;
 			case 'c':
 				return Character.valueOf((char) b); // narrowing.
@@ -602,11 +602,11 @@ public class Factory {
 				return Long.valueOf(b); // widening.
 			case 's':
 				return Short.valueOf(b); // widening.
-			default:  				
+			default:
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
 		}
-		// widening short -> int, long, float, or double 
+		// widening short -> int, long, float, or double
 		// narrowing short -> byte or char
 		else if( value instanceof Short )
 		{
@@ -630,11 +630,11 @@ public class Factory {
 				return Long.valueOf(s); // widening.
 			case 's':
 				return value; // exact match
-			default:  				
+			default:
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
 		}
-		// widening char -> int, long, float, or double 
+		// widening char -> int, long, float, or double
 		// narrowing char -> byte or short
 		else if( value instanceof Character )
 		{
@@ -658,18 +658,18 @@ public class Factory {
 				return Long.valueOf(c); // widening.
 			case 's':
 				return Short.valueOf((short) c); // narrowing.
-			default:  				
+			default:
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
 		}
-		
-		// widening int -> long, float, or double 
-		// narrowing int -> byte, short, or char 
+
+		// widening int -> long, float, or double
+		// narrowing int -> byte, short, or char
 		else if( value instanceof Integer )
 		{
 			final int i = ((Integer)value).intValue();
 			switch( expectedTypeChar )
-			{    
+			{
 			case 'b':
 				if(nameLen == 4) // byte
 					return Byte.valueOf((byte) i); // narrowing.
@@ -687,7 +687,7 @@ public class Factory {
 				return Long.valueOf(i); // widening.
 			case 's':
 				return Short.valueOf((short) i); // narrowing.
-			default:  				
+			default:
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
 		}
@@ -698,7 +698,7 @@ public class Factory {
 			switch( expectedTypeChar )
 			{
 			case 'b': // both byte and boolean
-			case 'c': 
+			case 'c':
 			case 'i':
 			case 's':
 				// completely wrong.
@@ -706,23 +706,23 @@ public class Factory {
 			case 'd':
 				return Double.valueOf(l); // widening.
 			case 'f':
-				return Float.valueOf(l); // widening.			
-			case 'l': 
+				return Float.valueOf(l); // widening.
+			case 'l':
 				return value; // exact match.
-		
-			default:  				
+
+			default:
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
 		}
-		
-		// widening float -> double    		 
+
+		// widening float -> double
 		else if( value instanceof Float )
 		{
 			final float f = ((Float)value).floatValue();
 			switch( expectedTypeChar )
-			{    		
+			{
 			case 'b': // both byte and boolean
-			case 'c': 
+			case 'c':
 			case 'i':
 			case 's':
 			case 'l':
@@ -732,7 +732,7 @@ public class Factory {
 				return Double.valueOf(f); // widening.
 			case 'f':
 				return value; // exact match.
-			default:  				
+			default:
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
 		}
@@ -795,11 +795,11 @@ public class Factory {
 	   entries.
 	*/
 	public static AnnotationBinding [] getPackedAnnotationBindings(AnnotationBinding [] annotations) {
-		
+
 		int length = annotations == null ? 0 : annotations.length;
 		if (length == 0)
 			return annotations;
-		
+
 		AnnotationBinding[] repackagedBindings = annotations; // only replicate if repackaging.
 		for (int i = 0; i < length; i++) {
 			AnnotationBinding annotation = repackagedBindings[i];
@@ -816,7 +816,7 @@ public class Factory {
 			MethodBinding value = values[0];
 			if (value.returnType == null || value.returnType.dimensions() != 1 || TypeBinding.notEquals(value.returnType.leafComponentType(), annotationType))
 				continue; // FUBAR
-			
+
 			// We have a kosher repeatable annotation with a kosher containing type. See if actually repeats.
 			List<AnnotationBinding> containees = null;
 			for (int j = i + 1; j < length; j++) {
@@ -856,37 +856,37 @@ public class Factory {
 		}
 		return annotations;
 	}
-	
+
 	/* Unwrap container annotations into the repeated annotations, return an array of bindings that includes the container and the containees.
 	*/
 	public static AnnotationBinding [] getUnpackedAnnotationBindings(AnnotationBinding [] annotations) {
-		
+
 		int length = annotations == null ? 0 : annotations.length;
 		if (length == 0)
 			return annotations;
-		
+
 		List<AnnotationBinding> unpackedAnnotations = new ArrayList<>();
 		for (int i = 0; i < length; i++) {
 			AnnotationBinding annotation = annotations[i];
 			if (annotation == null) continue;
 			unpackedAnnotations.add(annotation);
 			ReferenceBinding annotationType = annotation.getAnnotationType();
-			
+
 			MethodBinding [] values = annotationType.getMethods(TypeConstants.VALUE);
 			if (values == null || values.length != 1)
 				continue;
 			MethodBinding value = values[0];
-			
+
 			if (value.returnType.dimensions() != 1)
 				continue;
-			
+
 			TypeBinding containeeType = value.returnType.leafComponentType();
 			if (containeeType == null || !containeeType.isAnnotationType() || !containeeType.isRepeatableAnnotationType())
 				continue;
-			
+
 			if (containeeType.containerAnnotationType() != annotationType) //$IDENTITY-COMPARISON$
 				continue;
-			
+
 			// We have a kosher container: unwrap the contained annotations.
 			ElementValuePair [] elementValuePairs = annotation.getElementValuePairs();
 			for (ElementValuePair elementValuePair : elementValuePairs) {
@@ -900,5 +900,5 @@ public class Factory {
 			}
 		}
 		return unpackedAnnotations.toArray(new AnnotationBinding [unpackedAnnotations.size()]);
-	}	
+	}
 }

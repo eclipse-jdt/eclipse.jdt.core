@@ -130,7 +130,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	String T3S;
 	Type T4;
 	String T4S;
-	
+
 	final StringBuffer b = new StringBuffer();
 
 	int API_LEVEL;
@@ -139,7 +139,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		super(name);
 		this.API_LEVEL = apiLevel;
 	}
-	
+
 	public ASTVisitorTest(String name) {
 		super(name.substring(0, name.indexOf(" - JLS")));
 		name.indexOf(" - JLS");
@@ -308,7 +308,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("X")); //$NON-NLS-1$
 			this.T4S = "[(tS[(nSXXnS)]tS)]"; //$NON-NLS-1$
 		}
-		
+
 	}
 
 	protected void tearDown() throws Exception {
@@ -1115,7 +1115,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		public void endVisit(Dimension node) {
 			ASTVisitorTest.this.b.append("@ED)"); //$NON-NLS-1$
 		}
-		
+
 		public void preVisit(ASTNode node) {
 			ASTVisitorTest.this.b.append("["); //$NON-NLS-1$
 		}
@@ -1779,10 +1779,10 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.parameters().add(this.V2);
 		if (this.ast.apiLevel() < getJLS8()) {
 			x1.thrownExceptions().add(this.N2);
-			x1.thrownExceptions().add(this.N3);			
+			x1.thrownExceptions().add(this.N3);
 		} else {
 			x1.thrownExceptionTypes().add(this.T3);
-			x1.thrownExceptionTypes().add(this.T4);			
+			x1.thrownExceptionTypes().add(this.T4);
 		}
 		x1.setBody(this.B1);
 		TestVisitor v1 = new TestVisitor();
@@ -1794,7 +1794,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		} else if (this.ast.apiLevel() < getJLS8()) {
 			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
-			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.T3S+this.T4S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$			
+			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.T3S+this.T4S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 	/** @deprecated using deprecated code */

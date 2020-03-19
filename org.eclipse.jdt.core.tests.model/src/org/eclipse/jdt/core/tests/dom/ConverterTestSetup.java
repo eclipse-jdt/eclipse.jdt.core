@@ -62,7 +62,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	static int getJLS8() {
 		return JLS8_INTERNAL;
-	}	
+	}
 	protected AST ast;
 	public static List TEST_SUITES = null;
 	public static boolean PROJECT_SETUP = false;

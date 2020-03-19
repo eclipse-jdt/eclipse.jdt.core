@@ -35,7 +35,7 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnly335CompilerTests extends TestCase {
-	
+
 	public RunOnly335CompilerTests(String name) {
 		super(name);
 	}
@@ -50,7 +50,7 @@ public class RunOnly335CompilerTests extends TestCase {
 			NullTypeAnnotationTest.class, // tests type inference
 		};
 	}
-	
+
 	public static Class[] getCompilerClasses() {
 		return new Class[] {
 			GenericTypeTest.class,
@@ -64,7 +64,7 @@ public class RunOnly335CompilerTests extends TestCase {
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);
-	
+
 		AbstractCompilerTest.setpossibleComplianceLevels(AbstractCompilerTest.F_1_8);
 		addTestsToSuite(ts, getCompilerClasses());
 		return ts;

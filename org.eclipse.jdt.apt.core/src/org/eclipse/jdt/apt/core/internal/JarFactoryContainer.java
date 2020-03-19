@@ -33,12 +33,12 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
  */
 public abstract class JarFactoryContainer extends FactoryContainer
 {
-	
+
 	/**
 	 * @return a java.io.File.  The file is not guaranteed to exist.
 	 */
 	public abstract File getJarFile();
-	
+
 	@Override
 	public boolean exists() {
 		try {
@@ -52,10 +52,10 @@ public abstract class JarFactoryContainer extends FactoryContainer
 	}
 
 	@Override
-	protected Map<String, String> loadFactoryNames() throws IOException { 
+	protected Map<String, String> loadFactoryNames() throws IOException {
 		return getServiceClassnamesFromJar( getJarFile() );
 	}
-	
+
 	/**
      * Given a jar file, get the names of any AnnotationProcessorFactory
      * implementations it offers.  The information is based on the Sun
@@ -95,7 +95,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
         }
         return classNames;
     }
-    
+
     /**
      * Read service classnames from a service provider definition.
      * @param is an input stream corresponding to a Sun-style service provider
@@ -124,12 +124,12 @@ public abstract class JarFactoryContainer extends FactoryContainer
     		if (rd != null) try {rd.close();} catch (IOException ioe) {}
     	}
     }
-	
+
     /** List of jar file entries within META-INF/services that specify autoloadable service providers */
     private static final String[] AUTOLOAD_SERVICES = {
         AptPlugin.JAVA5_FACTORY_NAME,
         AptPlugin.JAVA6_FACTORY_NAME
     };
-	
+
 }
 

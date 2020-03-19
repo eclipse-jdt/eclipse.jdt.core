@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - Initial API and implementation
- *     
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 

@@ -47,7 +47,7 @@ public class SourcePositionImpl implements SourcePosition
         _decl = decl;
         assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
     }
-	
+
 	public SourcePositionImpl(final int startingOffset,
 							  final int length,
 							  final int line,
@@ -61,7 +61,7 @@ public class SourcePositionImpl implements SourcePosition
         _decl = decl;
         assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
 	}
-	
+
 	public SourcePositionImpl(final int startingOffset,
 							  final int length,
 							  final int line,
@@ -75,7 +75,7 @@ public class SourcePositionImpl implements SourcePosition
         _decl = decl;
         assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
 	}
-    
+
     @Override
 	public int line(){ return _line; }
     @Override
@@ -100,10 +100,10 @@ public class SourcePositionImpl implements SourcePosition
 			return ((AnnotationMirrorImpl)_decl).getResource();
 		else if( _decl instanceof AnnotationValueImpl )
 			return ((AnnotationValueImpl)_decl).getResource();
-		
+
 		throw new IllegalStateException();
     }
-    
+
     @Override
 	public String toString()
     {
@@ -111,12 +111,12 @@ public class SourcePositionImpl implements SourcePosition
     	buffer.append("offset = "); //$NON-NLS-1$
     	buffer.append(_startingOffset);
     	buffer.append(" line = "); //$NON-NLS-1$
-    	buffer.append( _line ); 
+    	buffer.append( _line );
     	buffer.append(" column = "); //$NON-NLS-1$
-    	buffer.append( _column ); 
+    	buffer.append( _column );
     	buffer.append(" length = "); //$NON-NLS-1$
-    	buffer.append( _length ); 
-    	
+    	buffer.append( _length );
+
     	return buffer.toString();
     }
 }

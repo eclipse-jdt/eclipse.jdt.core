@@ -213,7 +213,7 @@ public class Javadoc extends ASTNode {
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		for (int i = 0; i < paramTagsSize; i++) {
-			if(scope.referenceContext instanceof RecordDeclaration) {			
+			if(scope.referenceContext instanceof RecordDeclaration) {
 				RecordDeclaration rd = (RecordDeclaration)scope.referenceContext;
 				if(  rd.nRecordComponents > 0)
 					break;

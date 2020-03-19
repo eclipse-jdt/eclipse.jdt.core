@@ -174,11 +174,11 @@ public final class Flags {
 	 * @since 3.10
 	 */
 	public static final int AccAnnotationDefault = ClassFileConstants.AccAnnotationDefault;
-	
+
 	/**
 	 * Module declaration property flag.
 	 * Used to flag a compilation unit or a class file that contains a module declaration.
-	 * 
+	 *
 	 * @since 3.14
 	 */
 	public static final int AccModule = ClassFileConstants.AccModule;
@@ -193,7 +193,7 @@ public final class Flags {
 	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public static final int  AccRecord = ExtraCompilerModifiers.AccRecord;
-	
+
 	/**
 	 * Not instantiable.
 	 */
@@ -440,7 +440,7 @@ public final class Flags {
 	public static boolean isAnnnotationDefault(int flags) {
 		return (flags & AccAnnotationDefault) != 0;
 	}
-	
+
 	/**
 	 * Returns whether the given integer has the <code>AccModule</code>
 	 * bit set.
@@ -448,7 +448,7 @@ public final class Flags {
 	 * @return <code>true</code> if the <code>AccModule</code> flag is included
 	 * @see #AccModule
 	 * @since 3.14
-	 */	
+	 */
 	public static boolean isModule(int flags) {
 		return (flags & AccModule) != 0;
 	}

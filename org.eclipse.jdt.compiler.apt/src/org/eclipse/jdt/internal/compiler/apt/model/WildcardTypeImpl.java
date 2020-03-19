@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
  * Implementation of the WildcardType
  */
 public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
-	
+
 	WildcardTypeImpl(BaseProcessingEnvImpl env, WildcardBinding binding) {
 		super(env, binding);
 	}
@@ -63,7 +63,7 @@ public class WildcardTypeImpl extends TypeMirrorImpl implements WildcardType {
 		if (bound == null) return null;
 		return _env.getFactory().newTypeMirror(bound);
 	}
-	
+
 	@Override
 	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
 		return v.visitWildcard(this, p);

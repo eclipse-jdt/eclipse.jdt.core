@@ -97,11 +97,11 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		
+
 		SourceRangeVerifier.DEBUG = true;
 		SourceRangeVerifier.DEBUG_THROW = true;
 	}
-	
+
 	/*
 	 * Removes the *start* and *end* markers from the given source
 	 * and remembers the positions.
@@ -500,11 +500,11 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		} else if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12)) {
 			JLSLevel = AST_INTERNAL_JLS12;
 		} else if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11)) {
-			JLSLevel = AST_INTERNAL_JLS11;			
+			JLSLevel = AST_INTERNAL_JLS11;
 		} else if (jdkLevel >= ClassFileConstants.JDK10) {
-			JLSLevel = AST_INTERNAL_JLS10;			
+			JLSLevel = AST_INTERNAL_JLS10;
 		} else if (jdkLevel >= ClassFileConstants.JDK9) {
-			JLSLevel = AST_INTERNAL_JLS9;			
+			JLSLevel = AST_INTERNAL_JLS9;
 		} else if (jdkLevel >= ClassFileConstants.JDK1_8) {
 			JLSLevel = AST_INTERNAL_JLS8;
 		} else if (jdkLevel >= ClassFileConstants.JDK1_7) {

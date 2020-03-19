@@ -89,7 +89,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression())|| stmt instanceof ThrowStatement)
 			return BREAKING;
-		if (this.switchLabeledRules // do this check for every block if '->' (Switch Labeled Rules) 
+		if (this.switchLabeledRules // do this check for every block if '->' (Switch Labeled Rules)
 				&& stmt instanceof Block) {
 			Block block = (Block) stmt;
 			if (block.doesNotCompleteNormally()) {
@@ -161,11 +161,11 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			}
 		}
 		if (firstTrailingCaseStmt != null) {
-			blockScope.problemReporter().switchExpressionTrailingSwitchLabels(firstTrailingCaseStmt);				
+			blockScope.problemReporter().switchExpressionTrailingSwitchLabels(firstTrailingCaseStmt);
 		}
 	}
 	@Override
-	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() { // JLS 12 16.1.8 
+	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() { // JLS 12 16.1.8
 		return !this.switchLabeledRules;
 	}
 	@Override
@@ -292,18 +292,18 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 						continue;
 					if (!this.labelDecls.contains(new String(bs.label)))
 						blockScope.problemReporter().switchExpressionsBreakOutOfSwitchExpression(bs);
-				} 
+				}
 				for (ContinueStatement cs : this.referencedContinueLabels) {
 					if (cs.label == null || cs.label.length == 0)
 						continue;
 					if (!this.labelDecls.contains(new String(cs.label)))
 						blockScope.problemReporter().switchExpressionsContinueOutOfSwitchExpression(cs);
-				} 
+				}
 			} catch (EmptyStackException e) {
 				// ignore
 			}
 		}
-		
+
 		@Override
 		public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
 			checkForOutofBoundLabels(blockScope);
@@ -337,8 +337,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
-	
-				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3). 
+
+				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3).
 				// Otherwise, it is a standalone expression.
 				if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
 					for (Expression e : this.resultExpressions) {
@@ -348,24 +348,24 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 						e.setExpectedType(this.expectedType);
 					}
 				}
-	
+
 				resolve(upperScope);
-	
+
 				if (this.statements == null || this.statements.length == 0) {
 					//	Report Error JLS 13 15.28.1  The switch block must not be empty.
 					upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
 					return null;
 				}
-				
+
 				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
 				if (resultExpressionsCount == 0) {
-					//  Report Error JLS 13 15.28.1 
+					//  Report Error JLS 13 15.28.1
 					// It is a compile-time error if a switch expression has no result expressions.
 					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
 					return null;
 				}
 				this.traverse(new OOBLFlagger(this), upperScope);
-	
+
 				if (this.originalValueResultExpressionTypes == null) {
 					this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
 					this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
@@ -387,7 +387,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				for (int i = 0; i < resultExpressionsCount; i++) {
 					Expression resultExpr = this.resultExpressions.get(i);
 					if (resultExpr.resolvedType == null || resultExpr.resolvedType.kind() == Binding.POLY_TYPE) {
-						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] = 
+						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
 							resultExpr.resolveTypeExpecting(upperScope, this.expectedType);
 					}
 					// This is a kludge and only way completion can tell this node to resolve all
@@ -413,7 +413,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					break;
 				}
 			}
-			// If the result expressions all have the same type (which may be the null type), 
+			// If the result expressions all have the same type (which may be the null type),
 			// then that is the type of the switch expression.
 			if (typeUniformAcrossAllArms) {
 				tmp = this.originalValueResultExpressionTypes[0];
@@ -423,7 +423,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 				return this.resolvedType = tmp;
 			}
-			
+
 			boolean typeBbolean = true;
 			for (TypeBinding t : this.originalValueResultExpressionTypes) {
 				if (t != null)
@@ -472,7 +472,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				 *  are widened to double.
 				 *  Otherwise, if any result expression is of type float, then other result expressions that are not of
 				 *  type float are widened to float.
-				 *  Otherwise, if any result expression is of type long, then other result expressions that are not of 
+				 *  Otherwise, if any result expression is of type long, then other result expressions that are not of
 				 *  type long are widened to long.
 				 */
 				TypeBinding[] dfl = new TypeBinding[]{// do not change the order JLS 13 5.6
@@ -493,7 +493,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				 * a standalone switch expression where all the result expressions are convertible to a numeric type.]
 				 */
 
-				 /*  Otherwise, if any result expression is of type int and is not a constant expression, the other 
+				 /*  Otherwise, if any result expression is of type int and is not a constant expression, the other
 				 *  result expressions that are not of type int are widened to int.
 				 */
 				resultNumeric = resultNumeric != null ? resultNumeric : check_nonconstant_int();
@@ -582,16 +582,16 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				candidate : null;
 	}
 	private TypeBinding getResultNumeric(Set<TypeBinding> typeSet, TypeBinding[] armTypes) {
-		// note: if an expression has a type integer, then it will be a constant 
+		// note: if an expression has a type integer, then it will be a constant
 		// since non-constant integers are already processed before reaching here.
 
 		/* Otherwise, if any expression is of type short, and every other expression is either of type short,
 		 * or of type byte, or a constant expression of type int with a value that is representable in the
-		 * type short, then T is short, the byte expressions undergo widening primitive conversion to short, 
+		 * type short, then T is short, the byte expressions undergo widening primitive conversion to short,
 		 * and the int expressions undergo narrowing primitive conversion to short.\
 		 *
 		 * Otherwise, if any expression is of type byte, and every other expression is either of type byte or a
-		 * constant expression of type int with a value that is representable in the type byte, then T is byte 
+		 * constant expression of type int with a value that is representable in the type byte, then T is byte
 		 * and the int expressions undergo narrowing primitive conversion to byte.
 		 *
 		 * Otherwise, if any expression is of type char, and every other expression is either of type char or a
@@ -618,7 +618,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return true;
 		// JLS 13 15.28.1 A switch expression is a poly expression if it appears in an assignment context or
 		// an invocation context (5.2, 5.3). Otherwise, it is a standalone expression.
-		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT || 
+		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT ||
 				this.expressionContext == INVOCATION_CONTEXT;
 	}
 	@Override

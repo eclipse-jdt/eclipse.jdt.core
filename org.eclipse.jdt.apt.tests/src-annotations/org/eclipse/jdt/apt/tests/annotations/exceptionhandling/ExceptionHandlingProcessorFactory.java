@@ -29,4 +29,4 @@ public class ExceptionHandlingProcessorFactory extends BaseFactory
     public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> declarations, AnnotationProcessorEnvironment env) {
         return new ExceptionHandlingProcessor(declarations, env);
     }
-} 
+}

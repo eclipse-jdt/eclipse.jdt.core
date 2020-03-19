@@ -48,7 +48,7 @@ public class DefaultJavaRuntimeEnvironment extends FileSystem {
 		}
 		outputFolder.reset();
 	}
-	
+
 	public static void cleanUpDefaultJreClassLibs() {
 		if (defaultJreClassLibs != null && defaultJreClassLibs.length > 0) {
 			if (defaultJreClassLibs[0] instanceof DefaultJavaRuntimeEnvironment)
@@ -57,7 +57,7 @@ public class DefaultJavaRuntimeEnvironment extends FileSystem {
 	}
 
 	private static String[] javaLibsAndOutputDir;
-	
+
 	static String[] getDefaultClassPaths() {
 		if (javaLibsAndOutputDir == null)
 			javaLibsAndOutputDir = Util.concatWithClassLibs(AbstractRegressionTest.OUTPUT_DIR, false);

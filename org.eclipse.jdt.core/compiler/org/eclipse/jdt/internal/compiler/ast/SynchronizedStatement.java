@@ -113,7 +113,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			default :
 				codeStream.dup();
 				break;
-		}		
+		}
 		// only take the lock
 		codeStream.monitorenter();
 		codeStream.monitorexit();

@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.util.IModifierConstants;
 
 @SuppressWarnings({"rawtypes"})
 public class ASTConverterAST3Test extends ConverterTestSetup {
-	
+
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getJLS3(), false);
@@ -41,7 +41,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterAST3Test.class);
 	}
-	/** 
+	/**
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings.
 	 *
 	 * @param node
@@ -51,7 +51,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
 		node.setExtraDimensions(dimensions);
 	}
-	/** 
+	/**
 	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
 	 * @deprecated
 	 */

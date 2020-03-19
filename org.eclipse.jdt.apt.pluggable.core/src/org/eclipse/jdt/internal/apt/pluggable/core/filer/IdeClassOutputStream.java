@@ -39,7 +39,7 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 {
 	private final IdeProcessingEnvImpl _env;
 	private final IFile _file;
-	
+
 	public IdeClassOutputStream(IdeProcessingEnvImpl env, IFile file) {
 		_env = env;
 		_file = file;
@@ -51,7 +51,7 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 		byte[] byteArray = toByteArray();
 		InputStream contents = new ByteArrayInputStream(byteArray);
 		Compiler compiler = this._env.getCompiler();
-		
+
 		IBinaryType binaryType = null;
 		try {
 			try {
@@ -83,7 +83,7 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 			closeInputStream(contents);
 		}
 	}
-	
+
 	private void closeInputStream(InputStream stream) {
 		if (stream != null) {
 			try {

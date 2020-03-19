@@ -1181,9 +1181,9 @@ public class ASTMatcher {
 			return false;
 		}
 		InstanceofExpression o = (InstanceofExpression) other;
-		return 
+		return
 			safeSubtreeMatch(node.getLeftOperand(), o.getLeftOperand())
-			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand()) 
+			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand())
 			&& ((DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST())) ? safeSubtreeMatch(node.getPatternVariable(), o.getPatternVariable())
 					: true);
 	}
@@ -1294,7 +1294,7 @@ public class ASTMatcher {
 	 * other object is a node of the same type with structurally isomorphic
 	 * child subtrees. Subclasses may override this method as needed.
 	 * </p>
-	 * 
+	 *
 	 * @param node the node
 	 * @param other the other object, or <code>null</code>
 	 * @return <code>true</code> if the subtree matches, or
@@ -1995,7 +1995,7 @@ public class ASTMatcher {
 				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations())
 				&& safeSubtreeMatch(node.recordComponents(), o.recordComponents()));
 	}
-	
+
 	/**
 	 * Returns whether the given node and the other object match.
 	 * <p>
@@ -2272,7 +2272,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 *   
+	 *
 	 *   @since 3.10
 	 */
 	public boolean match(SuperMethodReference node, Object other) {
@@ -2308,7 +2308,7 @@ public class ASTMatcher {
 				? safeSubtreeListMatch(node.expressions(), o.expressions())
 						: compareDeprecatedSwitchExpression(node, o));
 	}
-	
+
 	/**
 	 * Return whether the deprecated comment strings of the given java doc are equals.
 	 * <p>
@@ -2326,7 +2326,7 @@ public class ASTMatcher {
 	 * other object is a node of the same type with structurally isomorphic
 	 * child subtrees. Subclasses may override this method as needed.
 	 * </p>
-	 * 
+	 *
 	 * @param node the node
 	 * @param other the other object, or <code>null</code>
 	 * @return <code>true</code> if the subtree matches, or
@@ -2440,7 +2440,7 @@ public class ASTMatcher {
 		TextBlock o = (TextBlock) other;
 		return safeEquals(node.getEscapedValue(), o.getEscapedValue());
 	}
-	
+
 	/**
 	 * Returns whether the given node and the other object match.
 	 * <p>
@@ -2876,7 +2876,7 @@ public class ASTMatcher {
 				&& node.isUpperBound() == o.isUpperBound()
 				&& safeSubtreeMatch(node.getBound(), o.getBound());
 	}
-	
+
 	/**
 	 * Returns whether the given node and the other object match.
 	 * <p>

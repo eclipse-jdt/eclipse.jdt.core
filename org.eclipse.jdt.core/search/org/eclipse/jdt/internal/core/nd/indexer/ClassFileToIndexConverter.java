@@ -107,8 +107,8 @@ public final class ClassFileToIndexConverter {
 	}
 
 	/**
-	 * Adds a type to the index, given an input class file and a binary name. Note that the given binary name is 
-	 * 
+	 * Adds a type to the index, given an input class file and a binary name. Note that the given binary name is
+	 *
 	 * @param binaryType an object used for parsing the .class file itself
 	 * @param fieldDescriptor the name that is used to locate the class, computed from the .class file's name and location.
 	 * In the event that the .class file has been moved, this may differ from the binary name stored in the .class file
@@ -350,15 +350,15 @@ public final class ClassFileToIndexConverter {
 		int numArgumentsInGenericSignature = countMethodArguments(signature);
 		int numCompilerDefinedParameters = Math.max(0,
 				parameterFieldDescriptors.size() - numArgumentsInGenericSignature);
-		
+
 		boolean compilerDefinedParametersAreIncludedInSignature = (next.getGenericSignature() == null);
 
 		// If there is no generic signature, then fall back to heuristics based on what we know about
 		// where the java compiler likes to create compiler-defined arguments
 		if (compilerDefinedParametersAreIncludedInSignature) {
 			// Constructors for non-static member types get a compiler-defined first argument
-			if (binaryType.isMember() 
-					&& next.isConstructor() 
+			if (binaryType.isMember()
+					&& next.isConstructor()
 					&& ((binaryType.getModifiers() & Modifier.STATIC) == 0)
 					&& parameterFieldDescriptors.size() > 0) {
 
@@ -483,7 +483,7 @@ public final class ClassFileToIndexConverter {
 			variable.allocateTypeAnnotations(typeAnnotations.length);
 			for (IBinaryTypeAnnotation next : typeAnnotations) {
 				NdTypeAnnotation annotation = variable.createTypeAnnotation();
-	
+
 				initTypeAnnotation(annotation, next);
 			}
 		}
@@ -844,7 +844,7 @@ public final class ClassFileToIndexConverter {
 			case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER:
 			case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER:
 				annotation.setTargetInfo(next.getTypeParameterIndex());
-				break;				
+				break;
 			case AnnotationTargetTypeConstants.CLASS_EXTENDS:
 				annotation.setTargetInfo(next.getSupertypeIndex());
 				break;
@@ -870,7 +870,7 @@ public final class ClassFileToIndexConverter {
 	}
 
 	private void initAnnotation(NdAnnotation annotation, IBinaryAnnotation next) {
-		annotation.setType(createTypeIdFromBinaryName(next.getTypeName())); 
+		annotation.setType(createTypeIdFromBinaryName(next.getTypeName()));
 
 		IBinaryElementValuePair[] pairs = next.getElementValuePairs();
 

@@ -34,16 +34,16 @@ import org.eclipse.jdt.apt.core.util.IFactoryPath;
 /**
  * Provides access to the annotation processor factory path for a Java project.
  * This class should not be instantiated or subclassed.
- * 
+ *
  * The factory path is an ordered Map<FactoryContainer, FactoryPath.Attributes>.
  * Containers are things like jar files or plugins, that contain one or more
  * annotation processor factories.  In the context of a particular project,
  * processors are given precedence according to the order of their container on
  * the factory path; and they are executed according to the container's attributes
- * on the factory path.  
+ * on the factory path.
  */
 public class FactoryPath implements IFactoryPath {
-	
+
 	/**
 	 * Attributes of entries on the factory path.  These belong here,
 	 * rather than on FactoryContainer itself, because the same container
@@ -55,7 +55,7 @@ public class FactoryPath implements IFactoryPath {
 		private boolean _enabled;
 		/** Should this container's processors execute in Sun apt compatibility mode? (Slow and limiting!) */
 		private boolean _runInBatchMode;
-		
+
 		// CONSTRUCTORS
 		public Attributes(boolean enabled, boolean runInBatchMode) {
 			_enabled = enabled;
@@ -65,7 +65,7 @@ public class FactoryPath implements IFactoryPath {
 			_enabled = attr._enabled;
 			_runInBatchMode = attr._runInBatchMode;
 		}
-		
+
 		// SUPPORT
 		@Override
 		public boolean equals(Object o) {
@@ -78,8 +78,8 @@ public class FactoryPath implements IFactoryPath {
 		public int hashCode() {
 			return (_enabled ? 1 : 0) + (_runInBatchMode ? 2 : 0);
 		}
-		
-		
+
+
 		// GETTERS
 		public boolean isEnabled() {
 			return _enabled;
@@ -96,13 +96,13 @@ public class FactoryPath implements IFactoryPath {
 			_runInBatchMode = runInBatchMode;
 		}
 	}
-	
+
 	/**
 	 * The factory path. Stored in reverse order.
 	 */
 	private final Map<FactoryContainer, Attributes> _path = Collections.synchronizedMap(
 			new LinkedHashMap<FactoryContainer, Attributes>());
-	
+
 	@Override
 	public void addExternalJar(File jar) {
 		FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(jar);
@@ -147,7 +147,7 @@ public class FactoryPath implements IFactoryPath {
 		FactoryContainer fc = FactoryPluginManager.getPluginFactoryContainer(pluginId);
 		Attributes a = _path.get(fc);
 		if (a == null) {
-			Status status = AptPlugin.createWarningStatus(new IllegalArgumentException(), 
+			Status status = AptPlugin.createWarningStatus(new IllegalArgumentException(),
 					"Specified plugin was not found, so it could not be added to the annotation processor factory path: " + pluginId);  //$NON-NLS-1$
 			throw new CoreException(status);
 		}
@@ -165,10 +165,10 @@ public class FactoryPath implements IFactoryPath {
 	}
 
 	/**
-	 * Add a single factory container to the head of the FactoryPath, 
-	 * and save the new path to the appropriate settings file.  
-	 * If the container specified is already in the project's list in 
-	 * some other FactoryPathEntry, the existing entry will be removed 
+	 * Add a single factory container to the head of the FactoryPath,
+	 * and save the new path to the appropriate settings file.
+	 * If the container specified is already in the project's list in
+	 * some other FactoryPathEntry, the existing entry will be removed
 	 * before the new one is added.
 	 * @param fc must not be null.
 	 */
@@ -238,7 +238,7 @@ public class FactoryPath implements IFactoryPath {
 		}
 		return map;
 	}
-	
+
 	/**
 	 * A word of warning: this equals() method does not canonicalize factory
 	 * paths before comparing factory path entries. It's possible that two

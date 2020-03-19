@@ -159,7 +159,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 			return normalizedClasspath;
 		}
 	}
-	
+
 	protected Classpath[] classpaths;
 	// Used only in single-module mode when the module descriptor is
 	// provided via command line.
@@ -238,7 +238,7 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 }
 private void initializeModuleLocations(Set<String> limitedModules) {
 	// First create the mapping of all module/Classpath
-	// since the second iteration of getModuleNames() can't be relied on for 
+	// since the second iteration of getModuleNames() can't be relied on for
 	// to get the right origin of module
 	if (limitedModules == null) {
 		for (Classpath c : this.classpaths) {
@@ -273,7 +273,7 @@ public static Classpath getJrtClasspath(String jdkHome, String encoding, AccessR
 	return new ClasspathJrt(new File(convertPathSeparators(jdkHome)), true, accessRuleSet, null);
 }
 public static Classpath getOlderSystemRelease(String jdkHome, String release, AccessRuleSet accessRuleSet) {
-	return isJRE12Plus ? 
+	return isJRE12Plus ?
 			new ClasspathJep247Jdk12(new File(convertPathSeparators(jdkHome)), release, accessRuleSet) :
 			new ClasspathJep247(new File(convertPathSeparators(jdkHome)), release, accessRuleSet);
 }
@@ -320,7 +320,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 						JRT_CLASSPATH_CACHE.put(file, result);
 					}
 				} else {
-					result = 
+					result =
 							(release == null) ?
 									new ClasspathJar(file, true, accessRuleSet, null) :
 										new ClasspathMultiReleaseJar(file, true, accessRuleSet, destinationPath, release);
@@ -424,7 +424,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 						zip = ExternalAnnotationDecorator.getAnnotationZipFile(classpathEntry.getPath(), null);
 						shouldClose = true;
 					}
-					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(), 
+					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(),
 							qualifiedTypeName, zip));
 					return answer;
 				} catch (IOException e) {
@@ -634,7 +634,7 @@ public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleNa
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
 	Parser parser = checkCUs ? getParser() : null;
 	Function<CompilationUnit, String> pkgNameExtractor = (sourceUnit) -> {
-		String pkgName = null;	
+		String pkgName = null;
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 1);
 		char[][] name = parser.parsePackageDeclaration(sourceUnit.getContents(), compilationResult);
 		if (name != null) {

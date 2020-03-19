@@ -74,7 +74,7 @@ public class UnionType extends Type {
 	/**
 	 * Creates a new unparented node for an union type owned by the given AST.
 	 * By default, it has no types.<p>
-	 * 
+	 *
 	 * N.B. This constructor is package-private.
 	 * </p>
 	 *

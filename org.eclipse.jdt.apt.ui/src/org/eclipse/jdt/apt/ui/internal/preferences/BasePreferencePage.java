@@ -30,7 +30,7 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 	protected Control createPreferenceContent(Composite composite) {
 		return getConfigurationBlock().createPreferenceContent(composite);
 	}
-	
+
 	@Override
 	public void createControl(Composite parent) {
 		super.createControl(parent);
@@ -62,7 +62,7 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 	protected BaseConfigurationBlock getConfigurationBlock() {
 		return fConfigurationBlock;
 	}
-	
+
 	/**
 	 * Derived classes should override by returning a string that refers
 	 * to a context topic entry in docs/contexts_APT.xml.  The default
@@ -71,14 +71,14 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 	protected String getContextHelpId() {
 		return null;
 	}
-	
+
 	protected boolean hasProjectSpecificOptions(IProject project) {
 		// Workaround for bug 106111 / 111144:
 		// See BaseConfigurationBlock.hasProjectSpecificOptionsNoCache() for details.
 		return getConfigurationBlock().hasProjectSpecificOptionsNoCache(project);
 	}
-	
-	/* 
+
+	/*
 	 * See bug 136498: don't show workspace preferences.
 	 */
 	@Override
@@ -94,7 +94,7 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 			getConfigurationBlock().performApply();
 		}
 	}
-	
+
 	/*
 	 * @see org.eclipse.jface.preference.IPreferencePage#performDefaults()
 	 */
@@ -104,22 +104,22 @@ public abstract class BasePreferencePage extends PropertyAndPreferencePage {
 			getConfigurationBlock().performDefaults();
 		}
 	}
-	
+
 	/*
 	 * @see org.eclipse.jface.preference.IPreferencePage#performOk()
 	 */
 	public boolean performOk() {
 		if (getConfigurationBlock() != null && !getConfigurationBlock().performOk()) {
 			return false;
-		}	
+		}
 		return super.performOk();
 	}
-	
+
 	protected void setConfigurationBlock(BaseConfigurationBlock configurationBlock) {
 		fConfigurationBlock = configurationBlock;
 	}
-	
-	
+
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.ui.preferences.PropertyAndPreferencePage#setElement(org.eclipse.core.runtime.IAdaptable)
 	 */

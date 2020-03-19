@@ -85,7 +85,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				Name newName = ast.newSimpleName("newpack11");
 				rewrite.replace(exp.getName(), newName, null);
 				ListRewrite expListRewrite = rewrite.getListRewrite(exp, ExportsDirective.MODULES_PROPERTY);
-				expListRewrite.remove((ASTNode) exp.modules().get(1), null); 
+				expListRewrite.remove((ASTNode) exp.modules().get(1), null);
 
 				// exports pack12 to fifth -> exports pack12 to fifth, sixth
 				exp = (ExportsDirective) moduleStatements.get(index++);
@@ -188,7 +188,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			buf.append("    requires existing;\n");
 			buf.append("    requires addedme;\n");
 			buf.append("}");
-			assertEqualString(preview, buf.toString());		
+			assertEqualString(preview, buf.toString());
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}

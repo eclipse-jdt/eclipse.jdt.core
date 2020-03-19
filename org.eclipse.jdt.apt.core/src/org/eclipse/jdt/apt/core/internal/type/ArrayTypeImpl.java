@@ -12,7 +12,7 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.type; 
+package org.eclipse.jdt.apt.core.internal.type;
 
 import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.util.TypeVisitor;
@@ -65,14 +65,14 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
     }
 
     @Override
-	public String toString(){ 
+	public String toString(){
     	final ITypeBinding elementType = _arrayBinding.getElementType();
     	final StringBuilder buffer = new StringBuilder();
     	String name = elementType.getQualifiedName();
     	buffer.append(name);
 		for( int i=0, dim = _arrayBinding.getDimensions(); i<dim; i++ )
 			buffer.append("[]"); //$NON-NLS-1$
-		
+
 		return buffer.toString();
     }
 
@@ -92,7 +92,7 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
 
     @Override
 	public MirrorKind kind(){ return MirrorKind.TYPE_ARRAY; }
-	
+
 	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 

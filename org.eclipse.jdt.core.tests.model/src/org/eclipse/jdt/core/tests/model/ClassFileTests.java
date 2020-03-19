@@ -92,7 +92,7 @@ public void setUpSuite() throws Exception {
 		"package generic;\n" +
 		"import java.util.Collection;\n" +
 		"public class GenericField {\n" +
-		"	protected Collection<String> myField;\n" + 
+		"	protected Collection<String> myField;\n" +
 		"}",
 		"annotated/X.java",
 		"package annotated;\n" +
@@ -164,12 +164,12 @@ public void setUpSuite() throws Exception {
 		"annotated/Y.java",
 		"package annotated;\n" +
 		"import java.lang.annotation.*;\n" +
-		"import static java.lang.annotation.ElementType.*;\n" + 
-		"import static java.lang.annotation.RetentionPolicy.*;\n" + 
+		"import static java.lang.annotation.ElementType.*;\n" +
+		"import static java.lang.annotation.RetentionPolicy.*;\n" +
 		"@Deprecated\n" +
-		"@Documented\n" + 
+		"@Documented\n" +
 		"@Inherited\n" +
-		"@Retention(SOURCE)\n" + 
+		"@Retention(SOURCE)\n" +
 		"@Target({PACKAGE, TYPE, ANNOTATION_TYPE, METHOD, CONSTRUCTOR, FIELD, LOCAL_VARIABLE, PARAMETER})\n" +
 		"public @interface Y {\n" +
 		"}",
@@ -196,34 +196,34 @@ public void setUpSuite() throws Exception {
 		"annotated/MyAnnotation.java",
 		"package annotated;\n" +
 		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" + 
-		"@Retention(value = RetentionPolicy.RUNTIME)\n" + 
+		"import java.lang.annotation.RetentionPolicy;\n" +
+		"@Retention(value = RetentionPolicy.RUNTIME)\n" +
 		"public @interface MyAnnotation {}",
 		"annotated/MyAnnotation2.java",
 		"package annotated;\n" +
 		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" + 
-		"@Retention(value = RetentionPolicy.SOURCE)\n" + 
+		"import java.lang.annotation.RetentionPolicy;\n" +
+		"@Retention(value = RetentionPolicy.SOURCE)\n" +
 		"public @interface MyAnnotation2 {}",
 		"annotated/MyAnnotation3.java",
 		"package annotated;\n" +
 		"import java.lang.annotation.Retention;\n" +
-		"import java.lang.annotation.RetentionPolicy;\n" + 
-		"@Retention(value = RetentionPolicy.CLASS)\n" + 
+		"import java.lang.annotation.RetentionPolicy;\n" +
+		"@Retention(value = RetentionPolicy.CLASS)\n" +
 		"public @interface MyAnnotation3 {}",
 		"test342757/X.java",
 		"package test342757;\n" +
-		"public class X {\n" + 
-		"	class B {\n" + 
-		"		public B(@Deprecated @Annot String s) {}\n" + 
-		"		public void foo(@Deprecated @Annot int j) {}\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	class B {\n" +
+		"		public B(@Deprecated @Annot String s) {}\n" +
+		"		public void foo(@Deprecated @Annot int j) {}\n" +
+		"	}\n" +
 		"}",
 		"test342757/Annot.java",
 		"package test342757;\n" +
-		"import java.lang.annotation.Retention;\n" + 
-		"import static java.lang.annotation.RetentionPolicy.*;\n" + 
-		"@Retention(CLASS)\n" + 
+		"import java.lang.annotation.Retention;\n" +
+		"import static java.lang.annotation.RetentionPolicy.*;\n" +
+		"@Retention(CLASS)\n" +
 		"@interface Annot {}",
 	};
 	addLibrary(javaProject, "lib.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
@@ -434,10 +434,10 @@ public void testAnnotations16() throws JavaModelException {
 public void testAnnotations17() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("Y.class").getType();
 	assertAnnotationsEqual(
-		"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE})\n" + 
-		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n" + 
-		"@java.lang.Deprecated\n" + 
-		"@java.lang.annotation.Documented\n" + 
+		"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE})\n" +
+		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n" +
+		"@java.lang.Deprecated\n" +
+		"@java.lang.annotation.Documented\n" +
 		"@java.lang.annotation.Inherited\n",
 		type.getAnnotations());
 }
@@ -539,9 +539,9 @@ public void testAnnotations26() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("test342757").getOrdinaryClassFile("X$B.class").getType();
 	IMethod[] methods = type.getMethods();
 	String expected =
-			"@test342757.Annot\n" + 
-			"@java.lang.Deprecated\n" + 
-			"@test342757.Annot\n" + 
+			"@test342757.Annot\n" +
+			"@java.lang.Deprecated\n" +
+			"@test342757.Annot\n" +
 			"@java.lang.Deprecated\n";
 	StringBuffer buffer = new StringBuffer();
 	for (int i = 0, max = methods.length; i < max; i++) {
@@ -1579,7 +1579,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 		assertNotNull(typeParam);
 		assertStringsEqual("Type parameter bounds signatures",
 				"Ljava.lang.Object;\n" +
-				"Lgeneric.I<-TT;>;\n", 
+				"Lgeneric.I<-TT;>;\n",
 				typeParam.getBoundsSignatures());
 	}
 
@@ -1588,7 +1588,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 				"X.class").getType();
 		IMethod method = type.getMethod("foo", new String[] { "TK;", "TV;" });
 		ITypeParameter typeParam = method.getTypeParameter("V");
-		assertStringsEqual("Type parameter bounds signatures", 
+		assertStringsEqual("Type parameter bounds signatures",
 							"TT;\n", typeParam.getBoundsSignatures());
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=316937
@@ -1646,9 +1646,9 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 	 * Ensures that if more than one thread try to open a class file at the same time, the children are correct.
 	 */
 	public void testBug372687() throws CoreException {
-		String expected = "X.class\n" + 
-						  "  class X\n" + 
-						  "    X()\n" + 
+		String expected = "X.class\n" +
+						  "  class X\n" +
+						  "    X()\n" +
 						  "    void foo()";
 		class GetClassThread extends Thread {
 			public String childString;

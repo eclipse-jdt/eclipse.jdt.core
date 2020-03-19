@@ -400,39 +400,39 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0011() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"        try {\n" + 
-			"            int option= 1;\n" + 
-			"            throw option == 1 ? new ExceptionA() : new ExceptionB();\n" + 
-			"        } catch (/*final*/ ExceptionA | ExceptionB ex) {\n" + 
-			"            System.out.println(\"type of ex: \" + ex.getClass());\n" + 
-			"            // next 2 methods on 'ex' use different parts of lub:\n" + 
-			"            ex.myMethod();\n" + 
-			"            throw ex;\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"interface Mix {\n" + 
-			"    public void myMethod();\n" + 
-			"}\n" + 
-			"class ExceptionA extends RuntimeException implements Mix {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
-			"    public void myMethod() {\n" + 
-			"        System.out.println(\"ExceptionA.myMethod()\");\n" + 
-			"    }\n" + 
-			"    public void onlyA() {\n" + 
-			"        System.out.println(\"ExceptionA.onlyA()\");\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"class ExceptionB extends RuntimeException implements Mix {\n" + 
-			"    private static final long serialVersionUID = 1L;\n" + 
-			"    public void myMethod() {\n" + 
-			"        System.out.println(\"ExceptionB.myMethod()\");\n" + 
-			"    }\n" + 
-			"    public void onlyB() {\n" + 
-			"        System.out.println(\"ExceptionA.onlyB()\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        try {\n" +
+			"            int option= 1;\n" +
+			"            throw option == 1 ? new ExceptionA() : new ExceptionB();\n" +
+			"        } catch (/*final*/ ExceptionA | ExceptionB ex) {\n" +
+			"            System.out.println(\"type of ex: \" + ex.getClass());\n" +
+			"            // next 2 methods on 'ex' use different parts of lub:\n" +
+			"            ex.myMethod();\n" +
+			"            throw ex;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Mix {\n" +
+			"    public void myMethod();\n" +
+			"}\n" +
+			"class ExceptionA extends RuntimeException implements Mix {\n" +
+			"    private static final long serialVersionUID = 1L;\n" +
+			"    public void myMethod() {\n" +
+			"        System.out.println(\"ExceptionA.myMethod()\");\n" +
+			"    }\n" +
+			"    public void onlyA() {\n" +
+			"        System.out.println(\"ExceptionA.onlyA()\");\n" +
+			"    }\n" +
+			"}\n" +
+			"class ExceptionB extends RuntimeException implements Mix {\n" +
+			"    private static final long serialVersionUID = 1L;\n" +
+			"    public void myMethod() {\n" +
+			"        System.out.println(\"ExceptionB.myMethod()\");\n" +
+			"    }\n" +
+			"    public void onlyB() {\n" +
+			"        System.out.println(\"ExceptionA.onlyB()\");\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -476,11 +476,11 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	public void test0013() throws JavaModelException {
 		String contents =
 				"import java.util.*;\n" +
-				"public class X {\n" + 
-				"	public static Object foo() {\n" + 
+				"public class X {\n" +
+				"	public static Object foo() {\n" +
 				"		List<String> l = new ArrayList<>();\n" +
 				"		return l;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -501,12 +501,12 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0014() throws JavaModelException {
 		String contents =
-				"public class X {\n" + 
-				"	void foo() {\n" + 
-				"		try (Object | Integer res= null) {\n" + 
-				"		} catch (Exception e) {\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		try (Object | Integer res= null) {\n" +
+				"		} catch (Exception e) {\n" +
+				"		}\n" +
+				"	}\n" +
 				"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -521,51 +521,51 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0015() throws JavaModelException {
 		String contents =
-				"import java.lang.invoke.MethodHandle;\n" + 
-				"import java.lang.invoke.MethodHandles;\n" + 
-				"import java.lang.invoke.MethodType;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	public static void main(String[] args) throws Throwable {\n" + 
-				"		Object x;\n" + 
-				"		String s;\n" + 
-				"		int i;\n" + 
-				"		MethodType mt;\n" + 
-				"		MethodHandle mh;\n" + 
-				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
-				"		// mt is (char,char)String\n" + 
-				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
-				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
-				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" + 
-				"		// invokeExact(Ljava/lang/String;CC)Ljava/lang/String;\n" + 
-				"		assert s.equals(\"nanny\");\n" + 
-				"		// weakly typed invocation (using MHs.invoke)\n" + 
-				"		s = (String) mh.invokeWithArguments(\"sappy\", 'p', 'v');\n" + 
-				"		assert s.equals(\"nanny\");\n" + 
-				"		// mt is (Object[])List\n" + 
-				"		mt = MethodType.methodType(java.util.List.class, Object[].class);\n" + 
-				"		mh = lookup.findStatic(java.util.Arrays.class, \"asList\", mt);\n" + 
-				"		assert (mh.isVarargsCollector());\n" + 
-				"		x = mh.invoke(\"one\", \"two\");\n" + 
-				"		// invoke(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;\n" + 
-				"		System.out.println(x);\n" + 
-				"		// mt is (Object,Object,Object)Object\n" + 
-				"		mt = MethodType.genericMethodType(3);\n" + 
-				"		mh = mh.asType(mt);\n" + 
-				"		x = mh.invokeExact((Object) 1, (Object) 2, (Object) 3);\n" + 
-				"		// invokeExact(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" + 
-				"		System.out.println(x);\n" + 
-				"		// mt is ()int\n" + 
-				"		mt = MethodType.methodType(int.class);\n" + 
-				"		mh = lookup.findVirtual(java.util.List.class, \"size\", mt);\n" + 
-				"		i = (int) mh.invokeExact(java.util.Arrays.asList(1, 2, 3));\n" + 
-				"		// invokeExact(Ljava/util/List;)I\n" + 
-				"		assert (i == 3);\n" + 
-				"		mt = MethodType.methodType(void.class, String.class);\n" + 
-				"		mh = lookup.findVirtual(java.io.PrintStream.class, \"println\", mt);\n" + 
-				"		mh.invokeExact(System.out, \"Hello, world.\");\n" + 
-				"		// invokeExact(Ljava/io/PrintStream;Ljava/lang/String;)V\n" + 
-				"	}\n" + 
+				"import java.lang.invoke.MethodHandle;\n" +
+				"import java.lang.invoke.MethodHandles;\n" +
+				"import java.lang.invoke.MethodType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) throws Throwable {\n" +
+				"		Object x;\n" +
+				"		String s;\n" +
+				"		int i;\n" +
+				"		MethodType mt;\n" +
+				"		MethodHandle mh;\n" +
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
+				"		// mt is (char,char)String\n" +
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" +
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" +
+				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" +
+				"		// invokeExact(Ljava/lang/String;CC)Ljava/lang/String;\n" +
+				"		assert s.equals(\"nanny\");\n" +
+				"		// weakly typed invocation (using MHs.invoke)\n" +
+				"		s = (String) mh.invokeWithArguments(\"sappy\", 'p', 'v');\n" +
+				"		assert s.equals(\"nanny\");\n" +
+				"		// mt is (Object[])List\n" +
+				"		mt = MethodType.methodType(java.util.List.class, Object[].class);\n" +
+				"		mh = lookup.findStatic(java.util.Arrays.class, \"asList\", mt);\n" +
+				"		assert (mh.isVarargsCollector());\n" +
+				"		x = mh.invoke(\"one\", \"two\");\n" +
+				"		// invoke(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;\n" +
+				"		System.out.println(x);\n" +
+				"		// mt is (Object,Object,Object)Object\n" +
+				"		mt = MethodType.genericMethodType(3);\n" +
+				"		mh = mh.asType(mt);\n" +
+				"		x = mh.invokeExact((Object) 1, (Object) 2, (Object) 3);\n" +
+				"		// invokeExact(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;\n" +
+				"		System.out.println(x);\n" +
+				"		// mt is ()int\n" +
+				"		mt = MethodType.methodType(int.class);\n" +
+				"		mh = lookup.findVirtual(java.util.List.class, \"size\", mt);\n" +
+				"		i = (int) mh.invokeExact(java.util.Arrays.asList(1, 2, 3));\n" +
+				"		// invokeExact(Ljava/util/List;)I\n" +
+				"		assert (i == 3);\n" +
+				"		mt = MethodType.methodType(void.class, String.class);\n" +
+				"		mh = lookup.findVirtual(java.io.PrintStream.class, \"println\", mt);\n" +
+				"		mh.invokeExact(System.out, \"Hello, world.\");\n" +
+				"		// invokeExact(Ljava/io/PrintStream;Ljava/lang/String;)V\n" +
+				"	}\n" +
 				"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -616,19 +616,19 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	public void test0016() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		String contents =
-				"import java.lang.invoke.MethodHandle;\n" + 
-				"import java.lang.invoke.MethodHandles;\n" + 
-				"import java.lang.invoke.MethodType;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void bar() throws Throwable {\n" + 
+				"import java.lang.invoke.MethodHandle;\n" +
+				"import java.lang.invoke.MethodHandles;\n" +
+				"import java.lang.invoke.MethodType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void bar() throws Throwable {\n" +
 				"		MethodType mt;\n" +
-				"		MethodHandle mh;\n" + 
-				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
-				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
-				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
-				"		String s = (String) mh.invokeExact(\"daddy\",'d','n');\n" + 
-				"	}\n" + 
+				"		MethodHandle mh;\n" +
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" +
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" +
+				"		String s = (String) mh.invokeExact(\"daddy\",'d','n');\n" +
+				"	}\n" +
 				"}";
 		this.workingCopy.getBuffer().setContents(contents);
 		this.workingCopy.save(null, true);
@@ -661,7 +661,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		ITypeBinding[] parameterTypes = ((IMethodBinding) bindings[0]).getParameterTypes();
 		assertEquals("Wrong size", 3, parameterTypes.length);
 		assertEquals("Wrong key", key, bindings[0].getKey());
-		
+
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) getASTNode((CompilationUnit) node, 0, 0, 5);
 		Expression initializer = ((VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0)).getInitializer();
 		MethodInvocation invocation = (MethodInvocation) ((CastExpression) initializer).getExpression();
@@ -701,32 +701,32 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0018() throws JavaModelException {
 		String contents =
-			"public class X<T> {\n" + 
-			"	T field1;\n" + 
-			"	public X(T param){\n" + 
-			"		field1 = param;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X<Object> a = new X<Object>(\"hello\");\n" + 
-			"		X.testFunction(a.getField()); //prints 2\n" + 
-			"		X<String> b = new X<>(\"hello\");\n" + 
-			"		X.testFunction(b.getField()); // prints 1\n" + 
-			"\n" + 
-			"		X<Object> c = new X<>(null);\n" + 
-			"		X.testFunction(c.getField()); // prints 2\n" + 
-			"		X<String> d = new X<>(null);\n" + 
-			"		X.testFunction(d.getField()); // prints 1\n" + 
-			"	}\n" + 
-			"	public static void testFunction(String param){\n" + 
-			"		System.out.println(1 + \", String param: \" + param);\n" + 
-			"	}\n" + 
-			"	public static void testFunction(Object param){\n" + 
-			"		System.out.println(2);\n" + 
-			"	}\n" + 
-			"	public T getField(){\n" + 
-			"		return field1;\n" + 
-			"	}\n" + 
+			"public class X<T> {\n" +
+			"	T field1;\n" +
+			"	public X(T param){\n" +
+			"		field1 = param;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X<Object> a = new X<Object>(\"hello\");\n" +
+			"		X.testFunction(a.getField()); //prints 2\n" +
+			"		X<String> b = new X<>(\"hello\");\n" +
+			"		X.testFunction(b.getField()); // prints 1\n" +
+			"\n" +
+			"		X<Object> c = new X<>(null);\n" +
+			"		X.testFunction(c.getField()); // prints 2\n" +
+			"		X<String> d = new X<>(null);\n" +
+			"		X.testFunction(d.getField()); // prints 1\n" +
+			"	}\n" +
+			"	public static void testFunction(String param){\n" +
+			"		System.out.println(1 + \", String param: \" + param);\n" +
+			"	}\n" +
+			"	public static void testFunction(Object param){\n" +
+			"		System.out.println(2);\n" +
+			"	}\n" +
+			"	public T getField(){\n" +
+			"		return field1;\n" +
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -779,11 +779,11 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 */
 	public void test0020() throws JavaModelException {
 		String contents =
-			"public class DiamondTest<T> {\n" + 
-			"	public <U> DiamondTest(T t) {}\n" + 
-			"	public static void main ( String[] args ) {\n" + 
-			"		DiamondTest<String> d = new <Integer> DiamondTest<>();\n" + 
-			"	}\n" + 
+			"public class DiamondTest<T> {\n" +
+			"	public <U> DiamondTest(T t) {}\n" +
+			"	public static void main ( String[] args ) {\n" +
+			"		DiamondTest<String> d = new <Integer> DiamondTest<>();\n" +
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter17/src/DiamondTest.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
@@ -863,7 +863,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
     }
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402674
-	 * 
+	 *
 	 * @throws JavaModelException
 	 */
 	public void test403444() throws JavaModelException {
@@ -887,19 +887,19 @@ public class ASTConverter17Test extends ConverterTestSetup {
 				"      bar((int x, int y) -> x+y); //SingleVariableDeclarations are OK\n" +
 				"  }\n" +
 				"}\n";
-		
-		
+
+
     	this.workingCopy = getWorkingCopy("/Converter/src/test403444/X.java", true/* resolve */);
     	this.workingCopy.getBuffer().setContents(contents);
     	ASTNode node = runConversion(this.workingCopy, true);
     	assertTrue(node != null);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		
-		String error = "Lambda expressions are allowed only at source level 1.8 or above\n" + 
-				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
-				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
-				"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+
+		String error = "Lambda expressions are allowed only at source level 1.8 or above\n" +
+				"Lambda expressions are allowed only at source level 1.8 or above\n" +
+				"Lambda expressions are allowed only at source level 1.8 or above\n" +
+				"Lambda expressions are allowed only at source level 1.8 or above\n" +
 				"Lambda expressions are allowed only at source level 1.8 or above";
 		assertProblemsSize(unit, 5, error);
 
@@ -907,41 +907,41 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		MethodDeclaration methoddecl = (MethodDeclaration)typedeclaration.bodyDeclarations().get(4);
 		List statements = methoddecl.getBody().statements();
 		int sCount = 0;
-		
+
 		ExpressionStatement statement = (ExpressionStatement)statements.get(sCount++);
 		MethodInvocation methodInvocation = (MethodInvocation)statement.getExpression();
 		Expression expression = (Expression) methodInvocation.arguments().get(0);
 		assertTrue(expression instanceof NullLiteral);
 		ITypeBinding binding = expression.resolveTypeBinding();
-		assertNull(binding);	
-		
-		statement = (ExpressionStatement)statements.get(sCount++);
-		methodInvocation = (MethodInvocation)statement.getExpression();
-		expression = (Expression) methodInvocation.arguments().get(0);
-		assertTrue(expression instanceof NullLiteral);
-		binding = expression.resolveTypeBinding();
-		assertNull(binding);	
+		assertNull(binding);
 
 		statement = (ExpressionStatement)statements.get(sCount++);
 		methodInvocation = (MethodInvocation)statement.getExpression();
 		expression = (Expression) methodInvocation.arguments().get(0);
 		assertTrue(expression instanceof NullLiteral);
 		binding = expression.resolveTypeBinding();
-		assertNull(binding);	
+		assertNull(binding);
 
 		statement = (ExpressionStatement)statements.get(sCount++);
 		methodInvocation = (MethodInvocation)statement.getExpression();
 		expression = (Expression) methodInvocation.arguments().get(0);
 		assertTrue(expression instanceof NullLiteral);
 		binding = expression.resolveTypeBinding();
-		assertNull(binding);	
+		assertNull(binding);
 
 		statement = (ExpressionStatement)statements.get(sCount++);
 		methodInvocation = (MethodInvocation)statement.getExpression();
 		expression = (Expression) methodInvocation.arguments().get(0);
 		assertTrue(expression instanceof NullLiteral);
 		binding = expression.resolveTypeBinding();
-		assertNull(binding);	
+		assertNull(binding);
+
+		statement = (ExpressionStatement)statements.get(sCount++);
+		methodInvocation = (MethodInvocation)statement.getExpression();
+		expression = (Expression) methodInvocation.arguments().get(0);
+		assertTrue(expression instanceof NullLiteral);
+		binding = expression.resolveTypeBinding();
+		assertNull(binding);
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791

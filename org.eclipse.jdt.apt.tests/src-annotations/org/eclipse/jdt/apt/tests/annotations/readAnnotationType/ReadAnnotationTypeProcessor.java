@@ -23,7 +23,7 @@ import com.sun.mirror.declaration.Declaration;
 public class ReadAnnotationTypeProcessor extends BaseProcessor {
 
     private AnnotationTypeDeclaration _annotationType;
-    
+
     public ReadAnnotationTypeProcessor(Set<AnnotationTypeDeclaration> declarationTypes, AnnotationProcessorEnvironment env) {
         super(env);
         assert declarationTypes.size() == 1;
@@ -34,7 +34,7 @@ public class ReadAnnotationTypeProcessor extends BaseProcessor {
         PrintWriter writer = null;
         try
         {
-            Collection<Declaration> declarations = _env.getDeclarationsAnnotatedWith(_annotationType);     
+            Collection<Declaration> declarations = _env.getDeclarationsAnnotatedWith(_annotationType);
             assert declarations.size() == 1;
             new AnnotationReader().createClassFilesForAnnotatedDeclarations(declarations, _env);
         } catch (Throwable e)
@@ -49,6 +49,6 @@ public class ReadAnnotationTypeProcessor extends BaseProcessor {
             }
         }
     }
-    
+
 
 }

@@ -73,7 +73,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return false;
 		}
-		
+
 		this.roundEnv = roundEnv;
 		Map<String, String> options = processingEnv.getOptions();
 		if (!options.containsKey(this.getClass().getName())) {
@@ -261,7 +261,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
 		assertTrue("should be final", modifiers.contains(Modifier.FINAL));
 		assertTrue("should be strictfp", modifiers.contains(Modifier.STRICTFP));
-		
+
 	}
 	/*
 	 * Test for annotations on record and record components
@@ -285,7 +285,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		Element element = recordComponentsIn.get(0);
 		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
 		RecordComponentElement recordComponent = (RecordComponentElement) element;
-		
+
 		verifyAnnotations(recordComponent, new String[]{"@MyAnnot()"});
 	}
 	public void testRecords5() {
@@ -294,9 +294,9 @@ public class Java14ElementProcessor extends BaseProcessor {
 		expRecComps.put("i", TypeKind.DECLARED);
 		expRecComps.put( "r", TypeKind.DECLARED);
 		expRecComps.put("t", TypeKind.DECLARED);
-		
+
         Map<String, TypeKind> fields = new HashMap<>();
-		
+
         fields.put("s", TypeKind.DECLARED);
         fields.put("d", TypeKind.DOUBLE);
         fields.put("c", TypeKind.DECLARED);
@@ -316,7 +316,7 @@ public class Java14ElementProcessor extends BaseProcessor {
         List<ExecutableElement> methods = ElementFilter.methodsIn(recordElements);
         //checking the size
         assertEquals("expected enclosed fields size mismatch", expFields.size(), actFields.size());
-        
+
         //checking for types for the given field Names.
         for (VariableElement actField : actFields) {
             String key = actField.getSimpleName().toString();
@@ -471,14 +471,14 @@ public class Java14ElementProcessor extends BaseProcessor {
         	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
         }
     }
-    
+
     static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
         }
         return expected.equals(actual);
     }
-    
+
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			StringBuffer buf = new StringBuffer();
@@ -489,7 +489,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 	}
 	public void assertEquals(Object expected, Object actual) {
 		if (expected != actual) {
-			
+
 		}
 	}
 	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {
@@ -500,7 +500,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 			assertEquals("Invalid annotation value", annots[i], getAnnotationString(mirror));
 		}
 	}
-	
+
 	private String getAnnotationString(AnnotationMirror annot) {
 		DeclaredType annotType = annot.getAnnotationType();
 		TypeElement type = (TypeElement) annotType.asElement();

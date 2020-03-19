@@ -203,7 +203,7 @@ private IMemberValuePair[] getRetentionPolicy(long tagBits) {
 		retention = new String(CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_RETENTIONPOLICY, '.')) + '.' + new String(TypeConstants.UPPER_CLASS);
 	}
 	final String value = retention;
-	return 
+	return
 		new IMemberValuePair[] {
 			new IMemberValuePair() {
 				@Override

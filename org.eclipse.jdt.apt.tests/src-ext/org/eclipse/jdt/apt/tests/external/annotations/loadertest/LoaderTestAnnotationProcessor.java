@@ -25,11 +25,11 @@ import com.sun.mirror.apt.Filer;
  * Used to test loading an annotation processor from a jar file.
  */
 public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
-	
+
 	private static String getClassName() {
 		return getPackageName() + "." + getTypeName(); //$NON-NLS-1$
 	}
-	
+
 	private final AnnotationProcessorEnvironment _env;
 
 	/**
@@ -73,22 +73,22 @@ public class LoaderTestAnnotationProcessor implements AnnotationProcessor {
 	{
 		return _env;
 	}
-	
+
 	protected static String getCode() {
-		return CODE; 
+		return CODE;
 	}
-	
+
 	protected static String getPackageName() {
 		return "generatedfilepackage";  //$NON-NLS-1$
 	}
-	
-	protected static String getTypeName() { 
+
+	protected static String getTypeName() {
 		return "LoadFactoryFromJarTest";  //$NON-NLS-1$
 	}
 
-	protected final static String CODE			= 
+	protected final static String CODE			=
 		"package " + getPackageName() + ";\n" +
-		"public class "	+ getTypeName()	+ "\n"	+ 
+		"public class "	+ getTypeName()	+ "\n"	+
 		"{\n" +
 		"    public static void helloWorld() {\n" +
 		"        System.out.println( \"Hello, world!  I am a generated file!\" ); \n" +

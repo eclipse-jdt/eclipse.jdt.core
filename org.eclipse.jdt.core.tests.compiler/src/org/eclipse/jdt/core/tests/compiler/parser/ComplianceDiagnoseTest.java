@@ -1101,11 +1101,11 @@ public void test0023() {
 		expected13ProblemLog;
 
 	String expected15ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	import static for;\n" + 
-			"	              ^^^\n" + 
-			"Syntax error on token \"for\", invalid Name\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	import static for;\n" +
+			"	              ^^^\n" +
+			"Syntax error on token \"for\", invalid Name\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -1250,21 +1250,21 @@ public void test0027() {
 	};
 
 	String expected13ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	for(Object o : switch){\n" + 
-			"	             ^\n" + 
-			"Syntax error on token \":\", delete this token\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	for(Object o : switch){\n" + 
-			"	             ^\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for(Object o : switch){\n" +
+			"	             ^\n" +
+			"Syntax error on token \":\", delete this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	for(Object o : switch){\n" +
+			"	             ^\n" +
 			"Syntax error, insert \": Expression )\" to complete EnhancedForStatementHeader\n" +  // FIXME: bogus suggestion, this rule is compliance 1.5
-			"----------\n" + 
-			"3. ERROR in X.java (at line 3)\n" + 
-			"	for(Object o : switch){\n" + 
-			"	             ^\n" + 
-			"Syntax error, insert \"Statement\" to complete BlockStatements\n" + 
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	for(Object o : switch){\n" +
+			"	             ^\n" +
+			"Syntax error, insert \"Statement\" to complete BlockStatements\n" +
 			"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -1518,16 +1518,16 @@ public void _test0032() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public class X <T1 extends String, T2 extends Y {\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on token(s), misplaced construct(s)\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 1)\n" + 
-		"	public class X <T1 extends String, T2 extends Y {\n" + 
-		"	                                              ^\n" + 
-		"Y cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public class X <T1 extends String, T2 extends Y {\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error on token(s), misplaced construct(s)\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 1)\n" +
+		"	public class X <T1 extends String, T2 extends Y {\n" +
+		"	                                              ^\n" +
+		"Y cannot be resolved to a type\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -1967,24 +1967,24 @@ public void _test0042() {
 	};
 
 	String expected13ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	void ___eval() {\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"Syntax error on tokens, delete these tokens\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
-			"	new Runnable() {\n" + 
-			"		int ___run() throws Throwable {\n" + 
-			"			return blah;\n" + 
-			"		}\n" + 
-			"		private String blarg;\n" + 
-			"		public void run() {\n" + 
-			"		}\n" + 
-			"	};\n" + 
-			"}\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Syntax error on tokens, delete these tokens\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	void ___eval() {\n" +
+			"	^^^^^^^^^^^^^^\n" +
+			"Syntax error on tokens, delete these tokens\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	new Runnable() {\n" +
+			"		int ___run() throws Throwable {\n" +
+			"			return blah;\n" +
+			"		}\n" +
+			"		private String blarg;\n" +
+			"		public void run() {\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Syntax error on tokens, delete these tokens\n" +
 			"----------\n";
 	@SuppressWarnings("unused")
 	String expected14ProblemLog =
@@ -1992,65 +1992,65 @@ public void _test0042() {
 
 	@SuppressWarnings("unused")
 	String expected15ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	void ___eval() {\n" + 
-			"	^^^^\n" + 
-			"Syntax error on token \"void\", @ expected\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 1)\n" + 
-			"	void ___eval() {\n" + 
-			"	             ^\n" + 
-			"Syntax error on token \")\", delete this token\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
-			"	};\n" + 
-			"}\n" + 
-			"	^^^^\n" + 
-			"Syntax error on tokens, delete these tokens\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 23)\n" + 
-			"	}\n" + 
-			"	^\n" + 
-			"Syntax error, insert \"}\" to complete ClassBody\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 23)\n" + 
-			"	}\n" + 
-			"	^\n" + 
-			"Syntax error, insert \"}\" to complete MemberValue\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 23)\n" + 
-			"	}\n" + 
-			"	^\n" + 
-			"Syntax error, insert \")\" to complete Modifiers\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 23)\n" + 
-			"	}\n" + 
-			"	^\n" + 
-			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
-			"----------\n" + 
-			"8. ERROR in X.java (at line 23)\n" + 
-			"	}\n" + 
-			"	^\n" + 
-			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	void ___eval() {\n" +
+			"	^^^^\n" +
+			"Syntax error on token \"void\", @ expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	void ___eval() {\n" +
+			"	             ^\n" +
+			"Syntax error on token \")\", delete this token\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	};\n" +
+			"}\n" +
+			"	^^^^\n" +
+			"Syntax error on tokens, delete these tokens\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 23)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 23)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error, insert \"}\" to complete MemberValue\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 23)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error, insert \")\" to complete Modifiers\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 23)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 23)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
 			"----------\n";
 
 	String expected_Java14_ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 1)\n" + 
-			"	void ___eval() {\n" + 
-			"	^^^^\n" + 
-			"Syntax error on token \"void\", record expected\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 1)\n" + 
-			"	void ___eval() {\n" + 
-			"	             ^\n" + 
-			"Syntax error on token \")\", { expected after this token\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 23)\n" + 
-			"	}\n" + 
-			"	^\n" + 
-			"Syntax error, insert \"}\" to complete RecordBody\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	void ___eval() {\n" +
+			"	^^^^\n" +
+			"Syntax error on token \"void\", record expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	void ___eval() {\n" +
+			"	             ^\n" +
+			"Syntax error on token \")\", { expected after this token\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 23)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error, insert \"}\" to complete RecordBody\n" +
 			"----------\n";
 	runComplianceParserTest(
 		testFiles,
@@ -2119,26 +2119,26 @@ public void test0044() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public <T> X(T t){\n" + 
-		"	        ^\n" + 
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error on token \"}\", delete this token\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	<String>super(\"SUCCESS\");\n" + 
-		"	 ^^^^^^\n" + 
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 9)\n" + 
-		"	<String>super(\"SUCCESS\");\n" + 
-		"	 ^^^^^^\n" + 
-		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public <T> X(T t){\n" +
+		"	        ^\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	}\n" +
+		"	^\n" +
+		"Syntax error on token \"}\", delete this token\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	<String>super(\"SUCCESS\");\n" +
+		"	 ^^^^^^\n" +
+		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 9)\n" +
+		"	<String>super(\"SUCCESS\");\n" +
+		"	 ^^^^^^\n" +
+		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2391,17 +2391,17 @@ public void test0050() {
 		"	         ^^^^\n" +
 		"List cannot be resolved to a type\n" +
 		"----------\n";
-	String expected17ProblemLog = 		
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	void foo(List<String>... args) {}\n" + 
-		"	         ^^^^\n" + 
-		"List cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 2)\n" + 
-		"	void foo(List<String>... args) {}\n" + 
-		"	                         ^^^^\n" + 
-		"Type safety: Potential heap pollution via varargs parameter args\n" + 
+	String expected17ProblemLog =
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	void foo(List<String>... args) {}\n" +
+		"	         ^^^^\n" +
+		"List cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 2)\n" +
+		"	void foo(List<String>... args) {}\n" +
+		"	                         ^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter args\n" +
 		"----------\n";
 
 	runComplianceParserTest(
@@ -2493,10 +2493,10 @@ public void test0052() {
 
 	String expected15ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	void foo2() {\n" + 
-		"	^^^^\n" + 
-		"Syntax error on token \"void\", record expected\n" + 
+		"1. ERROR in X.java (at line 5)\n" +
+		"	void foo2() {\n" +
+		"	^^^^\n" +
+		"Syntax error on token \"void\", record expected\n" +
 		"----------\n";
 
 	runComplianceParserTest(
@@ -2553,11 +2553,11 @@ public void test0054() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	try (int i = 0) {};\n" + 
-		"	     ^^^^^^^^^\n" + 
-		"Resource specification not allowed here for source level below 1.7\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	try (int i = 0) {};\n" +
+		"	     ^^^^^^^^^\n" +
+		"Resource specification not allowed here for source level below 1.7\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2565,12 +2565,12 @@ public void test0054() {
 	String expected15ProblemLog =
 		expected14ProblemLog;
 
-	String expected17ProblemLog = 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	try (int i = 0) {};\n" + 
-		"	     ^^^\n" + 
-		"The resource type int does not implement java.lang.AutoCloseable\n" + 
+	String expected17ProblemLog =
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	try (int i = 0) {};\n" +
+		"	     ^^^\n" +
+		"The resource type int does not implement java.lang.AutoCloseable\n" +
 		"----------\n";
 	runComplianceParserTest(
 		testFiles,
@@ -2590,23 +2590,23 @@ public void test0055() {
 		"import java.io.*;\n" +
 		"public class X {\n" +
 		"	public static void main(String[] args) {\n" +
-		"		try {\n" + 
-		"			System.out.println();\n" + 
-		"			Reader r = new FileReader(args[0]);\n" + 
-		"			r.read();\n" + 
-		"		} catch(IOException | RuntimeException e) {\n" + 
-		"			e.printStackTrace();\n" + 
-		"		}\n" + 
+		"		try {\n" +
+		"			System.out.println();\n" +
+		"			Reader r = new FileReader(args[0]);\n" +
+		"			r.read();\n" +
+		"		} catch(IOException | RuntimeException e) {\n" +
+		"			e.printStackTrace();\n" +
+		"		}\n" +
 		"	}\n" +
 		"}\n"
 	};
 
 	String expected13ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	} catch(IOException | RuntimeException e) {\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Multi-catch parameters are not allowed for source level below 1.7\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	} catch(IOException | RuntimeException e) {\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Multi-catch parameters are not allowed for source level below 1.7\n" +
 			"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2621,22 +2621,22 @@ public void test0055() {
 		expected15ProblemLog
 	);
 }
-// rethrow should not be precisely computed in 1.6- 
+// rethrow should not be precisely computed in 1.6-
 public void test0056() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
-		"	public static void main(String[] args) {\n" + 
-		"		try {\n" + 
+		"	public static void main(String[] args) {\n" +
+		"		try {\n" +
 		"			throw new DaughterOfFoo();\n"+
-		"		} catch(Foo e) {\n" + 
+		"		} catch(Foo e) {\n" +
 		"			try {\n" +
 		"				throw e;\n" +
 		"			} catch (SonOfFoo e1) {\n" +
 		"			 	e1.printStackTrace();\n" +
 		"			} catch (Foo e1) {}\n" +
-		"		}\n" + 
-		"	}\n" + 
+		"		}\n" +
+		"	}\n" +
 		"}\n"+
 		"class Foo extends Exception {}\n"+
 		"class SonOfFoo extends Foo {}\n"+
@@ -2644,21 +2644,21 @@ public void test0056() {
 	};
 
 	String expected13ProblemLog =
-			"----------\n" + 
-			"1. WARNING in X.java (at line 14)\n" + 
-			"	class Foo extends Exception {}\n" + 
-			"	      ^^^\n" + 
-			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 15)\n" + 
-			"	class SonOfFoo extends Foo {}\n" + 
-			"	      ^^^^^^^^\n" + 
-			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 16)\n" + 
-			"	class DaughterOfFoo extends Foo {}\n" + 
-			"	      ^^^^^^^^^^^^^\n" + 
-			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 14)\n" +
+			"	class Foo extends Exception {}\n" +
+			"	      ^^^\n" +
+			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 15)\n" +
+			"	class SonOfFoo extends Foo {}\n" +
+			"	      ^^^^^^^^\n" +
+			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 16)\n" +
+			"	class DaughterOfFoo extends Foo {}\n" +
+			"	      ^^^^^^^^^^^^^\n" +
+			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 			"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -2666,27 +2666,27 @@ public void test0056() {
 	String expected15ProblemLog =
 		expected14ProblemLog;
 
-	String expected17ProblemLog = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	} catch (SonOfFoo e1) {\n" + 
-			"	         ^^^^^^^^\n" + 
-			"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 14)\n" + 
-			"	class Foo extends Exception {}\n" + 
-			"	      ^^^\n" + 
-			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 15)\n" + 
-			"	class SonOfFoo extends Foo {}\n" + 
-			"	      ^^^^^^^^\n" + 
-			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 16)\n" + 
-			"	class DaughterOfFoo extends Foo {}\n" + 
-			"	      ^^^^^^^^^^^^^\n" + 
-			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+	String expected17ProblemLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	} catch (SonOfFoo e1) {\n" +
+			"	         ^^^^^^^^\n" +
+			"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 14)\n" +
+			"	class Foo extends Exception {}\n" +
+			"	      ^^^\n" +
+			"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 15)\n" +
+			"	class SonOfFoo extends Foo {}\n" +
+			"	      ^^^^^^^^\n" +
+			"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 16)\n" +
+			"	class DaughterOfFoo extends Foo {}\n" +
+			"	      ^^^^^^^^^^^^^\n" +
+			"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 			"----------\n";
 	runComplianceParserTest(
 		testFiles,
@@ -2709,11 +2709,11 @@ public void test0057() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	public default void foo() { System.out.println(); }\n" + 
-			"	                    ^^^^^\n" + 
-			"Default methods are allowed only at source level 1.8 or above\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public default void foo() { System.out.println(); }\n" +
+			"	                    ^^^^^\n" +
+			"Default methods are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2741,11 +2741,11 @@ public void test0058() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	I i = System::exit;\n" + 
-			"	      ^^^^^^^^^^^^\n" + 
-			"Method references are allowed only at source level 1.8 or above\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	I i = System::exit;\n" +
+			"	      ^^^^^^^^^^^^\n" +
+			"Method references are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2777,16 +2777,16 @@ public void test0059() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	I i = super::goo;\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"Method references are allowed only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 9)\n" + 
-			"	I i = super::goo;\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"The method goo(int) from the type Y should be accessed in a static way \n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	I i = super::goo;\n" +
+			"	      ^^^^^^^^^^\n" +
+			"Method references are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	I i = super::goo;\n" +
+			"	      ^^^^^^^^^^\n" +
+			"The method goo(int) from the type Y should be accessed in a static way \n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2818,11 +2818,11 @@ public void test0060() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	I i = new Y()::goo;\n" + 
-			"	      ^^^^^^^^^^^^\n" + 
-			"Method references are allowed only at source level 1.8 or above\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	I i = new Y()::goo;\n" +
+			"	      ^^^^^^^^^^^^\n" +
+			"Method references are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2856,11 +2856,11 @@ public void test0061() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	I i = Y::new;\n" + 
-			"	      ^^^^^^\n" + 
-			"Constructor references are allowed only at source level 1.8 or above\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	I i = Y::new;\n" +
+			"	      ^^^^^^\n" +
+			"Constructor references are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2888,11 +2888,11 @@ public void test0062() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	I i = p -> 10 + 20 + 30;\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	I i = p -> 10 + 20 + 30;\n" +
 			"	      ^^^^^^^^^^^^^^^^^\n" +
-			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+			"Lambda expressions are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -2924,21 +2924,21 @@ public void test0063() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	I i = X<String>::foo;\n" + 
-			"	      ^^^^^^^^^^^^^^\n" + 
-			"Method references are allowed only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	I i = X<String>::foo;\n" + 
-			"	      ^^^^^^^^^^^^^^\n" + 
-			"The method foo(int) from the type X<String> should be accessed in a static way \n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
-			"	I i2 = (p) -> 10;\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	I i = X<String>::foo;\n" +
+			"	      ^^^^^^^^^^^^^^\n" +
+			"Method references are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	I i = X<String>::foo;\n" +
+			"	      ^^^^^^^^^^^^^^\n" +
+			"The method foo(int) from the type X<String> should be accessed in a static way \n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	I i2 = (p) -> 10;\n" +
 			"	       ^^^^^^^^^\n" +
-			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
+			"Lambda expressions are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3011,26 +3011,26 @@ public void testBug391201() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	@Marker int foo(@Marker int p) {\n" + 
-			"	^^^^^^^\n" + 
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 2)\n" + 
-			"	@Marker int foo(@Marker int p) {\n" + 
-			"	                ^^^^^^^\n" + 
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 3)\n" + 
-			"	@Marker int i = 0;\n" + 
-			"	^^^^^^^\n" + 
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
-			"	@Marker\n" + 
-			"	^^^^^^^\n" + 
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	@Marker int foo(@Marker int p) {\n" +
+			"	^^^^^^^\n" +
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	@Marker int foo(@Marker int p) {\n" +
+			"	                ^^^^^^^\n" +
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	@Marker int i = 0;\n" +
+			"	^^^^^^^\n" +
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 6)\n" +
+			"	@Marker\n" +
+			"	^^^^^^^\n" +
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3061,31 +3061,31 @@ public void testBug399773() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	default void doitalso () {}\n" + 
-			"	             ^^^^^^^^^^^\n" + 
-			"Default methods are allowed only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	default void doitalso () {}\n" + 
-			"	             ^^^^^^^^^^^\n" + 
-			"Default methods are allowed only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 10)\n" + 
-			"	Object p = (I & J) () -> {};\n" + 
-			"	            ^^^^^\n" + 
-			"Additional bounds are not allowed in cast operator at source levels below 1.8\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
-			"	Object p = (I & J) () -> {};\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	default void doitalso () {}\n" +
+			"	             ^^^^^^^^^^^\n" +
+			"Default methods are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	default void doitalso () {}\n" +
+			"	             ^^^^^^^^^^^\n" +
+			"Default methods are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	Object p = (I & J) () -> {};\n" +
+			"	            ^^^^^\n" +
+			"Additional bounds are not allowed in cast operator at source levels below 1.8\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 10)\n" +
+			"	Object p = (I & J) () -> {};\n" +
 			"	                   ^^^^^\n" +
-			"Lambda expressions are allowed only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 10)\n" + 
-			"	Object p = (I & J) () -> {};\n" + 
+			"Lambda expressions are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 10)\n" +
+			"	Object p = (I & J) () -> {};\n" +
 			"	                   ^^^^^\n" +
-			"The target type of this expression must be a functional interface\n" + 
+			"The target type of this expression must be a functional interface\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3111,11 +3111,11 @@ public void testBug399778() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	List<String> l = null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\");\n" + 
-			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from List<capture#1-of ? extends Object> to List<String>\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	List<String> l = null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\");\n" +
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from List<capture#1-of ? extends Object> to List<String>\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3142,11 +3142,11 @@ public void testBug399778a() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\"));\n" + 
-			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked cast from List<capture#1-of ? extends Object> to List<String>\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	List<String> l = (List<String>) (null == null ? Arrays.asList() : Arrays.asList(\"Hello\",\"world\"));\n" +
+			"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from List<capture#1-of ? extends Object> to List<String>\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3174,26 +3174,26 @@ public void testBug399780() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in I.java (at line 2)\n" + 
-			"	public static void foo1() { System.out.println(); }\n" + 
-			"	                   ^^^^^^\n" + 
-			"Static methods are allowed in interfaces only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"2. ERROR in I.java (at line 2)\n" + 
-			"	public static void foo1() { System.out.println(); }\n" + 
-			"	                   ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" + 
-			"----------\n" + 
-			"3. ERROR in I.java (at line 3)\n" + 
-			"	public static void foo2();\n" + 
-			"	                   ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo2; only public & abstract are permitted\n" + 
-			"----------\n" + 
-			"4. ERROR in I.java (at line 4)\n" + 
-			"	public abstract static void foo3();\n" + 
-			"	                            ^^^^^^\n" + 
-			"Illegal modifier for the interface method foo3; only public & abstract are permitted\n" + 
+			"----------\n" +
+			"1. ERROR in I.java (at line 2)\n" +
+			"	public static void foo1() { System.out.println(); }\n" +
+			"	                   ^^^^^^\n" +
+			"Static methods are allowed in interfaces only at source level 1.8 or above\n" +
+			"----------\n" +
+			"2. ERROR in I.java (at line 2)\n" +
+			"	public static void foo1() { System.out.println(); }\n" +
+			"	                   ^^^^^^\n" +
+			"Illegal modifier for the interface method foo1; only public & abstract are permitted\n" +
+			"----------\n" +
+			"3. ERROR in I.java (at line 3)\n" +
+			"	public static void foo2();\n" +
+			"	                   ^^^^^^\n" +
+			"Illegal modifier for the interface method foo2; only public & abstract are permitted\n" +
+			"----------\n" +
+			"4. ERROR in I.java (at line 4)\n" +
+			"	public abstract static void foo3();\n" +
+			"	                            ^^^^^^\n" +
+			"Illegal modifier for the interface method foo3; only public & abstract are permitted\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3227,58 +3227,58 @@ public void testBug399781() {
 	};
 	String usLevel = this.complianceLevel < ClassFileConstants.JDK9 ? "WARNING" : "ERROR";
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. " + usLevel +" in X.java (at line 2)\n" + 
-			"	int _;\n" + 
-			"	    ^\n" + 
-			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
-			"----------\n" + 
-			"2. " + usLevel +" in X.java (at line 4)\n" + 
-			"	int _   = 3;\n" + 
-			"	    ^\n" + 
-			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 4)\n" + 
-			"	int _   = 3;\n" + 
-			"	    ^\n" + 
-			"The local variable _ is hiding a field from type X\n" + 
-			"----------\n" + 
-			"4. " + usLevel +" in X.java (at line 8)\n" + 
-			"	void goo(int _) {}\n" + 
-			"	             ^\n" + 
-			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 8)\n" + 
-			"	void goo(int _) {}\n" + 
-			"	             ^\n" + 
-			"The parameter _ is hiding a field from type X\n" + 
-			"----------\n" + 
-			"6. " + usLevel +" in X.java (at line 11)\n" + 
-			"	} catch (Exception _) {\n" + 
-			"	                   ^\n" + 
-			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 11)\n" + 
-			"	} catch (Exception _) {\n" + 
-			"	                   ^\n" + 
-			"The parameter _ is hiding a field from type X\n" + 
+			"----------\n" +
+			"1. " + usLevel +" in X.java (at line 2)\n" +
+			"	int _;\n" +
+			"	    ^\n" +
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" +
+			"----------\n" +
+			"2. " + usLevel +" in X.java (at line 4)\n" +
+			"	int _   = 3;\n" +
+			"	    ^\n" +
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 4)\n" +
+			"	int _   = 3;\n" +
+			"	    ^\n" +
+			"The local variable _ is hiding a field from type X\n" +
+			"----------\n" +
+			"4. " + usLevel +" in X.java (at line 8)\n" +
+			"	void goo(int _) {}\n" +
+			"	             ^\n" +
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 8)\n" +
+			"	void goo(int _) {}\n" +
+			"	             ^\n" +
+			"The parameter _ is hiding a field from type X\n" +
+			"----------\n" +
+			"6. " + usLevel +" in X.java (at line 11)\n" +
+			"	} catch (Exception _) {\n" +
+			"	                   ^\n" +
+			"\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" +
+			"----------\n" +
+			"7. WARNING in X.java (at line 11)\n" +
+			"	} catch (Exception _) {\n" +
+			"	                   ^\n" +
+			"The parameter _ is hiding a field from type X\n" +
 			"----------\n";
 	String expected13ProblemLog =
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	int _   = 3;\n" + 
-			"	    ^\n" + 
-			"The local variable _ is hiding a field from type X\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 8)\n" + 
-			"	void goo(int _) {}\n" + 
-			"	             ^\n" + 
-			"The parameter _ is hiding a field from type X\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 11)\n" + 
-			"	} catch (Exception _) {\n" + 
-			"	                   ^\n" + 
-			"The parameter _ is hiding a field from type X\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	int _   = 3;\n" +
+			"	    ^\n" +
+			"The local variable _ is hiding a field from type X\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" +
+			"	void goo(int _) {}\n" +
+			"	             ^\n" +
+			"The parameter _ is hiding a field from type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 11)\n" +
+			"	} catch (Exception _) {\n" +
+			"	                   ^\n" +
+			"The parameter _ is hiding a field from type X\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3293,10 +3293,10 @@ public void testBug399781() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406846:  [1.8] compiler NPE for method reference/lambda code compiled with < 1.8 compliance
 public void test406846() {
-	
+
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8) // tested in LET.
 		return;
-	
+
 	String[] testFiles = new String[] {
 		"X.java",
 		"import java.util.*;\n" +
@@ -3321,58 +3321,58 @@ public void test406846() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	eachWithIndex(list,X::printItem);\n" + 
-			"	                   ^^^^^^^^^^^^\n" + 
-			"Method references are allowed only at source level 1.8 or above\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	eachWithIndex(list,X::printItem);\n" +
+			"	                   ^^^^^^^^^^^^\n" +
+			"Method references are allowed only at source level 1.8 or above\n" +
 			"----------\n";
 	String expected1314ProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	public static <E> void printItem(E value, int index) {\n" + 
-			"	               ^\n" + 
-			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	String output = String.format(\"%d -> %s\", index, value);\n" + 
-			"	                       ^^^^^^\n" + 
-			"The method format(String, Object[]) in the type String is not applicable for the arguments (String, int, E)\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
-			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" + 
-			"	     ^^^^^^\n" + 
-			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 8)\n" + 
-			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" + 
-			"	                           ^^^^^^\n" + 
-			"The method asList(T[]) in the type Arrays is not applicable for the arguments (String, String, String)\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 9)\n" + 
-			"	eachWithIndex(list,X::printItem);\n" + 
-			"	                   ^^^^^^^^^^^^\n" + 
-			"Method references are allowed only at source level 1.8 or above\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 11)\n" + 
-			"	interface ItemWithIndexVisitor<E> {\n" + 
-			"	                               ^\n" + 
-			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 14)\n" + 
-			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" + 
-			"	               ^\n" + 
-			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
-			"----------\n" + 
-			"8. ERROR in X.java (at line 14)\n" + 
-			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" + 
-			"	                                          ^\n" + 
-			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
-			"----------\n" + 
-			"9. ERROR in X.java (at line 14)\n" + 
-			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" + 
-			"	                                                                        ^\n" + 
-			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	public static <E> void printItem(E value, int index) {\n" +
+			"	               ^\n" +
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	String output = String.format(\"%d -> %s\", index, value);\n" +
+			"	                       ^^^^^^\n" +
+			"The method format(String, Object[]) in the type String is not applicable for the arguments (String, int, E)\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
+			"	     ^^^^^^\n" +
+			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 8)\n" +
+			"	List<String> list = Arrays.asList(\"A\",\"B\",\"C\");\n" +
+			"	                           ^^^^^^\n" +
+			"The method asList(T[]) in the type Arrays is not applicable for the arguments (String, String, String)\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 9)\n" +
+			"	eachWithIndex(list,X::printItem);\n" +
+			"	                   ^^^^^^^^^^^^\n" +
+			"Method references are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 11)\n" +
+			"	interface ItemWithIndexVisitor<E> {\n" +
+			"	                               ^\n" +
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 14)\n" +
+			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
+			"	               ^\n" +
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 14)\n" +
+			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
+			"	                                          ^\n" +
+			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 14)\n" +
+			"	public static <E> void eachWithIndex(List<E> list, ItemWithIndexVisitor<E> visitor) {\n" +
+			"	                                                                        ^\n" +
+			"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3388,7 +3388,7 @@ public void test406846() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401850: [1.8][compiler] Compiler fails to type poly allocation expressions in method invocation contexts
 // FAIL: sub-optimal overload picked
 public void test401850() {
-	
+
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
 	this.runConformTest(
@@ -3440,17 +3440,17 @@ public void test429110() {
 				"		return arg;\n" +
 				"	}\n" +
 				"}\n"
-			}, 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" + 
-			"	     ^^^^^^^^\n" + 
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" + 
-			"	                               ^^^^^^^^\n" + 
-			"Syntax error, type annotations are available only when source level is at least 1.8\n" + 
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" +
+			"	     ^^^^^^^^\n" +
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	List<@NonNull String> foo(List<@NonNull String> arg) {\n" +
+			"	                               ^^^^^^^^\n" +
+			"Syntax error, type annotations are available only when source level is at least 1.8\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=421477: [1.8][compiler] strange error message for default method in class
@@ -3523,16 +3523,16 @@ public void testBug440285() {
 		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" +
 		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" +
 		"}",},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" + 
-		"	                                      ^^^^\n" + 
-		"Type arguments are not allowed here\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" + 
-		"	                                      ^\n" + 
-		"Type arguments are not allowed here\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	Function<Integer, int[]> m1 = int[]::<Y, Z>new;\n" +
+		"	                                      ^^^^\n" +
+		"Type arguments are not allowed here\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	Function<Integer, int[]> m2 = int[]::<Y>new;\n" +
+		"	                                      ^\n" +
+		"Type arguments are not allowed here\n" +
 		"----------\n");
 }
 public void testBug531714_001() {
@@ -3556,30 +3556,30 @@ public void testBug531714_001() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"			case 0 -> i * 0;\n" + 
-			"			case 1 -> 2;\n" + 
-			"			default -> 3;\n" + 
-			"		};\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Switch Expressions are supported from Java 14 onwards only\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	case 0 -> i * 0;\n" + 
-			"	^^^^^^\n" + 
-			"Arrow in case statement supported from Java 14 onwards only\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	case 1 -> 2;\n" + 
-			"	^^^^^^\n" + 
-			"Arrow in case statement supported from Java 14 onwards only\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 6)\n" + 
-			"	default -> 3;\n" + 
-			"	^^^^^^^\n" + 
-			"Arrow in case statement supported from Java 14 onwards only\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	int tw = switch (i) {\n" +
+			"			case 0 -> i * 0;\n" +
+			"			case 1 -> 2;\n" +
+			"			default -> 3;\n" +
+			"		};\n" +
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Switch Expressions are supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case 0 -> i * 0;\n" +
+			"	^^^^^^\n" +
+			"Arrow in case statement supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case 1 -> 2;\n" +
+			"	^^^^^^\n" +
+			"Arrow in case statement supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 6)\n" +
+			"	default -> 3;\n" +
+			"	^^^^^^^\n" +
+			"Arrow in case statement supported from Java 14 onwards only\n" +
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3612,21 +3612,21 @@ public void testBug531714_002() {
 	};
 
 	String expectedProblemLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	case 0 -> i * 0;\n" + 
-			"	^^^^^^\n" + 
-			"Arrow in case statement supported from Java 14 onwards only\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	case 1 -> 2;\n" + 
-			"	^^^^^^\n" + 
-			"Arrow in case statement supported from Java 14 onwards only\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
-			"	default -> 3;\n" + 
-			"	^^^^^^^\n" + 
-			"Arrow in case statement supported from Java 14 onwards only\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case 0 -> i * 0;\n" +
+			"	^^^^^^\n" +
+			"Arrow in case statement supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case 1 -> 2;\n" +
+			"	^^^^^^\n" +
+			"Arrow in case statement supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	default -> 3;\n" +
+			"	^^^^^^^\n" +
+			"Arrow in case statement supported from Java 14 onwards only\n" +
 			"----------\n";
 
 	runComplianceParserTest(

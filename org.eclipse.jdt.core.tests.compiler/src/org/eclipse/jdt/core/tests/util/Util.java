@@ -179,13 +179,13 @@ public static CompilationUnit[] compilationUnits9(String[] testFiles, String com
 {
 	int fileCount = testFiles.length / 2;
 	CompilationUnit[] units = new CompilationUnit[fileCount];
-	
+
 	String modName = null;
 	CompilationUnit modCU = null;
 	for (int i = 0; i < fileCount; i++) {
 		String fileName = testFiles[i*2];
 		boolean isModuleInfo = fileName.endsWith(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
-		units[i] = new CompilationUnit(testFiles[i*2+1].toCharArray(), fileName, null, "", false, modName); 
+		units[i] = new CompilationUnit(testFiles[i*2+1].toCharArray(), fileName, null, "", false, modName);
 		if (isModuleInfo) {
 			IModule mod = extractModuleDesc(testFiles[i*2+1], compliance, errorHandlingPolicy, problemFactory);
 			if (mod != null) {
@@ -237,7 +237,7 @@ public static void compile(String[] pathsAndContents, Map options, String[] clas
         } else {
         	classpath = classLibs;
         }
-        
+
         FileSystem nameEnvironment = new FileSystem(classpath, new String[] {}, null);
         if (CompilerOptions.versionToJdkLevel((String) options.get(CompilerOptions.OPTION_Compliance)) >= ClassFileConstants.JDK9) {
         	nameEnvironment.scanForModules(createParser9());
@@ -437,7 +437,7 @@ public static void createEmptyJar(String jarPath, String compliance) throws IOEx
 			},
 			jarPath,
 			null,
-			compliance);	
+			compliance);
 }
 public static void createJar(String[] pathsAndContents, Map options, String jarPath) throws IOException {
 	createJar(pathsAndContents, null, options, null, jarPath);
@@ -1460,7 +1460,7 @@ private static void zip(File dir, ZipOutputStream zip, int rootPathLength) throw
 }
 
 /**
- * Zips the given files into the given jar. All the files are kept at the root of the zip. 
+ * Zips the given files into the given jar. All the files are kept at the root of the zip.
  */
 public static void zipFiles(File[] files, String zipPath) throws IOException {
 	File zipFile = new File(zipPath);

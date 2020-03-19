@@ -19,15 +19,15 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * Implementation of 18.1.3 in JLS8
  */
 public class TypeBound extends ReductionResult {
-	
+
 	InferenceVariable left;
-	
+
 	// this flag contributes to the workaround controlled by InferenceContext18.ARGUMENT_CONSTRAINTS_ARE_SOFT:
 	boolean isSoft;
 
 	// here we accumulate null tagBits from any types that have been related to this type bound during incorporation:
 	long nullHints;
-	
+
 	static TypeBound createBoundOrDependency(InferenceSubstitution theta, TypeBinding type, InferenceVariable variable) {
         // Part of JLS8 sect 18.1.3:
 		return new TypeBound(variable, theta.substitute(theta, type), SUBTYPE, true);
@@ -37,7 +37,7 @@ public class TypeBound extends ReductionResult {
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation) {
 		this(inferenceVariable, typeBinding, relation, false);
 	}
-	
+
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation, boolean isSoft) {
 		this.left = inferenceVariable;
 		this.right = typeBinding;
@@ -65,12 +65,12 @@ public class TypeBound extends ReductionResult {
 	boolean isBound() {
 		return this.right.isProperType(true);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return this.left.hashCode() + this.right.hashCode() + this.relation;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof TypeBound) {
@@ -79,7 +79,7 @@ public class TypeBound extends ReductionResult {
 		}
 		return false;
 	}
-	
+
 	// debugging:
 	@Override
 	public String toString() {

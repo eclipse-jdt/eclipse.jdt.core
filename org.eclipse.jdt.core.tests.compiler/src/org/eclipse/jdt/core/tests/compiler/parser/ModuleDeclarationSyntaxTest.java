@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -45,10 +45,10 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		super(testName, null, null);
 	}
 	public void test0001() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module com.greetings {\n" +
 				"}\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
@@ -58,11 +58,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0002() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				    "requires org.astro;" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module com.greetings {\n" +
 				"  requires org.astro;\n" +
 				"}\n";
@@ -73,11 +73,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0003() throws IOException {
-		String source = 
+		String source =
 				"module org.astro {\n" +
 				"    exports org.astro;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.astro {\n" +
 				"  exports org.astro;\n" +
 				"}\n";
@@ -88,11 +88,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0004() throws IOException {
-		String source = 
+		String source =
 				"module org.astro {\n" +
 				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.astro {\n" +
 				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
@@ -103,13 +103,13 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0005() throws IOException {
-		String source = 
+		String source =
 				"module com.socket {\n" +
 				"    exports com.socket;\n" +
 				"    exports com.socket.spi;\n" +
 				"    uses com.socket.spi.NetworkSocketProvider;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module com.socket {\n" +
 				"  exports com.socket;\n" +
 				"  exports com.socket.spi;\n" +
@@ -122,13 +122,13 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0006() throws IOException {
-		String source = 
+		String source =
 				"module org.fastsocket {\n" +
 				"    requires com.socket;\n" +
 				"    provides com.socket.spi.NetworkSocketProvider\n" +
 				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
 				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
@@ -140,12 +140,12 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0007() throws IOException {
-		String source = 
+		String source =
 				"module org.fastsocket {\n" +
 				"    requires com.socket;\n" +
 				"    provides com.socket.spi.NetworkSocketProvider;\n" +
 				"}\n";
-		String expectedErrorString = 
+		String expectedErrorString =
 				"----------\n" +
 				"1. ERROR in module-info (at line 3)\n" +
 				"	provides com.socket.spi.NetworkSocketProvider;\n" +
@@ -159,11 +159,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), expectedErrorString, "module-info", null, null, options);
 	}
 	public void test0008() throws IOException {
-		String source = 
+		String source =
 				"module @Marker com.greetings {\n" +
 				"	requires org.astro;" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 1)\n" +
 				"	module @Marker com.greetings {\n" +
@@ -182,11 +182,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0009() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"	requires @Marker org.astro;\n" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 1)\n" +
 				"	module com.greetings {\n	requires @Marker org.astro;\n" +
@@ -210,11 +210,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0010() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"	requires private org.astro;\n" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 2)\n" +
 				"	requires private org.astro;\n"+
@@ -228,11 +228,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0011() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"	exports @Marker com.greetings;\n" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 1)\n" +
 				"	module com.greetings {\n	exports @Marker com.greetings;\n" +
@@ -256,11 +256,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0012() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"	exports com.greetings to @Marker org.astro;\n" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 2)\n" +
 				"	exports com.greetings to @Marker org.astro;\n"+
@@ -274,11 +274,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0013() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"	uses @Marker org.astro.World;\n" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 2)\n" +
 				"	uses @Marker org.astro.World;\n" +
@@ -292,11 +292,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0014() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
 				"}\n";
-		String errorMsg = 
+		String errorMsg =
 				"----------\n" +
 				"1. ERROR in module-info (at line 2)\n" +
 				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
@@ -315,11 +315,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
 	public void test0015() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				    "requires transitive org.astro;" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module com.greetings {\n" +
 				"  requires transitive org.astro;\n" +
 				"}\n";
@@ -330,11 +330,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0016() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				    "requires static org.astro;" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module com.greetings {\n" +
 				"  requires static org.astro;\n" +
 				"}\n";
@@ -345,11 +345,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0017() throws IOException {
-		String source = 
+		String source =
 				"module com.greetings {\n" +
 				    "requires transitive static org.astro;" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module com.greetings {\n" +
 				"  requires transitive static org.astro;\n" +
 				"}\n";
@@ -360,14 +360,14 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0018() throws IOException {
-		String source = 
+		String source =
 				"import com.socket.spi.NetworkSocketProvider;\n" +
 				"module org.fastsocket {\n" +
 				"    requires com.socket;\n" +
 				"    provides NetworkSocketProvider\n" +
 				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"import com.socket.spi.NetworkSocketProvider;\n" +
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
@@ -380,14 +380,14 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0019() throws IOException {
-		String source = 
+		String source =
 				"import com.socket.spi.*;\n" +
 				"module org.fastsocket {\n" +
 				"    requires com.socket;\n" +
 				"    provides NetworkSocketProvider\n" +
 				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"import com.socket.spi.*;\n" +
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
@@ -400,11 +400,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0020() throws IOException {
-		String source = 
+		String source =
 				"open module com.greetings {\n" +
 				    "requires transitive static org.astro;" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"open module com.greetings {\n" +
 				"  requires transitive static org.astro;\n" +
 				"}\n";
@@ -415,13 +415,13 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0021() throws IOException {
-		String source = 
+		String source =
 				"module org.fastsocket {\n" +
 				"    requires com.socket;\n" +
 				"    provides com.socket.spi.NetworkSocketProvider\n" +
 				"      with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
 				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
@@ -433,11 +433,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0022() throws IOException {
-		String source = 
+		String source =
 				"module org.astro {\n" +
 				"    opens org.astro;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.astro {\n" +
 				"  opens org.astro;\n" +
 				"}\n";
@@ -448,11 +448,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0023() throws IOException {
-		String source = 
+		String source =
 				"module org.astro {\n" +
 				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.astro {\n" +
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
@@ -463,13 +463,13 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0024() throws IOException {
-		String source = 
+		String source =
 				"module org.astro {\n" +
 				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module org.astro {\n" +
 				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
@@ -482,14 +482,14 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0025() throws IOException {
-		String source = 
+		String source =
 				"@Foo\n" +
 				"module org.astro {\n" +
 				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"@Foo\n" +
 				"module org.astro {\n" +
 				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
@@ -503,14 +503,14 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 	public void test0026() throws IOException {
-		String source = 
+		String source =
 				"@Foo\n" +
 				"open module org.astro {\n" +
 				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"@Foo\n" +
 				"open module org.astro {\n" +
 				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
@@ -525,14 +525,14 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 
 	public void test0027() throws IOException {
-		String source = 
+		String source =
 				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
 				"open module org.astro {\n" +
 				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
 				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
 				"open module org.astro {\n" +
 				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
@@ -547,11 +547,11 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 
 	public void testBug518626() throws IOException {
-		String source = 
+		String source =
 				"module module.test {\n" +
 				"    provides X with Y;\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"module module.test {\n" +
 				"  provides X with Y;\n" +
 				"}\n";

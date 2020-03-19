@@ -143,7 +143,7 @@ public class FileFingerprint {
 
 	/**
 	 * Returns true iff the file existed at the time the fingerprint was computed.
-	 * 
+	 *
 	 * @return true iff the file existed at the time the fingerprint was computed.
 	 */
 	public boolean fileExists() {

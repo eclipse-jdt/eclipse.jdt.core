@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 public class CompactConstructorDeclaration extends ConstructorDeclaration {
 
 	public RecordDeclaration recordDeclaration;
-	
+
 	public CompactConstructorDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
 	}

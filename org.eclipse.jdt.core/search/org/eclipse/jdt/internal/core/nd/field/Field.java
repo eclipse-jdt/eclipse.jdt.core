@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Used to represent a single field of an object stored in the database. Objects 
+ * Used to represent a single field of an object stored in the database. Objects
  * which store themselves in the database should store a set of static final
  * FieldDefinitions at the top of their class definition to indicate their memory map.
  * This serves as a standard way to document the memory map for such structs, provides
@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
  * manually. The get function is more convenient but allocates objects and so should
  * probably not be used for frequently-accessed fields or primitive types that would
  * end up being autoboxed unnecessarily.
- * 
+ *
  * @param <T>
  */
 public final class Field<T> extends BaseField implements IDestructableField {

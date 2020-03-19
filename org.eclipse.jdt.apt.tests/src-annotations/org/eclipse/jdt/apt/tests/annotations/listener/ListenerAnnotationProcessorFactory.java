@@ -23,7 +23,7 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 /**
- * 
+ *
  */
 public class ListenerAnnotationProcessorFactory extends BaseFactory
 {

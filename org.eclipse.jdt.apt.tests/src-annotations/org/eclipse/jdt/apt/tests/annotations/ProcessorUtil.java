@@ -73,7 +73,7 @@ public final class ProcessorUtil
 		sb.append(annoValueToString(value));
 		return sb.toString();
 	}
-	
+
 	private static String annoValueToString(AnnotationValue value) {
 		if (value == null) {
 			return "null";

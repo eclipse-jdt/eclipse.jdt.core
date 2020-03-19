@@ -63,9 +63,9 @@ public class MementoTokenizer {
 			case JavaElement.JEM_COUNT:
 				return COUNT;
 			case JavaElement.JEM_JAVAPROJECT:
-				// Also covers JavaElement#JEM_DELIMITER_ESCAPE, in which case, 
+				// Also covers JavaElement#JEM_DELIMITER_ESCAPE, in which case,
 				// we seek ahead by one char and check if it's an escaped delimiter
-				// and if that's true, we return that as the token. 
+				// and if that's true, we return that as the token.
 				// Else, we decide that JEM_JAVAPROJECT is the current token.
 				if (this.index < this.length) {
 					char nextChar = this.memento[this.index++];

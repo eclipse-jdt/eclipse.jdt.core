@@ -80,7 +80,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
 		// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
 		if (this.constructorCall == null)
-			break checkUnused; 
+			break checkUnused;
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
 		// constructor being unused if the base class doesn't have a no-arg constructor.
 		// See that a seemingly unused constructor that chains to another constructor with a
@@ -117,7 +117,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		for (int i = 0, length = this.typeParameters.length; i < length; ++i) {
 			TypeParameter typeParameter = this.typeParameters[i];
 			if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
-				this.scope.problemReporter().unusedTypeParameter(typeParameter);						
+				this.scope.problemReporter().unusedTypeParameter(typeParameter);
 			}
 		}
 	}
@@ -218,7 +218,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 						if (!isValueProvidedUsingAnnotation(fieldDecl))
 							this.scope.problemReporter().uninitializedNonNullField(
 								field,
-								((this.bits & ASTNode.IsDefaultConstructor) != 0) 
+								((this.bits & ASTNode.IsDefaultConstructor) != 0)
 									? (ASTNode) fieldDecl
 									: this);
 					}
@@ -239,7 +239,7 @@ protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo
 	return;
 }
 boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
-	// a member field annotated with @Inject is considered to be initialized by the injector 
+	// a member field annotated with @Inject is considered to be initialized by the injector
 	if (fieldDecl.annotations != null) {
 		int length = fieldDecl.annotations.length;
 		for (int i = 0; i < length; i++) {

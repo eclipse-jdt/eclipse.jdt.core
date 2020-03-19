@@ -35,13 +35,13 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 public class ConstraintExceptionFormula extends ConstraintFormula {
 
 	FunctionalExpression left;
-	
+
 	public ConstraintExceptionFormula(FunctionalExpression left, TypeBinding type) {
 		this.left = left;
 		this.right = type;
 		this.relation = EXCEPTIONS_CONTAINED;
 	}
-	
+
 	@Override
 	public Object reduce(InferenceContext18 inferenceContext) {
 		// JLS 18.2.5
@@ -61,7 +61,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			if (sam.returnType != TypeBinding.VOID && !sam.returnType.isProperType(true))
 				return FALSE;
 		} else { // reference expression
-			if (!((ReferenceExpression)this.left).isExactMethodReference()) {					
+			if (!((ReferenceExpression)this.left).isExactMethodReference()) {
 				int nParam = sam.parameters.length;
 				for (int i = 0; i < nParam; i++)
 					if (!sam.parameters[i].isProperType(true))
@@ -76,13 +76,13 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		for (int i = 0; i < thrown.length; i++)
 			if (!thrown[i].isProperType(true))
 				e[n++] = (InferenceVariable) thrown[i]; // thrown[i] is not a proper type, since it's an exception it must be an inferenceVariable, right?
-		
+
 		/* If throw specification does not encode any type parameters, there are no constraints to be gleaned/gathered from the throw sites.
 		   See also that thrown exceptions are not allowed to influence compatibility and overload resolution.
 		*/
 		if (n == 0)
 			return TRUE;
-		
+
 		TypeBinding[] ePrime = null;
 		if (this.left instanceof LambdaExpression) {
 			LambdaExpression lambda = ((LambdaExpression) this.left).resolveExpressionExpecting(this.right, inferenceContext.scope, inferenceContext);
@@ -108,7 +108,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 					continue actual;
 			for (int j = 0; j < n; j++)
 				result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));
-		}				
+		}
 		for (int j = 0; j < n; j++)
 			inferenceContext.currentBounds.inThrows.add(e[j].prototype());
 		return result.toArray(new ConstraintFormula[result.size()]);
@@ -131,7 +131,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 					for (int i = 0; i < len; i++) {
 						sam.parameters[i].collectInferenceVariables(variables);
 					}
-				} 
+				}
 				if (sam.returnType != TypeBinding.VOID) {
 					// ii)
 					sam.returnType.collectInferenceVariables(variables);

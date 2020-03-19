@@ -502,7 +502,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	/**
 	 * Must be used only by CompletionEngine.
 	 * The progress monitor is used to be able to cancel completion operations
-	 * 
+	 *
 	 * Find the top-level types that are defined
 	 * in the current environment and whose name starts with the
 	 * given prefix. The prefix is a qualified name separated by periods
@@ -518,7 +518,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	 * types are found relative to their enclosing type.
 	 */
 	public void findTypes(char[] prefix, final boolean findMembers, boolean camelCaseMatch, int searchFor, final ISearchRequestor storage, IProgressMonitor monitor) {
-		
+
 		/*
 			if (true){
 				findTypes(new String(prefix), storage, NameLookup.ACCEPT_CLASSES | NameLookup.ACCEPT_INTERFACES);
@@ -605,7 +605,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 					storage.acceptType(packageName, simpleTypeName, enclosingTypeNames, modifiers, access);
 				}
 			};
-			
+
 			int matchRule = SearchPattern.R_PREFIX_MATCH;
 			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 			if (monitor != null) {
@@ -678,11 +678,11 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 				convertSearchFilterToModelFilter(searchFor));
 		}
 	}
-	
+
 	/**
 	 * Must be used only by CompletionEngine.
 	 * The progress monitor is used to be able to cancel completion operations
-	 * 
+	 *
 	 * Find constructor declarations that are defined
 	 * in the current environment and whose name starts with the
 	 * given prefix. The prefix is a qualified name separated by periods
@@ -699,7 +699,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 			} else {
 				excludePath = null;
 			}
-			
+
 			int lastDotIndex = CharOperation.lastIndexOf('.', prefix);
 			char[] qualification, simpleName;
 			if (lastDotIndex < 0) {
@@ -755,7 +755,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 					// implements interface method
 				}
 			};
-			
+
 			IRestrictedAccessConstructorRequestor constructorRequestor = new IRestrictedAccessConstructorRequestor() {
 				@Override
 				public void acceptConstructor(
@@ -772,14 +772,14 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 						AccessRestriction access) {
 					if (excludePath != null && excludePath.equals(path))
 						return;
-					
+
 					storage.acceptConstructor(
 							modifiers,
 							simpleTypeName,
 							parameterCount,
 							signature,
 							parameterTypes,
-							parameterNames, 
+							parameterNames,
 							typeModifiers,
 							packageName,
 							extraFlags,
@@ -787,7 +787,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 							access);
 				}
 			};
-			
+
 			int matchRule = SearchPattern.R_PREFIX_MATCH;
 			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 			if (monitor != null) {
@@ -818,7 +818,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 					public String getJobFamily() {
 						return ""; //$NON-NLS-1$
 					}
-				
+
 				}, IJob.WaitUntilReady, monitor);
 				new BasicSearchEngine(this.workingCopies).searchAllConstructorDeclarations(
 						qualification,
@@ -907,7 +907,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 				return null;
 			case Unnamed:
 			case Any:
-				// if in pre-9 mode we may still search the unnamed module 
+				// if in pre-9 mode we may still search the unnamed module
 				if (this.knownModuleLocations == null) {
 					if ((this.owner != null && this.owner.isPackage(pkgName))
 							|| this.nameLookup.isPackage(pkgName))
@@ -958,7 +958,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 				return false;
 			case Unnamed:
 			case Any:
-				// if in pre-9 mode we may still search the unnamed module 
+				// if in pre-9 mode we may still search the unnamed module
 				if (this.knownModuleLocations == null) {
 					if (this.nameLookup.hasCompilationUnit(pkgName, null))
 						return true;
@@ -1103,7 +1103,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 						result.add(root);
 					}
 				}
-			}			
+			}
 		}
 		if (!result.isEmpty())
 			return result.toArray(new IPackageFragmentRoot[result.size()]);

@@ -43,7 +43,7 @@ public class NestMembersAttributeEntry extends ClassFileStruct implements INestM
 	public int getNestMemberIndex() {
 		return this.memberClassNameIndex;
 	}
-	
+
 	@Override
 	public String toString() {
 		return new String(this.memberClassName);

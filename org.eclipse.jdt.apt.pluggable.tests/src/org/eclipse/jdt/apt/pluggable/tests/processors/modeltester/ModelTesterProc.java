@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2012, Walter Harley and others.  
+ * Copyright (c) 2008, 2012, Walter Harley and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    eclipse@cafewalter.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests.processors.modeltester;
@@ -47,14 +47,14 @@ import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger;
  * because the processor has very limited communication with the rest of the IDE. So, we make one
  * processor run many tests. The JUnit tests specify which test to run by passing its name in to the
  * ModelTestTrigger annotation. Test failures are reported via the Messager interface.
- * 
+ *
  * @since 3.5
  */
 @SupportedAnnotationTypes( { "org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTestTrigger" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions( {})
 public class ModelTesterProc extends AbstractProcessor {
-	
+
 	public static final String TEST_FIELD_TYPE_PKG = "p";
 	public static final String TEST_FIELD_TYPE_CLASS = "Foo";
 	public static final String TEST_FIELD_TYPE_SOURCE =
@@ -85,10 +85,10 @@ public class ModelTesterProc extends AbstractProcessor {
 
 	@SuppressWarnings("unused")
 	private ProcessingEnvironment _processingEnv;
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
 	 */
 	@Override
@@ -99,7 +99,7 @@ public class ModelTesterProc extends AbstractProcessor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.annotation.processing.AbstractProcessor#process(java.util.Set,
 	 *      javax.annotation.processing.RoundEnvironment)
 	 */
@@ -126,7 +126,7 @@ public class ModelTesterProc extends AbstractProcessor {
 			String arg1 = modelTesterMirror.arg1();
 			if (null != testMethodName && testMethodName.length() > 0) {
 				try {
-					Method testMethod = ModelTesterProc.class.getMethod(testMethodName, 
+					Method testMethod = ModelTesterProc.class.getMethod(testMethodName,
 							RoundEnvironment.class, Element.class, String.class, String.class);
 					testMethod.invoke(this, roundEnv, annotatedEl, arg0, arg1);
 				} catch (Exception e) {
@@ -136,7 +136,7 @@ public class ModelTesterProc extends AbstractProcessor {
 					// IllegalStateException probably means test method called ProcessorTestStatus.fail()
 					String msg = (t instanceof IllegalStateException) ?
 							t.getMessage() :
-							t.getClass().getSimpleName() + " invoking test method " + 
+							t.getClass().getSimpleName() + " invoking test method " +
 							testMethodName + " - see console for details";
 					ProcessorTestStatus.fail(msg);
 				}
@@ -148,8 +148,8 @@ public class ModelTesterProc extends AbstractProcessor {
 	 * Check the types of some fields (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=248163)
 	 * @see #TEST_FIELD_TYPE_SOURCE
 	 */
-	public void testFieldType(RoundEnvironment roundEnv, Element e, String arg0, String arg1) 
-			throws Exception 
+	public void testFieldType(RoundEnvironment roundEnv, Element e, String arg0, String arg1)
+			throws Exception
 	{
 		Map<String, VariableElement> fields = new HashMap<String, VariableElement>();
 		Iterable<? extends Element> elements;
@@ -160,13 +160,13 @@ public class ModelTesterProc extends AbstractProcessor {
 		for (VariableElement field : ElementFilter.fieldsIn(elements)) {
 			fields.put(field.getSimpleName().toString(), field);
 		}
-		
+
 		VariableElement fInt = fields.get("_fInt");
 		if (fInt == null) {
 			ProcessorTestStatus.fail("Field _fInt was not found");
 		}
 		if (fInt.getKind() != ElementKind.FIELD) {
-			ProcessorTestStatus.fail("ElementKind of field _fInt was " + fInt.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of field _fInt was " + fInt.getKind() +
 					", expected FIELD");
 		}
 		TypeMirror fIntType = fInt.asType();
@@ -180,7 +180,7 @@ public class ModelTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("Field _fString was not found");
 		}
 		if (fString.getKind() != ElementKind.FIELD) {
-			ProcessorTestStatus.fail("ElementKind of field _fString was " + fString.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of field _fString was " + fString.getKind() +
 					", expected FIELD");
 		}
 		TypeMirror fStringType = fString.asType();
@@ -193,7 +193,7 @@ public class ModelTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("Field _fFoo was not found");
 		}
 		if (fFoo.getKind() != ElementKind.FIELD) {
-			ProcessorTestStatus.fail("ElementKind of field _fFoo was " + fFoo.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of field _fFoo was " + fFoo.getKind() +
 					", expected FIELD");
 		}
 		TypeMirror fFooType = fFoo.asType();
@@ -202,13 +202,13 @@ public class ModelTesterProc extends AbstractProcessor {
 					", expected DECLARED");
 		}
 	}
-	
+
 	/**
 	 * Check the types of some fields (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=248163)
 	 * @see #TEST_METHOD_TYPE_SOURCE
 	 */
-	public void testMethodType(RoundEnvironment roundEnv, Element e, String arg0, String arg1) 
-			throws Exception 
+	public void testMethodType(RoundEnvironment roundEnv, Element e, String arg0, String arg1)
+			throws Exception
 	{
 		Map<String, ExecutableElement> methods = new HashMap<String, ExecutableElement>();
 		Iterable<? extends Element> elements;
@@ -219,13 +219,13 @@ public class ModelTesterProc extends AbstractProcessor {
 		for (ExecutableElement method : ElementFilter.methodsIn(elements)) {
 			methods.put(method.getSimpleName().toString(), method);
 		}
-		
+
 		ExecutableElement mSelf = methods.get("self");
 		if (mSelf == null) {
 			ProcessorTestStatus.fail("Method self() was not found");
 		}
 		if (mSelf.getKind() != ElementKind.METHOD) {
-			ProcessorTestStatus.fail("ElementKind of method self() was " + mSelf.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of method self() was " + mSelf.getKind() +
 					", expected METHOD");
 		}
 		TypeMirror mSelfType = mSelf.getReturnType();

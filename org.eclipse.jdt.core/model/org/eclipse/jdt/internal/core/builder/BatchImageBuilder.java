@@ -108,7 +108,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	if (deleteAll) {
 		if (this.compilationGroup != CompilationGroup.TEST) {
 			// CompilationGroup.MAIN is done first, so this notifies the participants only once
-			// calling this for CompilationGroup.TEST could cases generated files for CompilationGroup.MAIN to be deleted. 
+			// calling this for CompilationGroup.TEST could cases generated files for CompilationGroup.MAIN to be deleted.
 			if (this.javaBuilder.participants != null)
 				for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
 					this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);

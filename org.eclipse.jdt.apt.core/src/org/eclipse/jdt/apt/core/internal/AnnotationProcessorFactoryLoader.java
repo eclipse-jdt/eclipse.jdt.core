@@ -59,10 +59,10 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  * Stores annotation processor factories, and handles mapping from projects
  * to them.  This is a singleton object, created by the first call to getLoader().
  * <p>
- * Factories contained in plugins are loaded at APT initialization time.  
- * Factories contained in jar files are loaded for a given project the first time 
- * getFactoriesForProject() is called, and cached thereafter.  Factories are loaded 
- * from one of two custom classloaders depending on whether the factory container 
+ * Factories contained in plugins are loaded at APT initialization time.
+ * Factories contained in jar files are loaded for a given project the first time
+ * getFactoriesForProject() is called, and cached thereafter.  Factories are loaded
+ * from one of two custom classloaders depending on whether the factory container
  * is to be run in batch processing mode or normal (iterative) mode; the batch
  * classloader for a project is parented by the iterative classloader for that
  * project.
@@ -83,31 +83,31 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  * <strong>Caches</strong>
  * <p>
  * Factory classes and iterative-mode classloaders are cached for each project,
- * the first time that the classes are needed (e.g., during a build or reconcile).  
+ * the first time that the classes are needed (e.g., during a build or reconcile).
  * The cache is cleared when the project's factory path changes, when a resource
- * listed on the factory path is changed, or when the project is deleted.  
+ * listed on the factory path is changed, or when the project is deleted.
  * If a project contains batch-mode processors, the cache is also cleared at
- * the beginning of every full build (batch-mode processors do not run at all 
+ * the beginning of every full build (batch-mode processors do not run at all
  * during reconcile).
  * <p>
  * If a project's factory path includes containers which cannot be located on
  * disk, problem markers will be added to the project.  This validation process
  * occurs when the cache for a project is first loaded, and whenever the cache
- * is invalidated.  We do not validate the workspace-level factory path as such; 
- * it is only used to construct a project-specific factory path for projects 
+ * is invalidated.  We do not validate the workspace-level factory path as such;
+ * it is only used to construct a project-specific factory path for projects
  * that do not have their own factory path.
  * <p>
- * In order to efficiently perform re-validation when resources change, we keep 
+ * In order to efficiently perform re-validation when resources change, we keep
  * track of which projects' factory paths mention which containers.  This is
  * stored as a map from canonicalized resource path to project.  Entries are
- * created and updated during factory path validation, and removed upon project 
+ * created and updated during factory path validation, and removed upon project
  * deletion.
  * <p>
  * Resource changes are presented as delta trees which may contain more than
  * one change.  When a change arrives, we build up a list of all potentially
  * affected projects, and then perform re-validation after the list is complete.
- * That way we avoid redundant validations if a project is affected by more 
- * than one change.   
+ * That way we avoid redundant validations if a project is affected by more
+ * than one change.
  * <p>
  * Note that markers and factory classes have different lifetimes: they are
  * discarded at the same time (when something changes), but markers are recreated
@@ -118,47 +118,47 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
  * <p>
  * The loader is often accessed on multiple threads, e.g., a build thread, a
  * reconcile thread, and a change notification thread all at once.  It is
- * important to maintain consistency across the various cache objects. 
+ * important to maintain consistency across the various cache objects.
  */
 public class AnnotationProcessorFactoryLoader {
-	
+
 	/** Loader instance -- holds all workspace and project data */
 	private static AnnotationProcessorFactoryLoader LOADER;
-	
+
 	private static final String JAR_EXTENSION = "jar"; //$NON-NLS-1$
-	
+
 	private static final Object cacheMutex = new Object();
-	
+
 	// Caches the factory classes associated with each project.
 	// See class comments for lifecycle of items in this cache.
 	// Guarded by cacheMutex
-	private final Map<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>> _project2Java5Factories = 
+	private final Map<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>> _project2Java5Factories =
 		new HashMap<>();
-	
+
 	// Guarded by cacheMutex
 	private final Map<IJavaProject, Map<IServiceFactory, FactoryPath.Attributes>> _project2Java6Factories =
 		new HashMap<>();
-    
+
 	// Caches the iterative classloaders so that iterative processors
-	// are not reloaded on every batch build, unlike batch processors 
+	// are not reloaded on every batch build, unlike batch processors
 	// which are.
 	// See class comments for lifecycle of items in this cache.
 	// Guarded by cacheMutex
-	private final Map<IJavaProject, ClassLoader> _iterativeLoaders = 
+	private final Map<IJavaProject, ClassLoader> _iterativeLoaders =
 		new HashMap<>();
-	
+
 	// Guarded by cacheMutex
-	private final Map<IJavaProject,ClassLoader> _batchLoaders = 
+	private final Map<IJavaProject,ClassLoader> _batchLoaders =
 		new HashMap<>();
-	
+
 	// Caches information about which resources affect which projects'
 	// factory paths.
 	// See class comments for lifecycle of items in this cache.
-	// Guarded by cacheMutex	
+	// Guarded by cacheMutex
 	private final Map<String, Set<IJavaProject>> _container2Project =
 		new HashMap<>();
-	
-   
+
+
 	/**
 	 * Listen for changes that would affect the factory caches or
 	 * build markers.
@@ -169,7 +169,7 @@ public class AnnotationProcessorFactoryLoader {
 		public void resourceChanged(IResourceChangeEvent event) {
 			Map<IJavaProject, LoadFailureHandler> failureHandlers = new HashMap<>();
 			switch (event.getType()) {
-			
+
 			// Project deletion
 			case (IResourceChangeEvent.PRE_DELETE) :
 				IResource project = event.getResource();
@@ -180,7 +180,7 @@ public class AnnotationProcessorFactoryLoader {
 					}
 				}
 				break;
-				
+
 			// Changes to jar files or .factorypath files
 			case (IResourceChangeEvent.PRE_BUILD) :
 				IResourceDelta rootDelta = event.getDelta();
@@ -202,35 +202,35 @@ public class AnnotationProcessorFactoryLoader {
 			}
 		}
 	}
-	
+
 	/**
 	 * Walk the delta tree to see if there have been changes to
 	 * a factory path or the containers it references.  If so,
 	 * re-validate the affected projects' factory paths.
 	 */
 	private class FactoryPathDeltaVisitor implements IResourceDeltaVisitor {
-		
+
 		// List of projects affected by this change.
 		// Lazy construction because we assume most changes won't affect any projects.
 		private Set<IJavaProject> _affected = null;
-		
+
 		private void addAffected(Set<IJavaProject> projects) {
 			if (_affected == null) {
 				 _affected = new HashSet<>(5);
 			}
 			_affected.addAll(projects);
 		}
-		
+
 		/**
 		 * Get the list of IJavaProject affected by the delta we visited.
 		 * Not valid until done visiting.
 		 * @return null if there were no affected projects, or a non-empty
-		 * set of IJavaProject otherwise. 
+		 * set of IJavaProject otherwise.
 		 */
 		public Set<IJavaProject> getAffectedProjects() {
 			return _affected;
 		}
-		
+
 		/**
 		 * @return true to visit children
 		 */
@@ -267,7 +267,7 @@ public class AnnotationProcessorFactoryLoader {
 					IPath absolutePath = res.getLocation();
 					if (absolutePath == null) {
 						synchronized (cacheMutex) {
-							// Jar file within a deleted project.  In this case getLocation() 
+							// Jar file within a deleted project.  In this case getLocation()
 							// returns null, so we can't get a canonical path.  Bounce every
 							// factory path that contains anything resembling this jar.
 							for (Entry<String, Set<IJavaProject>> entry : _container2Project.entrySet()) {
@@ -282,7 +282,7 @@ public class AnnotationProcessorFactoryLoader {
 						// Lookup key is the canonical path of the resource
 						String key = null;
 						key = absolutePath.toFile().getCanonicalPath();
-						
+
 						synchronized (cacheMutex) {
 							Set<IJavaProject> projects = _container2Project.get(key);
 							if (projects != null) {
@@ -292,15 +292,15 @@ public class AnnotationProcessorFactoryLoader {
 					}
 				}
 			} catch (Exception e) {
-				AptPlugin.log(e, 
+				AptPlugin.log(e,
 					"Couldn't determine whether any factory paths were affected by change to resource " + res.getName()); //$NON-NLS-1$
 			}
 			return true;
 		}
-		
+
 	}
-	
-	/** 
+
+	/**
 	 * Singleton
 	 */
     public static synchronized AnnotationProcessorFactoryLoader getLoader() {
@@ -310,7 +310,7 @@ public class AnnotationProcessorFactoryLoader {
     	}
     	return LOADER;
     }
-    
+
 	private void registerListener() {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
 			new ResourceListener(),
@@ -326,37 +326,37 @@ public class AnnotationProcessorFactoryLoader {
     public void resetAll() {
     	removeAptBuildProblemMarkers( null );
     	Set<ClassLoader> toClose = new HashSet<>();
-    	
+
     	synchronized (cacheMutex) {
     		toClose.addAll(_iterativeLoaders.values());
     		toClose.addAll(_batchLoaders.values());
-    		
+
         	_project2Java5Factories.clear();
         	_project2Java6Factories.clear();
         	_iterativeLoaders.clear();
         	_container2Project.clear();
         	_batchLoaders.clear();
     	}
-    	    	
+
     	// Need to close the iterative and batch classloaders
     	for (ClassLoader cl : toClose) {
     		tryToCloseClassLoader(cl);
-    	}    	
-    	
+    	}
+
     	// Validate all projects
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		for (IProject proj : root.getProjects()) {
 			verifyFactoryPath(JavaCore.create(proj));
 		}
     }
-    
+
     /**
      * Called when doing a clean build -- resets
      * the classloaders for the batch processors
      */
     public void resetBatchProcessors(IJavaProject javaProj) {
     	Iterable<Attributes> attrs = null;
-    	
+
     	Map<AnnotationProcessorFactory, Attributes> factories;
 		Map<IServiceFactory, Attributes> java6factories;
 		synchronized (cacheMutex) {
@@ -394,74 +394,74 @@ public class AnnotationProcessorFactoryLoader {
     	}
     	tryToCloseClassLoader(c);
     }
-    
+
     /**
      * @param jproj must not be null
      * @return order preserving map of annotation processor factories to their attributes.
-     * The order of the annotation processor factories respects the order of factory 
-     * containers in <code>jproj</code>.  The map is unmodifiable, and may be empty but 
+     * The order of the annotation processor factories respects the order of factory
+     * containers in <code>jproj</code>.  The map is unmodifiable, and may be empty but
      * will not be null.
      */
-    public Map<AnnotationProcessorFactory, FactoryPath.Attributes> 
+    public Map<AnnotationProcessorFactory, FactoryPath.Attributes>
     	getJava5FactoriesAndAttributesForProject(IJavaProject jproj){
-    	
+
     	// We can't create problem markers inside synchronization -- see https://bugs.eclipse.org/bugs/show_bug.cgi?id=184923
     	LoadFailureHandler failureHandler = new LoadFailureHandler(jproj);
-    	
+
     	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories;
     	synchronized (cacheMutex) {
 	    	factories = _project2Java5Factories.get(jproj);
     	}
-    	
-    	if( factories == null ) {    	
+
+    	if( factories == null ) {
 	    	// Load the project
 			FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
 			Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers();
 			loadFactories(containers, jproj, failureHandler);
-	    	
+
 	    	failureHandler.reportFailureMarkers();
-	    	
+
 	    	synchronized (cacheMutex) {
 		    	factories = _project2Java5Factories.get(jproj);
 	    	}
     	}
-    	
+
     	if (factories != null) {
     		return Collections.unmodifiableMap(factories);
     	} else {
     		return Collections.emptyMap();
     	}
     }
-    
+
     /**
      * @param jproj must not be null
      * @return order preserving map of annotation processor factories to their attributes.
-     * The order of the annotation processor factories respects the order of factory 
-     * containers in <code>jproj</code>.  The map is unmodifiable, and may be empty but 
+     * The order of the annotation processor factories respects the order of factory
+     * containers in <code>jproj</code>.  The map is unmodifiable, and may be empty but
      * will not be null.
      */
-    public Map<IServiceFactory, FactoryPath.Attributes> 
+    public Map<IServiceFactory, FactoryPath.Attributes>
     	getJava6FactoriesAndAttributesForProject(IJavaProject jproj) {
-    	
+
     	// We can't create problem markers inside synchronization -- see https://bugs.eclipse.org/bugs/show_bug.cgi?id=184923
     	LoadFailureHandler failureHandler = new LoadFailureHandler(jproj);
-    	
+
     	Map<IServiceFactory, FactoryPath.Attributes> factories;
     	synchronized (cacheMutex) {
 	    	 factories = _project2Java6Factories.get(jproj);
     	}
-    	
-	    if (factories == null) {	
+
+	    if (factories == null) {
 	    	// Load the project
 			FactoryPath fp = FactoryPathUtil.getFactoryPath(jproj);
 			Map<FactoryContainer, FactoryPath.Attributes> containers = fp.getEnabledContainers();
 			loadFactories(containers, jproj, failureHandler);
-			
+
 	    	synchronized (cacheMutex) {
 		    	 factories = _project2Java6Factories.get(jproj);
 	    	}
     	}
-    	
+
     	failureHandler.reportFailureMarkers();
     	if (factories != null) {
     		return Collections.unmodifiableMap(factories);
@@ -469,21 +469,21 @@ public class AnnotationProcessorFactoryLoader {
     		return Collections.emptyMap();
     	}
     }
-    
+
     /**
      * Convenience method: get the key set of the map returned by
      * @see #getJava5FactoriesAndAttributesForProject(IJavaProject) as a List.
      */
     public List<AnnotationProcessorFactory> getJava5FactoriesForProject( IJavaProject jproj ) {
-    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
+    	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs =
     		getJava5FactoriesAndAttributesForProject(jproj);
-    	final List<AnnotationProcessorFactory> factories = 
+    	final List<AnnotationProcessorFactory> factories =
     		new ArrayList<>(factoriesAndAttrs.keySet());
     	return Collections.unmodifiableList(factories);
     }
-    
+
     /**
-     * Add the resource/project pair 'key' -> 'jproj' to the 
+     * Add the resource/project pair 'key' -> 'jproj' to the
      * _container2Project map.
      * @param key the canonicalized pathname of the resource
      * @param jproj must not be null
@@ -522,22 +522,22 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		return f;
 	}
-	
+
 	/**
 	 * Load all Java 5 and Java 6 processors on the factory path.  This also resets the
 	 * APT-related build problem markers.  Results are saved in the factory caches.
 	 * @param containers an ordered map.
 	 */
-	private void loadFactories( 
-			Map<FactoryContainer, FactoryPath.Attributes> containers, 
+	private void loadFactories(
+			Map<FactoryContainer, FactoryPath.Attributes> containers,
 			IJavaProject project,
 			LoadFailureHandler failureHandler)
 	{
-		Map<AnnotationProcessorFactory, FactoryPath.Attributes> java5Factories = 
+		Map<AnnotationProcessorFactory, FactoryPath.Attributes> java5Factories =
 			new LinkedHashMap<>();
 		Map<IServiceFactory, FactoryPath.Attributes> java6Factories =
 			new LinkedHashMap<>();
-		
+
 		removeAptBuildProblemMarkers(project);
 		Set<FactoryContainer> badContainers = verifyFactoryPath(project);
 		if (badContainers != null) {
@@ -546,7 +546,7 @@ public class AnnotationProcessorFactoryLoader {
 				containers.remove(badFC);
 			}
 		}
-		
+
 		// Need to use the cached classloader if we have one
 		ClassLoader iterativeClassLoader;
 		synchronized (cacheMutex) {
@@ -556,9 +556,9 @@ public class AnnotationProcessorFactoryLoader {
 				_iterativeLoaders.put(project, iterativeClassLoader);
 			}
 		}
-		
+
 		ClassLoader batchClassLoader = _createBatchClassLoader(containers, project);
-		
+
 		for ( Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet() )
 		{
 			try {
@@ -566,14 +566,14 @@ public class AnnotationProcessorFactoryLoader {
 				final FactoryPath.Attributes attr = entry.getValue();
 				assert !attr.runInBatchMode() || (batchClassLoader != null);
 				ClassLoader cl = attr.runInBatchMode() ? batchClassLoader : iterativeClassLoader;
-				
+
 				// First the Java 5 factories in this container...
 				List<AnnotationProcessorFactory> java5FactoriesInContainer;
 				java5FactoriesInContainer = loadJava5FactoryClasses(fc, cl, project, failureHandler);
 				for ( AnnotationProcessorFactory apf : java5FactoriesInContainer ) {
 					java5Factories.put( apf, entry.getValue() );
 				}
-				
+
 				if (AptPlugin.canRunJava6Processors()) {
 					// Now the Java 6 factories.  Use the same classloader for the sake of sanity.
 					List<IServiceFactory> java6FactoriesInContainer;
@@ -591,14 +591,14 @@ public class AnnotationProcessorFactoryLoader {
 				AptPlugin.log(ioe, Messages.AnnotationProcessorFactoryLoader_ioError + ioe.getLocalizedMessage());
 			}
 		}
-		
+
 		synchronized (cacheMutex) {
 			_project2Java5Factories.put(project, java5Factories);
 			_project2Java6Factories.put(project, java6Factories);
 		}
 	}
 
-	private List<AnnotationProcessorFactory> loadJava5FactoryClasses( 
+	private List<AnnotationProcessorFactory> loadJava5FactoryClasses(
 			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj, LoadFailureHandler failureHandler )
 			throws IOException
 	{
@@ -613,15 +613,15 @@ public class AnnotationProcessorFactoryLoader {
 					factory = FactoryPluginManager.getJava5FactoryFromPlugin( factoryName );
 				else
 					factory = (AnnotationProcessorFactory)loadInstance( factoryName, classLoader, jproj, failureHandler );
-				
+
 				if ( factory != null )
 					factories.add( factory );
 			}
 		}
 		return factories;
 	}
-	
-	private List<IServiceFactory> loadJava6FactoryClasses( 
+
+	private List<IServiceFactory> loadJava6FactoryClasses(
 			FactoryContainer fc, ClassLoader classLoader, IJavaProject jproj, LoadFailureHandler failureHandler )
 			throws IOException
 	{
@@ -643,16 +643,16 @@ public class AnnotationProcessorFactoryLoader {
 					} catch (ClassNotFoundException | ClassFormatError e) {
 						AptPlugin.trace("Unable to load annotation processor " + factoryName, e); //$NON-NLS-1$
 						failureHandler.addFailedFactory(factoryName);
-					} 
+					}
 				}
-				
+
 				if ( factory != null )
 					factories.add( factory );
 			}
 		}
 		return factories;
 	}
-	
+
 	/**
 	 * Re-validate projects whose factory paths may have been affected
 	 * by a resource change (e.g., adding a previously absent jar file).
@@ -664,7 +664,7 @@ public class AnnotationProcessorFactoryLoader {
 			removeAptBuildProblemMarkers(jproj);
 			uncacheProject(jproj);
 		}
-		// We will do another clear and re-verify when loadFactories() 
+		// We will do another clear and re-verify when loadFactories()
 		// is called.  But we have to do it then, because things might
 		// have changed in the interim; and if we don't do it here, then
 		// we'll have an empty _resources2Project cache, so we'll ignore
@@ -684,7 +684,7 @@ public class AnnotationProcessorFactoryLoader {
 				}
 			}
 		}
-	
+
 		// TODO: flag the affected projects for rebuild.
 	}
 
@@ -695,7 +695,7 @@ public class AnnotationProcessorFactoryLoader {
     private void uncacheProject(IJavaProject jproj) {
     	ClassLoader c;
     	ClassLoader cl;
-    	
+
     	synchronized (cacheMutex) {
 			_project2Java5Factories.remove(jproj);
 			_project2Java6Factories.remove(jproj);
@@ -705,7 +705,7 @@ public class AnnotationProcessorFactoryLoader {
 
 		tryToCloseClassLoader(c);
 		tryToCloseClassLoader(cl);
-		
+
 		removeProjectFromResourceMap(jproj);
 	}
 
@@ -757,13 +757,13 @@ public class AnnotationProcessorFactoryLoader {
 			}
 		}
 	}
-	
+
     /**
      * Check the factory path for a project and ensure that all the
      * containers it lists are available.  Adds jar factory container
      * resources to the _container2Project cache, whether or not the
      * resource can actually be found.
-     * 
+     *
      * @param jproj the project, or null to check all projects that
      * are in the cache.
      * @return a Set of all invalid containers, or null if all containers
@@ -799,7 +799,7 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		return badContainers;
     }
-    
+
 	/**
 	 * @param containers an ordered map.
 	 */
@@ -814,7 +814,7 @@ public class AnnotationProcessorFactoryLoader {
 				fileList.add( jfc.getJarFile() );
 			}
 		}
-		
+
 		ClassLoader cl;
 		if ( fileList.size() > 0 ) {
 			cl = createClassLoader( fileList, getParentClassLoader());
@@ -824,25 +824,25 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		return cl;
 	}
-	
+
 	/**
 	 * Returns the batch class loader or null if none
 	 */
 	private ClassLoader _createBatchClassLoader(Map<FactoryContainer, FactoryPath.Attributes> containers,
-			IJavaProject p) {		
+			IJavaProject p) {
 		ArrayList<File> fileList = new ArrayList<>( containers.size() );
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
 			FactoryPath.Attributes attr = entry.getValue();
 			FactoryContainer fc = entry.getKey();
 			if (attr.runInBatchMode() && fc instanceof JarFactoryContainer) {
-				
+
 				JarFactoryContainer jfc = (JarFactoryContainer)fc;
 				File f = jfc.getJarFile();
 				fileList.add( f );
-				
+
 			}
 		}
-		
+
 		ClassLoader result = null;
 		// Try to use the iterative CL as parent, so we can resolve classes within it
 		synchronized (cacheMutex) {
@@ -850,7 +850,7 @@ public class AnnotationProcessorFactoryLoader {
 			if (parentCL == null) {
 				parentCL = getParentClassLoader();
 			}
-			
+
 			if ( fileList.size() > 0 ) {
 				result = createClassLoader( fileList, parentCL);
 				_batchLoaders.put(p, result);

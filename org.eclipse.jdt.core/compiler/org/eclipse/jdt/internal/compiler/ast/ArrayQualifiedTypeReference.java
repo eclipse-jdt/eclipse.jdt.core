@@ -29,7 +29,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 
 		super( sources , poss);
 		this.dimensions = dim ;
-		this.annotationsOnDimensions = null; 
+		this.annotationsOnDimensions = null;
 	}
 
 	public ArrayQualifiedTypeReference(char[][] sources, int dim, Annotation[][] annotationsOnDimensions, long[] poss) {
@@ -44,7 +44,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 
 		return this.dimensions;
 	}
-	
+
 	@Override
 	public int extraDimensions() {
 		return this.extendedDimensions;
@@ -63,7 +63,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		System.arraycopy(this.annotationsOnDimensions, 0, externalAnnotations, this.extendedDimensions, baseDimensions);
 		return externalAnnotations;
 	}
-	
+
 	@Override
 	public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {
 		this.annotationsOnDimensions = annotationsOnDimensions;

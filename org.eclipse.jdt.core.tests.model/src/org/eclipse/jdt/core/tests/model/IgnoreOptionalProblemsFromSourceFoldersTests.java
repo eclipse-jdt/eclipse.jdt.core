@@ -40,7 +40,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 	public IgnoreOptionalProblemsFromSourceFoldersTests(String name) {
 		super(name);
 	}
-	
+
 	/**
 	 * Internal synonym for deprecated constant AST.JSL3
 	 * to alleviate deprecation warnings.
@@ -301,7 +301,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 			deleteProject("P");
 		}
 	}
-	
+
 	/**
 	 * createASTs() should not respect this option.
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=372377
@@ -327,12 +327,12 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 					"	}\n" +
 					"}");
 			ICompilationUnit unit = (ICompilationUnit) JavaCore.create(file);
-			
+
 			ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 			parser.setProject(project);
 			parser.setSource(unit);
 			parser.setResolveBindings(true);
-			
+
 			class Requestor extends ASTRequestor {
 				CompilationUnit cuAST;
 				public void acceptAST(ICompilationUnit source,
@@ -342,7 +342,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 			}
 			Requestor requestor = new Requestor();
 			parser.createASTs(new ICompilationUnit[] {unit}, new String[0], requestor, null);
-			IProblem[] problems = requestor.cuAST.getProblems();		
+			IProblem[] problems = requestor.cuAST.getProblems();
 			assertEquals("Should have 1 problem", 1, problems.length);
 		} finally {
 			deleteProject("P");

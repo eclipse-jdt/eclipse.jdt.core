@@ -25,10 +25,10 @@ public class PluginFactoryContainer extends FactoryContainer
 {
 	/** The label of the plug that owns this factory container.  */
 	private final String id;
-	
+
 	/** Whether the plugin's factories are enabled by default */
 	private final boolean enableDefault;
-	
+
 	/**
 	 * In general clients should not construct this object.  This c'tor should
 	 * only be called from @see FactoryPathUtil#loadPluginFactories().
@@ -39,16 +39,16 @@ public class PluginFactoryContainer extends FactoryContainer
 		this.id = pluginId;
 		this.enableDefault = enableDefault;
 	}
-	
+
 	public void addFactoryName( String factoryName, String serviceName ) {
 		try {
-			getFactoryNames().put( factoryName, serviceName ); 
+			getFactoryNames().put( factoryName, serviceName );
 		}
 		catch (IOException ioe) {
 			AptPlugin.log(ioe, "IOException reading a plugin"); //$NON-NLS-1$
 		}
 	}
-	
+
 	@Override
 	public boolean exists() {
 		// This object is created only in the process of loading factory plugins.
@@ -60,16 +60,16 @@ public class PluginFactoryContainer extends FactoryContainer
 		// The list is populated when factory plugins are loaded.
 		return new LinkedHashMap<>();
 	}
-	
+
 	@Override
 	public String getId() {
 		return id;
 	}
-	
+
 	public boolean getEnableDefault() {
 		return enableDefault;
 	}
-	
+
 	@Override
 	public FactoryType getType() {
 		return FactoryType.PLUGIN;

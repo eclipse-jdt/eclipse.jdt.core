@@ -105,7 +105,7 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 					"\n" +
 					"    }\n" +
 					"}").toCharArray());
-			
+
 			startMeasuring();
 			ASTNode theAST = parser.createAST(null);
 			theAST.accept(new ASTVisitor() {});

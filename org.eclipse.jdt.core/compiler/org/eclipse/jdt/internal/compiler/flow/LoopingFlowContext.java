@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contributions for
@@ -276,7 +276,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 								}
 								break;
 						}
-					}	
+					}
 					break;
 				case MAY_NULL:
 					if (flowInfo.isDefinitelyNull(local)) {
@@ -507,7 +507,7 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 		FlowContext inner = innerFlowContext;
 		while (inner != this && !(inner instanceof LoopingFlowContext)) {
 			inner = inner.parent;
-			// we know that inner is reachable from this without crossing a type boundary 
+			// we know that inner is reachable from this without crossing a type boundary
 		}
 		if (inner == this) {
 			this.upstreamNullFlowInfo.

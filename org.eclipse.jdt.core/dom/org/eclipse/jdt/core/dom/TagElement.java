@@ -112,7 +112,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * Standard doc tag name (value {@value}).
 	 */
 	public static final String TAG_EXCEPTION = "@exception"; //$NON-NLS-1$
-	
+
 	/**
 	 * Standard doc tag name (value {@value}).
 	 * @since 3.18
@@ -124,7 +124,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @since 3.18
 	 */
 	public static final String TAG_INDEX = "@index"; //$NON-NLS-1$
-	
+
 	/**
 	 * Standard inline doc tag name (value {@value}).
 	 */
@@ -159,7 +159,7 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @since 3.18
 	 */
 	public static final String TAG_PROVIDES = "@provides"; //$NON-NLS-1$
-	
+
 	/**
 	 * Standard doc tag name (value {@value}).
 	 */

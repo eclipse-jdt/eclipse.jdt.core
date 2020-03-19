@@ -23,7 +23,7 @@ import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnlyJava12Tests extends TestCase {
-	
+
 	public RunOnlyJava12Tests(String name) {
 		super(name);
 	}
@@ -32,7 +32,7 @@ public class RunOnlyJava12Tests extends TestCase {
 			// to be filled after other tests are added
 		};
 	}
-	
+
 	public static Test suite() {
 		TestSuite ts = new TestSuite(RunOnlyJava12Tests.class.getName());
 

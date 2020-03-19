@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests.annotations.helloworld;
@@ -64,20 +64,20 @@ public class HelloWorldAnnotationProcessor extends BaseProcessor {
 		}
 	}
 
-	private String getTypeName(Declaration annotatedDecl) { 
+	private String getTypeName(Declaration annotatedDecl) {
 		HelloWorldAnnotation tganno = annotatedDecl.getAnnotation(HelloWorldAnnotation.class);
 		return tganno.value();
 	}
 
-	private String getCode(String typeName) { 
+	private String getCode(String typeName) {
 		return "package " + PACKAGENAME + ";" + "\n"
 		+ "public class "+ typeName	+ "\n"
 		+ "{" + "\n"
 		+ "    public static void helloWorld()"	+ "\n"
 		+ "    {" + "\n"
-		+ "        System.out.println( \"Hello, world!  I am a generated file!\" ); " + "\n" 
+		+ "        System.out.println( \"Hello, world!  I am a generated file!\" ); " + "\n"
 		+ "    }" + "\n"
-		+ "}"; 
+		+ "}";
 	}
-	
+
 }

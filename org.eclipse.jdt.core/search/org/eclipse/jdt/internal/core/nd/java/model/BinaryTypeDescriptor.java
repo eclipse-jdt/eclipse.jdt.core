@@ -28,7 +28,7 @@ public final class BinaryTypeDescriptor {
 
 	/**
 	 * Constructs a new descriptor
-	 * 
+	 *
 	 * @param location
 	 *            location where the archive (.jar or .class) can be found in the local filesystem
 	 * @param fieldDescriptor

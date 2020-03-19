@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Andreas Magnusson <andreas.ch.magnusson@gmail.com>- contribution for bug 151500
@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.core.SourceMapper;
  */
 public class InternalCompletionProposal extends CompletionProposal {
 	private static Object NO_ATTACHED_SOURCE = new Object();
-	
+
 	protected CompletionEngine completionEngine;
 	protected NameLookup nameLookup;
 
@@ -191,7 +191,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 * Indicates whether parameter names have been computed.
 	 */
 	private boolean parameterNamesComputed = false;
-	
+
 	protected char[][] findConstructorParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
 		if(paramTypeNames == null || declaringTypeName == null) return null;
 
@@ -281,7 +281,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 		return parameters;
 	}
-	
+
 	protected char[][] findMethodParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
 		if(paramTypeNames == null || declaringTypeName == null) return null;
 
@@ -343,7 +343,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 		int startingIndex = 0;
 		String[] args;
 		IType enclosingType = type.getDeclaringType();
-		// If the method is a constructor of a non-static inner type, add the enclosing type as an 
+		// If the method is a constructor of a non-static inner type, add the enclosing type as an
 		// additional parameter to the constructor
 		if (enclosingType != null
 				&& CharOperation.equals(type.getElementName().toCharArray(), selector)
@@ -359,7 +359,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 			args[i] = new String(paramTypeNames[i-startingIndex]);
 		}
 		method = type.getMethod(new String(selector), args);
-		
+
 		IMethod[] methods = type.findMethods(method);
 		if (methods != null && methods.length > 0) {
 			method = methods[0];
@@ -374,7 +374,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	protected char[] getDeclarationTypeName() {
 		return this.declarationTypeName;
 	}
-	
+
 	private int getOpenedBinaryTypesThreshold() {
 		return JavaModelManager.getJavaModelManager().getOpenableCacheSize() / 10;
 	}
@@ -883,7 +883,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	public void setFlags(int flags) {
 		this.flags = flags;
 	}
-	
+
 	public void setHasNoParameterNamesFromIndex(boolean hasNoParameterNamesFromIndex) {
 		this.hasNoParameterNamesFromIndex = hasNoParameterNamesFromIndex;
 	}

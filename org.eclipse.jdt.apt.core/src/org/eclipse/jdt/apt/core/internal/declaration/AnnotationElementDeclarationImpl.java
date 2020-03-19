@@ -52,22 +52,22 @@ public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl impl
 	 * @return the default value of this annotation element if one exists.
 	 * 		   Return null if the annotation element is defined in binary (feature not available right now).
 	 *         Return null if the annotation element is part of a seconary type that is defined outside
-	 *         the file associated with the environment. 
+	 *         the file associated with the environment.
 	 */
     @Override
 	public AnnotationValue getDefaultValue()
-    {   
+    {
 		final IMethodBinding binding = getDeclarationBinding();
 		final Object defaultValue = binding.getDefaultValue();
-		return Factory.createDefaultValue(defaultValue, this, _env);      
+		return Factory.createDefaultValue(defaultValue, this, _env);
     }
-	
+
 	ASTNode getAstNodeForDefault()
 	{
 		final AnnotationTypeMemberDeclaration decl = (AnnotationTypeMemberDeclaration)getAstNode();
 		if( decl != null )
 			return decl.getDefault();
-		
+
 		return null;
 	}
 

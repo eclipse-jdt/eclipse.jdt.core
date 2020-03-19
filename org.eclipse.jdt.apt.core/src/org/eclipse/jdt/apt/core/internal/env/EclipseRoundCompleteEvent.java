@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *    tyeung@bea.com - initial implementation.    
+ *    tyeung@bea.com - initial implementation.
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
@@ -17,29 +17,29 @@ package org.eclipse.jdt.apt.core.internal.env;
 import com.sun.mirror.apt.RoundCompleteEvent;
 import com.sun.mirror.apt.RoundState;
 
-public class EclipseRoundCompleteEvent extends RoundCompleteEvent 
+public class EclipseRoundCompleteEvent extends RoundCompleteEvent
 {
 	static final long serialVersionUID = 0;
-	
+
 	public EclipseRoundCompleteEvent(final BuildEnv env)
 	{
-		super( env, new State(env) );	
+		super( env, new State(env) );
 	}
-	
-	private static class State implements RoundState 
-	{	
+
+	private static class State implements RoundState
+	{
 		private final BuildEnv _env;
 		State(BuildEnv env){ _env = env; }
 		@Override
-		public boolean classFilesCreated() { return _env.hasGeneratedClassFiles(); }		
+		public boolean classFilesCreated() { return _env.hasGeneratedClassFiles(); }
 		@Override
-		public boolean errorRaised() {  return _env.hasRaisedErrors(); }			
+		public boolean errorRaised() {  return _env.hasRaisedErrors(); }
 		@Override
-		public boolean sourceFilesCreated() {  return _env.hasGeneratedSourceFiles(); }			
+		public boolean sourceFilesCreated() {  return _env.hasGeneratedSourceFiles(); }
 		@Override
 		public boolean finalRound() {
-			// apt terminates when there are no new generated source files 
-			return !_env.hasGeneratedSourceFiles(); 
+			// apt terminates when there are no new generated source files
+			return !_env.hasGeneratedSourceFiles();
 		}
 	}
 }

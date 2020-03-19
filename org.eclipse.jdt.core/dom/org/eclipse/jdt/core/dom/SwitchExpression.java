@@ -77,7 +77,7 @@ public class SwitchExpression extends Expression {
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
 	}
-	
+
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
@@ -112,7 +112,7 @@ public class SwitchExpression extends Expression {
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
-	
+
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == EXPRESSION_PROPERTY) {

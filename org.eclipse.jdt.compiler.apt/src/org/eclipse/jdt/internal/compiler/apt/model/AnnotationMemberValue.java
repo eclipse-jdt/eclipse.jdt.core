@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 public class AnnotationMemberValue extends AnnotationValueImpl {
 
 	private final MethodBinding _methodBinding;
-	
+
 	/**
 	 * @param value
 	 *            The JDT representation of a compile-time constant. See
@@ -40,7 +40,7 @@ public class AnnotationMemberValue extends AnnotationValueImpl {
 		super(env, value, methodBinding.returnType);
 		_methodBinding = methodBinding;
 	}
-	
+
 	/**
 	 * @return the method binding that defined this member value pair.
 	 */

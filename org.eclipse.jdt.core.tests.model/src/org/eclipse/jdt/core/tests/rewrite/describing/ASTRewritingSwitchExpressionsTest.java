@@ -63,7 +63,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
 		}
 	}
-	 	
+
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -110,7 +110,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			caseStatement1.setSwitchLabeledRule(true);
 			caseStatement1.expressions().add(ast.newNumberLiteral("1"));
 			caseStatement1.expressions().add(ast.newNumberLiteral("2"));
-			
+
 
 			Statement statement1= ast.newReturnStatement();
 
@@ -786,10 +786,10 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		builder.append("package test1;\n");
 		builder.append("public class X {\n");
 		builder.append("    public String foo(int i) {\n" +
-				"		String ret = switch(i%2) {\n" + 
-				"		case 0 -> \"even\";\n" + 
-				"		default -> \"\";\n" + 
-				"		};\n" + 
+				"		String ret = switch(i%2) {\n" +
+				"		case 0 -> \"even\";\n" +
+				"		default -> \"\";\n" +
+				"		};\n" +
 				"		return ret;");
 		builder.append("    }\n");
 		builder.append("}\n");
@@ -818,7 +818,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			rewrite.set(cse1, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.FALSE, null);
 			SwitchCase cse2 = (SwitchCase) statements.get(2);
 			rewrite.set(cse2, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.FALSE, null);
-			
+
 			ListRewrite listRewrite= rewrite.getListRewrite(initializer, SwitchExpression.STATEMENTS_PROPERTY);
 			SwitchCase caseStatement1= ast.newSwitchCase();
 			caseStatement1.setSwitchLabeledRule(false);
@@ -836,12 +836,12 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		builder.append("package test1;\n");
 		builder.append("public class X {\n");
 		builder.append("    public String foo(int i) {\n" +
-				"		String ret = switch(i%2) {\n" + 
-				"		case 0 : \"even\";\n" + 
+				"		String ret = switch(i%2) {\n" +
+				"		case 0 : \"even\";\n" +
 				"            case 1:\n" +
-				"                \"odd\";\n" + 
-				"		default : \"\";\n" + 
-				"		};\n" + 
+				"                \"odd\";\n" +
+				"		default : \"\";\n" +
+				"		};\n" +
 				"		return ret;");
 		builder.append("    }\n");
 		builder.append("}\n");

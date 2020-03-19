@@ -24,16 +24,16 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class BatchAnnotationFactory implements AnnotationProcessorFactory{
-	
-	private static final List<String> SUPPORTED_TYPES = 
+
+	private static final List<String> SUPPORTED_TYPES =
 		Collections.singletonList(Batch.class.getName());
-	
+
 	public AnnotationProcessor getProcessorFor(
-			Set<AnnotationTypeDeclaration> decls, 
+			Set<AnnotationTypeDeclaration> decls,
 			AnnotationProcessorEnvironment env) {
 		return new BatchProcessor(env);
 	}
-	
+
 	public Collection<String> supportedAnnotationTypes() {
 		return SUPPORTED_TYPES;
 	}

@@ -123,7 +123,7 @@ public class Java14ElementsTests extends TestCase {
 			options.add("-source");
 			options.add(compliance);
 		}
-		if (preview) 
+		if (preview)
 			options.add("--enable-preview");
 		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, false);
 		// If it succeeded, the processor will have set this property to "succeeded";

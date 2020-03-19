@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
- *          Bug 407191 - [1.8] Binary access support for type annotations 
+ *          Bug 407191 - [1.8] Binary access support for type annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -40,7 +40,7 @@ public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparab
 
 public static FieldInfo createField(byte classFileBytes[], int offsets[], int offset, long version) {
 	FieldInfo fieldInfo = new FieldInfo(classFileBytes, offsets, offset, version);
-	
+
 	int attributesCount = fieldInfo.u2At(6);
 	int readOffset = 8;
 	AnnotationInfo[] annotations = null;
@@ -93,7 +93,7 @@ public static FieldInfo createField(byte classFileBytes[], int offsets[], int of
 		readOffset += (6 + fieldInfo.u4At(readOffset + 2));
 	}
 	fieldInfo.attributeBytes = readOffset;
-	
+
 	if (typeAnnotations != null)
 		return new FieldInfoWithTypeAnnotation(fieldInfo, annotations, typeAnnotations);
 	if (annotations != null)

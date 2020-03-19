@@ -252,7 +252,7 @@ public boolean equals(Object o) {
 	if (!Util.equalOrNull(this.compliance, jar.compliance)) {
 		return false;
 	}
-	return this.zipFilename.equals(jar.zipFilename) 
+	return this.zipFilename.equals(jar.zipFilename)
 			&& lastModified() == jar.lastModified()
 			&& this.isOnModulePath == jar.isOnModulePath
 			&& areAllModuleOptionsEqual(jar);
@@ -293,8 +293,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			}
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null, modName);
-			return new NameEnvironmentAnswer(reader, 
-					this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), 
+			return new NameEnvironmentAnswer(reader,
+					this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()),
 					modName);
 		}
 	} catch (IOException | ClassFormatException e) { // treat as if class file is missing
@@ -388,7 +388,7 @@ public IModule getModule() {
 
 @Override
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
-	// 
+	//
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 public Manifest getManifest() {

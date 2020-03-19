@@ -30,35 +30,35 @@ import org.eclipse.jdt.core.dom.IBinding;
 import com.sun.mirror.apt.Filer;
 
 public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnotationProcessorEnvironment{
-	
+
 	/** The compilation unit being reconciled */
 	private final ICompilationUnit _workingCopy;
-	
+
 	private final ReconcileContext _context;
-	
+
 	/**
-	 * Create a reconcile environment from the given context. 
+	 * Create a reconcile environment from the given context.
 	 * @param reconcileContext
 	 * @return the reconcile environment or null if creation failed.
 	 */
 	static ReconcileEnv newEnv(ReconcileContext context)
-    {	
+    {
 		final ICompilationUnit workingCopy = context.getWorkingCopy();
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		final IFile file = (IFile)workingCopy.getResource();
        	return new ReconcileEnv(context, workingCopy, file, javaProject, TestCodeUtil.isTestCode(workingCopy));
     }
-	
+
 	private ReconcileEnv(
 			ReconcileContext context,
 			ICompilationUnit workingCopy,
 		    IFile file,
 		    IJavaProject javaProj, boolean isTestCode)
 	{
-		// See bug 133744: calling ReconcileContext.getAST3() here would result in 
-		// a typesystem whose types are not comparable with the types we get after 
-		// openPipeline().  Instead, we start the env with an EMPTY_AST_UNIT, and 
-		// replace it with the real thing inside the openPipeline() ASTRequestor's 
+		// See bug 133744: calling ReconcileContext.getAST3() here would result in
+		// a typesystem whose types are not comparable with the types we get after
+		// openPipeline().  Instead, we start the env with an EMPTY_AST_UNIT, and
+		// replace it with the real thing inside the openPipeline() ASTRequestor's
 		// acceptAST() callback.
 		super(EMPTY_AST_UNIT, file, javaProj, Phase.RECONCILE, isTestCode);
 		_context = context;
@@ -66,56 +66,56 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 		if (AptPlugin.DEBUG_COMPILATION_ENV) AptPlugin.trace(
 				"constructed " + this + " for " + _workingCopy.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	@Override
 	void addMessage(
-			IFile resource, 
-		    int start, 
+			IFile resource,
+		    int start,
 			int end,
-            Severity severity, 
-            String msg, 
+            Severity severity,
+            String msg,
             int line,
             String[] arguments)
 	{
 		checkValid();
-		
+
 		if( resource == null )
 			resource = getFile();
-		
+
 		assert resource != null : "don't know about the current resource"; //$NON-NLS-1$
-		
-		// not going to post any markers to resource outside of the one we are currently 
+
+		// not going to post any markers to resource outside of the one we are currently
 		// processing during reconcile phase.
 		if( resource != null && !resource.equals( getFile() ) )
 			return;
-		
+
 		_problems.add(createProblem(resource, start, end, severity, msg, line, arguments));
 	}
-	
+
 	@Override
 	public CompilationUnit getASTFrom(final IFile file){
 		if( _file.equals(file) )
 			return _astRoot;
-		else 
+		else
 			return null;
 	}
-	
+
 	@Override
 	public void addTypeDependency(String fullyQualifiedTypeName) {
 		// do not store type dependency during reconcile.
 		return;
 	}
-	
+
 	@Override
-	public Filer getFiler(){ 
+	public Filer getFiler(){
     	return new ReconcileFilerImpl(this);
     }
-	
+
 	void openPipeline() {
 		_requestor = new CallbackRequestor();
 		createASTs(_javaProject, new ICompilationUnit[]{_workingCopy}, _requestor);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.core.internal.env.AbstractCompilationEnv#close()
 	 */

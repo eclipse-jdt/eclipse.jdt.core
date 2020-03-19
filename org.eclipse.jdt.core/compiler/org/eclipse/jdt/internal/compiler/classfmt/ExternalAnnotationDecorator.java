@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     Stefan Xenos <sxenos@gmail.com> (Google) - initial API and implementation
  *******************************************************************************/
@@ -239,7 +239,7 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 	 * annotations is associated. This provider is constructed using the given basePath, which is either a directory
 	 * holding .eea text files, or a zip file of entries of the same format. If no such provider could be constructed,
 	 * then the original binary type is returned unchanged.
-	 * 
+	 *
 	 * @param toDecorate
 	 *            the binary type to wrap, if needed
 	 * @param basePath

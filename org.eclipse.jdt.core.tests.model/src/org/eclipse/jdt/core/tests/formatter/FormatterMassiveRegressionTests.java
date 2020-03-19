@@ -164,7 +164,7 @@ import org.eclipse.text.edits.TextEdit;
  * loaded JDT/Core version.
  * </p><p>
  *  For example, copy the previous launch config and rename it
- * <b>FormatterMassiveRegressionTests (Eclipse 3.0)</b>. Change the VM 
+ * <b>FormatterMassiveRegressionTests (Eclipse 3.0)</b>. Change the VM
  * arguments as follows (<i>note that the <code>clean</code> has been removed
  * from the <code>outputDir</code> system property</i>):
  * <pre>

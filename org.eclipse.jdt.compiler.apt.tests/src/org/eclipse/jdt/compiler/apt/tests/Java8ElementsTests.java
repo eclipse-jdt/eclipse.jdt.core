@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 public class Java8ElementsTests extends TestCase {
-	
+
 	private static final String JAVA8_ANNOTATION_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java8ElementProcessor";
 
 	public static Test suite() {
@@ -131,7 +131,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations7");
 	}
-	public void _testTypeAnnotations7WithJavac() throws Exception {  // Disabled for now. Javac 8b108 misattributes annotations on type parameters 
+	public void _testTypeAnnotations7WithJavac() throws Exception {  // Disabled for now. Javac 8b108 misattributes annotations on type parameters
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations7");
 	}
@@ -247,7 +247,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations20", "JEP120_3.java");
 	}
-	
+
 	public void testRepeatedAnnotations21() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations21", "JEP120_4.java");
@@ -256,17 +256,17 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations21", "JEP120_4.java");
 	}
-	
+
 	public void testRepeatedAnnotations22() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations22", "JEP120_5.java");
 	}
-	
+
 	public void _testRepeatedAnnotations22WithJavac() throws Exception { // Disabled for now, javac 8b108 does not seem to expose any annotations on a type mirror when there are repeated annotations.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations22", "JEP120_5.java");
 	}
-	
+
 	public void testTypeAnnotations23() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations23");
@@ -286,7 +286,7 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations24", "JEP120_6.java");
 	}
-	
+
 	public void testRepeatedAnnotations25() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testRepeatedAnnotations25", "JEP120_7.java");
@@ -306,12 +306,12 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations26");
 	}
-	
+
 	public void _testTypeAnnotations27() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
 	}
-	
+
 	public void _testTypeAnnotations27WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations27");
@@ -419,7 +419,7 @@ public class Java8ElementsTests extends TestCase {
 		} else {
 			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
-		
+
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);
@@ -448,7 +448,7 @@ public class Java8ElementsTests extends TestCase {
 		} else {
 			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
-		
+
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);

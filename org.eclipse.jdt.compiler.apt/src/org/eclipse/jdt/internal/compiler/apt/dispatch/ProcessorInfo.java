@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2011 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
@@ -52,14 +52,14 @@ public class ProcessorInfo {
 	 * {@link Processor#init(javax.annotation.processing.ProcessingEnvironment)} must already have
 	 * been called). Its getSupportedXXX() methods will be called and the results will be cached.
 	 */
-	public ProcessorInfo(Processor p) 
+	public ProcessorInfo(Processor p)
 	{
 		_processor = p;
 		_hasBeenCalled = false;
 		_supportedSourceVersion = p.getSupportedSourceVersion();
 		_supportedOptions = p.getSupportedOptions();
 		Set<String> supportedAnnotationTypes = p.getSupportedAnnotationTypes();
-		
+
 		boolean supportsStar = false;
 		if (null != supportedAnnotationTypes && !supportedAnnotationTypes.isEmpty()) {
 			StringBuilder regex = new StringBuilder();
@@ -82,14 +82,14 @@ public class ProcessorInfo {
 		}
 		_supportsStar = supportsStar;
 	}
-	
+
 	/**
 	 * Compute the subset of <code>annotations</code> that are described by <code>annotationTypes</code>,
 	 * and determine whether the processor should be called.  A processor will be called if it has
 	 * any annotations to process, or if it supports "*", or if it was called in a previous round.
 	 * If the return value of this method is true once for a given processor, then it will always be true on
 	 * subsequent calls.
-	 * 
+	 *
 	 * @param annotations a set of annotation types
 	 * @param result an empty modifiable set, which upon return will contain a subset of <code>annotations</code>, which may be empty but will not be null.
 	 * @return true if the processor should be called on this round.
@@ -116,7 +116,7 @@ public class ProcessorInfo {
 	{
 		return _supportsStar;
 	}
-	
+
 	/**
 	 * Must be called at the beginning of a build to ensure that no information is
 	 * carried over from the previous build.  In particular, processors are
@@ -152,7 +152,7 @@ public class ProcessorInfo {
 	{
 		return _processor.getClass().getName();
 	}
-	
+
 	/**
 	 * @return a string representing the set of supported annotation types, in a format
 	 * suitable for debugging.  The format is unspecified and subject to change.
@@ -161,7 +161,7 @@ public class ProcessorInfo {
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append('[');
-		Iterator<String> iAnnots = _processor.getSupportedAnnotationTypes().iterator(); 
+		Iterator<String> iAnnots = _processor.getSupportedAnnotationTypes().iterator();
 		boolean hasNext = iAnnots.hasNext();
 		while (hasNext) {
 			sb.append(iAnnots.next());

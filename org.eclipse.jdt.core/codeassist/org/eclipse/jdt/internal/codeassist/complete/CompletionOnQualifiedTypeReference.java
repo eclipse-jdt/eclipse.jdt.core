@@ -38,9 +38,9 @@ public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
 
 	private int kind = K_TYPE;
 	public char[] completionIdentifier;
-	
+
 	public boolean isConstructorType;
-	
+
 public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
 	this(previousIdentifiers, completionIdentifier, positions, K_TYPE);
 }

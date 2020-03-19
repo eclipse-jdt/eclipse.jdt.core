@@ -195,7 +195,7 @@ public class JavaSearchBugs13Tests extends AbstractJavaSearchTests {
 		assertSearchResults(
 				"src/X.java int X.foo(int).localVar [localVar] EXACT_MATCH");
 	}
-	
+
 	// add non-preview stuff involving yield field and method
 	public void testBug549413_019() throws CoreException {
 		//old style switch case without preview search for yield field.
@@ -226,7 +226,7 @@ public class JavaSearchBugs13Tests extends AbstractJavaSearchTests {
 
 		try {
 			search("yield", FIELD, REFERENCES);
-			assertSearchResults("src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" + 
+			assertSearchResults("src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
 					"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
 					"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
 					"src/X.java void X.main(String[]) [yield] EXACT_MATCH");

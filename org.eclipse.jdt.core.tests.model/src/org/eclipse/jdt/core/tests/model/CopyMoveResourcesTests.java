@@ -1009,7 +1009,7 @@ public void testMoveCU10() throws CoreException {
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
 	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
-	
+
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
@@ -1036,7 +1036,7 @@ public void testMoveCU11() throws CoreException {
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
 	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
-	
+
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
@@ -1063,13 +1063,13 @@ public void testMoveCU12() throws CoreException {
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
 	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
-	
+
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
-		"/** some Javadoc */\n" + 
-		"\n" + 
-		"public class X {\n" + 
+		"/** some Javadoc */\n" +
+		"\n" +
+		"public class X {\n" +
 		"}",
 		cuDest.getSource());
 }
@@ -1090,14 +1090,14 @@ public void testMoveCU13() throws CoreException {
 	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
 	IPackageFragment pkgDest = getPackage("/P/src");
 	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
-	
+
 	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
 	assertSourceEquals(
 		"Unexpected source",
-		"/** some Javadoc */\n" + 
+		"/** some Javadoc */\n" +
 		"// some line comment\n" +
-		"\n" + 
-		"public class X {\n" + 
+		"\n" +
+		"public class X {\n" +
 		"}",
 		cuDest.getSource());
 }

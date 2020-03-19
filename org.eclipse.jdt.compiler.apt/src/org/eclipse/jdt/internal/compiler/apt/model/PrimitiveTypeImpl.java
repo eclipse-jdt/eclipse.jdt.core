@@ -25,11 +25,11 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 /**
- * 
+ *
  * @since 3.3
  */
 public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
-	
+
 	public final static PrimitiveTypeImpl BOOLEAN = new PrimitiveTypeImpl(TypeBinding.BOOLEAN);
 	public final static PrimitiveTypeImpl BYTE = new PrimitiveTypeImpl(TypeBinding.BYTE);
 	public final static PrimitiveTypeImpl CHAR = new PrimitiveTypeImpl(TypeBinding.CHAR);
@@ -38,7 +38,7 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
 	public final static PrimitiveTypeImpl INT = new PrimitiveTypeImpl(TypeBinding.INT);
 	public final static PrimitiveTypeImpl LONG = new PrimitiveTypeImpl(TypeBinding.LONG);
 	public final static PrimitiveTypeImpl SHORT = new PrimitiveTypeImpl(TypeBinding.SHORT);
-	
+
 	/**
 	 * Clients should call {@link Factory#getPrimitiveType(TypeKind)},
 	 * rather than creating new objects.
@@ -47,12 +47,12 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
 		// Primitive types do not need an environment!
 		super(null, binding);
 	}
-	
+
 	PrimitiveTypeImpl(BaseProcessingEnvImpl env, BaseTypeBinding binding) {
 		// From Java 8, base type bindings can hold annotations and hence need the environment.
 		super(env, binding);
 	}
-	
+
 	@Override
 	public <R, P> R accept(TypeVisitor<R, P> v, P p)
 	{
@@ -86,5 +86,5 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
 			throw new IllegalArgumentException("BaseTypeBinding of unexpected id " + binding.id); //$NON-NLS-1$
 		}
 	}
-	
+
 }

@@ -131,8 +131,8 @@ public class CompilerToolTests extends TestCase {
 		"-parameters",
 		"-genericsignature"
 	};
-static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] { 
-	// a series of fake options to test the behavior upon ignored and 
+static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
+	// a series of fake options to test the behavior upon ignored and
 	// pass-through options
 	"-Jignore",
 	"-Xignore",
@@ -771,7 +771,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		List<File> files = new ArrayList<File>();
 		files.add(inputFile);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-	
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
@@ -829,7 +829,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		List<File> files = new ArrayList<File>();
 		files.add(inputFile);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-	
+
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
@@ -882,12 +882,12 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 		try {
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-	
+
 			List<File> fins = new ArrayList<File>();
 			fins.add(dir);
 			JavaFileManager.Location sourceLoc = javax.tools.StandardLocation.SOURCE_PATH;
 			fileManager.setLocation(sourceLoc, fins);
-	
+
 			Set<JavaFileObject.Kind> fileTypes = new HashSet<JavaFileObject.Kind>();
 			fileTypes.add(JavaFileObject.Kind.OTHER);
 
@@ -931,18 +931,18 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		try {
 			//JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-	
+
 			List<File> fins = new ArrayList<File>();
 			fins.add(dir);
-	
+
 			JavaFileManager.Location sourceLoc = javax.tools.StandardLocation.SOURCE_PATH;
 				fileManager.setLocation(sourceLoc, fins);
-	
+
 			Set<JavaFileObject.Kind> fileTypes = new HashSet<JavaFileObject.Kind>();
 			fileTypes.add(JavaFileObject.Kind.SOURCE);
-	
+
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.list(sourceLoc, "", fileTypes, true);
-	
+
 			Iterator<? extends JavaFileObject> it = compilationUnits.iterator();
 			StringBuilder builder = new StringBuilder();
 			while (it.hasNext()) {
@@ -953,7 +953,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				builder.append(name.substring(lastIndexOf + 1));
 			}
 			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
-			
+
 			List<File> files = new ArrayList<File>();
 			files.add(dir);
 			try {
@@ -962,7 +962,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			} catch(IllegalArgumentException iae) {
 				// Do nothing
 			}
-			
+
 			fileManager.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1016,18 +1016,18 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		try {
 			//JavaCompiler systemCompiler = ToolProvider.getSystemJavaCompiler();
 			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-	
+
 			List<File> fins = new ArrayList<File>();
 			fins.add(dir);
-	
+
 			JavaFileManager.Location sourceLoc = javax.tools.StandardLocation.SOURCE_PATH;
 				fileManager.setLocation(sourceLoc, fins);
-	
+
 			Set<JavaFileObject.Kind> fileTypes = new HashSet<JavaFileObject.Kind>();
 			fileTypes.add(JavaFileObject.Kind.SOURCE);
-	
+
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.list(sourceLoc, "", fileTypes, true);
-	
+
 			Iterator<? extends JavaFileObject> it = compilationUnits.iterator();
 			List<String> names = new ArrayList<String>();
 			while (it.hasNext()) {
@@ -1049,8 +1049,8 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertTrue("delete failed", inputFile.delete());
 		assertTrue("delete failed", dir.delete());
 	}
-	
-	
+
+
 	public void testCompilerUnusedVariable() throws Exception {
 		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
 		File inputFile = new File(tmpFolder, "NoWarn.java");
@@ -1074,7 +1074,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				}
 			}
 		}
-		
+
 		// System compiler
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
@@ -1088,17 +1088,17 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		List<String> options = new ArrayList<String>();
 		options.add("-d");
 		options.add(tmpFolder);
-		
+
 		//Add warnings to the compiler
 		options.add("-warn:+unused");
 		//Add nowarn to prevent warnings in the created directory
 		options.add("-nowarn:["+ inputFile.getParent() + "]");
-		
+
  		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
 		task.call();
 		printWriter.flush();
 		printWriter.close();
-		
+
 		//passing in the directory to no warn should ignore the path - resulting in no warnings.
 		assertEquals("Expected no warnings to be generated.", "", stringWriter.toString());
 	}
@@ -1126,7 +1126,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				}
 			}
 		}
-		
+
 		// System compiler
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
@@ -1153,7 +1153,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		task.call();
 		printWriter.flush();
 		printWriter.close();
-		
+
 		//passing in the directory to no warn should ignore the path - resulting in no warnings.
 		assertEquals("No error should be reported", 0, errors.size());
 	}

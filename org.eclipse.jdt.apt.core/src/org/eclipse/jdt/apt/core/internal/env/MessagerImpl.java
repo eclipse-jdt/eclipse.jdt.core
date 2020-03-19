@@ -12,7 +12,7 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.env; 
+package org.eclipse.jdt.apt.core.internal.env;
 
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.util.SourcePosition;
@@ -26,9 +26,9 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class MessagerImpl implements Messager, EclipseMessager
 {
-	public static enum Severity { 
-		ERROR, 
-		WARNING, 
+	public static enum Severity {
+		ERROR,
+		WARNING,
 		INFO
 	}
     private final AbstractCompilationEnv _env;
@@ -36,7 +36,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     MessagerImpl(AbstractCompilationEnv env){
         _env = env;
     }
-    
+
     public void printError(SourcePosition pos, String msg, String[] arguments)
     {
     	if( pos == null )
@@ -46,7 +46,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     	else
     		print(pos, Severity.ERROR, msg, arguments);
     }
-	
+
 	@Override
 	public void printError(ASTNode node, String msg)
 	{
@@ -76,7 +76,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		else
     		print(pos, Severity.INFO, msg, arguments);
     }
-	
+
 	@Override
 	public void printNotice(ASTNode node, String msg)
 	{
@@ -98,15 +98,15 @@ public class MessagerImpl implements Messager, EclipseMessager
     }
 
     public void printWarning(SourcePosition pos, String msg, String[] arguments)
-    {		
+    {
         if( pos instanceof SourcePositionImpl )
             print((SourcePositionImpl)pos, Severity.WARNING, msg, arguments);
 		else if (pos == null )
-			printWarning(msg); 
+			printWarning(msg);
 		else
     		print(pos, Severity.WARNING, msg, arguments);
     }
-	
+
 	@Override
 	public void printWarning(ASTNode node, String msg)
 	{
@@ -126,7 +126,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     {
         print(Severity.WARNING, msg, null);
     }
-    
+
     @Override
 	public void printError(SourcePosition pos, String msg) {
 		printError(pos, msg, null);
@@ -141,7 +141,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 	public void printNotice(SourcePosition pos, String msg) {
 		printNotice(pos, msg, null);
 	}
-	
+
 	@Override
 	public void printFixableError(SourcePosition pos, String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
@@ -152,7 +152,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		}
 		printError(pos, msg, new String[] {pluginId, errorId});
 	}
-	
+
 	@Override
 	public void printFixableWarning(SourcePosition pos, String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
@@ -163,7 +163,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		}
 		printWarning(pos, msg, new String[] {pluginId, errorId});
 	}
-	
+
 	@Override
 	public void printFixableNotice(SourcePosition pos, String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
@@ -174,7 +174,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		}
 		printNotice(pos, msg, new String[] {pluginId, errorId});
 	}
-	
+
 	@Override
 	public void printFixableError(String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
@@ -185,7 +185,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		}
 		print(Severity.ERROR, msg, new String[] {pluginId, errorId});
 	}
-	
+
 	@Override
 	public void printFixableWarning(String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
@@ -196,7 +196,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		}
 		print(Severity.WARNING, msg, new String[] {pluginId, errorId});
 	}
-	
+
 	@Override
 	public void printFixableNotice(String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
@@ -207,7 +207,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		}
 		print(Severity.INFO, msg, new String[] {pluginId, errorId});
 	}
-  
+
     private void print(SourcePositionImpl pos,
     				   Severity severity,
                        String msg,
@@ -215,43 +215,43 @@ public class MessagerImpl implements Messager, EclipseMessager
     {
         final IFile resource = pos.getResource();
         if( resource == null ){
-			throw new IllegalStateException("missing resource"); //$NON-NLS-1$            
+			throw new IllegalStateException("missing resource"); //$NON-NLS-1$
         }
-        else{          
-          _env.addMessage(resource, pos.getStartingOffset(), pos.getEndingOffset(), 
+        else{
+          _env.addMessage(resource, pos.getStartingOffset(), pos.getEndingOffset(),
 						  severity, msg, pos.line(), arguments);
         }
     }
-    
+
     private void print(SourcePosition pos,
     				   Severity severity,
     				   String msg,
     				   String[] arguments)
-    {    	
+    {
     	final java.io.File file = pos.file();
     	IFile resource = null;
-    	if( file != null ){    		
+    	if( file != null ){
     		final String projAbsPath = _env.getProject().getLocation().toOSString();
     		final String fileAbsPath = file.getAbsolutePath();
-    		final String fileRelPath = fileAbsPath.substring(projAbsPath.length());    			
+    		final String fileRelPath = fileAbsPath.substring(projAbsPath.length());
     		resource = _env.getProject().getFile(fileRelPath);
     		if( !resource.exists() )
     			resource = null;
     	}
-    	 
+
     	int offset = -1;
     	if( resource != null ){
     		final CompilationUnit unit = _env.getASTFrom(resource);
     		if( unit != null )
     			offset = unit.getPosition( pos.line(), pos.column() );
     	}
-    	_env.addMessage(resource, offset, -1, severity, msg, pos.line(), arguments );   
+    	_env.addMessage(resource, offset, -1, severity, msg, pos.line(), arguments );
     }
 
     private void print(Severity severity, String msg, String[] arguments)
     {
-     	_env.addMessage(null, -1, -1, severity, msg, 1, arguments );  
-		
+     	_env.addMessage(null, -1, -1, severity, msg, 1, arguments );
+
     }
-  
+
 }

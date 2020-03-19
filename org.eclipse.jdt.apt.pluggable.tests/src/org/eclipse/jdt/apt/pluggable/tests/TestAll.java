@@ -21,21 +21,21 @@ import junit.framework.TestSuite;
 
 /**
  * Run all annotation processor tests.
- * Annotation processors may be registered by using this test plugin to extend 
+ * Annotation processors may be registered by using this test plugin to extend
  * <code>org.eclipse.jdt.apt.core.annotationProcessorFactory</code>, providing
  * the name of an annotation processor factory class implemented in this plugin.
  */
 public class TestAll extends TestCase {
-	
-	public TestAll(String testName) 
+
+	public TestAll(String testName)
 	{
 		super(testName);
 	}
-	
-	public static Test suite() 
+
+	public static Test suite()
 	{
 		TestSuite suite = new TestSuite();
-		
+
 		suite.addTest(InfrastructureTests.suite());
 		suite.addTest(FilerTests.suite());
 		suite.addTest(ModelTests.suite());

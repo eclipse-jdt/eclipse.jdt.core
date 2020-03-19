@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
 
 /**
- * 
+ *
  */
 public class RegressionTests extends APTTestBase {
 
@@ -47,7 +47,7 @@ public class RegressionTests extends APTTestBase {
 	{
 		super.setUp();
 	}
-	
+
 	/**
 	 * Bugzilla 104032: NPE when deleting project that has APT settings.
 	 */
@@ -81,20 +81,20 @@ public class RegressionTests extends APTTestBase {
 		env.addClass( srcRoot, "p1", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addClass( srcRoot, "p1", "A2", a2Code ); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addClass( srcRoot, "p1", "B", bCode ); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		// Set some per-project preferences
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.addProcessorOption(jproj, "test.104032.a", "foo");
 		AptConfig.setEnabled(jproj, true);
-		
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		// Now delete the project!
 		ResourcesPlugin.getWorkspace().delete(new IResource[] { project }, true, null);
 
 	}
-    
+
 	/**
 	 * Tests annotation proxies
 	 */
@@ -121,15 +121,15 @@ public class RegressionTests extends APTTestBase {
         + "public class MyClass { \n"
         + " public test.HELLOGen _gen;"
         + " }";
-        
+
         env.addClass( srcRoot, "p1", "MyClass", code );
-        
+
         fullBuild( project.getFullPath() );
         expectingNoProblems();
-        
+
         Util.delete(project);
     }
-    
+
     // doesn't work because of a jdt.core type system universe problem.
     public void testBugzilla120255() throws Exception{
     	final String projName = RegressionTests.class.getName() + "120255.Project"; //$NON-NLS-1$
@@ -147,23 +147,23 @@ public class RegressionTests extends APTTestBase {
 		IPath srcRoot = srcFolder.getFullPath();
 
 		String a1Code = "package pkg; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.Common;\n" 
+			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.Common;\n"
 			+ "import java.util.*;\n\n"
 			+ "@Common\n"
 			+ "public class A1<T> {\n "
-			+ "    @Common\n" 
-			+ "    Collection<String> collectionOfString;\n\n" 
+			+ "    @Common\n"
+			+ "    Collection<String> collectionOfString;\n\n"
 			+ "    @Common\n"
 			+ "    Collection<List> collectionOfList;\n"
 			+ "    public static class inner{}"
 			+ "}";
-	
+
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		// Set some per-project preferences
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.setEnabled(jproj, true);
-		fullBuild( project.getFullPath() );				
+		fullBuild( project.getFullPath() );
 		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
 				new ExpectedProblem("", "java.util.List is assignable to java.util.Collection", a1Path),
 				new ExpectedProblem("", "java.lang.String is not assignable to java.util.Collection", a1Path),
@@ -171,7 +171,7 @@ public class RegressionTests extends APTTestBase {
 				}
 		);
     }
-	
+
     /**
      * Test the Types.isSubtype() API, in various inheritance scenarios
      */
@@ -191,9 +191,9 @@ public class RegressionTests extends APTTestBase {
 		IPath srcRoot = srcFolder.getFullPath();
 
 		String a1Code = "package pkg; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.SubtypeOf;\n" 
+			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.SubtypeOf;\n"
 			+ "public interface A1 {\n "
-			+ "}\n" 
+			+ "}\n"
 			+ "class A2 implements A1 {\n"
 			+ "}\n"
 			+ "class A3 extends A2 {\n"
@@ -220,13 +220,13 @@ public class RegressionTests extends APTTestBase {
 			+ "}\n"
 			+ "class A5 {\n"
 			+ "}\n";
-	
+
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		// Set some per-project preferences
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.setEnabled(jproj, true);
-		fullBuild( project.getFullPath() );				
+		fullBuild( project.getFullPath() );
 		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
 				new ExpectedProblem("", "pkg.A2 is a subtype of pkg.A1", a1Path),
 				new ExpectedProblem("", "pkg.A3 is a subtype of pkg.A1", a1Path),
@@ -240,7 +240,7 @@ public class RegressionTests extends APTTestBase {
 				}
 		);
     }
-	
+
     /**
      * Test the Types.isAssignable() API, in various inheritance scenarios
      * @throws Exception
@@ -259,11 +259,11 @@ public class RegressionTests extends APTTestBase {
 		IProject project = env.getProject( projName );
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
-		
+
 		String a1Code = "package pkg; " + "\n"
-			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.AssignableTo;\n" 
+			+ "import org.eclipse.jdt.apt.tests.annotations.apitest.AssignableTo;\n"
 			+ "public interface A1 {\n "
-			+ "}\n" 
+			+ "}\n"
 			+ "class A2 implements A1 {\n"
 			+ "}\n"
 			+ "class A3 extends A2 {\n"
@@ -276,13 +276,13 @@ public class RegressionTests extends APTTestBase {
 			+ "    @AssignableTo(A2.class) // no\n"
 			+ "    A1 _quux;\n"
 			+ "}";
-	
+
 		final IPath a1Path = env.addClass( srcRoot, "pkg", "A1", a1Code ); //$NON-NLS-1$ //$NON-NLS-2$
-		
+
 		// Set some per-project preferences
 		IJavaProject jproj = env.getJavaProject( projName );
 		AptConfig.setEnabled(jproj, true);
-		fullBuild( project.getFullPath() );				
+		fullBuild( project.getFullPath() );
 		expectingSpecificProblemsFor(a1Path, new ExpectedProblem[]{
 				new ExpectedProblem("", "pkg.A2 is assignable to pkg.A1", a1Path),
 				new ExpectedProblem("", "byte is assignable to int", a1Path),

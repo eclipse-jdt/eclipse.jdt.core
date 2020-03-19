@@ -39,7 +39,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	ICompilationUnit workingCopy = null;
 
 	public class TestWorkingCopyOwner extends WorkingCopyOwner {
@@ -99,7 +99,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 		assertProblems("Unexpected problems", expectedProblems, cu.getProblems(), source.toCharArray());
 	}
-	
+
 	protected void assertTypeBindingsEqual(String message, String expected, ITypeBinding[] types) {
 		StringBuffer buffer = new StringBuffer();
 		if (types == null) {
@@ -665,7 +665,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 			"",
 			"/P/X.java",
 			"public class X extends to.be.Generated {\n" +
-			"}", 
+			"}",
 			owner);
 	}
 
@@ -684,14 +684,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 				}
 			};
 			assertProblems(
-				"1. ERROR in /P/X.java (at line 1)\n" + 
-				"	public class X extends Y {\n" + 
-				"	                       ^\n" + 
-				"Y cannot be resolved to a type\n" + 
+				"1. ERROR in /P/X.java (at line 1)\n" +
+				"	public class X extends Y {\n" +
+				"	                       ^\n" +
+				"Y cannot be resolved to a type\n" +
 				"----------\n",
 				"/P/X.java",
 				"public class X extends Y {\n" +
-				"}", 
+				"}",
 				owner);
 		} finally {
 			deleteFile("/P/Y.java");

@@ -28,12 +28,12 @@ import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
- * 
+ *
  */
 public class ScalingTests extends TestBase
 {
 	private final boolean VERBOSE = true;
-	
+
 	public ScalingTests(String name) {
 		super(name);
 	}
@@ -47,7 +47,7 @@ public class ScalingTests extends TestBase
 	{
 		super.setUp();
 	}
-	
+
 	/**
 	 * A customer reports that projects with ~2000 files abort generation.
 	 * Note, this test will take quite a long time to run.
@@ -57,15 +57,15 @@ public class ScalingTests extends TestBase
 		final int FILES_TO_GENERATE = 4000; // total number of files to create
 		final int PAUSE_EVERY = 200; // wait for indexer to catch up after creating this many files
 		final int PAUSE_TIME = 2000; // milliseconds to wait for indexer
-		
+
 		// set up project with unique name
 		IJavaProject jproj = createJavaProject(_projectName);
 
 		IProject project = jproj.getProject();
 		IFolder srcFolder = project.getFolder( "src" );
 		IPath srcRoot = srcFolder.getFullPath();
-		
-		String template = 
+
+		String template =
 			"package p;\n" +
 			"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
 			"@GenClass6(pkg=\"g\", name=\"Generated%05d\")\n" +
@@ -74,7 +74,7 @@ public class ScalingTests extends TestBase
 			String name = String.format("Test%05d", i);
 			String contents = String.format(template, i, i);
 			env.addClass( srcRoot, "p", name, contents ); //$NON-NLS-1$ //$NON-NLS-2$
-			
+
 			// pause to let indexer catch up
 			if (i % PAUSE_EVERY == 0) {
 				if (VERBOSE)
@@ -82,20 +82,20 @@ public class ScalingTests extends TestBase
 				Thread.sleep(PAUSE_TIME);
 			}
 		}
-		
+
 		if (VERBOSE)
 			System.out.println("Done creating source files");
-		
+
 		// Set some per-project preferences
 		AptConfig.setEnabled(jproj, true);
-		
+
 		long start = System.currentTimeMillis();
 		fullBuild( project.getFullPath() );
 		if (VERBOSE)
 			System.out.println("Done with build after " + ((System.currentTimeMillis() - start)/1000L) + " sec");
-		
+
 		expectingNoProblems();
-		
+
 		IPath projPath = jproj.getProject().getLocation();
 		for (int i = 1; i <= FILES_TO_GENERATE; ++i) {
 			// check that file was generated
@@ -107,7 +107,7 @@ public class ScalingTests extends TestBase
 			File genClass = new File(projPath.append(genClassName).toOSString());
 			assertTrue("Compiled file " + genClassName + " was not found", genClass != null && genClass.exists());
 		}
-		
+
 		if (VERBOSE)
 			System.out.println("Done checking output");
 

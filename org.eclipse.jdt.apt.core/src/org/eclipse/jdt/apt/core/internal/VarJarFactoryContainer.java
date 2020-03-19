@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.JavaCore;
  * outside of the workspace, referenced by a classpath variable.
  */
 public class VarJarFactoryContainer extends JarFactoryContainer {
-	
+
 	private final String _id;
 	private final File _jarFile;
 

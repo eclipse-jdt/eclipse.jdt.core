@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:	
+ *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:
  *         Bug 531046: [10] ICodeAssist#codeSelect support for 'var'
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
@@ -138,16 +138,16 @@ import org.eclipse.jdt.internal.core.util.HashSetOfCharArrayArray;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class SelectionEngine extends Engine implements ISearchRequestor {
-	
+
 	private static class SelectionTypeNameMatchRequestorWrapper extends TypeNameMatchRequestorWrapper {
-		
+
 		class AcceptedType {
 			public int modifiers;
 			public char[] packageName;
 			public char[] simpleTypeName;
 			public String path;
 			public AccessRestriction access;
-			
+
 			public AcceptedType(int modifiers, char[] packageName, char[] simpleTypeName, String path, AccessRestriction access) {
 				this.modifiers = modifiers;
 				this.packageName = packageName;
@@ -156,63 +156,63 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.access = access;
 			}
 		}
-		
+
 		private ImportReference[] importReferences;
-		
+
 		private boolean importCachesNodeInitialized = false;
 		private ImportReference[] onDemandImportsNodeCache;
 		private int onDemandImportsNodeCacheCount;
 		private char[][][] importsNodeCache;
 		private int importsNodeCacheCount;
-		
+
 		private HashtableOfObject onDemandFound = new HashtableOfObject();
 		private ObjectVector notImportedFound = new ObjectVector();
-		
+
 		public SelectionTypeNameMatchRequestorWrapper(TypeNameMatchRequestor requestor, IJavaSearchScope scope, ImportReference[] importReferences) {
 			super(requestor, scope);
 			this.importReferences = importReferences;
 		}
-		
+
 		@Override
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
 			if (enclosingTypeNames != null && enclosingTypeNames.length > 0) return;
-			
+
 			if (!this.importCachesNodeInitialized) initializeImportNodeCaches();
-			
+
 			char[] fullyQualifiedTypeName = CharOperation.concat(packageName, simpleTypeName, '.');
-			
+
 			for (int i = 0; i < this.importsNodeCacheCount; i++) {
 				char[][] importName = this.importsNodeCache[i];
 				if (CharOperation.equals(importName[0], simpleTypeName)) {
-					
+
 					if(CharOperation.equals(importName[1], fullyQualifiedTypeName)) {
 						super.acceptType(modifiers, packageName, simpleTypeName, enclosingTypeNames, path, access);
 					}
 					return;
 				}
 			}
-			
+
 			for (int i = 0; i < this.onDemandImportsNodeCacheCount; i++) {
 				char[][] importName = this.onDemandImportsNodeCache[i].tokens;
 				char[] importFlatName = CharOperation.concatWith(importName, '.');
-				
+
 				if (CharOperation.equals(importFlatName, packageName)) {
-					
+
 					this.onDemandFound.put(simpleTypeName, simpleTypeName);
 					super.acceptType(modifiers, packageName, simpleTypeName, enclosingTypeNames, path, access);
 					return;
 				}
 			}
-			
-			
+
+
 			this.notImportedFound.add(new AcceptedType(modifiers, packageName, simpleTypeName, path, access));
 		}
-		
+
 		public void acceptNotImported() {
 			int size = this.notImportedFound.size();
 			for (int i = 0; i < size; i++) {
 				AcceptedType acceptedType = (AcceptedType)this.notImportedFound.elementAt(i);
-				
+
 				if (this.onDemandFound.get(acceptedType.simpleTypeName) == null) {
 					super.acceptType(
 							acceptedType.modifiers,
@@ -224,10 +224,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 			}
 		}
-		
+
 		public void initializeImportNodeCaches() {
 			int length = this.importReferences == null ? 0 : this.importReferences.length;
-			
+
 			for (int i = 0; i < length; i++) {
 				ImportReference importReference = this.importReferences[i];
 				if((importReference.bits & ASTNode.OnDemand) != 0) {
@@ -240,15 +240,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					if(this.importsNodeCache == null) {
 						this.importsNodeCache = new char[length - i][][];
 					}
-					
-					
+
+
 					this.importsNodeCache[this.importsNodeCacheCount++] = new char[][]{
 							importReference.tokens[importReference.tokens.length - 1],
 							CharOperation.concatWith(importReference.tokens, '.')
 						};
 				}
 			}
-			
+
 			this.importCachesNodeInitialized = true;
 		}
 	}
@@ -349,7 +349,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		this.parser = new SelectionParser(problemReporter);
 		this.owner = owner;
 	}
-	
+
 	@Override
 	public void acceptConstructor(
 			int modifiers,
@@ -570,7 +570,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				true /*taskCaseSensitive*/,
 				this.compilerOptions.enablePreviewFeatures);
 		scanner.setSource(source);
-		
+
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;
 		char[] lastIdentifier = null;
@@ -686,7 +686,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (selectionStart == selectionEnd) { // Widen the selection to scan -> || :: if needed. No unicode handling for now.
 				if (selectionStart > 0 && selectionEnd < source.length - 1) {
 					if ((source[selectionStart] == '>' && source[selectionStart - 1] == '-') ||
-							source[selectionStart] == ':' && source[selectionStart - 1] == ':') { 
+							source[selectionStart] == ':' && source[selectionStart - 1] == ':') {
 						selectionStart--;
 					} else {
 						if ((source[selectionStart] == '-' && source[selectionEnd + 1] == '>') ||
@@ -694,7 +694,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							selectionEnd++;
 						}
 					}
-				}  
+				}
 			} // there could be some innocuous widening, shouldn't matter.
 			scanner.resetTo(selectionStart, selectionEnd, isModuleInfo);
 
@@ -721,12 +721,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 						expectingIdentifier = false;
 						break;
-					case TerminalTokens.TokenNameCOLON_COLON:	
+					case TerminalTokens.TokenNameCOLON_COLON:
 						if (selectionStart >= scanner.startPosition && selectionEnd < scanner.currentPosition) {
 							this.actualSelectionStart = selectionStart;
 							this.actualSelectionEnd = selectionEnd;
 							this.selectedIdentifier = CharOperation.NO_CHAR;
-							return true;		
+							return true;
 						}
 						//$FALL-THROUGH$
 					case TerminalTokens.TokenNameDOT :
@@ -751,7 +751,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							this.actualSelectionStart = selectionStart;
 							this.actualSelectionEnd = selectionEnd;
 							this.selectedIdentifier = CharOperation.NO_CHAR;
-							return true;		
+							return true;
 						}
 						return false;
 					default :
@@ -837,7 +837,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 		return false;
 	}
-	
+
 	/*
 	 * find all types outside the project scope
 	 */
@@ -878,7 +878,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					// implements interface method
 				}
 			};
-			
+
 			TypeNameMatchRequestor typeNameMatchRequestor = new TypeNameMatchRequestor() {
 				@Override
 				public void acceptTypeNameMatch(TypeNameMatch match) {
@@ -888,17 +888,17 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 				}
 			};
-			
+
 			IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
-			
+
 			SelectionTypeNameMatchRequestorWrapper requestorWrapper =
 				new SelectionTypeNameMatchRequestorWrapper(
-						typeNameMatchRequestor, 
+						typeNameMatchRequestor,
 						scope,
 						this.unitScope == null ? null : this.unitScope.referenceContext.imports);
-			
+
 			org.eclipse.jdt.core.ICompilationUnit[] workingCopies = this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/);
-			
+
 			try {
 				new BasicSearchEngine(workingCopies).searchAllTypeNames(
 					null,
@@ -1098,7 +1098,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				// accept qualified types only if no unqualified type was accepted
 				if(!this.acceptedAnswer) {
 					acceptQualifiedTypes();
-					
+
 					// accept types from all the workspace only if no type was found in the project scope
 					if (this.noProposal) {
 						findAllTypes(this.selectedIdentifier);
@@ -1437,7 +1437,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			public boolean visit(
 		    		LocalDeclaration localDeclaration, BlockScope scope) {
 				if(localDeclaration instanceof SelectionOnLocalName) {
-					localDeclaration.resolve(scope);		
+					localDeclaration.resolve(scope);
 				}
 				if (localDeclaration.type instanceof SingleTypeReference && ((SingleTypeReference)localDeclaration.type).token == assistIdentifier) {
 					if(localDeclaration.binding != null) {
@@ -1568,7 +1568,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 					// find the type declaration that corresponds to the original source type
 					while (context.isLambda() && context.getParent() != null) {
-						// It is easier to find the first enclosing proper type than the corresponding 
+						// It is easier to find the first enclosing proper type than the corresponding
 						// lambda expression ast to add the selection node to.
 						context = (IType) context.getParent().getAncestor(IJavaElement.TYPE);
 					}
@@ -1600,7 +1600,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 					parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
 					HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
-					
+
 					BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
 					typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
 					parsedUnit.imports = converter.buildImports(reader);
@@ -1826,7 +1826,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 		return false;
 	}
-	
+
 	/*
 	 * Returns the correct method binding according to whether the selection is on the method declaration
 	 * or on the inheritDoc tag in its javadoc.
@@ -1846,7 +1846,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 		return binding;
 	}
-	
+
 	protected MethodBinding findOverriddenMethodInType(ReferenceBinding overriddenType, MethodBinding overriding) throws JavaModelException {
 		if (overriddenType == null)
 			return null;
@@ -1861,7 +1861,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 		return null;
 	}
-	
+
 	private Object findMethodWithAttachedDocInHierarchy(final MethodBinding method) throws JavaModelException {
 		ReferenceBinding type= method.declaringClass;
 		final SelectionRequestor requestor1 = (SelectionRequestor) this.requestor;
@@ -1879,7 +1879,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				IMember member = (IMember) requestor1.findMethodFromBinding(overridden, names, overridden.declaringClass);
 				if (member == null)
 					return InheritDocVisitor.CONTINUE;
-				if (member.getAttachedJavadoc(null) != null ) {  
+				if (member.getAttachedJavadoc(null) != null ) {
 					// for binary methods with attached javadoc and no source attached
 					return overridden;
 				}
@@ -1903,7 +1903,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 		}.visitInheritDoc(type);
 	}
-	
+
 	/**
 	 * Implements the "Algorithm for Inheriting Method Comments" as specified for
 	 * <a href="http://download.oracle.com/javase/6/docs/technotes/tools/windows/javadoc.html#inheritingcomments">1.6</a>.
@@ -1983,7 +1983,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 		/**
 		 * Visits the super interfaces of the given type in the given hierarchy, thereby skipping already visited types.
-		 * 
+		 *
 		 * @param visited set of visited types
 		 * @param currentType type whose super interfaces should be visited
 		 * @return the result, or {@link #CONTINUE} if no result has been found
@@ -2019,6 +2019,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	@Override
 	public void acceptModule(char[] moduleName) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

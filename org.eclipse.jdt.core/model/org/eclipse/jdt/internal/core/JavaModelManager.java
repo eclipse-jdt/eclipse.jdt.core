@@ -5400,7 +5400,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					| IResourceChangeEvent.PRE_DELETE
 					| IResourceChangeEvent.PRE_CLOSE
 					| IResourceChangeEvent.PRE_REFRESH);
-			
+
 			// New index is disabled, see bug 544898
 			// Indexer.getInstance().addListener(this.deltaState);
 

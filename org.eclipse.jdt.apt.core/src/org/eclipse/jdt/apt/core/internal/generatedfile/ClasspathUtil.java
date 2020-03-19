@@ -34,8 +34,8 @@ public class ClasspathUtil {
 
 	/**
 	 * Given a java project, this function will determine if the specified
-	 * folder is a source folder of the java project. 
-	 * 
+	 * folder is a source folder of the java project.
+	 *
 	 * @param jp - the java project
 	 * @param folder - the folder that you want to see if it is a classpath entry for the java project
 	 * @return the IClasspathEntry corresponding to folder, or null if none was found.
@@ -45,12 +45,12 @@ public class ClasspathUtil {
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
-		IClasspathEntry searchingFor = 
+		IClasspathEntry searchingFor =
 			JavaCore.newSourceEntry(folder.getFullPath());
 		IPath searchingForPath = searchingFor.getPath();
-		for (int i = 0; i < cp.length; i++) 
+		for (int i = 0; i < cp.length; i++)
 		{
-			if (cp[i].getPath().equals( searchingForPath )) 
+			if (cp[i].getPath().equals( searchingForPath ))
 				return cp[i];
 		}
 		return null;
@@ -65,47 +65,47 @@ public class ClasspathUtil {
 	 * @return true if classpath contains the path specified.
 	 * @throws JavaModelException
 	 */
-	public static boolean doesClasspathContainEntry(		
+	public static boolean doesClasspathContainEntry(
 			IJavaProject jp,
 			IClasspathEntry[] cp,
-			IPath path, 
+			IPath path,
 			IProgressMonitor progressMonitor)
 		throws JavaModelException
-	{	
+	{
 		if( cp == null )
 			cp = jp.getRawClasspath();
-		for (int i = 0; i < cp.length; i++) 
+		for (int i = 0; i < cp.length; i++)
 		{
-			if (cp[i].getPath().equals( path )) 
+			if (cp[i].getPath().equals( path ))
 			{
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	/** 
-	 * removes a classpath entry from the project 
+
+	/**
+	 * removes a classpath entry from the project
 	 */
 	public static void removeFromProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
 		throws JavaModelException
-	{			
+	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
 		IPath workspaceRelativePath = folder.getFullPath();
 		boolean found = doesClasspathContainEntry(jp, cp, workspaceRelativePath, progressMonitor);
-		
-		if( found ){			
+
+		if( found ){
 			IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
-	
-			// remove entries that are for the specified folder, account for 
-			// multiple entries, and clean up any exclusion entries to the 
+
+			// remove entries that are for the specified folder, account for
+			// multiple entries, and clean up any exclusion entries to the
 			// folder being removed.
 			int j = 0;
 			for ( int i=0; i<cp.length; i++ )
 			{
 				if (! cp[i].getPath().equals( workspaceRelativePath ) )
 				{
-				
+
 					// see if we added the generated source dir as an exclusion pattern to some other entry
 					IPath[] oldExclusions = cp[i].getExclusionPatterns();
 					int m = 0;
@@ -117,7 +117,7 @@ public class ClasspathUtil {
 							m++;
 						}
 					}
-					
+
 					if ( oldExclusions.length == m )
 					{
 						// no exclusions changed, so we do't need to create a new entry
@@ -130,16 +130,16 @@ public class ClasspathUtil {
 						System.arraycopy( oldExclusions, 0, newExclusions, 0, m );
 						cp[j] = JavaCore.newSourceEntry( cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes() );
 					}
-					
+
 					j++;
 				}
 			}
-			
+
 			// now copy updated classpath entries into new array
 			IClasspathEntry[] newCp = new IClasspathEntry[ j ];
 			System.arraycopy( cp, 0, newCp, 0, j);
 			jp.setRawClasspath( newCp, progressMonitor );
-			
+
 			if( AptPlugin.DEBUG ){
 				AptPlugin.trace("removed " + workspaceRelativePath + " from classpath"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -148,7 +148,7 @@ public class ClasspathUtil {
 
 	/**
 	 * returns true if we updated the classpath, false otherwise
-	 * @param specificOutputLocation 
+	 * @param specificOutputLocation
 	 */
 	public static boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor, boolean isTestCode, IPath specificOutputLocation )
 		throws JavaModelException
@@ -156,8 +156,8 @@ public class ClasspathUtil {
 		IClasspathEntry[] cp = jp.getRawClasspath();
 		IPath path = folder.getFullPath();
 		boolean found = ClasspathUtil.doesClasspathContainEntry(jp, cp, path, progressMonitor);
-		
-		if (!found) 
+
+		if (!found)
 		{
 			// update exclusion patterns
 			ArrayList<IPath> exclusions = new ArrayList<>();
@@ -167,8 +167,8 @@ public class ClasspathUtil {
 				{
 					// exclusion patterns must be project-relative paths, and must end with a "/"
 					IPath projectRelativePath = folder.getProjectRelativePath().addTrailingSeparator();
-					
-					// path is contained in an existing source path, so update existing paths's exclusion patterns				
+
+					// path is contained in an existing source path, so update existing paths's exclusion patterns
 					IPath[] oldExclusions = cp[i].getExclusionPatterns();
 
 					// don't add if exclusion pattern already contains src dir
@@ -176,7 +176,7 @@ public class ClasspathUtil {
 					for ( int j = 0; j < oldExclusions.length; j++ )
 						if ( oldExclusions[j].equals( projectRelativePath ) )
 							add = false;
-					
+
 					if ( add )
 					{
 						IPath[] newExclusions;
@@ -190,7 +190,7 @@ public class ClasspathUtil {
 						newExclusions[ newExclusions.length - 1 ] = projectRelativePath;
 						cp[i] = JavaCore.newSourceEntry(cp[i].getPath(), cp[i].getInclusionPatterns(), newExclusions, cp[i].getOutputLocation(), cp[i].getExtraAttributes());
 					}
-					
+
 				}
 				else if ( path.isPrefixOf( cp[i].getPath() ))
 				{
@@ -198,27 +198,27 @@ public class ClasspathUtil {
 					exclusions.add( cp[i].getPath().addTrailingSeparator() );
 				}
 			}
-			
+
 			IPath[] exclusionPatterns = exclusions.toArray( new IPath[exclusions.size()] );
 			final IClasspathAttribute[] attrs = new IClasspathAttribute[isTestCode ? 2 : 1];
 			attrs[0] = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, Boolean.toString(true));
 			if(isTestCode) {
 				attrs[1] = JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, Boolean.toString(true));
 			}
-			IClasspathEntry generatedSourceClasspathEntry = 
+			IClasspathEntry generatedSourceClasspathEntry =
 				JavaCore.newSourceEntry(folder.getFullPath(), new IPath[] {}, exclusionPatterns, specificOutputLocation, attrs );
-			
+
 			IClasspathEntry[] newCp = new IClasspathEntry[cp.length + 1];
 			System.arraycopy(cp, 0, newCp, 0, cp.length);
 			newCp[newCp.length - 1] = generatedSourceClasspathEntry;
-			
+
 			jp.setRawClasspath(newCp, progressMonitor );
 		}
 
 		// return true if we updated the project's classpath entries
 		return !found;
 	}
-	
+
 	public static IPath findTestOutputLocation(IClasspathEntry[] cp) {
 		for (IClasspathEntry entry : cp) {
 			if(entry.getEntryKind()==IClasspathEntry.CPE_SOURCE && entry.isTest()) {

@@ -219,7 +219,7 @@ public class SpacePreparator extends ASTVisitor {
 			int from = this.tm.firstIndexIn(node.getName(), TokenNameIdentifier) + 1;
 			AnonymousClassDeclaration classDeclaration = node.getAnonymousClassDeclaration();
 			int to = classDeclaration != null ? this.tm.firstIndexBefore(classDeclaration, -1)
-					: this.tm.lastIndexIn(node, -1); 
+					: this.tm.lastIndexIn(node, -1);
 			for (int i = from; i <= to; i++) {
 				if (this.tm.get(i).tokenType == TokenNameLPAREN) {
 					openingParen = this.tm.get(i);
@@ -299,7 +299,7 @@ public class SpacePreparator extends ASTVisitor {
 				handleToken(node.getName(), TokenNameLPAREN, beforeOpenParen, false);
 			} else {
 				handleToken(node.getName(), TokenNameLPAREN, beforeOpenParen, afterOpenParen);
-	
+
 				boolean beforeCloseParen = node.isConstructor()
 						? this.options.insert_space_before_closing_paren_in_constructor_declaration
 						: this.options.insert_space_before_closing_paren_in_method_declaration;
@@ -317,7 +317,7 @@ public class SpacePreparator extends ASTVisitor {
 					: this.options.insert_space_after_comma_in_method_declaration_parameters;
 			if (node.getReceiverType() != null) {
 				params = new ArrayList<>(params);
-				params.add(0, null); // space for explicit receiver, null OK - first value not read in handleCommas 
+				params.add(0, null); // space for explicit receiver, null OK - first value not read in handleCommas
 			}
 			handleCommas(params, beforeComma, afterComma);
 		}
@@ -1106,7 +1106,7 @@ public class SpacePreparator extends ASTVisitor {
 		handleModuleStatementCommas(node.modules());
 		return true;
 	}
-	
+
 	@Override
 	public boolean visit(OpensDirective node) {
 		handleModuleStatementCommas(node.modules());

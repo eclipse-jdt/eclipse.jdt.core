@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -55,7 +55,7 @@ public class SingleTypeReference extends TypeReference {
 			return this.resolvedType;
 
 		this.resolvedType = scope.getType(this.token);
-		
+
 		if (this.resolvedType instanceof TypeVariableBinding) {
 			TypeVariableBinding typeVariable = (TypeVariableBinding) this.resolvedType;
 			if (typeVariable.declaringElement instanceof SourceTypeBinding) {
@@ -91,9 +91,9 @@ public class SingleTypeReference extends TypeReference {
 			   this.token == CHAR    ||
 			   this.token == BOOLEAN ||
 			   this.token == NULL    ||
-			   this.token == VOID;	    
+			   this.token == VOID;
 	}
-	
+
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output){
 		if (this.annotations != null && this.annotations[0] != null) {

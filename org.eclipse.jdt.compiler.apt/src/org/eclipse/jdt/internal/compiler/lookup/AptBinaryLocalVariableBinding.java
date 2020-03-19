@@ -22,7 +22,7 @@ public class AptBinaryLocalVariableBinding extends LocalVariableBinding {
 	AnnotationBinding[] annotationBindings;
 	// enclosing element
 	public MethodBinding methodBinding;
-	
+
 	public AptBinaryLocalVariableBinding(char[] name, TypeBinding type, int modifiers, AnnotationBinding[] annotationBindings, MethodBinding methodBinding) {
 		super(name, type, modifiers, true);
 		this.annotationBindings = annotationBindings == null ? Binding.NO_ANNOTATIONS : annotationBindings;
@@ -63,5 +63,5 @@ public class AptBinaryLocalVariableBinding extends LocalVariableBinding {
 				&& modifiers==other.modifiers
 				&& Arrays.equals(this.annotationBindings, other.annotationBindings)
 				&& Objects.equals(this.methodBinding, other.methodBinding);
-	}	
+	}
 }

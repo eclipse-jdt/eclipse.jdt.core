@@ -641,7 +641,7 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 			javadocRootTags.add(tagTokens);
 		}
-		
+
 		if (this.options.comment_align_tags_names_descriptions) {
 			int maxTagNameLength = 0;
 			int maxParamNameLength = 0;
@@ -690,7 +690,7 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 		}
 	}
-	
+
 	private void handleJavadocBlankLines(Javadoc node) {
 		List<TagElement> tagElements = node.tags();
 		List<Integer> tagIndexes = tagElements.stream()
@@ -699,7 +699,7 @@ public class CommentsPreparator extends ASTVisitor {
 				.collect(Collectors.toList());
 		tagIndexes.addAll(this.commonAttributeAnnotations);
 		Collections.sort(tagIndexes);
-		
+
 		String previousName = null;
 		if (!tagIndexes.isEmpty()) {
 			int firstIndex = tagIndexes.get(0);
@@ -1184,7 +1184,7 @@ public class CommentsPreparator extends ASTVisitor {
 		for (Token token : formattedTokens)
 			token.setAlign(token.getAlign() + openingToken.getAlign() + openingToken.getIndent());
 		fixJavadocTagAlign(openingToken, closingTagFirstIndex);
-		
+
 		// there are too few linebreaks at the start and end
 		Token start = formattedTokens.get(0);
 		start.putLineBreaksBefore(start.getLineBreaksBefore() + 1);

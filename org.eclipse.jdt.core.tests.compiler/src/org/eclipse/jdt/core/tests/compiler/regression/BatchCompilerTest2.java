@@ -25,7 +25,7 @@ public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
-	
+
 	/**
 	 * This test suite only needs to be run on one compliance.
 	 * As it includes some specific 1.5 tests, it must be used with a least a 1.5 VM
@@ -87,10 +87,10 @@ public void test002() throws Exception {
 					+ " -11 --enable-preview",
 					"",
 					"----------\n" +
-							"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" + 
+							"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" +
 							"	Zork z;\n" +
 							"	^^^^\n" +
-							"Zork cannot be resolved to a type\n" + 
+							"Zork cannot be resolved to a type\n" +
 							"----------\n" +
 							"1 problem (1 error)\n",
 							true);
@@ -112,12 +112,12 @@ public void test003() {
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 					+ " -11 --enable-preview",
 					"",
-					"----------\n" + 
-					"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-					"	I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-					"	                         ^\n" + 
-					"\'var\' cannot be mixed with non-var parameters\n" + 
-					"----------\n" + 
+					"----------\n" +
+					"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+					"	I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+					"	                         ^\n" +
+					"\'var\' cannot be mixed with non-var parameters\n" +
+					"----------\n" +
 					"1 problem (1 error)\n",
 					true);
 }
@@ -200,24 +200,24 @@ public void testBug540123a() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" + 
-					"  public SecurePrefs node (String s) {\n" + 
-					"	  System.out.println(s);\n" + 
-					"	  return null;\n" + 
-					"  }\n" + 
+					"public class SecurePrefs {\n" +
+					"  public SecurePrefs node (String s) {\n" +
+					"	  System.out.println(s);\n" +
+					"	  return null;\n" +
+					"  }\n" +
 					"}",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" + 
-					"\n" + 
-					"	public void foo() {\n" + 
-					"		SecurePrefs node = node(\"Hello\");\n" + 
-					"		if (node != null)\n" + 
-					"			System.out.println(node.toString());\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new SecurePrefsRoot().foo();\n" + 
-					"	}\n" + 
+					"public class SecurePrefsRoot extends SecurePrefs {\n" +
+					"\n" +
+					"	public void foo() {\n" +
+					"		SecurePrefs node = node(\"Hello\");\n" +
+					"		if (node != null)\n" +
+					"			System.out.println(node.toString());\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new SecurePrefsRoot().foo();\n" +
+					"	}\n" +
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
@@ -233,24 +233,24 @@ public void testBug540123b() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" + 
-					"  public SecurePrefs node (String s) {\n" + 
-					"	  System.out.println(s);\n" + 
-					"	  return null;\n" + 
-					"  }\n" + 
+					"public class SecurePrefs {\n" +
+					"  public SecurePrefs node (String s) {\n" +
+					"	  System.out.println(s);\n" +
+					"	  return null;\n" +
+					"  }\n" +
 					"}",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" + 
-					"\n" + 
-					"	public void foo() {\n" + 
-					"		SecurePrefs node = node(\"Hello\");\n" + 
-					"		if (node != null)\n" + 
-					"			System.out.println(node.toString());\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new SecurePrefsRoot().foo();\n" + 
-					"	}\n" + 
+					"public class SecurePrefsRoot extends SecurePrefs {\n" +
+					"\n" +
+					"	public void foo() {\n" +
+					"		SecurePrefs node = node(\"Hello\");\n" +
+					"		if (node != null)\n" +
+					"			System.out.println(node.toString());\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new SecurePrefsRoot().foo();\n" +
+					"	}\n" +
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
@@ -266,24 +266,24 @@ public void testBug540123c() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" + 
-					"  public SecurePrefs node (String s) {\n" + 
-					"	  System.out.println(s);\n" + 
-					"	  return null;\n" + 
-					"  }\n" + 
+					"public class SecurePrefs {\n" +
+					"  public SecurePrefs node (String s) {\n" +
+					"	  System.out.println(s);\n" +
+					"	  return null;\n" +
+					"  }\n" +
 					"}",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" + 
-					"\n" + 
-					"	public void foo() {\n" + 
-					"		SecurePrefs node = node(\"Hello\");\n" + 
-					"		if (node != null)\n" + 
-					"			System.out.println(node.toString());\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new SecurePrefsRoot().foo();\n" + 
-					"	}\n" + 
+					"public class SecurePrefsRoot extends SecurePrefs {\n" +
+					"\n" +
+					"	public void foo() {\n" +
+					"		SecurePrefs node = node(\"Hello\");\n" +
+					"		if (node != null)\n" +
+					"			System.out.println(node.toString());\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new SecurePrefsRoot().foo();\n" +
+					"	}\n" +
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
@@ -299,24 +299,24 @@ public void testBug540123d() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" + 
-					"  public SecurePrefs node (String s) {\n" + 
-					"	  System.out.println(s);\n" + 
-					"	  return null;\n" + 
-					"  }\n" + 
+					"public class SecurePrefs {\n" +
+					"  public SecurePrefs node (String s) {\n" +
+					"	  System.out.println(s);\n" +
+					"	  return null;\n" +
+					"  }\n" +
 					"}",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" + 
-					"\n" + 
-					"	public void foo() {\n" + 
-					"		SecurePrefs node = node(\"Hello\");\n" + 
-					"		if (node != null)\n" + 
-					"			System.out.println(node.toString());\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new SecurePrefsRoot().foo();\n" + 
-					"	}\n" + 
+					"public class SecurePrefsRoot extends SecurePrefs {\n" +
+					"\n" +
+					"	public void foo() {\n" +
+					"		SecurePrefs node = node(\"Hello\");\n" +
+					"		if (node != null)\n" +
+					"			System.out.println(node.toString());\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new SecurePrefsRoot().foo();\n" +
+					"	}\n" +
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""
@@ -332,24 +332,24 @@ public void testBug540123e() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"SecurePrefs.java",
-					"public class SecurePrefs {\n" + 
-					"  public SecurePrefs node (String s) {\n" + 
-					"	  System.out.println(s);\n" + 
-					"	  return null;\n" + 
-					"  }\n" + 
+					"public class SecurePrefs {\n" +
+					"  public SecurePrefs node (String s) {\n" +
+					"	  System.out.println(s);\n" +
+					"	  return null;\n" +
+					"  }\n" +
 					"}",
 					"SecurePrefsRoot.java",
-					"public class SecurePrefsRoot extends SecurePrefs {\n" + 
-					"\n" + 
-					"	public void foo() {\n" + 
-					"		SecurePrefs node = node(\"Hello\");\n" + 
-					"		if (node != null)\n" + 
-					"			System.out.println(node.toString());\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new SecurePrefsRoot().foo();\n" + 
-					"	}\n" + 
+					"public class SecurePrefsRoot extends SecurePrefs {\n" +
+					"\n" +
+					"	public void foo() {\n" +
+					"		SecurePrefs node = node(\"Hello\");\n" +
+					"		if (node != null)\n" +
+					"			System.out.println(node.toString());\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new SecurePrefsRoot().foo();\n" +
+					"	}\n" +
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "SecurePrefsRoot.java\""

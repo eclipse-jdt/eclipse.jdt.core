@@ -469,8 +469,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			// so in addition to the synthetic annotation there must also be a real one:
 			String annotSourceString =
 				"package p1;\n" +
-				"import java.lang.annotation.ElementType;\n" + 
-				"import java.lang.annotation.Target;\n" + 
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
 				"@Target({ElementType.PARAMETER,ElementType.METHOD})\n" +
 				"public @interface Annot {}\n";
 			this.createFile(
@@ -540,7 +540,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
     		deleteProject("P");
     	}
 	}
-	
+
 	// see https://bugs.eclipse.org/418233
 	public void testNonNullDefaultInInner()  throws CoreException, IOException, InterruptedException  {
 		IJavaProject project15 = null;
@@ -550,24 +550,24 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			createFile(
 					"/TestAnnot/src/p1/Interfaces.java",
 					"package p1;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" + 
-					"\n" + 
-					"@NonNullByDefault\n" + 
-					"public interface Interfaces {\n" + 
-					"  public interface InnerInterface {\n" + 
-					"    Object doSomethingElse(Object o);\n" + 
-					"  }\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"\n" +
+					"@NonNullByDefault\n" +
+					"public interface Interfaces {\n" +
+					"  public interface InnerInterface {\n" +
+					"    Object doSomethingElse(Object o);\n" +
+					"  }\n" +
 					"}"
 				);
 			String source =
 					"package p1;\n" +
-					"import org.eclipse.jdt.annotation.*;\n" + 
-					"\n" + 
-					"@NonNullByDefault\n" + 
-					"public class Implementations implements Interfaces.InnerInterface {\n" + 
-					"	public Object doSomethingElse(Object o) {\n" + 
-					"		return o; \n" + 
-					"	}\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"\n" +
+					"@NonNullByDefault\n" +
+					"public class Implementations implements Interfaces.InnerInterface {\n" +
+					"	public Object doSomethingElse(Object o) {\n" +
+					"		return o; \n" +
+					"	}\n" +
 					"}";
 			createFile(
 					"/TestAnnot/src/p1/Implementations.java",
@@ -580,14 +580,14 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
 			project15.setOption(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
 			project15.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-	
+
 			this.workingCopies = new ICompilationUnit[1];
 			char[] sourceChars = source.toCharArray();
 			this.problemRequestor.initialize(sourceChars);
 			this.workingCopies[0] = getCompilationUnit("/TestAnnot/src/p1/Implementations.java").getWorkingCopy(this.wcOwner, null);
 			this.workingCopies[0].makeConsistent(null);
 			this.workingCopies[0].reconcile(ICompilationUnit.NO_AST, false, null, null);
-	
+
 			assertNoProblem(sourceChars, this.workingCopies[0]);
 		} finally {
 			if (project15 != null)
@@ -658,11 +658,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"}\n");
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" + 
-					"1. ERROR in /Bug405843/src/p1/X.java (at line 4)\n" + 
-					"	y.foo(null);\n" + 
-					"	      ^^^^\n" + 
-					"Null type mismatch: required \'@NonNull String @NonNull[]\' but the provided value is null\n" + 
+					"----------\n" +
+					"1. ERROR in /Bug405843/src/p1/X.java (at line 4)\n" +
+					"	y.foo(null);\n" +
+					"	      ^^^^\n" +
+					"Null type mismatch: required \'@NonNull String @NonNull[]\' but the provided value is null\n" +
 					"----------\n"
 					);
 
@@ -684,16 +684,16 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			setUpWorkingCopy("/Bug458361/src/MyCollection.java",
 					"import java.util.Collection;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
-					"public interface MyCollection<T> extends Collection<T> {\n" + 
+					"public interface MyCollection<T> extends Collection<T> {\n" +
 					"    public @Nullable T get(int i);\n" +
 					"}\n");
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" + 
-					"1. ERROR in /Bug458361/src/MyCollection.java (at line 4)\n" + 
-					"	public @Nullable T get(int i);\n" + 
-					"	       ^^^^^^^^^^^\n" + 
-					"The return type is incompatible with the free type variable \'T\' returned from Collection<T>.get(int) (mismatching null constraints)\n" + 
+					"----------\n" +
+					"1. ERROR in /Bug458361/src/MyCollection.java (at line 4)\n" +
+					"	public @Nullable T get(int i);\n" +
+					"	       ^^^^^^^^^^^\n" +
+					"The return type is incompatible with the free type variable \'T\' returned from Collection<T>.get(int) (mismatching null constraints)\n" +
 					"----------\n");
 		} finally {
 			if (project != null)
@@ -707,7 +707,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			project.setOption(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
-	
+
 			createFile("/Bug458361/src/Super.java",
 					"import org.eclipse.jdt.annotation.*;\n" +
 					"public interface Super {\n" +
@@ -716,16 +716,16 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 			setUpWorkingCopy("/Bug458361/src/Sub.java",
 					"import org.eclipse.jdt.annotation.*;\n" +
-					"public interface Sub extends Super {\n" + 
+					"public interface Sub extends Super {\n" +
 					"    @Nullable String getName();\n" +
 					"}\n");
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" + 
-					"1. ERROR in /Bug458361/src/Sub.java (at line 3)\n" + 
-					"	@Nullable String getName();\n" + 
-					"	^^^^^^^^^^^^^^^^\n" + 
-					"The return type is incompatible with \'@NonNull String\' returned from Super.getName() (mismatching null constraints)\n" + 
+					"----------\n" +
+					"1. ERROR in /Bug458361/src/Sub.java (at line 3)\n" +
+					"	@Nullable String getName();\n" +
+					"	^^^^^^^^^^^^^^^^\n" +
+					"The return type is incompatible with \'@NonNull String\' returned from Super.getName() (mismatching null constraints)\n" +
 					"----------\n");
 		} finally {
 			if (project != null)
@@ -776,7 +776,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
-	
+
 	public void testBug495635() throws CoreException, IOException, InterruptedException {
 		IJavaProject project = null;
 		try {
@@ -807,7 +807,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					);
 
 			String str = this.workingCopy.getSource();
-			
+
 			int start = str.indexOf("PersonKey");
 			int length = "PersonKey".length();
 
@@ -823,7 +823,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
-	
+
 	public void testBug460491WithOldBinary() throws CoreException, InterruptedException, IOException {
 		IJavaProject project = null;
     	try {
@@ -833,11 +833,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			// bug460491-compiled-with-4.6.jar contains classes compiled with eclipse 4.6:
 			/*-
 				package test1;
-				
+
 				import org.eclipse.jdt.annotation.DefaultLocation;
 				import org.eclipse.jdt.annotation.NonNullByDefault;
 				import org.eclipse.jdt.annotation.Nullable;
-				
+
 				public abstract class Base<B> {
 				   static public class Static {
 				    public class Middle1 {
@@ -849,7 +849,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				     }
 				   }
 				  }
-				
+
 				  @NonNullByDefault(DefaultLocation.PARAMETER)
 				  public Object method( Static.Middle1.Middle2<Object>.Middle3.@Nullable GenericInner<String> nullable) {
 				    return new Object();
@@ -896,11 +896,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			// bug460491b-compiled-with-4.6.jar contains classes compiled with eclipse 4.6:
 			/*-
 				package test1;
-				
+
 				import org.eclipse.jdt.annotation.DefaultLocation;
 				import org.eclipse.jdt.annotation.NonNullByDefault;
 				import org.eclipse.jdt.annotation.Nullable;
-				
+
 				public abstract class Base<B> {
 				    static public class Static1 {
 				        public static class Static2<X> {
@@ -912,7 +912,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				            }
 				        }
 				    }
-				
+
 				    @NonNullByDefault(DefaultLocation.PARAMETER)
 				    public Object method( Static1.Static2<Exception>.Middle1<Object>.Middle2.@Nullable GenericInner<String> nullable) {
 				        return new Object();
@@ -926,13 +926,13 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"\n" +
 					"import test1.Base;\n" +
 					"\n" +
-					"class Derived extends Base<Object> {\n" + 
-					"  void testOK(Static1.Static2<Exception>.Middle1<Object>.Middle2.GenericInner<String> gi) {\n" + 
-					"    method(gi);\n" + 
-					"  }\n" + 
-					"  void testNOK(Static1.Static2<String>.Middle1<Object>.Middle2.GenericInner<String> gi) {\n" + 
-					"    method(gi);\n" + 
-					"  }\n" + 
+					"class Derived extends Base<Object> {\n" +
+					"  void testOK(Static1.Static2<Exception>.Middle1<Object>.Middle2.GenericInner<String> gi) {\n" +
+					"    method(gi);\n" +
+					"  }\n" +
+					"  void testNOK(Static1.Static2<String>.Middle1<Object>.Middle2.GenericInner<String> gi) {\n" +
+					"    method(gi);\n" +
+					"  }\n" +
 					"}\n";
 			this.createFile(
 				"/Bug460491/src/test2/Derived.java",
@@ -944,11 +944,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			getCompilationUnit("/Bug460491/src/test2/Derived.java").getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" + 
-					"1. ERROR in /Bug460491/src/test2/Derived.java (at line 10)\n" + 
-					"	method(gi);\n" + 
-					"	^^^^^^\n" + 
-					"The method method(Base.Static1.Static2<Exception>.Middle1<Object>.Middle2.GenericInner<String>) in the type Base<Object> is not applicable for the arguments (Base.Static1.Static2<String>.Middle1<Object>.Middle2.GenericInner<String>)\n" + 
+					"----------\n" +
+					"1. ERROR in /Bug460491/src/test2/Derived.java (at line 10)\n" +
+					"	method(gi);\n" +
+					"	^^^^^^\n" +
+					"The method method(Base.Static1.Static2<Exception>.Middle1<Object>.Middle2.GenericInner<String>) in the type Base<Object> is not applicable for the arguments (Base.Static1.Static2<String>.Middle1<Object>.Middle2.GenericInner<String>)\n" +
 					"----------\n"
 					);
 		} finally {
@@ -1000,8 +1000,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"import p.*;\n" +
 					"public class Test {\n" +
 					"  @Nullable int[] ints = null;\n" +
-					"  public @NonNull Object foo(@NonNull byte[] data) {\n" + 
-					"    return data;\n" + 
+					"  public @NonNull Object foo(@NonNull byte[] data) {\n" +
+					"    return data;\n" +
 					"  }\n" +
 					"}\n");
 
@@ -1018,7 +1018,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
     	try {
 			project = createJavaProject("Bug549764", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-			
+
 			IPath libpath = project.getProject().getLocation().append("libann.jar");
 			Util.createJar(new String[] {
 					"lib/MyGenerated.java",
@@ -1032,23 +1032,23 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 			createFolder("Bug549764/src/nullAnalysis");
 			createFile("Bug549764/src/nullAnalysis/package-info.java",
-					"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+					"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 					"package nullAnalysis;");
 			String testSource =
-					"package nullAnalysis;\n" + 
-					"\n" + 
-					"import org.eclipse.jdt.annotation.NonNull;\n" + 
-					"import lib.MyGenerated;\n" + 
-					"\n" + 
-					"@MyGenerated(Endpoint.COMMENT)\n" + 
-					"public class Endpoint {\n" + 
-					"\n" + 
-					"	public static final String COMMENT = \" comment\";\n" + 
-					"\n" + 
-					"	public void method() {\n" + 
-					"		format(COMMENT, \"\");\n" + 
-					"	}\n" + 
-					"	native void format(@NonNull String comment, String arg);\n" + 
+					"package nullAnalysis;\n" +
+					"\n" +
+					"import org.eclipse.jdt.annotation.NonNull;\n" +
+					"import lib.MyGenerated;\n" +
+					"\n" +
+					"@MyGenerated(Endpoint.COMMENT)\n" +
+					"public class Endpoint {\n" +
+					"\n" +
+					"	public static final String COMMENT = \" comment\";\n" +
+					"\n" +
+					"	public void method() {\n" +
+					"		format(COMMENT, \"\");\n" +
+					"	}\n" +
+					"	native void format(@NonNull String comment, String arg);\n" +
 					"}\n";
 			String testSourcePath = "Bug549764/src/nullAnalysis/Endpoint.java";
 			createFile(testSourcePath, testSource);
@@ -1058,18 +1058,18 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" + 
-					"1. WARNING in /Bug549764/src/nullAnalysis/Endpoint.java (at line 14)\n" + 
-					"	native void format(@NonNull String comment, String arg);\n" + 
-					"	                   ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"The nullness annotation is redundant with a default that applies to this location\n" + 
+					"----------\n" +
+					"1. WARNING in /Bug549764/src/nullAnalysis/Endpoint.java (at line 14)\n" +
+					"	native void format(@NonNull String comment, String arg);\n" +
+					"	                   ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"The nullness annotation is redundant with a default that applies to this location\n" +
 					"----------\n"
 					);
     	} finally {
     		deleteProject(project);
     	}
 	}
-	
+
 	// was: NPE in SourceTypeBinding.getAnnotationTagBits
 	@SuppressWarnings("deprecation")
 	public void testBug551426() throws CoreException, Exception {
@@ -1081,8 +1081,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		options.put(JavaCore.COMPILER_COMPLIANCE, "1.8");
 		astParser.setCompilerOptions(options);
 		astParser.setUnitName("C.java");
-		String source = 
-				"class C {\n" + 
+		String source =
+				"class C {\n" +
 				"  public static final Object f = new Object() {};\n" +
 				"}\n";
 		astParser.setSource(source.toCharArray());
@@ -1099,10 +1099,10 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		try {
 			project = createJavaProject("Bug479389", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-			
+
 			createFolder("Bug479389/src/nullAnalysis");
 			String testSource =
-					"package nullAnalysis;\n" + 
+					"package nullAnalysis;\n" +
 					"interface MyList<T> {\n" +
 					"	public Stream<T> stream();\n" +
 					"}\n" +
@@ -1111,12 +1111,12 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"}\n" +
 					"interface IntFunction<T> {\n" +
 					"	T apply(int i);\n" +
-					"}\n" + 
-					"public class X {\n" + 
-					"\n" + 
-					"	public String[] method(MyList<String> in) {\n" + 
-					"		return in.stream().toArray(String[]::new);\n" + 
-					"	}\n" + 
+					"}\n" +
+					"public class X {\n" +
+					"\n" +
+					"	public String[] method(MyList<String> in) {\n" +
+					"		return in.stream().toArray(String[]::new);\n" +
+					"	}\n" +
 					"}\n";
 			String testSourcePath = "Bug479389/src/nullAnalysis/X.java";
 			createFile(testSourcePath, testSource);
@@ -1126,11 +1126,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 					"Unexpected problems",
-					"----------\n" + 
-					"1. ERROR in /Bug479389/src/nullAnalysis/X.java (at line 13)\n" + 
-					"	return in.stream().toArray(String[]::new);\n" + 
-					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Annotation type \'org.eclipse.jdt.annotation.NonNull\' cannot be found on the build path, which is implicitly needed for null analysis\n" + 
+					"----------\n" +
+					"1. ERROR in /Bug479389/src/nullAnalysis/X.java (at line 13)\n" +
+					"	return in.stream().toArray(String[]::new);\n" +
+					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Annotation type \'org.eclipse.jdt.annotation.NonNull\' cannot be found on the build path, which is implicitly needed for null analysis\n" +
 					"----------\n"					);
 		} finally {
 			deleteProject(project);

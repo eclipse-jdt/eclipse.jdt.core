@@ -54,9 +54,9 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 			jsr335TestScratchArea = null;
 		}
 	}
-	// Reference expression - super:: form, without type arguments. 
+	// Reference expression - super:: form, without type arguments.
 	public void test0001() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -74,35 +74,35 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	System.out.println(x);\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X extends Y {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    new X().doit();\n" + 
-				"  }\n" + 
-				"  void doit() {\n" + 
-				"    I i = super::foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    new X().doit();\n" +
+				"  }\n" +
+				"  void doit() {\n" +
+				"    I i = super::foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0001", expectedUnitToString);
 	}
-	// Reference expression - super:: form, with type arguments. 
+	// Reference expression - super:: form, with type arguments.
 	public void test0002() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -120,35 +120,35 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	System.out.println(x);\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X extends Y {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    new X().doit();\n" + 
-				"  }\n" + 
-				"  void doit() {\n" + 
-				"    I i = super::<String>foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X extends Y {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    new X().doit();\n" +
+				"  }\n" +
+				"  void doit() {\n" +
+				"    I i = super::<String>foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0002", expectedUnitToString);
 	}
 	// Reference expression - SimpleName:: form, without type arguments.
 	public void test0003() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -163,32 +163,32 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	System.out.println(x);\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y::foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y::foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0003", expectedUnitToString);
 	}
 	// Reference expression - SimpleName:: form, with type arguments.
 	public void test0004() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -203,32 +203,32 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	System.out.println(x);\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y::<String>foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y::<String>foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0004", expectedUnitToString);
 	}
 	// Reference expression - QualifiedName:: form, without type arguments.
 	public void test0005() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -245,37 +245,37 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y.Z::foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  static class Z {\n" + 
-				"    Z() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"    public static void foo(int x) {\n" + 
-				"      System.out.println(x);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y.Z::foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  static class Z {\n" +
+				"    Z() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"    public static void foo(int x) {\n" +
+				"      System.out.println(x);\n" +
+				"    }\n" +
+				"  }\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0005", expectedUnitToString);
 	}
 	// Reference expression - QualifiedName:: form, with type arguments.
 	public void test0006() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -292,37 +292,37 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y.Z::<String>foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  static class Z {\n" + 
-				"    Z() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"    public static void foo(int x) {\n" + 
-				"      System.out.println(x);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y.Z::<String>foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  static class Z {\n" +
+				"    Z() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"    public static void foo(int x) {\n" +
+				"      System.out.println(x);\n" +
+				"    }\n" +
+				"  }\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0006", expectedUnitToString);
 	}
 	// Reference expression - Primary:: form, without type arguments.
 	public void test0007() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -337,32 +337,32 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	    System.out.println(x);\n" +
 				"        }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = new Y()::foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = new Y()::foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0007", expectedUnitToString);
 	}
 	// Reference expression - primary:: form, with type arguments.
 	public void test0008() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(int x);\n" +
 				"}\n" +
@@ -377,32 +377,32 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	    System.out.println(x);\n" +
 				"        }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = new Y()::<String>foo;\n" + 
-				"    i.foo(10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = new Y()::<String>foo;\n" +
+				"    i.foo(10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0008", expectedUnitToString);
 	}
 	// Reference expression - X<T>:: form, without type arguments.
 	public void test0009() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String> y, int x);\n" +
 				"}\n" +
@@ -417,32 +417,32 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	    System.out.println(x);\n" +
 				"        }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(Y<String> y, int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y<String>::foo;\n" + 
-				"    i.foo(new Y<String>(), 10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(Y<String> y, int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y<String>::foo;\n" +
+				"    i.foo(new Y<String>(), 10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0009", expectedUnitToString);
 	}
 	// Reference expression - X<T>:: form, with type arguments.
 	public void test0010() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String> y, int x);\n" +
 				"}\n" +
@@ -457,32 +457,32 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	    System.out.println(x);\n" +
 				"        }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(Y<String> y, int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y<String>::<String>foo;\n" + 
-				"    i.foo(new Y<String>(), 10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void foo(int x) {\n" + 
-				"    System.out.println(x);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(Y<String> y, int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y<String>::<String>foo;\n" +
+				"    i.foo(new Y<String>(), 10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void foo(int x) {\n" +
+				"    System.out.println(x);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0010", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Name:: form, without type arguments.
 	public void test0011() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String>.Z z, int x);\n" +
 				"}\n" +
@@ -499,37 +499,37 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(Y<String>.Z z, int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y<String>.Z::foo;\n" + 
-				"    i.foo(new Y<String>().new Z(), 10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"  class Z {\n" + 
-				"    Z() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"    void foo(int x) {\n" + 
-				"      System.out.println(x);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(Y<String>.Z z, int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y<String>.Z::foo;\n" +
+				"    i.foo(new Y<String>().new Z(), 10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"  class Z {\n" +
+				"    Z() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"    void foo(int x) {\n" +
+				"      System.out.println(x);\n" +
+				"    }\n" +
+				"  }\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0011", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Name:: form, with type arguments.
 	public void test0012() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String>.Z z, int x);\n" +
 				"}\n" +
@@ -546,37 +546,37 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(Y<String>.Z z, int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y<String>.Z::<String>foo;\n" + 
-				"    i.foo(new Y<String>().new Z(), 10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"  class Z {\n" + 
-				"    Z() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"    void foo(int x) {\n" + 
-				"      System.out.println(x);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(Y<String>.Z z, int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y<String>.Z::<String>foo;\n" +
+				"    i.foo(new Y<String>().new Z(), 10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"  class Z {\n" +
+				"    Z() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"    void foo(int x) {\n" +
+				"      System.out.println(x);\n" +
+				"    }\n" +
+				"  }\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0012", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Y<K>:: form, without type arguments.
 	public void test0013() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String>.Z<Integer> z, int x);\n" +
 				"}\n" +
@@ -593,37 +593,37 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(Y<String>.Z<Integer> z, int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y<String>.Z<Integer>::foo;\n" + 
-				"    i.foo(new Y<String>().new Z<Integer>(), 10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"  class Z<K> {\n" + 
-				"    Z() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"    void foo(int x) {\n" + 
-				"      System.out.println(x);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(Y<String>.Z<Integer> z, int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y<String>.Z<Integer>::foo;\n" +
+				"    i.foo(new Y<String>().new Z<Integer>(), 10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"  class Z<K> {\n" +
+				"    Z() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"    void foo(int x) {\n" +
+				"      System.out.println(x);\n" +
+				"    }\n" +
+				"  }\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0013", expectedUnitToString);
 	}
 	// Reference expression - X<T>.Y<K>:: form, with type arguments.
 	public void test0014() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String>.Z<Integer> z, int x);\n" +
 				"}\n" +
@@ -640,37 +640,37 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(Y<String>.Z<Integer> z, int x);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = Y<String>.Z<Integer>::<String>foo;\n" + 
-				"    i.foo(new Y<String>().new Z<Integer>(), 10);\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"class Y<T> {\n" + 
-				"  class Z<K> {\n" + 
-				"    Z() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"    void foo(int x) {\n" + 
-				"      System.out.println(x);\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  Y() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(Y<String>.Z<Integer> z, int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = Y<String>.Z<Integer>::<String>foo;\n" +
+				"    i.foo(new Y<String>().new Z<Integer>(), 10);\n" +
+				"  }\n" +
+				"}\n" +
+				"class Y<T> {\n" +
+				"  class Z<K> {\n" +
+				"    Z() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"    void foo(int x) {\n" +
+				"      System.out.println(x);\n" +
+				"    }\n" +
+				"  }\n" +
+				"  Y() {\n" +
+				"    super();\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0014", expectedUnitToString);
 	}
 	// Constructor reference expression - X<T>.Y<K>::new form, with type arguments.
 	public void test0015() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(Y<String> y);\n" +
 				"}\n" +
@@ -687,35 +687,35 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        }\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-					"  void foo(Y<String> y);\n" + 
-					"}\n" + 
-					"public class X {\n" + 
-					"  public X() {\n" + 
-					"    super();\n" + 
-					"  }\n" + 
-					"  public static void main(String[] args) {\n" + 
-					"    I i = Y<String>.Z<Integer>::<String>new;\n" + 
-					"    i.foo(new Y<String>());\n" + 
-					"  }\n" + 
-					"}\n" + 
-					"class Y<T> {\n" + 
-					"  class Z<K> {\n" + 
-					"    Z() {\n" + 
-					"      super();\n" + 
-					"      System.out.println(\"Y<T>.Z<K>::new\");\n" + 
-					"    }\n" + 
-					"  }\n" + 
-					"  Y() {\n" + 
-					"    super();\n" + 
-					"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+					"  void foo(Y<String> y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public X() {\n" +
+					"    super();\n" +
+					"  }\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I i = Y<String>.Z<Integer>::<String>new;\n" +
+					"    i.foo(new Y<String>());\n" +
+					"  }\n" +
+					"}\n" +
+					"class Y<T> {\n" +
+					"  class Z<K> {\n" +
+					"    Z() {\n" +
+					"      super();\n" +
+					"      System.out.println(\"Y<T>.Z<K>::new\");\n" +
+					"    }\n" +
+					"  }\n" +
+					"  Y() {\n" +
+					"    super();\n" +
+					"  }\n" +
 					"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0015", expectedUnitToString);
 	}
 	// Reference expression - PrimitiveType[]:: form, with type arguments.
 	public void test0016() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    Object copy(int [] ia);\n" +
 				"}\n" +
@@ -725,24 +725,24 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        i.copy(new int[10]); \n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  Object copy(int[] ia);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = int[]::<String>clone;\n" + 
-				"    i.copy(new int[10]);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  Object copy(int[] ia);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = int[]::<String>clone;\n" +
+				"    i.copy(new int[10]);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0016", expectedUnitToString);
-	}	
+	}
 	// Reference expression - Name[]:: form, with type arguments.
 	public void test0017() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    Object copy(X [] ia);\n" +
 				"}\n" +
@@ -752,24 +752,24 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        i.copy(new X[10]); \n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  Object copy(X[] ia);\n" + 
-				"}\n" + 
-				"public class X {\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = X[]::<String>clone;\n" + 
-				"    i.copy(new X[10]);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  Object copy(X[] ia);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = X[]::<String>clone;\n" +
+				"    i.copy(new X[10]);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0017", expectedUnitToString);
-	}	
+	}
 	// Reference expression - X<T>.Y<K>[]:: form, with type arguments.
 	public void test0018() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    Object copy(X<String>.Y<Integer> [] p);\n" +
 				"}\n" +
@@ -782,31 +782,31 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        i.copy(xs); \n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  Object copy(X<String>.Y<Integer>[] p);\n" + 
-				"}\n" + 
-				"public class X<T> {\n" + 
-				"  class Y<K> {\n" + 
-				"    Y() {\n" + 
-				"      super();\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) {\n" + 
-				"    I i = X<String>.Y<Integer>[]::<String>clone;\n" + 
-				"    X<String>.Y<Integer>[] xs = null;\n" + 
-				"    i.copy(xs);\n" + 
-				"  }\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  Object copy(X<String>.Y<Integer>[] p);\n" +
+				"}\n" +
+				"public class X<T> {\n" +
+				"  class Y<K> {\n" +
+				"    Y() {\n" +
+				"      super();\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    I i = X<String>.Y<Integer>[]::<String>clone;\n" +
+				"    X<String>.Y<Integer>[] xs = null;\n" +
+				"    i.copy(xs);\n" +
+				"  }\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0018", expectedUnitToString);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384320, syntax error while mixing 308 and 335.
 	public void test0019() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    void foo(X<String> s, int x);\n" +
 				"}\n" +
@@ -818,27 +818,27 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"@interface Foo {\n" +
 				"    String [] value();\n" +
 				"}\n";
-		String expectedUnitToString = 
-				"interface I {\n" + 
-				"  void foo(X<String> s, int x);\n" + 
-				"}\n" + 
-				"public class X<T> {\n" + 
-				"  I i = X<@Foo({\"hello\"}) String>::foo;\n" + 
-				"  public X() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void foo(int x) {\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"@interface Foo {\n" + 
-				"  String[] value();\n" + 
+		String expectedUnitToString =
+				"interface I {\n" +
+				"  void foo(X<String> s, int x);\n" +
+				"}\n" +
+				"public class X<T> {\n" +
+				"  I i = X<@Foo({\"hello\"}) String>::foo;\n" +
+				"  public X() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void foo(int x) {\n" +
+				"  }\n" +
+				"}\n" +
+				"@interface Foo {\n" +
+				"  String[] value();\n" +
 				"}\n";
 		checkParse(CHECK_PARSER | CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0019", expectedUnitToString);
 	}
 
 	// Reference expression - Name::new forms, with/without type arguments.
 	public void test0020() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"    Y foo(int x);\n" +
 				"}\n" +
@@ -870,7 +870,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"        System.out.println(x);\n" +
 				"    }\n" +
 				"}\n";
-		String expectedUnitToString = 
+		String expectedUnitToString =
 				"interface I {\n" +
 				"  Y foo(int x);\n" +
 				"}\n" +
@@ -911,19 +911,19 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385132
 	public void test385132() throws IOException {
 		String source = "::";
-		String expectedErrorString = 
+		String expectedErrorString =
 				"----------\n" +
 				"1. ERROR in test385132 (at line 1)\n" +
 				"	::\n" +
 				"	^^\n" +
 				"Syntax error on token \"::\", delete this token\n" +
 				"----------\n";
-				
+
 		checkParse(CHECK_PARSER , source.toCharArray(), expectedErrorString, "test385132", null);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385374, Support for 308 style type annotations on 335 constructs.
 	public void test385374() throws IOException {
-		String source = 
+		String source =
 				"interface I {\n" +
 				"	void foo();\n" +
 				"}\n" +
@@ -950,8 +950,8 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 				"	 // Qualified generic type array form with dimension annotations and type parameter annotations.\n" +
 				"	 I x9 = @TypeAnnotation X<@TypeParameterAnnotation String>.Y<@TypeParameterAnnotation String> @ArrayAnnotation[]@ArrayAnnotation[]::<@TypeParameterAnnotation String>clone; \n" +
 				"}\n";
-		
-		String expectedUnitToString = 
+
+		String expectedUnitToString =
 				"interface I {\n" +
 				"  void foo();\n" +
 				"}\n" +
@@ -975,7 +975,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=385374, Support for 308 style type annotations on 335 constructs - make sure illegal modifiers are rejected
 	   This test has been rendered meaningless as the grammar has been so throughly changed - Type annotations are not accepted via modifiers in the first place.
-	   Disabling this test as we don't want fragile and unstable tests that are at the whimsy of the diagnose parser's complex algorithms. 
+	   Disabling this test as we don't want fragile and unstable tests that are at the whimsy of the diagnose parser's complex algorithms.
 	*/
 	public void test385374a() throws IOException {
 		// Nop.

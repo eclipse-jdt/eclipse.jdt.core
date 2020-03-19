@@ -175,7 +175,7 @@ public class Java9ElementsTests extends TestCase {
 		internalTest2(compiler, MODULE_PROC, "testModuleJavaBase1", null);
 	}
 
-	
+
 	public void testModuleJavaBase2Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
@@ -189,7 +189,7 @@ public class Java9ElementsTests extends TestCase {
 		internalTest2(compiler, MODULE_PROC, "testModuleJavaBase2", null);
 	}
 
-	
+
 	public void testModuleJavaBase3Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
@@ -416,7 +416,7 @@ public class Java9ElementsTests extends TestCase {
 		} else {
 			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
-		
+
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);
@@ -476,7 +476,7 @@ public class Java9ElementsTests extends TestCase {
 		} else {
 			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
 		}
-		
+
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processor);

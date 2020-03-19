@@ -40,8 +40,8 @@ import javax.lang.model.element.TypeElement;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the java 12 specific elements and validates the lambda and 
- * type annotated elements. To enable this processor, add 
+ * A processor that explores the java 12 specific elements and validates the lambda and
+ * type annotated elements. To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java11ElementProcessor to the command line.
  * @since 3.14
  */
@@ -68,7 +68,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return false;
 		}
-		
+
 		this.roundEnv = roundEnv;
 		Map<String, String> options = processingEnv.getOptions();
 		if (!options.containsKey(this.getClass().getName())) {
@@ -159,7 +159,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 				mod2 = mod;
 			} else if (modName.equals("module.readable.two")) {
 				mod3 = mod;
-			} 
+			}
 		}
 		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
 		Collections.sort(modules, (x, y) -> x.compareTo(y));
@@ -206,12 +206,12 @@ public class Java12ElementProcessor extends BaseProcessor {
 				mod2 = mod;
 			} else if (modName.equals("module.readable.two")) {
 				mod3 = mod;
-			} 
+			}
 		}
 		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
 		Collections.sort(modules, (x, y) -> x.compareTo(y));
 		assertEquals("incorrect no of modules in root elements in "+ this.mode + " mode", this.isBinaryMode ? 2 : 3, modules.size());
-		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one" + 
+		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one" +
 							(this.isBinaryMode ? "" : ", module.readable.two") + "]", modules.toString());
 		assertNotNull("module should not be null in "+ this.mode + " mode", mod1);
 		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my.mod, ]", getElementsAsString(mod1.getEnclosedElements()));
@@ -255,7 +255,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 				mod2 = mod;
 			} else if (modName.equals("module.readable.two")) {
 				mod3 = mod;
-			} 
+			}
 		}
 		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
 		Collections.sort(modules, (x, y) -> x.compareTo(y));
@@ -284,7 +284,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 					modules.add(element);
 				}
 				assertNull("module should not have an enclosing element", root);
-				
+
 			} else {
 				if (root instanceof ModuleElement) {
 					modName = ((ModuleElement) root).getQualifiedName().toString();
@@ -313,7 +313,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 					modules.add(element);
 				}
 				assertNull("module should not have an enclosing element", root);
-				
+
 			} else {
 				if (root instanceof ModuleElement) {
 					modName = ((ModuleElement) root).getQualifiedName().toString();
@@ -425,14 +425,14 @@ public class Java12ElementProcessor extends BaseProcessor {
         	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
         }
     }
-    
+
     static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
         }
         return expected.equals(actual);
     }
-    
+
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			StringBuffer buf = new StringBuffer();
@@ -443,7 +443,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 	}
 	public void assertEquals(Object expected, Object actual) {
 		if (expected != actual) {
-			
+
 		}
 	}
 	private class AssertionFailedError extends Error {

@@ -33,14 +33,14 @@ import org.eclipse.jdt.apt.core.internal.AptPlugin;
 
 /**
  *  Simple utility class to encapsulate an mkdirs() that avoids a timing issue
- *  in the jdk.  
+ *  in the jdk.
  */
 public final class FileSystemUtil
 {
 	private FileSystemUtil() {}
-	
+
 	/**
-	 * If the given resource is a folder, then recursively deleted all derived  
+	 * If the given resource is a folder, then recursively deleted all derived
 	 * files and folders contained within it. Delete the folder if it becomes empty
 	 * and if itself is also a derived resource.
 	 * If the given resource is a file, delete it iff it is a derived resource.
@@ -58,14 +58,14 @@ public final class FileSystemUtil
 		if( resource.getType() == IResource.FOLDER ){
 			boolean deleteFolder = resource.isDerived();
 			IResource[] members = ((IFolder)resource).members();
-			for( int i=0, len=members.length; i<len; i++ ){	
+			for( int i=0, len=members.length; i<len; i++ ){
 				deleteFolder &= deleteDerivedResources(members[i]);
 			}
 			if( deleteFolder ){
 				deleteResource(resource);
 				return true;
 			}
-			return false; 
+			return false;
 		}
 		else if( resource.getType() == IResource.FILE ){
 			if( resource.isDerived() ){
@@ -78,7 +78,7 @@ public final class FileSystemUtil
 		else
 			return false;
 	}
-	
+
 	/**
 	 * Delete a resource without throwing an exception.
 	 */
@@ -92,14 +92,14 @@ public final class FileSystemUtil
 			}
 		}
 	}
-	
+
     public static void mkdirs( File parent )
     {
         if ( parent == null )
             return;
-        
+
         // It is necessary to synchronize to prevent timing issues while creating the parent directories
-        // We can be codegening multiple files that go into the same directory at the same time.        
+        // We can be codegening multiple files that go into the same directory at the same time.
         synchronized (FileSystemUtil.class) {
             if (!parent.exists()) {
                 boolean succeed = false;
@@ -107,8 +107,8 @@ public final class FileSystemUtil
                     succeed = parent.mkdirs();
             }
         }
-    }    
-  
+    }
+
     public static void makeDerivedParentFolders (IContainer container) throws CoreException {
     	// synchronize the "does it exist - if not, create it" sequence.
 		if ((container instanceof IFolder) && !container.exists()) {
@@ -118,7 +118,7 @@ public final class FileSystemUtil
 	    	}
 	    	catch (CoreException e) {
 	    		// Ignore race condition where another thread created the folder at the
-	    		// same time, causing checkDoesNotExist() to throw within create(). 
+	    		// same time, causing checkDoesNotExist() to throw within create().
 	    		if (!container.exists()) {
 	    			throw e;
 	    		}
@@ -126,18 +126,18 @@ public final class FileSystemUtil
 			container.setDerived(true, null);
 		}
     }
-    
+
     /**
      * Returns the contents of a file as a string in UTF8 format
      */
     public static String getContentsOfIFile(IFile file) throws IOException, CoreException {
     	return getContents(file.getContents(true));
     }
-    
+
     public static String getContentsOfFile(File file) throws IOException {
     	return getContents(new FileInputStream(file));
     }
-    
+
     private static String getContents(InputStream in) throws IOException {
     	try {
     		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -154,7 +154,7 @@ public final class FileSystemUtil
     		try {in.close();} catch (IOException ioe) {}
     	}
     }
-    
+
     /**
      * Stores a string into an Eclipse file in UTF8 format.  The file
      * will be created if it does not already exist.
@@ -175,7 +175,7 @@ public final class FileSystemUtil
     		file.create(input, IResource.FORCE, null);
     	}
     }
-    
+
     /**
      * Stores a string into an ordinary workspace file in UTF8 format.
      * The file will be created if it does not already exist.
@@ -193,9 +193,9 @@ public final class FileSystemUtil
     		try {out.close();} catch (IOException ioe) {}
     	}
     }
-    
+
     /**
-	 * Return true if the content of the streams is identical, 
+	 * Return true if the content of the streams is identical,
 	 * false if not.
 	 */
 	public static boolean compareStreams(InputStream is1, InputStream is2) {

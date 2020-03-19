@@ -148,7 +148,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		FlowInfo tryInfo = flowInfo.copy();
 		for (int i = 0; i < resourcesLength; i++) {
-			final Statement resource = this.resources[i];			
+			final Statement resource = this.resources[i];
 			tryInfo = resource.analyseCode(currentScope, handlingContext, tryInfo);
 			this.postResourcesInitStateIndexes[i] = currentScope.methodScope().recordInitializationStates(tryInfo);
 			TypeBinding resolvedType = null;
@@ -247,7 +247,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				null,
 				this.scope,
 				flowInfo);
-		insideSubContext.initsOnFinally = handlingContext.initsOnFinally; 
+		insideSubContext.initsOnFinally = handlingContext.initsOnFinally;
 
 		subInfo =
 			this.finallyBlock
@@ -574,7 +574,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 			for (int i = resourceCount; i >= 0; i--) {
 				BranchLabel exitLabel = new BranchLabel(codeStream);
 				this.resourceExceptionLabels[i].placeEnd(); // outer handler if any is the one that should catch exceptions out of close()
-				
+
 				Statement stmt = i > 0 ? this.resources[i - 1] : null;
 				if ((this.bits & ASTNode.IsTryBlockExiting) == 0) {
 					// inline resource closure
@@ -605,8 +605,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 				codeStream.pushExceptionOnStack(this.scope.getJavaLangThrowable());
 				this.resourceExceptionLabels[i].place();
-				if (i == resourceCount) { 
-					// inner most try's catch/finally can be a lot simpler. 
+				if (i == resourceCount) {
+					// inner most try's catch/finally can be a lot simpler.
 					codeStream.store(this.primaryExceptionVariable, false);
 					// fall through, invoke close() and re-throw.
 				} else {
@@ -629,7 +629,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				if (i > 0) {
 					// inline resource close here rather than bracketing the current catch block with a try region.
 					BranchLabel postCloseLabel = new BranchLabel(codeStream);
-					generateCodeSnippet(stmt, codeStream, postCloseLabel, true /* record */, i, codeStream.position);						
+					generateCodeSnippet(stmt, codeStream, postCloseLabel, true /* record */, i, codeStream.position);
 					postCloseLabel.place();
 				}
 				codeStream.load(this.primaryExceptionVariable);
@@ -885,8 +885,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 private void generateCodeSnippet(Statement statement, CodeStream codeStream, BranchLabel postCloseLabel, boolean record, int... values) {
-	
-	int i = -1; 
+
+	int i = -1;
 	int invokeCloseStartPc = -1;
 	if (record) {
 		i = values[0];
@@ -927,11 +927,11 @@ private boolean isDuplicateResourceReference(int index) {
 		Binding refBinding =  ref instanceof NameReference ? ((NameReference) ref).binding :
 			ref instanceof FieldReference ? ((FieldReference) ref).binding : null;
 		if (refBinding == null) return false;
-		
+
 		//TODO: For field accesses in the form of a.b.c and b.c - could there be a non-trivial dup - to check?
 		for (int i = 0; i < index; i++) {
 			Statement stmt = this.resources[i];
-			Binding b = stmt instanceof LocalDeclaration ? ((LocalDeclaration) stmt).binding : 
+			Binding b = stmt instanceof LocalDeclaration ? ((LocalDeclaration) stmt).binding :
 				stmt instanceof NameReference ? ((NameReference) stmt).binding :
 						stmt instanceof FieldReference ? ((FieldReference) stmt).binding : null;
 			if (b == refBinding) {
@@ -1163,7 +1163,7 @@ public void resolve(BlockScope upperScope) {
 
 			if (!methodScope.isInsideInitializer()) {
 				MethodBinding methodBinding = methodScope.referenceContext instanceof AbstractMethodDeclaration ?
-					((AbstractMethodDeclaration) methodScope.referenceContext).binding : (methodScope.referenceContext instanceof LambdaExpression ? 
+					((AbstractMethodDeclaration) methodScope.referenceContext).binding : (methodScope.referenceContext instanceof LambdaExpression ?
 							((LambdaExpression)methodScope.referenceContext).binding : null);
 				if (methodBinding != null) {
 					TypeBinding methodReturnType = methodBinding.returnType;
@@ -1333,7 +1333,7 @@ public boolean doesNotCompleteNormally() {
 public boolean completesByContinue() {
 	if (this.tryBlock.completesByContinue()) {
 		return (this.finallyBlock == null) ? true :
-			!this.finallyBlock.doesNotCompleteNormally() || this.finallyBlock.completesByContinue(); 
+			!this.finallyBlock.doesNotCompleteNormally() || this.finallyBlock.completesByContinue();
 	}
 	if (this.catchBlocks != null) {
 		for (int i = 0; i < this.catchBlocks.length; i++) {

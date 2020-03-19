@@ -41,7 +41,7 @@ public class ResolvedBinaryType extends BinaryType {
 	public String getKey() {
 		return this.uniqueKey;
 	}
-	
+
 	@Override
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		return this.uniqueKey;

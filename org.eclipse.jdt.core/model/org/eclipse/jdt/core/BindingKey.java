@@ -204,11 +204,11 @@ public final class BindingKey {
 	 * @param genericTypeKey the binding key of the generic type
 	 * @param boundKind one of {@link Signature#C_STAR}, {@link Signature#C_SUPER}, or {@link Signature#C_EXTENDS}
 	 * @param boundTypeKey the binding key of the bounding type.
-	 * @param rank the relative position of this wild card type in the parameterization of the generic type. 
+	 * @param rank the relative position of this wild card type in the parameterization of the generic type.
 	 * @return a new wildcard type binding key
 	 * @since 3.5
 	 */
-	
+
 	public static String createWildcardTypeBindingKey(String genericTypeKey, char boundKind, String boundTypeKey, int rank) {
 		// Note this implementation is heavily dependent on WildcardBinding#computeUniqueKey()
 		String wildCardKey;
@@ -231,11 +231,11 @@ public final class BindingKey {
 	/**
 	 * Returns the binding key of the declaring type of the element represented by this binding key. If the binding key
 	 * does not represent a member or if the member doesn't have a declaring type, returns <code>null</code>.
-	 * 
+	 *
 	 * <p>
 	 * Note that only binding keys for references to methods and fields
 	 * are fully supported. The binding keys for declarations will not have type parameters.
-	 * 
+	 *
 	 * @return the type binding key or <code>null</code>
 	 * @since 3.7.1
 	 */

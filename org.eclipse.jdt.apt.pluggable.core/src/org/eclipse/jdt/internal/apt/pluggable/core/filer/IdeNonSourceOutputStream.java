@@ -37,7 +37,7 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 	private final IdeProcessingEnvImpl _env;
 	private final IFile _file;
 	private final Collection<IFile> _parentFiles;
-	
+
 	public IdeNonSourceOutputStream(IdeProcessingEnvImpl env, IFile file, Collection<IFile> parentFiles) {
 		_env = env;
 		_file = file;
@@ -47,10 +47,10 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 	@Override
 	public void close() throws IOException {
 		super.close();
-		
+
 		InputStream contents = new ByteArrayInputStream(toByteArray());
 		try {
-			
+
 			boolean contentsChanged = true;
 			if (!_file.exists()) {
 				saveToDisk(contents, true);
@@ -83,14 +83,14 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 		finally {
 			closeInputStream(contents);
 		}
-		
+
 		// If there are no parents, we don't need to track dependencies
 		if (_parentFiles != null && !_parentFiles.isEmpty()) {
 			_env.getAptProject().getGeneratedFileManager(_env.isTestCode()).addGeneratedFileDependency(_parentFiles, _file);
 			_env.addNewResource(_file);
 		}
 	}
-	
+
 	private void closeInputStream(InputStream stream) {
 		if (stream != null) {
 			try {
@@ -99,7 +99,7 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 			catch (IOException ioe) {}
 		}
 	}
-	
+
 	private void saveToDisk(InputStream toSave, boolean create) throws IOException{
 		try {
 			FileSystemUtil.makeDerivedParentFolders(_file.getParent());

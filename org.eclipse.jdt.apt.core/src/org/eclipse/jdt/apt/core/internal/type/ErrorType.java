@@ -65,7 +65,7 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
 
     @Override
 	public MirrorKind kind(){ return MirrorKind.TYPE_ERROR; }
-	
+
 	@Override
 	public BaseProcessorEnv getEnvironment(){ return null; }
 
@@ -86,8 +86,8 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
         }
 
         @Override
-		public ClassDeclaration getDeclaration(){ return null; }		
-		
+		public ClassDeclaration getDeclaration(){ return null; }
+
     }
 
     public static class ErrorInterface extends ErrorType implements InterfaceType
@@ -117,8 +117,8 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
         @Override
 		public AnnotationTypeDeclaration getDeclaration(){ return null; }
     }
-    
-    public static final class ErrorArrayType extends ErrorType implements ArrayType 
+
+    public static final class ErrorArrayType extends ErrorType implements ArrayType
     {
     	private final int _dimension;
     	public ErrorArrayType(final String name, final int dimension )
@@ -126,21 +126,21 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     		super(name);
     		_dimension = dimension;
     	}
-    	
+
     	@Override
 		public void accept(TypeVisitor visitor)
         {
             visitor.visitArrayType(this);
         }
-    	
+
     	@Override
 		public TypeDeclaration getDeclaration() { return null; }
-    	
+
     	@Override
 		public TypeMirror getComponentType() {
     		return new ErrorClass(_name);
     	}
-    	
+
     	@Override
 		public String toString()
     	{

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.util;
 
@@ -23,24 +23,24 @@ import org.eclipse.jdt.core.IJavaProject;
 import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public final class AptUtil {
-	
+
 	// Private c-tor to prevent construction
 	private AptUtil() {}
-	
+
 	/**
 	 * Returns the matching annotation processor factory for a given
 	 * annotation in a given project.
-	 * 
+	 *
 	 * @param fullyQualifiedAnnotation the annotation for which a factory
 	 * is desired. This must be fully qualfied -- e.g. "org.eclipse.annotation.Foo"
 	 */
 	public static AnnotationProcessorFactory getFactoryForAnnotation(
 			final String fullyQualifiedAnnotation,
 			final IJavaProject jproj) {
-		
+
 		AnnotationProcessorFactoryLoader loader = AnnotationProcessorFactoryLoader.getLoader();
 		List<AnnotationProcessorFactory> factories = loader.getJava5FactoriesForProject( jproj );
-		
+
 		for (AnnotationProcessorFactory factory : factories) {
 			Collection<String> supportedAnnos = factory.supportedAnnotationTypes();
 			for (String anno : supportedAnnos) {
@@ -59,10 +59,10 @@ public final class AptUtil {
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
-	
+
+
 
 }

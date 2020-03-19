@@ -12,7 +12,7 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.env; 
+package org.eclipse.jdt.apt.core.internal.env;
 
 import com.sun.mirror.type.MirroredTypeException;
 import com.sun.mirror.type.MirroredTypesException;
@@ -34,7 +34,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 
 public class AnnotationInvocationHandler implements InvocationHandler
-{	
+{
 	private static final String JAVA_LANG_CLASS = "java.lang.Class"; //$NON-NLS-1$
     private final AnnotationMirrorImpl _instance;
     private final Class<?> _clazz;
@@ -72,10 +72,10 @@ public class AnnotationInvocationHandler implements InvocationHandler
 
         final ITypeBinding retType = methodBinding.getReturnType();
         if( retType == null ) return null;
-        
+
         final String qName = retType.getTypeDeclaration().getQualifiedName();
         // type of annotation member is java.lang.Class
-        if( retType.isClass() && JAVA_LANG_CLASS.equals(qName) ){ 
+        if( retType.isClass() && JAVA_LANG_CLASS.equals(qName) ){
             // need to figure out the class that's being accessed
             final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
             TypeMirror mirrorType = null;
@@ -90,7 +90,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
             final ITypeBinding leafType = retType.getElementType();
             final String leafQName = leafType.getTypeDeclaration().getQualifiedName();
             // type of annotation member is java.lang.Class[]
-            if( leafType.isClass() && JAVA_LANG_CLASS.equals(leafQName) ){ 
+            if( leafType.isClass() && JAVA_LANG_CLASS.equals(leafQName) ){
                 final ITypeBinding[] classTypes = _instance.getMemberValueTypeBinding(c_methodName);
                 final Collection<TypeMirror> mirrorTypes;
                 if( classTypes == null || classTypes.length == 0 )
@@ -112,12 +112,12 @@ public class AnnotationInvocationHandler implements InvocationHandler
         final Object sourceValue = _instance.getValue(c_methodName);
         return getReflectionValueWithTypeConversion(sourceValue, method.getReturnType());
     }
-    
+
     private Object getReflectionValueWithTypeConversion(
-    		final Object domValue, 
+    		final Object domValue,
     		final Class<?> expectedType )
     {
-    	
+
     	final Object actualValue = _getReflectionValue(domValue, expectedType);
     	return performNecessaryTypeConversion(expectedType, actualValue);
     }
@@ -126,7 +126,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
 	{
 		if( expectedType == null || domValue == null )
 			return null;
-	
+
 	    if( domValue instanceof IVariableBinding )
 		{
 			final IVariableBinding varBinding = (IVariableBinding)domValue;
@@ -153,10 +153,10 @@ public class AnnotationInvocationHandler implements InvocationHandler
 	        final Class<?> componentType = expectedType.getComponentType();
 	        final int length = elements.length;
 	        final Object array = Array.newInstance(componentType, length);
-	
-	        for( int i=0; i<length; i++ ){                
-	            final Object returnObj = 
-	            	getReflectionValueWithTypeConversion( elements[i], componentType );	        
+
+	        for( int i=0; i<length; i++ ){
+	            final Object returnObj =
+	            	getReflectionValueWithTypeConversion( elements[i], componentType );
 	            // fill in the array.
 	            // If it is an array of some primitive type, we will need to unwrap it.
 	            if( componentType.isPrimitive() ){
@@ -205,37 +205,37 @@ public class AnnotationInvocationHandler implements InvocationHandler
 		// caller should have caught this case.
 	    else if( domValue instanceof ITypeBinding )
 			throw new IllegalStateException("sourceValue is a type binding."); //$NON-NLS-1$
-		
+
 	    else if( domValue instanceof IAnnotationBinding )
 		{
 	    	// We cannot convert an annotation into anything else
 	    	if (!expectedType.isAnnotation()) {
 	    		return null;
 	    	}
-	    	
-			final AnnotationMirrorImpl annoMirror = 
+
+			final AnnotationMirrorImpl annoMirror =
 				(AnnotationMirrorImpl)Factory.createAnnotationMirror(
-					(IAnnotationBinding)domValue, 
-					_instance.getAnnotatedDeclaration(), 
+					(IAnnotationBinding)domValue,
+					_instance.getAnnotatedDeclaration(),
 					_instance.getEnvironment());
 	        final AnnotationInvocationHandler handler = new AnnotationInvocationHandler(annoMirror, expectedType);
 	        return Proxy.newProxyInstance(expectedType.getClassLoader(),
 	                                      new Class[]{ expectedType }, handler );
 		}
 	    // primitive wrapper or String.
-	    else 
-	    	return domValue;	
+	    else
+	    	return domValue;
 	}
-	
+
 	private Object performNecessaryTypeConversion(Class<?> expectedType, Object actualValue){
 		if( actualValue == null )
-			return Factory.getMatchingDummyValue(expectedType);		
+			return Factory.getMatchingDummyValue(expectedType);
 		else if( expectedType.isPrimitive() )
 			return Factory.performNecessaryPrimitiveTypeConversion( expectedType, actualValue, true);
 		else if( expectedType.isAssignableFrom(actualValue.getClass()))
-			return actualValue;		
+			return actualValue;
 		else if( expectedType.isArray() ){
-			// the above assignableFrom test failed which leave up with 
+			// the above assignableFrom test failed which leave up with
 			// the array-ificiation problem.
 			// arrays are always type corrected.
 			actualValue = performNecessaryTypeConversion(expectedType.getComponentType(), actualValue);
@@ -243,16 +243,16 @@ public class AnnotationInvocationHandler implements InvocationHandler
 		}
 		// type conversion cannot be performed and expected type is not a primitive
 		// Returning null so that we don't get a ClassCastException.
-		else return null; 
+		else return null;
 	}
-	
+
 	private Object arrayify(final Class<?> expectedType, Object actualValue){
 		assert expectedType.isArray() : "expected type must be an array"; //$NON-NLS-1$
 		assert ( !(actualValue instanceof Object[]) ) :
 			"actual value cannot be of type Object[]"; //$NON-NLS-1$
 		final Class<?> componentType = expectedType.getComponentType();
 		final Object array = Array.newInstance(componentType, 1);
-		
+
 		if( componentType.isPrimitive() ){
             if( componentType == boolean.class ){
                 final Boolean bool = (Boolean)actualValue;
@@ -311,4 +311,4 @@ public class AnnotationInvocationHandler implements InvocationHandler
 
         return builder.toString();
     }
-} 
+}

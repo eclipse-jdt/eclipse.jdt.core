@@ -171,7 +171,7 @@ public class CompletionNodeDetector extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(ReferenceExpression referenceExpression, BlockScope blockScope) {
-		endVisit(referenceExpression);	
+		endVisit(referenceExpression);
 	}
 	@Override
 	public void endVisit(SingleNameReference singleNameReference, BlockScope scope) {

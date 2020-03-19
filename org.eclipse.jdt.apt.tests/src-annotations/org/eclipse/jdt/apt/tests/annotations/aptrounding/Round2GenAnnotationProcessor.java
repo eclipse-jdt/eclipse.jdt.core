@@ -27,7 +27,7 @@ public class Round2GenAnnotationProcessor implements AnnotationProcessor {
 	{
 		_env = env;
 	}
-	
+
 	public void process() {
 		final TypeDeclaration beanType = _env.getTypeDeclaration("test.Bean");
 		final Filer filer = _env.getFiler();

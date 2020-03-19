@@ -57,7 +57,7 @@ public class FileStateCache {
 
 	/**
 	 * Inserts a new entry into the cache.
-	 * 
+	 *
 	 * @param location absolute filesystem path to the file
 	 * @param result true if the file is definitely in sync with the index, false if there is any possibility of it
 	 * being out of sync.
@@ -79,7 +79,7 @@ public class FileStateCache {
 
 	/**
 	 * Removes a single entry from the cache.
-	 * 
+	 *
 	 * @param location absolute filesystem path to the file.
 	 */
 	public void remove(String location) {

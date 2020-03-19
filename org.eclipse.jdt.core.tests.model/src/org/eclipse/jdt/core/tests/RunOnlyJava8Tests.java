@@ -73,7 +73,7 @@ import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnlyJava8Tests extends TestCase {
-	
+
 	public RunOnlyJava8Tests(String name) {
 		super(name);
 	}
@@ -118,7 +118,7 @@ public class RunOnlyJava8Tests extends TestCase {
 			JavaElement8Tests.class,
 		};
 	}
-	
+
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
 				TypeAnnotationsConverterTest.class,

@@ -2417,70 +2417,70 @@ public void test042_not_shared() throws Exception {
 			null);
 
 	String expectedOutput =
-			"  // Method descriptor #26 ([Ljava/lang/String;)Ljava/lang/String;\n" + 
-			"  // Stack: 2, Locals: 3\n" + 
-			"  java.lang.String foo(java.lang.String[] args);\n" + 
-			"      0  aload_1 [args]\n" + 
-			"      1  ifnonnull 15\n" + 
-			"      4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"      7  ldc <String \"FINALLY:\"> [35]\n" + 
-			"      9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
-			"     12  ldc <String \"KO\"> [40]\n" + 
-			"     14  areturn\n" + 
-			"     15  aload_1 [args]\n" + 
-			"     16  arraylength\n" + 
-			"     17  tableswitch default: 81\n" + 
-			"          case 0: 48\n" + 
-			"          case 1: 59\n" + 
-			"          case 2: 81\n" + 
-			"          case 3: 70\n" + 
-			"     48  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"     51  ldc <String \"FINALLY:\"> [35]\n" + 
-			"     53  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
-			"     56  ldc <String \"OK\"> [42]\n" + 
-			"     58  areturn\n" + 
-			"     59  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"     62  ldc <String \"FINALLY:\"> [35]\n" + 
-			"     64  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
-			"     67  ldc <String \"KO\"> [40]\n" + 
-			"     69  areturn\n" + 
-			"     70  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"     73  ldc <String \"FINALLY:\"> [35]\n" + 
-			"     75  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
-			"     78  ldc <String \"OK\"> [42]\n" + 
-			"     80  areturn\n" + 
-			"     81  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"     84  ldc <String \"FINALLY:\"> [35]\n" + 
-			"     86  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
-			"     89  ldc <String \"KO\"> [40]\n" + 
-			"     91  areturn\n" + 
-			"     92  astore_2\n" + 
-			"     93  getstatic java.lang.System.out : java.io.PrintStream [16]\n" + 
-			"     96  ldc <String \"FINALLY:\"> [35]\n" + 
-			"     98  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" + 
-			"    101  aload_2\n" + 
-			"    102  athrow\n" + 
-			"      Exception Table:\n" + 
-			"        [pc: 0, pc: 4] -> 92 when : any\n" + 
-			"        [pc: 15, pc: 48] -> 92 when : any\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 7]\n" + 
-			"        [pc: 4, line: 19]\n" + 
-			"        [pc: 12, line: 7]\n" + 
-			"        [pc: 15, line: 8]\n" + 
-			"        [pc: 48, line: 19]\n" + 
-			"        [pc: 56, line: 10]\n" + 
-			"        [pc: 59, line: 19]\n" + 
-			"        [pc: 67, line: 12]\n" + 
-			"        [pc: 70, line: 19]\n" + 
-			"        [pc: 78, line: 14]\n" + 
-			"        [pc: 81, line: 19]\n" + 
-			"        [pc: 89, line: 16]\n" + 
-			"        [pc: 92, line: 18]\n" + 
-			"        [pc: 93, line: 19]\n" + 
-			"        [pc: 101, line: 20]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 103] local: this index: 0 type: X\n" + 
+			"  // Method descriptor #26 ([Ljava/lang/String;)Ljava/lang/String;\n" +
+			"  // Stack: 2, Locals: 3\n" +
+			"  java.lang.String foo(java.lang.String[] args);\n" +
+			"      0  aload_1 [args]\n" +
+			"      1  ifnonnull 15\n" +
+			"      4  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"      7  ldc <String \"FINALLY:\"> [35]\n" +
+			"      9  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" +
+			"     12  ldc <String \"KO\"> [40]\n" +
+			"     14  areturn\n" +
+			"     15  aload_1 [args]\n" +
+			"     16  arraylength\n" +
+			"     17  tableswitch default: 81\n" +
+			"          case 0: 48\n" +
+			"          case 1: 59\n" +
+			"          case 2: 81\n" +
+			"          case 3: 70\n" +
+			"     48  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"     51  ldc <String \"FINALLY:\"> [35]\n" +
+			"     53  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" +
+			"     56  ldc <String \"OK\"> [42]\n" +
+			"     58  areturn\n" +
+			"     59  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"     62  ldc <String \"FINALLY:\"> [35]\n" +
+			"     64  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" +
+			"     67  ldc <String \"KO\"> [40]\n" +
+			"     69  areturn\n" +
+			"     70  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"     73  ldc <String \"FINALLY:\"> [35]\n" +
+			"     75  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" +
+			"     78  ldc <String \"OK\"> [42]\n" +
+			"     80  areturn\n" +
+			"     81  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"     84  ldc <String \"FINALLY:\"> [35]\n" +
+			"     86  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" +
+			"     89  ldc <String \"KO\"> [40]\n" +
+			"     91  areturn\n" +
+			"     92  astore_2\n" +
+			"     93  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"     96  ldc <String \"FINALLY:\"> [35]\n" +
+			"     98  invokevirtual java.io.PrintStream.print(java.lang.String) : void [37]\n" +
+			"    101  aload_2\n" +
+			"    102  athrow\n" +
+			"      Exception Table:\n" +
+			"        [pc: 0, pc: 4] -> 92 when : any\n" +
+			"        [pc: 15, pc: 48] -> 92 when : any\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 7]\n" +
+			"        [pc: 4, line: 19]\n" +
+			"        [pc: 12, line: 7]\n" +
+			"        [pc: 15, line: 8]\n" +
+			"        [pc: 48, line: 19]\n" +
+			"        [pc: 56, line: 10]\n" +
+			"        [pc: 59, line: 19]\n" +
+			"        [pc: 67, line: 12]\n" +
+			"        [pc: 70, line: 19]\n" +
+			"        [pc: 78, line: 14]\n" +
+			"        [pc: 81, line: 19]\n" +
+			"        [pc: 89, line: 16]\n" +
+			"        [pc: 92, line: 18]\n" +
+			"        [pc: 93, line: 19]\n" +
+			"        [pc: 101, line: 20]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 103] local: this index: 0 type: X\n" +
 			"        [pc: 0, pc: 103] local: args index: 1 type: java.lang.String[]\n";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -5841,28 +5841,28 @@ public void test067() throws Exception {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static void main(final String[] args) {\n" + 
-				"		System.out.println(new X().verifyError());\n" + 
-				"	}\n" + 
-				"	private Object verifyError() {\n" + 
-				"		try {\n" + 
-				"			if (someBooleanMethod()) {\n" + 
-				"				return null;\n" + 
-				"			}\n" + 
-				"			return getStuff();\n" + 
-				"		} catch (final Exception ex) {\n" + 
-				"			return null;\n" + 
-				"		} finally {\n" + 
-				"			while (someBooleanMethod()) {\n" + 
-				"				anyMethod();\n" + 
-				"			}\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"	private void anyMethod() { /*empty*/ }\n" + 
-				"	private Object getStuff() { return null; }\n" + 
-				"	private boolean someBooleanMethod() { return false; }\n" + 
-				"}\n" + 
+				"public class X {\n" +
+				"	public static void main(final String[] args) {\n" +
+				"		System.out.println(new X().verifyError());\n" +
+				"	}\n" +
+				"	private Object verifyError() {\n" +
+				"		try {\n" +
+				"			if (someBooleanMethod()) {\n" +
+				"				return null;\n" +
+				"			}\n" +
+				"			return getStuff();\n" +
+				"		} catch (final Exception ex) {\n" +
+				"			return null;\n" +
+				"		} finally {\n" +
+				"			while (someBooleanMethod()) {\n" +
+				"				anyMethod();\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private void anyMethod() { /*empty*/ }\n" +
+				"	private Object getStuff() { return null; }\n" +
+				"	private boolean someBooleanMethod() { return false; }\n" +
+				"}\n" +
 				"",
 			},
 			"null");
@@ -5898,7 +5898,7 @@ public void test068() {
 					"class GrandSonOfFoo extends SonOfFoo {}\n" +
 					"class DaughterOfFoo extends Foo {}\n" +
 					"class GrandDaughterOfFoo extends DaughterOfFoo {}\n"
-		}, 
+		},
 		"caught a daughter of foo");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=340484
@@ -5926,42 +5926,42 @@ public void test069() {
 			"class DaughterOfFoo extends Foo {}\n"
 		},
 		this.complianceLevel < ClassFileConstants.JDK1_7 ?
-				"----------\n" + 
-				"1. WARNING in X.java (at line 16)\n" + 
-				"	class Foo extends Exception {}\n" + 
-				"	      ^^^\n" + 
-				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 17)\n" + 
-				"	class SonOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^\n" + 
-				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 18)\n" + 
-				"	class DaughterOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^^^^^^\n" + 
-				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 16)\n" +
+				"	class Foo extends Exception {}\n" +
+				"	      ^^^\n" +
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 17)\n" +
+				"	class SonOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^\n" +
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 18)\n" +
+				"	class DaughterOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^^^^^^\n" +
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 				"----------\n" :
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	} catch (SonOfFoo e1) {\n" + 
-				"	         ^^^^^^^^\n" + 
-				"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 16)\n" + 
-				"	class Foo extends Exception {}\n" + 
-				"	      ^^^\n" + 
-				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 17)\n" + 
-				"	class SonOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^\n" + 
-				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 18)\n" + 
-				"	class DaughterOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^^^^^^\n" + 
-				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	} catch (SonOfFoo e1) {\n" +
+				"	         ^^^^^^^^\n" +
+				"Unreachable catch block for SonOfFoo. This exception is never thrown from the try statement body\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 16)\n" +
+				"	class Foo extends Exception {}\n" +
+				"	      ^^^\n" +
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 17)\n" +
+				"	class SonOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^\n" +
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 18)\n" +
+				"	class DaughterOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^^^^^^\n" +
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 				"----------\n");
 }
 // precise throw computation should also take care of throws clause in 1.7. 1.6- should continue to behave as it always has.
@@ -5973,69 +5973,69 @@ public void test070() {
 			"	public static void foo() throws DaughterOfFoo {\n" +
 			"		try {\n" +
 			"			throw new DaughterOfFoo();\n" +
-			"		} catch (Foo e){\n" + 
+			"		} catch (Foo e){\n" +
 			"			throw e;\n" +
 			"           foo();\n" +
 			"		}\n"+
 			"	}\n"+
-			"	public static void main(String[] args) {\n" + 
-			"		try {\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
 			"			foo();\n"+
-			"		} catch(Foo e) {}\n" + 
-			"	}\n" + 
+			"		} catch(Foo e) {}\n" +
+			"	}\n" +
 			"}\n"+
 			"class Foo extends Exception {}\n"+
 			"class SonOfFoo extends Foo {}\n"+
 			"class DaughterOfFoo extends Foo {}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_7 ? 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	throw e;\n" + 
-				"	^^^^^^^^\n" + 
-				"Unhandled exception type Foo\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
-				"	foo();\n" + 
-				"	^^^^^^\n" + 
-				"Unreachable code\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 16)\n" + 
-				"	class Foo extends Exception {}\n" + 
-				"	      ^^^\n" + 
-				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 17)\n" + 
-				"	class SonOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^\n" + 
-				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"5. WARNING in X.java (at line 18)\n" + 
-				"	class DaughterOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^^^^^^\n" + 
-				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+		this.complianceLevel < ClassFileConstants.JDK1_7 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	throw e;\n" +
+				"	^^^^^^^^\n" +
+				"Unhandled exception type Foo\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	foo();\n" +
+				"	^^^^^^\n" +
+				"Unreachable code\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 16)\n" +
+				"	class Foo extends Exception {}\n" +
+				"	      ^^^\n" +
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 17)\n" +
+				"	class SonOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^\n" +
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"5. WARNING in X.java (at line 18)\n" +
+				"	class DaughterOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^^^^^^\n" +
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 				"----------\n":
-					
-				"----------\n" + 
-				"1. ERROR in X.java (at line 7)\n" + 
-				"	foo();\n" + 
-				"	^^^^^^\n" + 
-				"Unreachable code\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 16)\n" + 
-				"	class Foo extends Exception {}\n" + 
-				"	      ^^^\n" + 
-				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 17)\n" + 
-				"	class SonOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^\n" + 
-				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 18)\n" + 
-				"	class DaughterOfFoo extends Foo {}\n" + 
-				"	      ^^^^^^^^^^^^^\n" + 
-				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" + 
+
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	foo();\n" +
+				"	^^^^^^\n" +
+				"Unreachable code\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 16)\n" +
+				"	class Foo extends Exception {}\n" +
+				"	      ^^^\n" +
+				"The serializable class Foo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 17)\n" +
+				"	class SonOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^\n" +
+				"The serializable class SonOfFoo does not declare a static final serialVersionUID field of type long\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 18)\n" +
+				"	class DaughterOfFoo extends Foo {}\n" +
+				"	      ^^^^^^^^^^^^^\n" +
+				"The serializable class DaughterOfFoo does not declare a static final serialVersionUID field of type long\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
@@ -6051,11 +6051,11 @@ public void test071() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	} catch (Exception [][][][][]  e [][][][]) {\n" + 
-		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"No exception of type Exception[][][][][][][][][] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	} catch (Exception [][][][][]  e [][][][]) {\n" +
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"No exception of type Exception[][][][][][][][][] can be thrown; an exception type must be a subclass of Throwable\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
@@ -6071,11 +6071,11 @@ public void test072() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	} catch (Exception e []) {\n" + 
-		"	         ^^^^^^^^^^^^^^\n" + 
-		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	} catch (Exception e []) {\n" +
+		"	         ^^^^^^^^^^^^^^\n" +
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
@@ -6091,11 +6091,11 @@ public void test073() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	} catch (Exception [] e) {\n" + 
-		"	         ^^^^^^^^^^^^\n" + 
-		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	} catch (Exception [] e) {\n" +
+		"	         ^^^^^^^^^^^^\n" +
+		"No exception of type Exception[] can be thrown; an exception type must be a subclass of Throwable\n" +
 		"----------\n");
 }
 // test for regression during work on bug 345305
@@ -6105,20 +6105,20 @@ public void test074() {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	Class test(String name) throws ClassNotFoundException {\n" + 
-			"		Class c= findClass(name);\n" + 
-			"		if (c != null)\n" + 
-			"			return c;\n" + 
-			"		if (isExcluded(name)) {\n" + 
-			"			try {\n" + 
-			"				c= findClass(name);\n" + 
-			"				return c;\n" + 
-			"			} catch (ClassNotFoundException e) {\n" + 
-			"				// keep searching\n" + 
-			"			}\n" + 
-			"		}\n" + 
+			"	Class test(String name) throws ClassNotFoundException {\n" +
+			"		Class c= findClass(name);\n" +
+			"		if (c != null)\n" +
+			"			return c;\n" +
+			"		if (isExcluded(name)) {\n" +
+			"			try {\n" +
+			"				c= findClass(name);\n" +
+			"				return c;\n" +
+			"			} catch (ClassNotFoundException e) {\n" +
+			"				// keep searching\n" +
+			"			}\n" +
+			"		}\n" +
 			"		return findClass(name);\n" +
-			"    }\n" + 
+			"    }\n" +
 			"    boolean isExcluded(String name) { return false; }\n" +
 			"    Class findClass(String name) throws ClassNotFoundException { return null; }\n" +
 			"}\n"
@@ -6161,11 +6161,11 @@ public void testBug387612() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 7)\n" + 
-		"	b.foo(null, null);\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Unhandled exception type E\n" + 
+		"----------\n" +
+		"1. ERROR in Client.java (at line 7)\n" +
+		"	b.foo(null, null);\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Unhandled exception type E\n" +
 		"----------\n");
 }
 
@@ -6205,11 +6205,11 @@ public void testBug387612b() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 7)\n" + 
-		"	b.foo(null, null);\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Unhandled exception type E\n" + 
+		"----------\n" +
+		"1. ERROR in Client.java (at line 7)\n" +
+		"	b.foo(null, null);\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Unhandled exception type E\n" +
 		"----------\n");
 }
 
@@ -6250,11 +6250,11 @@ public void testBug387612c() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 7)\n" + 
-		"	b.foo(null, null);\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Unhandled exception type E\n" + 
+		"----------\n" +
+		"1. ERROR in Client.java (at line 7)\n" +
+		"	b.foo(null, null);\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Unhandled exception type E\n" +
 		"----------\n",
 		null,
 		false/*shouldFlush*/);

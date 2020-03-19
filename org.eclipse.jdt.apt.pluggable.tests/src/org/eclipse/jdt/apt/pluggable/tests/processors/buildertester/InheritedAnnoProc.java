@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    Walter Harley - initial API and implementation (based on FilerTester)
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests.processors.buildertester;
@@ -36,16 +36,16 @@ import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
  * This processor claims <code>@InheritedTrigger</code>, which is meta-annotated
  * with <code>@Inherited</code>. It keeps track of what elements it is asked to
  * process, allowing the test method to verify that elements that inherit annotations
- * from their superclass are treated the same as if the annotations were present on 
- * the element. 
- * 
+ * from their superclass are treated the same as if the annotations were present on
+ * the element.
+ *
  * @since 3.5
  */
 @SupportedAnnotationTypes( { "org.eclipse.jdt.apt.pluggable.tests.annotations.InheritedTrigger" })
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions( {})
 public class InheritedAnnoProc extends AbstractProcessor {
-	
+
 	private static final List<String> processedElements = new ArrayList<String>();
 
 	public static List<String> getProcessedElements() {
@@ -54,10 +54,10 @@ public class InheritedAnnoProc extends AbstractProcessor {
 	public static void clearProcessedElements() {
 		processedElements.clear();
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
 	 */
 	@Override
@@ -67,7 +67,7 @@ public class InheritedAnnoProc extends AbstractProcessor {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.annotation.processing.AbstractProcessor#process(java.util.Set,
 	 *      javax.annotation.processing.RoundEnvironment)
 	 */

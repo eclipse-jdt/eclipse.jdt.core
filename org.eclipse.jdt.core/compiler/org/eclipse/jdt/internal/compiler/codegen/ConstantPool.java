@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
- *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335        
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
  *							Bug 416885 - [1.8][compiler]IncompatibleClassChange error (edit)
  *							Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -275,7 +275,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] METAFACTORY = "metafactory".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
 	public static final char[] ALTMETAFACTORY = "altMetafactory".toCharArray(); //$NON-NLS-1$
-	public static final char[] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_ALTMETAFACTORY_SIGNATURE = 
+	public static final char[] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_ALTMETAFACTORY_SIGNATURE =
 			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangInvokeSerializedLambda = "Ljava/lang/invoke/SerializedLambda;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangInvokeSerializedLambdaConstantPoolName = "java/lang/invoke/SerializedLambda".toCharArray(); //$NON-NLS-1$
@@ -299,16 +299,16 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JAVA_LANG_ANNOTATION_REPEATABLE = "Ljava/lang/annotation/Repeatable;".toCharArray(); //$NON-NLS-1$
 
 	public static final char[] HashCode = "hashCode".toCharArray(); //$NON-NLS-1$
-	public static final char[] HashCodeSignature = "()I".toCharArray(); //$NON-NLS-1$; 
+	public static final char[] HashCodeSignature = "()I".toCharArray(); //$NON-NLS-1$;
 	public static final char[] Equals = "equals".toCharArray(); //$NON-NLS-1$
-	public static final char[] EqualsSignature = "(Ljava/lang/Object;)Z".toCharArray(); //$NON-NLS-1$; 
+	public static final char[] EqualsSignature = "(Ljava/lang/Object;)Z".toCharArray(); //$NON-NLS-1$;
 	public static final char[] AddSuppressed = "addSuppressed".toCharArray(); //$NON-NLS-1$;
 	public static final char[] AddSuppressedSignature = "(Ljava/lang/Throwable;)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] Clone = "clone".toCharArray(); //$NON-NLS-1$
 	public static final char[] CloneSignature = "()Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] BOOTSTRAP = "bootstrap".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
-	
+
 	/**
 	 * ConstantPool constructor comment.
 	 */
@@ -861,10 +861,10 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			: binding.isStatic() ? MethodHandleRefKindInvokeStatic
 			: binding.isPrivate() ? MethodHandleRefKindInvokeSpecial
 			: MethodHandleRefKindInvokeVirtual;
-		
+
 		return literalIndexForMethodHandle(referenceKind, binding.declaringClass, binding.selector, binding.signature(), isInterface);
 	}
-	
+
 	public int literalIndexForMethodHandle(int referenceKind, TypeBinding declaringClass, char[] selector, char[] signature, boolean isInterface) {
 		int indexForMethod = literalIndexForMethod(declaringClass, selector, signature, isInterface);
 
@@ -874,7 +874,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			// resize
 			System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 		}
-		
+
 		this.offsets[index] = this.currentOffset;
 		writeU1(MethodHandleTag);
 		writeU1(referenceKind);
@@ -892,7 +892,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			// resize
 			System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 		}
-		
+
 		this.offsets[index] = this.currentOffset;
 		writeU1(MethodHandleTag);
 		writeU1(referenceKind);
@@ -904,7 +904,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		int signatureIndex = literalIndex(descriptor);
 
 		int index = this.currentIndex++;
-		
+
 		int length = this.offsets.length;
 		if (length <= index) {
 			// resize
@@ -1123,7 +1123,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		}
 		return index;
 	}
-	
+
 	/**
 	 * @param bootstrapIndex the given bootstrap index
 	 * @param selector the given method selector

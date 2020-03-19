@@ -37,7 +37,7 @@ import javax.lang.model.util.Elements;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that exercises the methods on the Elements utility.  To enable this processor, add 
+ * A processor that exercises the methods on the Elements utility.  To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elementutils.ElementUtilsProc to the command line.
  * @since 3.3
  */
@@ -72,43 +72,43 @@ public class ElementUtilsProc extends BaseProcessor
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
+
 		if (!collectElements()) {
 			return false;
 		}
-		
+
 		if (!examineGetAllAnnotations()) {
 			return false;
 		}
-		
+
 		if (!examineGetAllMembers()) {
 			return false;
 		}
-		
+
 		if (!examineIsDeprecated()) {
 			return false;
 		}
-		
+
 		if (!examineBinaryName()) {
 			return false;
 		}
-		
+
 		if (!examineGetDocComment()) {
 			return false;
 		}
-		
+
 		if (!examineHidesField()) {
 			return false;
 		}
-		
+
 		if (!examineHidesClass()) {
 			return false;
 		}
-		
+
 		if (!examineHidesMethod()) {
 			return false;
 		}
-		
+
 		if (!examineOverrides()) {
 			return false;
 		}
@@ -155,7 +155,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("element J was not found or was not a class");
 			return false;
 		}
-		
+
 		_elementAnnoX = _elementUtils.getTypeElement("targets.model.pc.AnnoX");
 		if (null == _elementAnnoX || _elementAnnoX.getKind() != ElementKind.ANNOTATION_TYPE) {
 			reportError("annotation type annoX was not found or was not an annotation");
@@ -170,7 +170,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("Could not find value() method in annotation type AnnoX");
 			return false;
 		}
-		
+
 		_elementAnnoY = _elementUtils.getTypeElement("targets.model.pc.AnnoY");
 		if (null == _elementAnnoY || _elementAnnoY.getKind() != ElementKind.ANNOTATION_TYPE) {
 			reportError("annotation type annoY was not found or was not an annotation");
@@ -192,7 +192,7 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test the {@link Elements#getAllAnnotationMirrors()} method
 	 * @return true if all tests passed
@@ -258,7 +258,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineGetAllMembers: getAllMembers(_elementG) returned null");
 			return false;
 		}
-		
+
 		// G member list should contain Object methods, e.g., hashCode()
 		boolean foundHashCode = false;
 		for (ExecutableElement method : ElementFilter.methodsIn(members)) {
@@ -271,7 +271,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include method hashCode()");
 			return false;
 		}
-		
+
 		// G member list should contain F's nested FChild class
 		boolean foundFChild = false;
 		for (TypeElement type : ElementFilter.typesIn(members)) {
@@ -284,7 +284,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include class FChild");
 			return false;
 		}
-		
+
 		// G member list should contain F's _fieldT1_protected
 		// G member list should not contain F's _fieldT1_private, because it is hidden
 		boolean foundFProtectedField = false;
@@ -301,7 +301,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineGetAllMembers: getAllMembers(_elementG) did not return the protected inherited field _fieldT1_protected");
 			return false;
 		}
-		
+
 		// G member list should contain G() constructor
 		// G member list should not contain F() constructor
 		boolean foundGConstructor = false;
@@ -417,7 +417,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineIsDeprecated: ElementUtils.isDeprecated(Deprecation.deprecatedInterface()) is false");
 			return false;
 		}
-		
+
 		TypeElement deprecatedInnerClass = _elementUtils.getTypeElement("targets.model.pc.Deprecation.deprecatedClass");
 		if (null == deprecatedInnerClass) {
 			reportError("examineIsDeprecated: Couldn't find class Deprecation.deprecatedClass");
@@ -452,7 +452,7 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test the {@link Elements#getDocComment(TypeElement)} method
 	 * @return true if all tests passed
@@ -463,14 +463,14 @@ public class ElementUtilsProc extends BaseProcessor
 		nameToDoc.put("F", " Javadoc on element F\n @param <T1> a type parameter\n");
 		nameToDoc.put("FChild", " Javadoc on nested element FChild\n");
 		nameToDoc.put("FEnum", " Javadoc on nested enum FEnum\n Two lines long\n");
-		nameToDoc.put("FChildI", 
+		nameToDoc.put("FChildI",
 				" Javadoc on nested interface FChildI\n" +
 				"\tthis line has tab after asterisk and ends with another tab\t\n" +
 				"\tthis one too\t\n" +
 				"   this line has three spaces after asterisk and ends with three spaces   \n" +
 				" this line has only one space before the asterisk\n");
 		nameToDoc.put("_fieldT1_protected", "Javadoc on field _fieldT1_protected, inline format ");
-		nameToDoc.put("_fieldT1_private", 
+		nameToDoc.put("_fieldT1_private",
 				"\n" +
 				" Javadoc on _fieldT1_private\n" +
 				"  this line starts with two spaces, no asterisk\n" +
@@ -485,16 +485,16 @@ public class ElementUtilsProc extends BaseProcessor
 		nameToDoc.put("bar", " @bar\t(int)\n");
 		nameToDoc.put("bar2", "\t@bar2(int)\n");
 		nameToDoc.put("m", "\t\tMethod\tm\n");
-		nameToDoc.put("m1", "This is a comment for the method m1,\n" + 
+		nameToDoc.put("m1", "This is a comment for the method m1,\n" +
 				"  it is on two lines\n");
-		nameToDoc.put("m2", "Another comment - starts on first line and\n" + 
+		nameToDoc.put("m2", "Another comment - starts on first line and\n" +
 				"    continue on the second line ");
-		nameToDoc.put("m3", " One more test case that.\n" + 
-				" needs\n" + 
-				" to be verified.\n" + 
-				"\n" + 
-				" An empty line with no spaces need to be seen as an empty line.\n" + 
-				"\n" + 
+		nameToDoc.put("m3", " One more test case that.\n" +
+				" needs\n" +
+				" to be verified.\n" +
+				"\n" +
+				" An empty line with no spaces need to be seen as an empty line.\n" +
+				"\n" +
 				" End of the comment.\n");
 
 		String actual = _elementUtils.getDocComment(_elementF);
@@ -518,13 +518,13 @@ public class ElementUtilsProc extends BaseProcessor
 						return false;
 					}
 				}
-				
+
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Test the {@link Elements#hides(Element, Element)} method for fields
 	 * @return true if all tests passed
@@ -601,7 +601,7 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test the {@link Elements#getConstantExpression(Object)} method for fields
 	 * @return true if all tests passed
@@ -681,7 +681,7 @@ public class ElementUtilsProc extends BaseProcessor
 			}
 		}
 		Element elementFPackage = _elementF.getEnclosingElement();
-		
+
 		// Should hide:
 		if (!_elementUtils.hides(elementFChildOnH, elementFChildOnF)) {
 			reportError("examineHidesClass: H.FChild should hide F.FChild");
@@ -787,13 +787,13 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineHidesMethod: Failed to find an expected method on J");
 			return false;
 		}
-		
+
 		// The should-hide cases
 		if (!_elementUtils.hides(methodStaticOnH, methodStaticOnG)) {
 			reportError("examineHidesMethod: H.staticMethod() should hide G.staticMethod()");
 			return false;
 		}
-		
+
 		// The should-not-hide cases
 		if (_elementUtils.hides(methodStaticOnG, methodStaticOnG)) {
 			reportError("examineHidesMethod: G.staticMethod() should not hide itself");
@@ -825,7 +825,7 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test the {@link Elements#overrides(ExecutableElement, ExecutableElement, TypeElement)} implementation
 	 * @return true if all tests passed
@@ -914,7 +914,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineOverrides: could not find some methods");
 			return false;
 		}
-		
+
 		// Should override:
 		if (!_elementUtils.overrides(methodAF, methodBF, typeC)) {
 			reportError("examineOverrides: A.f() should override B.f() in the context of C");
@@ -944,7 +944,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineOverrides: A.h() should override B.h() in the context of C (even though C.h does too)");
 			return false;
 		}
-		
+
 		// Should not override:
 		if (_elementUtils.overrides(methodAF, methodAF, typeA)) {
 			reportError("examineOverrides: A.f() should not override itself in the context of A");
@@ -974,7 +974,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineOverrides: X.f() should not override unrelated B.f() in the context of X");
 			return false;
 		}
-		
+
 		// These cases seem like they should return false, but javac returns true:
 		if (!_elementUtils.overrides(methodDJ, methodAJ, typeC)) {
 			reportError("examineOverrides: to match javac, D.j() should override A.j() in the context of C");
@@ -988,7 +988,7 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("examineOverrides: to match javac, D.f() should override B.f() in the context of C");
 			return false;
 		}
-		
+
 		return true;
 	}
 

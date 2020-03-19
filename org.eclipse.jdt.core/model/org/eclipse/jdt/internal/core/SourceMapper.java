@@ -74,7 +74,7 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 /**
  * A SourceMapper maps source code in a ZIP file to binary types or
- * binary modules in a JAR. The SourceMapper uses the fuzzy parser 
+ * binary modules in a JAR. The SourceMapper uses the fuzzy parser
  * to identify source fragments in a .java file, and attempts to match
  * the source code with children in a binary type.
  * Since a module has no children in the Java Model no such matching
@@ -91,7 +91,7 @@ public class SourceMapper
 	public static class LocalVariableElementKey {
 		String parent;
 		String name;
-		
+
 		public LocalVariableElementKey(IJavaElement method, String name) {
 			StringBuffer buffer = new StringBuffer();
 			buffer
@@ -199,7 +199,7 @@ public class SourceMapper
 	 * Keys are the special local variable elements, entries are <code>char[][]</code>.
 	 */
 	protected HashMap parametersRanges;
-	
+
 	/**
 	 * Set that contains all final local variables.
 	 */
@@ -261,7 +261,7 @@ public class SourceMapper
 	SourceRange moduleNameRange;
 	int moduleDeclarationStart;
 	int moduleModifiers;
-	
+
 	/**
 	 *  Anonymous counter in case we want to map the source of an anonymous class.
 	 */
@@ -496,12 +496,12 @@ public class SourceMapper
 			this.containsADefaultPackage = containsADefaultPackage;
 			this.containsJavaSource = containsJavaSource;
 		}
-		
+
 		@Override
 		public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
-		
+
 		@Override
 		public FileVisitResult visitFile(java.nio.file.Path file, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
 			String entryName = file.toString();
@@ -554,7 +554,7 @@ public class SourceMapper
 		String complianceLevel = null;
 		if (Util.isJrt(pkgFragmentRootPath.toOSString())) {
 			try {
-				JrtPackageNamesAdderVisitor jrtPackageNamesAdderVisitor = new JrtPackageNamesAdderVisitor(firstLevelPackageNames, 
+				JrtPackageNamesAdderVisitor jrtPackageNamesAdderVisitor = new JrtPackageNamesAdderVisitor(firstLevelPackageNames,
 						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
 				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(root.getPath().toFile(), jrtPackageNamesAdderVisitor, JRTUtil.NOTIFY_FILES);
 				sourceLevel = jrtPackageNamesAdderVisitor.sourceLevel;
@@ -854,14 +854,14 @@ public class SourceMapper
 		// categories
 		addCategories(currentType, typeInfo.categories);
 	}
-	
+
 	@Override
 	public void enterModule(ModuleInfo moduleInfo) {
 		this.moduleNameRange =
 			new SourceRange(moduleInfo.nameSourceStart, moduleInfo.nameSourceEnd - moduleInfo.nameSourceStart + 1);
 		this.moduleDeclarationStart = moduleInfo.declarationStart;
-	
-	
+
+
 		// module type modifiers
 		this.moduleModifiers = moduleInfo.modifiers;
 
@@ -1235,7 +1235,7 @@ public class SourceMapper
 			} catch (CoreException e) {
 				// Ignore
 			}
-			
+
 			// try to get the entry
 			ZipEntry entry = null;
 			ZipFile zip = null;
@@ -1581,7 +1581,7 @@ public class SourceMapper
 				}
 				sourceFileName = ((BinaryType) this.binaryTypeOrModule).sourceFileName(info);
 				boolean isAnonymousClass = info.isAnonymous();
-				
+
 				char[] fullName = info.getName();
 				if (isAnonymousClass) {
 					String eltName = this.binaryTypeOrModule.getParent().getElementName();
@@ -1594,7 +1594,7 @@ public class SourceMapper
 				}
 				doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			} else {
-				sourceFileName = TypeConstants.MODULE_INFO_CLASS_NAME_STRING; 
+				sourceFileName = TypeConstants.MODULE_INFO_CLASS_NAME_STRING;
 			}
 			parser = new SourceElementParser(this, factory, new CompilerOptions(this.options), doFullParse, true/*optimize string literals*/);
 			parser.javadocParser.checkDocComment = false; // disable javadoc parsing

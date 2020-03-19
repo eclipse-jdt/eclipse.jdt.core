@@ -37,7 +37,7 @@ import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
 import com.sun.mirror.util.TypeVisitor;
 
-public class TypeParameterDeclarationImpl extends DeclarationImpl implements 
+public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 	TypeParameterDeclaration, TypeVariable, EclipseMirrorType
 {
     public TypeParameterDeclarationImpl(final ITypeBinding binding,
@@ -97,7 +97,7 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
     @Override
 	public Declaration getOwner()
     {
-		return Factory.createDeclaration(getOwnerBinding(), _env);    
+		return Factory.createDeclaration(getOwnerBinding(), _env);
     }
 
 	private IBinding getOwnerBinding() {
@@ -109,19 +109,19 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 			owner = binding.getDeclaringMethod();
 		return owner;
 	}
-    
+
     @Override
 	public SourcePosition getPosition()
     {
         if( isFromSource() )
         {
-			final ASTNode node = getAstNode();  
+			final ASTNode node = getAstNode();
 			if( node == null ) return null;
             final CompilationUnit unit = getCompilationUnit();
-            final int offset = node.getStartPosition();    		
-            return new SourcePositionImpl(offset, 
-            		                      node.getLength(), 
-            							  unit.getLineNumber(offset), 
+            final int offset = node.getStartPosition();
+            return new SourcePositionImpl(offset,
+            		                      node.getLength(),
+            							  unit.getLineNumber(offset),
             							  unit.getColumnNumber(offset),
             							  this);
         }
@@ -158,7 +158,7 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 
     @Override
 	public MirrorKind kind(){ return MirrorKind.TYPE_PARAMETER_VARIABLE; }
-	
+
 	@Override
 	public ITypeBinding getDeclarationBinding(){ return (ITypeBinding) _binding; }
 	@Override
@@ -179,12 +179,12 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 			return getOwnerBinding() == other.getOwnerBinding() &&
 				getSimpleName().equals(other.getSimpleName());
 		}
-		
+
 		for (ReferenceType bound : getBounds()) {
 			if (((EclipseMirrorType)bound).isSubTypeCompatible(type))
 				return true;
 		}
-		
+
 		return false;
-	}   
+	}
 }

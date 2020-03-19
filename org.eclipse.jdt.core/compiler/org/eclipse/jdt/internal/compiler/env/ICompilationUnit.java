@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 
 /**
  * This interface denotes a compilation unit, providing its name and content.
- * 
+ *
  * <p>
  * Note: This internal interface has been implemented illegally by the
  * org.apache.jasper.glassfish bundle from Orbit, see

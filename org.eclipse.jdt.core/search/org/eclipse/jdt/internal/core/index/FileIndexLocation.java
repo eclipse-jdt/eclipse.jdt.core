@@ -70,7 +70,7 @@ public class FileIndexLocation extends IndexLocation {
 	public String fileName() {
 		return this.indexFile.getName();
 	}
-	
+
 	@Override
 	public File getIndexFile() {
 		return this.indexFile;

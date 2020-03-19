@@ -70,7 +70,7 @@ public class JRTUtil {
 
 		public FileVisitResult visitFile(T file, T mod, BasicFileAttributes attrs) throws IOException;
 		/**
-		 * Invoked when a root directory of a module being visited. The element returned 
+		 * Invoked when a root directory of a module being visited. The element returned
 		 * contains only the module name segment - e.g. "java.base". Clients can use this to control
 		 * how the JRT needs to be processed, for e.g., clients can skip a particular module
 		 * by returning FileVisitResult.SKIP_SUBTREE
@@ -83,17 +83,17 @@ public class JRTUtil {
 		public FileVisitResult preVisitDirectory(T dir, BasicFileAttributes attrs) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
-	
+
 		@Override
 		public FileVisitResult visitFile(T file, BasicFileAttributes attrs) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
-	
+
 		@Override
 		public FileVisitResult visitFileFailed(T file, IOException exc) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
-	
+
 		@Override
 		public FileVisitResult postVisitDirectory(T dir, IOException exc) throws IOException {
 			return FileVisitResult.CONTINUE;
@@ -123,7 +123,7 @@ public class JRTUtil {
 					images.put(key, system = JrtFileSystem.getNewJrtFileSystem(image, release));
 				} catch (IOException e) {
 					e.printStackTrace();
-					// Needs better error handling downstream? But for now, make sure 
+					// Needs better error handling downstream? But for now, make sure
 					// a dummy JrtFileSystem is not created.
 				}
 			}
@@ -143,9 +143,9 @@ public class JRTUtil {
 	 *
 	 * The file system contains the following top level directories:
 	 *  /modules/$MODULE/$PATH
-	 *  /packages/$PACKAGE/$MODULE 
+	 *  /packages/$PACKAGE/$MODULE
 	 *  The latter provides quick look up of the module that contains a particular package. However,
-	 *  this method only notifies its clients of the entries within the modules (latter) sub-directory. 
+	 *  this method only notifies its clients of the entries within the modules (latter) sub-directory.
 	 *  Clients can decide which notifications they want to receive. See {@link JRTUtil#NOTIFY_ALL},
 	 *  {@link JRTUtil#NOTIFY_FILES}, {@link JRTUtil#NOTIFY_PACKAGES} and {@link JRTUtil#NOTIFY_MODULES}.
 	 *
@@ -218,7 +218,7 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 	 *
 	 * @param jrt the path to the root of the JRE whose libraries we are interested in.
 	 * @param release the older release where classes and modules should be searched for.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	JrtFileSystemWithOlderRelease(File jrt, String release) throws IOException {
 		super(jrt);
@@ -227,7 +227,7 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 	}
 	@Override
 	void initialize(File jdk) throws IOException {
-		// Just to make sure we don't do anything in super.initialize() 
+		// Just to make sure we don't do anything in super.initialize()
 		// before setting this.release
 	}
 	void initialize(File jdk, String rel) throws IOException {
@@ -322,7 +322,7 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 			}
 		}
 	}
-	
+
 }
 class JrtFileSystem {
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
@@ -333,16 +333,16 @@ class JrtFileSystem {
 	Path modRoot = null;
 	String jdkHome = null;
 	public static JrtFileSystem getNewJrtFileSystem(File jrt, String release) throws IOException {
-		return (release == null) ? new JrtFileSystem(jrt) : 
+		return (release == null) ? new JrtFileSystem(jrt) :
 				new JrtFileSystemWithOlderRelease(jrt, release);
-				
+
 	}
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
 	 *
 	 * @param jrt the path to the root of the JRE whose libraries we are interested in.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	JrtFileSystem(File jrt) throws IOException {
 		initialize(jrt);
@@ -547,7 +547,7 @@ class JrtFileSystem {
 							JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
-					return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? 
+					return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ?
 							FileVisitResult.CONTINUE : visitor.visitModule(dir, JRTUtil.sanitizedFileName(mod));
 				}
 				if ((notify & JRTUtil.NOTIFY_PACKAGES) == 0) {

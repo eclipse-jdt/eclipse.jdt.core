@@ -43,23 +43,23 @@ import org.eclipse.ui.PlatformUI;
  * understanding of the annotation processing architecture.
  */
 public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
-	
+
 	private final static int LIST_WIDTH= 70; // width (in chars) of factory list
 	private final static int LIST_HEIGHT= 10; // number of lines in factory list
-	
+
 	private class FieldAdapter implements IDialogFieldListener {
 		public void dialogFieldChanged(DialogField field) {
 		}
 	}
-	
+
 	// shallow copies, because they are not changed by this code
 	private final FactoryContainer _fc;
 	private final FactoryPath.Attributes _attr;
-	
+
 	// Dialog controls
 	private SelectionButtonDialogField _batchModeField;
 	private ListViewer _contentsField;
-	
+
 	public AdvancedFactoryPathOptionsDialog(
 			Shell parent, FactoryContainer fc, FactoryPath.Attributes attr) {
 		super(parent);
@@ -67,16 +67,16 @@ public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
 		_fc= fc;
 		_attr= attr;
 	}
-	
+
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
         shell.setText(Messages.AdvancedFactoryPathOptionsDialog_advancedOptions);
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(shell, IAptHelpContextIds.ADVANCED_FACTORYPATH_OPTIONS_DIALOG);
     }
-    
+
 	protected Control createDialogArea(Composite parent) {
 		Composite dlgArea= (Composite) super.createDialogArea(parent);
-		
+
 		// Set up "batch mode" checkbox.
 		FieldAdapter adapter = new FieldAdapter();
 		_batchModeField = new SelectionButtonDialogField(SWT.CHECK);
@@ -87,12 +87,12 @@ public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
 			// Plugins can't run in APT compatibility mode.
 		boolean isPlugin = _fc.getType() == FactoryContainer.FactoryType.PLUGIN;
 		_batchModeField.setEnabled(!isPlugin);
-		
+
 		DialogField.createEmptySpace(dlgArea, 1);
 
 		// Set up label for processor contents list
 		Label description= new Label(dlgArea, SWT.WRAP);
-		description.setText(Messages.AdvancedFactoryPathOptionsDialog_label_processorsInThisContainer); 
+		description.setText(Messages.AdvancedFactoryPathOptionsDialog_label_processorsInThisContainer);
 		GridData gdLabel= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gdLabel.horizontalSpan= 2;
 		description.setLayoutData(gdLabel);
@@ -116,11 +116,11 @@ public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
 			ExceptionHandler.log(e, message);
         }
         _contentsField.setSelection(null, false);
-        
-		applyDialogFont(dlgArea);		
+
+		applyDialogFont(dlgArea);
 		return dlgArea;
 	}
-		
+
 	/**
 	 * Return a new Attributes representing the original value updated
 	 * with any changes made by the user.  Changes will be included even

@@ -2732,7 +2732,7 @@ public void test0117() throws Exception {
 			"		@A(n=) String str;\n" +
 			"	}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/A.java",
 			"package test;\n" +
@@ -2765,7 +2765,7 @@ public void test0118() throws Exception {
 			"		@A(n=) String str;\n" +
 			"	}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/A.java",
 			"package test;\n" +
@@ -2779,7 +2779,7 @@ public void test0118() throws Exception {
 	int start = str.lastIndexOf("str");
 	int length = "str".length();
 	IJavaElement[] elements =  this.workingCopies[0].codeSelect(start, length, this.wcOwner);
-	
+
 	if (elements != null &&
 			elements.length > 0 &&
 			elements[0] instanceof IAnnotatable) {
@@ -2802,14 +2802,14 @@ public void test0119() throws Exception {
 			"		return Collections.emptyList();\n" +
 			"	}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/Collections.java",
 			"package test;\n" +
 			"public class Collections  {\n" +
 			"	public static final <T> List<T> emptyList() {return null;}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/List.java",
 			"package test;\n" +
@@ -2839,14 +2839,14 @@ public void test0120() throws Exception {
 			"		List<String> local = Collections.emptyList();\n" +
 			"	}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/Collections.java",
 			"package test;\n" +
 			"public class Collections  {\n" +
 			"	public static final <T> List<T> emptyList() {return null;}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/List.java",
 			"package test;\n" +
@@ -2876,14 +2876,14 @@ public void test0121() throws Exception {
 			"	public void foo() {\n" +
 			"	}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/Collections.java",
 			"package test;\n" +
 			"public class Collections  {\n" +
 			"	public static final <T> List<T> emptyList() {return null;}\n" +
 			"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 			"/Resolve/src/test/List.java",
 			"package test;\n" +
@@ -2931,13 +2931,13 @@ public void test0123() throws Exception {
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/Test.java",
 			"package test;\n" +
-			"public class Test {\n" + 
-			"        <T> T bar(T t) { return t; }\n" + 
-			"        void foo(boolean b, Runnable r) {\n" + 
-			"                Zork z = null;\n" + 
-			"                String s = (String) bar(z); // 5\n" + 
-			"        }\n" + 
-			"}\n" + 
+			"public class Test {\n" +
+			"        <T> T bar(T t) { return t; }\n" +
+			"        void foo(boolean b, Runnable r) {\n" +
+			"                Zork z = null;\n" +
+			"                String s = (String) bar(z); // 5\n" +
+			"        }\n" +
+			"}\n" +
 			"\n");
 
 	String str = this.workingCopies[0].getSource();
@@ -2957,10 +2957,10 @@ public void test0124() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test.java",
-			"public class Test {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		String str\ud842\udf9f = null;\n" + 
-			"	}\n" + 
+			"public class Test {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String str\ud842\udf9f = null;\n" +
+			"	}\n" +
 			"}");
 
 	String str = this.workingCopies[0].getSource();
@@ -2987,7 +2987,7 @@ public void test0125() throws CoreException {
 		WorkingCopyOwner owner = newWorkingCopyOwner(new BasicProblemRequestor());
 		ICompilationUnit cu = getWorkingCopy(
 				"/P0125/src/Test.java",
-				"public enum Test {\n" + 
+				"public enum Test {\n" +
 				"}",
 				owner);
 		IType type = cu.getType("Test");

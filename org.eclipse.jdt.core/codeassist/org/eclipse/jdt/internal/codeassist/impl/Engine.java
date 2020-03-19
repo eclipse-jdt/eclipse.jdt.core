@@ -75,13 +75,13 @@ public abstract class Engine implements ITypeRequestor {
 	@Override
 	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 		CompilationResult result = new CompilationResult(sourceUnit, 1, 1, this.compilerOptions.maxProblemsPerUnit);
-		
+
 		AssistParser assistParser = getParser();
 		Object parserState = assistParser.becomeSimpleParser();
-		
+
 		CompilationUnitDeclaration parsedUnit =
 			assistParser.dietParse(sourceUnit, result);
-		
+
 		assistParser.restoreAssistParser(parserState);
 
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
@@ -148,7 +148,7 @@ public abstract class Engine implements ITypeRequestor {
 		if (this.currentPackageName == null) {
 			initializePackageCache();
 		}
-		
+
 		ImportBinding[] importBindings = this.unitScope.imports;
 		int length = importBindings == null ? 0 : importBindings.length;
 
@@ -176,7 +176,7 @@ public abstract class Engine implements ITypeRequestor {
 
 		this.importCachesInitialized = true;
 	}
-	
+
 	public void initializePackageCache() {
 		if (this.unitScope.fPackage != null) {
 			this.currentPackageName = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');

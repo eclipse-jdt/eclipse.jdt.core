@@ -380,7 +380,7 @@ public void fireChange() {
 			System.out.println("    for hierarchy focused on " + ((JavaElement)this.focusType).toStringWithAncestors()); //$NON-NLS-1$
 		}
 	}
-	
+
 	for (int i= 0; i < listeners.size(); i++) {
 		final ITypeHierarchyChangedListener listener= listeners.get(i);
 		SafeRunner.run(new ISafeRunnable() {
@@ -1041,7 +1041,7 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement element, int eventType) {
 	if (element instanceof CompilationUnit) {
 		CompilationUnit cu = (CompilationUnit)element;
-		ICompilationUnit focusCU = 
+		ICompilationUnit focusCU =
 			this.focusType != null ? this.focusType.getCompilationUnit() : null;
 		if (focusCU != null && focusCU.getOwner() != cu.getOwner())
 			return false;

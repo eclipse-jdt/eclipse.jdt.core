@@ -268,7 +268,7 @@ public String debugPathString() {
 
 @Override
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
-	// 
+	//
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 

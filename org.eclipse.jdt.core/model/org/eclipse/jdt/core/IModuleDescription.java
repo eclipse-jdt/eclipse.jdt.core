@@ -36,7 +36,7 @@ public interface IModuleDescription extends IMember, IAnnotatable {
 	 * @since 3.14
 	 */
 	String[] getRequiredModuleNames() throws JavaModelException;
-	
+
 	/**
 	 * Get provided service names for this module.
 	 *
@@ -45,7 +45,7 @@ public interface IModuleDescription extends IMember, IAnnotatable {
 	 * @since 3.18
 	 */
 	String[] getProvidedServiceNames() throws JavaModelException;
-	
+
 	/**
 	 * Get used service names for this module.
 	 *
@@ -76,7 +76,7 @@ public interface IModuleDescription extends IMember, IAnnotatable {
 	String[] getOpenedPackageNames(IModuleDescription targetModule) throws JavaModelException;
 
 	/**
-	 * 
+	 *
 	 * @return true if automatic module, else false
 	 * @since 3.14
 	 */

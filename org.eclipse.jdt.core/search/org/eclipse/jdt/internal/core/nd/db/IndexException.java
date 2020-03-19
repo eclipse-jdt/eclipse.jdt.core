@@ -39,8 +39,8 @@ public class IndexException extends RuntimeException {
 	/**
 	 * Sets the time that the exception occurred at (in terms of the write number
 	 * from the modification log)
-	 * 
-	 * @param writeNumber 
+	 *
+	 * @param writeNumber
 	 */
 	public void setTime(long writeNumber) {
 		this.time = writeNumber;

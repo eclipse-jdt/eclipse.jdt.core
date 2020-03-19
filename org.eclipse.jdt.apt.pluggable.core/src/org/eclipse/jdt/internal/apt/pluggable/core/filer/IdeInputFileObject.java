@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 BEA Systems, Inc. 
+ * Copyright (c) 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @since 3.4
  */
 public class IdeInputFileObject implements FileObject {
-	
+
 	private final IFile _file;
 
 	public IdeInputFileObject(IFile file) {

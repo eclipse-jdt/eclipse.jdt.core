@@ -3373,7 +3373,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug336821", "Try.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		verifyComments(unit);
 	}
-	
+
 	public void testBug347100() throws Exception {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "javadoc.testBug347100", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		CompilationUnit compilUnit = verifyComments(unit);
@@ -3381,22 +3381,22 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			Javadoc comment = (Javadoc) compilUnit.getCommentList().get(0);
 			List tags = comment.tags();
 			assertEquals(4, tags.size());
-			
+
 			List mainTags = ((TagElement) tags.get(0)).fragments();
 			assertEquals(8, mainTags.size());
-			
+
 			TagElement link1 = (TagElement) mainTags.get(1);
 			assertEquals(TagElement.TAG_LINK, link1.getTagName());
 			SimpleName javadocRef = (SimpleName) link1.fragments().get(0);
 			assertTrue(javadocRef.resolveBinding() instanceof IPackageBinding);
 			link1.subtreeMatch(new ASTMatcher(true), tags.get(1));
-			
+
 			TagElement link2 = (TagElement) mainTags.get(4);
 			assertEquals(TagElement.TAG_LINK, link2.getTagName());
 			TextElement stringRef = (TextElement) link2.fragments().get(0);
 			assertEquals(" \"Hello World\"", stringRef.getText());
 			link2.subtreeMatch(new ASTMatcher(true), tags.get(2));
-			
+
 			TagElement link3 = (TagElement) mainTags.get(7);
 			assertEquals(TagElement.TAG_LINK, link3.getTagName());
 			link3.subtreeMatch(new ASTMatcher(true), tags.get(3));
@@ -3408,11 +3408,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug481143a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
-			"package a;\n" + 
-			"public class X {\n" + 
-			"	public X subtest = new X(\"Test1\", // comment\n" + 
-			"			\"Test2\") { };\n" + 
-			"	public X(String foo, String bar) { }\n" + 
+			"package a;\n" +
+			"public class X {\n" +
+			"	public X subtest = new X(\"Test1\", // comment\n" +
+			"			\"Test2\") { };\n" +
+			"	public X(String foo, String bar) { }\n" +
 			"}"
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
@@ -3424,9 +3424,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug481143b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
-				"package a;\n" + 
-				"public enum X implements // comment\n" + 
-				"	Serializable {\n" + 
+				"package a;\n" +
+				"public enum X implements // comment\n" +
+				"	Serializable {\n" +
 				"}"
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
@@ -3438,15 +3438,15 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	public void testBug481143c() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/a/X.java",
-				"package a;\n" + 
-				"public @interface X // comment\n" + 
-				"	{\n" + 
+				"package a;\n" +
+				"public @interface X // comment\n" +
+				"	{\n" +
 				"}"
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
 	}
-	
+
 	/**
 	 * @bug 206345: [javadoc] compiler should not interpret contents of {@literal}
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
@@ -3456,7 +3456,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
-			"package javadoc.b206345;\n" + 
+			"package javadoc.b206345;\n" +
 			"\n" +
 			"public class X extends Object {\n" +
 			"	/**\n" +
@@ -3496,7 +3496,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 	}
 	/**
-	 * 
+	 *
 	 * @throws JavaModelException
 	 * @deprecated
 	 */
@@ -3504,7 +3504,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.workingCopies = new ICompilationUnit[1];
 		this.astLevel = AST.JLS3;
 		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
-			"package javadoc.b206345;\n" + 
+			"package javadoc.b206345;\n" +
 			"\n" +
 			"public class X extends Object {\n" +
 			"	/**\n" +

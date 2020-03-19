@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.compiler.apt.tests.processors.genclass;
 
@@ -45,7 +45,7 @@ public class GenClassProc extends AbstractProcessor {
 	private Filer _filer;
 	private Elements _elementUtil;
 	private TypeElement _annoDecl;
-	
+
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -53,7 +53,7 @@ public class GenClassProc extends AbstractProcessor {
 		_messager = processingEnv.getMessager();
 		_elementUtil = processingEnv.getElementUtils();
 		_annoDecl = _elementUtil.getTypeElement("org.eclipse.jdt.compiler.apt.tests.annotations.GenClass");
-		
+
 		//System.out.println("Processor options are: ");
 		//for (Map.Entry<String, String> option : processingEnv.getOptions().entrySet()) {
 		//	System.out.println(option.getKey() + " -> " + option.getValue());
@@ -63,7 +63,7 @@ public class GenClassProc extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
 			RoundEnvironment roundEnv) {
-		
+
 		if (annotations == null || annotations.isEmpty()) {
 			return true;
 		}
@@ -71,7 +71,7 @@ public class GenClassProc extends AbstractProcessor {
 		if (!annotations.contains(_annoDecl)) {
 			throw new IllegalArgumentException("process() called on an unexpected set of annotations");
 		}
-		
+
 		// get annotated declarations - could also use getElsAnnoWith(Class) form.
 		for (Element d : roundEnv.getElementsAnnotatedWith(_annoDecl)) {
 			// get annotations on the declaration
@@ -94,7 +94,7 @@ public class GenClassProc extends AbstractProcessor {
 							method = (String)(value.getValue());
 						}
 					}
-					
+
 					if (null == clazz || clazz.length() > 40) {
 						_messager.printMessage(Diagnostic.Kind.WARNING, "Long name for clazz()", d, am);
 						clazz = null;
@@ -107,13 +107,13 @@ public class GenClassProc extends AbstractProcessor {
 					}
 				}
 			}
-			
+
 			if (null != clazz && null != method && !roundEnv.processingOver())
 				createSourceFile(d, clazz, method);
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Create a source file named 'name', with contents
 	 * that reflect 'method' and 'name'.
@@ -137,7 +137,7 @@ public class GenClassProc extends AbstractProcessor {
 			pw.println("package " + pkg + ";");
 			pw.println("public class " + lname + " {");
 			pw.println("\tpublic String " + method + "() {");
-			// This compile error won't be reported if the -proc:only flag is set:			
+			// This compile error won't be reported if the -proc:only flag is set:
 			// pw.println("\t\tb = a;");
 			pw.println("\t\treturn new String(\"" + clazz + "\");");
 			pw.println("\t}");
@@ -146,7 +146,7 @@ public class GenClassProc extends AbstractProcessor {
 			w.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} 
+		}
 	}
 
 }

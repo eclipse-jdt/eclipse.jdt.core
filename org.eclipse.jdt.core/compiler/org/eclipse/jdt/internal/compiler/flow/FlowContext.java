@@ -70,7 +70,7 @@ public class FlowContext implements TypeConstants {
 	public FlowInfo initsOnFinally;
 		// only used within try blocks; remembers upstream flow info mergedWith
 		// any null related operation happening within the try block
-	/** 
+	/**
 	 * Used to record whether effects in a try block affect the finally-block
 	 * conditionally or unconditionally.
 	 * -1 means: no effect,
@@ -95,7 +95,7 @@ public class FlowContext implements TypeConstants {
 	// inside an assertFalse or a not-expression checks for equality / inequality have reversed meaning for syntactic analysis for fields:
 	public static final int INSIDE_NEGATION = 0x4;
 	/**
-	 * used to hide null comparison related warnings inside assert statements 
+	 * used to hide null comparison related warnings inside assert statements
 	 */
 	public static final int HIDE_NULL_COMPARISON_WARNING = 0x1000;
 	public static final int HIDE_NULL_COMPARISON_WARNING_MASK = 0xF000;
@@ -107,7 +107,7 @@ public static final int CAN_ONLY_NULL = 0x0001;
 public static final int CAN_ONLY_NON_NULL = 0x0002;
 //check against non null, with definite values -- comparisons
 public static final int MAY_NULL = 0x0003;
-//check binding a value to a @NonNull variable 
+//check binding a value to a @NonNull variable
 public final static int ASSIGN_TO_NONNULL = 0x0080;
 //check against an unboxing conversion
 public static final int IN_UNBOXING = 0x0010;
@@ -186,10 +186,10 @@ public void extendTimeToLiveForNullCheckedField(int t) {
 
 /**
  * Forget any information about fields that were previously known to be non-null.
- * 
+ *
  * Will only cause any effect if CompilerOptions.enableSyntacticNullAnalysisForFields
  * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int)}).
- */	 
+ */
 public void expireNullCheckedFieldInfo() {
 	if (this.nullCheckedFieldReferences != null) {
 		for (int i = 0; i < this.nullCheckedFieldReferences.length; i++) {
@@ -199,7 +199,7 @@ public void expireNullCheckedFieldInfo() {
 	}
 }
 
-/** 
+/**
  * Is the given field reference equivalent to a reference that is freshly known to be non-null?
  * Can only return true if CompilerOptions.enableSyntacticNullAnalysisForFields
  * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int)}).
@@ -243,7 +243,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 	if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7 && location instanceof ThrowStatement) {
 		Expression throwExpression = ((ThrowStatement)location).exception;
 		LocalVariableBinding throwArgBinding = throwExpression.localVariableBinding();
-		if (throwExpression instanceof SingleNameReference // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350361 
+		if (throwExpression instanceof SingleNameReference // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350361
 				&& throwArgBinding instanceof CatchParameterBinding && throwArgBinding.isEffectivelyFinal()) {
 			CatchParameterBinding parameter = (CatchParameterBinding) throwArgBinding;
 			checkExceptionHandlers(parameter.getPreciseTypes(), location, flowInfo, scope);
@@ -431,7 +431,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 										caughtException,
 										exceptionFlow.unconditionalInits(),
 										raisedException,
-										caughtException, 
+										caughtException,
 										location,
 										false);
 									// was not caught already per construction
@@ -655,16 +655,16 @@ public FlowContext getTargetContextForDefaultContinue() {
 	return null;
 }
 
-/** 
+/**
  * Answer flow context that corresponds to initialization. Suitably override in subtypes.
  */
 public FlowContext getInitializationContext() {
 	return null;
 }
 
-/** 
+/**
  * Answer the parent flow context but be careful not to cross the boundary of a nested type,
- * or null if no such parent exists. 
+ * or null if no such parent exists.
  */
 public FlowContext getLocalParent() {
 	if (this.associatedNode instanceof AbstractMethodDeclaration || this.associatedNode instanceof TypeDeclaration || this.associatedNode instanceof LambdaExpression)
@@ -770,7 +770,7 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 	// default implementation: do nothing
 }
 
-/** 
+/**
  * Record that we found an early exit from a method while a resource is in scope.
  * @param scope enclosing scope
  * @param flowInfo flowInfo at the point of the early exit
@@ -912,7 +912,7 @@ public void recordSettingFinal(VariableBinding variable, Reference finalReferenc
  * 		CAN_ONLY_NULL_NON_NULL}, {@link #MAY_NULL MAY_NULL}, potentially
  *      combined with a context indicator (one of {@link #IN_COMPARISON_NULL},
  *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF})
- *      and a bit to indicate whether the reference is being recorded inside an assert, 
+ *      and a bit to indicate whether the reference is being recorded inside an assert,
  *      {@link #HIDE_NULL_COMPARISON_WARNING}
  * @param flowInfo the flow info at the check point; deferring contexts will
  *  	perform supplementary checks against flow info instances that cannot

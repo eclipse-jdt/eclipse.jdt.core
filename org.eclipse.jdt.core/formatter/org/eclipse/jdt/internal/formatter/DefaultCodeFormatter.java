@@ -325,7 +325,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		for (int kindToTry : kindsToTry) {
 			ASTNode astNode = createParser(kindToTry).createAST(null);
 			if (!hasErrors(astNode)) {
-				if (kindToTry == K_MODULE_INFO) 
+				if (kindToTry == K_MODULE_INFO)
 					tokenizeSource(kindToTry); // run scanner again to get module specific tokens
 				return astNode;
 			}

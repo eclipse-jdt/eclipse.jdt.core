@@ -54,12 +54,12 @@ public void testBug488569_001() { // vanilla test case
 				"			System.out.println(\"Done\");\n" +
 				"		}\n" +
 				"} \n"
-			}, 
+			},
 			"Done");
 }
 
 // vanilla with a delimiter
-public void testBug488569_002() { 
+public void testBug488569_002() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -84,11 +84,11 @@ public void testBug488569_002() {
 				"			System.out.println(\"Done\");\n" +
 				"		}\n" +
 				"} \n"
-			}, 
+			},
 			"Done");
 }
 
-public void testBug488569_003() { 
+public void testBug488569_003() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -114,10 +114,10 @@ public void testBug488569_003() {
 				"			System.out.println(\"Done\");\n" +
 				"		}\n" +
 				"} \n"
-			}, 
+			},
 			"Done");
 }
-public void testBug488569_004() { 
+public void testBug488569_004() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -142,11 +142,11 @@ public void testBug488569_004() {
 				"			System.out.println(\"Done\");\n" +
 				"		}\n" +
 				"} \n"
-			}, 
+			},
 		"Done");
 }
 
-public void testBug488569_005() { 
+public void testBug488569_005() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -171,7 +171,7 @@ public void testBug488569_005() {
 				"			System.out.println(\"Done\");\n" +
 				"		}\n" +
 				"} \n"
-			}, 
+			},
 		"Done");
 }
 public void testBug488569_006() {
@@ -229,11 +229,11 @@ public void testBug488569_007() {
 			"		}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	try (y1) { \n" + 
-		"	     ^^\n" + 
-		"Local variable y1 defined in an enclosing scope must be final or effectively final\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 15)\n" +
+		"	try (y1) { \n" +
+		"	     ^^\n" +
+		"Local variable y1 defined in an enclosing scope must be final or effectively final\n" +
 		"----------\n");
 }
 //check for the error for combination of NameRef and LocalVarDecl.
@@ -262,11 +262,11 @@ public void testBug488569_008() {
 			"		}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 13)\n" + 
-		"	try (y1; Y y1 = new Y()) { \n" + 
-		"	     ^^\n" + 
-		"y1 cannot be resolved\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 13)\n" +
+		"	try (y1; Y y1 = new Y()) { \n" +
+		"	     ^^\n" +
+		"y1 cannot be resolved\n" +
 		"----------\n");
 }
 
@@ -296,11 +296,11 @@ public void testBug488569_009() {
 			"		}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 13)\n" + 
-		"	try (Y y1 = new Y(); y1) { \n" + 
-		"	                     ^^\n" + 
-		"Duplicate resource reference y1\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 13)\n" +
+		"	try (Y y1 = new Y(); y1) { \n" +
+		"	                     ^^\n" +
+		"Duplicate resource reference y1\n" +
 		"----------\n");
 }
 //check for the warning for combination of NameRef and NameRef.
@@ -330,11 +330,11 @@ public void testBug488569_010() {
 			"		}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 14)\n" + 
-		"	try (y1; y1) { \n" + 
-		"	         ^^\n" + 
-		"Duplicate resource reference y1\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 14)\n" +
+		"	try (y1; y1) { \n" +
+		"	         ^^\n" +
+		"Duplicate resource reference y1\n" +
 		"----------\n");
 }
 public void testBug488569_011() {
@@ -361,7 +361,7 @@ public void testBug488569_011() {
 			"			System.out.println(\"Done\");\n" +
 			"		}\n" +
 			"} \n"
-			}, 
+			},
 			"Done");
 }
 
@@ -390,7 +390,7 @@ public void testBug488569_012() {
 			"			System.out.println(\"Done\");\n" +
 			"		}\n" +
 			"} \n"
-			}, 
+			},
 			"Done");
 }
 
@@ -418,7 +418,7 @@ public void testBug488569_013() {
 			"		System.out.println(\"Z CLOSE\");\n" +
 			"	}\n" +
 			"}\n"
-			}, 
+			},
 			"Y CLOSE\n" +
 			"Z CLOSE\n" +
 			"Y CLOSE"
@@ -448,11 +448,11 @@ public void testBug488569_014() {
 			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	try (y1)  {\n" + 
-		"	     ^^\n" + 
-		"Unhandled exception type IOException thrown by automatic close() invocation on y1\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	try (y1)  {\n" +
+		"	     ^^\n" +
+		"Unhandled exception type IOException thrown by automatic close() invocation on y1\n" +
 		"----------\n");
 }
 
@@ -485,8 +485,8 @@ public void testBug488569_015(){
 			"		System.out.println(\"Closed\");\n" +
 			"	}\n" +
 			"}\n"
-			}, 
-			"In Try\n" + 
+			},
+			"In Try\n" +
 			"Closed"
 			);
 }
@@ -518,8 +518,8 @@ public void testBug488569_016(){
 			"		System.out.println(\"Closed\");\n" +
 			"	}\n" +
 			"}\n"
-			}, 
-			"In Try" 
+			},
+			"In Try"
 			);
 }
 
@@ -553,10 +553,10 @@ public void testBug488569_017(){
 			"	public void close() throws IOException {\n" +
 			"		System.out.println(\"Closed\");\n" +
 			"	} \n" +
-			"}  \n" 
-			}, 
-			"In Try\n" + 
-			"Closed\n" + 
+			"}  \n"
+			},
+			"In Try\n" +
+			"Closed\n" +
 			"Closed"
 			);
 }
@@ -591,21 +591,21 @@ public void testBug488569_018() {
 			"	} \n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	try (this.y2; super.yz;y2)  {  \n" + 
-		"	          ^^\n" + 
-		"Field y2 must be final\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	try (this.y2; super.yz;y2)  {  \n" + 
-		"	                    ^^\n" + 
-		"Field yz must be final\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 10)\n" + 
-		"	try (this.y2; super.yz;y2)  {  \n" + 
-		"	                       ^^\n" + 
-		"Local variable y2 defined in an enclosing scope must be final or effectively final\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	try (this.y2; super.yz;y2)  {  \n" +
+		"	          ^^\n" +
+		"Field y2 must be final\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	try (this.y2; super.yz;y2)  {  \n" +
+		"	                    ^^\n" +
+		"Field yz must be final\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	try (this.y2; super.yz;y2)  {  \n" +
+		"	                       ^^\n" +
+		"Local variable y2 defined in an enclosing scope must be final or effectively final\n" +
 		"----------\n");
 }
 //negative tests: duplicate fields
@@ -642,16 +642,16 @@ public void testBug488569_019() {
 			"	}  \n" +
 			"}  \n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 14)\n" + 
-		"	try (y3; y3;super.yz;super.yz;this.y2;)  {  \n" + 
-		"	         ^^\n" + 
-		"Duplicate resource reference y3\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 14)\n" + 
-		"	try (y3; y3;super.yz;super.yz;this.y2;)  {  \n" + 
-		"	                     ^^^^^^^^\n" + 
-		"Duplicate resource reference super.yz\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 14)\n" +
+		"	try (y3; y3;super.yz;super.yz;this.y2;)  {  \n" +
+		"	         ^^\n" +
+		"Duplicate resource reference y3\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 14)\n" +
+		"	try (y3; y3;super.yz;super.yz;this.y2;)  {  \n" +
+		"	                     ^^^^^^^^\n" +
+		"Duplicate resource reference super.yz\n" +
 		"----------\n");
 }
 
@@ -676,7 +676,7 @@ public void testBug488569_020() { // vanilla test case
 				"          System.out.println(\"Done\");\n" +
 				"     }\n" +
 				"} \n"
-			}, 
+			},
 			"Done");
 }
 
@@ -703,11 +703,11 @@ public void testBug488569_021() {
 			"     } \n" +
 			"}  \n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	try(this.z) {\n" + 
-		"	    ^^^^^^\n" + 
-		"Unhandled exception type IOException thrown by automatic close() invocation on z\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	try(this.z) {\n" +
+		"	    ^^^^^^\n" +
+		"Unhandled exception type IOException thrown by automatic close() invocation on z\n" +
 		"----------\n");
 }
 

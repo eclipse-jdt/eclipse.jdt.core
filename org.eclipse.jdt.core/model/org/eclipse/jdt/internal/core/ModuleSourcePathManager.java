@@ -102,7 +102,7 @@ public class ModuleSourcePathManager {
 		try {
 			seekModule(name, false, requestor);
 		} catch (JavaModelException e) {
-			// 
+			//
 		}
 		IModuleDescription[] modules = requestor.getModules();
 		if (modules.length > 0) {
@@ -113,7 +113,7 @@ public class ModuleSourcePathManager {
 				e.printStackTrace();
 			}
 		}
-		return null; 
+		return null;
 	}
 //	public IModuleDeclaration[] getModules() {
 //		if (this.knownModules.size() == 0) {

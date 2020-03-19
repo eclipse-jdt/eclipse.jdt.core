@@ -183,7 +183,7 @@ public class ModificationLog {
 
 		/**
 		 * Search for anomalies in the log and produce a reduced report
-		 * 
+		 *
 		 * @return a log containing the most interesting results
 		 */
 		public MemoryAccessLog reduce(int maxWrites) {
@@ -256,7 +256,7 @@ public class ModificationLog {
 	}
 
 	private static int getBufferEntriesFor(int sizeInMegs) {
-		long sizeOfABufferEntry = 8 + 4 + 1; // size, in bytes, of one long, one int, and one byte 
+		long sizeOfABufferEntry = 8 + 4 + 1; // size, in bytes, of one long, one int, and one byte
 		return (int) (sizeInMegs * 1024L * 1024L / sizeOfABufferEntry);
 	}
 
@@ -422,7 +422,7 @@ public class ModificationLog {
 				long nextAddress = this.buffer0[currentPosition];
 				int nextArgument = this.buffer1[currentPosition];
 				byte nextOp = this.operation[currentPosition];
-	
+
 				switch (nextOp) {
 					case POP_OPERATION: {
 						tags.add(getTagForId(nextArgument));
@@ -445,7 +445,7 @@ public class ModificationLog {
 								isMatch = true;
 							}
 						}
-	
+
 						if (isMatch) {
 							List<Tag> stack = new ArrayList<>();
 							stack.addAll(tags);
@@ -453,7 +453,7 @@ public class ModificationLog {
 									nextArgument, stack);
 							operations.add(nextOperation);
 						}
-	
+
 						currentWrite--;
 					}
 				}

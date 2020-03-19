@@ -206,7 +206,7 @@ public class MemoryStats {
 			if (idx > 0 && next.poolId == 0) {
 				break;
 			}
-			
+
 			result.add(next);
 		}
 		return result;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
- * Implementation of VariableElement, which represents a a field, enum constant, 
+ * Implementation of VariableElement, which represents a a field, enum constant,
  * method or constructor parameter, local variable, or exception parameter.
  */
 public class VariableElementImpl extends ElementImpl implements VariableElement {
@@ -53,7 +53,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	VariableElementImpl(BaseProcessingEnvImpl env, VariableBinding binding) {
 		super(env, binding);
 	}
-	
+
 	@Override
 	public <R, P> R accept(ElementVisitor<R, P> v, P p)
 	{
@@ -94,7 +94,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		return Collections.emptyList();
@@ -149,7 +149,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			throw new UnsupportedOperationException("NYI: VariableElmentImpl.getPackage() for method parameter"); //$NON-NLS-1$
 		}
 	}
-	
+
 	@Override
 	public Name getSimpleName() {
 		return new NameImpl(((VariableBinding)_binding).name);
@@ -183,7 +183,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	public String toString() {
 		return new String(((VariableBinding) _binding).name);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

@@ -280,50 +280,50 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	// The fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=201912 results in these additional
 	// diagnostics to be generated. Just as we arrange for the ``referencedClasses'' to be compiled
 	// automatically, we need to include these diagnostics automatically in the expected messages.
-	static String expectedDiagnosticsFromReferencedClasses = 
-		"----------\n" + 
-		"1. WARNING in test\\AbstractVisibility.java (at line 5)\n" + 
-		"	public int avf_public = avf_private;\n" + 
-		"	           ^^^^^^^^^^\n" + 
-		"The value of the field AbstractVisibility.AvcPrivate.avf_public is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in test\\AbstractVisibility.java (at line 10)\n" + 
-		"	public int avm_public() {\n" + 
-		"	           ^^^^^^^^^^^^\n" + 
-		"The method avm_public() from the type AbstractVisibility.AvcPrivate is never used locally\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in test\\Visibility.java (at line 5)\n" + 
-		"	public int vf_public = vf_private;\n" + 
-		"	           ^^^^^^^^^\n" + 
-		"The value of the field Visibility.VcPrivate.vf_public is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in test\\Visibility.java (at line 11)\n" + 
-		"	public int vm_public() {\n" + 
-		"	           ^^^^^^^^^^^\n" + 
-		"The method vm_public() from the type Visibility.VcPrivate is never used locally\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in test\\copy\\VisibilityPackage.java (at line 5)\n" + 
-		"	public int vf_public = vf_private;\n" + 
-		"	           ^^^^^^^^^\n" + 
-		"The value of the field VisibilityPackage.VpPrivate.vf_public is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in test\\copy\\VisibilityPackage.java (at line 10)\n" + 
-		"	public int vm_public() {\n" + 
-		"	           ^^^^^^^^^^^\n" + 
-		"The method vm_public() from the type VisibilityPackage.VpPrivate is never used locally\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in test\\copy\\VisibilityPublic.java (at line 5)\n" + 
-		"	public int vf_public = vf_private;\n" + 
-		"	           ^^^^^^^^^\n" + 
-		"The value of the field VisibilityPublic.VpPrivate.vf_public is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in test\\copy\\VisibilityPublic.java (at line 10)\n" + 
-		"	public int vm_public() {\n" + 
-		"	           ^^^^^^^^^^^\n" + 
-		"The method vm_public() from the type VisibilityPublic.VpPrivate is never used locally\n" + 
+	static String expectedDiagnosticsFromReferencedClasses =
+		"----------\n" +
+		"1. WARNING in test\\AbstractVisibility.java (at line 5)\n" +
+		"	public int avf_public = avf_private;\n" +
+		"	           ^^^^^^^^^^\n" +
+		"The value of the field AbstractVisibility.AvcPrivate.avf_public is not used\n" +
+		"----------\n" +
+		"2. WARNING in test\\AbstractVisibility.java (at line 10)\n" +
+		"	public int avm_public() {\n" +
+		"	           ^^^^^^^^^^^^\n" +
+		"The method avm_public() from the type AbstractVisibility.AvcPrivate is never used locally\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in test\\Visibility.java (at line 5)\n" +
+		"	public int vf_public = vf_private;\n" +
+		"	           ^^^^^^^^^\n" +
+		"The value of the field Visibility.VcPrivate.vf_public is not used\n" +
+		"----------\n" +
+		"2. WARNING in test\\Visibility.java (at line 11)\n" +
+		"	public int vm_public() {\n" +
+		"	           ^^^^^^^^^^^\n" +
+		"The method vm_public() from the type Visibility.VcPrivate is never used locally\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in test\\copy\\VisibilityPackage.java (at line 5)\n" +
+		"	public int vf_public = vf_private;\n" +
+		"	           ^^^^^^^^^\n" +
+		"The value of the field VisibilityPackage.VpPrivate.vf_public is not used\n" +
+		"----------\n" +
+		"2. WARNING in test\\copy\\VisibilityPackage.java (at line 10)\n" +
+		"	public int vm_public() {\n" +
+		"	           ^^^^^^^^^^^\n" +
+		"The method vm_public() from the type VisibilityPackage.VpPrivate is never used locally\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in test\\copy\\VisibilityPublic.java (at line 5)\n" +
+		"	public int vf_public = vf_private;\n" +
+		"	           ^^^^^^^^^\n" +
+		"The value of the field VisibilityPublic.VpPrivate.vf_public is not used\n" +
+		"----------\n" +
+		"2. WARNING in test\\copy\\VisibilityPublic.java (at line 10)\n" +
+		"	public int vm_public() {\n" +
+		"	           ^^^^^^^^^^^\n" +
+		"The method vm_public() from the type VisibilityPublic.VpPrivate is never used locally\n" +
 		"----------\n";
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()

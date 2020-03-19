@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -71,7 +71,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 		}
 	}
-	
+
 	@Override
 	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation [][] additionalAnnotations, boolean isVarargs) {
 		int totalDimensions = this.dimensions() + additionalDimensions;
@@ -111,12 +111,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		}
 		return new char[][]{ name };
 	}
-	
+
 	@Override
 	public TypeReference[][] getTypeArguments() {
 		return new TypeReference[][] { this.typeArguments };
 	}
-	
+
 	/**
      * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
      */
@@ -124,7 +124,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	protected TypeBinding getTypeBinding(Scope scope) {
         return null; // not supported here - combined with resolveType(...)
     }
-    
+
     @Override
 	public boolean isParameterizedTypeReference() {
     	return true;
@@ -299,7 +299,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			if (!isDiamond) { // check arity, IsDiamond never set for 1.6-
 				scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes);
 				return null;
-			} 
+			}
 		} else if (!currentType.isStatic()) {
 			ReferenceBinding actualEnclosing = currentType.enclosingType();
 			if (actualEnclosing != null && actualEnclosing.isRawType()){

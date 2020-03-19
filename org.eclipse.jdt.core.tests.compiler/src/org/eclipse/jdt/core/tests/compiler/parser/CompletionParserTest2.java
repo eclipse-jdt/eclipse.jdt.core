@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -4159,7 +4159,7 @@ public void test0067_Method(){
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
-			"  Object o = new X[]{<CompleteOnName:zzz>};\n" +			
+			"  Object o = new X[]{<CompleteOnName:zzz>};\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"}\n";
@@ -9302,12 +9302,12 @@ public void test0139(){
 	String completeBehind = "Z.";
 	int cursorLocation = str.indexOf("Z.") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnClass:Z.>";
-	String expectedParentNodeToString = 
-		"public class X extends <CompleteOnClass:Z.> {\n" + 
-		"  {\n" + 
-		"  }\n" + 
-		"  public X() {\n" + 
-		"  }\n" + 
+	String expectedParentNodeToString =
+		"public class X extends <CompleteOnClass:Z.> {\n" +
+		"  {\n" +
+		"  }\n" +
+		"  public X() {\n" +
+		"  }\n" +
 		"}";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "Z.";

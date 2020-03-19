@@ -81,7 +81,7 @@ public class BatchDispatchTests extends TestCase {
 	/**
 	 * Veriy that processor sees correct environment options
 	 * (sanity check with system compiler)
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testProcessorArgumentsWithSystemCompiler() throws IOException {
 		// System compiler
@@ -96,7 +96,7 @@ public class BatchDispatchTests extends TestCase {
 	/**
 	 * Veriy that processor sees correct environment options
 	 * when called from Eclipse compiler
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void _testProcessorArgumentsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -107,7 +107,7 @@ public class BatchDispatchTests extends TestCase {
 	 * Read annotation values and generate a class using system compiler (javac)
 	 * This is a sanity check to verify that the processors, sample code, and
 	 * compiler options are correct.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testCompilerOneClassWithSystemCompiler() throws IOException {
 		// System compiler
@@ -121,7 +121,7 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Read annotation values and generate a class using Eclipse compiler
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void _testCompilerOneClassWithEclipseCompiler() throws IOException {
 		// Eclipse compiler
@@ -131,7 +131,7 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Validate the inherited annotations test against the javac compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testInheritedAnnosWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -144,7 +144,7 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Test dispatch of annotation processor on inherited annotations.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testInheritedAnnosWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -153,7 +153,7 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Verify that if a type has two annotations, both processors are run.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void _testTwoAnnotations() throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
@@ -216,7 +216,7 @@ public class BatchDispatchTests extends TestCase {
 
 	/**
 	 * Test functionality by running a particular processor against the types in
-	 * resources/targets.  The processor must support "*" (the set of all annotations) 
+	 * resources/targets.  The processor must support "*" (the set of all annotations)
 	 * and must report its errors or success via the methods in BaseProcessor.
 	 * @throws IOException
 	 */
@@ -245,14 +245,14 @@ public class BatchDispatchTests extends TestCase {
 			new File(BatchTestUtils.getPluginDirectoryPath(), BatchTestUtils.getResourceFolderName()).getAbsolutePath(),
 			"targets",
 			"dispatch");
-		
+
 		List<String> options = new ArrayList<String>();
 		// See corresponding list in CheckArgsProc processor.
 		// Processor will throw IllegalStateException if it detects a mismatch.
 		options.add("-classpath");
 		options.add(classpathEntry.getAbsolutePath());
 		options.add("-verbose");
-	
+
 		BatchTestUtils.compileOneClass(BatchTestUtils.getEclipseCompiler(), options, inputFile);
 	}
 

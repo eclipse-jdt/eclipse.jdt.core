@@ -36,7 +36,7 @@ public abstract class BaseProcessor extends AbstractProcessor
 		// value = "succeeded";
 		System.setProperty(this.getClass().getName(), value);
 	}
-	
+
 	/**
 	 * Report success to the test case code
 	 */

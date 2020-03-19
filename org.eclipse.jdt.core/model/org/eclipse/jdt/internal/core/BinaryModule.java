@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 public class BinaryModule extends BinaryMember implements AbstractModule {
 
 	private IBinaryModule info;
-	
+
 	/** For creating a pure handle from its memento. */
 	public BinaryModule(JavaElement parent, String name) {
 		super(parent, name);
@@ -46,7 +46,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	public IModule getModuleInfo() throws JavaModelException {
 		if (this.info == null) {
 			ModularClassFile classFile = (ModularClassFile) this.parent;
-			this.info = classFile.getBinaryModuleInfo();			
+			this.info = classFile.getBinaryModuleInfo();
 		}
 		return this.info;
 	}
@@ -108,7 +108,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 		synchronized (projectInfo.javadocCache) {
 			cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);
 		}
-		
+
 		if (cachedJavadoc != null && cachedJavadoc != BinaryType.EMPTY_JAVADOC) {
 			return cachedJavadoc;
 		}

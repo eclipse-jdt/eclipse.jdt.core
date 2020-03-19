@@ -409,29 +409,29 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	public void test0008() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0008", false, null);
 		StringBuffer buf= new StringBuffer();
-		buf.append("package test0008;\n" + 
-				"\n" + 
-				"public class TestClass {\n" + 
-				"    Thread t = new Thread(new Runnable(){\n" + 
-				"\n" + 
-				"        @Override\n" + 
-				"        public void run() {\n" + 
-				"            try {\n" + 
-				"                Thread.currentThread().sleep(1000);\n" + 
-				"            } catch (InterruptedException e) {\n" + 
-				"                e.printStackTrace();\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"        \n" + 
-				"    });\n" + 
-				"\n" + 
-				"    public void testMethod(){\n" + 
-				"        t.start();\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    public static Thread staticTestMethod(Thread thread){\n" + 
-				"        return thread;\n" + 
-				"    }\n" + 
+		buf.append("package test0008;\n" +
+				"\n" +
+				"public class TestClass {\n" +
+				"    Thread t = new Thread(new Runnable(){\n" +
+				"\n" +
+				"        @Override\n" +
+				"        public void run() {\n" +
+				"            try {\n" +
+				"                Thread.currentThread().sleep(1000);\n" +
+				"            } catch (InterruptedException e) {\n" +
+				"                e.printStackTrace();\n" +
+				"            }\n" +
+				"        }\n" +
+				"        \n" +
+				"    });\n" +
+				"\n" +
+				"    public void testMethod(){\n" +
+				"        t.start();\n" +
+				"    }\n" +
+				"\n" +
+				"    public static Thread staticTestMethod(Thread thread){\n" +
+				"        return thread;\n" +
+				"    }\n" +
 				"}");
 		ICompilationUnit cu = pack1.createCompilationUnit("Test.java", buf.toString(), false, null);
 

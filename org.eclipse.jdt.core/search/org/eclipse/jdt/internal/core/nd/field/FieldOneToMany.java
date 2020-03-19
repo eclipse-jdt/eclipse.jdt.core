@@ -58,8 +58,8 @@ public class FieldOneToMany<T extends INdStruct> extends BaseField implements ID
 
 	/**
 	 * Creates a {@link FieldOneToMany} using the given builder. It will hold the many side of a one-to-many
-	 * relationship with nodeType. 
-	 * 
+	 * relationship with nodeType.
+	 *
 	 * @param builder builder that is being used to construct the struct containing this field
 	 * @param forwardPointer field of the model object which holds the one side of this one-to-many relationship
 	 * @param inlineElementCount number of inline elements. If this is nonzero, space for this number elements is
@@ -68,7 +68,7 @@ public class FieldOneToMany<T extends INdStruct> extends BaseField implements ID
 	 * offer a performance improvement. For relationships that will normally be empty, this should be 0.
 	 * @return the newly constructed backpointer field
 	 */
-	public static <T extends INdStruct, B extends INdStruct> FieldOneToMany<T> create(StructDef<B> builder, 
+	public static <T extends INdStruct, B extends INdStruct> FieldOneToMany<T> create(StructDef<B> builder,
 			FieldManyToOne<B> forwardPointer, int inlineElementCount) {
 		FieldOneToMany<T> result = new FieldOneToMany<T>(builder, forwardPointer, inlineElementCount);
 		builder.add(result);
@@ -77,7 +77,7 @@ public class FieldOneToMany<T extends INdStruct> extends BaseField implements ID
 		return result;
 	}
 
-	public static <T extends INdStruct, B extends INdStruct> FieldOneToMany<T> create(StructDef<B> builder, 
+	public static <T extends INdStruct, B extends INdStruct> FieldOneToMany<T> create(StructDef<B> builder,
 			FieldManyToOne<B> forwardPointer) {
 		return create(builder, forwardPointer, 0);
 	}
@@ -106,7 +106,7 @@ public class FieldOneToMany<T extends INdStruct> extends BaseField implements ID
 	public boolean isEmpty(Nd nd, long address) {
 		return this.backPointerArray.isEmpty(nd, address + this.offset);
 	}
-	
+
 	public int size(Nd nd, long address) {
 		return this.backPointerArray.size(nd, address + this.offset);
 	}
@@ -146,7 +146,7 @@ public class FieldOneToMany<T extends INdStruct> extends BaseField implements ID
 	}
 
 	/**
-	 * Returns the record size of the back pointer list 
+	 * Returns the record size of the back pointer list
 	 */
 	@Override
 	public int getRecordSize() {

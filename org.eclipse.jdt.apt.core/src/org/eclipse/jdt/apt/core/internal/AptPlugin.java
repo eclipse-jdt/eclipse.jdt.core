@@ -36,7 +36,7 @@ import org.osgi.framework.ServiceRegistration;
 
 public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static final String PLUGIN_ID = "org.eclipse.jdt.apt.core"; //$NON-NLS-1$
-	
+
 	// Tracing options
 	public static boolean DEBUG = false;
 	public final static String APT_DEBUG_OPTION = AptPlugin.PLUGIN_ID + "/debug"; //$NON-NLS-1$
@@ -53,13 +53,13 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static final int STATUS_EXCEPTION = 1;
 	public static final int STATUS_NOTOOLSJAR = 2;
 	public static final int STATUS_CANTLOADPLUGINFACTORY = 3;
-	
-	/** 
-	 * Marker source ID used for all APT-created markers.  Note this does not include 
-	 * compilation problems, since they get created and managed by JDT on our behalf. 
+
+	/**
+	 * Marker source ID used for all APT-created markers.  Note this does not include
+	 * compilation problems, since they get created and managed by JDT on our behalf.
 	 */
 	public static final String APT_MARKER_SOURCE_ID = "APT"; //$NON-NLS-1$
-	
+
 	public static final String APT_BATCH_PROCESSOR_PROBLEM_MARKER = PLUGIN_ID + ".marker"; //$NON-NLS-1$
 	/** Marker ID used for build problem, e.g., missing factory jar */
 	public static final String APT_LOADER_PROBLEM_MARKER = PLUGIN_ID + ".buildproblem"; //$NON-NLS-1$
@@ -69,27 +69,27 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static final String APT_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".compile.problem"; //$NON-NLS-1$
 	/** Marker ID used for posting problems during build by processors that don't run in reconcile */
 	public static final String APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER = PLUGIN_ID + ".nonreconcile.compile.problem"; //$NON-NLS-1$
-	
+
 	private static final SimpleDateFormat TRACE_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS"); //$NON-NLS-1$
-	
+
 	private static AptPlugin thePlugin = null; // singleton object
-	
+
 	private ServiceRegistration<DebugOptionsListener> debugRegistration;
-	
+
 	/**
 	 * The javax.annotation.processing.Processor class, which is only available on Java 6 and higher.
 	 */
 	private static Class<?> _java6ProcessorClass;
-	
+
 	// Entries are added lazily in getAptProject(), and removed upon
 	// project deletion in deleteAptProject().
-	private static final Map<IJavaProject,AptProject> PROJECT_MAP = 
+	private static final Map<IJavaProject,AptProject> PROJECT_MAP =
 		new HashMap<>();
 
 	// Qualified names of services for which these containers may provide implementations
 	public static final String JAVA5_FACTORY_NAME = "com.sun.mirror.apt.AnnotationProcessorFactory"; //$NON-NLS-1$
 	public static final String JAVA6_FACTORY_NAME = "javax.annotation.processing.Processor"; //$NON-NLS-1$
-	
+
 	@Override
 	public void start(BundleContext context) throws Exception {
 		thePlugin = this;
@@ -100,8 +100,8 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, PLUGIN_ID);
 		debugRegistration = context.registerService(DebugOptionsListener.class, this, properties);
 
-		// Do we have access to 
-		
+		// Do we have access to
+
 		try {
 			_java6ProcessorClass = Class.forName(JAVA6_FACTORY_NAME);
 		} catch (Throwable e) {
@@ -114,13 +114,13 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 		// AnnotationProcessorFactoryLoader.getLoader();
 		// register resource-changed listener
 		// TODO: can move this into AptProject.
-		int mask = 
-			IResourceChangeEvent.PRE_BUILD | 
-			IResourceChangeEvent.PRE_CLOSE | 
-			IResourceChangeEvent.PRE_DELETE | 
+		int mask =
+			IResourceChangeEvent.PRE_BUILD |
+			IResourceChangeEvent.PRE_CLOSE |
+			IResourceChangeEvent.PRE_DELETE |
 			IResourceChangeEvent.POST_CHANGE;
 		JavaCore.addPreProcessingResourceChangedListener( new GeneratedResourceChangeListener(), mask );
-		
+
 		if( DEBUG )
 			trace("registered resource change listener"); //$NON-NLS-1$
 	}
@@ -133,7 +133,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 		debugRegistration.unregister();
 		debugRegistration = null;
 	}
-	
+
 	public static AptPlugin getPlugin() {
 		return thePlugin;
 	}
@@ -145,23 +145,23 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static void log(IStatus status) {
 		thePlugin.getLog().log(status);
 	}
-	
+
 	/**
 	 * Convenience wrapper around log(IStatus), to log an exception
 	 * with severity of ERROR.
 	 */
 	public static void log(Throwable e, String message) {
-		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e)); 
+		log(new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e));
 	}
-	
+
 	/**
 	 * Convenience wrapper around log(IStatus), to log an exception
 	 * with severity of WARNING.
 	 */
-	public static void logWarning(Throwable e, String message) {		
+	public static void logWarning(Throwable e, String message) {
 		log(createWarningStatus(e, message));
 	}
-	
+
 	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of ERROR.
@@ -169,7 +169,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static Status createStatus(Throwable e, String message) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-	
+
 	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of WARNING.
@@ -177,7 +177,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static Status createWarningStatus(Throwable e, String message) {
 		return new Status(IStatus.WARNING, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-	
+
 	/**
 	 * Convenience wrapper for rethrowing exceptions as CoreExceptions,
 	 * with severity of INFO.
@@ -185,7 +185,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static Status createInfoStatus(Throwable e, String message) {
 		return new Status(IStatus.INFO, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
-	
+
 	@Override
 	public void optionsChanged(DebugOptions options) {
 		DEBUG = options.getBooleanOption(APT_DEBUG_OPTION, false);
@@ -193,7 +193,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 		DEBUG_GFM_MAPS = options.getBooleanOption(APT_DEBUG_GFM_MAPS_OPTION, false);
 		DEBUG_COMPILATION_ENV = options.getBooleanOption(APT_COMPILATION_ENV_OPTION, false);
 	}
-	
+
 	public static void trace(final String msg){
 		if (DEBUG) {
 			StringBuffer sb = new StringBuffer();
@@ -217,7 +217,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			System.out.println(sb);
 		}
 	}
-	
+
 	/**
 	 * Convenience method to report an exception in debug trace mode.
 	 */
@@ -227,7 +227,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			t.printStackTrace(System.out);
 		}
 	}
-	
+
 	private static AptProject getAptProject(IJavaProject javaProject, boolean create){
 		synchronized(PROJECT_MAP){
 			AptProject aptProject = PROJECT_MAP.get(javaProject);
@@ -245,11 +245,11 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			}
 		}
 	}
-	
+
 	public static AptProject getAptProject(IJavaProject javaProject) {
 		return getAptProject(javaProject, true);
 	}
-	
+
 	public static void deleteAptProject(IJavaProject javaProject) {
 		synchronized (PROJECT_MAP) {
 			PROJECT_MAP.remove(javaProject);
@@ -266,7 +266,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			return false;
 		return Platform.getBundle("org.eclipse.jdt.compiler.apt") != null; //$NON-NLS-1$
 	}
-	
+
 	/**
 	 * The javax.annotation.processing.Processor class.  This is only available on the
 	 * Java 6 or higher platform, so it is loaded via reflection in {@link #start}.

@@ -129,11 +129,11 @@ public void testBug535851_001() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" + 
-			"   #37 pack1/X$A,\n" + 
-			"   #44 pack1/X$A$B,\n" + 
-			"   #46 pack1/X$A$C,\n" + 
-			"   #40 pack1/X$Y,\n" + 
+			"Nest Members:\n" +
+			"   #37 pack1/X$A,\n" +
+			"   #44 pack1/X$A$B,\n" +
+			"   #46 pack1/X$A$C,\n" +
+			"   #40 pack1/X$Y,\n" +
 			"   #48 pack1/X$Y$Z\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -208,7 +208,7 @@ public void testBug535851_005() throws Exception {
 	);
 
 	String expectedPartialOutput =
-		"Nest Members:\n" + 
+		"Nest Members:\n" +
 		"   #33 pack1/X$1\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 
@@ -250,8 +250,8 @@ public void testBug535851_006() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" + 
-			"   #33 pack1/X$1,\n" + 
+			"Nest Members:\n" +
+			"   #33 pack1/X$1,\n" +
 			"   #48 pack1/X$1$1\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 
@@ -305,8 +305,8 @@ public void testBug535851_007() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" + 
-			"   #44 pack1/X$1,\n" + 
+			"Nest Members:\n" +
+			"   #44 pack1/X$1,\n" +
 			"   #77 pack1/X$1$1\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 
@@ -344,7 +344,7 @@ public void testBug535851_008() throws Exception {
 	);
 
 	String expectedPartialOutput =
-			"Nest Members:\n" + 
+			"Nest Members:\n" +
 			"   #15 pack1/X$1Y\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 
@@ -430,7 +430,7 @@ public void testBug535918_001b() throws Exception {
 
 	String expectedPartialOutput = "getstatic pack1.X$Y.priv_int";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
-	expectedPartialOutput = "Nest Members:\n" + 
+	expectedPartialOutput = "Nest Members:\n" +
 			"   #50 pack1/X$Y\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedPartialOutput = "Nest Host: #25 pack1/X\n";
@@ -547,14 +547,14 @@ public void testBug535918_003a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #55 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
 	verifyOutputPositive(XZFile, "getstatic pack1.X$Y.priv_int");
-	
+
 	verifyOutputNegative(XYFile, "access$");
 	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
@@ -593,8 +593,8 @@ public void testBug535918_003b() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #55 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
@@ -639,8 +639,8 @@ public void testBug535918_003c() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #55 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
@@ -685,14 +685,14 @@ public void testBug535918_003d() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #55 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");
 	verifyOutputPositive(XZFile, "getstatic pack1.X$Y.priv_int");
-	
+
 	verifyOutputNegative(XYFile, "access$");
 	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
@@ -732,8 +732,8 @@ public void testBug535918_003e() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #55 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #55 pack1/X$Y,\n" +
 			"   #17 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
@@ -743,7 +743,7 @@ public void testBug535918_003e() throws Exception {
 	verifyOutputNegative(XYFile, "access$");
 	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
-//sibling and super with super keyword: private instance field of a super-type is accessed from a sub-type 
+//sibling and super with super keyword: private instance field of a super-type is accessed from a sub-type
 // user keyword super with both super-type and sub-type being nestmates.
 public void testBug535918_003f() throws Exception {
 	Map<String, String> options = getCompilerOptions();
@@ -778,8 +778,8 @@ public void testBug535918_003f() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #56 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #56 pack1/X$Y,\n" +
 			"   #16 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
@@ -819,15 +819,15 @@ public void testBug535918_004a() throws Exception {
 
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
+	String partialOutput = "Nest Members:\n" +
 			"   #22 pack1/X$Y\n";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #17 pack1/X");
 	verifyOutputPositive(XYFile, "getstatic pack1.X.priv_int");
-	
+
 	verifyOutputNegative(XFile, "access$");
 	verifyOutputNegative(XFile, "invokestatic pack1.X.access$0()");
-	
+
 }
 //vanilla field access of enclosing type: private instance field of enclosing type accessed in inner type
 public void testBug535918_004b() throws Exception {
@@ -859,15 +859,15 @@ public void testBug535918_004b() throws Exception {
 
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
+	String partialOutput = "Nest Members:\n" +
 			"   #20 pack1/X$Y\n";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XYFile, "getfield pack1.X.priv_int");
-	
+
 	verifyOutputNegative(XFile, "access$");
 	verifyOutputNegative(XYFile, "invokestatic pack1.X.access$0()");
-	
+
 }
 //nestmate inner constructor call from outer - no synthetic and appropriate call site params
 public void testBug535918_005a() throws Exception {
@@ -906,8 +906,8 @@ public void testBug535918_005a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #38 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #38 pack1/X$Y,\n" +
 			"   #42 pack1/X$Y$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #31 pack1/X");
@@ -954,8 +954,8 @@ public void testBug535918_005b() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #38 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #38 pack1/X$Y,\n" +
 			"   #41 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #30 pack1/X");
@@ -1002,8 +1002,8 @@ public void testBug535918_005c() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #38 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #38 pack1/X$Y,\n" +
 			"   #42 pack1/X$Y$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
@@ -1046,8 +1046,8 @@ public void testBug535918_005d() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #35 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #35 pack1/X$Y,\n" +
 			"   #38 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
@@ -1057,7 +1057,7 @@ public void testBug535918_005d() throws Exception {
 	verifyOutputNegative(XYFile, "synthetic X$Y");
 	verifyOutputNegative(XZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)");
 }
-// nestmate super call to private constructor from sibling nestmate which is a subtype 
+// nestmate super call to private constructor from sibling nestmate which is a subtype
 // super is a parameterized type
 public void testBug535918_005e() throws Exception {
 	Map<String, String> options = getCompilerOptions();
@@ -1094,8 +1094,8 @@ public void testBug535918_005e() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #35 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #35 pack1/X$Y,\n" +
 			"   #38 pack1/X$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
@@ -1105,7 +1105,7 @@ public void testBug535918_005e() throws Exception {
 	verifyOutputNegative(XYFile, "synthetic pack1.X$Y(pack1.X.Y arg0)");
 	verifyOutputNegative(XZFile, "2  invokespecial pack1.X$Y(pack1.X$Y)");
 }
-//nestmate constructor reference 
+//nestmate constructor reference
 public void testBug535918_005f() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
@@ -1145,7 +1145,7 @@ public void testBug535918_005f() throws Exception {
 
 	String XFile = getClassFileContents("X.class", ClassFileBytesDisassembler.SYSTEM);
 	String X1YFile = getClassFileContents("X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
+	String partialOutput = "Nest Members:\n" +
 			"   #8 X$1Y\n";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(X1YFile, "Nest Host: #33 X");
@@ -1374,8 +1374,8 @@ public void testBug535918_0056a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" + 
-			"   #20 pack1/X$Y,\n" + 
+	String partialOutput = "Nest Members:\n" +
+			"   #20 pack1/X$Y,\n" +
 			"   #18 pack1/X$Y$Z";
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #3 pack1/X");

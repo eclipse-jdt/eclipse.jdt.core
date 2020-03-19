@@ -23,9 +23,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
- 
+
 /**
- * This annotation can be applied to a package, type, method or constructor in order to 
+ * This annotation can be applied to a package, type, method or constructor in order to
  * define that contained entities for which a null annotation is otherwise lacking
  * should be considered as {@link NonNull @NonNull}. Entities affected by
  * <code>@NonNullByDefault</code> are:
@@ -47,7 +47,7 @@ import java.lang.annotation.Target;
  * </dl>
  * Note that for applying an annotation to a package, a file by the name
  * <code>package-info.java</code> is used.
- * 
+ *
  * @since 1.0
  */
 @Documented

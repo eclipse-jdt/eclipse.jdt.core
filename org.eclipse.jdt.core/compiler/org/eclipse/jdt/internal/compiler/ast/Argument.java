@@ -58,7 +58,7 @@ public class Argument extends LocalDeclaration {
 		}
 		this.bits |= (IsLocalDeclarationReachable | IsArgument | IsTypeElided);
 	}
-	
+
 	@Override
 	public boolean isRecoveredFromLoneIdentifier() {
 		return false;
@@ -66,7 +66,7 @@ public class Argument extends LocalDeclaration {
 
 	public TypeBinding createBinding(MethodScope scope, TypeBinding typeBinding) {
 		if (this.binding == null) {
-			// for default constructors and fake implementation of abstract methods 
+			// for default constructors and fake implementation of abstract methods
 			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, scope);
 		} else if (!this.binding.type.isValidBinding()) {
 			AbstractMethodDeclaration methodDecl = scope.referenceMethod();
@@ -139,14 +139,14 @@ public class Argument extends LocalDeclaration {
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}
-	
+
 	public boolean hasElidedType() {
 		return (this.bits & IsTypeElided) != 0;
 	}
 
 	public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 		// parser associates SE8 annotations to the declaration
-		return TypeReference.containsNullAnnotation(this.annotations) || 
+		return TypeReference.containsNullAnnotation(this.annotations) ||
 				(this.type != null && this.type.hasNullTypeAnnotation(position)); // just in case
 	}
 
@@ -213,7 +213,7 @@ public class Argument extends LocalDeclaration {
 				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
 		}
-		
+
 		if ((this.type.bits & ASTNode.IsUnionType) != 0) {
 			this.binding = new CatchParameterBinding(this, exceptionType, this.modifiers | ClassFileConstants.AccFinal, false); // argument decl, but local var  (where isArgument = false)
 			this.binding.tagBits |= TagBits.MultiCatchParameter;
@@ -222,7 +222,7 @@ public class Argument extends LocalDeclaration {
 		}
 		resolveAnnotations(scope, this.annotations, this.binding, true);
 		Annotation.isTypeUseCompatible(this.type, scope, this.annotations);
-		if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled && 
+		if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled &&
 				(this.type.hasNullTypeAnnotation(AnnotationPosition.ANY) || TypeReference.containsNullAnnotation(this.annotations)))
 		{
 			scope.problemReporter().nullAnnotationUnsupportedLocation(this.type);

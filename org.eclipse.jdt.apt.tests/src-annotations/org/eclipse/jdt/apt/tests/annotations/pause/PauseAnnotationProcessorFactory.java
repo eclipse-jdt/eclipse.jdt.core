@@ -33,7 +33,7 @@ public class PauseAnnotationProcessorFactory extends BaseFactory {
 	 * @see com.sun.mirror.apt.AnnotationProcessorFactory#getProcessorFor(java.util.Set, com.sun.mirror.apt.AnnotationProcessorEnvironment)
 	 */
 	public AnnotationProcessor getProcessorFor(
-			Set<AnnotationTypeDeclaration> decls, 
+			Set<AnnotationTypeDeclaration> decls,
 			AnnotationProcessorEnvironment env) {
 		return new PauseAnnotationProcessor(decls, env);
 	}

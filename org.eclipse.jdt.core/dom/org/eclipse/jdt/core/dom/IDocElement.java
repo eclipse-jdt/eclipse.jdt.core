@@ -15,7 +15,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Common marker interface for AST nodes that represent fragments in doc elements. 
+ * Common marker interface for AST nodes that represent fragments in doc elements.
  * These are node types that can legitimately be included in {@link TagElement#fragments()}.
  * <pre>
  * IDocElement:
@@ -25,7 +25,7 @@ package org.eclipse.jdt.core.dom;
  *   {@link TagElement}
  *   {@link TextElement}
  * </pre>
- * 
+ *
  * @since 3.11, internal interface since 3.0
  * @see TagElement#fragments()
  * @noextend This interface is not intended to be extended by clients.

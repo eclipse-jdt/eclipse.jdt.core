@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.tests.model.ResolveTests18;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnlyAssistModelTests18 extends TestCase {
-	
+
 	public RunOnlyAssistModelTests18(String name) {
 		super(name);
 	}
@@ -43,7 +43,7 @@ public class RunOnlyAssistModelTests18 extends TestCase {
 			JavaElement8Tests.class,
 		};
 	}
-	
+
 	public static Test suite() {
 		TestSuite ts = new TestSuite(RunOnlyAssistModelTests18.class.getName());
 

@@ -92,7 +92,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		super(resource, project);
 		this.jarPath = externalJarPath;
 		if (attributes == null) {
-			// attributes could either be 
+			// attributes could either be
 			// (1) provided by the caller (particularly when creating from memento),
 			// (2) retrieved from the corresponding classpath entry (if a resolved classpath is available).
 			// These two cases should cover all normal scenarios, else extraAttributes will be null.
@@ -130,7 +130,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			if (JavaIndex.isEnabled()) {
 				JavaIndex index = JavaIndex.getIndex();
 				try (IReader reader = index.getNd().acquireReadLock()) {
-					IPath resourcePath = JavaIndex.getLocationForElement(this); 
+					IPath resourcePath = JavaIndex.getLocationForElement(this);
 					if (!resourcePath.isEmpty()) {
 						NdResourceFile resourceFile = index.getResourceFile(resourcePath.toString().toCharArray());
 						if (index.isUpToDate(resourceFile)) {
@@ -142,9 +142,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 								String filename = next.getFileName().getString();
 								initRawPackageInfo(rawPackageInfo, filename, filename.endsWith("/"), compliance); //$NON-NLS-1$
 							}
-	
+
 							// Locate all the classfile entries
-							for (NdType type : resourceFile.getTypes()) {	
+							for (NdType type : resourceFile.getTypes()) {
 								String path = new String(type.getTypeId().getBinaryName()) + ".class"; //$NON-NLS-1$
 								initRawPackageInfo(rawPackageInfo, path, false, compliance);
 							}
@@ -178,7 +178,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 							}
 						}
 					}
-					
+
 					String[] supportedVersions = versions.toArray(new String[versions.size()]);
 					if (supportedVersions.length > 0) {
 						this.multiVersion = true;
@@ -480,7 +480,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public URL getIndexPath() {
 		try {
 			IClasspathEntry entry = ((JavaProject) getParent()).getClasspathEntryFor(getPath());
-			if (entry != null) return ((ClasspathEntry)entry).getLibraryIndexLocation();	
+			if (entry != null) return ((ClasspathEntry)entry).getLibraryIndexLocation();
 		} catch (JavaModelException e) {
 			// ignore exception
 		}

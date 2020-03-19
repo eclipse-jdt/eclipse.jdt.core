@@ -281,7 +281,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	private String getWildcardBindingKey(String typeKey, char kind) {
 		return BindingKey.createWilcardTypeBindingKey(typeKey, kind);
 	}
-	
+
 	/*
 	 * Create a wildcard type binding key
 	 */
@@ -306,7 +306,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertBindingKeyEquals(BindingKey.createWildcardTypeBindingKey(
 				BindingKey.createTypeBindingKey("java.util.ArrayList"), Signature.C_SUPER,
 				BindingKey.createTypeBindingKey("java.lang.String"), 0),
-				"Ljava/util/ArrayList;{0}-Ljava/lang/String;"		
+				"Ljava/util/ArrayList;{0}-Ljava/lang/String;"
 				);
 	}
 
@@ -321,7 +321,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 		assertBindingKeyEquals(BindingKey.createWildcardTypeBindingKey(
 				BindingKey.createTypeBindingKey("java.util.ArrayList"), Signature.C_EXTENDS,
 				BindingKey.createTypeBindingKey("java.lang.String"), 0),
-				"Ljava/util/ArrayList;{0}+Ljava/lang/String;"		
+				"Ljava/util/ArrayList;{0}+Ljava/lang/String;"
 				);
 	}
 
@@ -684,7 +684,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 			"Ljava/util/ArrayList<Ljava/lang/String;>;.()V"
 		);
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
 	 * getDeclaringType should return null for a type
@@ -697,7 +697,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
-	 * getDeclaringType should return the correct type for 
+	 * getDeclaringType should return the correct type for
 	 * methods of a secondary type
 	 */
 	public void test061() {
@@ -718,7 +718,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
-	 * getDeclaringType should return the correct type for 
+	 * getDeclaringType should return the correct type for
 	 * methods of a secondary's inner type
 	 */
 	public void test063() {
@@ -729,7 +729,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
-	 * getDeclaringType should return the correct type for 
+	 * getDeclaringType should return the correct type for
 	 * for a secondary's inner type
 	 */
 	public void test064() {
@@ -740,7 +740,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
-	 * getDeclaringType should return the correct type for 
+	 * getDeclaringType should return the correct type for
 	 * methods of an inner type
 	 */
 	public void test065() {
@@ -761,7 +761,7 @@ public class BindingKeyTests extends AbstractJavaModelTests {
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=351165
-	 * getDeclaringType should return the correct type for 
+	 * getDeclaringType should return the correct type for
 	 * methods of an inner type's inner type
 	 */
 	public void test067() {

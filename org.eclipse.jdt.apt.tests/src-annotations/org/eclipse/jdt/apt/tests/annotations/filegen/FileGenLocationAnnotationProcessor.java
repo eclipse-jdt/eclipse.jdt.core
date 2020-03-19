@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests.annotations.filegen;
@@ -44,7 +44,7 @@ public class FileGenLocationAnnotationProcessor extends BaseProcessor {
 			PrintWriter pwb = f.createSourceFile("B"); //$NON-NLS-1$
 			pwb.print(CODE_GEN_AT_PROJ_ROOT);
 			pwb.close();
-			
+
 		}
 		catch( IOException ioe )
 		{
@@ -52,13 +52,13 @@ public class FileGenLocationAnnotationProcessor extends BaseProcessor {
 		}
 	}
 
-	protected String CODE_GEN_IN_PKG = 
+	protected String CODE_GEN_IN_PKG =
 		"package test;" + "\n" +
 		"public class A" + "\n" +
 		"{" + "\n" +
 		"}";
 
-	protected String CODE_GEN_AT_PROJ_ROOT = 
+	protected String CODE_GEN_AT_PROJ_ROOT =
 		"public class B" + "\n" +
 		"{" + "\n" +
 		"    test.A a;" + "\n" +

@@ -296,7 +296,7 @@ class BindingResolver {
 	boolean isResolvedTypeInferredFromExpectedType(ClassInstanceCreation classInstanceCreation) {
 		return false;
 	}
-	
+
 	/**
 	 * Returns the compiler lookup environment used by this binding resolver.
 	 * Returns <code>null</code> if none.
@@ -695,7 +695,7 @@ class BindingResolver {
 	 * @param module declaration of interest
 	 * @return the binding for the given module declaration, or
 	 *    <code>null</code> if no binding is available
-	 *    
+	 *
 	 * @since 3.14
 	 */
 	IModuleBinding resolveModule(ModuleDeclaration module) {
@@ -871,7 +871,7 @@ class BindingResolver {
 	ITypeBinding resolveType(EnumDeclaration type) {
 		return null;
 	}
-	
+
 	/**
 	 * Resolves the given record declaration and returns the binding
 	 * for it.

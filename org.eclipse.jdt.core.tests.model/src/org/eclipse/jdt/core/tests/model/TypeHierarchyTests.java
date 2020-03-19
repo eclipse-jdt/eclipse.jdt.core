@@ -685,7 +685,7 @@ public void testEfficiencyMultipleProjects() throws CoreException {
 		}
 		ProgressCounter counter = new ProgressCounter();
 		type.newTypeHierarchy(counter);
-		assertTrue("Not enough cancellation checks", counter.count >= 85); 
+		assertTrue("Not enough cancellation checks", counter.count >= 85);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
@@ -2415,8 +2415,8 @@ public void testBug254738() throws CoreException {
 												getType("", 1);
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: <anonymous #1> [in nestedonemethod() [in <anonymous #1> [in parentmethod() [in Parent [in Parent.java [in abc [in src [in P]]]]]]]]\n" + 
-				"Super types:\n" + 
+				"Focus: <anonymous #1> [in nestedonemethod() [in <anonymous #1> [in parentmethod() [in Parent [in Parent.java [in abc [in src [in P]]]]]]]]\n" +
+				"Super types:\n" +
 				"Sub types:\n",
 			hierarchy);
 	} finally {
@@ -2424,7 +2424,7 @@ public void testBug254738() throws CoreException {
 	}
 }
 /**
- * @bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name 
+ * @bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name
  * @test Ensure that ".class" as a substring of a path name is not interpreted as the ".class" suffix.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=288698"
  */
@@ -2433,17 +2433,17 @@ public void testBug288698() throws JavaModelException {
 	assertTrue("Type should exist!", type.exists());
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a StringIndexOutOfBoundsException was thrown here
 	assertHierarchyEquals(
-		"Focus: AbstractBugTest [in AbstractBugTest.java [in p288698 [in src288698.classbug [in TypeHierarchy]]]]\n" + 
-		"Super types:\n" + 
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-		"Sub types:\n" + 
+		"Focus: AbstractBugTest [in AbstractBugTest.java [in p288698 [in src288698.classbug [in TypeHierarchy]]]]\n" +
+		"Super types:\n" +
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
+		"Sub types:\n" +
 		"  <anonymous #1> [in testIt() [in BugTest2Buggy [in BugTest2Buggy.java [in p288698 [in src288698.classbug [in TypeHierarchy]]]]]]\n",
 		hierarchy);
 }
 /**
  * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
  * @test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
- * 
+ *
  * @throws JavaModelException
  * @throws CoreException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
@@ -2476,9 +2476,9 @@ public void _testBug329663() throws JavaModelException, CoreException {
 		region.add(p2);
 		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
 		IType[] types = hierarchy.getRootInterfaces();
-		assertTypesEqual("Unexpected super interfaces", 
-				"java.io.Serializable\n" + 
-				"p.I\n", 
+		assertTypesEqual("Unexpected super interfaces",
+				"java.io.Serializable\n" +
+				"p.I\n",
 				types);
 	}
 	finally{
@@ -2490,7 +2490,7 @@ public void _testBug329663() throws JavaModelException, CoreException {
  * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
  * @test that when two selected regions contains interfaces with same name but different, they are reported individually
  * in the hierarchy.
- * 
+ *
  * @throws JavaModelException
  * @throws CoreException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
@@ -2526,10 +2526,10 @@ try {
 	region.add(p2);
 	ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, null);
 	IType[] types = hierarchy.getRootInterfaces();
-	assertTypesEqual("Unexpected super interfaces", 
-			"java.io.Serializable\n" + 
-			"p.I\n" + 
-			"q.I\n", 
+	assertTypesEqual("Unexpected super interfaces",
+			"java.io.Serializable\n" +
+			"p.I\n" +
+			"q.I\n",
 			types);
 }
 finally{
@@ -2545,31 +2545,31 @@ public void testBug300576() throws CoreException {
 		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
 		createFolder("/Bug300576/src/p");
 		createFile("/Bug300576/src/p/Outer.java",
-				"package p;\n" + 
-				"class Outer {\n" + 
-				"    enum A {\n" + 
+				"package p;\n" +
+				"class Outer {\n" +
+				"    enum A {\n" +
 				"        GREEN, DARK_GREEN, BLACK;\n" +
-				"        /** Javadoc of getNext() */\n" + 
-				"        A getNext() {\n" + 
-				"            switch (this) {\n" + 
-				"                case GREEN : return DARK_GREEN;\n" + 
-				"                case DARK_GREEN : return BLACK;\n" + 
-				"                case BLACK : return GREEN;\n" + 
-				"                default : return null;\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    {\n" + 
-				"        A a= A.GREEN.getNext();\n" + 
-				"    }\n" + 
+				"        /** Javadoc of getNext() */\n" +
+				"        A getNext() {\n" +
+				"            switch (this) {\n" +
+				"                case GREEN : return DARK_GREEN;\n" +
+				"                case DARK_GREEN : return BLACK;\n" +
+				"                case BLACK : return GREEN;\n" +
+				"                default : return null;\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"    {\n" +
+				"        A a= A.GREEN.getNext();\n" +
+				"    }\n" +
 				"}\n");
 		IType a = getCompilationUnit("Bug300576", "src", "p", "Outer.java").getType("Outer").getType("A");
 		IRegion region = JavaCore.newRegion();
 		region.add(getPackageFragmentRoot("Bug300576", "src"));
 		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
 		assertHierarchyEquals(
-				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" + 
-				"Super types:\n" + 
+				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" +
+				"Super types:\n" +
 				"Sub types:\n",
 				hierarchy);
 	} finally {
@@ -2589,37 +2589,37 @@ public void testBug300576b() throws CoreException {
 				"package java.lang;\n" +
 				"public class Enum {}\n");
 		createFile("/Bug300576/src/p/Outer.java",
-				"package p;\n" + 
-				"class Outer {\n" + 
-				"    enum A {\n" + 
+				"package p;\n" +
+				"class Outer {\n" +
+				"    enum A {\n" +
 				"        GREEN, DARK_GREEN, BLACK;\n" +
-				"        /** Javadoc of getNext() */\n" + 
-				"        A getNext() {\n" + 
-				"            switch (this) {\n" + 
-				"                case GREEN : return DARK_GREEN;\n" + 
-				"                case DARK_GREEN : return BLACK;\n" + 
-				"                case BLACK : return GREEN;\n" + 
-				"                default : return null;\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    {\n" + 
-				"        A a= A.GREEN.getNext();\n" + 
-				"    }\n" + 
+				"        /** Javadoc of getNext() */\n" +
+				"        A getNext() {\n" +
+				"            switch (this) {\n" +
+				"                case GREEN : return DARK_GREEN;\n" +
+				"                case DARK_GREEN : return BLACK;\n" +
+				"                case BLACK : return GREEN;\n" +
+				"                default : return null;\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"    {\n" +
+				"        A a= A.GREEN.getNext();\n" +
+				"    }\n" +
 				"}\n");
 		IType a = getCompilationUnit("Bug300576", "src", "p", "Outer.java").getType("Outer").getType("A");
 		IRegion region = JavaCore.newRegion();
 		region.add(getPackageFragmentRoot("Bug300576", "src"));
 		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
 		assertHierarchyEquals(
-				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" + 
-				"Super types:\n" + 
+				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" +
+				"Super types:\n" +
 				"Sub types:\n",
 				hierarchy);
 	} finally {
 		if (prj != null)
 			deleteProject(prj);
-	}	
+	}
 }
 //Bug 393192 -- Incomplete type hierarchy with > 10 annotations
 public void testBug393192() throws CoreException {
@@ -2628,78 +2628,78 @@ public void testBug393192() throws CoreException {
 		prj = createJavaProject("Bug393192", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
 		createFolder("/Bug393192/src/pullup");
 		createFile("/Bug393192/src/pullup/A.java",
-				"package pullup;\n" + 
-				"\n" + 
-				"class A {\n" + 
-				"    @Deprecated\n" + 
-				"    void m0() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m1() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m2() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m3() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m4() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m5() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m6() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m7() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m8() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    @Deprecated\n" + 
-				"    void m9() {\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    /**\n" + 
-				"     * @param\n" + 
-				"     */\n" + 
-				"    @Deprecated\n" + 
-				"    void m10() {\n" + 
-				"    }\n" + 
-				"}\n" + 
+				"package pullup;\n" +
+				"\n" +
+				"class A {\n" +
+				"    @Deprecated\n" +
+				"    void m0() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m1() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m2() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m3() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m4() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m5() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m6() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m7() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m8() {\n" +
+				"    }\n" +
+				"\n" +
+				"    @Deprecated\n" +
+				"    void m9() {\n" +
+				"    }\n" +
+				"\n" +
+				"    /**\n" +
+				"     * @param\n" +
+				"     */\n" +
+				"    @Deprecated\n" +
+				"    void m10() {\n" +
+				"    }\n" +
+				"}\n" +
 				"\n");
 		createFile("/Bug393192/src/pullup/package-info.java",
-				"package pullup;\n" + 
+				"package pullup;\n" +
 				"\n");
 		createFile("/Bug393192/src/pullup/PullUpBug.java",
-				"package pullup;\n" + 
-				"\n" + 
-				"class PullUpBug extends A {\n" + 
-				"\n" + 
-				"    void mb() {\n" + 
-				"        pullUp();\n" + 
-				"    }\n" + 
-				"\n" + 
-				"    // INVOKE Pull Up REFACTORING ON \"pullUp\", or type Hierarchy on A\n" + 
-				"    private void pullUp() {\n" + 
-				"    }\n" + 
+				"package pullup;\n" +
+				"\n" +
+				"class PullUpBug extends A {\n" +
+				"\n" +
+				"    void mb() {\n" +
+				"        pullUp();\n" +
+				"    }\n" +
+				"\n" +
+				"    // INVOKE Pull Up REFACTORING ON \"pullUp\", or type Hierarchy on A\n" +
+				"    private void pullUp() {\n" +
+				"    }\n" +
 				"}\n");
 		IType a = getCompilationUnit("Bug393192", "src", "pullup", "A.java").getType("A");
 		ITypeHierarchy hierarchy = a.newTypeHierarchy(new NullProgressMonitor());
 		assertHierarchyEquals(
-				"Focus: A [in A.java [in pullup [in src [in Bug393192]]]]\n" + 
-				"Super types:\n" + 
+				"Focus: A [in A.java [in pullup [in src [in Bug393192]]]]\n" +
+				"Super types:\n" +
 				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 				"Sub types:\n" +
 				"  PullUpBug [in PullUpBug.java [in pullup [in src [in Bug393192]]]]\n",
@@ -2707,7 +2707,7 @@ public void testBug393192() throws CoreException {
 	} finally {
 		if (prj != null)
 			deleteProject(prj);
-	}	
+	}
 }
 public void testBug436155() throws CoreException, IOException {
 	try {
@@ -2724,7 +2724,7 @@ public void testBug436155() throws CoreException, IOException {
 			"package p;\n"+
 			"public class Text extends I2 {}",
 		}, "1.4");
-		
+
 		createFolder("/P/src/q");
 		String source = "package q;\n" +
 				"import p.Text;\n" +
@@ -2732,7 +2732,7 @@ public void testBug436155() throws CoreException, IOException {
 				"	Text text = null;\n" +
 				"}\n";
 		createFile("/P/src/q/A.java", source);
-		
+
 		int start = source.lastIndexOf("Text");
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("P/src/q/A.java", source);
@@ -2741,11 +2741,11 @@ public void testBug436155() throws CoreException, IOException {
 		IType focus = (IType) elements[0];
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: Text [in Text.class [in p [in lib.jar [in P]]]]\n" + 
-				"Super types:\n" + 
-				"  I2 [in I2.class [in p [in lib.jar [in P]]]]\n" + 
-				"    I [in I.class [in p [in lib.jar [in P]]]]\n" + 
-				"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+				"Focus: Text [in Text.class [in p [in lib.jar [in P]]]]\n" +
+				"Super types:\n" +
+				"  I2 [in I2.class [in p [in lib.jar [in P]]]]\n" +
+				"    I [in I.class [in p [in lib.jar [in P]]]]\n" +
+				"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 				"Sub types:\n",
 			hierarchy);
 	} finally {
@@ -2765,7 +2765,7 @@ public void testBug436139() throws CoreException, IOException {
 		createFile("/Bug436139/src/p1/A.java", "package p1;\n" +"public class A<T> {}");
 		createFile("/Bug436139/src/p1/B.java", "package p1;\n" +"public class B {}");
 
-		
+
 		createFolder("/Bug436139/src/p2");
 		String source = "package p2;\n" +
 				"import p1.*;\n" +
@@ -2799,10 +2799,10 @@ public void testBug436139() throws CoreException, IOException {
 		IType focus = (IType) elements[0];
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: I [in [Working copy] I.java [in p1 [in src [in Bug436139]]]]\n" + 
-				"Super types:\n" + 
-				"Sub types:\n" + 
-				"  <anonymous #1> [in patternChanged(A<B>) [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" + 
+				"Focus: I [in [Working copy] I.java [in p1 [in src [in Bug436139]]]]\n" +
+				"Super types:\n" +
+				"Sub types:\n" +
+				"  <anonymous #1> [in patternChanged(A<B>) [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" +
 				"  <anonymous #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n" +
 				"  <lambda #1> [in someOtherMethod() [in X [in X.java [in p2 [in src [in Bug436139]]]]]]\n",
 				hierarchy);
@@ -2924,7 +2924,7 @@ public void testBug462158() throws CoreException, IOException {
 	}
 }
 public void testBug507954_0001() throws JavaModelException, CoreException {
-	IJavaProject javaProject = null; 
+	IJavaProject javaProject = null;
 	try {
 		String projectName = "507954";
 		javaProject = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
@@ -2994,7 +2994,7 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 				"}\n";
 
 		createFile(packA + "D.java", fileD);
-		
+
 		String classA = "A";
 		int start = fileA.indexOf(classA);
 		this.workingCopies = new ICompilationUnit[1];
@@ -3006,8 +3006,8 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 		ITypeHierarchy hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
 		IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
 		assertTypesEqual("Incorrect hierarchy",
-				"a.B$1\n" + 
-				"a.D$1$1\n" + 
+				"a.B$1\n" +
+				"a.D$1$1\n" +
 				"a.D$1$2\n",
 				allSubTypes,
 				true);
@@ -3019,8 +3019,8 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 
 public void testBug533949() throws CoreException {
 	if (!isJRE9) return;
-	IJavaProject javaProject1 = null; 
-	IJavaProject javaProject2 = null; 
+	IJavaProject javaProject1 = null;
+	IJavaProject javaProject2 = null;
 	try {
 		javaProject1 = createJava9Project("mod1");
 		String packA = "/mod1/src/a/";
@@ -3033,7 +3033,7 @@ public void testBug533949() throws CoreException {
 				"module mod1 {\n" +
 				"	exports a;\n"+
 				"}\n");
-		
+
 		javaProject2 = createJava9Project("mod2");
 		addClasspathEntry(javaProject2, JavaCore.newProjectEntry(javaProject1.getPath()));
 		String packB = "/mod2/src/b/";
@@ -3046,7 +3046,7 @@ public void testBug533949() throws CoreException {
 				"module mod2 {\n" +
 				"	requires mod1;\n"+
 				"}\n");
-		
+
 		waitUntilIndexesReady();
 
 		this.workingCopies = new ICompilationUnit[1];
@@ -3060,7 +3060,7 @@ public void testBug533949() throws CoreException {
 				"java.lang.Object\n",
 				allSuperTypes,
 				true);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(packA + "A.java", true);
 
@@ -3112,7 +3112,7 @@ public void testBug425111() throws Exception {
 	try {
 		javaProject1 = createJavaProject("P1", new String[] {"src"}, new String[] {"JCL18_FULL", "/P1/lib.jar"},"bin", "1.8");
 
-		createLibrary(javaProject1, "lib.jar", "lib-src.zip", 
+		createLibrary(javaProject1, "lib.jar", "lib-src.zip",
 				new String[] {
 						"javax/tools/JavaFileManager.java",
 						"package javax.tools;\n" +
@@ -3140,121 +3140,121 @@ public void testBug425111() throws Exception {
         ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
         IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
         assertTypesEqual("Incorrect sub hierarchy",
-        		"java.io.BufferedInputStream\n" + 
-        				"java.io.BufferedOutputStream\n" + 
-        				"java.io.BufferedReader\n" + 
-        				"java.io.BufferedWriter\n" + 
-        				"java.io.ByteArrayInputStream\n" + 
-        				"java.io.ByteArrayOutputStream\n" + 
-        				"java.io.CharArrayReader\n" + 
-        				"java.io.CharArrayWriter\n" + 
-        				"java.io.Closeable\n" + 
-        				"java.io.DataInputStream\n" + 
-        				"java.io.DataOutputStream\n" + 
-        				"java.io.FileInputStream\n" + 
-        				"java.io.FileOutputStream\n" + 
-        				"java.io.FileReader\n" + 
-        				"java.io.FileWriter\n" + 
-        				"java.io.FilterInputStream\n" + 
-        				"java.io.FilterOutputStream\n" + 
-        				"java.io.FilterReader\n" + 
-        				"java.io.FilterWriter\n" + 
-        				"java.io.InputStream\n" + 
-        				"java.io.InputStreamReader\n" + 
-        				"java.io.LineNumberInputStream\n" + 
-        				"java.io.LineNumberReader\n" + 
-        				"java.io.ObjectInput\n" + 
-        				"java.io.ObjectInputStream\n" + 
-        				"java.io.ObjectOutput\n" + 
-        				"java.io.ObjectOutputStream\n" + 
-        				"java.io.OutputStream\n" + 
-        				"java.io.OutputStreamWriter\n" + 
-        				"java.io.PipedInputStream\n" + 
-        				"java.io.PipedOutputStream\n" + 
-        				"java.io.PipedReader\n" + 
-        				"java.io.PipedWriter\n" + 
-        				"java.io.PrintStream\n" + 
-        				"java.io.PrintWriter\n" + 
-        				"java.io.PushbackInputStream\n" + 
-        				"java.io.PushbackReader\n" + 
-        				"java.io.RandomAccessFile\n" + 
-        				"java.io.Reader\n" + 
-        				"java.io.SequenceInputStream\n" + 
-        				"java.io.StringBufferInputStream\n" + 
-        				"java.io.StringReader\n" + 
-        				"java.io.StringWriter\n" + 
-        				"java.io.Writer\n" + 
-        				"java.net.DatagramSocket\n" + 
-        				"java.net.FactoryURLClassLoader\n" + 
-        				"java.net.MulticastSocket\n" + 
-        				"java.net.ServerSocket\n" + 
-        				"java.net.Socket\n" + 
-        				"java.net.SocketInputStream\n" + 
-        				"java.net.SocketOutputStream\n" + 
-        				"java.net.URLClassLoader\n" + 
-        				"java.nio.channels.AsynchronousByteChannel\n" + 
-        				"java.nio.channels.AsynchronousChannel\n" + 
-        				"java.nio.channels.AsynchronousFileChannel\n" + 
-        				"java.nio.channels.AsynchronousServerSocketChannel\n" + 
-        				"java.nio.channels.AsynchronousSocketChannel\n" + 
-        				"java.nio.channels.ByteChannel\n" + 
-        				"java.nio.channels.Channel\n" + 
-        				"java.nio.channels.DatagramChannel\n" + 
-        				"java.nio.channels.FileChannel\n" + 
-        				"java.nio.channels.FileLock\n" + 
-        				"java.nio.channels.GatheringByteChannel\n" + 
-        				"java.nio.channels.InterruptibleChannel\n" + 
-        				"java.nio.channels.MulticastChannel\n" + 
-        				"java.nio.channels.NetworkChannel\n" + 
-        				"java.nio.channels.Pipe$SinkChannel\n" + 
-        				"java.nio.channels.Pipe$SourceChannel\n" + 
-        				"java.nio.channels.ReadableByteChannel\n" + 
-        				"java.nio.channels.ScatteringByteChannel\n" + 
-        				"java.nio.channels.SeekableByteChannel\n" + 
-        				"java.nio.channels.SelectableChannel\n" + 
-        				"java.nio.channels.Selector\n" + 
-        				"java.nio.channels.ServerSocketChannel\n" + 
-        				"java.nio.channels.SocketChannel\n" + 
-        				"java.nio.channels.WritableByteChannel\n" + 
-        				"java.nio.channels.spi.AbstractInterruptibleChannel\n" + 
-        				"java.nio.channels.spi.AbstractSelectableChannel\n" + 
-        				"java.nio.channels.spi.AbstractSelector\n" + 
-        				"java.nio.file.WatchService\n" + 
-        				"java.security.DigestInputStream\n" + 
-        				"java.security.DigestOutputStream\n" + 
-        				"java.sql.CallableStatement\n" + 
-        				"java.sql.Connection\n" + 
-        				"java.sql.PreparedStatement\n" + 
-        				"java.sql.ResultSet\n" + 
-        				"java.sql.Statement\n" + 
-        				"java.util.Formatter\n" + 
-        				"java.util.Scanner\n" + 
-        				"java.util.jar.JarFile\n" + 
-        				"java.util.jar.JarInputStream\n" + 
-        				"java.util.jar.JarOutputStream\n" + 
-        				"java.util.stream.AbstractPipeline\n" + 
-        				"java.util.stream.BaseStream\n" + 
-        				"java.util.stream.DoublePipeline\n" + 
-        				"java.util.stream.DoubleStream\n" + 
-        				"java.util.stream.IntPipeline\n" + 
-        				"java.util.stream.IntStream\n" + 
-        				"java.util.stream.LongPipeline\n" + 
-        				"java.util.stream.LongStream\n" + 
-        				"java.util.stream.ReferencePipeline\n" + 
-        				"java.util.stream.Stream\n" + 
-        				"java.util.zip.CheckedInputStream\n" + 
-        				"java.util.zip.CheckedOutputStream\n" + 
-        				"java.util.zip.DeflaterInputStream\n" + 
-        				"java.util.zip.DeflaterOutputStream\n" + 
-        				"java.util.zip.GZIPInputStream\n" + 
-        				"java.util.zip.GZIPOutputStream\n" + 
-        				"java.util.zip.InflaterInputStream\n" + 
-        				"java.util.zip.InflaterOutputStream\n" + 
-        				"java.util.zip.ZipFile\n" + 
-        				"java.util.zip.ZipInputStream\n" + 
-        				"java.util.zip.ZipOutputStream\n" + 
-        				"javax.tools.ForwardingJavaFileManager\n" + 
-        				"javax.tools.JavaFileManager\n" + 
+        		"java.io.BufferedInputStream\n" +
+        				"java.io.BufferedOutputStream\n" +
+        				"java.io.BufferedReader\n" +
+        				"java.io.BufferedWriter\n" +
+        				"java.io.ByteArrayInputStream\n" +
+        				"java.io.ByteArrayOutputStream\n" +
+        				"java.io.CharArrayReader\n" +
+        				"java.io.CharArrayWriter\n" +
+        				"java.io.Closeable\n" +
+        				"java.io.DataInputStream\n" +
+        				"java.io.DataOutputStream\n" +
+        				"java.io.FileInputStream\n" +
+        				"java.io.FileOutputStream\n" +
+        				"java.io.FileReader\n" +
+        				"java.io.FileWriter\n" +
+        				"java.io.FilterInputStream\n" +
+        				"java.io.FilterOutputStream\n" +
+        				"java.io.FilterReader\n" +
+        				"java.io.FilterWriter\n" +
+        				"java.io.InputStream\n" +
+        				"java.io.InputStreamReader\n" +
+        				"java.io.LineNumberInputStream\n" +
+        				"java.io.LineNumberReader\n" +
+        				"java.io.ObjectInput\n" +
+        				"java.io.ObjectInputStream\n" +
+        				"java.io.ObjectOutput\n" +
+        				"java.io.ObjectOutputStream\n" +
+        				"java.io.OutputStream\n" +
+        				"java.io.OutputStreamWriter\n" +
+        				"java.io.PipedInputStream\n" +
+        				"java.io.PipedOutputStream\n" +
+        				"java.io.PipedReader\n" +
+        				"java.io.PipedWriter\n" +
+        				"java.io.PrintStream\n" +
+        				"java.io.PrintWriter\n" +
+        				"java.io.PushbackInputStream\n" +
+        				"java.io.PushbackReader\n" +
+        				"java.io.RandomAccessFile\n" +
+        				"java.io.Reader\n" +
+        				"java.io.SequenceInputStream\n" +
+        				"java.io.StringBufferInputStream\n" +
+        				"java.io.StringReader\n" +
+        				"java.io.StringWriter\n" +
+        				"java.io.Writer\n" +
+        				"java.net.DatagramSocket\n" +
+        				"java.net.FactoryURLClassLoader\n" +
+        				"java.net.MulticastSocket\n" +
+        				"java.net.ServerSocket\n" +
+        				"java.net.Socket\n" +
+        				"java.net.SocketInputStream\n" +
+        				"java.net.SocketOutputStream\n" +
+        				"java.net.URLClassLoader\n" +
+        				"java.nio.channels.AsynchronousByteChannel\n" +
+        				"java.nio.channels.AsynchronousChannel\n" +
+        				"java.nio.channels.AsynchronousFileChannel\n" +
+        				"java.nio.channels.AsynchronousServerSocketChannel\n" +
+        				"java.nio.channels.AsynchronousSocketChannel\n" +
+        				"java.nio.channels.ByteChannel\n" +
+        				"java.nio.channels.Channel\n" +
+        				"java.nio.channels.DatagramChannel\n" +
+        				"java.nio.channels.FileChannel\n" +
+        				"java.nio.channels.FileLock\n" +
+        				"java.nio.channels.GatheringByteChannel\n" +
+        				"java.nio.channels.InterruptibleChannel\n" +
+        				"java.nio.channels.MulticastChannel\n" +
+        				"java.nio.channels.NetworkChannel\n" +
+        				"java.nio.channels.Pipe$SinkChannel\n" +
+        				"java.nio.channels.Pipe$SourceChannel\n" +
+        				"java.nio.channels.ReadableByteChannel\n" +
+        				"java.nio.channels.ScatteringByteChannel\n" +
+        				"java.nio.channels.SeekableByteChannel\n" +
+        				"java.nio.channels.SelectableChannel\n" +
+        				"java.nio.channels.Selector\n" +
+        				"java.nio.channels.ServerSocketChannel\n" +
+        				"java.nio.channels.SocketChannel\n" +
+        				"java.nio.channels.WritableByteChannel\n" +
+        				"java.nio.channels.spi.AbstractInterruptibleChannel\n" +
+        				"java.nio.channels.spi.AbstractSelectableChannel\n" +
+        				"java.nio.channels.spi.AbstractSelector\n" +
+        				"java.nio.file.WatchService\n" +
+        				"java.security.DigestInputStream\n" +
+        				"java.security.DigestOutputStream\n" +
+        				"java.sql.CallableStatement\n" +
+        				"java.sql.Connection\n" +
+        				"java.sql.PreparedStatement\n" +
+        				"java.sql.ResultSet\n" +
+        				"java.sql.Statement\n" +
+        				"java.util.Formatter\n" +
+        				"java.util.Scanner\n" +
+        				"java.util.jar.JarFile\n" +
+        				"java.util.jar.JarInputStream\n" +
+        				"java.util.jar.JarOutputStream\n" +
+        				"java.util.stream.AbstractPipeline\n" +
+        				"java.util.stream.BaseStream\n" +
+        				"java.util.stream.DoublePipeline\n" +
+        				"java.util.stream.DoubleStream\n" +
+        				"java.util.stream.IntPipeline\n" +
+        				"java.util.stream.IntStream\n" +
+        				"java.util.stream.LongPipeline\n" +
+        				"java.util.stream.LongStream\n" +
+        				"java.util.stream.ReferencePipeline\n" +
+        				"java.util.stream.Stream\n" +
+        				"java.util.zip.CheckedInputStream\n" +
+        				"java.util.zip.CheckedOutputStream\n" +
+        				"java.util.zip.DeflaterInputStream\n" +
+        				"java.util.zip.DeflaterOutputStream\n" +
+        				"java.util.zip.GZIPInputStream\n" +
+        				"java.util.zip.GZIPOutputStream\n" +
+        				"java.util.zip.InflaterInputStream\n" +
+        				"java.util.zip.InflaterOutputStream\n" +
+        				"java.util.zip.ZipFile\n" +
+        				"java.util.zip.ZipInputStream\n" +
+        				"java.util.zip.ZipOutputStream\n" +
+        				"javax.tools.ForwardingJavaFileManager\n" +
+        				"javax.tools.JavaFileManager\n" +
         				"p1.T$1\n",
                         allSubTypes,
                         true);
@@ -3280,22 +3280,22 @@ public void testBug559210() throws CoreException {
 			"/P/src/p/ReferenceInputStream.java",
 			"pakage p;\n" +
 			"public class ReferenceInputStream extends java.io.InputStream {\n" +
-			"	private final File reference;\n" + 
-			"\n" + 
-			"	public ReferenceInputStream(File reference) {\n" + 
-			"		this.reference = reference;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/* This method should not be called.\n" + 
-			"	 */\n" + 
-			"	@Override\n" + 
-			"	public int read() throws IOException {\n" + 
-			"		throw new IOException();\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public File getReference() {\n" + 
-			"		return reference;\n" + 
-			"	}\n" + 
+			"	private final File reference;\n" +
+			"\n" +
+			"	public ReferenceInputStream(File reference) {\n" +
+			"		this.reference = reference;\n" +
+			"	}\n" +
+			"\n" +
+			"	/* This method should not be called.\n" +
+			"	 */\n" +
+			"	@Override\n" +
+			"	public int read() throws IOException {\n" +
+			"		throw new IOException();\n" +
+			"	}\n" +
+			"\n" +
+			"	public File getReference() {\n" +
+			"		return reference;\n" +
+			"	}\n" +
 			"}"
 		);
 		createFile(
@@ -3303,17 +3303,17 @@ public void testBug559210() throws CoreException {
 			"pakage p;\n" +
 			"import p.ReferenceInputStream;\n" +
 			"public class Storage {\n" +
-			"\n" + 
-			"	public ReferenceInputStream stream;\n" + 
+			"\n" +
+			"	public ReferenceInputStream stream;\n" +
 			"}"
 		);
 		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
 		ITypeHierarchy hierarchy = getCompilationUnit("/P/src/p/Storage.java").getTypes()[0].newSupertypeHierarchy(null);
 		assertHierarchyEquals(
-			"Focus: Storage [in Storage.java [in p [in src [in P]]]]\n" + 
-			"Super types:\n" + 
-			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"Focus: Storage [in Storage.java [in p [in src [in P]]]]\n" +
+			"Super types:\n" +
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 			"Sub types:\n",
 			hierarchy);
 	} finally {

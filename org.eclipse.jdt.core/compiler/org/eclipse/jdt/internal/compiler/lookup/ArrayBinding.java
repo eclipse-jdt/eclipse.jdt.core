@@ -55,7 +55,7 @@ public final class ArrayBinding extends TypeBinding {
 	// possible bits are TagBits.AnnotationNonNull and TagBits.AnnotationNullable
 	// (only ever set when CompilerOptions.isAnnotationBasedNullAnalysisEnabled == true):
 	public long[] nullTagBitsPerDimension;
-	
+
 	private MethodBinding clone;
 
 public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment) {
@@ -200,13 +200,13 @@ public int dimensions() {
 */
 
 public TypeBinding elementsType() {
-	
-	if (this.dimensions == 1) 
+
+	if (this.dimensions == 1)
 		return this.leafComponentType;
-	
+
 	AnnotationBinding [] oldies = getTypeAnnotations();
 	AnnotationBinding [] newbies = Binding.NO_ANNOTATIONS;
-	
+
 	for (int i = 0, length = oldies == null ? 0 : oldies.length; i < length; i++) {
 		if (oldies[i] == null) {
 			System.arraycopy(oldies, i+1, newbies = new AnnotationBinding[length - i - 1], 0, length - i - 1);
@@ -388,8 +388,8 @@ public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNa
 				fqAnnotationName = options.nonNullAnnotationName;
 			else
 				fqAnnotationName = options.nullableAnnotationName;
-			char[] annotationName = shortNames 
-										? fqAnnotationName[fqAnnotationName.length-1] 
+			char[] annotationName = shortNames
+										? fqAnnotationName[fqAnnotationName.length-1]
 										: CharOperation.concatWith(fqAnnotationName, '.');
 			brackets[i] = new char[annotationName.length+3];
 			brackets[i][0] = '@';
@@ -397,10 +397,10 @@ public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNa
 			brackets[i][annotationName.length+1] = '[';
 			brackets[i][annotationName.length+2] = ']';
 		} else {
-			brackets[i] = new char[]{'[', ']'}; 
+			brackets[i] = new char[]{'[', ']'};
 		}
 	}
-	return CharOperation.concat(this.leafComponentType.nullAnnotatedReadableName(options, shortNames), 
+	return CharOperation.concat(this.leafComponentType.nullAnnotatedReadableName(options, shortNames),
 								 CharOperation.concatWith(brackets, ' '),
 								 ' ');
 }
@@ -439,12 +439,12 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 	if (annotations == null || annotations.length == 0)
 		return;
 	this.typeAnnotations = annotations;
-	
+
 	if (evalNullAnnotations) {
 		long nullTagBits = 0;
 		if (this.nullTagBitsPerDimension == null)
 			this.nullTagBitsPerDimension = new long[this.dimensions + 1];
-		
+
 		int dimension = 0;
 		for (int i = 0, length = annotations.length; i < length; i++) {
 			AnnotationBinding annotation = annotations[i];
@@ -493,15 +493,15 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 		/* Leaf component type is the key in the type system. If it undergoes change, the array has to be rehashed.
 		   We achieve by creating a fresh array with the new component type and equating this array's id with that.
 		   This means this array can still be found under the old key, but that is harmless (since the component type
-		   is always consulted (see TypeSystem.getArrayType()). 
-		   
-		   This also means that this array type is not a fully interned singleton: There is `this' object and there is 
-		   the array that is being created down below that gets cached by the type system and doled out for all further 
-		   array creations against the same (raw) component type, dimensions and annotations. This again is harmless, 
-		   since TypeBinding.id is consulted for (in)equality checks. 
-		   
+		   is always consulted (see TypeSystem.getArrayType()).
+
+		   This also means that this array type is not a fully interned singleton: There is `this' object and there is
+		   the array that is being created down below that gets cached by the type system and doled out for all further
+		   array creations against the same (raw) component type, dimensions and annotations. This again is harmless,
+		   since TypeBinding.id is consulted for (in)equality checks.
+
 		   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=430425 for details and a test case.
-		*/ 
+		*/
 		if (this.leafComponentType != resolvedType) //$IDENTITY-COMPARISON$
 			this.id = env.createArrayType(this.leafComponentType, this.dimensions, this.typeAnnotations).id;
 		this.tagBits |= this.leafComponentType.tagBits & (TagBits.HasTypeVariable | TagBits.HasDirectWildcard | TagBits.HasMissingType | TagBits.HasCapturedWildcard);
@@ -536,7 +536,7 @@ public boolean acceptsNonNullDefault() {
 @Override
 public long updateTagBits() {
 	if (this.leafComponentType != null)
-		this.tagBits |= this.leafComponentType.updateTagBits(); 
+		this.tagBits |= this.leafComponentType.updateTagBits();
 	return super.updateTagBits();
 }
 

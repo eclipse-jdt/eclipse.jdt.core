@@ -32,9 +32,9 @@ import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public class ASTBasedAnnotationElementDeclarationImpl 
+public class ASTBasedAnnotationElementDeclarationImpl
 	extends ASTBasedMethodDeclarationImpl implements AnnotationTypeElementDeclaration{
-	
+
 	public ASTBasedAnnotationElementDeclarationImpl(
 			final AnnotationTypeMemberDeclaration astNode,
 			final IFile file,
@@ -62,7 +62,7 @@ public class ASTBasedAnnotationElementDeclarationImpl
 	 */
 	@Override
 	public AnnotationValue getDefaultValue() {
-		
+
 		final AnnotationTypeMemberDeclaration decl = getMemberAstNode();
 		if (decl != null){
 			final Expression defaultExpr = decl.getDefault();
@@ -80,18 +80,18 @@ public class ASTBasedAnnotationElementDeclarationImpl
 
 		return null;
 	}
-	
+
 	@Override
 	public boolean isVarArgs(){ return false; }
 
     @Override
 	public String getSimpleName()
     {
-    	final AnnotationTypeMemberDeclaration memberAstNode = getMemberAstNode(); 
+    	final AnnotationTypeMemberDeclaration memberAstNode = getMemberAstNode();
     	final SimpleName nameNode = memberAstNode.getName();
     	return nameNode == null ? EMPTY_STRING : nameNode.getIdentifier();
-    }  
-    
+    }
+
     @Override
 	public TypeMirror getReturnType()
     {
@@ -112,7 +112,7 @@ public class ASTBasedAnnotationElementDeclarationImpl
             return type;
         }
     }
-	
+
 	@Override
 	public String toString()
     {
@@ -137,8 +137,8 @@ public class ASTBasedAnnotationElementDeclarationImpl
 	public MirrorKind kind() {
 		return MirrorKind.ANNOTATION_ELEMENT;
 	}
-	
-	private AnnotationTypeMemberDeclaration getMemberAstNode(){ 
-		return (AnnotationTypeMemberDeclaration)_astNode; 
+
+	private AnnotationTypeMemberDeclaration getMemberAstNode(){
+		return (AnnotationTypeMemberDeclaration)_astNode;
 	}
 }

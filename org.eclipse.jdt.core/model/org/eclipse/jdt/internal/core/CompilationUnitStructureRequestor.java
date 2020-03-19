@@ -55,7 +55,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter implements ISourceElementRequestor {
-	
+
 	/**
 	 * The handle to the compilation unit being parsed
 	 */
@@ -375,7 +375,7 @@ public void enterInitializer(int declarationSourceStart, int modifiers) {
 		Assert.isTrue(false); // Should not happen
 	}
 	resolveDuplicates(handle);
-	
+
 	addToChildren(parentInfo, handle);
 
 	this.infoStack.push(new int[] {declarationSourceStart, modifiers});
@@ -412,7 +412,7 @@ public void enterMethod(MethodInfo methodInfo) {
 
 	this.infoStack.push(methodInfo);
 	this.handleStack.push(handle);
-	
+
 	addToChildren(parentInfo, handle);
 	parentInfo.childrenCategories.put(handle, methodInfo.categories);
 }
@@ -479,7 +479,7 @@ private LocalVariable[] acceptMethodParameters(Argument[] arguments, JavaElement
 		localVarInfo.setSourceRangeEnd(argument.declarationSourceStart);
 		localVarInfo.setNameSourceStart(argument.sourceStart);
 		localVarInfo.setNameSourceEnd(argument.sourceEnd);
-		
+
 		String paramTypeSig = JavaModelManager.getJavaModelManager().intern(Signature.createTypeSignature(methodInfo.parameterTypes[i], false));
 		result[i] = new LocalVariable(
 				methodHandle,
@@ -490,7 +490,7 @@ private LocalVariable[] acceptMethodParameters(Argument[] arguments, JavaElement
 				argument.sourceEnd,
 				paramTypeSig,
 				argument.annotations,
-				argument.modifiers, 
+				argument.modifiers,
 				true);
 		this.newElements.put(result[i], localVarInfo);
 		this.infoStack.push(localVarInfo);
@@ -513,7 +513,7 @@ public void enterModule(ModuleInfo info) {
 	Object parentInfo = this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	JavaElement handle = createModuleHandle(parentHandle, info);
-	
+
 	this.infoStack.push(info);
 	this.handleStack.push(handle);
 
@@ -601,7 +601,7 @@ private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handl
 			Map.Entry entry = (Map.Entry) iterator.next();
 			info.addCategories((IJavaElement) entry.getKey(), (char[][]) entry.getValue());
 		}
-		
+
 	}
 	if (typeInfo.typeAnnotated) {
 		this.unitInfo.annotationNumber = CompilationUnitElementInfo.ANNOTATION_THRESHOLD_FOR_DIET_PARSE;
@@ -691,7 +691,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 	info.setSourceRangeEnd(declarationSourceEnd);
 	this.handleStack.pop();
 	this.infoStack.pop();
-	
+
 	// remember initializer source if field is a constant
 	if (initializationStart != -1) {
 		int flags = info.flags;
@@ -719,14 +719,14 @@ public void exitInitializer(int declarationEnd) {
 	JavaElement handle = (JavaElement) this.handleStack.peek();
 	int[] initializerInfo = (int[]) this.infoStack.peek();
 	IJavaElement[] elements = getChildren(initializerInfo);
-	
+
 	InitializerElementInfo info = elements.length == 0 ? new InitializerElementInfo() : new InitializerWithChildrenInfo(elements);
 	info.setSourceRangeStart(initializerInfo[0]);
 	info.setFlags(initializerInfo[1]);
 	info.setSourceRangeEnd(declarationEnd);
 
 	this.newElements.put(handle, info);
-	
+
 	this.handleStack.pop();
 	this.infoStack.pop();
 }
@@ -737,10 +737,10 @@ public void exitInitializer(int declarationEnd) {
 public void exitMethod(int declarationEnd, Expression defaultValue) {
 	SourceMethod handle = (SourceMethod) this.handleStack.peek();
 	MethodInfo methodInfo = (MethodInfo) this.infoStack.peek();
-	
+
 	SourceMethodElementInfo info = createMethodInfo(methodInfo, handle);
 	info.setSourceRangeEnd(declarationEnd);
-	
+
 	// remember default value of annotation method
 	if (info.isAnnotationMethod() && defaultValue != null) {
 		SourceAnnotationMethodInfo annotationMethodInfo = (SourceAnnotationMethodInfo) info;
@@ -751,7 +751,7 @@ public void exitMethod(int declarationEnd, Expression defaultValue) {
 		defaultMemberValuePair.value = getMemberValue(defaultMemberValuePair, defaultValue);
 		annotationMethodInfo.defaultValue = defaultMemberValuePair;
 	}
-	
+
 	this.handleStack.pop();
 	this.infoStack.pop();
 }

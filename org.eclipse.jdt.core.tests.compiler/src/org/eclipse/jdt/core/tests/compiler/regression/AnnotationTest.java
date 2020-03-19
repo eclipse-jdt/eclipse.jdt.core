@@ -14,7 +14,7 @@
  *								bug 295551 - Add option to automatically promote all warnings to error
  *								bug 185682 - Increment/decrement operators mark local variables as read
  *								bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
- *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2) 
+ *								bug 384663 - Package Based Annotation Compilation Error in JDT 3.8/4.2 (works in 3.7.2)
  *								bug 386356 - Type mismatch error with annotations and generics
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 376590 - Private fields with @Inject are ignored by unused field validation
@@ -367,12 +367,12 @@ public class AnnotationTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	@Foo @Foo\n" +
 			"	^^^^\n" +
-			this.repeatableIntroText + "@Foo"+ this.repeatableTrailerText + 
+			this.repeatableIntroText + "@Foo"+ this.repeatableTrailerText +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	@Foo @Foo\n" +
 			"	     ^^^^\n" +
-			this.repeatableIntroText + "@Foo"+ this.repeatableTrailerText + 
+			this.repeatableIntroText + "@Foo"+ this.repeatableTrailerText +
 			"----------\n");
 	}
 
@@ -1083,16 +1083,16 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	synchronized String id() default \"zero\";\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	strictfp double val() default 0.1;\n" + 
-			"	                ^^^^^\n" + 
-			"Illegal modifier for the annotation attribute X.val; only public & abstract are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	synchronized String id() default \"zero\";\n" + 
-			"	                    ^^^^\n" + 
-			"Illegal modifier for the annotation attribute X.id; only public & abstract are permitted\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	strictfp double val() default 0.1;\n" +
+			"	                ^^^^^\n" +
+			"Illegal modifier for the annotation attribute X.val; only public & abstract are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	synchronized String id() default \"zero\";\n" +
+			"	                    ^^^^\n" +
+			"Illegal modifier for the annotation attribute X.id; only public & abstract are permitted\n" +
 			"----------\n");
 	}
 
@@ -3386,51 +3386,51 @@ public class AnnotationTest extends AbstractComparableTest {
     			CompilerOptions.DISABLED);
 
     	String expectedOutput =
-    		"----------\n" + 
-    		"1. WARNING in X.java (at line 8)\n" + 
-    		"	interface Iface extends Ann {\n" + 
-    		"	                        ^^^\n" + 
-    		"The annotation type Ann should not be used as a superinterface for Iface\n" + 
-    		"----------\n" + 
-    		"2. WARNING in X.java (at line 11)\n" + 
-    		"	abstract class Klass implements Ann {\n" + 
-    		"	                                ^^^\n" + 
-    		"The annotation type Ann should not be used as a superinterface for Klass\n" + 
-    		"----------\n" + 
-    		"3. ERROR in X.java (at line 14)\n" + 
-    		"	class SubKlass extends Klass {\n" + 
-    		"	      ^^^^^^^^\n" + 
-    		"The type SubKlass must implement the inherited abstract method Ann.foo()\n" + 
-    		"----------\n" + 
-    		"4. WARNING in X.java (at line 20)\n" + 
-    		"	class AnnImpl implements Ann {\n" + 
-    		"	                         ^^^\n" + 
-    		"The annotation type Ann should not be used as a superinterface for AnnImpl\n" + 
-    		"----------\n" + 
-    		"5. ERROR in X.java (at line 21)\n" + 
-    		"	public boolean equals(Object obj) { return false; }\n" + 
-    		"	               ^^^^^^^^^^^^^^^^^^\n" + 
-    		"The method equals(Object) of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-    		"----------\n" + 
-    		"6. ERROR in X.java (at line 22)\n" + 
-    		"	public int hashCode() { return 0; }\n" + 
-    		"	           ^^^^^^^^^^\n" + 
-    		"The method hashCode() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-    		"----------\n" + 
-    		"7. ERROR in X.java (at line 23)\n" + 
-    		"	public String toString() { return null; }\n" + 
-    		"	              ^^^^^^^^^^\n" + 
-    		"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" + 
-    		"----------\n" + 
-    		"8. WARNING in X.java (at line 30)\n" + 
-    		"	Class c = SubKlass.class;\n" + 
-    		"	^^^^^\n" + 
-    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-    		"----------\n" + 
-    		"9. WARNING in X.java (at line 41)\n" + 
-    		"	Class[] i = c.getInterfaces();\n" + 
-    		"	^^^^^\n" + 
-    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+    		"----------\n" +
+    		"1. WARNING in X.java (at line 8)\n" +
+    		"	interface Iface extends Ann {\n" +
+    		"	                        ^^^\n" +
+    		"The annotation type Ann should not be used as a superinterface for Iface\n" +
+    		"----------\n" +
+    		"2. WARNING in X.java (at line 11)\n" +
+    		"	abstract class Klass implements Ann {\n" +
+    		"	                                ^^^\n" +
+    		"The annotation type Ann should not be used as a superinterface for Klass\n" +
+    		"----------\n" +
+    		"3. ERROR in X.java (at line 14)\n" +
+    		"	class SubKlass extends Klass {\n" +
+    		"	      ^^^^^^^^\n" +
+    		"The type SubKlass must implement the inherited abstract method Ann.foo()\n" +
+    		"----------\n" +
+    		"4. WARNING in X.java (at line 20)\n" +
+    		"	class AnnImpl implements Ann {\n" +
+    		"	                         ^^^\n" +
+    		"The annotation type Ann should not be used as a superinterface for AnnImpl\n" +
+    		"----------\n" +
+    		"5. ERROR in X.java (at line 21)\n" +
+    		"	public boolean equals(Object obj) { return false; }\n" +
+    		"	               ^^^^^^^^^^^^^^^^^^\n" +
+    		"The method equals(Object) of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" +
+    		"----------\n" +
+    		"6. ERROR in X.java (at line 22)\n" +
+    		"	public int hashCode() { return 0; }\n" +
+    		"	           ^^^^^^^^^^\n" +
+    		"The method hashCode() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" +
+    		"----------\n" +
+    		"7. ERROR in X.java (at line 23)\n" +
+    		"	public String toString() { return null; }\n" +
+    		"	              ^^^^^^^^^^\n" +
+    		"The method toString() of type AnnImpl should be tagged with @Override since it actually overrides a superclass method\n" +
+    		"----------\n" +
+    		"8. WARNING in X.java (at line 30)\n" +
+    		"	Class c = SubKlass.class;\n" +
+    		"	^^^^^\n" +
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+    		"----------\n" +
+    		"9. WARNING in X.java (at line 41)\n" +
+    		"	Class[] i = c.getInterfaces();\n" +
+    		"	^^^^^\n" +
+    		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
     		"----------\n";
 
 		this.runNegativeTest(
@@ -4263,16 +4263,16 @@ public class AnnotationTest extends AbstractComparableTest {
     			"	}\n" +
     			"}"
             },
-    		"----------\n" + 
-    		"1. ERROR in X.java (at line 2)\n" + 
-    		"	import java.util.List;\n" + 
-    		"	^^^^^^\n" + 
-    		"Syntax error on token \"import\", package expected\n" + 
-    		"----------\n" + 
-    		"2. ERROR in X.java (at line 10)\n" + 
-    		"	Zork z;\n" + 
-    		"	^^^^\n" + 
-    		"Zork cannot be resolved to a type\n" + 
+    		"----------\n" +
+    		"1. ERROR in X.java (at line 2)\n" +
+    		"	import java.util.List;\n" +
+    		"	^^^^^^\n" +
+    		"Syntax error on token \"import\", package expected\n" +
+    		"----------\n" +
+    		"2. ERROR in X.java (at line 10)\n" +
+    		"	Zork z;\n" +
+    		"	^^^^\n" +
+    		"Zork cannot be resolved to a type\n" +
     		"----------\n");
     }
     // check @SuppressWarning support
@@ -4613,21 +4613,21 @@ public void test142c() {
         },
         null,
         raiseDeprecationReduceInvalidJavadocSeverity,
-        "----------\n" + 
-		"1. WARNING in X.java (at line 1)\n" + 
-		"	@SuppressWarnings(\"deprecation\")\n" + 
-		"	                  ^^^^^^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"deprecation\")\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	public class X extends p.OldStuff {\n" + 
-		"	                         ^^^^^^^^\n" + 
-		"The type OldStuff is deprecated\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 8)\n" + 
-		"	super.foo();\n" + 
-		"	      ^^^^^\n" + 
-		"The method foo() from the type OldStuff is deprecated\n" + 
+        "----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	@SuppressWarnings(\"deprecation\")\n" +
+		"	                  ^^^^^^^^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"deprecation\")\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	public class X extends p.OldStuff {\n" +
+		"	                         ^^^^^^^^\n" +
+		"The type OldStuff is deprecated\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
+		"	super.foo();\n" +
+		"	      ^^^^^\n" +
+		"The method foo() from the type OldStuff is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -5059,11 +5059,11 @@ public void test143() {
     			"class BX extends AX {}\n"
             };
         runner.expectedCompilerLog =
-        		"----------\n" + 
-        		"1. WARNING in X.java (at line 6)\n" + 
-        		"	} catch(AX e) {\n" + 
-        		"	        ^^\n" + 
-        		"Unreachable catch block for AX. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" + 
+        		"----------\n" +
+        		"1. WARNING in X.java (at line 6)\n" +
+        		"	} catch(AX e) {\n" +
+        		"	        ^^\n" +
+        		"Unreachable catch block for AX. Only more specific exceptions are thrown and they are handled by previous catch block(s).\n" +
         		"----------\n";
         runner.runWarningTest();
     }
@@ -8187,16 +8187,16 @@ public void test245() {
 				"}	\n",
 		},
 		null, options,
-		"----------\n" + 
-		"1. INFO in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
-		"	                   ^^^^^^^^^^^\n" + 
-		"At least one of the problems in category \'unchecked\' is not analysed due to a compiler option being ignored\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
-		"	                               ^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" +
+		"1. INFO in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" +
+		"	                   ^^^^^^^^^^^\n" +
+		"At least one of the problems in category \'unchecked\' is not analysed due to a compiler option being ignored\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" +
+		"	                               ^^^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"unused\")\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8222,11 +8222,11 @@ public void test245_ignored() {
 				"}	\n",
 		},
 		null, options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
-		"	                               ^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" +
+		"	                               ^^^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"unused\")\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8252,16 +8252,16 @@ public void test245_error() {
 				"}	\n",
 		},
 		null, options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
-		"	                   ^^^^^^^^^^^\n" + 
-		"At least one of the problems in category \'unchecked\' is not analysed due to a compiler option being ignored\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
-		"	                               ^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" +
+		"	                   ^^^^^^^^^^^\n" +
+		"At least one of the problems in category \'unchecked\' is not analysed due to a compiler option being ignored\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" +
+		"	                               ^^^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"unused\")\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -8721,31 +8721,31 @@ public void test259() {
 	this.runConformTest(
 		new String[] {
 			"Jpf.java",
-			"public class Jpf {\n" + 
-			"	@interface Action {\n" + 
-			"		Forward[] forwards();\n" + 
-			"	}\n" + 
-			"	@interface Forward {\n" + 
-			"		String name();\n" + 
-			"		String path();\n" + 
-			"		ActionOutput[] actionOutputs();\n" + 
-			"	}\n" + 
-			"	@interface ActionOutput {\n" + 
-			"		String name();\n" + 
-			"		Class type();\n" + 
-			"	}\n" + 
-			"	@Jpf.Action( \n" + 
-			"			forwards = { \n" + 
-			"					@Jpf.Forward(\n" + 
-			"							name = \"success\", \n" + 
-			"							path = \"results.jsp\", \n" + 
-			"							actionOutputs = { \n" + 
-			"									@Jpf.ActionOutput(\n" + 
-			"											name = \"mybeanmethodResult\", \n" + 
-			"											type = java.lang.String[].class) }) })\n" + 
-			"	public Forward mybeanmethod() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"public class Jpf {\n" +
+			"	@interface Action {\n" +
+			"		Forward[] forwards();\n" +
+			"	}\n" +
+			"	@interface Forward {\n" +
+			"		String name();\n" +
+			"		String path();\n" +
+			"		ActionOutput[] actionOutputs();\n" +
+			"	}\n" +
+			"	@interface ActionOutput {\n" +
+			"		String name();\n" +
+			"		Class type();\n" +
+			"	}\n" +
+			"	@Jpf.Action( \n" +
+			"			forwards = { \n" +
+			"					@Jpf.Forward(\n" +
+			"							name = \"success\", \n" +
+			"							path = \"results.jsp\", \n" +
+			"							actionOutputs = { \n" +
+			"									@Jpf.ActionOutput(\n" +
+			"											name = \"mybeanmethodResult\", \n" +
+			"											type = java.lang.String[].class) }) })\n" +
+			"	public Forward mybeanmethod() {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"");
@@ -8755,13 +8755,13 @@ public void test260() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@X.StringAnnotation(X.CONSTANT_EXPRESSION)\n" + 
-			"public class X {\n" + 
-			"  public @interface StringAnnotation {\n" + 
-			"    String value();\n" + 
-			"  }\n" + 
-			"  public final static String CONSTANT = \"Constant\";\n" + 
-			"  public final static String CONSTANT_EXPRESSION = CONSTANT + \"Expression\";\n" + 
+			"@X.StringAnnotation(X.CONSTANT_EXPRESSION)\n" +
+			"public class X {\n" +
+			"  public @interface StringAnnotation {\n" +
+			"    String value();\n" +
+			"  }\n" +
+			"  public final static String CONSTANT = \"Constant\";\n" +
+			"  public final static String CONSTANT_EXPRESSION = CONSTANT + \"Expression\";\n" +
 			"}\n"
 		},
 		"");
@@ -8773,21 +8773,21 @@ public void test261() {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=====================
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Other().foo();\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Other().foo();\n" +
+			"	}\n" +
 			"}\n",
 			"Annot.java",//=====================
-			"public @interface Annot {\n" + 
-			"	Class value();\n" + 
+			"public @interface Annot {\n" +
+			"	Class value();\n" +
 			"}\n",
 			"Other.java",//=====================
-			"public class Other {\n" + 
-			"	@Annot(value = Other[].class)\n" + 
-			"	void foo() {\n" + 
-			"		System.out.println(\"SUCCESS\");\n" + 
-			"	}\n" + 
+			"public class Other {\n" +
+			"	@Annot(value = Other[].class)\n" +
+			"	void foo() {\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"SUCCESS",
@@ -8799,10 +8799,10 @@ public void test261() {
 	this.runConformTest(
 			new String[] {
 				"X.java",//=====================
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new Other().foo();\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new Other().foo();\n" +
+				"	}\n" +
 				"}\n",
 			},
 			"SUCCESS",
@@ -8810,7 +8810,7 @@ public void test261() {
 			false,
 			null,
 			options,
-			null);	
+			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
 public void test262() {
@@ -8819,21 +8819,21 @@ public void test262() {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=====================
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Other().foo();\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Other().foo();\n" +
+			"	}\n" +
 			"}\n",
 			"Annot.java",//=====================
-			"public @interface Annot {\n" + 
-			"	String[] values();\n" + 
+			"public @interface Annot {\n" +
+			"	String[] values();\n" +
 			"}\n",
 			"Other.java",//=====================
-			"public class Other {\n" + 
-			"	@Annot(values = {\"foo\",\"bar\"})\n" + 
-			"	void foo() {\n" + 
-			"		System.out.println(\"SUCCESS\");\n" + 
-			"	}\n" + 
+			"public class Other {\n" +
+			"	@Annot(values = {\"foo\",\"bar\"})\n" +
+			"	void foo() {\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"SUCCESS",
@@ -8845,10 +8845,10 @@ public void test262() {
 	this.runConformTest(
 			new String[] {
 				"X.java",//=====================
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new Other().foo();\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new Other().foo();\n" +
+				"	}\n" +
 				"}\n",
 			},
 			"SUCCESS",
@@ -8856,7 +8856,7 @@ public void test262() {
 			false,
 			null,
 			options,
-			null);	
+			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239273 - variation
 public void test263() {
@@ -8865,21 +8865,21 @@ public void test263() {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=====================
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Other().foo();\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Other().foo();\n" +
+			"	}\n" +
 			"}\n",
 			"Annot.java",//=====================
-			"public @interface Annot {\n" + 
-			"	String[] values();\n" + 
+			"public @interface Annot {\n" +
+			"	String[] values();\n" +
 			"}\n",
 			"Other.java",//=====================
-			"public class Other {\n" + 
-			"	@Annot(values = {\"foo\",\"bar\"})\n" + 
-			"	void foo() {\n" + 
-			"		System.out.println(\"SUCCESS\");\n" + 
-			"	}\n" + 
+			"public class Other {\n" +
+			"	@Annot(values = {\"foo\",\"bar\"})\n" +
+			"	void foo() {\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"SUCCESS",
@@ -8891,10 +8891,10 @@ public void test263() {
 	this.runConformTest(
 			new String[] {
 				"X.java",//=====================
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new Other().foo();\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new Other().foo();\n" +
+				"	}\n" +
 				"}\n",
 			},
 			"SUCCESS",
@@ -8902,26 +8902,26 @@ public void test263() {
 			false,
 			null,
 			options,
-			null);	
+			null);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=256035
 public void test264() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@interface Anno {\n" + 
-			"	String value();\n" + 
-			"}\n" + 
-			"\n" + 
-			"@Anno(X.B)\n" + 
-			"public class X {\n" + 
-			"	public static final String A = \"a\";\n" + 
-			"	public static final String B = A + \"b\";\n" + 
+			"@interface Anno {\n" +
+			"	String value();\n" +
+			"}\n" +
+			"\n" +
+			"@Anno(X.B)\n" +
+			"public class X {\n" +
+			"	public static final String A = \"a\";\n" +
+			"	public static final String B = A + \"b\";\n" +
 			"}\n"
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=258906
 public void test265() {
 
 	INameEnvironment nameEnvironment = new FileSystem(Util.getJavaClassLibs(), new String[] {}, null);
@@ -8972,20 +8972,20 @@ public void test266() {
 	this.runNegativeTest(
 		new String[] {
 			"p/package-info.java",
-			"@Deprecated\n" + 
-			"@Deprecated\n" + 
+			"@Deprecated\n" +
+			"@Deprecated\n" +
 			"package p;"
 		},
-		"----------\n" + 
-		"1. ERROR in p\\package-info.java (at line 1)\n" + 
-		"	@Deprecated\n" + 
-		"	^^^^^^^^^^^\n" + 
-		this.repeatableIntroText + "@Deprecated"+ this.repeatableTrailerText + 
-		"----------\n" + 
-		"2. ERROR in p\\package-info.java (at line 2)\n" + 
-		"	@Deprecated\n" + 
-		"	^^^^^^^^^^^\n" + 
-		this.repeatableIntroText + "@Deprecated"+ this.repeatableTrailerText + 
+		"----------\n" +
+		"1. ERROR in p\\package-info.java (at line 1)\n" +
+		"	@Deprecated\n" +
+		"	^^^^^^^^^^^\n" +
+		this.repeatableIntroText + "@Deprecated"+ this.repeatableTrailerText +
+		"----------\n" +
+		"2. ERROR in p\\package-info.java (at line 2)\n" +
+		"	@Deprecated\n" +
+		"	^^^^^^^^^^^\n" +
+		this.repeatableIntroText + "@Deprecated"+ this.repeatableTrailerText +
 		"----------\n"
 	);
 }
@@ -9002,13 +9002,13 @@ public void test267() {
 		true,
 		new String[] {
 				"com/SomeTest.java",
-				"package com;\n" + 
-				"import static com.SomeTest.UNCHECKED;\n" + 
-				"@SuppressWarnings(UNCHECKED)\n" + 
-				"public class SomeTest {\n" + 
-				"    public static final String UNCHECKED = \"unchecked\";\n" + 
+				"package com;\n" +
+				"import static com.SomeTest.UNCHECKED;\n" +
+				"@SuppressWarnings(UNCHECKED)\n" +
+				"public class SomeTest {\n" +
+				"    public static final String UNCHECKED = \"unchecked\";\n" +
 				"}\n"
-		}, 
+		},
 		null, customOptions,
 		"----------\n" +
 		"1. ERROR in com\\SomeTest.java (at line 3)\n" +
@@ -9023,31 +9023,31 @@ public void test268() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"public class X {\n" + 
-			"	protected enum E {\n" + 
-			"		E1, E2\n" + 
-			"	}\n" + 
-			"	protected @interface Anno1 { E value(); }\n" + 
-			"	protected @interface Anno2 { E value(); }\n" + 
-			"	protected @interface Anno3 { E value(); }\n" + 
-			"	@Anno1(true ? E.E1 : E.E2)\n" + 
-			"	@Anno2(bar())\n" + 
-			"	@Anno3(((E.E1)))\n" + 
-			"	public void foo() {\n" + 
-			"	}\n" + 
-			"	public E bar() { return E.E1; }\n" + 
+			"public class X {\n" +
+			"	protected enum E {\n" +
+			"		E1, E2\n" +
+			"	}\n" +
+			"	protected @interface Anno1 { E value(); }\n" +
+			"	protected @interface Anno2 { E value(); }\n" +
+			"	protected @interface Anno3 { E value(); }\n" +
+			"	@Anno1(true ? E.E1 : E.E2)\n" +
+			"	@Anno2(bar())\n" +
+			"	@Anno3(((E.E1)))\n" +
+			"	public void foo() {\n" +
+			"	}\n" +
+			"	public E bar() { return E.E1; }\n" +
 			"}\n", // =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	@Anno1(true ? E.E1 : E.E2)\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^\n" + 
-		"The value for annotation attribute X.Anno1.value must be an enum constant expression\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	@Anno2(bar())\n" + 
-		"	       ^^^^^\n" + 
-		"The value for annotation attribute X.Anno2.value must be an enum constant expression\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	@Anno1(true ? E.E1 : E.E2)\n" +
+		"	       ^^^^^^^^^^^^^^^^^^\n" +
+		"The value for annotation attribute X.Anno1.value must be an enum constant expression\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	@Anno2(bar())\n" +
+		"	       ^^^^^\n" +
+		"The value for annotation attribute X.Anno2.value must be an enum constant expression\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=274917
@@ -9065,11 +9065,11 @@ public void test269() {
 			},
 			null,
 			customOptions,
-			"----------\n" + 
-			"1. WARNING in X.java (at line 1)\n" + 
-			"	@interface X {}\n" + 
-			"	             ^^\n" + 
-			"Empty block should be documented\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	@interface X {}\n" +
+			"	             ^^\n" +
+			"Empty block should be documented\n" +
 			"----------\n",
 			null, null,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
@@ -9079,12 +9079,12 @@ public void test269() {
 public void test270() {
 	this.runNegativeTest(
 		new String[] {
-			"Test.java", 
-			"public class Test<T> {\n" + 
-			"	@interface Anno {\n" + 
-			"		Anno value();\n" + 
-			"	}\n" + 
-			"}\n", 
+			"Test.java",
+			"public class Test<T> {\n" +
+			"	@interface Anno {\n" +
+			"		Anno value();\n" +
+			"	}\n" +
+			"}\n",
 		},
 		"----------\n" +
 		"1. ERROR in Test.java (at line 3)\n" +
@@ -9098,17 +9098,17 @@ public void test271() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@interface A {}\n" + 
-			"public class X {\n" + 
-			"	@SuppressWarnings(\"unused\")\n" + 
-			"	private void foo(@A Object o) {}\n" + 
+			"@interface A {}\n" +
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private void foo(@A Object o) {}\n" +
 			"}"
 		},
 	"");
 
 	String expectedOutput =
-		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" + 
-		"  // Stack: 0, Locals: 2\n" + 
+		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" +
+		"  // Stack: 0, Locals: 2\n" +
 		"  private void foo(@A java.lang.Object o);\n";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -9125,10 +9125,10 @@ public void test272() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@interface A {}\n" + 
-			"public class X {\n" + 
-			"	@SuppressWarnings(\"unused\")\n" + 
-			"	private void foo(@A Object o) {}\n" + 
+			"@interface A {}\n" +
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private void foo(@A Object o) {}\n" +
 			"}"
 		},
 		"",
@@ -9140,8 +9140,8 @@ public void test272() throws Exception {
 		true);
 
 	String expectedOutput =
-		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" + 
-		"  // Stack: 0, Locals: 2\n" + 
+		"  // Method descriptor #15 (Ljava/lang/Object;)V\n" +
+		"  // Stack: 0, Locals: 2\n" +
 		"  private void foo(@A java.lang.Object o);\n";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -9151,17 +9151,17 @@ public void test273() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"@interface A {}\n" + 
-			"public class X {\n" + 
-			"	@SuppressWarnings(\"unused\")\n" + 
-			"	private X(@A Object o) {}\n" + 
+			"@interface A {}\n" +
+			"public class X {\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private X(@A Object o) {}\n" +
 			"}"
 		},
 		"");
 
 	String expectedOutput =
-		"  // Method descriptor #6 (Ljava/lang/Object;)V\n" + 
-		"  // Stack: 1, Locals: 2\n" + 
+		"  // Method descriptor #6 (Ljava/lang/Object;)V\n" +
+		"  // Stack: 1, Locals: 2\n" +
 		"  private X(@A java.lang.Object o);\n";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -9174,7 +9174,7 @@ public void test274a() {
 			"T.java",
 			"public interface T {\n" +
 			"        void m();\n" +
-			"}\n" + 
+			"}\n" +
 			"abstract class A implements T {\n" +
 			"}\n" +
 			"class B extends A {\n" +
@@ -9200,7 +9200,7 @@ public void test274a() {
 				true,
 				testString,
 				null, customOptions,
-				expectedOutput, 
+				expectedOutput,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	} else {
 		this.runConformTest(
@@ -9208,7 +9208,7 @@ public void test274a() {
 				null,
 				customOptions,
 				null,
-				null, null, 
+				null, null,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
@@ -9352,25 +9352,25 @@ public void test275() {
 		true,
 		new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static final boolean DEBUG = false;\n" + 
-				"//	@SuppressWarnings(\"unused\")\n" + 
-				"	public void foo() {\n" + 
+				"public class X {\n" +
+				"	public static final boolean DEBUG = false;\n" +
+				"//	@SuppressWarnings(\"unused\")\n" +
+				"	public void foo() {\n" +
 				"		if (DEBUG)\n" +
 				"			System.out.println(\"true\");\n" +
 				"		else\n" +
 				"			System.out.println(\"false\");\n" +
 				"		\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}\n"
 		},
 		null,
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	System.out.println(\"true\");\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	System.out.println(\"true\");\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n",
 		"",
 		"",
@@ -9385,16 +9385,16 @@ public void test276() {
 		true,
 		new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static final boolean DEBUG = false;\n" + 
-				"	@SuppressWarnings(\"unused\")\n" + 
-				"	public void foo() {\n" + 
+				"public class X {\n" +
+				"	public static final boolean DEBUG = false;\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	public void foo() {\n" +
 				"		if (DEBUG)\n" +
 				"			System.out.println(\"true\");\n" +
 				"		else\n" +
 				"			System.out.println(\"false\");\n" +
 				"		\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}\n"
 		},
 		null,
@@ -9413,16 +9413,16 @@ public void test277() {
 		true,
 		new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static final boolean DEBUG = false;\n" + 
-				"	@SuppressWarnings(\"unused\")\n" + 
-				"	public void foo() {\n" + 
+				"public class X {\n" +
+				"	public static final boolean DEBUG = false;\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	public void foo() {\n" +
 				"		if (0 < 1)\n" +
 				"			System.out.println(\"true\");\n" +
 				"		else\n" +
 				"			System.out.println(\"false\");\n" +
 				"		\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}\n"
 		},
 		null,
@@ -9475,10 +9475,10 @@ public void test279() {
 			"}"
 			};
 	String expectedOutput =
-		"----------\n" + 
-		"1. ERROR in A.java (at line 6)\n" + 
-		"	public Zork test;\n" + 
-		"	       ^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in A.java (at line 6)\n" +
+		"	public Zork test;\n" +
+		"	       ^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
 		"----------\n";
 	this.runNegativeTest(
@@ -9519,17 +9519,17 @@ public void test281() {
 			"	private int i;\n" +
 			"}\n"
 			};
-	String expectedErrorString = 
-			"----------\n" + 
-			"1. ERROR in A.java (at line 3)\n" + 
-			"	private int i;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.i is not used\n" + 
+	String expectedErrorString =
+			"----------\n" +
+			"1. ERROR in A.java (at line 3)\n" +
+			"	private int i;\n" +
+			"	            ^\n" +
+			"The value of the field A.i is not used\n" +
 			"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -9544,7 +9544,7 @@ public void test282() {
 			"import java.util.Map;\n" +
 			"public class A {\n" +
 			"	@SuppressWarnings({\"rawtypes\", \"unused\"})\n" + //suppress a warning and an error
-			"	private Map i;\n" + 
+			"	private Map i;\n" +
 			"}\n"
 			};
 	runConformTest(
@@ -9568,17 +9568,17 @@ public void test283() {
 			"	private void i;\n" + // cannot suppress mandatory error
 			"}\n"
 			};
-	String expectedErrorString = 
-			"----------\n" + 
-			"1. ERROR in A.java (at line 3)\n" + 
-			"	private void i;\n" + 
-			"	             ^\n" + 
-			"void is an invalid type for the variable i\n" + 
+	String expectedErrorString =
+			"----------\n" +
+			"1. ERROR in A.java (at line 3)\n" +
+			"	private void i;\n" +
+			"	             ^\n" +
+			"void is an invalid type for the variable i\n" +
 			"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.SKIP);
@@ -9591,27 +9591,27 @@ public void test284() {
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	String testFiles [] = new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    void m() {\n" + 
-			"        @SuppressWarnings(\"cast\")\n" + 
-			"        int i= (int) 0;\n" + 
-			"        @SuppressWarnings(\"cast\")\n" + 
-			"        byte b= (byte) i;\n" + 
-			"        System.out.println(b);\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    void m() {\n" +
+			"        @SuppressWarnings(\"cast\")\n" +
+			"        int i= (int) 0;\n" +
+			"        @SuppressWarnings(\"cast\")\n" +
+			"        byte b= (byte) i;\n" +
+			"        System.out.println(b);\n" +
+			"    }\n" +
 			"}"
 	};
-	String expectedErrorString = 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	@SuppressWarnings(\"cast\")\n" + 
-		"	                  ^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"cast\")\n" + 
+	String expectedErrorString =
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	@SuppressWarnings(\"cast\")\n" +
+		"	                  ^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"cast\")\n" +
 		"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.SKIP);
@@ -9624,27 +9624,27 @@ public void test285() {
 	customOptions.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	String testFiles [] = new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    void m() {\n" + 
-			"        @SuppressWarnings(\"cast\")\n" + 
-			"        int i= (int) 0;\n" + 
-			"        @SuppressWarnings(\"cast\")\n" + 
-			"        byte b= (byte) i;\n" + 
-			"        System.out.println(b);\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    void m() {\n" +
+			"        @SuppressWarnings(\"cast\")\n" +
+			"        int i= (int) 0;\n" +
+			"        @SuppressWarnings(\"cast\")\n" +
+			"        byte b= (byte) i;\n" +
+			"        System.out.println(b);\n" +
+			"    }\n" +
 			"}"
 	};
-	String expectedErrorString = 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	@SuppressWarnings(\"cast\")\n" + 
-		"	                  ^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"cast\")\n" + 
+	String expectedErrorString =
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	@SuppressWarnings(\"cast\")\n" +
+		"	                  ^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"cast\")\n" +
 		"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.SKIP);
@@ -9695,19 +9695,19 @@ public void test287() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	@SuppressWarnings(\"rawtypes\")\n" + 
-				"	void foo(ArrayList arg) {\n" + 
-				"		for (\n" + 
+				"import java.util.ArrayList;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	@SuppressWarnings(\"rawtypes\")\n" +
+				"	void foo(ArrayList arg) {\n" +
+				"		for (\n" +
 				"			@SuppressWarnings(\"unchecked\")\n" +
-				"			boolean a= arg.add(1), b= arg.add(1);\n" + 
-				"			Boolean.FALSE;\n" + 
-				"		) {\n" + 
-				"			System.out.println(a && b);\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"			boolean a= arg.add(1), b= arg.add(1);\n" +
+				"			Boolean.FALSE;\n" +
+				"		) {\n" +
+				"			System.out.println(a && b);\n" +
+				"		}\n" +
+				"	}\n" +
 				"}",
 		},
 		"",
@@ -9725,13 +9725,13 @@ public void test288() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	@SuppressWarnings(\"rawtypes\")\n" + 
-				"	ArrayList arg;\n" + 
-				"	@SuppressWarnings(\"unchecked\")\n" + 
-				"	boolean a= arg.add(1), b= arg.add(1);\n" + 
+				"import java.util.ArrayList;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	@SuppressWarnings(\"rawtypes\")\n" +
+				"	ArrayList arg;\n" +
+				"	@SuppressWarnings(\"unchecked\")\n" +
+				"	boolean a= arg.add(1), b= arg.add(1);\n" +
 				"}",
 		},
 		"",
@@ -9750,20 +9750,20 @@ public void test289() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void foo(ArrayList arg) {\n" + 
-				"		for (\n" + 
-				"			@Deprecated\n" + 
-				"			@Other\n" + 
+				"import java.util.ArrayList;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void foo(ArrayList arg) {\n" +
+				"		for (\n" +
+				"			@Deprecated\n" +
+				"			@Other\n" +
 				"			@SuppressWarnings(\"unchecked\")\n" +
-				"			boolean a= arg.add(1), b= arg.add(1);\n" + 
-				"			Boolean.FALSE;\n" + 
-				"		) {\n" + 
-				"			System.out.println(a && b);\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"			boolean a= arg.add(1), b= arg.add(1);\n" +
+				"			Boolean.FALSE;\n" +
+				"		) {\n" +
+				"			System.out.println(a && b);\n" +
+				"		}\n" +
+				"	}\n" +
 				"}",
 				"Other.java",
 				"@interface Other {}"
@@ -9785,15 +9785,15 @@ public void test290() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"class X {\n" + 
-				"	@SuppressWarnings(\"rawtypes\")\n" + 
-				"	void foo(ArrayList arg) {\n" + 
-				"		@SuppressWarnings(\"unchecked\")\n" + 
-				"		boolean aa = arg.add(1), bb = arg.add(1);\n" + 
-				"		if (bb)\n" + 
-				"			System.out.println(\"hi\");\n" + 
-				"	}\n" + 
+				"import java.util.ArrayList;\n" +
+				"class X {\n" +
+				"	@SuppressWarnings(\"rawtypes\")\n" +
+				"	void foo(ArrayList arg) {\n" +
+				"		@SuppressWarnings(\"unchecked\")\n" +
+				"		boolean aa = arg.add(1), bb = arg.add(1);\n" +
+				"		if (bb)\n" +
+				"			System.out.println(\"hi\");\n" +
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -9813,15 +9813,15 @@ public void test291() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"class X {\n" + 
-				"	@SuppressWarnings(\"rawtypes\")\n" + 
-				"	void foo(ArrayList arg) {\n" + 
-				"		@SuppressWarnings(\"unchecked\")\n" + 
-				"		boolean aa = arg.add(1), bb = arg.add(1);\n" + 
-				"		if (aa)\n" + 
-				"			System.out.println(\"hi\");\n" + 
-				"	}\n" + 
+				"import java.util.ArrayList;\n" +
+				"class X {\n" +
+				"	@SuppressWarnings(\"rawtypes\")\n" +
+				"	void foo(ArrayList arg) {\n" +
+				"		@SuppressWarnings(\"unchecked\")\n" +
+				"		boolean aa = arg.add(1), bb = arg.add(1);\n" +
+				"		if (aa)\n" +
+				"			System.out.println(\"hi\");\n" +
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -9841,13 +9841,13 @@ public void test292() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"import java.util.ArrayList;\n" + 
-				"class X {\n" + 
-				"	@SuppressWarnings(\"rawtypes\")\n" + 
-				"	void foo(ArrayList arg) {\n" + 
-				"		@SuppressWarnings(\"unchecked\")\n" + 
-				"		boolean aa = arg.add(1), bb = arg.add(1);\n" + 
-				"	}\n" + 
+				"import java.util.ArrayList;\n" +
+				"class X {\n" +
+				"	@SuppressWarnings(\"rawtypes\")\n" +
+				"	void foo(ArrayList arg) {\n" +
+				"		@SuppressWarnings(\"unchecked\")\n" +
+				"		boolean aa = arg.add(1), bb = arg.add(1);\n" +
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -9870,13 +9870,13 @@ public void test293() {
 				"@interface A{\n" +
 				"    String name();\n" +
 				"    String query();\n" +
-				"}\n" 
+				"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	@A(name = X.QUERY_NAME, query = X.QUERY)\n" + 
-		"	                                  ^^^^^\n" + 
-		"The field X.QUERY is not visible\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	@A(name = X.QUERY_NAME, query = X.QUERY)\n" +
+		"	                                  ^^^^^\n" +
+		"The field X.QUERY is not visible\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
@@ -9967,147 +9967,147 @@ public void test297() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
-	
-	runner.expectedCompilerLog = 
-		"----------\n" + 
-		"1. ERROR in A.java (at line 15)\n" + 
-		"	return i == i;\n" + 
-		"	       ^^^^^^\n" + 
-		"Comparing identical expressions\n" + 
+
+	runner.expectedCompilerLog =
+		"----------\n" +
+		"1. ERROR in A.java (at line 15)\n" +
+		"	return i == i;\n" +
+		"	       ^^^^^^\n" +
+		"Comparing identical expressions\n" +
 		"----------\n";
 
 	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 		runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. ERROR in A.java (at line 10)\n" + 
-			"	public final Object build(Class<? super Object>... objects) {\n" + 
-			"	                                                   ^^^^^^^\n" + 
-			"Type safety: Potential heap pollution via varargs parameter objects\n" + 
-			"----------\n" + 
-			"2. ERROR in A.java (at line 15)\n" + 
-			"	return i == i;\n" + 
-			"	       ^^^^^^\n" + 
-			"Comparing identical expressions\n" + 
+			"----------\n" +
+			"1. ERROR in A.java (at line 10)\n" +
+			"	public final Object build(Class<? super Object>... objects) {\n" +
+			"	                                                   ^^^^^^^\n" +
+			"Type safety: Potential heap pollution via varargs parameter objects\n" +
+			"----------\n" +
+			"2. ERROR in A.java (at line 15)\n" +
+			"	return i == i;\n" +
+			"	       ^^^^^^\n" +
+			"Comparing identical expressions\n" +
 			"----------\n";
 	}
 	runner.testFiles = new String[] {
 			"A.java",
-			"public class A {\n" + 
-			"	public void one() {\n" + 
-			"		@SuppressWarnings(\"unused\")\n" + 
-			"		Object object = new Object();\n" + 
-			"	}\n" + 
-			"	public void two() {\n" + 
-			"		@SuppressWarnings({ \"unchecked\", \"unused\" })\n" + 
-			"		Object object = build();\n" + 
-			"	}\n" + 
-			"	public final Object build(Class<? super Object>... objects) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"public class A {\n" +
+			"	public void one() {\n" +
+			"		@SuppressWarnings(\"unused\")\n" +
+			"		Object object = new Object();\n" +
+			"	}\n" +
+			"	public void two() {\n" +
+			"		@SuppressWarnings({ \"unchecked\", \"unused\" })\n" +
+			"		Object object = build();\n" +
+			"	}\n" +
+			"	public final Object build(Class<? super Object>... objects) {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"	public boolean bar() {\n" +
 			"		int i = 0;\n" +
-			"		return i == i;\n" + 
-			"	}\n" + 
+			"		return i == i;\n" +
+			"	}\n" +
 			"}"
 	};
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
-// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
-// many syntax errors fixed, does not trigger CCE 
+// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
+// many syntax errors fixed, does not trigger CCE
 public void testBug366003() {
 	runNegativeTest(
 		new String[] {
 			"snippet/Bug366003.java",
 			"package snippet;\n" +
-			"public class Bug366003 {\n" + 
-			"    public void foo(@NonNull Object o1) {\n" + 
+			"public class Bug366003 {\n" +
+			"    public void foo(@NonNull Object o1) {\n" +
 			"        System.out.println(o1.toString()); // OK: o1 cannot be null\n" +
-			"    }         \n" + 
+			"    }         \n" +
 			"    @NonNull Object bar(@Nullable String s1) {\n" +
 			"        foo(null); // cannot pass null argument\n" +
 			"        @NonNull String s= null; // cannot assign null value\n" +
-			"        @NonNull String t= s1; // cannot assign potentially null value\n" + 
+			"        @NonNull String t= s1; // cannot assign potentially null value\n" +
 			"        return null; // cannot return null value\n" +
-			"    }\n" + 
-			"}\n" + 
-			"org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
+			"    }\n" +
+			"}\n" +
+			"org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
 			""
 		},
-		"----------\n" + 
-		"1. ERROR in snippet\\Bug366003.java (at line 3)\n" + 
-		"	public void foo(@NonNull Object o1) {\n" + 
-		"	                 ^^^^^^^\n" + 
-		"NonNull cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in snippet\\Bug366003.java (at line 6)\n" + 
-		"	@NonNull Object bar(@Nullable String s1) {\n" + 
-		"	 ^^^^^^^\n" + 
-		"NonNull cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in snippet\\Bug366003.java (at line 6)\n" + 
-		"	@NonNull Object bar(@Nullable String s1) {\n" + 
-		"	                     ^^^^^^^^\n" + 
-		"Nullable cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"4. ERROR in snippet\\Bug366003.java (at line 8)\n" + 
-		"	@NonNull String s= null; // cannot assign null value\n" + 
-		"	 ^^^^^^^\n" + 
-		"NonNull cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in snippet\\Bug366003.java (at line 9)\n" + 
-		"	@NonNull String t= s1; // cannot assign potentially null value\n" + 
-		"	 ^^^^^^^\n" + 
-		"NonNull cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"6. ERROR in snippet\\Bug366003.java (at line 12)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error on token \"}\", delete this token\n" + 
-		"----------\n" + 
-		"7. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" + 
-		"----------\n" + 
-		"8. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
-		"----------\n" + 
-		"9. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \";\" to complete MethodDeclaration\n" + 
-		"----------\n" + 
-		"10. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \"}\" to complete ClassBody\n" + 
-		"----------\n" + 
-		"11. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Return type for the method is missing\n" + 
-		"----------\n" + 
-		"12. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                       ^^^^^^^\n" + 
-		"NonNull cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"13. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                                                      ^^^^^^^^\n" + 
-		"Nullable cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"14. ERROR in snippet\\Bug366003.java (at line 13)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                                                                           ^\n" + 
-		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" + 
+		"----------\n" +
+		"1. ERROR in snippet\\Bug366003.java (at line 3)\n" +
+		"	public void foo(@NonNull Object o1) {\n" +
+		"	                 ^^^^^^^\n" +
+		"NonNull cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in snippet\\Bug366003.java (at line 6)\n" +
+		"	@NonNull Object bar(@Nullable String s1) {\n" +
+		"	 ^^^^^^^\n" +
+		"NonNull cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in snippet\\Bug366003.java (at line 6)\n" +
+		"	@NonNull Object bar(@Nullable String s1) {\n" +
+		"	                     ^^^^^^^^\n" +
+		"Nullable cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in snippet\\Bug366003.java (at line 8)\n" +
+		"	@NonNull String s= null; // cannot assign null value\n" +
+		"	 ^^^^^^^\n" +
+		"NonNull cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in snippet\\Bug366003.java (at line 9)\n" +
+		"	@NonNull String t= s1; // cannot assign potentially null value\n" +
+		"	 ^^^^^^^\n" +
+		"NonNull cannot be resolved to a type\n" +
+		"----------\n" +
+		"6. ERROR in snippet\\Bug366003.java (at line 12)\n" +
+		"	}\n" +
+		"	^\n" +
+		"Syntax error on token \"}\", delete this token\n" +
+		"----------\n" +
+		"7. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
+		"----------\n" +
+		"8. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"9. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \";\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"10. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \"}\" to complete ClassBody\n" +
+		"----------\n" +
+		"11. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Return type for the method is missing\n" +
+		"----------\n" +
+		"12. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                       ^^^^^^^\n" +
+		"NonNull cannot be resolved to a type\n" +
+		"----------\n" +
+		"13. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                                                      ^^^^^^^^\n" +
+		"Nullable cannot be resolved to a type\n" +
+		"----------\n" +
+		"14. ERROR in snippet\\Bug366003.java (at line 13)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                                                                           ^\n" +
+		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" +
 		"----------\n");
 }
-// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
-// code is garbage, triggers CCE 
+// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
+// code is garbage, triggers CCE
 public void testBug366003b() {
 	runNegativeTest(
 		new String[] {
@@ -10125,120 +10125,120 @@ public void testBug366003b() {
 			"org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
 			""
 		},
-		"----------\n" + 
-		"1. ERROR in snippet\\Bug366003.java (at line 3)\n" + 
-		"	public void foo(@Blah Object o1) {        \n" + 
-		"	                 ^^^^\n" + 
-		"Blah cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
-		"	System.out.println(o1.toString()); // OK: o1 cannot be null     }         \n" + 
-		"	                                 ^\n" + 
-		"Syntax error, insert \"}\" to complete MethodBody\n" + 
-		"----------\n" + 
-		"3. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" + 
-		"	 ^^^^\n" + 
-		"Blah cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"4. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" + 
-		"	                  ^^^^^^^^\n" + 
-		"BlahBlah cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in snippet\\Bug366003.java (at line 6)\n" + 
-		"	null argument         @Blah String s= null; // cannot assign null value     \n" + 
-		"	^^^^\n" + 
-		"Syntax error on token \"null\", @ expected\n" + 
-		"----------\n" + 
-		"6. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" + 
-		"----------\n" + 
-		"7. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
-		"----------\n" + 
-		"8. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \";\" to complete MethodDeclaration\n" + 
-		"----------\n" + 
-		"9. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	            ^^^^\n" + 
-		"Syntax error, insert \"}\" to complete ClassBody\n" + 
-		"----------\n" + 
-		"10. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Return type for the method is missing\n" + 
-		"----------\n" + 
-		"11. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                       ^^^^^^^\n" + 
-		"NonNull cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"12. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                                                      ^^^^^^^^\n" + 
-		"Nullable cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"13. ERROR in snippet\\Bug366003.java (at line 11)\n" + 
-		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" + 
-		"	                                                                           ^\n" + 
-		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" + 
+		"----------\n" +
+		"1. ERROR in snippet\\Bug366003.java (at line 3)\n" +
+		"	public void foo(@Blah Object o1) {        \n" +
+		"	                 ^^^^\n" +
+		"Blah cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in snippet\\Bug366003.java (at line 4)\n" +
+		"	System.out.println(o1.toString()); // OK: o1 cannot be null     }         \n" +
+		"	                                 ^\n" +
+		"Syntax error, insert \"}\" to complete MethodBody\n" +
+		"----------\n" +
+		"3. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" +
+		"	 ^^^^\n" +
+		"Blah cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	@Blah Object bar(@BlahBlah String s1) {         foo(null); // cannot pass\n" +
+		"	                  ^^^^^^^^\n" +
+		"BlahBlah cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in snippet\\Bug366003.java (at line 6)\n" +
+		"	null argument         @Blah String s= null; // cannot assign null value     \n" +
+		"	^^^^\n" +
+		"Syntax error on token \"null\", @ expected\n" +
+		"----------\n" +
+		"6. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
+		"----------\n" +
+		"7. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"8. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \";\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"9. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	            ^^^^\n" +
+		"Syntax error, insert \"}\" to complete ClassBody\n" +
+		"----------\n" +
+		"10. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Return type for the method is missing\n" +
+		"----------\n" +
+		"11. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                       ^^^^^^^\n" +
+		"NonNull cannot be resolved to a type\n" +
+		"----------\n" +
+		"12. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                                                      ^^^^^^^^\n" +
+		"Nullable cannot be resolved to a type\n" +
+		"----------\n" +
+		"13. ERROR in snippet\\Bug366003.java (at line 11)\n" +
+		"	org.eclipse.User.User(@NonNull String name, int uid, @Nullable String email)\n" +
+		"	                                                                           ^\n" +
+		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" +
 		"----------\n");
 }
-// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639) 
-// minimal syntax error to trigger CCE 
+// Bug 366003 - CCE in ASTNode.resolveAnnotations(ASTNode.java:639)
+// minimal syntax error to trigger CCE
 public void testBug366003c() {
 	runNegativeTest(
 		new String[] {
 			"snippet/Bug366003.java",
 			"package snippet;\n" +
 			"public class Bug366003 {\n" +
-			"    void foo(Object o1) {\n" + 
-			"    }\n" + 
+			"    void foo(Object o1) {\n" +
+			"    }\n" +
 			"org.User(@Bla String a)"
 		},
-		"----------\n" + 
-		"1. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	^^^\n" + 
-		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" + 
-		"----------\n" + 
-		"2. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	^^^\n" + 
-		"Syntax error, insert \")\" to complete MethodDeclaration\n" + 
-		"----------\n" + 
-		"3. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	^^^\n" + 
-		"Syntax error, insert \";\" to complete MethodDeclaration\n" + 
-		"----------\n" + 
-		"4. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	^^^\n" + 
-		"Syntax error, insert \"}\" to complete ClassBody\n" + 
-		"----------\n" + 
-		"5. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	    ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Return type for the method is missing\n" + 
-		"----------\n" + 
-		"6. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	          ^^^\n" + 
-		"Bla cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"7. ERROR in snippet\\Bug366003.java (at line 5)\n" + 
-		"	org.User(@Bla String a)\n" + 
-		"	                      ^\n" + 
-		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" + 
+		"----------\n" +
+		"1. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	^^^\n" +
+		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
+		"----------\n" +
+		"2. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	^^^\n" +
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"3. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	^^^\n" +
+		"Syntax error, insert \";\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"4. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	^^^\n" +
+		"Syntax error, insert \"}\" to complete ClassBody\n" +
+		"----------\n" +
+		"5. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Return type for the method is missing\n" +
+		"----------\n" +
+		"6. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	          ^^^\n" +
+		"Bla cannot be resolved to a type\n" +
+		"----------\n" +
+		"7. ERROR in snippet\\Bug366003.java (at line 5)\n" +
+		"	org.User(@Bla String a)\n" +
+		"	                      ^\n" +
+		"Syntax error, insert \";\" to complete ConstructorDeclaration\n" +
 		"----------\n");
 }
 // unfinished attempt to trigger the same CCE via catch formal parameters
@@ -10257,26 +10257,26 @@ public void testBug366003d() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in snippet\\Bug366003.java (at line 7)\n" + 
-		"	e } catch (@Blah Exception eSecond) {\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" + 
-		"----------\n" + 
-		"2. ERROR in snippet\\Bug366003.java (at line 7)\n" + 
-		"	e } catch (@Blah Exception eSecond) {\n" + 
-		"	^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
-		"----------\n" + 
-		"3. ERROR in snippet\\Bug366003.java (at line 8)\n" + 
-		"	e }\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" + 
-		"----------\n" + 
-		"4. ERROR in snippet\\Bug366003.java (at line 8)\n" + 
-		"	e }\n" + 
-		"	^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in snippet\\Bug366003.java (at line 7)\n" +
+		"	e } catch (@Blah Exception eSecond) {\n" +
+		"	^\n" +
+		"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" +
+		"----------\n" +
+		"2. ERROR in snippet\\Bug366003.java (at line 7)\n" +
+		"	e } catch (@Blah Exception eSecond) {\n" +
+		"	^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
+		"----------\n" +
+		"3. ERROR in snippet\\Bug366003.java (at line 8)\n" +
+		"	e }\n" +
+		"	^\n" +
+		"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" +
+		"----------\n" +
+		"4. ERROR in snippet\\Bug366003.java (at line 8)\n" +
+		"	e }\n" +
+		"	^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n");
 }
 public void testBug366003e() {
@@ -10289,25 +10289,25 @@ public void testBug366003e() {
 			"        @Blah org.User(@Bla String str){}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
-		"	@Blah org.User(@Bla String str){}\n" + 
-		"	 ^^^^\n" + 
-		"Blah cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
-		"	@Blah org.User(@Bla String str){}\n" + 
-		"	          ^^^^\n" + 
-		"Syntax error on token \"User\", Identifier expected after this token\n" + 
-		"----------\n" + 
-		"3. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
-		"	@Blah org.User(@Bla String str){}\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Return type for the method is missing\n" + 
-		"----------\n" + 
-		"4. ERROR in snippet\\Bug366003.java (at line 4)\n" + 
-		"	@Blah org.User(@Bla String str){}\n" + 
-		"	                ^^^\n" + 
+		"----------\n" +
+		"1. ERROR in snippet\\Bug366003.java (at line 4)\n" +
+		"	@Blah org.User(@Bla String str){}\n" +
+		"	 ^^^^\n" +
+		"Blah cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in snippet\\Bug366003.java (at line 4)\n" +
+		"	@Blah org.User(@Bla String str){}\n" +
+		"	          ^^^^\n" +
+		"Syntax error on token \"User\", Identifier expected after this token\n" +
+		"----------\n" +
+		"3. ERROR in snippet\\Bug366003.java (at line 4)\n" +
+		"	@Blah org.User(@Bla String str){}\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Return type for the method is missing\n" +
+		"----------\n" +
+		"4. ERROR in snippet\\Bug366003.java (at line 4)\n" +
+		"	@Blah org.User(@Bla String str){}\n" +
+		"	                ^^^\n" +
 		"Bla cannot be resolved to a type\n" +
 		"----------\n");
 }
@@ -10340,22 +10340,22 @@ public void testBug365437a() {
 			"package p1;\n" +
 			"public @interface PostConstruct{}"
 			};
-	String expectedErrorString = 
-			"----------\n" + 
-			"1. WARNING in p\\A.java (at line 8)\n" + 
-			"	@SuppressWarnings(\"null\")\n" + 
-			"	                  ^^^^^^\n" + 
-			"Unnecessary @SuppressWarnings(\"null\")\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\A.java (at line 13)\n" + 
-			"	@Deprecated	private void foo3(){}}\n" + 
-			"	           	             ^^^^^^\n" + 
-			"The method foo3() from the type A is never used locally\n" + 
+	String expectedErrorString =
+			"----------\n" +
+			"1. WARNING in p\\A.java (at line 8)\n" +
+			"	@SuppressWarnings(\"null\")\n" +
+			"	                  ^^^^^^\n" +
+			"Unnecessary @SuppressWarnings(\"null\")\n" +
+			"----------\n" +
+			"2. ERROR in p\\A.java (at line 13)\n" +
+			"	@Deprecated	private void foo3(){}}\n" +
+			"	           	             ^^^^^^\n" +
+			"The method foo3() from the type A is never used locally\n" +
 			"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -10395,12 +10395,12 @@ public void testBug365437b() {
 			"public @interface NonNull {\n" +
 			"}"
 			};
-	String expectedErrorString = 
-			"----------\n" + 
-			"1. ERROR in A.java (at line 16)\n" + 
-			"	private Object foo3a(){ return new Object();}\n" + 
-			"	               ^^^^^^^\n" + 
-			"The method foo3a() from the type A is never used locally\n" + 
+	String expectedErrorString =
+			"----------\n" +
+			"1. ERROR in A.java (at line 16)\n" +
+			"	private Object foo3a(){ return new Object();}\n" +
+			"	               ^^^^^^^\n" +
+			"The method foo3a() from the type A is never used locally\n" +
 			"----------\n";
 	INameEnvironment save = this.javaClassLib;
 	try {
@@ -10450,22 +10450,22 @@ public void testBug365437c() {
 			"package p1;\n" +
 			"public @interface PostConstruct{}"
 			};
-	String expectedErrorString = 
-			"----------\n" + 
-			"1. WARNING in p\\A.java (at line 8)\n" + 
-			"	@SuppressWarnings(\"null\")\n" + 
-			"	                  ^^^^^^\n" + 
-			"Unnecessary @SuppressWarnings(\"null\")\n" + 
-			"----------\n" + 
-			"2. ERROR in p\\A.java (at line 13)\n" + 
-			"	@SafeVarargs	private final void foo3(Object... o){}}\n" + 
-			"	            	                   ^^^^^^^^^^^^^^^^^\n" + 
-			"The method foo3(Object...) from the type A is never used locally\n" + 
+	String expectedErrorString =
+			"----------\n" +
+			"1. WARNING in p\\A.java (at line 8)\n" +
+			"	@SuppressWarnings(\"null\")\n" +
+			"	                  ^^^^^^\n" +
+			"Unnecessary @SuppressWarnings(\"null\")\n" +
+			"----------\n" +
+			"2. ERROR in p\\A.java (at line 13)\n" +
+			"	@SafeVarargs	private final void foo3(Object... o){}}\n" +
+			"	            	                   ^^^^^^^^^^^^^^^^^\n" +
+			"The method foo3(Object...) from the type A is never used locally\n" +
 			"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -10527,26 +10527,26 @@ public void testBug365437d() {
 			"}"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 10)\n" + 
-		"	private E1() {}\n" + 
-		"	        ^^^^\n" + 
-		"The constructor E1() is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in Example.java (at line 14)\n" + 
-		"	@SuppressWarnings(\"null\")\n" + 
-		"	                  ^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"null\")\n" + 
-		"----------\n" + 
-		"3. ERROR in Example.java (at line 15)\n" + 
-		"	private E2() {}\n" + 
-		"	        ^^^^\n" + 
-		"The constructor E2() is never used locally\n" + 
-		"----------\n" + 
-		"4. ERROR in Example.java (at line 20)\n" + 
-		"	private E3() {}\n" + 
-		"	        ^^^^\n" + 
-		"The constructor E3() is never used locally\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 10)\n" +
+		"	private E1() {}\n" +
+		"	        ^^^^\n" +
+		"The constructor E1() is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in Example.java (at line 14)\n" +
+		"	@SuppressWarnings(\"null\")\n" +
+		"	                  ^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"null\")\n" +
+		"----------\n" +
+		"3. ERROR in Example.java (at line 15)\n" +
+		"	private E2() {}\n" +
+		"	        ^^^^\n" +
+		"The constructor E2() is never used locally\n" +
+		"----------\n" +
+		"4. ERROR in Example.java (at line 20)\n" +
+		"	private E3() {}\n" +
+		"	        ^^^^\n" +
+		"The constructor E3() is never used locally\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -10600,26 +10600,26 @@ public void testBug365437e() {
 			"}"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 7)\n" + 
-		"	private int E1;\n" + 
-		"	            ^^\n" + 
-		"The value of the field E1.E1 is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in Example.java (at line 10)\n" + 
-		"	@SuppressWarnings(\"null\")\n" + 
-		"	                  ^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"null\")\n" + 
-		"----------\n" + 
-		"3. ERROR in Example.java (at line 11)\n" + 
-		"	private int E2;\n" + 
-		"	            ^^\n" + 
-		"The value of the field E2.E2 is not used\n" + 
-		"----------\n" + 
-		"4. ERROR in Example.java (at line 15)\n" + 
-		"	private Object E3 = new Object();\n" + 
-		"	               ^^\n" + 
-		"The value of the field E3.E3 is not used\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 7)\n" +
+		"	private int E1;\n" +
+		"	            ^^\n" +
+		"The value of the field E1.E1 is not used\n" +
+		"----------\n" +
+		"2. WARNING in Example.java (at line 10)\n" +
+		"	@SuppressWarnings(\"null\")\n" +
+		"	                  ^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"null\")\n" +
+		"----------\n" +
+		"3. ERROR in Example.java (at line 11)\n" +
+		"	private int E2;\n" +
+		"	            ^^\n" +
+		"The value of the field E2.E2 is not used\n" +
+		"----------\n" +
+		"4. ERROR in Example.java (at line 15)\n" +
+		"	private Object E3 = new Object();\n" +
+		"	               ^^\n" +
+		"The value of the field E3.E3 is not used\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -10673,26 +10673,26 @@ public void testBug365437f() {
 			"}"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 7)\n" + 
-		"	private class E11{}\n" + 
-		"	              ^^^\n" + 
-		"The type E1.E11 is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in Example.java (at line 10)\n" + 
-		"	@SuppressWarnings(\"null\")\n" + 
-		"	                  ^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"null\")\n" + 
-		"----------\n" + 
-		"3. ERROR in Example.java (at line 11)\n" + 
-		"	private class E22{}\n" + 
-		"	              ^^^\n" + 
-		"The type E2.E22 is never used locally\n" + 
-		"----------\n" + 
-		"4. ERROR in Example.java (at line 15)\n" + 
-		"	private class E33{}\n" + 
-		"	              ^^^\n" + 
-		"The type E3.E33 is never used locally\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 7)\n" +
+		"	private class E11{}\n" +
+		"	              ^^^\n" +
+		"The type E1.E11 is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in Example.java (at line 10)\n" +
+		"	@SuppressWarnings(\"null\")\n" +
+		"	                  ^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"null\")\n" +
+		"----------\n" +
+		"3. ERROR in Example.java (at line 11)\n" +
+		"	private class E22{}\n" +
+		"	              ^^^\n" +
+		"The type E2.E22 is never used locally\n" +
+		"----------\n" +
+		"4. ERROR in Example.java (at line 15)\n" +
+		"	private class E33{}\n" +
+		"	              ^^^\n" +
+		"The type E3.E33 is never used locally\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -10718,13 +10718,13 @@ public void testBug376590a() {
 			"}\n"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 3)\n" + 
-		"	private @Inject Object o;\n" + 
-		"	                       ^\n" + 
-		"The value of the field Example.o is not used\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 3)\n" +
+		"	private @Inject Object o;\n" +
+		"	                       ^\n" +
+		"The value of the field Example.o is not used\n" +
 		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);	
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using javax.inject.Inject - slight variation
@@ -10746,18 +10746,18 @@ public void testBug376590b() {
 			"}\n"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 2)\n" + 
-		"	private @javax.inject.Inject Object o;\n" + 
-		"	                                    ^\n" + 
-		"The value of the field Example.o is not used\n" + 
-		"----------\n" + 
-		"2. ERROR in Example.java (at line 3)\n" + 
-		"	private Example() {} // also warn here: no @Inject\n" + 
-		"	        ^^^^^^^^^\n" + 
-		"The constructor Example() is never used locally\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 2)\n" +
+		"	private @javax.inject.Inject Object o;\n" +
+		"	                                    ^\n" +
+		"The value of the field Example.o is not used\n" +
+		"----------\n" +
+		"2. ERROR in Example.java (at line 3)\n" +
+		"	private Example() {} // also warn here: no @Inject\n" +
+		"	        ^^^^^^^^^\n" +
+		"The constructor Example() is never used locally\n" +
 		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);	
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // https://bugs.eclipse.org/376590 - Private fields with @Inject are ignored by unused field validation
 // using javax.inject.Inject, combined with standard as well as custom annotations
@@ -10795,18 +10795,18 @@ public void testBug376590c() {
 			"}"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 3)\n" + 
-		"	private @Inject @p.NonNull Object o; // do warn, annotations don't signal a read\n" + 
-		"	                                  ^\n" + 
-		"The value of the field Example.o is not used\n" + 
-		"----------\n" + 
-		"2. ERROR in Example.java (at line 4)\n" + 
-		"	private @Deprecated @Inject String old; // do warn, annotations don't signal a read\n" + 
-		"	                                   ^^^\n" + 
-		"The value of the field Example.old is not used\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 3)\n" +
+		"	private @Inject @p.NonNull Object o; // do warn, annotations don't signal a read\n" +
+		"	                                  ^\n" +
+		"The value of the field Example.o is not used\n" +
+		"----------\n" +
+		"2. ERROR in Example.java (at line 4)\n" +
+		"	private @Deprecated @Inject String old; // do warn, annotations don't signal a read\n" +
+		"	                                   ^^^\n" +
+		"The value of the field Example.old is not used\n" +
 		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);	
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 public void testBug376429a() {
@@ -10819,31 +10819,31 @@ public void testBug376429a() {
 				"	@Try u();\n"+
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in Try.java (at line 3)\n" + 
-			"	@Try t();\n" + 
-			"	^^^^\n" + 
-			"The annotation @Try must define the attribute value\n" + 
-			"----------\n" + 
-			"2. ERROR in Try.java (at line 3)\n" + 
-			"	@Try t();\n" + 
-			"	     ^^^\n" + 
-			"Return type for the method is missing\n" + 
-			"----------\n" + 
-			"3. ERROR in Try.java (at line 3)\n" + 
-			"	@Try t();\n" + 
-			"	     ^^^\n" + 
-			"Return type for the method is missing\n" + 
-			"----------\n" + 
-			"4. ERROR in Try.java (at line 4)\n" + 
-			"	@Try u();\n" + 
-			"	^^^^\n" + 
-			"The annotation @Try must define the attribute value\n" + 
-			"----------\n" + 
-			"5. ERROR in Try.java (at line 4)\n" + 
-			"	@Try u();\n" + 
-			"	     ^^^\n" + 
-			"Return type for the method is missing\n" + 
+			"----------\n" +
+			"1. ERROR in Try.java (at line 3)\n" +
+			"	@Try t();\n" +
+			"	^^^^\n" +
+			"The annotation @Try must define the attribute value\n" +
+			"----------\n" +
+			"2. ERROR in Try.java (at line 3)\n" +
+			"	@Try t();\n" +
+			"	     ^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"3. ERROR in Try.java (at line 3)\n" +
+			"	@Try t();\n" +
+			"	     ^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"4. ERROR in Try.java (at line 4)\n" +
+			"	@Try u();\n" +
+			"	^^^^\n" +
+			"The annotation @Try must define the attribute value\n" +
+			"----------\n" +
+			"5. ERROR in Try.java (at line 4)\n" +
+			"	@Try u();\n" +
+			"	     ^^^\n" +
+			"Return type for the method is missing\n" +
 			"----------\n");
 }
 public void testBug376429b() {
@@ -10855,16 +10855,16 @@ public void testBug376429b() {
 				"	byte[] value(); \n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in Try.java (at line 2)\n" + 
-			"	@Try t();\n" + 
-			"	^^^^\n" + 
-			"The annotation @Try must define the attribute value\n" + 
-			"----------\n" + 
-			"2. ERROR in Try.java (at line 2)\n" + 
-			"	@Try t();\n" + 
-			"	     ^^^\n" + 
-			"Return type for the method is missing\n" + 
+			"----------\n" +
+			"1. ERROR in Try.java (at line 2)\n" +
+			"	@Try t();\n" +
+			"	^^^^\n" +
+			"The annotation @Try must define the attribute value\n" +
+			"----------\n" +
+			"2. ERROR in Try.java (at line 2)\n" +
+			"	@Try t();\n" +
+			"	     ^^^\n" +
+			"Return type for the method is missing\n" +
 			"----------\n");
 }
 
@@ -10885,17 +10885,17 @@ public void testBug371832() throws Exception {
 			"	}\n"+
 			"}\n"
 			};
-	String expectedErrorString = 
-			"----------\n" + 
-			"1. ERROR in A.java (at line 1)\n" + 
-			"	import java.util.List;\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"The import java.util.List is never used\n" + 
+	String expectedErrorString =
+			"----------\n" +
+			"1. ERROR in A.java (at line 1)\n" +
+			"	import java.util.List;\n" +
+			"	       ^^^^^^^^^^^^^^\n" +
+			"The import java.util.List is never used\n" +
 			"----------\n";
 	runNegativeTest(
 			true,
 			testFiles,
-			null, 
+			null,
 			customOptions,
 			expectedErrorString,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -10923,7 +10923,7 @@ public void testBug384663() {
 		"@Retention(RetentionPolicy.RUNTIME)\n" +
 		"@Target(ElementType.PACKAGE)\n" +
 		"public @interface AnnotationDefinition {\n" +
-		"	String value();\n" + 
+		"	String value();\n" +
 		"}",
 	};
 	runConformTest(testFiles);
@@ -10935,17 +10935,17 @@ public void _testBug386356_1() {
 	runConformTest(
 		new String[] {
 			"p/X.java",
-			"package p;\n" + 
-			"import javax.xml.bind.annotation.adapters.XmlAdapter;\n" + 
-			"public abstract class X extends XmlAdapter<String,X> {\n" + 
+			"package p;\n" +
+			"import javax.xml.bind.annotation.adapters.XmlAdapter;\n" +
+			"public abstract class X extends XmlAdapter<String,X> {\n" +
 			"}",
 
 			"p/package-info.java",
-			"@XmlJavaTypeAdapters({ @XmlJavaTypeAdapter(value = X.class, type = X.class) })\n" + 
-			"package p;\n" + 
-			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;   \n" + 
+			"@XmlJavaTypeAdapters({ @XmlJavaTypeAdapter(value = X.class, type = X.class) })\n" +
+			"package p;\n" +
+			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;   \n" +
 			"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;"
-			
+
 		});
 }
 
@@ -10973,7 +10973,7 @@ public void testBug386356_2() {
 				"package com.ermahgerd;\n" +
 				"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;\n" +
 				"import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapters;",
-				
+
 				"com/ermahgerd/ErmahgerdXmlAdapter.java",
 				"package com.ermahgerd;\n" +
 				"\n" +
@@ -11012,9 +11012,9 @@ public void test398657() throws Exception {
 		new String[] {
 			"p/Annot.java",
 			"package p;\n" +
-			"public @interface Annot {\n" + 
-			"   static public enum E { A }\n" + 
-			"   E getEnum();\n" + 
+			"public @interface Annot {\n" +
+			"   static public enum E { A }\n" +
+			"   E getEnum();\n" +
 			"}",
 			"X.java",
 			"import static p.Annot.E.*;\n" +
@@ -11031,8 +11031,8 @@ public void test398657() throws Exception {
 		true);
 
 	String expectedOutput =
-		"  Inner classes:\n" + 
-		"    [inner class info: #22 p/Annot$E, outer class info: #24 p/Annot\n" + 
+		"  Inner classes:\n" +
+		"    [inner class info: #22 p/Annot$E, outer class info: #24 p/Annot\n" +
 		"     inner name: #26 E, accessflags: 16409 public static final]\n";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -11051,9 +11051,9 @@ public void test398657_2() throws Exception {
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y {\n" +
-			"	static public @interface Annot {\n" + 
+			"	static public @interface Annot {\n" +
 			"		int id();\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 			"X.java",
 			"import p.Y.Annot;\n" +
@@ -11069,8 +11069,8 @@ public void test398657_2() throws Exception {
 		true);
 
 	String expectedOutput =
-			"  Inner classes:\n" + 
-			"    [inner class info: #21 p/Y$Annot, outer class info: #23 p/Y\n" + 
+			"  Inner classes:\n" +
+			"    [inner class info: #21 p/Y$Annot, outer class info: #23 p/Y\n" +
 			"     inner name: #25 Annot, accessflags: 9737 public abstract static]\n";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -11087,16 +11087,16 @@ public void test384567() {
 			"@interface Foo {\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in xy\\X.java (at line 1)\n" + 
-		"	public final synchronized @Foo private package xy;\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error, modifiers are not allowed here\n" + 
-		"----------\n" + 
-		"2. ERROR in xy\\X.java (at line 1)\n" + 
-		"	public final synchronized @Foo private package xy;\n" + 
-		"	                          ^^^^\n" + 
-		"Package annotations must be in file package-info.java\n" + 
+		"----------\n" +
+		"1. ERROR in xy\\X.java (at line 1)\n" +
+		"	public final synchronized @Foo private package xy;\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error, modifiers are not allowed here\n" +
+		"----------\n" +
+		"2. ERROR in xy\\X.java (at line 1)\n" +
+		"	public final synchronized @Foo private package xy;\n" +
+		"	                          ^^^^\n" +
+		"Package annotations must be in file package-info.java\n" +
 		"----------\n");
 }
 //check invalid modifiers on package
@@ -11110,10 +11110,10 @@ public void test384567_2() {
 			"\n"
 		},
 		"----------\n" +
-		"1. ERROR in xy\\X.java (at line 1)\n" + 
-		"	public final synchronized private package xy;\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error, modifiers are not allowed here\n" + 
+		"1. ERROR in xy\\X.java (at line 1)\n" +
+		"	public final synchronized private package xy;\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error, modifiers are not allowed here\n" +
 			"----------\n");
 }
 // Bug 416107 - Incomplete error message for member interface and annotation
@@ -11168,27 +11168,27 @@ public void test427367() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"@interface Annot1 {\n" + 
-			"   Thread.State value() default Thread.State.NEW;\n" + 
-			"   int value2() default 1;\n" + 
+			"@interface Annot1 {\n" +
+			"   Thread.State value() default Thread.State.NEW;\n" +
+			"   int value2() default 1;\n" +
 			"}\n" +
-			"@interface Annot2 {\n" + 
-			"   Thread.State value() default Thread.State.NEW;\n" + 
+			"@interface Annot2 {\n" +
+			"   Thread.State value() default Thread.State.NEW;\n" +
 			"}\n" +
 			"@Annot1(value = XXThread.State.BLOCKED, value2 = 42)\n" +
 			"@Annot2(value = XYThread.State.BLOCKED)\n" +
 			"public class X {}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	@Annot1(value = XXThread.State.BLOCKED, value2 = 42)\n" + 
-		"	                ^^^^^^^^\n" + 
-		"XXThread cannot be resolved to a variable\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	@Annot2(value = XYThread.State.BLOCKED)\n" + 
-		"	                ^^^^^^^^\n" + 
-		"XYThread cannot be resolved to a variable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	@Annot1(value = XXThread.State.BLOCKED, value2 = 42)\n" +
+		"	                ^^^^^^^^\n" +
+		"XXThread cannot be resolved to a variable\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	@Annot2(value = XYThread.State.BLOCKED)\n" +
+		"	                ^^^^^^^^\n" +
+		"XYThread cannot be resolved to a variable\n" +
 		"----------\n",
 		null,
 		true,
@@ -11197,22 +11197,22 @@ public void test427367() throws Exception {
 		false,
 		false);
 
-	String expectedOutput = "@Annot1@Annot2\n" + 
-					"public class X {\n" + 
-					"  \n" + 
-					"  // Method descriptor #6 ()V\n" + 
-					"  // Stack: 3, Locals: 1\n" + 
-					"  public X();\n" + 
-					"     0  new java.lang.Error [8]\n" + 
-					"     3  dup\n" + 
-					"     4  ldc <String \"Unresolved compilation problems: \\n\\tXXThread cannot be resolved to a variable\\n\\tXYThread cannot be resolved to a variable\\n\"> [10]\n" + 
-					"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
-					"     9  athrow\n" + 
-					"      Line numbers:\n" + 
-					"        [pc: 0, line: 8]\n" + 
-					"      Local variable table:\n" + 
-					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
-					"\n" + 
+	String expectedOutput = "@Annot1@Annot2\n" +
+					"public class X {\n" +
+					"  \n" +
+					"  // Method descriptor #6 ()V\n" +
+					"  // Stack: 3, Locals: 1\n" +
+					"  public X();\n" +
+					"     0  new java.lang.Error [8]\n" +
+					"     3  dup\n" +
+					"     4  ldc <String \"Unresolved compilation problems: \\n\\tXXThread cannot be resolved to a variable\\n\\tXYThread cannot be resolved to a variable\\n\"> [10]\n" +
+					"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" +
+					"     9  athrow\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 8]\n" +
+					"      Local variable table:\n" +
+					"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+					"\n" +
 					"}";
 	try {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -11232,20 +11232,20 @@ public void test376977() throws Exception {
 			"@Outer(nest= {@Nested()})\n" +
 			"public class X {}",
 			"p/Outer.java",
-			"package p;\n" + 
-			"public @interface Outer {\n" + 
-			"   Nested[] nest();" + 
+			"package p;\n" +
+			"public @interface Outer {\n" +
+			"   Nested[] nest();" +
 			"}",
 			"p/Nested.java",
-			"package p;\n" + 
-			"public @interface Nested {\n" + 
+			"package p;\n" +
+			"public @interface Nested {\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	@Outer(nest= {@Nested()})\n" + 
-		"	               ^^^^^^\n" + 
-		"Nested cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	@Outer(nest= {@Nested()})\n" +
+		"	               ^^^^^^\n" +
+		"Nested cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -11330,25 +11330,25 @@ public void test434556() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"A.java",
-			"import java.lang.annotation.Retention;\n" + 
-			"import java.lang.annotation.RetentionPolicy;\n" + 
-			"@Retention(RetentionPolicy.RUNTIME)\n" + 
-			"@interface C {\n" + 
-			"	int i();\n" + 
-			"}\n" + 
-			"public class A {\n" + 
-			"  @C(b={},i=42)\n" + 
-			"  public void xxx() {}\n" + 
-			"  public static void main(String []argv) throws Exception {\n" + 
-			"	System.out.println(A.class.getDeclaredMethod(\"xxx\").getAnnotations()[0]);  \n" + 
-			"  }\n" + 
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@interface C {\n" +
+			"	int i();\n" +
+			"}\n" +
+			"public class A {\n" +
+			"  @C(b={},i=42)\n" +
+			"  public void xxx() {}\n" +
+			"  public static void main(String []argv) throws Exception {\n" +
+			"	System.out.println(A.class.getDeclaredMethod(\"xxx\").getAnnotations()[0]);  \n" +
+			"  }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in A.java (at line 8)\n" + 
-		"	@C(b={},i=42)\n" + 
-		"	   ^\n" + 
-		"The attribute b is undefined for the annotation type C\n" + 
+		"----------\n" +
+		"1. ERROR in A.java (at line 8)\n" +
+		"	@C(b={},i=42)\n" +
+		"	   ^\n" +
+		"The attribute b is undefined for the annotation type C\n" +
 		"----------\n",
 		null,
 		true,
@@ -11357,17 +11357,17 @@ public void test434556() throws Exception {
 		false,
 		false);
 
-	String expectedOutput = "@C(i=(int) 42)\n" + 
-			"  public void xxx();\n" + 
-			"     0  new java.lang.Error [20]\n" + 
-			"     3  dup\n" + 
-			"     4  ldc <String \"Unresolved compilation problem: \\n\\tThe attribute b is undefined for the annotation type C\\n\"> [22]\n" + 
-			"     6  invokespecial java.lang.Error(java.lang.String) [24]\n" + 
-			"     9  athrow\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 8]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: A\n" + 
+	String expectedOutput = "@C(i=(int) 42)\n" +
+			"  public void xxx();\n" +
+			"     0  new java.lang.Error [20]\n" +
+			"     3  dup\n" +
+			"     4  ldc <String \"Unresolved compilation problem: \\n\\tThe attribute b is undefined for the annotation type C\\n\"> [22]\n" +
+			"     6  invokespecial java.lang.Error(java.lang.String) [24]\n" +
+			"     9  athrow\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 8]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: A\n" +
 			"  \n";
 	try {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"A.class", "A", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -11423,22 +11423,22 @@ public void test456960() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"@Bar(String)\n" + 
+			"@Bar(String)\n" +
 			"public class X {\n" +
 			"}",
 			"Bar.java",
-			"import java.lang.annotation.Retention;\n" + 
-			"import java.lang.annotation.RetentionPolicy;\n" + 
-			"@Retention(RetentionPolicy.RUNTIME)\n" + 
-			"@interface Bar {\n" + 
-			"	Class<?>[] value();\n" + 
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@interface Bar {\n" +
+			"	Class<?>[] value();\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	@Bar(String)\n" + 
-		"	     ^^^^^^\n" + 
-		"String cannot be resolved to a variable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	@Bar(String)\n" +
+		"	     ^^^^^^\n" +
+		"String cannot be resolved to a variable\n" +
 		"----------\n",
 		null,
 		true,
@@ -11448,20 +11448,20 @@ public void test456960() throws Exception {
 		false);
 
 	String expectedOutput =
-			"public class X {\n" + 
-			"  \n" + 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 3, Locals: 1\n" + 
-			"  public X();\n" + 
-			"     0  new java.lang.Error [8]\n" + 
-			"     3  dup\n" + 
-			"     4  ldc <String \"Unresolved compilation problem: \\n\\tString cannot be resolved to a variable\\n\"> [10]\n" + 
-			"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
-			"     9  athrow\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 1]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+			"public class X {\n" +
+			"  \n" +
+			"  // Method descriptor #6 ()V\n" +
+			"  // Stack: 3, Locals: 1\n" +
+			"  public X();\n" +
+			"     0  new java.lang.Error [8]\n" +
+			"     3  dup\n" +
+			"     4  ldc <String \"Unresolved compilation problem: \\n\\tString cannot be resolved to a variable\\n\"> [10]\n" +
+			"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" +
+			"     9  athrow\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 1]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
 			"}";
 	try {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
@@ -11553,16 +11553,16 @@ public void testBug386692() {
 			"}\n"
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in Example.java (at line 2)\n" + 
-		"	private @org.springframework.beans.factory.annotation.Autowired Object o;\n" + 
-		"	                                                                       ^\n" + 
-		"The value of the field Example.o is not used\n" + 
-		"----------\n" + 
-		"2. ERROR in Example.java (at line 3)\n" + 
-		"	private Example() {}\n" + 
-		"	        ^^^^^^^^^\n" + 
-		"The constructor Example() is never used locally\n" + 
+		"----------\n" +
+		"1. ERROR in Example.java (at line 2)\n" +
+		"	private @org.springframework.beans.factory.annotation.Autowired Object o;\n" +
+		"	                                                                       ^\n" +
+		"The value of the field Example.o is not used\n" +
+		"----------\n" +
+		"2. ERROR in Example.java (at line 3)\n" +
+		"	private Example() {}\n" +
+		"	        ^^^^^^^^^\n" +
+		"The constructor Example() is never used locally\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -11583,21 +11583,21 @@ public void testBug464977() throws Exception {
 	} else if  (this.complianceLevel == ClassFileConstants.JDK1_6) {
 		version = "1.6 : 50.0";
 	}
-	String expectedOutput = "// Compiled from DeprecatedClass.java (version " + version + ", super bit, deprecated)\n" + 
-							"@Deprecated\n" + 
-							"public class DeprecatedClass {\n" + 
-							"  \n" + 
-							"  // Method descriptor #6 ()V\n" + 
-							"  // Stack: 1, Locals: 1\n" + 
-							"  public DeprecatedClass();\n" + 
-							"    0  aload_0 [this]\n" + 
-							"    1  invokespecial Object() [8]\n" + 
-							"    4  return\n" + 
-							"      Line numbers:\n" + 
-							"        [pc: 0, line: 2]\n" + 
-							"      Local variable table:\n" + 
-							"        [pc: 0, pc: 5] local: this index: 0 type: DeprecatedClass\n" + 
-							"\n" + 
+	String expectedOutput = "// Compiled from DeprecatedClass.java (version " + version + ", super bit, deprecated)\n" +
+							"@Deprecated\n" +
+							"public class DeprecatedClass {\n" +
+							"  \n" +
+							"  // Method descriptor #6 ()V\n" +
+							"  // Stack: 1, Locals: 1\n" +
+							"  public DeprecatedClass();\n" +
+							"    0  aload_0 [this]\n" +
+							"    1  invokespecial Object() [8]\n" +
+							"    4  return\n" +
+							"      Line numbers:\n" +
+							"        [pc: 0, line: 2]\n" +
+							"      Local variable table:\n" +
+							"        [pc: 0, pc: 5] local: this index: 0 type: DeprecatedClass\n" +
+							"\n" +
 							"}";
 	try {
 		this.enableAPT = true;
@@ -11610,133 +11610,133 @@ public void testBug469584() {
 	runNegativeTest(
 		new String[] {
 			"CCETest.java",
-			"import java.lang.annotation.*;\n" + 
-			"\n" + 
-			"@Retention({RetentionPolicy.CLASS, RetentionPolicy.RUNTIME})\n" + 
-			"public @interface CCETest {\n" + 
-			"\n" + 
+			"import java.lang.annotation.*;\n" +
+			"\n" +
+			"@Retention({RetentionPolicy.CLASS, RetentionPolicy.RUNTIME})\n" +
+			"public @interface CCETest {\n" +
+			"\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in CCETest.java (at line 3)\n" + 
-		"	@Retention({RetentionPolicy.CLASS, RetentionPolicy.RUNTIME})\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from RetentionPolicy[] to RetentionPolicy\n" + 
+		"----------\n" +
+		"1. ERROR in CCETest.java (at line 3)\n" +
+		"	@Retention({RetentionPolicy.CLASS, RetentionPolicy.RUNTIME})\n" +
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from RetentionPolicy[] to RetentionPolicy\n" +
 		"----------\n");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=472178 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=472178
 public void test472178() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		return; // Enough to run in 3 levels rather!
 	}
 	String source =
-			"import java.lang.annotation.ElementType;\n" + 
-			"import java.lang.annotation.Retention;\n" + 
-			"import java.lang.annotation.RetentionPolicy;\n" + 
-			"import java.lang.annotation.Target;\n" + 
-			"import java.util.ArrayList;\n" + 
-			"import java.util.Iterator;\n" + 
-			" \n" + 
-			"/**\n" + 
-			" * @author gglab\n" + 
-			" */\n" + 
-			"public class Test<X> extends ArrayList<X> {\n" + 
-			"    public void iterateRemove()\n" + 
-			"    {\n" + 
-			"        for (Iterator<X> iter = this.iterator(); iter.hasNext();) {\n" + 
-			"            Object key = iter.next();\n" + 
-			"            @Flowannotation\n" + 
-			"            Foo<@Flowannotation String> f = new Foo<String>();\n" + 
-			"            @Flowannotation long l = (@Flowannotation long)f.getI(); // this line causes parse error\n" + 
-			"            iter.remove();\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			" \n" + 
-			"    @Flowannotation\n" + 
-			"    class Foo<@Flowannotation T>\n" + 
-			"    {\n" + 
-			"        @Flowannotation\n" + 
-			"        public int getI()\n" + 
-			"        {\n" + 
-			"            return 3;\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			" \n" + 
-			"    @Target({ ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD, ElementType.LOCAL_VARIABLE,           ElementType.TYPE, ElementType.FIELD,\n" + 
-			"            ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})\n" + 
-			"    @Retention(RetentionPolicy.RUNTIME)\n" + 
-			"    @interface Flowannotation {}\n" + 
-			"    public static void main(String[] args) {}\n" + 
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.Iterator;\n" +
+			" \n" +
+			"/**\n" +
+			" * @author gglab\n" +
+			" */\n" +
+			"public class Test<X> extends ArrayList<X> {\n" +
+			"    public void iterateRemove()\n" +
+			"    {\n" +
+			"        for (Iterator<X> iter = this.iterator(); iter.hasNext();) {\n" +
+			"            Object key = iter.next();\n" +
+			"            @Flowannotation\n" +
+			"            Foo<@Flowannotation String> f = new Foo<String>();\n" +
+			"            @Flowannotation long l = (@Flowannotation long)f.getI(); // this line causes parse error\n" +
+			"            iter.remove();\n" +
+			"        }\n" +
+			"    }\n" +
+			" \n" +
+			"    @Flowannotation\n" +
+			"    class Foo<@Flowannotation T>\n" +
+			"    {\n" +
+			"        @Flowannotation\n" +
+			"        public int getI()\n" +
+			"        {\n" +
+			"            return 3;\n" +
+			"        }\n" +
+			"    }\n" +
+			" \n" +
+			"    @Target({ ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD, ElementType.LOCAL_VARIABLE,           ElementType.TYPE, ElementType.FIELD,\n" +
+			"            ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})\n" +
+			"    @Retention(RetentionPolicy.RUNTIME)\n" +
+			"    @interface Flowannotation {}\n" +
+			"    public static void main(String[] args) {}\n" +
 			"}";
 	String expectedOutput =
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 3, Locals: 6\n" + 
-			"  public void iterateRemove();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokevirtual Test.iterator() : Iterator [17]\n" + 
-			"     4  astore_1 [iter]\n" + 
-			"     5  goto 37\n" + 
-			"     8  aload_1 [iter]\n" + 
-			"     9  invokeinterface Iterator.next() : Object [21] [nargs: 1]\n" + 
-			"    14  astore_2 [key]\n" + 
-			"    15  new Test$Foo [27]\n" + 
-			"    18  dup\n" + 
-			"    19  aload_0 [this]\n" + 
-			"    20  invokespecial Test$Foo(Test) [29]\n" + 
-			"    23  astore_3 [f]\n" + 
-			"    24  aload_3 [f]\n" + 
-			"    25  invokevirtual Test$Foo.getI() : int [32]\n" + 
-			"    28  i2l\n" + 
-			"    29  lstore 4 [l]\n" + 
-			"    31  aload_1 [iter]\n" + 
-			"    32  invokeinterface Iterator.remove() : void [36] [nargs: 1]\n" + 
-			"    37  aload_1 [iter]\n" + 
-			"    38  invokeinterface Iterator.hasNext() : boolean [39] [nargs: 1]\n" + 
-			"    43  ifne 8\n" + 
-			"    46  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 14]\n" + 
-			"        [pc: 8, line: 15]\n" + 
-			"        [pc: 15, line: 17]\n" + 
-			"        [pc: 24, line: 18]\n" + 
-			"        [pc: 31, line: 19]\n" + 
-			"        [pc: 37, line: 14]\n" + 
-			"        [pc: 46, line: 21]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 47] local: this index: 0 type: Test\n" + 
-			"        [pc: 5, pc: 46] local: iter index: 1 type: Iterator\n" + 
-			"        [pc: 15, pc: 37] local: key index: 2 type: Object\n" + 
-			"        [pc: 24, pc: 37] local: f index: 3 type: Foo\n" + 
-			"        [pc: 31, pc: 37] local: l index: 4 type: long\n" + 
-			"      Local variable type table:\n" + 
-			"        [pc: 0, pc: 47] local: this index: 0 type: Test<X>\n" + 
-			"        [pc: 5, pc: 46] local: iter index: 1 type: Iterator<X>\n" + 
-			"        [pc: 24, pc: 37] local: f index: 3 type: String>\n" + 
-			"      Stack map table: number of frames 2\n" + 
-			"        [pc: 8, append: {Iterator}]\n" + 
-			"        [pc: 37, same]\n" + 
-			"    RuntimeVisibleTypeAnnotations: \n" + 
-			"      #55 @Flowannotation(\n" + 
-			"        target type = 0x47 CAST\n" + 
-			"        offset = 24\n" + 
-			"        type argument index = 0\n" + 
-			"      )\n" + 
-			"      #55 @Flowannotation(\n" + 
-			"        target type = 0x40 LOCAL_VARIABLE\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 24, pc: 37] index: 3\n" + 
-			"        location = [INNER_TYPE]\n" + 
-			"      )\n" + 
-			"      #55 @Flowannotation(\n" + 
-			"        target type = 0x40 LOCAL_VARIABLE\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 24, pc: 37] index: 3\n" + 
-			"        location = [INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
-			"      )\n" + 
-			"      #55 @Flowannotation(\n" + 
-			"        target type = 0x40 LOCAL_VARIABLE\n" + 
-			"        local variable entries:\n" + 
-			"          [pc: 31, pc: 37] index: 4\n" + 
+			"  // Method descriptor #6 ()V\n" +
+			"  // Stack: 3, Locals: 6\n" +
+			"  public void iterateRemove();\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokevirtual Test.iterator() : Iterator [17]\n" +
+			"     4  astore_1 [iter]\n" +
+			"     5  goto 37\n" +
+			"     8  aload_1 [iter]\n" +
+			"     9  invokeinterface Iterator.next() : Object [21] [nargs: 1]\n" +
+			"    14  astore_2 [key]\n" +
+			"    15  new Test$Foo [27]\n" +
+			"    18  dup\n" +
+			"    19  aload_0 [this]\n" +
+			"    20  invokespecial Test$Foo(Test) [29]\n" +
+			"    23  astore_3 [f]\n" +
+			"    24  aload_3 [f]\n" +
+			"    25  invokevirtual Test$Foo.getI() : int [32]\n" +
+			"    28  i2l\n" +
+			"    29  lstore 4 [l]\n" +
+			"    31  aload_1 [iter]\n" +
+			"    32  invokeinterface Iterator.remove() : void [36] [nargs: 1]\n" +
+			"    37  aload_1 [iter]\n" +
+			"    38  invokeinterface Iterator.hasNext() : boolean [39] [nargs: 1]\n" +
+			"    43  ifne 8\n" +
+			"    46  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 14]\n" +
+			"        [pc: 8, line: 15]\n" +
+			"        [pc: 15, line: 17]\n" +
+			"        [pc: 24, line: 18]\n" +
+			"        [pc: 31, line: 19]\n" +
+			"        [pc: 37, line: 14]\n" +
+			"        [pc: 46, line: 21]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 47] local: this index: 0 type: Test\n" +
+			"        [pc: 5, pc: 46] local: iter index: 1 type: Iterator\n" +
+			"        [pc: 15, pc: 37] local: key index: 2 type: Object\n" +
+			"        [pc: 24, pc: 37] local: f index: 3 type: Foo\n" +
+			"        [pc: 31, pc: 37] local: l index: 4 type: long\n" +
+			"      Local variable type table:\n" +
+			"        [pc: 0, pc: 47] local: this index: 0 type: Test<X>\n" +
+			"        [pc: 5, pc: 46] local: iter index: 1 type: Iterator<X>\n" +
+			"        [pc: 24, pc: 37] local: f index: 3 type: String>\n" +
+			"      Stack map table: number of frames 2\n" +
+			"        [pc: 8, append: {Iterator}]\n" +
+			"        [pc: 37, same]\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #55 @Flowannotation(\n" +
+			"        target type = 0x47 CAST\n" +
+			"        offset = 24\n" +
+			"        type argument index = 0\n" +
+			"      )\n" +
+			"      #55 @Flowannotation(\n" +
+			"        target type = 0x40 LOCAL_VARIABLE\n" +
+			"        local variable entries:\n" +
+			"          [pc: 24, pc: 37] index: 3\n" +
+			"        location = [INNER_TYPE]\n" +
+			"      )\n" +
+			"      #55 @Flowannotation(\n" +
+			"        target type = 0x40 LOCAL_VARIABLE\n" +
+			"        local variable entries:\n" +
+			"          [pc: 24, pc: 37] index: 3\n" +
+			"        location = [INNER_TYPE, TYPE_ARGUMENT(0)]\n" +
+			"      )\n" +
+			"      #55 @Flowannotation(\n" +
+			"        target type = 0x40 LOCAL_VARIABLE\n" +
+			"        local variable entries:\n" +
+			"          [pc: 31, pc: 37] index: 4\n" +
 			"      )\n";
 	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
@@ -11747,25 +11747,25 @@ public void testBug470665() throws Exception {
 	}
 	boolean apt = this.enableAPT;
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" + 
-			"1. ERROR in A.java (at line 10)\n" + 
-			"	};\n" + 
-			"	^\n" + 
-			"Syntax error on token \"}\", delete this token\n" + 
-			"----------\n" + 
+			"----------\n" +
+			"1. ERROR in A.java (at line 10)\n" +
+			"	};\n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n" +
 			"----------\n"
 			:
-			"----------\n" + 
-			"1. ERROR in A.java (at line 10)\n" + 
-			"	};\n" + 
-			"	^\n" + 
-			"Syntax error on token \"}\", delete this token\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in B.java (at line 12)\n" + 
-			"	X x = new X();\n" + 
-			"	      ^^^^^^^\n" + 
-			"Access to enclosing constructor B.X() is emulated by a synthetic accessor method\n" + 
+			"----------\n" +
+			"1. ERROR in A.java (at line 10)\n" +
+			"	};\n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in B.java (at line 12)\n" +
+			"	X x = new X();\n" +
+			"	      ^^^^^^^\n" +
+			"Access to enclosing constructor B.X() is emulated by a synthetic accessor method\n" +
 			"----------\n";
 	String[] sources = new String[] {
 			"A.java",
@@ -11823,11 +11823,11 @@ public void testBug506888a() throws Exception {
 				"}	\n",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. INFO in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"incomplete-switch\"})\n" + 
-		"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
-		"At least one of the problems in category \'incomplete-switch\' is not analysed due to a compiler option being ignored\n" + 
+		"----------\n" +
+		"1. INFO in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"incomplete-switch\"})\n" +
+		"	                   ^^^^^^^^^^^^^^^^^^^\n" +
+		"At least one of the problems in category \'incomplete-switch\' is not analysed due to a compiler option being ignored\n" +
 		"----------\n";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
@@ -11847,7 +11847,7 @@ public void testBug506888b() throws Exception {
 				"	\n" +
 				"	@SuppressWarnings({\"incomplete-switch\"})\n" +
 				"	void foo(Color c) {\n" +
-				"		switch(c) {\n" + 
+				"		switch(c) {\n" +
 				"		}\n" +
 				"	}\n" +
 				"	enum Color { BLUE, RED; } \n" +
@@ -11872,18 +11872,18 @@ public void testBug506888c() throws Exception {
 				"	\n" +
 				"	@SuppressWarnings({\"incomplete-switch\", \"unchecked\"})\n" +
 				"	void foo(Color c) {\n" +
-				"		switch(c) {\n" + 
+				"		switch(c) {\n" +
 				"		}\n" +
 				"	}\n" +
 				"	enum Color { BLUE, RED; } \n" +
 				"}	\n",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	@SuppressWarnings({\"incomplete-switch\", \"unchecked\"})\n" + 
-		"	                                        ^^^^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"unchecked\")\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	@SuppressWarnings({\"incomplete-switch\", \"unchecked\"})\n" +
+		"	                                        ^^^^^^^^^^^\n" +
+		"Unnecessary @SuppressWarnings(\"unchecked\")\n" +
 		"----------\n";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
@@ -11905,7 +11905,7 @@ public void testBug506888d() throws Exception {
 				"	}\n" +
 				"}	\n",
 		},
-		"", 
+		"",
 		null, true, options);
 }
 public void testBug506888e() throws Exception {
@@ -11924,7 +11924,7 @@ public void testBug506888e() throws Exception {
 				"	void foo() {}\n" +
 				"}	\n",
 		},
-		"", 
+		"",
 		null, true, options);
 }
 public void testBug506888f() throws Exception {
@@ -11962,11 +11962,11 @@ public void testBug506888f() throws Exception {
 				"}	\n",
 			},
 			false,
-			"----------\n" + 
-			"1. INFO in X.java (at line 3)\n" + 
-			"	@SuppressWarnings({\"unused\"})\n" + 
-			"	                   ^^^^^^^^\n" + 
-			"At least one of the problems in category \'unused\' is not analysed due to a compiler option being ignored\n" + 
+			"----------\n" +
+			"1. INFO in X.java (at line 3)\n" +
+			"	@SuppressWarnings({\"unused\"})\n" +
+			"	                   ^^^^^^^^\n" +
+			"At least one of the problems in category \'unused\' is not analysed due to a compiler option being ignored\n" +
 			"----------\n",
 			"" /*expectedOutputString */,
 			"" /* expectedErrorString */,
@@ -12072,7 +12072,7 @@ public void testBug537593_001() {
 			JavacTestOptions.DEFAULT);
 	assertNull(requestor.problemArguments);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - common case
 public void testBug542520a() throws Exception {
 	Runner runner = new Runner();
@@ -12091,14 +12091,14 @@ public void testBug542520a() throws Exception {
 			"	 @MethodSource(\"getIntegers\")\n" +
 			"	 void testIntegers(Integer integer) {}\n" +
 			"	 \n" +
-			"	 private static List<Integer> getIntegers() {\n" + 
-			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	 private static List<Integer> getIntegers() {\n" +
+			"		return Arrays.asList(0, 5, 1);\n" +
 			"	}\n" +
 			"}\n",
 		};
 	runner.runConformTest();
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - variation with fully qualified annotation
 public void testBug542520b() throws Exception {
 	Runner runner = new Runner();
@@ -12116,14 +12116,14 @@ public void testBug542520b() throws Exception {
 			"	 @org.junit.jupiter.params.provider.MethodSource(\"getIntegers\")\n" +
 			"	 void testIntegers(Integer integer) {}\n" +
 			"	 \n" +
-			"	 private static List<Integer> getIntegers() {\n" + 
-			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	 private static List<Integer> getIntegers() {\n" +
+			"		return Arrays.asList(0, 5, 1);\n" +
 			"	}\n" +
 			"}\n",
 		};
 	runner.runConformTest();
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - marker annotation
 public void testBug542520c() throws Exception {
 	Runner runner = new Runner();
@@ -12142,14 +12142,14 @@ public void testBug542520c() throws Exception {
 			"	 @MethodSource\n" +
 			"	 void testIntegers(Integer integer) {}\n" +
 			"	 \n" +
-			"	 private static List<Integer> testIntegers() {\n" + 
-			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	 private static List<Integer> testIntegers() {\n" +
+			"		return Arrays.asList(0, 5, 1);\n" +
 			"	}\n" +
 			"}\n",
 		};
 	runner.runConformTest();
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X
 // is never used locally is shown when using MethodSource - missing no-args method source
 public void testBug542520d() throws Exception {
 	Map customOptions = getCompilerOptions();
@@ -12169,16 +12169,16 @@ public void testBug542520d() throws Exception {
 			"	 void testIntegers(Integer integer) {}\n" +
 			"	 \n" +
 			"	 private static List<Integer> getIntegers(int i) {\n" +
-			"		return Arrays.asList(0, 5, 1);\n" + 
+			"		return Arrays.asList(0, 5, 1);\n" +
 			"	}\n" +
 			"}\n",
 		},
 		null, customOptions,
-		"----------\n" + 
-		"1. ERROR in ExampleTest.java (at line 9)\n" + 
-		"	private static List<Integer> getIntegers(int i) {\n" + 
-		"	                             ^^^^^^^^^^^^^^^^^^\n" + 
-		"The method getIntegers(int) from the type ExampleTest is never used locally\n" + 
+		"----------\n" +
+		"1. ERROR in ExampleTest.java (at line 9)\n" +
+		"	private static List<Integer> getIntegers(int i) {\n" +
+		"	                             ^^^^^^^^^^^^^^^^^^\n" +
+		"The method getIntegers(int) from the type ExampleTest is never used locally\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -12261,8 +12261,8 @@ public void testBug546084c() throws Exception {
 			"	 @MethodSource({ \"getIntegers\" })\n" +
 			"	 void testIntegers(Integer integer) {}\n" +
 			"	 \n" +
-			"	 private static List<Integer> getIntegers() {\n" + 
-			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	 private static List<Integer> getIntegers() {\n" +
+			"		return Arrays.asList(0, 5, 1);\n" +
 			"	}\n" +
 			"}\n",
 		};
@@ -12272,38 +12272,38 @@ public void testBug490698_comment16() {
 	runConformTest(
 		new String[]  {
 			"foo/bar/AnnotationError.java",
-			"package foo.bar;\n" + 
-			"\n" + 
-			"import static java.lang.annotation.ElementType.FIELD;\n" + 
-			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-			"\n" + 
-			"import java.lang.annotation.Retention;\n" + 
-			"import java.lang.annotation.Target;\n" + 
-			"import java.util.function.Predicate;\n" + 
-			"\n" + 
-			"public class AnnotationError<T> {\n" + 
-			"\n" + 
-			"	public enum P {\n" + 
-			"		AAA\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	@Target(FIELD)\n" + 
-			"	@Retention(RUNTIME)\n" + 
-			"	public @interface A {\n" + 
-			"		P value();\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	@Target(FIELD)\n" + 
-			"	@Retention(RUNTIME)\n" + 
-			"	public @interface FF {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static class Bool extends AnnotationError<Boolean> {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	@A(P.AAA)\n" + 
-			"	@FF\n" + 
-			"	public static final AnnotationError.Bool FOO = new AnnotationError.Bool();\n" + 
+			"package foo.bar;\n" +
+			"\n" +
+			"import static java.lang.annotation.ElementType.FIELD;\n" +
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
+			"\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"import java.util.function.Predicate;\n" +
+			"\n" +
+			"public class AnnotationError<T> {\n" +
+			"\n" +
+			"	public enum P {\n" +
+			"		AAA\n" +
+			"	}\n" +
+			"\n" +
+			"	@Target(FIELD)\n" +
+			"	@Retention(RUNTIME)\n" +
+			"	public @interface A {\n" +
+			"		P value();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Target(FIELD)\n" +
+			"	@Retention(RUNTIME)\n" +
+			"	public @interface FF {\n" +
+			"	}\n" +
+			"\n" +
+			"	public static class Bool extends AnnotationError<Boolean> {\n" +
+			"	}\n" +
+			"\n" +
+			"	@A(P.AAA)\n" +
+			"	@FF\n" +
+			"	public static final AnnotationError.Bool FOO = new AnnotationError.Bool();\n" +
 			"}\n"
 		});
 }

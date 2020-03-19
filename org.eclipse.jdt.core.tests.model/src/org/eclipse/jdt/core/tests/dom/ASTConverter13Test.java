@@ -67,7 +67,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter13Test.class);
 	}
-	
+
 	static int getAST13() {
 		return AST.JLS13;
 	}
@@ -85,17 +85,17 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		String contents =
 			"	public class X {\n" +
 			"   enum Day\n" +
-			"   {\n" + 
-			"   	SUNDAY, MONDAY, TUESDAY, WEDNESDAY,\n" + 
-			"   	THURSDAY, FRIDAY, SATURDAY;\n" + 
+			"   {\n" +
+			"   	SUNDAY, MONDAY, TUESDAY, WEDNESDAY,\n" +
+			"   	THURSDAY, FRIDAY, SATURDAY;\n" +
 			"	}\n" +
-			"	public static void main(String[] args) {\n" + 
+			"	public static void main(String[] args) {\n" +
 			"		Day day = Day.SUNDAY;\n" +
-			"		int k = switch (day) {\n" + 
-			"    	case MONDAY  -> throw new NullPointerException();\n" + 
-			"    	case TUESDAY -> 1;\n" + 
-			"\n" +     
-			"	 	case WEDNESDAY -> {yield 10;}\n" + 
+			"		int k = switch (day) {\n" +
+			"    	case MONDAY  -> throw new NullPointerException();\n" +
+			"    	case TUESDAY -> 1;\n" +
+			"\n" +
+			"	 	case WEDNESDAY -> {yield 10;}\n" +
 			"    	default      -> {\n" +
 			"        	int g = day.toString().length();\n" +
 			"        	yield g;\n" +
@@ -132,35 +132,35 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	 */
 	public void _test0002() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" + 
-			"	String aa(Day day) throws Exception {\n" + 
-			"		var today = \"\";\n" + 
-			"		switch (day) {\n" + 
-			"			case SATURDAY,SUNDAY ->\n" + 
-			"				today=\"Weekend\";\n" + 
-			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->\n" + 
-			"				today=\"Working\";\n" + 
-			"			default ->\n" + 
-			"				throw new Exception(\"Invalid day: \" + day.name());\n" + 
-			"		}\n" + 
-			"		return today;\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	String bb(Day day) throws Exception {\n" + 
-			"		var today = \"\";\n" + 
-			"		switch (day) {\n" + 
-			"			case SATURDAY,SUNDAY:\n" + 
-			"				today = \"Weekend day\";\n" + 
-			"				break;\n" + 
-			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" + 
-			"				today = \"Working day\";\n" + 
-			"				break;\n" + 
-			"			default:\n" + 
-			"				throw new Exception(\"Invalid day: \" + day.name());\n" + 
-			"		}\n" + 
-			"		return today;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
+			"	String aa(Day day) throws Exception {\n" +
+			"		var today = \"\";\n" +
+			"		switch (day) {\n" +
+			"			case SATURDAY,SUNDAY ->\n" +
+			"				today=\"Weekend\";\n" +
+			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->\n" +
+			"				today=\"Working\";\n" +
+			"			default ->\n" +
+			"				throw new Exception(\"Invalid day: \" + day.name());\n" +
+			"		}\n" +
+			"		return today;\n" +
+			"	}\n" +
+			"	\n" +
+			"	String bb(Day day) throws Exception {\n" +
+			"		var today = \"\";\n" +
+			"		switch (day) {\n" +
+			"			case SATURDAY,SUNDAY:\n" +
+			"				today = \"Weekend day\";\n" +
+			"				break;\n" +
+			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
+			"				today = \"Working day\";\n" +
+			"				break;\n" +
+			"			default:\n" +
+			"				throw new Exception(\"Invalid day: \" + day.name());\n" +
+			"		}\n" +
+			"		return today;\n" +
+			"	}\n" +
 			"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
@@ -183,7 +183,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	
+
 	/* test implicit break statement */
 
 	public void _test0003() throws JavaModelException {
@@ -232,7 +232,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 				assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
 				SwitchStatement switchStatement = (SwitchStatement) node;
 				checkSourceRange((Statement) switchStatement.statements().get(0), "case SATURDAY,SUNDAY ->", contents);
-			
+
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -283,7 +283,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 				Expression expression2 = brStmt.getExpression();
 				assertNotNull("should not null", expression2);
 				assertEquals("incorrect node type", ASTNode.STRING_LITERAL, expression2.getNodeType());
-				
+
 				//default case:
 				SwitchCase caseStmt = (SwitchCase) statements.get(4);
 				assertTrue("not default", caseStmt.isDefault());
@@ -291,7 +291,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 				expression2 = brStmt.getExpression();
 				assertNotNull("should not null", expression2);
 				assertEquals("incorrect node type", ASTNode.STRING_LITERAL, expression2.getNodeType());
-			
+
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -300,14 +300,14 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	public void __test0005() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-				"	public String _test001() {\n" + 
-				"		int i = 0;\n" + 
-				"		String ret = switch(i%2) {\n" + 
-				"		case 0 -> \"odd\";\n" + 
-				"		case 1 -> \"even\";\n" + 
-				"		default -> \"\";\n" + 
-				"		};\n" + 
-				"		return ret;\n" + 
+				"	public String _test001() {\n" +
+				"		int i = 0;\n" +
+				"		String ret = switch(i%2) {\n" +
+				"		case 0 -> \"odd\";\n" +
+				"		case 1 -> \"even\";\n" +
+				"		default -> \"\";\n" +
+				"		};\n" +
+				"		return ret;\n" +
 				"	}" +
 				"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
@@ -347,7 +347,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 				expression2 = brStmt.getExpression();
 				assertNotNull("should not null", expression2);
 				assertEquals("incorrect node type", ASTNode.STRING_LITERAL, expression2.getNodeType());
-			
+
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -355,14 +355,14 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	public void _test0006() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String _test001() {\n" + 
-						"		int i = 0;\n" + 
-						"		String ret = switch(i%2) {\n" + 
-						"		case 0 -> {return \"odd\"; }\n" + 
-						"		case 1 -> \"even\";\n" + 
-						"		default -> \"\";\n" + 
-						"		};\n" + 
-						"		return ret;\n" + 
+						"	public String _test001() {\n" +
+						"		int i = 0;\n" +
+						"		String ret = switch(i%2) {\n" +
+						"		case 0 -> {return \"odd\"; }\n" +
+						"		case 1 -> \"even\";\n" +
+						"		default -> \"\";\n" +
+						"		};\n" +
+						"		return ret;\n" +
 						"	}" +
 						"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
@@ -411,19 +411,19 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			String source =
 				"import java.util.*;\n" +
 				"public class X {\n" +
-				"	void testForeach1(int i, List<String> list) {\n" + 
-				"		for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" + 
-				"			\n" + 
+				"	void testForeach1(int i, List<String> list) {\n" +
+				"		for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" +
+				"			\n" +
 				"		}\n" +
 				"		Throwable t = switch (i) {\n" +
 				"			case 1 -> new Exception();\n" +
 				"			case 2 -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
 				"			default -> missing;\n" +
 				"		};\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	void testForeach0(int i, List<String> list) {\n" + // errors in first arm
-				"		for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" + 
-				"			\n" + 
+				"		for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" +
+				"			\n" +
 				"		}\n" +
 				"		Throwable t = switch (i) {\n" +
 				"			case 0 -> missing;\n" +
@@ -440,7 +440,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 				"}\n";
 			createFile("Foo/src/X.java", source);
 			ICompilationUnit cuD = getCompilationUnit("/Foo/src/X.java");
-				
+
 			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS13);
 			parser.setProject(p);
 			parser.setSource(cuD);
@@ -450,55 +450,55 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 			IProblem[] problems = cuAST.getProblems();
 			assertProblems("Unexpected problems",
-					"1. ERROR in /Foo/src/X.java (at line 4)\n" + 
-					"	for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" + 
-					"	                                                    ^^\n" + 
-					"Syntax error on token \"->\", Expression expected after this token\n" + 
-					"----------\n" + 
-					"2. ERROR in /Foo/src/X.java (at line 10)\n" + 
-					"	default -> missing;\n" + 
-					"	           ^^^^^^^\n" + 
-					"missing cannot be resolved to a variable\n" + 
-					"----------\n" + 
-					"3. ERROR in /Foo/src/X.java (at line 14)\n" + 
-					"	for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" + 
-					"	                                   ^^\n" + 
-					"Syntax error on token \"->\", Expression expected after this token\n" + 
-					"----------\n" + 
-					"4. ERROR in /Foo/src/X.java (at line 18)\n" + 
-					"	case 0 -> missing;\n" + 
-					"	          ^^^^^^^\n" + 
-					"missing cannot be resolved to a variable\n" + 
-					"----------\n" + 
-					"5. ERROR in /Foo/src/X.java (at line 25)\n" + 
-					"	case 0 -> missing;\n" + 
-					"	          ^^^^^^^\n" + 
-					"missing cannot be resolved to a variable\n" + 
-					"----------\n" + 
-					"6. ERROR in /Foo/src/X.java (at line 26)\n" + 
-					"	default -> absent;\n" + 
-					"	           ^^^^^^\n" + 
-					"absent cannot be resolved to a variable\n" + 
+					"1. ERROR in /Foo/src/X.java (at line 4)\n" +
+					"	for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" +
+					"	                                                    ^^\n" +
+					"Syntax error on token \"->\", Expression expected after this token\n" +
+					"----------\n" +
+					"2. ERROR in /Foo/src/X.java (at line 10)\n" +
+					"	default -> missing;\n" +
+					"	           ^^^^^^^\n" +
+					"missing cannot be resolved to a variable\n" +
+					"----------\n" +
+					"3. ERROR in /Foo/src/X.java (at line 14)\n" +
+					"	for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" +
+					"	                                   ^^\n" +
+					"Syntax error on token \"->\", Expression expected after this token\n" +
+					"----------\n" +
+					"4. ERROR in /Foo/src/X.java (at line 18)\n" +
+					"	case 0 -> missing;\n" +
+					"	          ^^^^^^^\n" +
+					"missing cannot be resolved to a variable\n" +
+					"----------\n" +
+					"5. ERROR in /Foo/src/X.java (at line 25)\n" +
+					"	case 0 -> missing;\n" +
+					"	          ^^^^^^^\n" +
+					"missing cannot be resolved to a variable\n" +
+					"----------\n" +
+					"6. ERROR in /Foo/src/X.java (at line 26)\n" +
+					"	default -> absent;\n" +
+					"	           ^^^^^^\n" +
+					"absent cannot be resolved to a variable\n" +
 					"----------\n",
 					problems, source.toCharArray());
 		} finally {
 			deleteProject(p);
 		}
 	}
-	
+
 	public void _test0007() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String _test001() {\n" + 
-						"		String s = \"\"\"\n" + 
-						"      	<html>\n" + 
-						"        <body>\n" + 
-						"            <p>Hello, world</p>\n" + 
-						"        </body>\n" + 
-						"    	</html>\n" + 
-						"    	\"\"\";\n" + 
+						"	public String _test001() {\n" +
+						"		String s = \"\"\"\n" +
+						"      	<html>\n" +
+						"        <body>\n" +
+						"            <p>Hello, world</p>\n" +
+						"        </body>\n" +
+						"    	</html>\n" +
+						"    	\"\"\";\n" +
 						"    	System.out.println(s);" +
-						"		return s;\n" + 
+						"		return s;\n" +
 						"	}" +
 						"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
@@ -526,14 +526,14 @@ public class ASTConverter13Test extends ConverterTestSetup {
 
 			assertTrue("String should not be empty", escapedValue.length() != 0);
 			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
-			
+
 			String literal = ((TextBlock) initializer).getLiteralValue();
-			assertEquals("literal value not correct", 
-					"      	<html>\n" + 
-					"        <body>\n" + 
-					"            <p>Hello, world</p>\n" + 
-					"        </body>\n" + 
-					"    	</html>\n" + 
+			assertEquals("literal value not correct",
+					"      	<html>\n" +
+					"        <body>\n" +
+					"            <p>Hello, world</p>\n" +
+					"        </body>\n" +
+					"    	</html>\n" +
 					"    	",
 					literal);
 
@@ -544,16 +544,16 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	public void _test0008() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String _test001() {\n" + 
-						"		String s = \"\"\"\n" + 
-						"      	<html>\n" + 
-						"        <body>\n" + 
-						"            <p>Hello, world</p>\n" + 
-						"        </body>\n" + 
-						"    	</html>\n" + 
-						"    	\"\"\";\n" + 
+						"	public String _test001() {\n" +
+						"		String s = \"\"\"\n" +
+						"      	<html>\n" +
+						"        <body>\n" +
+						"            <p>Hello, world</p>\n" +
+						"        </body>\n" +
+						"    	</html>\n" +
+						"    	\"\"\";\n" +
 						"    	System.out.println(s);" +
-						"		return s;\n" + 
+						"		return s;\n" +
 						"	}" +
 						"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
@@ -581,16 +581,16 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	public void _test0009() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String _test001() {\n" + 
-						"		String s = \"\"\"\n" + 
-						"      	<html>\n" + 
-						"        <body>\n" + 
-						"            <p>Hello, world</p>\n" + 
-						"        </body>\n" + 
-						"    	</html>\n" + 
-						"    	\"\"\";\n" + 
+						"	public String _test001() {\n" +
+						"		String s = \"\"\"\n" +
+						"      	<html>\n" +
+						"        <body>\n" +
+						"            <p>Hello, world</p>\n" +
+						"        </body>\n" +
+						"    	</html>\n" +
+						"    	\"\"\";\n" +
 						"    	System.out.println(s);" +
-						"		return s;\n" + 
+						"		return s;\n" +
 						"	}" +
 						"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
@@ -617,29 +617,29 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			ITypeBinding binding = initializer.resolveTypeBinding();
 			assertNotNull("No binding", binding);
 			assertEquals("Wrong qualified name", "java.lang.String", binding.getQualifiedName());
-			
+
 			String escapedValue = ((TextBlock) initializer).getEscapedValue();
 
 			assertTrue("String should not be empty", escapedValue.length() != 0);
 			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
-			assertEquals("escaped value not correct", 
-					"\"\"\"\n" + 
-					"      	<html>\n" + 
-					"        <body>\n" + 
-					"            <p>Hello, world</p>\n" + 
-					"        </body>\n" + 
-					"    	</html>\n" + 
-					"    	\"\"\"", 
+			assertEquals("escaped value not correct",
+					"\"\"\"\n" +
+					"      	<html>\n" +
+					"        <body>\n" +
+					"            <p>Hello, world</p>\n" +
+					"        </body>\n" +
+					"    	</html>\n" +
+					"    	\"\"\"",
 					escapedValue);
-			
+
 			String literal = ((TextBlock) initializer).getLiteralValue();
-			assertEquals("literal value not correct", 
-					"      	<html>\n" + 
-					"        <body>\n" + 
-					"            <p>Hello, world</p>\n" + 
-					"        </body>\n" + 
-					"    	</html>\n" + 
-					"    	", 
+			assertEquals("literal value not correct",
+					"      	<html>\n" +
+					"        <body>\n" +
+					"            <p>Hello, world</p>\n" +
+					"        </body>\n" +
+					"    	</html>\n" +
+					"    	",
 					literal);
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
@@ -647,16 +647,16 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	}
 	public void _test0010() throws JavaModelException {
 		String contents =
-				"public class test13 {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		String s = \"\"\"\n" + 
-				"				nadknaks vgvh \n" + 
-				"				\"\"\";\n" + 
-				"\n" + 
-				"		int m = 10;\n" + 
-				"		m = m* 6;\n" + 
-				"		System.out.println(s);\n" + 
-				"	}\n" + 
+				"public class test13 {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		String s = \"\"\"\n" +
+				"				nadknaks vgvh \n" +
+				"				\"\"\";\n" +
+				"\n" +
+				"		int m = 10;\n" +
+				"		m = m* 6;\n" +
+				"		System.out.println(s);\n" +
+				"	}\n" +
 				"}" ;
 		this.workingCopy = getWorkingCopy("/Converter13/src/test13.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
@@ -682,7 +682,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	
+
 		public void _test0011() throws CoreException {
 			// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
 			if (!isJRE13) {
@@ -690,23 +690,23 @@ public class ASTConverter13Test extends ConverterTestSetup {
 				return;
 			}
 			String source =
-				"public class Switch {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		foo(Day.TUESDAY);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	@SuppressWarnings(\"preview\")\n" + 
-				"	private static void foo(Day day) {\n" + 
-				"		switch (day) {\n" + 
-				"		case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);\n" + 
-				"		case TUESDAY -> System.out.println(7);\n" + 
-				"		case THURSDAY, SATURDAY -> System.out.println(8);\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"enum Day {\n" + 
-				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" + 
+				"public class Switch {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(Day.TUESDAY);\n" +
+				"	}\n" +
+				"\n" +
+				"	@SuppressWarnings(\"preview\")\n" +
+				"	private static void foo(Day day) {\n" +
+				"		switch (day) {\n" +
+				"		case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);\n" +
+				"		case TUESDAY -> System.out.println(7);\n" +
+				"		case THURSDAY, SATURDAY -> System.out.println(8);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"enum Day {\n" +
+				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}\n";
 			this.workingCopy = getWorkingCopy("/Converter13/src/Switch.java", true/*resolve*/);
 			IJavaProject javaProject = this.workingCopy.getJavaProject();

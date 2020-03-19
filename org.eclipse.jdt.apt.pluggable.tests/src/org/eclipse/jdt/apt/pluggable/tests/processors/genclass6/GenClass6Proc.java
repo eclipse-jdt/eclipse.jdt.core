@@ -47,7 +47,7 @@ import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions({})
 public class GenClass6Proc extends AbstractProcessor {
-	
+
 	private ProcessingEnvironment _processingEnv;
 	private Messager _messager;
 	private Filer _filer;
@@ -70,7 +70,7 @@ public class GenClass6Proc extends AbstractProcessor {
 	 */
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
-			RoundEnvironment roundEnv) 
+			RoundEnvironment roundEnv)
 	{
 		if (roundEnv.processingOver() && !_classesToSummarize.isEmpty()) {
 			summarize();
@@ -115,7 +115,7 @@ public class GenClass6Proc extends AbstractProcessor {
 			_messager.printMessage(Diagnostic.Kind.WARNING, "Unable to read @GenClass6 annotation" + e.getLocalizedMessage(), annotatedEl);
 			return;
 		}
-		
+
 		// Options allow the processor to expose certain error conditions.
 		if (null != options) {
 			Set<String> optionSet = new HashSet<String>(Arrays.asList(options));
@@ -124,7 +124,7 @@ public class GenClass6Proc extends AbstractProcessor {
 				annotatedEl.getEnclosedElements();
 			}
 		}
-		
+
 		if (name.length() == 0) {
 			// User hasn't specified name yet
 			_messager.printMessage(Diagnostic.Kind.WARNING, "The name attribute is missing", annotatedEl);
@@ -137,7 +137,7 @@ public class GenClass6Proc extends AbstractProcessor {
 		if (method == null) {
 			method = "";
 		}
-		
+
 		// Get a writer
 		JavaFileObject jfo = null;
 		try {
@@ -153,7 +153,7 @@ public class GenClass6Proc extends AbstractProcessor {
 			_messager.printMessage(Diagnostic.Kind.WARNING, "Unable to get writer for file " + jfo.getName());
 			return;
 		}
-		
+
 		// Generate the class
 		if (summary) {
 			_classesToSummarize.put(qname, annotatedEl);
@@ -196,8 +196,8 @@ public class GenClass6Proc extends AbstractProcessor {
 	}
 
 	/**
-	 * Generate the summary.txt file if requested  
-	 */ 
+	 * Generate the summary.txt file if requested
+	 */
 	protected void summarize() {
 		PrintWriter pw = null;
 		try {

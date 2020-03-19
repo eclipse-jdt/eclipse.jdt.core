@@ -999,7 +999,7 @@ public void testChangeJRE9_8() throws CoreException, IOException {
 		for (int i = 0; i < rawClasspath.length; i++) {
 			IClasspathEntry entry = rawClasspath[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-				rawClasspath[i] = JavaCore.newVariableEntry(new Path("JCL18_LIB"), new Path("JCL18_SRC"), null, null, null, false); 
+				rawClasspath[i] = JavaCore.newVariableEntry(new Path("JCL18_LIB"), new Path("JCL18_SRC"), null, null, null, false);
 				break;
 			}
 		}
@@ -1030,7 +1030,7 @@ public void testChangeJRE8_9() throws CoreException, IOException {
 		for (int i = 0; i < rawClasspath.length; i++) {
 			IClasspathEntry entry = rawClasspath[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-				rawClasspath[i] = JavaCore.newVariableEntry(new Path("JCL19_LIB"), new Path("JCL19_SRC"), null, null, null, false); 
+				rawClasspath[i] = JavaCore.newVariableEntry(new Path("JCL19_LIB"), new Path("JCL19_SRC"), null, null, null, false);
 				break;
 			}
 		}
@@ -1039,9 +1039,9 @@ public void testChangeJRE8_9() throws CoreException, IOException {
 
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CONTENT | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	"+ getExternalPath() + "jclMin1.8.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
-			"	"+ getExternalPath() + "jclMin9.jar[+]: {}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RESOLVED CLASSPATH CHANGED}\n" +
+			"	"+ getExternalPath() + "jclMin1.8.jar[*]: {REMOVED FROM CLASSPATH}\n" +
+			"	"+ getExternalPath() + "jclMin9.jar[+]: {}\n" +
 			"	ResourceDelta(/P/.classpath)[*]",
 			true);
 	} finally {
@@ -2513,8 +2513,8 @@ public void testRemoveExternalLibFolder2() throws CoreException {
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	"+ getExternalPath() + "externalLib[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"	"+ getExternalPath() + "externalLib[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"
 		);
 	} finally {
@@ -2605,8 +2605,8 @@ public void testRemoveZIPArchive2() throws CoreException {
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
 			"Unexpected delta",
-			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" + 
-			"	"+ getExternalPath() + "externalLib.abc[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
+			"	"+ getExternalPath() + "externalLib.abc[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"		);
 	} finally {
 		stopDeltas();

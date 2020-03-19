@@ -99,9 +99,9 @@ public class JavaIndex {
 	/**
 	 * Returns true iff the given resource file is up-to-date with the filesystem. Returns false
 	 * if the argument is null or there is a possibility it being out-of-date with the file system.
-	 * 
+	 *
 	 * @param file the index file to look up or null
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
 	public boolean isUpToDate(NdResourceFile file) throws CoreException {
 		if (file != null && file.isDoneIndexing()) {
@@ -219,7 +219,7 @@ public class JavaIndex {
 	}
 
 	/**
-	 * @return always return {@code false} see bug 544898. New index is disabled now. 
+	 * @return always return {@code false} see bug 544898. New index is disabled now.
 	 */
 	public static boolean isEnabled() {
 		return false;

@@ -40,7 +40,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
  * Represents a formal parameter that came from binary.
  */
 public class BinaryParameterDeclarationImpl extends DeclarationImpl implements ParameterDeclaration
-{   
+{
 	static final String ARG = "arg"; //$NON-NLS-1$
 	private final ITypeBinding _type;
 	private final ExecutableDeclarationImpl _executable;
@@ -48,7 +48,7 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
     /**
      * Parameter declaration from binary
      */
-    public BinaryParameterDeclarationImpl(ExecutableDeclarationImpl executable, 
+    public BinaryParameterDeclarationImpl(ExecutableDeclarationImpl executable,
 										  ITypeBinding typeBinding,
                                           int index,
                                           BaseProcessorEnv env)
@@ -61,13 +61,13 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
         _paramIndex = index;
         _executable = executable;
     }
-    
+
     @Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitParameterDeclaration(this);
-    }  
- 
+    }
+
     @Override
 	public Collection<Modifier> getModifiers()
     {
@@ -75,13 +75,13 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
 		// we don't store this information. so simply return nothing for now.
         return Collections.emptyList();
     }
-    
+
     @Override
 	public String getDocComment()
     {
         return null;
     }
-    
+
     @Override
 	public String getSimpleName()
     {
@@ -95,8 +95,8 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
 	public SourcePosition getPosition()
     {
         return null;
-    }        
-    
+    }
+
     @Override
 	public TypeMirror getType()
     {
@@ -105,12 +105,12 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
             return Factory.createErrorClassType(getTypeBinding());
         return mirrorType;
     }
-    
+
     @Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
 		final IMethodBinding methodBinding = _executable.getDeclarationBinding();
-		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
+		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex);
         return _getAnnotation(annotationClass, paramAnnos);
     }
 
@@ -118,13 +118,13 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
 	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IMethodBinding methodBinding = _executable.getDeclarationBinding();
-		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
+		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex);
         return _getAnnotationMirrors(paramAnnos);
-    }    
-    
+    }
+
 	@Override
 	public boolean isBindingBased(){ return true; }
-	
+
 	@Override
 	public boolean isFromSource(){ return false; }
 
@@ -133,17 +133,17 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
 
     @Override
 	public IFile getResource(){ return null; }
-    
+
     private ITypeBinding getTypeBinding(){ return _type; }
-    
+
     @Override
 	public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
-    
+
     @Override
 	public IBinding getDeclarationBinding(){
     	throw new UnsupportedOperationException("should never be invoked on a BinaryParameterDeclaration"); //$NON-NLS-1$
     }
-    
+
     @Override
 	public boolean equals(Object obj){
         if( obj instanceof BinaryParameterDeclarationImpl ){
@@ -153,22 +153,22 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
         }
         return false;
     }
-    
+
     @Override
 	public int hashCode(){
     	final String methodKey = _executable.getDeclarationBinding().getKey();
     	int hashcode = 0;
     	if( methodKey != null )
     		hashcode = methodKey.hashCode();
-    	return hashcode + _paramIndex; 
-    }  
-    
+    	return hashcode + _paramIndex;
+    }
+
     @Override
-	public String toString(){		
+	public String toString(){
         final StringBuilder builder = new StringBuilder();
         builder.append(getTypeBinding().getName());
         builder.append(' ');
-        builder.append(getSimpleName());        
+        builder.append(getSimpleName());
         return builder.toString();
     }
-} 
+}

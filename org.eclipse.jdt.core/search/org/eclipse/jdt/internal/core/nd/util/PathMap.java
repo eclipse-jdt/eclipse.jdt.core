@@ -100,7 +100,7 @@ public class PathMap<T> {
 	    	if (this.children == null) {
 	    		return;
 	    	}
-	
+
 	    	for (Entry<String, Node<T>> next : this.children.entrySet()) {
 	    		String key = next.getKey();
 	    		IPath nextPath = buildChildPath(parent, key);
@@ -112,7 +112,7 @@ public class PathMap<T> {
 	      IPath nextPath = parent.append(key);
 	      return nextPath;
 	    }
-		
+
 	    public void toString(StringBuilder builder, IPath parentPath) {
 		    if (this.exists) {
 		    	builder.append("["); //$NON-NLS-1$
@@ -121,7 +121,7 @@ public class PathMap<T> {
 		    	builder.append(this.value);
 		    	builder.append("\n"); //$NON-NLS-1$
 		    }
-		    if (this.children != null) { 
+		    if (this.children != null) {
 		    	for (Entry<String, Node<T>> next : this.children.entrySet()) {
 		    		String key = next.getKey();
 		    		IPath nextPath = buildChildPath(parentPath, key);
@@ -165,7 +165,7 @@ public class PathMap<T> {
     		nextPath.setDevice(key);
     		return nextPath;
 		}
-		
+
 		@Override
 		public void toString(StringBuilder builder, IPath parentPath) {
 			this.noDevice.toString(builder, parentPath);
@@ -226,7 +226,7 @@ public class PathMap<T> {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		
+
 		this.root.toString(builder, Path.EMPTY);
 		return builder.toString();
 	}

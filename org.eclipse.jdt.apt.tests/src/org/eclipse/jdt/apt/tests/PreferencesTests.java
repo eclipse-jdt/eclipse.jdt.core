@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -41,15 +41,15 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 
 public class PreferencesTests extends APTTestBase {
-	
+
 	public PreferencesTests(final String name) {
 		super( name );
 	}
 
 	public static Test suite() {
 		return new TestSuite( PreferencesTests.class );
-	}	
-	
+	}
+
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
 		Map<FactoryContainer, FactoryPath.Attributes> factories = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
@@ -64,7 +64,7 @@ public class PreferencesTests extends APTTestBase {
 		factories.put(pluginFactory, pluginFPA);
 		String xml = FactoryPathUtil.encodeFactoryPath(factories);
 		assertEquals(serializedFactories, xml);
-		
+
 		// decode
 		factories = FactoryPathUtil.decodeFactoryPath(xml);
 		assertEquals(3, factories.size());
@@ -94,16 +94,16 @@ public class PreferencesTests extends APTTestBase {
 			default:
 				fail("FactoryPath had an unexpected number of entries: " + (index + 1));
 			}
-		
+
 			index++;
 		}
 	}
-	
+
 	// Need to use temp files to get path to external jars.
 	// Platform differences prevent us from hard-coding a string here
 	private static final String JAR_PATH_1;
 	private static final String JAR_PATH_2;
-	
+
 	static {
 		File jar1 = null;
 		File jar2 = null;
@@ -121,21 +121,21 @@ public class PreferencesTests extends APTTestBase {
 			if (jar2 != null) jar2.delete();
 		}
 	}
-	
-	private static final String serializedFactories = 
-		"<factorypath>\n" + 
-		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_1 + "\" enabled=\"true\" runInBatchMode=\"false\"/>\n" + 
-		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_2 + "\" enabled=\"true\" runInBatchMode=\"true\"/>\n" + 
-		"    <factorypathentry kind=\"PLUGIN\" id=\"org.eclipse.jdt.apt.tests\" enabled=\"false\" runInBatchMode=\"false\"/>\n" + 
+
+	private static final String serializedFactories =
+		"<factorypath>\n" +
+		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_1 + "\" enabled=\"true\" runInBatchMode=\"false\"/>\n" +
+		"    <factorypathentry kind=\"EXTJAR\" id=\"" + JAR_PATH_2 + "\" enabled=\"true\" runInBatchMode=\"true\"/>\n" +
+		"    <factorypathentry kind=\"PLUGIN\" id=\"org.eclipse.jdt.apt.tests\" enabled=\"false\" runInBatchMode=\"false\"/>\n" +
 		"</factorypath>\n";
-	
+
 	/**
 	 * Test the config API for settings other than factory path
 	 * @throws Exception
 	 */
 	public void testSimpleConfigApi() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
-		
+
 		// aptEnabled
 		AptConfig.setEnabled(jproj, false);
 		assertFalse(AptConfig.isEnabled(jproj));
@@ -143,14 +143,14 @@ public class PreferencesTests extends APTTestBase {
 		AptConfig.setEnabled(jproj, true);
 		assertTrue(AptConfig.isEnabled(jproj));
 		assertFalse(AptConfig.isEnabled(null));
-		
+
 		// processorOptions
 		Map<String, String> wkspOpts = new HashMap<String, String>(3);
 		wkspOpts.put("b", "bVal");
 		wkspOpts.put("another option", "and\\more \"punctuation!\"");
 		AptConfig.setProcessorOptions(wkspOpts, null);
 		Map<String, String> retrievedWkspOpts = AptConfig.getRawProcessorOptions(null);
-		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()",
 				wkspOpts.equals(retrievedWkspOpts));
 
 		Map<String, String> projOpts = new HashMap<String, String>(3);
@@ -159,7 +159,7 @@ public class PreferencesTests extends APTTestBase {
 		projOpts.put("foo", "bar");
 		AptConfig.setProcessorOptions(projOpts, jproj);
 		Map<String, String> retrievedProjOpts = AptConfig.getRawProcessorOptions(jproj);
-		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()",
 				projOpts.equals(retrievedProjOpts));
 
 		wkspOpts.clear();
@@ -167,7 +167,7 @@ public class PreferencesTests extends APTTestBase {
 		wkspOpts.put("spoo/mack", "wumpus");
 		AptConfig.setProcessorOptions(wkspOpts, null);
 		retrievedWkspOpts = AptConfig.getRawProcessorOptions(null);
-		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()",
 				wkspOpts.equals(retrievedWkspOpts));
 
 		projOpts.clear();
@@ -175,7 +175,7 @@ public class PreferencesTests extends APTTestBase {
 		projOpts.put("baz/quack", "quux");
 		AptConfig.setProcessorOptions(projOpts, jproj);
 		retrievedProjOpts = AptConfig.getRawProcessorOptions(jproj);
-		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()", 
+		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()",
 				projOpts.equals(retrievedProjOpts));
 
 		AptConfig.addProcessorOption(jproj, "foo", "bar");
@@ -195,7 +195,7 @@ public class PreferencesTests extends APTTestBase {
 		assertTrue(options.containsKey("quux"));
 		AptConfig.removeProcessorOption(jproj, "quux");
 		AptConfig.removeProcessorOption(jproj, "anOptionThatDoesn'tExist");
-		
+
 		AptConfig.addProcessorOption(null, "workspace option", "corresponding value");
 		AptConfig.addProcessorOption(null, "foo", "whatever");
 		AptConfig.removeProcessorOption(null, "foo");
@@ -204,68 +204,68 @@ public class PreferencesTests extends APTTestBase {
 		assertTrue(options.containsKey("workspace option"));
 		AptConfig.removeProcessorOption(null, "workspace option");
 	}
-	
+
 	/**
 	 * Test the config API for automatically generated options.
 	 */
 	public void testAutomaticOptions() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		Map<String,String> options = AptConfig.getProcessorOptions(jproj, false);
-		
+
 		String classpath = options.get("-classpath");
 		assertNotNull(classpath);
 		assertTrue(classpath.length() > 0);
-		
+
 		String sourcepath = options.get("-sourcepath");
 		assertNotNull(sourcepath);
 		assertTrue(sourcepath.length() > 0);
-		
+
 		String target = options.get("-target");
 		assertEquals(target, "1.5");
-		
+
 		String source = options.get("-source");
 		assertEquals(source, "1.5");
-		
+
 		String bindir = options.get("-d");
 		assertNotNull(bindir);
 		assertTrue(bindir.length() > 0);
-		
+
 		String gensrcdirAuto = options.get("-s");
 		assertNotNull(gensrcdirAuto);
 		assertTrue(gensrcdirAuto.length() > 0);
 	}
-	
+
 	public void testGenSrcDir() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		String genSrcDir = AptConfig.getGenSrcDir(jproj);
 		String genTestSrcDir = AptConfig.getGenTestSrcDir(jproj);
 		assertEquals(AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME, genSrcDir);
 		assertEquals(AptPreferenceConstants.DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME, genTestSrcDir);
-		
+
 		final String newDir = "gen/src";
 		final String newTestDir = "gen/src-tests";
 		AptConfig.setGenSrcDir(jproj, newDir);
 		AptConfig.setGenTestSrcDir(jproj, newTestDir);
 		genSrcDir = AptConfig.getGenSrcDir(jproj);
 		genTestSrcDir = AptConfig.getGenTestSrcDir(jproj);
-		
+
 		assertEquals(newDir, genSrcDir);
 		assertEquals(newTestDir, genTestSrcDir);
-		
+
 	}
-	
+
 	/**
-	 * Test a series of configuration and make sure the GeneratedFileManager and 
-	 * the classpath reflecting the setup. Configuration setting includes 
-	 * enabling and disabling apt and configure the generated source folder 
+	 * Test a series of configuration and make sure the GeneratedFileManager and
+	 * the classpath reflecting the setup. Configuration setting includes
+	 * enabling and disabling apt and configure the generated source folder
 	 * with and without apt enabled.
-	 * 
+	 *
 	 * See comments in method body for detail testing scenarios
 	 * @throws Exception
 	 */
 	public void testConfigGenSrcDir() throws Exception {
-		
-		final String projectName = "ConfigTestProj";		
+
+		final String projectName = "ConfigTestProj";
 		IPath projectPath = env.addProject( projectName, "1.5" );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		final IJavaProject javaProj = env.getJavaProject(projectName);
@@ -279,7 +279,7 @@ public class PreferencesTests extends APTTestBase {
 		IFolder testSrcFolder = testgsfm.getFolder();
 		String folderName = srcFolder.getProjectRelativePath().toOSString();
 		String testFolderName = testSrcFolder.getProjectRelativePath().toOSString();
-		// test 2: apt is disabled, then folder should not exists 
+		// test 2: apt is disabled, then folder should not exists
 		assertEquals(srcFolder.exists(), false);
 		assertEquals(testSrcFolder.exists(), false);
 
@@ -287,14 +287,14 @@ public class PreferencesTests extends APTTestBase {
 		// folder name should be the default name.
 		assertEquals(folderName, AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
 		assertEquals(testFolderName, AptPreferenceConstants.DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME);
-		
+
 		// set folder name while apt is disabled
 		String newName = ".gensrcdir";
 		String newTestName = ".gentestsrcdir";
 
 		AptConfig.setGenSrcDir(javaProj, newName);
 		AptConfig.setGenTestSrcDir(javaProj, newTestName);
-		
+
 		srcFolder = gsfm.getFolder();
 		testSrcFolder = testgsfm.getFolder();
 
@@ -304,7 +304,7 @@ public class PreferencesTests extends APTTestBase {
 		// test 4: apt still disabled but folder name changed, make sure the folder is not on disk.
 		assertEquals(false, srcFolder.exists());
 		assertEquals(false, testSrcFolder.exists());
-		
+
 		// test 5: make sure we got the new name
 		assertEquals(newName, folderName);
 		assertEquals(newTestName, testFolderName);
@@ -312,11 +312,11 @@ public class PreferencesTests extends APTTestBase {
 		// test 6: make sure the source folder is not on the classpath.
 		assertEquals( false, isOnClasspath(javaProj, srcFolder.getFullPath()) );
 		assertEquals( false, isOnClasspath(javaProj, testSrcFolder.getFullPath()) );
-		
+
 		// enable apt
 		AptConfig.setEnabled(javaProj, true);
 		aptEnabled = AptConfig.isEnabled(javaProj);
-		// test 7: make sure it's enabled after we called the API to enable it. 
+		// test 7: make sure it's enabled after we called the API to enable it.
 		assertEquals(true, aptEnabled);
 		srcFolder = gsfm.getFolder();
 		testSrcFolder = testgsfm.getFolder();
@@ -328,7 +328,7 @@ public class PreferencesTests extends APTTestBase {
 		assertEquals(true, srcFolder.exists());
 		// generated test source folder should NOT exist, as the project has no test source folder
 		assertEquals(false, testSrcFolder.exists());
-		
+
 		// test 9: make sure the name matches
 		assertEquals(newName, folderName);
 		assertEquals(newTestName, testFolderName);
@@ -340,7 +340,7 @@ public class PreferencesTests extends APTTestBase {
 
 		// test 11: now add a test source folder, generated test source folder should then exist and be on classpath
 		env.removePackageFragmentRoot(projectPath, "");
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addPackageFragmentRoot( projectPath, "src" );
 		env.addPackageFragmentRoot(javaProj.getPath(), "src-tests", null, null,
 				"bin-tests", true);
@@ -373,11 +373,11 @@ public class PreferencesTests extends APTTestBase {
 
 	private boolean isOnClasspath(IJavaProject javaProj, IPath path)
 			throws JavaModelException
-	{		
+	{
 		final IClasspathEntry[] cp = javaProj.getRawClasspath();
-		for (int i = 0; i < cp.length; i++) 
+		for (int i = 0; i < cp.length; i++)
 		{
-			if (cp[i].getPath().equals( path )) 
+			if (cp[i].getPath().equals( path ))
 			{
 				return true;
 			}

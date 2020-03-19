@@ -27,7 +27,7 @@ import com.sun.mirror.apt.RoundCompleteListener;
 public class ListenerProcessor extends BaseProcessor
 {
 	private static int _calls = 0;
-	
+
 	private class Listener implements RoundCompleteListener {
 		public void roundComplete(RoundCompleteEvent event) {
 			if (event.getRoundState().finalRound()) {
@@ -40,7 +40,7 @@ public class ListenerProcessor extends BaseProcessor
 			}
 		}
 	}
-	
+
 	public ListenerProcessor(AnnotationProcessorEnvironment env) {
 		super(env);
 		env.addListener(new Listener());

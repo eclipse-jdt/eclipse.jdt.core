@@ -105,7 +105,7 @@ public GlobalVariable[] allVariables() {
  *
  *  @param owner
  *  	the owner of working copies that take precedence over their original compilation units
- *  
+ *
  *  @param monitor
  *  	the progress monitor used to report progress
  */

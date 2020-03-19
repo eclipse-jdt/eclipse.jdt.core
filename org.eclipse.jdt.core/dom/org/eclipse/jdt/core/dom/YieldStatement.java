@@ -47,7 +47,7 @@ public class YieldStatement extends Statement {
 	 * <code>true</code> indicates implicit and <code>false</code> indicates not implicit.
 	 */
 	private boolean isImplicit = false;
-	
+
 	static {
 		List properyList = new ArrayList(2);
 		createPropertyList(YieldStatement.class, properyList);
@@ -99,7 +99,7 @@ public class YieldStatement extends Statement {
 	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
 		return propertyDescriptors(apiLevel);
 	}
-	
+
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == EXPRESSION_PROPERTY) {
@@ -142,11 +142,11 @@ public class YieldStatement extends Statement {
 		if (visitChildren) {
 			if (this.ast.apiLevel >= AST.JLS13_INTERNAL) {
 				acceptChild(visitor, getExpression());
-			} 
+			}
 		}
 		visitor.endVisit(this);
 	}
-	
+
 	/**
 	 * Returns the expression of this Yield statement, or <code>null</code> if
 	 * there is none.
@@ -206,7 +206,7 @@ public class YieldStatement extends Statement {
 		this.isImplicit = isImplicit;
 	}
 
-	
+
 	@Override
 	int memSize() {
 		return super.memSize() + 2 * 4;

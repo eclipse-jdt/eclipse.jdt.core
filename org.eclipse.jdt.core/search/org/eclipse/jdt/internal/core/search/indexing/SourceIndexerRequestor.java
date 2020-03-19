@@ -153,7 +153,7 @@ public void acceptUnknownReference(char[] name, int sourcePosition) {
 
 private void addDefaultConstructorIfNecessary(TypeInfo typeInfo) {
 	boolean hasConstructor = false;
-	
+
 	TypeDeclaration typeDeclaration = typeInfo.node;
 	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 	int methodCounter = methods == null ? 0 : methods.length;
@@ -164,7 +164,7 @@ private void addDefaultConstructorIfNecessary(TypeInfo typeInfo) {
 			break done;
 		}
 	}
-	
+
 	if (!hasConstructor) {
 		this.indexer.addDefaultConstructorDeclaration(
 				typeInfo.name,
@@ -335,7 +335,7 @@ public void enterModule(ModuleInfo moduleInfo) {
 		}
 	}
 	enterPackageVisibilityInfo(moduleInfo.exports);
-	enterPackageVisibilityInfo(moduleInfo.opens); 
+	enterPackageVisibilityInfo(moduleInfo.opens);
 	/* note: provides and uses directives processed automatically on IParser (SEParser) */
 }
 private void enterPackageVisibilityInfo(ISourceElementRequestor.PackageExportInfo[] packInfos) {
@@ -397,7 +397,7 @@ private static char[] getDeclaringQualification(TypeDeclaration typeDecl) {
 
 	int l = nlist.size();
 	if (l == 1) return name;
-	
+
 	name = new char[size];
 	int index = 0;
 	for (int i = 0; i < l - 1; ++i) {

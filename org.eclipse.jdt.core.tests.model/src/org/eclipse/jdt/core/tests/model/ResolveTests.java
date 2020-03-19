@@ -452,7 +452,7 @@ public void testEmptyCU1() throws JavaModelException {
 		"Unknown\n" +
 		"\n"
 	);
-	
+
 	IJavaElement[] elements = codeSelect(this.workingCopies[0], "Unknown", "Unknown");
 	assertElementsEqual(
 		"Unexpected elements",
@@ -2646,7 +2646,7 @@ public void testCodeSelectInHybrid1415Projects() throws CoreException, IOExcepti
 		this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/Test.java",
 			"public class TextEditTests extends TestCase {\n" +
-			"	{\n" + 
+			"	{\n" +
 			"		new TestSuite(TextEditTests.class);\n" +
 			"	}\n" +
 			"}\n");

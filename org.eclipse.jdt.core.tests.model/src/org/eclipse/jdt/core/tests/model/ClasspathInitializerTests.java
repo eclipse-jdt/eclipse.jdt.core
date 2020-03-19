@@ -1061,12 +1061,12 @@ public void testContainerInitializer26() throws CoreException {
 				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
 				"");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1"}));
-		
+
 		waitForAutoBuild();
-		getWorkspace().save(true/*full save*/, null/*no progress*/);		
+		getWorkspace().save(true/*full save*/, null/*no progress*/);
 		p2.getProject().close(null); // close the project after the save and before the shutdown
 		JavaModelManager.getJavaModelManager().shutdown();
-		
+
 		startLogListening();
 		simulateRestart();
 		assertLogEquals(""); // no error should be logged
@@ -1371,8 +1371,8 @@ public void testVariableInitializerDeprecated() throws CoreException, IOExceptio
 		// Create project
 		IJavaProject project = createJavaProject("P1");
 		addLibrary(project, "lib.jar", null, new String[0],
-				new String[]{"META-INF/MANIFEST.MF", 
-					"Manifest-Version: 1.0\n"} , 
+				new String[]{"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n"} ,
 					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
@@ -1428,8 +1428,8 @@ public void testVariableInitializerReadOnly() throws CoreException, IOException 
 		// Create project
 		IJavaProject project = createJavaProject("P1");
 		addLibrary(project, "lib.jar", null, new String[0],
-				new String[]{"META-INF/MANIFEST.MF", 
-					"Manifest-Version: 1.0\n"} , 
+				new String[]{"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n"} ,
 					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
@@ -1456,8 +1456,8 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException,
 		// Create project
 		IJavaProject project = createJavaProject("P1");
 		addLibrary(project, "lib.jar", null, new String[0],
-				new String[]{"META-INF/MANIFEST.MF", 
-					"Manifest-Version: 1.0\n"} , 
+				new String[]{"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n"} ,
 					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
@@ -1490,8 +1490,8 @@ public void testVariableInitializerBug172207() throws CoreException, IOException
 		// Create project
 		IJavaProject project = createJavaProject("P1");
 		addLibrary(project, "lib.jar", null, new String[0],
-				new String[]{"META-INF/MANIFEST.MF", 
-					"Manifest-Version: 1.0\n"} , 
+				new String[]{"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n"} ,
 					JavaCore.VERSION_1_4);
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IClasspathEntry[] entries = project.getRawClasspath();
@@ -1666,7 +1666,7 @@ public void testBug346002() throws Exception {
 }
 
 /*
- * Ensures that when multiple threads enter the batch container initialization, 
+ * Ensures that when multiple threads enter the batch container initialization,
  * a second thread does not initialize a container if the first thread has already completed it
  */
 public void testBug525597() throws CoreException {
@@ -1759,7 +1759,7 @@ public void testBug525597() throws CoreException {
 	}
 }
 /*
- * Ensures that when multiple threads enter the batch container initialization, 
+ * Ensures that when multiple threads enter the batch container initialization,
  * and two threads both initialize a container, only one result is used.
  */
 public void testBug525597B() throws CoreException {

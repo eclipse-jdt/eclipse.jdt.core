@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *    wharley@bea.com - initial API and implementation 
+ *    wharley@bea.com - initial API and implementation
  *                      (originally in org.eclipse.jdt.apt.core)
  *    IBM Corporation - Bug 513790
  *******************************************************************************/
@@ -27,7 +27,7 @@ import java.util.Set;
  * Access to the map is synchronized, so that it is possible to read and
  * write simultaneously from multiple threads.
  * <p>
- * The map permits the null value for keys nor for value elements. 
+ * The map permits the null value for keys nor for value elements.
  * <p>
  * Design invariants preserved by all operations on this map are as follows:
  * <ul>
@@ -39,13 +39,13 @@ import java.util.Set;
  * set.</li>
  */
 public class ManyToMany<T1, T2> {
-	
+
 	private final Map<T1, Set<T2>> _forward = new HashMap<>();
 	private final Map<T2, Set<T1>> _reverse = new HashMap<>();
 	private boolean _dirty = false;
-	
+
 	/**
-	 * Empty all maps.  If the maps previously contained entries, 
+	 * Empty all maps.  If the maps previously contained entries,
 	 * this will set the dirty bit.
 	 * @return true if the maps contained any entries prior to being cleared
 	 */
@@ -56,9 +56,9 @@ public class ManyToMany<T1, T2> {
 		_dirty |= hadContent;
 		return hadContent;
 	}
-	
+
 	/**
-	 * Sets the dirty bit to false.  Internal operations do not use the dirty 
+	 * Sets the dirty bit to false.  Internal operations do not use the dirty
 	 * bit; clearing it will not affect behavior of the map.  It's just there
 	 * for the convenience of callers who don't want to keep track of every
 	 * put() and remove().
@@ -66,7 +66,7 @@ public class ManyToMany<T1, T2> {
 	public synchronized void clearDirtyBit() {
 		_dirty = false;
 	}
-	
+
 	/**
 	 * Equivalent to keySet().contains(key).
 	 * @return true if the map contains the specified key.
@@ -74,7 +74,7 @@ public class ManyToMany<T1, T2> {
 	public synchronized boolean containsKey(T1 key) {
 		return _forward.containsKey(key);
 	}
-	
+
 	/**
 	 * Is there a key that is mapped to the specified value?
 	 * Search within the forward map.
@@ -87,7 +87,7 @@ public class ManyToMany<T1, T2> {
 		}
 		return values.contains(value);
 	}
-	
+
 	/**
 	 * Equivalent to values().contains(value).
 	 * @return true if the map contains the specified value (regardless
@@ -96,7 +96,7 @@ public class ManyToMany<T1, T2> {
 	public synchronized boolean containsValue(T2 value) {
 		return _reverse.containsKey(value);
 	}
-	
+
 	/**
 	 * Search the reverse map for all keys that have been associated with
 	 * a particular value.
@@ -110,11 +110,11 @@ public class ManyToMany<T1, T2> {
 		}
 		return new HashSet<>(keys);
 	}
-	
+
 	/**
 	 * Search the forward map for all values associated with a particular key.
 	 * Returns a copy of the set of values.
-	 * @return a copy of the set of values that are associated with the 
+	 * @return a copy of the set of values that are associated with the
 	 * specified key, or an empty set if the key does not exist in the map.
 	 */
 	public synchronized Set<T2> getValues(T1 key) {
@@ -135,7 +135,7 @@ public class ManyToMany<T1, T2> {
 		Set<T1> keys = new HashSet<>(_forward.keySet());
 		return keys;
 	}
-	
+
 	/**
 	 * @return a copy of the set of all values (that is, all items of type T2).
 	 * If the maps are empty, the returned set will be empty, not null.  The
@@ -146,7 +146,7 @@ public class ManyToMany<T1, T2> {
 		Set<T2> values = new HashSet<>(_reverse.keySet());
 		return values;
 	}
-	
+
 	/**
 	 * Return the state of the dirty bit.  All operations that change the state
 	 * of the maps, including @see #clear(), set the dirty bit if any content actually
@@ -158,15 +158,15 @@ public class ManyToMany<T1, T2> {
 	public synchronized boolean isDirty() {
 		return _dirty;
 	}
-	
+
 	/**
 	 * Check whether <code>key</code> has an association to any values other
 	 * than <code>value</code> - that is, whether the same key has been added
 	 * with multiple values.  Equivalent to asking whether the intersection of
-	 * <code>getValues(key)</code> and the set containing <code>value</code> is 
-	 * non-empty. 
-	 * @return true iff <code>key</code> is in the map and is associated 
-	 * with values other than <code>value</code>. 
+	 * <code>getValues(key)</code> and the set containing <code>value</code> is
+	 * non-empty.
+	 * @return true iff <code>key</code> is in the map and is associated
+	 * with values other than <code>value</code>.
 	 * @see #valueHasOtherKeys(Object, Object)
 	 */
 	public synchronized boolean keyHasOtherValues(T1 key, T2 value) {
@@ -201,7 +201,7 @@ public class ManyToMany<T1, T2> {
 		}
 		boolean added = values.add(value);
 		_dirty |= added;
-		
+
 		// Add to reverse map
 		Set<T1> keys = _reverse.get(value);
 		if (null == keys) {
@@ -209,11 +209,11 @@ public class ManyToMany<T1, T2> {
 			_reverse.put(value, keys);
 		}
 		keys.add(key);
-		
+
 		assert checkIntegrity();
 		return added;
 	}
-	
+
 	/**
 	 * Remove a particular key-value association.  This is the inverse
 	 * of put(key, value).  If the key does not exist, or the value
@@ -246,7 +246,7 @@ public class ManyToMany<T1, T2> {
 
 	/**
 	 * Remove the key and its associated key/value entries.
-	 * Calling removeKey(k) is equivalent to calling remove(k,v) 
+	 * Calling removeKey(k) is equivalent to calling remove(k,v)
 	 * for every v in getValues(k).
 	 * @return true if the key existed in the map prior to removal
 	 */
@@ -273,7 +273,7 @@ public class ManyToMany<T1, T2> {
 		assert checkIntegrity();
 		return true;
 	}
-	
+
 	/**
 	 * Remove the value and its associated key/value entries.
 	 * Calling removeValue(v) is equivalent to calling remove(k,v)
@@ -303,15 +303,15 @@ public class ManyToMany<T1, T2> {
 		assert checkIntegrity();
 		return true;
 	}
-	
+
 	/**
 	 * Check whether <code>value</code> has an association from any keys other
 	 * than <code>key</code> - that is, whether the same value has been added
 	 * with multiple keys.  Equivalent to asking whether the intersection of
-	 * <code>getKeys(value)</code> and the set containing <code>key</code> is 
-	 * non-empty. 
-	 * @return true iff <code>value</code> is in the map and is associated 
-	 * with keys other than <code>key</code>. 
+	 * <code>getKeys(value)</code> and the set containing <code>key</code> is
+	 * non-empty.
+	 * @return true iff <code>value</code> is in the map and is associated
+	 * with keys other than <code>key</code>.
 	 * @see #keyHasOtherValues(Object, Object)
 	 */
 	public synchronized boolean valueHasOtherKeys(T2 value, T1 key) {

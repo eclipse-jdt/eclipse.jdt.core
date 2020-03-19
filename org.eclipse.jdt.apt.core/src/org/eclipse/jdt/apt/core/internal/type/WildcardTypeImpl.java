@@ -37,7 +37,7 @@ public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
         assert _binding != null && _binding.isWildcardType();
         assert env != null : "missing environment"; //$NON-NLS-1$
     }
-    
+
     @Override
 	public void accept(TypeVisitor visitor)
     {
@@ -87,7 +87,7 @@ public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
 
     @Override
 	public ITypeBinding getTypeBinding(){ return _binding; }
-	
+
 	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 

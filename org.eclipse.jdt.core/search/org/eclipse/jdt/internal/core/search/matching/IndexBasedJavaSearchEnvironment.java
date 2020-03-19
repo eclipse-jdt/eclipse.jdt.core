@@ -148,7 +148,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 						AccessRestriction accessRestriction = ruleSet == null? null : ruleSet.getViolatedRestriction(binaryName);
 						TypeRef typeRef = TypeRef.create(next);
 						String fileName = new String(binaryName) + ".class"; //$NON-NLS-1$
-						IBinaryType binaryType = new IndexBinaryType(typeRef, fileName.toCharArray()); 
+						IBinaryType binaryType = new IndexBinaryType(typeRef, fileName.toCharArray());
 						NameEnvironmentAnswer nextAnswer = new NameEnvironmentAnswer(binaryType, accessRestriction);
 
 						boolean useNewAnswer = isBetter(result, bestEntryPosition, nextAnswer, nextRoot);
@@ -271,9 +271,9 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 		char[] binaryPackageName = CharOperation.concatWith(parentPackageName, '/');
 		final char[] fieldDescriptorPrefix;
-		
+
 		if (parentPackageName == null || parentPackageName.length == 0) {
-			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, packageName, 
+			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, packageName,
 					new char[] { '/' });
 		} else {
 			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, binaryPackageName,
@@ -325,7 +325,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	public void cleanup() {
 		// No explicit cleanup required for this class
 	}
-	
+
 	public static INameEnvironment create(List<IJavaProject> javaProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
 		if (JavaIndex.isEnabled() && isEnabled()) {
 			return new IndexBasedJavaSearchEnvironment(javaProjects, copies);

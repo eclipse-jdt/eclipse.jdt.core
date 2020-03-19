@@ -474,7 +474,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=306524
 	 * To test that when types are removed, only the comments in the extended source range are
@@ -565,12 +565,12 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=306524
 	 * To test that when types are removed, only the comments in the extended source range are
-	 * removed, and the rest are left untouched. This test is for cases where type to be removed is the 
-	 * last one in file and there are more than one leading comments that are not part of its 
+	 * removed, and the rest are left untouched. This test is for cases where type to be removed is the
+	 * last one in file and there are more than one leading comments that are not part of its
 	 * extended source range
 	 */
 	public void test0013() throws Exception {
@@ -649,7 +649,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void testBug446446_001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_001", false, null);
-		String contents = 
+		String contents =
 				"package testBug446446_001;\n"+
 				"public class X {\n " +
 				"    public static void main(String[] args) {\n" +
@@ -678,7 +678,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		instance.arguments().remove(1);
 
 		String preview = evaluateRewrite(cu, astRoot);
-		String expected = 
+		String expected =
 				"package testBug446446_001;\n"+
 				"public class X {\n " +
 				"    public static void main(String[] args) {\n" +
@@ -697,7 +697,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void testBug446446_002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_002", false, null);
-		String contents = 
+		String contents =
 				"package testBug446446_002;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -723,7 +723,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		Block thenBlock= (Block) ifStatement.getThenStatement();
 		thenBlock.statements().remove(2);
 		String preview = evaluateRewrite(cu, astRoot);
-		String expected = 
+		String expected =
 				"package testBug446446_002;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -739,7 +739,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void testBug446446_003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_003", false, null);
-		String contents = 
+		String contents =
 				"package testBug446446_003;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -766,7 +766,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		Block thenBlock= (Block) ifStatement.getThenStatement();
 		thenBlock.statements().remove(2);
 		String preview = evaluateRewrite(cu, astRoot);
-		String expected = 
+		String expected =
 				"package testBug446446_003;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -783,7 +783,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void testBug446446_004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_004", false, null);
-		String contents = 
+		String contents =
 				"package testBug446446_004;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -811,7 +811,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		thenBlock.statements().remove(2);
 		thenBlock.statements().remove(2);
 		String preview = evaluateRewrite(cu, astRoot);
-		String expected = 
+		String expected =
 				"package testBug446446_004;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -828,7 +828,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 	 */
 	public void testBug446446_005() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("testBug446446_005", false, null);
-		String contents = 
+		String contents =
 				"package testBug446446_005;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+
@@ -862,7 +862,7 @@ public class ASTRewritingModifyingRemoveTest extends ASTRewritingModifyingTest {
 		thenBlock.statements().add(newStatement);
 
 		String preview = evaluateRewrite(cu, astRoot);
-		String expected = 
+		String expected =
 				"package testBug446446_005;\n"+
 				"public class X {\n"+
 				"    public void foo() {\n"+

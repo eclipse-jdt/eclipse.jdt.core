@@ -30,7 +30,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 
 	/** @deprecated using deprecated code */
 	private static final SimplePropertyDescriptor INTERNAL_FIELD_MODIFIERS_PROPERTY = FieldDeclaration.MODIFIERS_PROPERTY;
-	
+
 	public ASTRewritingTrackingTest(String name) {
 		super(name);
 	}
@@ -43,7 +43,7 @@ public class ASTRewritingTrackingTest extends ASTRewritingTest {
 		return createSuite(ASTRewritingTrackingTest.class);
 	}
 
-	/** 
+	/**
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings
 	 *
 	 * @param node

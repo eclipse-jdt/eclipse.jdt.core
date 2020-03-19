@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -21,21 +21,21 @@ import javax.lang.model.element.Name;
  * A String-based implementation of the type used to return strings in javax.lang.model.
  */
 public class NameImpl implements Name {
-	
+
 	private final String _name;
-	
+
 	/** nullary constructor is prohibited */
 	@SuppressWarnings("unused")
-	private NameImpl() 
+	private NameImpl()
 	{
 		_name = null;
 	}
-	
+
 	public NameImpl(CharSequence cs)
 	{
 		_name = cs.toString();
 	}
-	
+
 	public NameImpl(char[] chars)
 	{
 		_name = String.valueOf(chars);

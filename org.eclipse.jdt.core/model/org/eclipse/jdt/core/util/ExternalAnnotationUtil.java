@@ -47,7 +47,7 @@ import org.eclipse.jdt.internal.core.util.KeyToSignature;
 /**
  * Utilities for accessing and manipulating text files that externally define annotations for a given Java type.
  * Files are assumed to be in ".eea format", a textual representation of annotated signatures of members of a given type.
- * 
+ *
  * @since 3.11
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -198,18 +198,18 @@ public final class ExternalAnnotationUtil {
 	 * the containing jar file and finally the sought annotation file.
 	 */
 	public static IFile getAnnotationFile(IJavaProject project, ITypeBinding type, IProgressMonitor monitor) throws CoreException {
-	
+
 		IType targetType = project.findType(type.getErasure().getQualifiedName());
 		if (!targetType.exists())
 			return null;
 
 		String binaryTypeName = targetType.getFullyQualifiedName('$').replace('.', '/');
-		
+
 		IPackageFragmentRoot packageRoot = (IPackageFragmentRoot) targetType.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		IClasspathEntry entry = packageRoot.getResolvedClasspathEntry();
 		IPath annotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project.getProject(), false);
-	
-		if (annotationPath == null) 
+
+		if (annotationPath == null)
 			return null;
 
 		IWorkspaceRoot workspaceRoot = project.getProject().getWorkspace().getRoot();
@@ -219,7 +219,7 @@ public final class ExternalAnnotationUtil {
 			if (annotationZip.exists())
 				return null;
 		}
-		
+
 		annotationPath = annotationPath.append(binaryTypeName).addFileExtension(ExternalAnnotationProvider.ANNOTATION_FILE_EXTENSION);
 		return workspaceRoot.getFile(annotationPath);
 	}
@@ -516,7 +516,7 @@ public final class ExternalAnnotationUtil {
 	}
 
 	/**
-	 * Insert that given annotation at the given position into the given signature. 
+	 * Insert that given annotation at the given position into the given signature.
 	 * @param mergeStrategy if set to {@link MergeStrategy#ADD_ANNOTATIONS}, refuse to
 	 *   overwrite any existing annotation in the specified location.
 	 */
@@ -543,7 +543,7 @@ public final class ExternalAnnotationUtil {
 		if (mergeStrategy == MergeStrategy.REPLACE_SIGNATURE) {
 			buf.append(newType);
 			return false;
-		}			
+		}
 		try {
 			SignatureWrapper oWrap = new SignatureWrapper(oldType, true, true); // may already contain annotations
 			SignatureWrapper nWrap = new SignatureWrapper(newType, true, true); // may already contain annotations
@@ -572,7 +572,7 @@ public final class ExternalAnnotationUtil {
 					|| match(buf, oWrap, nWrap, '-', false))
 			{
 				return true; // annotation allowed after this (not included in oldType / newType)
-			} else {			
+			} else {
 				buf.append(oldType);
 			}
 		} catch (ArrayIndexOutOfBoundsException aioobe) { // from several locations inside match() or mergeAnnotation().
@@ -589,7 +589,7 @@ public final class ExternalAnnotationUtil {
 		if (mergeStrategy == MergeStrategy.REPLACE_SIGNATURE) {
 			buf.append(newType);
 			return false;
-		}			
+		}
 		try {
 			SignatureWrapper oWrap = new SignatureWrapper(oldType, true, true); // may already contain annotations
 			SignatureWrapper nWrap = new SignatureWrapper(newType, true, true); // may already contain annotations
@@ -648,7 +648,7 @@ public final class ExternalAnnotationUtil {
 		if (match1 != match2) {
 			StringBuilder msg = new StringBuilder("Mismatching type structures ") //$NON-NLS-1$
 									.append(sig1.signature).append(" vs ").append(sig2.signature); //$NON-NLS-1$
-			throw new IllegalArgumentException(msg.toString()); 
+			throw new IllegalArgumentException(msg.toString());
 		}
 		if (match1) {
 			buf.append(expected);
@@ -664,7 +664,7 @@ public final class ExternalAnnotationUtil {
 
 	/**
 	 * If a current char of 'oldS' and/or 'newS' represents a null annotation, insert it into 'buf' guided by 'mergeStrategy'.
-	 * If the new char is NO_ANNOTATION and strategy is OVERWRITE_ANNOTATIONS, silently skip over any null annotations in 'oldS'. 
+	 * If the new char is NO_ANNOTATION and strategy is OVERWRITE_ANNOTATIONS, silently skip over any null annotations in 'oldS'.
 	 */
 	private static void mergeAnnotation(StringBuffer buf, SignatureWrapper oldS, SignatureWrapper newS, MergeStrategy mergeStrategy) {
 		 // if atEnd use a char that's different from NULLABLE, NONNULL and NO_ANNOTATION:
@@ -692,8 +692,8 @@ public final class ExternalAnnotationUtil {
 						switch (oldAnn) { case NULLABLE: case NONNULL: oldS.start++; } // just skip
 						break;
 					default:
-						switch (oldAnn) { 
-							case NULLABLE: case NONNULL: 
+						switch (oldAnn) {
+							case NULLABLE: case NONNULL:
 								oldS.start++;
 								buf.append(oldAnn); // keep
 						}
@@ -715,7 +715,7 @@ public final class ExternalAnnotationUtil {
 									String nextLines, BufferedReader tailReader, IProgressMonitor monitor)
 			throws CoreException, IOException
 	{
-		head.append(' ').append(annotatedSignature).append('\n'); 
+		head.append(' ').append(annotatedSignature).append('\n');
 		if (nextLines != null)
 			head.append(nextLines).append('\n');
 		String line;
@@ -727,7 +727,7 @@ public final class ExternalAnnotationUtil {
 
 	private static void createNewFile(IFile file, String newContent, IProgressMonitor monitor) throws CoreException {
 		ensureExists(file.getParent(), monitor);
-		
+
 		try {
 			file.create(new ByteArrayInputStream(newContent.getBytes("UTF-8")), false, monitor); //$NON-NLS-1$
 		} catch (UnsupportedEncodingException e) {
@@ -789,7 +789,7 @@ public final class ExternalAnnotationUtil {
 	/**
 	 * Apply the specified changes on the given type.
 	 * This method can be used as a dry run without modifying an annotation file.
-	 * 
+	 *
 	 * @param originalSignature the original type signature, may be annotated already
 	 * @param annotatedType a type signature with additional annotations (incl. {@link #NO_ANNOTATION}).
 	 * @param mergeStrategy controls how old and new signatures should be merged
@@ -816,7 +816,7 @@ public final class ExternalAnnotationUtil {
 	/**
 	 * Apply the specified changes on the return type of the given signature.
 	 * This method can be used as a dry run without modifying an annotation file.
-	 * 
+	 *
 	 * @param originalSignature the original full signature, may be annotated already
 	 * @param annotatedType a type signature with additional annotations (incl. {@link #NO_ANNOTATION}).
 	 * @param mergeStrategy controls how old and new signatures should be merged
@@ -841,12 +841,12 @@ public final class ExternalAnnotationUtil {
 		result[3] = ""; //$NON-NLS-1$
 		return result;
 	}
-	
+
 
 	/**
 	 * Apply the specified changes on a parameter within the given signature.
 	 * This method can be used as a dry run without modifying an annotation file.
-	 * 
+	 *
 	 * @param originalSignature the original full signature, may be annotated already
 	 * @param annotatedType a type signature with additional annotations (incl. {@link #NO_ANNOTATION}).
 	 * @param paramIdx the index of a parameter to annotate
@@ -868,7 +868,7 @@ public final class ExternalAnnotationUtil {
 			wrapper.start = wrapper.skipAngleContents(wrapper.computeEnd()) + 1;
 		int start = wrapper.start;
 		int end = wrapper.skipAngleContents(wrapper.computeEnd());
-		result[0] = originalSignature.substring(0, start);				
+		result[0] = originalSignature.substring(0, start);
 		buf = new StringBuffer();
 		result[1] = originalSignature.substring(start, end+1);
 		updateType(buf, result[1].toCharArray(), annotatedType.toCharArray(), mergeStrategy);
@@ -880,7 +880,7 @@ public final class ExternalAnnotationUtil {
 	/**
 	 * Apply the specified changes on a type parameter within the given signature.
 	 * This method can be used as a dry run without modifying an annotation file.
-	 * 
+	 *
 	 * @param originalSignature the original full signature, may be annotated already
 	 * @param annotatedType a type signature with additional annotations (incl. {@link #NO_ANNOTATION}).
 	 * @param rank the index of a type parameter to annotate

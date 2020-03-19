@@ -369,7 +369,7 @@ public void test013() throws JavaModelException {
 	"  public static void foo(int num_) {\n" +
 	" 	 int i = switch (num_) {\n" +
 	"	   case 1, 2, 3 -> (num_ + 1);\n" +
-	"      default -> 0;\n" + 
+	"      default -> 0;\n" +
 	"    }" +
 	"  }\n" +
 	"}\n");
@@ -392,7 +392,7 @@ public void test014() throws JavaModelException {
 	"  public static void foo(int num_) {\n" +
 	" 	 int i = switch (num_) {\n" +
 	"	   case 1, 2, 3 -> 0;\n" +
-	"      default -> (num_ + 1);\n" + 
+	"      default -> (num_ + 1);\n" +
 	"    }" +
 	"  }\n" +
 	"}\n");
@@ -415,7 +415,7 @@ public void test015() throws JavaModelException {
 	"  public static void foo(int num_) {\n" +
 	" 	 int i = switch (num_) {\n" +
 	"	   case 1, 2, 3 -> 0;\n" +
-	"      default -> (num_ + 1);\n" + 
+	"      default -> (num_ + 1);\n" +
 	"    }" +
 	"  }\n" +
 	"}\n");
@@ -434,13 +434,13 @@ public void test015() throws JavaModelException {
  * Multi constant case statement with '->', selection is a referenced name of type int in switch expression
  */
 public void test016() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" + 
-			"	public void bar(int s) {\n" + 
-			"		int i_j = switch (s) {\n" + 
+	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
+			"	public void bar(int s) {\n" +
+			"		int i_j = switch (s) {\n" +
 			"			case 1, 2, 3 -> (s+1);\n" +
-			"			default -> i_j;\n" + 
-			"		};\n" + 
-			"	}\n" + 
+			"			default -> i_j;\n" +
+			"		};\n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "i_j";
@@ -454,13 +454,13 @@ public void test016() throws JavaModelException {
 	);
 }
 public void test017() throws JavaModelException {
-	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" + 
-			"	public void bar(int s) {\n" + 
-			"		int i_j = switch (s) {\n" + 
+	this.wc = getWorkingCopy("/Resolve/src/X.java","public class X {\n" +
+			"	public void bar(int s) {\n" +
+			"		int i_j = switch (s) {\n" +
 			"			case 1, 2, 3 -> (s+1);\n" +
-			"			default -> (1+i_j);\n" + 
-			"		};\n" + 
-			"	}\n" + 
+			"			default -> (1+i_j);\n" +
+			"		};\n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "i_j";
@@ -476,18 +476,18 @@ public void test017() throws JavaModelException {
 public void test018() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
 			"import java.util.function.*;\n" +
-			"interface IN0 {} \n" + 
-			"interface IN1 extends IN0 {} \n" + 
-			"interface IN2 extends IN0 {}\n" + 
-			"public class X {\n" + 
-			"	 IN1 n_1() { return new IN1() {}; } \n" + 
-			"	IN2 n_2() { return null; } \n" + 
-			"	<M> void m( Supplier< M> m2) { } \n" + 
-			"	void testSw(int i) { \n" + 
-			"		m(switch(i) { \n" + 
-			"			case 1 -> this::n_1; \n" + 
-			"			default -> this::n_2; }); \n" + 
-			"	}\n" + 
+			"interface IN0 {} \n" +
+			"interface IN1 extends IN0 {} \n" +
+			"interface IN2 extends IN0 {}\n" +
+			"public class X {\n" +
+			"	 IN1 n_1() { return new IN1() {}; } \n" +
+			"	IN2 n_2() { return null; } \n" +
+			"	<M> void m( Supplier< M> m2) { } \n" +
+			"	void testSw(int i) { \n" +
+			"		m(switch(i) { \n" +
+			"			case 1 -> this::n_1; \n" +
+			"			default -> this::n_2; }); \n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "n_1";
@@ -502,19 +502,19 @@ public void test018() throws JavaModelException {
 }
 public void test019() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" + 
-			"interface IN0 {} \n" + 
-			"interface IN1 extends IN0 {} \n" + 
-			"interface IN2 extends IN0 {}\n" + 
-			"public class X {\n" + 
-			"	 IN1 n_1() { return new IN1() {}; } \n" + 
-			"	IN2 n_2() { return null; } \n" + 
-			"	<M> void m( Supplier< M> m2) { } \n" + 
-			"	void testSw(int i) { \n" + 
-			"		m(switch(i) { \n" + 
-			"			case 2 -> () -> n_1(); \n" + 
-			"			default -> this::n_2; }); \n" + 
-			"	}\n" + 
+			"import java.util.function.*;\n" +
+			"interface IN0 {} \n" +
+			"interface IN1 extends IN0 {} \n" +
+			"interface IN2 extends IN0 {}\n" +
+			"public class X {\n" +
+			"	 IN1 n_1() { return new IN1() {}; } \n" +
+			"	IN2 n_2() { return null; } \n" +
+			"	<M> void m( Supplier< M> m2) { } \n" +
+			"	void testSw(int i) { \n" +
+			"		m(switch(i) { \n" +
+			"			case 2 -> () -> n_1(); \n" +
+			"			default -> this::n_2; }); \n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "n_1";
@@ -529,18 +529,18 @@ public void test019() throws JavaModelException {
 }
 public void test020() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" + 
-			"interface IN0 {} \n" + 
-			"interface IN1 extends IN0 {} \n" + 
-			"interface IN2 extends IN0 {}\n" + 
-			"public class X {\n" + 
-			"	 IN1 n_1() { return new IN1() {}; } \n" + 
-			"	IN2 n_2() { return null; } \n" + 
-			"	<M> void m( Supplier< M> m2) { } \n" + 
-			"	void testSw(int i) { \n" + 
-			"		m(switch(i) { \n" + 
-			"			default -> this::n_2; }); \n" + 
-			"	}\n" + 
+			"import java.util.function.*;\n" +
+			"interface IN0 {} \n" +
+			"interface IN1 extends IN0 {} \n" +
+			"interface IN2 extends IN0 {}\n" +
+			"public class X {\n" +
+			"	 IN1 n_1() { return new IN1() {}; } \n" +
+			"	IN2 n_2() { return null; } \n" +
+			"	<M> void m( Supplier< M> m2) { } \n" +
+			"	void testSw(int i) { \n" +
+			"		m(switch(i) { \n" +
+			"			default -> this::n_2; }); \n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "n_2";
@@ -555,18 +555,18 @@ public void test020() throws JavaModelException {
 }
 public void test021() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" + 
-			"interface IN0 {} \n" + 
-			"interface IN1 extends IN0 {} \n" + 
-			"interface IN2 extends IN0 {}\n" + 
-			"public class X {\n" + 
-			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" + 
-			"	IN2 n_2() { return null; } \n" + 
-			"	<M> void m( Supplier< M> m2) { } \n" + 
-			"	void testSw(int ijk) { \n" + 
-			"		m(switch(ijk) { \n" + 
-			"			default -> () -> n_1(ijk); }); \n" + 
-			"	}\n" + 
+			"import java.util.function.*;\n" +
+			"interface IN0 {} \n" +
+			"interface IN1 extends IN0 {} \n" +
+			"interface IN2 extends IN0 {}\n" +
+			"public class X {\n" +
+			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" +
+			"	IN2 n_2() { return null; } \n" +
+			"	<M> void m( Supplier< M> m2) { } \n" +
+			"	void testSw(int ijk) { \n" +
+			"		m(switch(ijk) { \n" +
+			"			default -> () -> n_1(ijk); }); \n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "n_1";
@@ -581,18 +581,18 @@ public void test021() throws JavaModelException {
 }
 public void test022() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve/src/X.java",
-			"import java.util.function.*;\n" + 
-			"interface IN0 {} \n" + 
-			"interface IN1 extends IN0 {} \n" + 
-			"interface IN2 extends IN0 {}\n" + 
-			"public class X {\n" + 
-			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" + 
-			"	IN2 n_2() { return null; } \n" + 
-			"	<M> void m( Supplier< M> m2) { } \n" + 
-			"	void testSw(int ijk) { \n" + 
-			"		m(switch(ijk) { \n" + 
-			"			default -> () -> n_1(ijk); }); \n" + 
-			"	}\n" + 
+			"import java.util.function.*;\n" +
+			"interface IN0 {} \n" +
+			"interface IN1 extends IN0 {} \n" +
+			"interface IN2 extends IN0 {}\n" +
+			"public class X {\n" +
+			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" +
+			"	IN2 n_2() { return null; } \n" +
+			"	<M> void m( Supplier< M> m2) { } \n" +
+			"	void testSw(int ijk) { \n" +
+			"		m(switch(ijk) { \n" +
+			"			default -> () -> n_1(ijk); }); \n" +
+			"	}\n" +
 			"}\n");
 	String str = this.wc.getSource();
 	String selection = "ijk";

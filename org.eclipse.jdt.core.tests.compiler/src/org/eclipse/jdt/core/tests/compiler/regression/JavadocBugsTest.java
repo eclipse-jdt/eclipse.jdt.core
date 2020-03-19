@@ -5352,16 +5352,16 @@ public void testBug128954() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	* @see p.A#bar()\n" + 
-		"	           ^^^^^\n" + 
-		"[@cat:javadoc] [@sup:javadoc] Javadoc: The method bar() from the type A is deprecated\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"[@cat:type] Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	* @see p.A#bar()\n" +
+		"	           ^^^^^\n" +
+		"[@cat:javadoc] [@sup:javadoc] Javadoc: The method bar() from the type A is deprecated\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"[@cat:type] Zork cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -5391,16 +5391,16 @@ public void testBug128954a() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	* @see p.A#bar()\n" + 
-		"	       ^^^\n" + 
-		"[@cat:javadoc] [@sup:javadoc] Javadoc: p cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"[@cat:type] Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	* @see p.A#bar()\n" +
+		"	       ^^^\n" +
+		"[@cat:javadoc] [@sup:javadoc] Javadoc: p cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"[@cat:type] Zork cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6438,99 +6438,99 @@ public void testBug170637() {
 	runConformTest(
 		new String[] {
 			"JavaDocTest.java",
-			"public interface JavaDocTest\n" + 
-			"{\n" + 
-			"  /**\n" + 
-			"   * This is some stupid test...\n" + 
-			"   * \n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * \n" + 
-			"   * @param bar1 {@link JavaDocTest}\n" + 
-			"   * @param bar2 {@link JavaDocTest}\n" + 
-			"   * @param bar3 {@link JavaDocTest}\n" + 
-			"   * @param bar4 {@link JavaDocTest}\n" + 
-			"   * @param bar5 {@link JavaDocTest}\n" + 
-			"   * @param bar6 {@link JavaDocTest}\n" + 
-			"   * @param bar7 {@link JavaDocTest}\n" + 
-			"   * @param bar8 {@link JavaDocTest}\n" + 
-			"   * @param bar9 {@link JavaDocTest}\n" + 
-			"   * @param bar10 {@link JavaDocTest}\n" + 
-			"   * @param bar11 {@link JavaDocTest}\n" + 
-			"   * @param bar12 {@link JavaDocTest}\n" + 
-			"   * @param bar13 {@link JavaDocTest}\n" + 
-			"   * \n" + 
-			"   * @return A string!\n" + 
-			"   */\n" + 
-			"  public String foo(String bar1,\n" + 
-			"      String bar2,\n" + 
-			"      String bar3,\n" + 
-			"      String bar4,\n" + 
-			"      String bar5,\n" + 
-			"      String bar6,\n" + 
-			"      String bar7,\n" + 
-			"      String bar8,\n" + 
-			"      String bar9,\n" + 
-			"      String bar10,\n" + 
-			"      String bar11,\n" + 
-			"      String bar12,\n" + 
-			"      String bar13\n" + 
-			"      );\n" + 
-			"\n" + 
-			"  /**\n" + 
-			"   * This is some more stupid test...\n" + 
-			"   * \n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * {@link JavaDocTest}\n" + 
-			"   * \n" + 
-			"   * @param bar1 \n" + 
-			"   * @param bar2 \n" + 
-			"   * @param bar3 \n" + 
-			"   * @param bar4 \n" + 
-			"   * @param bar5 \n" + 
-			"   * @param bar6 \n" + 
-			"   * @param bar7 \n" + 
-			"   * @param bar8 \n" + 
-			"   * @param bar9 \n" + 
-			"   * @param bar10 \n" + 
-			"   * @param bar11 \n" + 
-			"   * @param bar12 \n" + 
-			"   * @param bar13 \n" + 
-			"   * \n" + 
-			"   * @return A string!\n" + 
-			"   */\n" + 
-			"  public String foo2(String bar1,\n" + 
-			"      String bar2,\n" + 
-			"      String bar3,\n" + 
-			"      String bar4,\n" + 
-			"      String bar5,\n" + 
-			"      String bar6,\n" + 
-			"      String bar7,\n" + 
-			"      String bar8,\n" + 
-			"      String bar9,\n" + 
-			"      String bar10,\n" + 
-			"      String bar11,\n" + 
-			"      String bar12,\n" + 
-			"      String bar13\n" + 
-			"      );\n" + 
+			"public interface JavaDocTest\n" +
+			"{\n" +
+			"  /**\n" +
+			"   * This is some stupid test...\n" +
+			"   * \n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * \n" +
+			"   * @param bar1 {@link JavaDocTest}\n" +
+			"   * @param bar2 {@link JavaDocTest}\n" +
+			"   * @param bar3 {@link JavaDocTest}\n" +
+			"   * @param bar4 {@link JavaDocTest}\n" +
+			"   * @param bar5 {@link JavaDocTest}\n" +
+			"   * @param bar6 {@link JavaDocTest}\n" +
+			"   * @param bar7 {@link JavaDocTest}\n" +
+			"   * @param bar8 {@link JavaDocTest}\n" +
+			"   * @param bar9 {@link JavaDocTest}\n" +
+			"   * @param bar10 {@link JavaDocTest}\n" +
+			"   * @param bar11 {@link JavaDocTest}\n" +
+			"   * @param bar12 {@link JavaDocTest}\n" +
+			"   * @param bar13 {@link JavaDocTest}\n" +
+			"   * \n" +
+			"   * @return A string!\n" +
+			"   */\n" +
+			"  public String foo(String bar1,\n" +
+			"      String bar2,\n" +
+			"      String bar3,\n" +
+			"      String bar4,\n" +
+			"      String bar5,\n" +
+			"      String bar6,\n" +
+			"      String bar7,\n" +
+			"      String bar8,\n" +
+			"      String bar9,\n" +
+			"      String bar10,\n" +
+			"      String bar11,\n" +
+			"      String bar12,\n" +
+			"      String bar13\n" +
+			"      );\n" +
+			"\n" +
+			"  /**\n" +
+			"   * This is some more stupid test...\n" +
+			"   * \n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * {@link JavaDocTest}\n" +
+			"   * \n" +
+			"   * @param bar1 \n" +
+			"   * @param bar2 \n" +
+			"   * @param bar3 \n" +
+			"   * @param bar4 \n" +
+			"   * @param bar5 \n" +
+			"   * @param bar6 \n" +
+			"   * @param bar7 \n" +
+			"   * @param bar8 \n" +
+			"   * @param bar9 \n" +
+			"   * @param bar10 \n" +
+			"   * @param bar11 \n" +
+			"   * @param bar12 \n" +
+			"   * @param bar13 \n" +
+			"   * \n" +
+			"   * @return A string!\n" +
+			"   */\n" +
+			"  public String foo2(String bar1,\n" +
+			"      String bar2,\n" +
+			"      String bar3,\n" +
+			"      String bar4,\n" +
+			"      String bar5,\n" +
+			"      String bar6,\n" +
+			"      String bar7,\n" +
+			"      String bar8,\n" +
+			"      String bar9,\n" +
+			"      String bar10,\n" +
+			"      String bar11,\n" +
+			"      String bar12,\n" +
+			"      String bar13\n" +
+			"      );\n" +
 			"}\n"
 		}
 	);
@@ -6694,11 +6694,11 @@ public void testBug170637b() {
 	};
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
 	runNegativeTest(units,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 70)\n" + 
-		"	String bar31\n" + 
-		"	       ^^^^^\n" + 
-		"Javadoc: Missing tag for parameter bar31\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 70)\n" +
+		"	String bar31\n" +
+		"	       ^^^^^\n" +
+		"Javadoc: Missing tag for parameter bar31\n" +
 		"----------\n");
 }
 
@@ -7008,7 +7008,7 @@ public void testBug176027h_public() {
 			"	import mainpkg.Outer.*;\n"+
 			"	       ^^^^^^^^^^^^^\n"+
 			"The import mainpkg.Outer is never used\n" +
-			"----------\n" +		
+			"----------\n" +
 			"2. ERROR in pkg3\\Invalid3.java (at line 6)\n" +
 			"	* {@link MostInner} -- error/warning  \n" +
 			"	         ^^^^^^^^^\n" +
@@ -7554,7 +7554,7 @@ public void testBug207765() {
 			"package pkg;\n" +
 			"\n" +
 			"public class X {\n" +
-			"	/**\n" + 
+			"	/**\n" +
 			"	 * {@link \"http://www.eclipse.org/}\n" +
 			"	 * @see \"http://www.eclipse.org/\n" +
 			"	 */\n" +
@@ -7563,16 +7563,16 @@ public void testBug207765() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* {@link \"http://www.eclipse.org/}\n" + 
-		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"2. ERROR in pkg\\X.java (at line 6)\n" + 
-		"	* @see \"http://www.eclipse.org/\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\n" +
+		"	* {@link \"http://www.eclipse.org/}\n" +
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Invalid reference\n" +
+		"----------\n" +
+		"2. ERROR in pkg\\X.java (at line 6)\n" +
+		"	* @see \"http://www.eclipse.org/\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Invalid URL reference. Double quote the reference or use the href syntax\n" +
 		"----------\n"
 	);
 }
@@ -7584,38 +7584,38 @@ public void testBug207765() {
 public void testBug222900a() {
 	String[] units = new String[] {
 		"X.java",
-		"/**\n" + 
-		"* @since\n" + 
-		"* 	description\n" + 
-		"* @author\n" + 
-		"* 	description\n" + 
-		"* @version\n" + 
-		"* 	description\n" + 
-		"*/\n" + 
-		"public class X {\n" + 
-		"	/**\n" + 
-		"	 * @param  aParam\n" + 
-		"	 *         description\n" + 
-		"	 * @return\n" + 
-		"	 *         description\n" + 
-		"	 * @since\n" + 
-		"	 *         description\n" + 
-		"	 * @throws NullPointerException\n" + 
-		"	 *         description\n" + 
-		"	 * @exception NullPointerException\n" + 
-		"	 *            description\n" + 
-		"	 * @serial\n" + 
-		"	 *         description\n" + 
-		"	 * @serialData\n" + 
-		"	 *         description\n" + 
-		"	 * @serialField\n" + 
-		"	 *         description\n" + 
-		"	 * @deprecated\n" + 
-		"	 *         description\n" + 
-		"	 */\n" + 
-		"	public String foo(String aParam) {\n" + 
-		"		return new String();\n" + 
-		"	}\n" + 
+		"/**\n" +
+		"* @since\n" +
+		"* 	description\n" +
+		"* @author\n" +
+		"* 	description\n" +
+		"* @version\n" +
+		"* 	description\n" +
+		"*/\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * @param  aParam\n" +
+		"	 *         description\n" +
+		"	 * @return\n" +
+		"	 *         description\n" +
+		"	 * @since\n" +
+		"	 *         description\n" +
+		"	 * @throws NullPointerException\n" +
+		"	 *         description\n" +
+		"	 * @exception NullPointerException\n" +
+		"	 *            description\n" +
+		"	 * @serial\n" +
+		"	 *         description\n" +
+		"	 * @serialData\n" +
+		"	 *         description\n" +
+		"	 * @serialField\n" +
+		"	 *         description\n" +
+		"	 * @deprecated\n" +
+		"	 *         description\n" +
+		"	 */\n" +
+		"	public String foo(String aParam) {\n" +
+		"		return new String();\n" +
+		"	}\n" +
 		"}\n"
 	};
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
@@ -7624,13 +7624,13 @@ public void testBug222900a() {
 public void testBug222900b() {
 	String[] units = new String[] {
 		"X.java",
-		"/**\n" + 
-		" * {@code\n" + 
-		" *        description}\n" + 
-		" * {@literal\n" + 
-		" *        description}\n" + 
-		"*/\n" + 
-		"public class X {\n" + 
+		"/**\n" +
+		" * {@code\n" +
+		" *        description}\n" +
+		" * {@literal\n" +
+		" *        description}\n" +
+		"*/\n" +
+		"public class X {\n" +
 		"}\n"
 	};
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
@@ -7639,29 +7639,29 @@ public void testBug222900b() {
 public void testBug222900c() {
 	String[] units = new String[] {
 		"X.java",
-		"/**\n" + 
-		" * Test the {@code} missing description\n" + 
-		" * Test the {@code\n" + 
-		" * } missing description\n" + 
-		" * Test the {@code X} with description\n" + 
-		" * Test the {@code\n" + 
-		" * public class X} with description\n" + 
-		"*/\n" + 
-		"public class X {\n" + 
+		"/**\n" +
+		" * Test the {@code} missing description\n" +
+		" * Test the {@code\n" +
+		" * } missing description\n" +
+		" * Test the {@code X} with description\n" +
+		" * Test the {@code\n" +
+		" * public class X} with description\n" +
+		"*/\n" +
+		"public class X {\n" +
 		"}\n"
 	};
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	* Test the {@code} missing description\n" + 
-		"	             ^^^^\n" + 
-		"Javadoc: Description expected after @code\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	* Test the {@code\n" + 
-		"	             ^^^^\n" + 
-		"Javadoc: Description expected after @code\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	* Test the {@code} missing description\n" +
+		"	             ^^^^\n" +
+		"Javadoc: Description expected after @code\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	* Test the {@code\n" +
+		"	             ^^^^\n" +
+		"Javadoc: Description expected after @code\n" +
 		"----------\n"
 	);
 }
@@ -7826,28 +7826,28 @@ public void testBug227730b() {
 public void testBug233187a() {
 	String[] units = new String[] {
 		"test/a/X.java",
-		"package test.a;\n" + 
-		"\n" + 
-		"public class X {\n" + 
-		"   public static class Y {\n" + 
-		"        public static class Z { \n" + 
-		"            /**\n" + 
-		"             * The position in the new method signature depends on\n" + 
-		"             * the position in the array passed to\n" + 
-		"             * {@link X.Y#foo(test.a.X.Y.Z[])} OK for javadoc tool\n" + 
-		"             * {@link X.Y#foo(test.a.X.Y.Z)} KO for javadoc tool\n" + 
-		"             * {@link X.Y#foo(no_test.a.X.Y.Z[])} KO for javadoc tool\n" + 
-		"             * {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
-		"             * {@link test.a.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
-		"             */\n" + 
-		"            public int bar() {\n" + 
-		"                return 0;\n" + 
-		"            }\n" + 
-		"        }\n" + 
-		"\n" + 
-		"        public void foo(Z[] params) {\n" + 
-		"        }\n" + 
-		"    }\n" + 
+		"package test.a;\n" +
+		"\n" +
+		"public class X {\n" +
+		"   public static class Y {\n" +
+		"        public static class Z { \n" +
+		"            /**\n" +
+		"             * The position in the new method signature depends on\n" +
+		"             * the position in the array passed to\n" +
+		"             * {@link X.Y#foo(test.a.X.Y.Z[])} OK for javadoc tool\n" +
+		"             * {@link X.Y#foo(test.a.X.Y.Z)} KO for javadoc tool\n" +
+		"             * {@link X.Y#foo(no_test.a.X.Y.Z[])} KO for javadoc tool\n" +
+		"             * {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" +
+		"             * {@link test.a.X.Y#foo(Y.Z[])} KO for javadoc tool\n" +
+		"             */\n" +
+		"            public int bar() {\n" +
+		"                return 0;\n" +
+		"            }\n" +
+		"        }\n" +
+		"\n" +
+		"        public void foo(Z[] params) {\n" +
+		"        }\n" +
+		"    }\n" +
 		"}\n"
 	};
 	runNegativeTest(units,
@@ -7855,26 +7855,26 @@ public void testBug233187a() {
 		// warning - Tag @link: can't find foo(no_test.a.X.Y.Z[]) in test.a.X.Y
 		// warning - Tag @link: can't find foo(Y.Z[]) in test.a.X.Y
 		// warning - Tag @link: can't find foo(Y.Z[]) in test.a.X.Y
-		"----------\n" + 
-		"1. ERROR in test\\a\\X.java (at line 10)\n" + 
-		"	* {@link X.Y#foo(test.a.X.Y.Z)} KO for javadoc tool\n" + 
-		"	             ^^^\n" + 
-		"Javadoc: The method foo(X.Y.Z[]) in the type X.Y is not applicable for the arguments (X.Y.Z)\n" + 
-		"----------\n" + 
-		"2. ERROR in test\\a\\X.java (at line 11)\n" + 
-		"	* {@link X.Y#foo(no_test.a.X.Y.Z[])} KO for javadoc tool\n" + 
-		"	                 ^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: no_test[] cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in test\\a\\X.java (at line 12)\n" + 
-		"	* {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
-		"	                 ^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
-		"----------\n" + 
-		"4. ERROR in test\\a\\X.java (at line 13)\n" + 
-		"	* {@link test.a.X.Y#foo(Y.Z[])} KO for javadoc tool\n" + 
-		"	                        ^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" +
+		"1. ERROR in test\\a\\X.java (at line 10)\n" +
+		"	* {@link X.Y#foo(test.a.X.Y.Z)} KO for javadoc tool\n" +
+		"	             ^^^\n" +
+		"Javadoc: The method foo(X.Y.Z[]) in the type X.Y is not applicable for the arguments (X.Y.Z)\n" +
+		"----------\n" +
+		"2. ERROR in test\\a\\X.java (at line 11)\n" +
+		"	* {@link X.Y#foo(no_test.a.X.Y.Z[])} KO for javadoc tool\n" +
+		"	                 ^^^^^^^^^^^^^^^\n" +
+		"Javadoc: no_test[] cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in test\\a\\X.java (at line 12)\n" +
+		"	* {@link X.Y#foo(Y.Z[])} KO for javadoc tool\n" +
+		"	                 ^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
+		"----------\n" +
+		"4. ERROR in test\\a\\X.java (at line 13)\n" +
+		"	* {@link test.a.X.Y#foo(Y.Z[])} KO for javadoc tool\n" +
+		"	                        ^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
 		"----------\n"
 	);
 }
@@ -7882,54 +7882,54 @@ public void testBug233187b() {
 	runNegativeTest(
 		new String[] {
 			"test/b/X.java",
-			"package test.b;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"   public static class Y {\n" + 
-			"        public static class Z { \n" + 
-			"            /**\n" + 
-			"             * The position in the new method signature depends on\n" + 
-			"             * the position in the array passed to\n" + 
+			"package test.b;\n" +
+			"\n" +
+			"public class X {\n" +
+			"   public static class Y {\n" +
+			"        public static class Z { \n" +
+			"            /**\n" +
+			"             * The position in the new method signature depends on\n" +
+			"             * the position in the array passed to\n" +
 			"             * {@link X.Y#foo(test.b.X.Y.Z)} OK for javadoc tool\n" +
 			"            * {@link X.Y#foo(test.b.X.Y.Z[])} KO for javadoc tool\n" +
 			"             * {@link X.Y#foo(no_test.b.X.Y.Z)} KO for javadoc tool\n" +
 			"             * {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" +
 			"             * {@link test.b.X.Y#foo(Y.Z)} KO for javadoc tool\n" +
-			"             */\n" + 
-			"            public int bar() {\n" + 
-			"                return 0;\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"\n" + 
-			"        public void foo(Z params) {\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"             */\n" +
+			"            public int bar() {\n" +
+			"                return 0;\n" +
+			"            }\n" +
+			"        }\n" +
+			"\n" +
+			"        public void foo(Z params) {\n" +
+			"        }\n" +
+			"    }\n" +
 			"}\n"
 		},
 		// warning - Tag @link: can't find foo(test.b.X.Y.Z[]) in test.b.X.Y
 		// warning - Tag @link: can't find foo(no_test.b.X.Y.Z) in test.b.X.Y
 		// warning - Tag @link: can't find foo(Y.Z) in test.b.X.Y
 		// warning - Tag @link: can't find foo(Y.Z) in test.b.X.Y
-		"----------\n" + 
-		"1. ERROR in test\\b\\X.java (at line 10)\n" + 
-		"	* {@link X.Y#foo(test.b.X.Y.Z[])} KO for javadoc tool\n" + 
-		"	             ^^^\n" + 
-		"Javadoc: The method foo(X.Y.Z) in the type X.Y is not applicable for the arguments (X.Y.Z[])\n" + 
-		"----------\n" + 
-		"2. ERROR in test\\b\\X.java (at line 11)\n" + 
-		"	* {@link X.Y#foo(no_test.b.X.Y.Z)} KO for javadoc tool\n" + 
-		"	                 ^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: no_test cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in test\\b\\X.java (at line 12)\n" + 
-		"	* {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
-		"	                 ^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
-		"----------\n" + 
-		"4. ERROR in test\\b\\X.java (at line 13)\n" + 
-		"	* {@link test.b.X.Y#foo(Y.Z)} KO for javadoc tool\n" + 
-		"	                        ^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" +
+		"1. ERROR in test\\b\\X.java (at line 10)\n" +
+		"	* {@link X.Y#foo(test.b.X.Y.Z[])} KO for javadoc tool\n" +
+		"	             ^^^\n" +
+		"Javadoc: The method foo(X.Y.Z) in the type X.Y is not applicable for the arguments (X.Y.Z[])\n" +
+		"----------\n" +
+		"2. ERROR in test\\b\\X.java (at line 11)\n" +
+		"	* {@link X.Y#foo(no_test.b.X.Y.Z)} KO for javadoc tool\n" +
+		"	                 ^^^^^^^^^^^^^^^\n" +
+		"Javadoc: no_test cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in test\\b\\X.java (at line 12)\n" +
+		"	* {@link X.Y#foo(Y.Z)} KO for javadoc tool\n" +
+		"	                 ^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
+		"----------\n" +
+		"4. ERROR in test\\b\\X.java (at line 13)\n" +
+		"	* {@link test.b.X.Y#foo(Y.Z)} KO for javadoc tool\n" +
+		"	                        ^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
 		"----------\n"
 	);
 }
@@ -7937,16 +7937,16 @@ public void testBug233187c() {
 	runConformTest(
 		new String[] {
 			"test/c/X.java",
-			"package test.c;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	static class Y { \n" + 
-			"	}\n" + 
-			"	void foo(Y y) {}\n" + 
-			"	/**\n" + 
-			"	 * @see #foo(X.Y)\n" + 
-			"	 */\n" + 
-			"	void bar() {}\n" + 
+			"package test.c;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	static class Y { \n" +
+			"	}\n" +
+			"	void foo(Y y) {}\n" +
+			"	/**\n" +
+			"	 * @see #foo(X.Y)\n" +
+			"	 */\n" +
+			"	void bar() {}\n" +
 			"}\n"
 		}
 	);
@@ -7999,10 +7999,10 @@ public void testBug237937() {
 	runConformTest(
 		new String[] {
 			"Link.java",
-			"/**\n" + 
-			" * @see <a href=\"http://www.eclipse.org/\">http://www.eclipse.org</a>\n" + 
-			" * @see <a href=\"http://www.eclipse.org/\">//</a>\n" + 
-			" */\n" + 
+			"/**\n" +
+			" * @see <a href=\"http://www.eclipse.org/\">http://www.eclipse.org</a>\n" +
+			" * @see <a href=\"http://www.eclipse.org/\">//</a>\n" +
+			" */\n" +
 			"public class Link {}\n"
 		}
 	);
@@ -8018,32 +8018,32 @@ public void testBug246712() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Do something more.\n" + 
-			"	 * \n" + 
-			"	 * @param monitor The monitor\n" + 
-			"	 * @return {@link String X}\n" + 
-			"	 */\n" + 
-			"	String foo(Object monitor) {\n" + 
-			"		return \"X\";\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Do something more.\n" +
+			"	 * \n" +
+			"	 * @param monitor The monitor\n" +
+			"	 * @return {@link String X}\n" +
+			"	 */\n" +
+			"	String foo(Object monitor) {\n" +
+			"		return \"X\";\n" +
+			"	}\n" +
 			"}\n",
 			"Y.java",
-			"public class Y extends X {\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Do something more.\n" + 
-			"	 * \n" + 
-			"	 * {@inheritDoc}\n" + 
-			"	 * \n" + 
-			"	 * @param monitor {@inheritDoc}\n" + 
-			"	 * @return {@link String Y}\n" + 
-			"	 */\n" + 
-			"	String foo(Object monitor) {\n" + 
-			"		return \"Y\";\n" + 
-			"	}\n" + 
+			"public class Y extends X {\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Do something more.\n" +
+			"	 * \n" +
+			"	 * {@inheritDoc}\n" +
+			"	 * \n" +
+			"	 * @param monitor {@inheritDoc}\n" +
+			"	 * @return {@link String Y}\n" +
+			"	 */\n" +
+			"	String foo(Object monitor) {\n" +
+			"		return \"Y\";\n" +
+			"	}\n" +
 			"}\n"
 		}
 	);
@@ -8053,26 +8053,26 @@ public void testBug246712b() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"/**\n" + 
-			" * @author {@link String}\n" + 
-			" * @since {@link String}\n" + 
-			" * @version {@link String}\n" + 
-			" * @deprecated {@link String}\n" + 
-			"*/\n" + 
-			"public class X {\n" + 
-			"	/**\n" + 
-			"	 * @return {@link String}\n" + 
-			"	 * @since {@link String}\n" + 
-			"	 * @throws  Exception {@link String}\n" + 
-			"	 * @exception Exception {@link String}\n" + 
-			"	 * @serial {@link String}\n" + 
-			"	 * @serialData {@link String}\n" + 
-			"	 * @serialField {@link String}\n" + 
-			"	 * @deprecated {@link String}\n" + 
-			"	 */\n" + 
-			"	public String foo(String aParam) throws Exception {\n" + 
-			"		return new String();\n" + 
-			"	}\n" + 
+			"/**\n" +
+			" * @author {@link String}\n" +
+			" * @since {@link String}\n" +
+			" * @version {@link String}\n" +
+			" * @deprecated {@link String}\n" +
+			"*/\n" +
+			"public class X {\n" +
+			"	/**\n" +
+			"	 * @return {@link String}\n" +
+			"	 * @since {@link String}\n" +
+			"	 * @throws  Exception {@link String}\n" +
+			"	 * @exception Exception {@link String}\n" +
+			"	 * @serial {@link String}\n" +
+			"	 * @serialData {@link String}\n" +
+			"	 * @serialField {@link String}\n" +
+			"	 * @deprecated {@link String}\n" +
+			"	 */\n" +
+			"	public String foo(String aParam) throws Exception {\n" +
+			"		return new String();\n" +
+			"	}\n" +
 			"}"
 		}
 	);
@@ -8083,19 +8083,19 @@ public void testBug246715() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"\n" + 
-			"	final static int WAIT_YES = 0;\n" + 
-			"	final static int WAIT_NO = 1;\n" + 
-			"	\n" + 
-			"	/**\n" + 
-			"	 * Do something more.\n" + 
-			"	 * \n" + 
-			"	 * @param waitFlag {@link #WAIT_YES} or {@link #WAIT_NO}\n" + 
-			"	 */\n" + 
-			"	String foo(int waitFlag) {\n" + 
-			"		return \"X\";\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"\n" +
+			"	final static int WAIT_YES = 0;\n" +
+			"	final static int WAIT_NO = 1;\n" +
+			"	\n" +
+			"	/**\n" +
+			"	 * Do something more.\n" +
+			"	 * \n" +
+			"	 * @param waitFlag {@link #WAIT_YES} or {@link #WAIT_NO}\n" +
+			"	 */\n" +
+			"	String foo(int waitFlag) {\n" +
+			"		return \"X\";\n" +
+			"	}\n" +
 			"}\n"
 		}
 	);
@@ -8110,20 +8110,20 @@ public void testBug254825() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" + 
-			"  public Object foo(Object o) { \n" + 
-			"    return new Object() {\n" + 
-			"      /** @see #o */\n" + 
-			"      public void x() {}\n" + 
-			"    };\n" + 
-			"  }\n" + 
+			"class X {\n" +
+			"  public Object foo(Object o) { \n" +
+			"    return new Object() {\n" +
+			"      /** @see #o */\n" +
+			"      public void x() {}\n" +
+			"    };\n" +
+			"  }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	/** @see #o */\n" + 
-		"	          ^\n" + 
-		"Javadoc: o cannot be resolved or is not a field\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	/** @see #o */\n" +
+		"	          ^\n" +
+		"Javadoc: o cannot be resolved or is not a field\n" +
 		"----------\n"
 	);
 }
@@ -8131,16 +8131,16 @@ public void testBug254825b() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class X {\n" + 
-			"  /** @see #o */\n" + 
-			"  public Object foo(Object o) { return null; }\n" + 
+			"class X {\n" +
+			"  /** @see #o */\n" +
+			"  public Object foo(Object o) { return null; }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	/** @see #o */\n" + 
-		"	          ^\n" + 
-		"Javadoc: o cannot be resolved or is not a field\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	/** @see #o */\n" +
+		"	          ^\n" +
+		"Javadoc: o cannot be resolved or is not a field\n" +
 		"----------\n"
 	);
 }
@@ -8165,19 +8165,19 @@ public void testBug258798_1() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"/**\n" + 
-			"* @see #X(int)\n" + 
-			"*/\n" + 
-			"X(int i) {\n" + 
-			"}\n" + 
+			"public class X {\n" +
+			"/**\n" +
+			"* @see #X(int)\n" +
+			"*/\n" +
+			"X(int i) {\n" +
+			"}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 5)\n" + 
-		"	X(int i) {\n" + 
-		"	      ^\n" + 
-		"Javadoc: Missing tag for parameter i\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 5)\n" +
+		"	X(int i) {\n" +
+		"	      ^\n" +
+		"Javadoc: Missing tag for parameter i\n" +
 		"----------\n"
 	);
 }
@@ -8186,19 +8186,19 @@ public void testBug258798_2a() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"X(int i) {}\n" + 
-			"}\n" + 
-			"class Y extends X {\n" + 
-			"/** @see X#X(int) */\n" + 
-			"Y(double d) { super(0); }\n" + 
+			"public class X {\n" +
+			"X(int i) {}\n" +
+			"}\n" +
+			"class Y extends X {\n" +
+			"/** @see X#X(int) */\n" +
+			"Y(double d) { super(0); }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	Y(double d) { super(0); }\n" + 
-		"	         ^\n" + 
-		"Javadoc: Missing tag for parameter d\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	Y(double d) { super(0); }\n" +
+		"	         ^\n" +
+		"Javadoc: Missing tag for parameter d\n" +
 		"----------\n"
 	);
 }
@@ -8208,20 +8208,20 @@ public void testBug258798_2b() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" + 
-				"public class X<T> {\n" + 
-				"X(ArrayList<T> alt) {}\n" + 
-				"}\n" + 
-				"class Y<U> extends X<U> {\n" + 
-				"/** @see X#X(ArrayList) */\n" + 
-				"Y(List<U> lu) { super(null); }\n" + 
+				"import java.util.*;\n" +
+				"public class X<T> {\n" +
+				"X(ArrayList<T> alt) {}\n" +
+				"}\n" +
+				"class Y<U> extends X<U> {\n" +
+				"/** @see X#X(ArrayList) */\n" +
+				"Y(List<U> lu) { super(null); }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
-			"	Y(List<U> lu) { super(null); }\n" + 
-			"	          ^^\n" + 
-			"Javadoc: Missing tag for parameter lu\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 7)\n" +
+			"	Y(List<U> lu) { super(null); }\n" +
+			"	          ^^\n" +
+			"Javadoc: Missing tag for parameter lu\n" +
 			"----------\n"
 		);
 	}
@@ -8232,20 +8232,20 @@ public void testBug258798_2c() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" + 
-				"public class X<T> {\n" + 
-				"X(Object o) {}\n" + 
-				"}\n" + 
-				"class Y<U> extends X<U> {\n" + 
-				"/** @see X#X(Object) */\n" + 
-				"Y(List<U> lu) { super(lu); }\n" + 
+				"import java.util.*;\n" +
+				"public class X<T> {\n" +
+				"X(Object o) {}\n" +
+				"}\n" +
+				"class Y<U> extends X<U> {\n" +
+				"/** @see X#X(Object) */\n" +
+				"Y(List<U> lu) { super(lu); }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
-			"	Y(List<U> lu) { super(lu); }\n" + 
-			"	          ^^\n" + 
-			"Javadoc: Missing tag for parameter lu\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 7)\n" +
+			"	Y(List<U> lu) { super(lu); }\n" +
+			"	          ^^\n" +
+			"Javadoc: Missing tag for parameter lu\n" +
 			"----------\n"
 		);
 	}
@@ -8256,13 +8256,13 @@ public void testBug258798_3() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.*;\n" + 
-				"public class X<T> {\n" + 
-				"X(List<T> lt) {}\n" + 
-				"}\n" + 
-				"class Y<U> extends X<U> {\n" + 
-				"/** @see X#X(List) */\n" + 
-				"Y(List<U> lu) { super(null); }\n" + 
+				"import java.util.*;\n" +
+				"public class X<T> {\n" +
+				"X(List<T> lt) {}\n" +
+				"}\n" +
+				"class Y<U> extends X<U> {\n" +
+				"/** @see X#X(List) */\n" +
+				"Y(List<U> lu) { super(null); }\n" +
 				"}\n"
 			}
 		);
@@ -8289,16 +8289,16 @@ public void testBug247037() {
 			"    void BlahBlah();\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	* {@inheritDoc}\n" + 
-		"	    ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	* {@inheritDoc}\n" + 
-		"	    ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	* {@inheritDoc}\n" +
+		"	    ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	* {@inheritDoc}\n" +
+		"	    ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8325,16 +8325,16 @@ public void testBug247037b() {
 			"    Y(int x) {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	* {@inheritDoc}\n" + 
-		"	    ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	* @param x {@inheritDoc}\n" + 
-		"	             ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	* {@inheritDoc}\n" +
+		"	    ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	* @param x {@inheritDoc}\n" +
+		"	             ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8365,34 +8365,34 @@ public void testBug247037c() {
 			"     * @since {@inheritDoc}\n" +  // error, cannot be used in @since
 			"     * @author {@inheritDoc}\n" + // error, cannot be used in @author
 			"     * @see {@inheritDoc}\n" +    // error, cannot be used in @see
-			"     * @throws Exception {@inheritDoc}\n" +  
-			"     * @exception Exception {@inheritDoc}\n" + 
+			"     * @throws Exception {@inheritDoc}\n" +
+			"     * @exception Exception {@inheritDoc}\n" +
 			"     */\n" +
 			"    public int m(int blah) throws Exception {\n" +
 			"		return 1;\n" +
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 16)\n" + 
-		"	* @since {@inheritDoc}\n" + 
-		"	           ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 17)\n" + 
-		"	* @author {@inheritDoc}\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 18)\n" + 
-		"	* @see {@inheritDoc}\n" + 
-		"	   ^^^\n" + 
-		"Javadoc: Missing reference\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 18)\n" + 
-		"	* @see {@inheritDoc}\n" + 
-		"	         ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 16)\n" +
+		"	* @since {@inheritDoc}\n" +
+		"	           ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 17)\n" +
+		"	* @author {@inheritDoc}\n" +
+		"	            ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 18)\n" +
+		"	* @see {@inheritDoc}\n" +
+		"	   ^^^\n" +
+		"Javadoc: Missing reference\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 18)\n" +
+		"	* @see {@inheritDoc}\n" +
+		"	         ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8419,27 +8419,27 @@ public void testBug247037d() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	* @param blah {@inheritDoc}\n" + 
-		"	                ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	* @return {@inheritDoc}\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
-		"	* @author {@inheritDoc}\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	* @param blah {@inheritDoc}\n" +
+		"	                ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	* @return {@inheritDoc}\n" +
+		"	            ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	* @author {@inheritDoc}\n" +
+		"	            ^^^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
 }
 /**
- * @bug 267833:[javadoc] Custom tags should not be allowed for inline tags 
+ * @bug 267833:[javadoc] Custom tags should not be allowed for inline tags
  * @test Ensure that a warning is raised when customs tags are used as inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833"
  */
@@ -8457,13 +8457,13 @@ public void testBug267833() {
 }
 /**
  * Additional test for bug 267833
- * @test Ensure that the JavadocTagConstants.JAVADOC_TAG_TYPE array is up to date with the other arrays, such as 
+ * @test Ensure that the JavadocTagConstants.JAVADOC_TAG_TYPE array is up to date with the other arrays, such as
  *  JavadocTagConstants.TAG_NAMES, JavadocTagConstants.INLINE_TAGS and JavadocTagConstants.BLOCK_TAGS
  */
 public void testBug267833_2() {
-	
+
 	assertEquals(JavadocTagConstants.TAG_NAMES.length,JavadocTagConstants.JAVADOC_TAG_TYPE.length);
-	
+
 	int tagsLength = JavadocTagConstants.TAG_NAMES.length;
 	nextTag:for (int index=0; index < tagsLength; index++) {
 		char[] tagName = JavadocTagConstants.TAG_NAMES[index];
@@ -8492,7 +8492,7 @@ public void testBug267833_2() {
 }
 /**
  * Additional test for bug 267833
- * @test Ensure that a warning is raised when block tags are used as inline tags. 
+ * @test Ensure that a warning is raised when block tags are used as inline tags.
  */
 public void testBug267833_3() {
 	runNegativeTest(
@@ -8503,84 +8503,84 @@ public void testBug267833_3() {
 			"* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
 			"* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
 			"* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
-			"* @param i\n" + 
+			"* @param i\n" +
 			"* @return value\n" +
-			"* @throws NullPointerException \n" + 
+			"* @throws NullPointerException \n" +
 			"*/\n" +
-			"public int foo(int i) {\n" + 
+			"public int foo(int i) {\n" +
 			"	return 0;\n" +
-			"}\n" + 
+			"}\n" +
 			"}\n" },
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                ^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                               ^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                                             ^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 3)\n" + 
-			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" + 
-			"	                                                                         ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
-			"	             ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
-			"	                            ^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"8. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
-			"	                                             ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"9. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
-			"	                                                            ^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"10. ERROR in X.java (at line 4)\n" + 
-			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" + 
-			"	                                                                                               ^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"11. ERROR in X.java (at line 5)\n" + 
-			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
-			"	             ^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"12. ERROR in X.java (at line 5)\n" + 
-			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
-			"	                           ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"13. ERROR in X.java (at line 5)\n" + 
-			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
-			"	                                         ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"14. ERROR in X.java (at line 5)\n" + 
-			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" + 
-			"	                                                             ^^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
+			"	                ^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
+			"	                                ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
+			"	                                               ^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 3)\n" +
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
+			"	                                                             ^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 3)\n" +
+			"	* Description {@see String} , {@return int}, {@since 1.0}, {@param i}, {@throws NullPointerException}\n" +
+			"	                                                                         ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 4)\n" +
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
+			"	             ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 4)\n" +
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
+			"	                            ^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 4)\n" +
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
+			"	                                             ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 4)\n" +
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
+			"	                                                            ^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"10. ERROR in X.java (at line 4)\n" +
+			"	* and more {@author jay}, {@category cat}, {@deprecated}, {@exception NullPointerException}, {@version 1.1}\n" +
+			"	                                                                                               ^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"11. ERROR in X.java (at line 5)\n" +
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
+			"	             ^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"12. ERROR in X.java (at line 5)\n" +
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
+			"	                           ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"13. ERROR in X.java (at line 5)\n" +
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
+			"	                                         ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"14. ERROR in X.java (at line 5)\n" +
+			"	* and more {@since 1.0}, {@serial 0L}, {@serialData data}, {@serialField field}\n" +
+			"	                                                             ^^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
 			"----------\n");
 }
 
@@ -8607,11 +8607,11 @@ public void testBug281609a() {
 			"}\n"
 		},
 		// warning - Tag @see: reference not found: PKG
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 7)\n" + 
-		"	* @see PKG\n" + 
-		"	       ^^^\n" + 
-		"Javadoc: PKG cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 7)\n" +
+		"	* @see PKG\n" +
+		"	       ^^^\n" +
+		"Javadoc: PKG cannot be resolved to a type\n" +
 		"----------\n"
 	);
 }
@@ -8722,11 +8722,11 @@ public void testBug222188a() {
 	};
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: Test.Inner
-		"----------\n" + 
-		"1. ERROR in pack2\\X.java (at line 5)\n" + 
-		"	* See also {@link Test.Inner} -- error/warning \n" + 
-		"	                  ^^^^^^^^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" +
+		"1. ERROR in pack2\\X.java (at line 5)\n" +
+		"	* See also {@link Test.Inner} -- error/warning \n" +
+		"	                  ^^^^^^^^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8751,11 +8751,11 @@ public void testBug222188b() {
 	};
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: Test.Inner
-		"----------\n" + 
-		"1. ERROR in pack2\\X.java (at line 4)\n" + 
-		"	* See also {@link pack.Test.Inners} -- error/warning \n" + 
-		"	                  ^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: pack.Test.Inners cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in pack2\\X.java (at line 4)\n" +
+		"	* See also {@link pack.Test.Inners} -- error/warning \n" +
+		"	                  ^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: pack.Test.Inners cannot be resolved to a type\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8770,9 +8770,9 @@ public void testBug221539a() {
 	String[] units = new String[] {
 		"p/Test.java",
 		"package p;\n" +
-		"/**\n" + 
-		" * {@link Test.Inner} not ok for Javadoc\n" + 
-		" * {@link Foo.Inner} ok for Javadoc\n" + 
+		"/**\n" +
+		" * {@link Test.Inner} not ok for Javadoc\n" +
+		" * {@link Foo.Inner} ok for Javadoc\n" +
 		" */\n" +
 		"public class Test extends Foo {\n" +
 		"}\n"
@@ -8785,11 +8785,11 @@ public void testBug221539a() {
 	};
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: Test.Inner
-		"----------\n" + 
-		"1. ERROR in p\\Test.java (at line 3)\n" + 
-		"	* {@link Test.Inner} not ok for Javadoc\n" + 
-		"	         ^^^^^^^^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" +
+		"1. ERROR in p\\Test.java (at line 3)\n" +
+		"	* {@link Test.Inner} not ok for Javadoc\n" +
+		"	         ^^^^^^^^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8799,11 +8799,11 @@ public void testBug221539b() {
 	String[] units = new String[] {
 		"p1/Test.java",
 		"package p1;\n" +
-		"import p2.Foo;\n" + 
-		"/**\n" + 
-		" * {@link Test.Inner} not ok for Javadoc\n" + 
-		" * {@link Foo.Inner} not ok Javadoc\n" + 
-		" * {@link p2.Foo.Inner} ok for Javadoc as fully qualified\n" + 
+		"import p2.Foo;\n" +
+		"/**\n" +
+		" * {@link Test.Inner} not ok for Javadoc\n" +
+		" * {@link Foo.Inner} not ok Javadoc\n" +
+		" * {@link p2.Foo.Inner} ok for Javadoc as fully qualified\n" +
 		" */\n" +
 		"public class Test extends Foo {\n" +
 		"}\n"
@@ -8817,16 +8817,16 @@ public void testBug221539b() {
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: Test.Inner
 		// warning - Tag @link: reference not found: Foo.Inner
-		"----------\n" + 
-		"1. ERROR in p1\\Test.java (at line 4)\n" + 
-		"	* {@link Test.Inner} not ok for Javadoc\n" + 
-		"	         ^^^^^^^^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\Test.java (at line 5)\n" + 
-		"	* {@link Foo.Inner} not ok Javadoc\n" + 
-		"	         ^^^^^^^^^\n" + 
-		"Javadoc: Invalid member type qualification\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\Test.java (at line 4)\n" +
+		"	* {@link Test.Inner} not ok for Javadoc\n" +
+		"	         ^^^^^^^^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
+		"----------\n" +
+		"2. ERROR in p1\\Test.java (at line 5)\n" +
+		"	* {@link Foo.Inner} not ok Javadoc\n" +
+		"	         ^^^^^^^^^\n" +
+		"Javadoc: Invalid member type qualification\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 	);
@@ -8839,23 +8839,23 @@ public void testBug221539c() {
 		new String[] {
 			"pack/Test.java",
 			"package pack;\n" +
-			"/**\n" + 
-			" * @see Inner.Level2.Level3\n" + 
-			" * @see Test.Inner.Level2.Level3\n" + 
-			" */\n" + 
-			"public class Test {\n" + 
-			"	public class Inner {\n" + 
-			"		/**\n" + 
-			"		 * @see Level3\n" + 
-			"		 * @see Level2.Level3\n" + 
-			"		 * @see Inner.Level2.Level3\n" + 
-			"		 * @see Test.Inner.Level2.Level3\n" + 
-			"		 */\n" + 
-			"		public class Level2 {\n" + 
-			"			class Level3 {\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"/**\n" +
+			" * @see Inner.Level2.Level3\n" +
+			" * @see Test.Inner.Level2.Level3\n" +
+			" */\n" +
+			"public class Test {\n" +
+			"	public class Inner {\n" +
+			"		/**\n" +
+			"		 * @see Level3\n" +
+			"		 * @see Level2.Level3\n" +
+			"		 * @see Inner.Level2.Level3\n" +
+			"		 * @see Test.Inner.Level2.Level3\n" +
+			"		 */\n" +
+			"		public class Level2 {\n" +
+			"			class Level3 {\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		}
 	);
@@ -8877,7 +8877,7 @@ public void testBug382606() {
 				"class B {\n"+
 				" B() {}\n"+
 				"\n"+
-				" public void foo(){\n"+ 
+				" public void foo(){\n"+
 				"     new B();\n"+
 				" }\n"+
 				"}\n"
@@ -8911,13 +8911,13 @@ public void testBug206345a() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		//warning - Tag @link: reference not found: expected_error
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 7)\r\n" + 
-		"	* 			{@link expected_error}\r\n" + 
-		"	  			       ^^^^^^^^^^^^^^\n" + 
-		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 7)\r\n" +
+		"	* 			{@link expected_error}\r\n" +
+		"	  			       ^^^^^^^^^^^^^^\n" +
+		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
-}	
+}
 public void testBug206345b() {
 	// same for @code tags
 	String[] units = new String[] {
@@ -8940,13 +8940,13 @@ public void testBug206345b() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: expected_error
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 7)\r\n" + 
-		"	* 			{@link expected_error}\r\n" + 
-		"	  			       ^^^^^^^^^^^^^^\n" + 
-		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 7)\r\n" +
+		"	* 			{@link expected_error}\r\n" +
+		"	  			       ^^^^^^^^^^^^^^\n" +
+		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
-}	
+}
 public void testBug206345c() {
 	// verify we still validate other syntax
 	String[] units = new String[] {
@@ -8971,28 +8971,28 @@ public void testBug206345c() {
 		// warning - Tag @link: reference not found: raw text: {@link BadLink} is just text
 		// warning - Tag @link: reference not found: expected_error
 		//
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* This is {@link raw text:\n" + 
-		"	          ^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
-		"----------\n" + 
-		"2. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* This is {@link raw text:\n" + 
-		"	                 ^^^\n" + 
-		"Javadoc: raw cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in pkg\\X.java (at line 6)\n" + 
-		"	* 			{@link BadLink} is just text}\n" + 
-		"	  			       ^^^^^^^\n" + 
-		"Javadoc: BadLink cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"4. ERROR in pkg\\X.java (at line 7)\n" + 
-		"	* 			{@link expected_error}\n" + 
-		"	  			       ^^^^^^^^^^^^^^\n" + 
-		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\n" +
+		"	* This is {@link raw text:\n" +
+		"	          ^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
+		"----------\n" +
+		"2. ERROR in pkg\\X.java (at line 5)\n" +
+		"	* This is {@link raw text:\n" +
+		"	                 ^^^\n" +
+		"Javadoc: raw cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in pkg\\X.java (at line 6)\n" +
+		"	* 			{@link BadLink} is just text}\n" +
+		"	  			       ^^^^^^^\n" +
+		"Javadoc: BadLink cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in pkg\\X.java (at line 7)\n" +
+		"	* 			{@link expected_error}\n" +
+		"	  			       ^^^^^^^^^^^^^^\n" +
+		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
-}	
+}
 public void testBug206345d() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -9014,13 +9014,13 @@ public void testBug206345d() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		// warning - Tag @link: reference not found: expected_error
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 7)\n" + 
-		"	* 			{@link expected_error}\n" + 
-		"	  			       ^^^^^^^^^^^^^^\n" + 
-		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 7)\n" +
+		"	* 			{@link expected_error}\n" +
+		"	  			       ^^^^^^^^^^^^^^\n" +
+		"Javadoc: expected_error cannot be resolved to a type\n" +
 		"----------\n");
-}	
+}
 public void testBug206345e() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -9041,12 +9041,12 @@ public void testBug206345e() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@code raw text: {{{{{{@link BadLink}}} is just text}"
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
-		"	* This is {@code raw text:\n" + 
-		"	 * 			{{{{{{@link BadLink}}} is just text}\r\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" +
+		"	* This is {@code raw text:\n" +
+		"	 * 			{{{{{{@link BadLink}}} is just text}\r\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
 public void testBug206345f() {
@@ -9069,12 +9069,12 @@ public void testBug206345f() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@code raw text: {@link BadLink}"
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
-		"	* This is {@code raw text:\n" + 
-		"	 * 			{@link BadLink}\r\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" +
+		"	* This is {@code raw text:\n" +
+		"	 * 			{@link BadLink}\r\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 	}
 public void testBug206345g() {
@@ -9096,11 +9096,11 @@ public void testBug206345g() {
 	this.reportInvalidJavadoc = CompilerOptions.ERROR;
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* This is {@code raw text:\n" + 
-		"	          ^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\n" +
+		"	* This is {@code raw text:\n" +
+		"	          ^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
 public void testBug206345h() {
@@ -9121,11 +9121,11 @@ public void testBug206345h() {
 	this.reportInvalidJavadoc = CompilerOptions.ERROR;
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
-		"	* This is {@code raw text:\r\n" + 
-		"	          ^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" +
+		"	* This is {@code raw text:\r\n" +
+		"	          ^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
 public void testBug206345i() {
@@ -9145,11 +9145,11 @@ public void testBug206345i() {
 	this.reportInvalidJavadoc = CompilerOptions.ERROR;
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
-		"	* This is {@code raw text:\r\n" + 
-		"	          ^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" +
+		"	* This is {@code raw text:\r\n" +
+		"	          ^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
 public void testBug206345j() {
@@ -9170,7 +9170,7 @@ public void testBug206345j() {
 	this.reportInvalidJavadoc = CompilerOptions.ERROR;
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runConformReferenceTest(units);
-}	
+}
 public void testBug206345k() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -9210,14 +9210,14 @@ public void testBug206345l() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@literal raw text: {@link BadLink}"
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* This is {@literal raw text:\n" + 
-		"	 * 			{@link BadLink}\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\n" +
+		"	* This is {@literal raw text:\n" +
+		"	 * 			{@link BadLink}\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
-}	
+}
 public void testBug206345m() {
 	String[] units = new String[] {
 		"pkg/X.java",
@@ -9237,12 +9237,12 @@ public void testBug206345m() {
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
 	runNegativeTest(units,
 		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@code raw text: {@link BadLink}"
-		"----------\n" + 
-		"1. ERROR in pkg\\X.java (at line 5)\n" + 
-		"	* This is {@code raw text:\n" + 
-		"	 * 			{@link BadLink}\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" +
+		"1. ERROR in pkg\\X.java (at line 5)\n" +
+		"	* This is {@code raw text:\n" +
+		"	 * 			{@link BadLink}\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Missing closing brace for inline tag\n" +
 		"----------\n");
 }
 }

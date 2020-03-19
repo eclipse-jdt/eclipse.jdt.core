@@ -111,7 +111,7 @@ int getNumberOfParameters();
  * <p>For binary types, associated source is used to retrieve the {@link ILocalVariable#getNameRange() name range},
  * {@link ILocalVariable#getSourceRange() source range} and the {@link ILocalVariable#getFlags() flags}.</p>
  * <p>These local variables can be used to retrieve the {@link ILocalVariable#getAnnotations() parameter annotations}.</p>
- * 
+ *
  * @return the parameters of this method
  * @throws JavaModelException if this element does not exist or if an
  *      exception occurs while accessing its corresponding resource.

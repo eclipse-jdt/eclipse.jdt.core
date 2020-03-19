@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 BEA Systems, Inc and others. 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,7 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - Bug 478427
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.dispatch;
@@ -40,11 +40,11 @@ import org.eclipse.jdt.internal.core.CompilationUnitProblemFinder;
 import org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator;
 
 /**
- * Java 6 annotation processor manager used when compiling within the IDE. 
+ * Java 6 annotation processor manager used when compiling within the IDE.
  * @see org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager
  */
 public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManager {
-	
+
 	private IJavaProject _javaProject;
 	private ICompilationUnitLocator _cuLocator;
 	private Map<IServiceFactory, FactoryPath.Attributes> _processorFactories;
@@ -53,11 +53,11 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	/**
 	 * Initialize the processor manager for a particular project.  It is an error
 	 * to initialize a manager more than once.
-	 * 
+	 *
 	 * @param abstractImageBuilder must be an instanceof AbstractImageBuilder.
 	 * (But it can't be prototyped that way because the abstract base class must
 	 * compile without Eclipse platform code.)
-	 * 
+	 *
 	 * @param javaProject must be an instanceof IJavaProject.  (But it can't be
 	 * prototyped that way because the abstract base class must compile without
 	 * Eclipse platform code.)
@@ -77,7 +77,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 			_processingEnv = new IdeBuildProcessingEnvImpl(this, _javaProject, compiler, isTestCode);
 		}
 		if (Apt6Plugin.DEBUG) {
-			Apt6Plugin.trace("Java 6 annotation processor manager initialized for compiler " + 
+			Apt6Plugin.trace("Java 6 annotation processor manager initialized for compiler " +
 					compiler.toString() + " on project " + _javaProject.getElementName());
 		}
 	}

@@ -45,9 +45,9 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IModulePathEntry {
 
 	String moduleName;
-	
+
 	public static final ThreadLocal<Boolean> workingOnOldClasspath = new ThreadLocal<>();
-	
+
 	/**
 	 * Constructs a package fragment root which represents a module
 	 * contained in a JRT.
@@ -155,7 +155,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		}
 		return null;
 	}
-	
+
 	@Override
 	protected boolean isComplianceJava9OrHigher() {
 		return true;

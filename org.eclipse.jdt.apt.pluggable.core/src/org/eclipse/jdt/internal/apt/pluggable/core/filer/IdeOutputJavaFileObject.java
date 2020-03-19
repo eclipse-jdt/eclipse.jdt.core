@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 BEA Systems, Inc. and others 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
@@ -32,11 +32,11 @@ import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl
 /**
  * Implementation of JavaFileObject used for Java 6 annotation processing within the IDE.
  * This object is used only for writing source and class files.
- * 
+ *
  * @since 3.3
  */
 public class IdeOutputJavaFileObject extends IdeOutputFileObject implements JavaFileObject {
-	
+
 	private final IdeProcessingEnvImpl _env;
 	private final CharSequence _name;
 	private final Collection<IFile> _parentFiles;

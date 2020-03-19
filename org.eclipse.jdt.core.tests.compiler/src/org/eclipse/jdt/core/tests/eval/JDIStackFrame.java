@@ -66,9 +66,9 @@ public JDIStackFrame(
 	String breakpointClassName,
 	String breakpointMethodName,
 	int breakpointLine) {
-	
+
 	this(jdiVM, test, userCode, breakpointClassName, breakpointMethodName, breakpointLine, 10000/*timeout*/);
-	
+
 }
 public JDIStackFrame(
 	VirtualMachine jdiVM,
@@ -78,7 +78,7 @@ public JDIStackFrame(
 	String breakpointMethodName,
 	int breakpointLine,
 	long timeout) {
-	
+
 	this.jdiVM = jdiVM;
 	this.userCode = userCode;
 	this.breakpointClassName = breakpointClassName;

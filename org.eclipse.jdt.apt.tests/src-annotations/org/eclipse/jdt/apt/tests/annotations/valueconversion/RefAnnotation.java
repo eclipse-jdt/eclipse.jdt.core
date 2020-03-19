@@ -15,7 +15,7 @@ public @interface RefAnnotation {
 	char c();
 	byte b();
 	short s();
-	int i(); 
+	int i();
 	long l();
 	float f();
 	double d();

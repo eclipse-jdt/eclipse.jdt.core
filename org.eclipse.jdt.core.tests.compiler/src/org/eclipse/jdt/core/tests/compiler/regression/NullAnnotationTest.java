@@ -56,8 +56,8 @@ public static Class testClass() {
 }
 
 String mismatch_NonNull_Nullable(String type) {
-	return 	(this.complianceLevel < ClassFileConstants.JDK1_8) 
-			? "Null type mismatch: required \'@NonNull "+type+"\' but the provided value is specified as @Nullable\n" 
+	return 	(this.complianceLevel < ClassFileConstants.JDK1_8)
+			? "Null type mismatch: required \'@NonNull "+type+"\' but the provided value is specified as @Nullable\n"
 			: "Null type mismatch (type annotations): required '@NonNull "+type+"' but this expression has type '@Nullable "+type+"'\n";
 }
 String nullTypeSafety() {
@@ -66,8 +66,8 @@ String nullTypeSafety() {
 			: "Null type safety (type annotations): ";
 }
 String variableMayBeNull(String var) {
-	return 	(this.complianceLevel < ClassFileConstants.JDK1_8) 
-			? "Potential null pointer access: The variable "+var+" may be null at this location\n" 
+	return 	(this.complianceLevel < ClassFileConstants.JDK1_8)
+			? "Potential null pointer access: The variable "+var+" may be null at this location\n"
 			: "Potential null pointer access: this expression has a '@Nullable' type\n";
 }
 String redundant_check_nonnull(String expr, String type) {
@@ -397,13 +397,13 @@ public void test_nonnull_parameter_010() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"ContainingInner2.java",
-			"public class ContainingInner2 {\n" + 
-			"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-			"    }\n" + 
-			"    public class Inner {\n" + 
-			"        public Inner (@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"public class ContainingInner2 {\n" +
+			"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+			"    }\n" +
+			"    public class Inner {\n" +
+			"        public Inner (@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+			"        }\n" +
+			"    }\n" +
 			"}\n",
 			"X.java",
 			"public class X {\n" +
@@ -413,16 +413,16 @@ public void test_nonnull_parameter_010() {
 			"    }\n" +
 		  	"}\n"},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	ContainingInner2 container = new ContainingInner2(null);\n" + 
-		"	                                                  ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
-		"	                                                   ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	ContainingInner2 container = new ContainingInner2(null);\n" +
+		"	                                                  ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	ContainingInner2.Inner inner = container.new Inner(null);\n" +
+		"	                                                   ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, target class read from .class
@@ -432,13 +432,13 @@ public void test_nonnull_parameter_011() {
 	runConformTestWithLibs(
 			new String[] {
 				"ContainingInner2.java",
-				"public class ContainingInner2 {\n" + 
-				"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-				"    }\n" + 
-				"    public class Inner {\n" + 
-				"        public Inner (@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-				"        }\n" + 
-				"    }\n" + 
+				"public class ContainingInner2 {\n" +
+				"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+				"    }\n" +
+				"    public class Inner {\n" +
+				"        public Inner (@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+				"        }\n" +
+				"    }\n" +
 				"}\n",
 			},
 			null /*customOptions*/,
@@ -454,16 +454,16 @@ public void test_nonnull_parameter_011() {
 			"    }\n" +
 		  	"}\n"},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	ContainingInner2 container = new ContainingInner2(null);\n" + 
-		"	                                                  ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
-		"	                                                   ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	ContainingInner2 container = new ContainingInner2(null);\n" +
+		"	                                                  ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	ContainingInner2.Inner inner = container.new Inner(null);\n" +
+		"	                                                   ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n"  /* compiler output */);
 }
 // null is passed to a non-null parameter in a qualified allocation expression, generic constructor, target class read from .class
@@ -476,13 +476,13 @@ public void test_nonnull_parameter_012() {
 	runConformTestWithLibs(
 			new String[] {
 				"ContainingInner2.java",
-				"public class ContainingInner2 {\n" + 
-				"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-				"    }\n" + 
-				"    public class Inner {\n" + 
-				"        public <T> Inner (@org.eclipse.jdt.annotation.NonNull T o) {\n" + 
-				"        }\n" + 
-				"    }\n" + 
+				"public class ContainingInner2 {\n" +
+				"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+				"    }\n" +
+				"    public class Inner {\n" +
+				"        public <T> Inner (@org.eclipse.jdt.annotation.NonNull T o) {\n" +
+				"        }\n" +
+				"    }\n" +
 				"}\n",
 			},
 			null /*customOptions*/,
@@ -498,15 +498,15 @@ public void test_nonnull_parameter_012() {
 			"    }\n" +
 		  	"}\n"},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	ContainingInner2 container = new ContainingInner2(null);\n" + 
-		"	                                                  ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	ContainingInner2.Inner inner = container.new Inner(null);\n" + 
-		"	                                                   ^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	ContainingInner2 container = new ContainingInner2(null);\n" +
+		"	                                                  ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	ContainingInner2.Inner inner = container.new Inner(null);\n" +
+		"	                                                   ^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object' but the provided value is null\n"  +
 		"----------\n");
 }
@@ -526,11 +526,11 @@ public void test_nonnull_parameter_013() {
 			"    } \n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in B.java (at line 8)\n" + 
-		"	l.callMe(null);\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 8)\n" +
+		"	l.callMe(null);\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // non-null varargs (message send)
@@ -564,26 +564,26 @@ public void test_nonnull_parameter_015() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	if (o != null)\n" + 
-		"	    ^\n" + 
-		redundant_check_nonnull("The variable o", "Object @NonNull[]") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 14)\n" + 
-		"	foo(objs);\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'"+nonNullArrayOf("Object")+"\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 18)\n" + 
-		"	foo2(2, null);\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"Type null of the last argument to method foo2(int, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 18)\n" + 
-		"	foo2(2, null);\n" + 
-		"	        ^^^^\n" + 
-		"Null type mismatch: required \'"+nonNullArrayOf("Object")+"\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	if (o != null)\n" +
+		"	    ^\n" +
+		redundant_check_nonnull("The variable o", "Object @NonNull[]") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 14)\n" +
+		"	foo(objs);\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'"+nonNullArrayOf("Object")+"\' but the provided value is null\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 18)\n" +
+		"	foo2(2, null);\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"Type null of the last argument to method foo2(int, Object...) doesn't exactly match the vararg parameter type. Cast to Object[] to confirm the non-varargs invocation, or pass individual arguments of type Object for a varargs invocation.\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 18)\n" +
+		"	foo2(2, null);\n" +
+		"	        ^^^^\n" +
+		"Null type mismatch: required \'"+nonNullArrayOf("Object")+"\' but the provided value is null\n" +
 		"----------\n");
 }
 // non-null varargs (allocation and explicit constructor calls)
@@ -625,7 +625,7 @@ public void test_nonnull_parameter_016() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	if (o != null)\n" +
 		"	    ^\n" +
-		redundant_check_nonnull("The variable o", "Object @NonNull[]") + 
+		redundant_check_nonnull("The variable o", "Object @NonNull[]") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 16)\n" +
 		"	new X((Object[])null);\n" +
@@ -643,26 +643,26 @@ public void test_nonnull_argument_001() {
 	runNegativeTestWithLibs(
 			new String[] {
 				"ShowNPE2.java",
-				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-				"@NonNullByDefault\n" + 
-				"public class ShowNPE2 {\n" + 
-				"     public Object foo(Object o1, final boolean b) {\n" + 
-				"         o1 = null;   // expect NPE error\n" + 
-				"         System.out.println(o1.toString());   \n" + 
-				"         return null;  // expect NPE error\n" + 
-				"    }\n" + 
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"@NonNullByDefault\n" +
+				"public class ShowNPE2 {\n" +
+				"     public Object foo(Object o1, final boolean b) {\n" +
+				"         o1 = null;   // expect NPE error\n" +
+				"         System.out.println(o1.toString());   \n" +
+				"         return null;  // expect NPE error\n" +
+				"    }\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in ShowNPE2.java (at line 5)\n" + 
-			"	o1 = null;   // expect NPE error\n" + 
-			"	     ^^^^\n" + 
-			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-			"----------\n" + 
-			"2. ERROR in ShowNPE2.java (at line 7)\n" + 
-			"	return null;  // expect NPE error\n" + 
-			"	       ^^^^\n" + 
-			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n" +
+			"1. ERROR in ShowNPE2.java (at line 5)\n" +
+			"	o1 = null;   // expect NPE error\n" +
+			"	     ^^^^\n" +
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+			"----------\n" +
+			"2. ERROR in ShowNPE2.java (at line 7)\n" +
+			"	return null;  // expect NPE error\n" +
+			"	       ^^^^\n" +
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 			"----------\n");
 }
 // Bug 367203 - [compiler][null] detect assigning null to nonnull argument
@@ -670,21 +670,21 @@ public void test_nonnull_argument_002() {
 	runNegativeTestWithLibs(
 			new String[] {
 				"ShowNPE2.java",
-				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-				"@NonNullByDefault\n" + 
-				"public class ShowNPE2 {\n" + 
-				"    public Object foo(Object o1, final boolean b) {\n" + 
-				"        bar(o1); // expecting no problem\n" + 
-				"        return null;  // expect NPE error\n" + 
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"@NonNullByDefault\n" +
+				"public class ShowNPE2 {\n" +
+				"    public Object foo(Object o1, final boolean b) {\n" +
+				"        bar(o1); // expecting no problem\n" +
+				"        return null;  // expect NPE error\n" +
 				"    }\n" +
-				"    void bar(Object o2) {}\n" + 
+				"    void bar(Object o2) {}\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. ERROR in ShowNPE2.java (at line 6)\n" + 
-			"	return null;  // expect NPE error\n" + 
-			"	       ^^^^\n" + 
-			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+			"----------\n" +
+			"1. ERROR in ShowNPE2.java (at line 6)\n" +
+			"	return null;  // expect NPE error\n" +
+			"	       ^^^^\n" +
+			"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 			"----------\n");
 }
 // a method of a local class has a non-null parameter, client passes potential null (msg send)
@@ -704,9 +704,9 @@ public void test_nonnull_parameter_014() {
 			"    @org.eclipse.jdt.annotation.Nullable Object getNull() { return null; }" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in B.java (at line 8)\n" + 
-		"	l.callMe(getNull());\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 8)\n" +
+		"	l.callMe(getNull());\n" +
 		"	         ^^^^^^^^^\n" +
 		mismatch_NonNull_Nullable("Object") +
 		"----------\n");
@@ -732,8 +732,8 @@ public void test_nonnull_local_001() {
 		"	                     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n"
 		:
-		"	                         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n") + 
+		"	                         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	o2 = null;\n" +
@@ -771,8 +771,8 @@ public void test_nonnull_local_002() {
 		"	     ^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n"
 		:
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n") + 
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 8)\n" +
 		"	o2 = null;\n" +
@@ -1048,11 +1048,11 @@ public void test_parameter_specification_inheritance_008() {
 		},
 		options,
 		"----------\n" +
-		"1. WARNING in XSub.java (at line 3)\n" + 
-		"	public void printObject(Object o) { super.printObject(o); }\n" + 
-		"	                        ^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
+		"1. WARNING in XSub.java (at line 3)\n" +
+		"	public void printObject(Object o) { super.printObject(o); }\n" +
+		"	                        ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
 		"2. ERROR in XSub.java (at line 3)\n" +
 		"	public void printObject(Object o) { super.printObject(o); }\n" +
 		"	                                                      ^\n" +
@@ -1305,26 +1305,26 @@ public void test_parameter_specification_inheritance_014() {
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n"
 		: // at 1.8 we show null type annotations in the message:
-		"----------\n" + 
-		"1. ERROR in p1\\Y.java (at line 2)\n" + 
-		"	public class Y extends X implements IY {\n" + 
-		"	                       ^\n" + 
-		"The method @Nullable String getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\Y.java (at line 2)\n" + 
-		"	public class Y extends X implements IY {\n" + 
-		"	                       ^\n" + 
-		"The method String getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"3. ERROR in p1\\Y.java (at line 2)\n" + 
-		"	public class Y extends X implements IY {\n" + 
-		"	                       ^\n" + 
-		"The method getString5(@NonNull String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"4. ERROR in p1\\Y.java (at line 2)\n" + 
-		"	public class Y extends X implements IY {\n" + 
-		"	                       ^\n" + 
-		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\Y.java (at line 2)\n" +
+		"	public class Y extends X implements IY {\n" +
+		"	                       ^\n" +
+		"The method @Nullable String getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"2. ERROR in p1\\Y.java (at line 2)\n" +
+		"	public class Y extends X implements IY {\n" +
+		"	                       ^\n" +
+		"The method String getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"3. ERROR in p1\\Y.java (at line 2)\n" +
+		"	public class Y extends X implements IY {\n" +
+		"	                       ^\n" +
+		"The method getString5(@NonNull String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"4. ERROR in p1\\Y.java (at line 2)\n" +
+		"	public class Y extends X implements IY {\n" +
+		"	                       ^\n" +
+		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n"));
 }
 // a method relaxes the parameter null specification from @NonNull to un-annotated
@@ -1344,13 +1344,13 @@ public void test_parameter_specification_inheritance_015() {
 			"    public void foo(String s) { if (s != null) super.foo(s); }\n" +
 			"    void bar() { foo(null); }\n" +
 			"}\n"
-		}, 
+		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. WARNING in XSub.java (at line 3)\n" + 
-		"	public void foo(String s) { if (s != null) super.foo(s); }\n" + 
-		"	                ^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
+		"----------\n" +
+		"1. WARNING in XSub.java (at line 3)\n" +
+		"	public void foo(String s) { if (s != null) super.foo(s); }\n" +
+		"	                ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
 		"----------\n");
 }
 
@@ -1408,11 +1408,11 @@ public void test_parameter_specification_inheritance_017() {
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. WARNING in XSub.java (at line 1)\n" + 
-		"	public class XSub extends X implements IX {\n" + 
-		"	                          ^\n" + 
-		"Parameter 1 of method foo(String) lacks a @NonNull annotation as specified in type IX\n" + 
+		"----------\n" +
+		"1. WARNING in XSub.java (at line 1)\n" +
+		"	public class XSub extends X implements IX {\n" +
+		"	                          ^\n" +
+		"Parameter 1 of method foo(String) lacks a @NonNull annotation as specified in type IX\n" +
 		"----------\n");
 }
 
@@ -1652,11 +1652,11 @@ public void test_nonnull_return_008() {
 		"	if (getObject() == null)\n" +
 		"	    ^^^^^^^^^^^\n" +
 		checkAlwaysFalse_method_cannot_return_null("getObject()", "Object") +
-		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
-		"	throw new RuntimeException();\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"2. WARNING in X.java (at line 8)\n" +
+		"	throw new RuntimeException();\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n");
 }
 // a result from a nonnull method is directly checked for null (from local): redundant
@@ -1871,32 +1871,32 @@ public void test_nonnull_return_014() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	@NonNull\n" + 
-			"	public Object foo(Object x, int y) {\n" + 
-			"		@NonNull Object local;\n" + 
-			"		while (true) {\n" + 
-			"			if (y == 4) {\n" + 
-			"				local = x;  // error\n" + 
-			"				return x;   // only a warning.\n" + 
-			"			}\n" + 
-			"			x = null;\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	@NonNull\n" +
+			"	public Object foo(Object x, int y) {\n" +
+			"		@NonNull Object local;\n" +
+			"		while (true) {\n" +
+			"			if (y == 4) {\n" +
+			"				local = x;  // error\n" +
+			"				return x;   // only a warning.\n" +
+			"			}\n" +
+			"			x = null;\n" +
+			"		}\n" +
+			"	}\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	local = x;  // error\n" + 
-		"	        ^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	return x;   // only a warning.\n" + 
-		"	       ^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	local = x;  // error\n" +
+		"	        ^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	return x;   // only a warning.\n" +
+		"	       ^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
 		"----------\n");
 }
 // suppress an error regarding null-spec violation
@@ -2110,7 +2110,7 @@ public void test_illegal_annotation_003() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	@NonNull void foo() {}\n" +
-		"	^^^^^^^^\n" + 
+		"	^^^^^^^^\n" +
 		((this.complianceLevel < ClassFileConstants.JDK1_8)
 			? "The nullness annotation @NonNull is not applicable for the primitive type void\n"
 			: "Type annotation is illegal for a method that returns void\n") +
@@ -2132,7 +2132,7 @@ public void test_illegal_annotation_003b() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" +
 		"	@NonNull int foo() { return 1; }\n" +
-		"	^^^^^^^^\n" + 
+		"	^^^^^^^^\n" +
 		"The nullness annotation @NonNull is not applicable for the primitive type int\n" +
 		"----------\n");
 }
@@ -2232,16 +2232,16 @@ public void test_illegal_annotation_007() {
 			"	}\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in p\\Test.java (at line 9)\n" + 
-		"	@org public Object foo() {\n" + 
-		"	 ^^^\n" + 
-		"org cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in p\\Test.java (at line 9)\n" + 
-		"	@org public Object foo() {\n" + 
-		"	            ^^^^^^\n" + 
-		"The return type is incompatible with '@NonNull Object' returned from TestInt.foo() (mismatching null constraints)\n" + 
+		"----------\n" +
+		"1. ERROR in p\\Test.java (at line 9)\n" +
+		"	@org public Object foo() {\n" +
+		"	 ^^^\n" +
+		"org cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in p\\Test.java (at line 9)\n" +
+		"	@org public Object foo() {\n" +
+		"	            ^^^^^^\n" +
+		"The return type is incompatible with '@NonNull Object' returned from TestInt.foo() (mismatching null constraints)\n" +
 		"----------\n",
 		this.LIBS,
 		true, // flush
@@ -2559,25 +2559,25 @@ public void test_default_nullness_003c() {
 		},
 		customOptions,
 		"----------\n" +
-		"1. ERROR in p2\\Y.java (at line 5)\n" + 
-		"	protected @Nullable Object getObject(@Nullable Object o) {\n" + 
-		"	          ^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"2. ERROR in p2\\Y.java (at line 6)\n" + 
-		"	bar(o);\n" + 
-		"	    ^\n" + 
-		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" + 
-		"----------\n" + 
-		"3. WARNING in p2\\Y.java (at line 7)\n" + 
-		"	@NonNull Object nno = accept(o); // 2xERR\n" + 
-		"	                      ^^^^^^^^^\n" + 
-		"Null type safety (type annotations): The expression of type \'Object\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
-		"----------\n" + 
-		"4. ERROR in p2\\Y.java (at line 7)\n" + 
-		"	@NonNull Object nno = accept(o); // 2xERR\n" + 
-		"	                             ^\n" + 
-		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" + 
+		"1. ERROR in p2\\Y.java (at line 5)\n" +
+		"	protected @Nullable Object getObject(@Nullable Object o) {\n" +
+		"	          ^^^^^^^^^^^^^^^^\n" +
+		"The return type is incompatible with '@NonNull Object' returned from X.getObject(Object) (mismatching null constraints)\n" +
+		"----------\n" +
+		"2. ERROR in p2\\Y.java (at line 6)\n" +
+		"	bar(o);\n" +
+		"	    ^\n" +
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" +
+		"----------\n" +
+		"3. WARNING in p2\\Y.java (at line 7)\n" +
+		"	@NonNull Object nno = accept(o); // 2xERR\n" +
+		"	                      ^^^^^^^^^\n" +
+		"Null type safety (type annotations): The expression of type \'Object\' needs unchecked conversion to conform to \'@NonNull Object\'\n" +
+		"----------\n" +
+		"4. ERROR in p2\\Y.java (at line 7)\n" +
+		"	@NonNull Object nno = accept(o); // 2xERR\n" +
+		"	                             ^\n" +
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" +
 		"----------\n");
 }
 // don't apply type-level default to non-reference type
@@ -2833,22 +2833,22 @@ public void test_default_nullness_011() {
 			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 			"package p1;\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Main.java (at line 4)\n" + 
-		"	o = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in Main.java (at line 5)\n" + 
-		"	new C(null);\n" + 
-		"	      ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p1\\C.java (at line 2)\n" + 
-		"	@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with a default specified for the enclosing package p1\n" + 
+		"----------\n" +
+		"1. ERROR in Main.java (at line 4)\n" +
+		"	o = null;\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in Main.java (at line 5)\n" +
+		"	new C(null);\n" +
+		"	      ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p1\\C.java (at line 2)\n" +
+		"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing package p1\n" +
 		"----------\n");
 }
 // Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
@@ -2856,25 +2856,25 @@ public void test_default_nullness_012() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"    @NonNullByDefault \n" + 
-			"    public void foo(@Nullable String [] args) {\n" + 
-			"        class local {\n" + 
-			"            void zoo(Object o) {\n" + 
-			"            }\n" + 
-			"        };\n" + 
-			"        new local().zoo(null); // defaults applying from foo\n" + 
-			"    }\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class X {\n" +
+			"    @NonNullByDefault \n" +
+			"    public void foo(@Nullable String [] args) {\n" +
+			"        class local {\n" +
+			"            void zoo(Object o) {\n" +
+			"            }\n" +
+			"        };\n" +
+			"        new local().zoo(null); // defaults applying from foo\n" +
+			"    }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	new local().zoo(null); // defaults applying from foo\n" + 
-		"	                ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	new local().zoo(null); // defaults applying from foo\n" +
+		"	                ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // Bug 365836 - [compiler][null] Incomplete propagation of null defaults.
@@ -2882,28 +2882,28 @@ public void test_default_nullness_013() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
 			"\n" +
 			"@SuppressWarnings(\"unused\")\n" +
-			"public class X {\n" + 
-			"    @NonNullByDefault \n" + 
-			"    public void foo(@Nullable String [] args) {\n" + 
+			"public class X {\n" +
+			"    @NonNullByDefault \n" +
+			"    public void foo(@Nullable String [] args) {\n" +
 			"        class local {\n" +
-			"            class Deeply {\n" + 
+			"            class Deeply {\n" +
 			"                Object zoo() {\n" +
 			"                    return null; // defaults applying from foo\n" +
-			"                }\n" + 
-			"            }\n" + 
-			"        };\n" + 
-			"    }\n" + 
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	return null; // defaults applying from foo\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	return null; // defaults applying from foo\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // bug 367154 - [compiler][null] Problem in propagating null defaults.
@@ -2911,29 +2911,29 @@ public void test_default_nullness_014() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"@SuppressWarnings(\"unused\")\n" + 
-			"public class X {\n" + 
-			"\n" + 
-			"    public void foo(@Nullable String [] args) {\n" + 
-			"        @NonNullByDefault\n" + 
-			"        class local {\n" + 
-			"            class Deeply {\n" + 
-			"                Object zoo() {\n" + 
-			"                    return null;  // expect error here\n" + 
-			"                }\n" + 
-			"            }\n" + 
-			"        };\n" + 
-			"    }\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@SuppressWarnings(\"unused\")\n" +
+			"public class X {\n" +
+			"\n" +
+			"    public void foo(@Nullable String [] args) {\n" +
+			"        @NonNullByDefault\n" +
+			"        class local {\n" +
+			"            class Deeply {\n" +
+			"                Object zoo() {\n" +
+			"                    return null;  // expect error here\n" +
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	return null;  // expect error here\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	return null;  // expect error here\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // bug 367154 - [compiler][null] Problem in propagating null defaults.
@@ -2942,28 +2942,28 @@ public void test_default_nullness_015() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"@SuppressWarnings(\"unused\")\n" + 
-			"@NonNullByDefault\n" + 
-			"public class X {\n" + 
-			"    {\n" + 
-			"        class local {\n" + 
-			"            class Deeply {\n" + 
-			"                Object zoo() {\n" + 
-			"                    return null;  // expect error here\n" + 
-			"                }\n" + 
-			"            }\n" + 
-			"        };\n" + 
-			"    }\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@SuppressWarnings(\"unused\")\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"    {\n" +
+			"        class local {\n" +
+			"            class Deeply {\n" +
+			"                Object zoo() {\n" +
+			"                    return null;  // expect error here\n" +
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	return null;  // expect error here\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	return null;  // expect error here\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 
@@ -2987,26 +2987,26 @@ public void test_default_nullness_016() {
 			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	Object foo;\n" + 
-		"	       ^^^\n" + 
-		"The @NonNull field foo may not have been initialized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	foo = null;\n" + 
-		"	      ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 9)\n" + 
-		"	Object iFoo;\n" + 
-		"	       ^^^^\n" + 
-		"The @NonNull field iFoo may not have been initialized\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
-		"	iFoo = arg;\n" + 
-		"	       ^^^\n" + 
-		mismatch_NonNull_Nullable("Object") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	Object foo;\n" +
+		"	       ^^^\n" +
+		"The @NonNull field foo may not have been initialized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	foo = null;\n" +
+		"	      ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	Object iFoo;\n" +
+		"	       ^^^^\n" +
+		"The @NonNull field iFoo may not have been initialized\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 11)\n" +
+		"	iFoo = arg;\n" +
+		"	       ^^^\n" +
+		mismatch_NonNull_Nullable("Object") +
 		"----------\n");
 }
 
@@ -3030,21 +3030,21 @@ public void test_default_nullness_017() {
 			"}\n",
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	Object foo;\n" + 
-		"	       ^^^\n" + 
-		"The @NonNull field foo may not have been initialized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	@NonNull Object goo;\n" + 
-		"	^^^^^^^^^^^^^^^\n" + 
-		"The nullness annotation is redundant with a default that applies to this location\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
-		"	@NonNull Object goo;\n" + 
-		"	                ^^^\n" + 
-		"The @NonNull field goo may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	Object foo;\n" +
+		"	       ^^^\n" +
+		"The @NonNull field foo may not have been initialized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	@NonNull Object goo;\n" +
+		"	^^^^^^^^^^^^^^^\n" +
+		"The nullness annotation is redundant with a default that applies to this location\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	@NonNull Object goo;\n" +
+		"	                ^^^\n" +
+		"The @NonNull field goo may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -3057,16 +3057,16 @@ public void test_nullness_default_018() {
 		new String[] {
 			"pack/NullWarn.java",
 			"package pack;\n" +
-			"@SuppressWarnings(\"null\")\n" + 
-			"public class NullWarn {\n" + 
-			"\n" + 
-			"    // Some code\n" + 
-			"\n" + 
+			"@SuppressWarnings(\"null\")\n" +
+			"public class NullWarn {\n" +
+			"\n" +
+			"    // Some code\n" +
+			"\n" +
 			"}\n"
 		},
 		customOptions,
 		"");
-	
+
 }
 
 // type case (inside default package)
@@ -3077,16 +3077,16 @@ public void test_nullness_default_018b() {
 	runConformTestWithLibs(
 		new String[] {
 			"NullWarn.java",
-			"@SuppressWarnings(\"null\")\n" + 
-			"public class NullWarn {\n" + 
-			"\n" + 
-			"    // Some code\n" + 
-			"\n" + 
+			"@SuppressWarnings(\"null\")\n" +
+			"public class NullWarn {\n" +
+			"\n" +
+			"    // Some code\n" +
+			"\n" +
 			"}\n"
 		},
 		customOptions,
 		"");
-	
+
 }
 
 // redundant default annotations - class vs. inner class
@@ -3129,7 +3129,7 @@ public void test_redundant_annotation_01() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
+		"----------\n" +
 		"1. WARNING in p2\\Y.java (at line 5)\n" +
 		"	@NonNullByDefault class Inner {\n" +
 		"	^^^^^^^^^^^^^^^^^\n" +
@@ -3240,21 +3240,21 @@ public void test_redundant_annotation_02g() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in p2\\Y.java (at line 5)\n" + 
-		"	@NonNullByDefault <TF> void foo(TF arg) {}\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with a default specified for the enclosing type Y<TY>\n" + 
-		"----------\n" + 
-		"2. WARNING in p2\\Y.java (at line 9)\n" + 
-		"	@NonNullByDefault @SuppressWarnings(\"unused\") class Zork {\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with a default specified for the enclosing method bar()\n" + 
-		"----------\n" + 
-		"3. WARNING in p2\\Y.java (at line 10)\n" + 
-		"	@NonNullByDefault void fubar(TB arg) {}\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with a default specified for the enclosing type Zork\n" + 
+		"----------\n" +
+		"1. WARNING in p2\\Y.java (at line 5)\n" +
+		"	@NonNullByDefault <TF> void foo(TF arg) {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Y<TY>\n" +
+		"----------\n" +
+		"2. WARNING in p2\\Y.java (at line 9)\n" +
+		"	@NonNullByDefault @SuppressWarnings(\"unused\") class Zork {\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing method bar()\n" +
+		"----------\n" +
+		"3. WARNING in p2\\Y.java (at line 10)\n" +
+		"	@NonNullByDefault void fubar(TB arg) {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type Zork\n" +
 		"----------\n");
 }
 
@@ -3277,17 +3277,17 @@ public void test_missing_default_annotation_01() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in Lib.java (at line 1)\n" + 
-		"	public class Lib {\n" + 
-		"	             ^^^\n" + 
-		"A default nullness annotation has not been specified for the type Lib\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	public class X {\n" + 
-		"	             ^\n" + 
-		"A default nullness annotation has not been specified for the type X\n" + 
+		"----------\n" +
+		"1. ERROR in Lib.java (at line 1)\n" +
+		"	public class Lib {\n" +
+		"	             ^^^\n" +
+		"A default nullness annotation has not been specified for the type Lib\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public class X {\n" +
+		"	             ^\n" +
+		"A default nullness annotation has not been specified for the type X\n" +
 		"----------\n");
 }
 
@@ -3316,17 +3316,17 @@ public void test_missing_default_annotation_02() {
 			"}\n",
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in p2\\package-info.java (at line 1)\n" + 
-		"	package p2;\n" + 
-		"	        ^^\n" + 
-		"A default nullness annotation has not been specified for the package p2\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in p3\\Z.java (at line 4)\n" + 
-		"	@NonNullByDefault void bar() {}\n" + 
-		"	^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with a default specified for the enclosing package p3\n" + 
+		"----------\n" +
+		"1. ERROR in p2\\package-info.java (at line 1)\n" +
+		"	package p2;\n" +
+		"	        ^^\n" +
+		"A default nullness annotation has not been specified for the package p2\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in p3\\Z.java (at line 4)\n" +
+		"	@NonNullByDefault void bar() {}\n" +
+		"	^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing package p3\n" +
 		"----------\n");
 }
 
@@ -3393,21 +3393,21 @@ public void test_contradictory_annotations_01() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in p2\\Y.java (at line 4)\n" + 
-		"	void foo(@NonNull @Nullable Object o) {}\n" + 
-		"	                  ^^^^^^^^^\n" + 
-		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
-		"----------\n" + 
-		"2. ERROR in p2\\Y.java (at line 5)\n" + 
-		"	@Nullable @NonNull Object bar() {\n" + 
-		"	          ^^^^^^^^\n" + 
-		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
-		"----------\n" + 
-		"3. ERROR in p2\\Y.java (at line 6)\n" + 
-		"	@NonNull @Nullable Object o = null;\n" + 
-		"	         ^^^^^^^^^\n" + 
-		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" +
+		"1. ERROR in p2\\Y.java (at line 4)\n" +
+		"	void foo(@NonNull @Nullable Object o) {}\n" +
+		"	                  ^^^^^^^^^\n" +
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
+		"----------\n" +
+		"2. ERROR in p2\\Y.java (at line 5)\n" +
+		"	@Nullable @NonNull Object bar() {\n" +
+		"	          ^^^^^^^^\n" +
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
+		"----------\n" +
+		"3. ERROR in p2\\Y.java (at line 6)\n" +
+		"	@NonNull @Nullable Object o = null;\n" +
+		"	         ^^^^^^^^^\n" +
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
 		"----------\n");
 }
 
@@ -3424,11 +3424,11 @@ public void test_contradictory_annotations_02() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in p2\\Y.java (at line 4)\n" + 
-		"	@NonNull @Nullable Object o;\n" + 
-		"	         ^^^^^^^^^\n" + 
-		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" +
+		"1. ERROR in p2\\Y.java (at line 4)\n" +
+		"	@NonNull @Nullable Object o;\n" +
+		"	         ^^^^^^^^^\n" +
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
 		"----------\n");
 }
 
@@ -3445,11 +3445,11 @@ public void test_contradictory_annotations_03() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in p2\\Y.java (at line 4)\n" + 
-		"	@NonNull @Nullable Object[] o;\n" + 
-		"	         ^^^^^^^^^\n" + 
-		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" +
+		"1. ERROR in p2\\Y.java (at line 4)\n" +
+		"	@NonNull @Nullable Object[] o;\n" +
+		"	         ^^^^^^^^^\n" +
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
 		"----------\n");
 }
 
@@ -3696,19 +3696,19 @@ public void test_message_send_in_control_structure_02() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.*;\n" +
 			"public class Bug370930 {\n" +
-			"	void loop(Collection<String> list) {\n" + 
-			"		for(@NonNull String s: list) { // warning here: insufficient info on elements\n" + 
-			"			expectNonNull(s); // no warning here\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	\n" + 
+			"	void loop(Collection<String> list) {\n" +
+			"		for(@NonNull String s: list) { // warning here: insufficient info on elements\n" +
+			"			expectNonNull(s); // no warning here\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
 			"	void expectNonNull(@NonNull String s) {}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. WARNING in Bug370930.java (at line 5)\n" + 
-		"	for(@NonNull String s: list) { // warning here: insufficient info on elements\n" + 
+		"----------\n" +
+		"1. WARNING in Bug370930.java (at line 5)\n" +
+		"	for(@NonNull String s: list) { // warning here: insufficient info on elements\n" +
 		"	                       ^^^^\n" +
 		nullTypeSafety() + "The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
 		"----------\n");
@@ -3721,20 +3721,20 @@ public void test_message_send_in_control_structure_02a() {
 			"Bug370930.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class Bug370930 {\n" +
-			"	void loop(String[] array) {\n" + 
-			"		for(@NonNull String s: array) { // warning here: insufficient info on elements\n" + 
-			"			expectNonNull(s); // no warning here\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	\n" + 
+			"	void loop(String[] array) {\n" +
+			"		for(@NonNull String s: array) { // warning here: insufficient info on elements\n" +
+			"			expectNonNull(s); // no warning here\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
 			"	void expectNonNull(@NonNull String s) {}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. WARNING in Bug370930.java (at line 4)\n" + 
-		"	for(@NonNull String s: array) { // warning here: insufficient info on elements\n" + 
-		"	                       ^^^^^\n" + 
+		"----------\n" +
+		"1. WARNING in Bug370930.java (at line 4)\n" +
+		"	for(@NonNull String s: array) { // warning here: insufficient info on elements\n" +
+		"	                       ^^^^^\n" +
 		nullTypeSafety() + "The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
 		"----------\n");
 }
@@ -3746,20 +3746,20 @@ public void test_message_send_in_control_structure_03() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.*;\n" +
 			"public class Bug370930 {\n" +
-			"	void loop(Collection<String> list) {\n" + 
-			"		for(@Nullable String s: list) {\n" + 
-			"			expectNonNull(s); // warning here\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	\n" + 
+			"	void loop(Collection<String> list) {\n" +
+			"		for(@Nullable String s: list) {\n" +
+			"			expectNonNull(s); // warning here\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
 			"	void expectNonNull(@NonNull String s) {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Bug370930.java (at line 6)\n" + 
-		"	expectNonNull(s); // warning here\n" + 
-		"	              ^\n" + 
-		mismatch_NonNull_Nullable("String") + 
+		"----------\n" +
+		"1. ERROR in Bug370930.java (at line 6)\n" +
+		"	expectNonNull(s); // warning here\n" +
+		"	              ^\n" +
+		mismatch_NonNull_Nullable("String") +
 		"----------\n");
 }
 public void test_assignment_expression_1() {
@@ -3788,7 +3788,7 @@ public void test_assignment_expression_1() {
 
 		},
 		customOptions,
-		"");	
+		"");
 }
 // a nonnull variable is dereferenced in a method of a nested type
 public void test_nesting_1() {
@@ -3874,13 +3874,13 @@ public void test_options_01() {
 	runConformTestWithLibs(
 			new String[] {
 				"ContainingInner2.java",
-				"public class ContainingInner2 {\n" + 
-				"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-				"    }\n" + 
-				"    public class Inner {\n" + 
-				"        public <T> Inner (@org.eclipse.jdt.annotation.NonNull T o) {\n" + 
-				"        }\n" + 
-				"    }\n" + 
+				"public class ContainingInner2 {\n" +
+				"    public ContainingInner2 (@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+				"    }\n" +
+				"    public class Inner {\n" +
+				"        public <T> Inner (@org.eclipse.jdt.annotation.NonNull T o) {\n" +
+				"        }\n" +
+				"    }\n" +
 				"}\n",
 			},
 			null /*customOptions*/,
@@ -3912,25 +3912,25 @@ public void test_options_02() {
 			"        Object p = o;\n" +
 			"        if (p == null)\n" +
 			"            p.toString();\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}\n",
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in Test.java (at line 3)\n" + 
-		"	o = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in Test.java (at line 5)\n" + 
-		"	if (p == null)\n" + 
-		"	    ^\n" + 
-		"Null comparison always yields false: The variable p cannot be null at this location\n" + 
-		"----------\n" + 
-		"3. WARNING in Test.java (at line 6)\n" + 
-		"	p.toString();\n" + 
-		"	^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. ERROR in Test.java (at line 3)\n" +
+		"	o = null;\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in Test.java (at line 5)\n" +
+		"	if (p == null)\n" +
+		"	    ^\n" +
+		"Null comparison always yields false: The variable p cannot be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in Test.java (at line 6)\n" +
+		"	p.toString();\n" +
+		"	^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n");
 }
 // test setting null spec violations to "warning"
@@ -3946,25 +3946,25 @@ public void test_options_03() {
 			"        Object p = o;\n" +
 			"        if (p == null)\n" +
 			"            p.toString();\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}\n",
 		},
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in Test.java (at line 3)\n" + 
-		"	o = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in Test.java (at line 5)\n" + 
-		"	if (p == null)\n" + 
-		"	    ^\n" + 
-		"Null comparison always yields false: The variable p cannot be null at this location\n" + 
-		"----------\n" + 
-		"3. WARNING in Test.java (at line 6)\n" + 
-		"	p.toString();\n" + 
-		"	^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. WARNING in Test.java (at line 3)\n" +
+		"	o = null;\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in Test.java (at line 5)\n" +
+		"	if (p == null)\n" +
+		"	    ^\n" +
+		"Null comparison always yields false: The variable p cannot be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in Test.java (at line 6)\n" +
+		"	p.toString();\n" +
+		"	^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n");
 }
 // access to a non-null field
@@ -4030,11 +4030,11 @@ public void test_nonnull_field_2a() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	X (boolean b) { // only potentially initialized\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The @NonNull field o may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	X (boolean b) { // only potentially initialized\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The @NonNull field o may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -4060,11 +4060,11 @@ public void test_nonnull_field_2b() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	X (Color c) { // only potentially initialized\n" + 
-		"	^^^^^^^^^^^\n" + 
-		"The @NonNull field o may not have been initialized. Note that a problem regarding missing \'default:\' on \'switch\' has been suppressed, which is perhaps related to this problem\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	X (Color c) { // only potentially initialized\n" +
+		"	^^^^^^^^^^^\n" +
+		"The @NonNull field o may not have been initialized. Note that a problem regarding missing \'default:\' on \'switch\' has been suppressed, which is perhaps related to this problem\n" +
 		"----------\n");
 }
 
@@ -4084,11 +4084,11 @@ public void test_nonnull_field_2c() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	static @NonNull Object o;\n" + 
-		"	                       ^\n" + 
-		"The @NonNull field o may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	static @NonNull Object o;\n" +
+		"	                       ^\n" +
+		"The @NonNull field o may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -4143,11 +4143,11 @@ public void test_nonnull_field_3() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	@NonNull Object o = null;\n" + 
-		"	                    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@NonNull Object o = null;\n" +
+		"	                    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // a non-null field is assigned to null
@@ -4168,16 +4168,16 @@ public void test_nonnull_field_4() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	o = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	this.o = null;\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	o = null;\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	this.o = null;\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // a non-null field is checked for null
@@ -4198,14 +4198,14 @@ public void test_nonnull_field_5() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return o == null;\n" + 
-		"	       ^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return o == null;\n" +
+		"	       ^\n" +
 		checkAlwaysFalse_nonnull("The field o", "Object") +
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	return this.o != null;\n" + 
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	return this.o != null;\n" +
 		"	            ^\n" +
 		redundant_check_nonnull("The field o", "@NonNull Object") +
 		"----------\n");
@@ -4229,15 +4229,15 @@ public void test_nonnull_field_6() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	if (o != null)\n" + 
-		"	    ^\n" + 
-		redundant_check_nonnull("The field o", "@NonNull Object") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	return this.o == null;\n" + 
-		"	            ^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	if (o != null)\n" +
+		"	    ^\n" +
+		redundant_check_nonnull("The field o", "@NonNull Object") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	return this.o == null;\n" +
+		"	            ^\n" +
 		checkAlwaysFalse_nonnull("The field o", "Object") +
 		"----------\n");
 }
@@ -4271,16 +4271,16 @@ public void test_nonnull_field_7() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	if (Objects.o != null) // redundant\n" + 
-		"	            ^\n" + 
-		redundant_check_nonnull("The field o", "@NonNull Object") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
-		"	if (null != Objects.o) // redundant\n" + 
-		"	                    ^\n" + 
-		redundant_check_nonnull("The field o", "@NonNull Object") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	if (Objects.o != null) // redundant\n" +
+		"	            ^\n" +
+		redundant_check_nonnull("The field o", "@NonNull Object") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 13)\n" +
+		"	if (null != Objects.o) // redundant\n" +
+		"	                    ^\n" +
+		redundant_check_nonnull("The field o", "@NonNull Object") +
 		"----------\n");
 }
 
@@ -4307,16 +4307,16 @@ public void test_nonnull_field_8() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	if (objs.o == null) // always false\n" + 
-		"	         ^\n" + 
-		checkAlwaysFalse_nonnull("The field o", "Object") + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 8)\n" + 
-		"	System.out.print(\"not null\");\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	if (objs.o == null) // always false\n" +
+		"	         ^\n" +
+		checkAlwaysFalse_nonnull("The field o", "Object") +
+		"----------\n" +
+		"2. WARNING in X.java (at line 8)\n" +
+		"	System.out.print(\"not null\");\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n");
 }
 
@@ -4347,16 +4347,16 @@ public void test_nonnull_field_9() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	if (this.objs.o != null) // redundant\n" + 
-		"	              ^\n" + 
-		redundant_check_nonnull("The field o", "@NonNull Object") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	if (getObjs().o != null) // redundant\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	if (this.objs.o != null) // redundant\n" +
 		"	              ^\n" +
-		redundant_check_nonnull("The field o", "@NonNull Object") + 
+		redundant_check_nonnull("The field o", "@NonNull Object") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	if (getObjs().o != null) // redundant\n" +
+		"	              ^\n" +
+		redundant_check_nonnull("The field o", "@NonNull Object") +
 		"----------\n");
 }
 
@@ -4380,16 +4380,16 @@ public void test_nonnull_field_11() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	o = x;\n" + 
-		"	    ^\n" + 
-		mismatch_NonNull_Nullable("Object") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	objs.o = null;\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	o = x;\n" +
+		"	    ^\n" +
+		mismatch_NonNull_Nullable("Object") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	objs.o = null;\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 
@@ -4405,11 +4405,11 @@ public void test_nonnull_field_12() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	@NonNull int o = 1;\n" + 
-		"	^^^^^^^^\n" + 
-		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@NonNull int o = 1;\n" +
+		"	^^^^^^^^\n" +
+		"The nullness annotation @NonNull is not applicable for the primitive type int\n" +
 		"----------\n");
 }
 
@@ -4544,16 +4544,16 @@ public void test_nonnull_field_16() {
 			"}\n",
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	@Inject(optional=true) @NonNull Object o;\n" + 
-		"	                                       ^\n" + 
-		"The @NonNull field o may not have been initialized\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	@Inject(optional=true) String s;\n" + 
-		"	                              ^\n" + 
-		"The @NonNull field s may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	@Inject(optional=true) @NonNull Object o;\n" +
+		"	                                       ^\n" +
+		"The @NonNull field o may not have been initialized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	@Inject(optional=true) String s;\n" +
+		"	                              ^\n" +
+		"The @NonNull field s may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -4575,11 +4575,11 @@ public void test_nonnull_field_17() {
 			"}\n",
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	@NonNull @Inject static String s; // warn since injection of static field is less reliable\n" + 
-		"	                               ^\n" + 
-		"The @NonNull field s may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	@NonNull @Inject static String s; // warn since injection of static field is less reliable\n" +
+		"	                               ^\n" +
+		"The @NonNull field s may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -4598,11 +4598,11 @@ public void test_nullable_field_1() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return this.o.toString();\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return this.o.toString();\n" +
 		"	            ^\n" +
-		potNPE_nullable("The field o") + 
+		potNPE_nullable("The field o") +
 		"----------\n");
 }
 // access to a nullable field - single name reference
@@ -4620,10 +4620,10 @@ public void test_nullable_field_2() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return o.toString();\n" + 
-		"	       ^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return o.toString();\n" +
+		"	       ^\n" +
 		potNPE_nullable("The field o") +
 		"----------\n");
 }
@@ -4719,16 +4719,16 @@ public void test_nullable_field_4() {
 			"}\n"
 		},
 		options /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	String local = o.toString();\n" + 
-		"	               ^\n" + 
-		potNPE_nullable("The field o") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 15)\n" + 
-		"	return this.o.toString(); // warn here\n" + 
-		"	            ^\n" + 
-		potNPE_nullable("The field o") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	String local = o.toString();\n" +
+		"	               ^\n" +
+		potNPE_nullable("The field o") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 15)\n" +
+		"	return this.o.toString(); // warn here\n" +
+		"	            ^\n" +
+		potNPE_nullable("The field o") +
 		"----------\n");
 }
 
@@ -4757,11 +4757,11 @@ public void test_nullable_field_5() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return y.z.o.toString(); // pot.NPE on z\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return y.z.o.toString(); // pot.NPE on z\n" +
 		"	         ^\n" +
-		potNPE_nullable("The field z") + 
+		potNPE_nullable("The field z") +
 		"----------\n");
 }
 
@@ -4791,16 +4791,16 @@ public void test_nullable_field_6() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return y.z.o.toString(); // pot.NPE on y and o\n" + 
-		"	       ^\n" + 
-		potNPE_nullable("The field y") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	return y.z.o.toString(); // pot.NPE on y and o\n" + 
-		"	           ^\n" + 
-		potNPE_nullable("The field o") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return y.z.o.toString(); // pot.NPE on y and o\n" +
+		"	       ^\n" +
+		potNPE_nullable("The field y") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	return y.z.o.toString(); // pot.NPE on y and o\n" +
+		"	           ^\n" +
+		potNPE_nullable("The field o") +
 		"----------\n");
 }
 
@@ -4824,16 +4824,16 @@ public void test_nullable_field_7() {
 			"}\n"
 		},
 		null /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return this.y.o.toString(); // pot.NPE on y and o\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return this.y.o.toString(); // pot.NPE on y and o\n" +
 		"	            ^\n" +
-		potNPE_nullable("The field y") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	return this.y.o.toString(); // pot.NPE on y and o\n" + 
+		potNPE_nullable("The field y") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	return this.y.o.toString(); // pot.NPE on y and o\n" +
 		"	              ^\n" +
-		potNPE_nullable("The field o") + 
+		potNPE_nullable("The field o") +
 		"----------\n");
 }
 
@@ -4869,12 +4869,12 @@ public void test_nullable_field_9() {
 				"}\n"
 			},
 			null /*customOptions*/,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	@Nullable int i;\n" + 
-			"	^^^^^^^^^\n" + 
-			"The nullness annotation @Nullable is not applicable for the primitive type int\n" + 
-			"----------\n");	
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	@Nullable int i;\n" +
+			"	^^^^^^^^^\n" +
+			"The nullness annotation @Nullable is not applicable for the primitive type int\n" +
+			"----------\n");
 }
 
 // protected access to nullable fields - different kinds of references
@@ -4942,41 +4942,41 @@ public void test_nullable_field_10b() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	System.out.println(other.o1.toString());\n" + 
-		"	                         ^^\n" + 
-		potNPE_nullable("The field o1") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	System.out.println(o2.toString());\n" + 
-		"	                   ^^\n" + 
-		potNPE_nullable("The field o2") + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
-		"	System.out.println(this.o2.toString());\n" + 
-		"	                        ^^\n" + 
-		potNPE_nullable("The field o2") + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
-		"	System.out.println (null != o3 ? o3.toString() : \"nothing\");\n" + 
-		"	                                 ^^\n" + 
-		potNPE_nullable("The field o3") + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 15)\n" + 
-		"	System.out.println(x.o1.toString());\n" + 
-		"	                     ^^\n" + 
-		potNPE_nullable("The field o1") + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 17)\n" + 
-		"	System.out.println(this.x.o1.toString());\n" + 
-		"	                          ^^\n" + 
-		potNPE_nullable("The field o1") + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 19)\n" + 
-		"	System.out.println(this.x.o1.toString());\n" + 
-		"	                          ^^\n" + 
-		potNPE_nullable("The field o1") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	System.out.println(other.o1.toString());\n" +
+		"	                         ^^\n" +
+		potNPE_nullable("The field o1") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(o2.toString());\n" +
+		"	                   ^^\n" +
+		potNPE_nullable("The field o2") +
+		"----------\n" +
+		"3. ERROR in X.java (at line 12)\n" +
+		"	System.out.println(this.o2.toString());\n" +
+		"	                        ^^\n" +
+		potNPE_nullable("The field o2") +
+		"----------\n" +
+		"4. ERROR in X.java (at line 13)\n" +
+		"	System.out.println (null != o3 ? o3.toString() : \"nothing\");\n" +
+		"	                                 ^^\n" +
+		potNPE_nullable("The field o3") +
+		"----------\n" +
+		"5. ERROR in X.java (at line 15)\n" +
+		"	System.out.println(x.o1.toString());\n" +
+		"	                     ^^\n" +
+		potNPE_nullable("The field o1") +
+		"----------\n" +
+		"6. ERROR in X.java (at line 17)\n" +
+		"	System.out.println(this.x.o1.toString());\n" +
+		"	                          ^^\n" +
+		potNPE_nullable("The field o1") +
+		"----------\n" +
+		"7. ERROR in X.java (at line 19)\n" +
+		"	System.out.println(this.x.o1.toString());\n" +
+		"	                          ^^\n" +
+		potNPE_nullable("The field o1") +
 		"----------\n");
 }
 
@@ -5058,11 +5058,11 @@ public void test_nullable_field_10d() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	System.out.println(o1.toString()); // info is expired\n" + 
-		"	                   ^^\n" + 
-		potNPE_nullable("The field o1") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	System.out.println(o1.toString()); // info is expired\n" +
+		"	                   ^^\n" +
+		potNPE_nullable("The field o1") +
 		"----------\n");
 }
 
@@ -5094,31 +5094,31 @@ public void test_nullable_field_10e() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	void bar(Object o2) {\n" + 
-		"	                ^^\n" + 
-		"The parameter o2 is hiding a field from type Y\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	System.out.println(this.o2.toString()); // field access is not protected\n" + 
-		"	                        ^^\n" + 
-		potNPE_nullable("The field o2") + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 12)\n" + 
-		"	Y o1 = new Y();\n" + 
-		"	  ^^\n" + 
-		"The local variable o1 is hiding a field from type X\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 14)\n" + 
-		"	System.out.println(this.o1.o2.toString()); // field access via other field not protected\n" + 
-		"	                           ^^\n" + 
-		potNPE_nullable("The field o2") + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 16)\n" + 
-		"	System.out.println(o1.o2.toString()); // field access via local not protected\n" + 
-		"	                      ^^\n" + 
-		potNPE_nullable("The field o2") + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	void bar(Object o2) {\n" +
+		"	                ^^\n" +
+		"The parameter o2 is hiding a field from type Y\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	System.out.println(this.o2.toString()); // field access is not protected\n" +
+		"	                        ^^\n" +
+		potNPE_nullable("The field o2") +
+		"----------\n" +
+		"3. WARNING in X.java (at line 12)\n" +
+		"	Y o1 = new Y();\n" +
+		"	  ^^\n" +
+		"The local variable o1 is hiding a field from type X\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 14)\n" +
+		"	System.out.println(this.o1.o2.toString()); // field access via other field not protected\n" +
+		"	                           ^^\n" +
+		potNPE_nullable("The field o2") +
+		"----------\n" +
+		"5. ERROR in X.java (at line 16)\n" +
+		"	System.out.println(o1.o2.toString()); // field access via local not protected\n" +
+		"	                      ^^\n" +
+		potNPE_nullable("The field o2") +
 		"----------\n");
 }
 
@@ -5143,16 +5143,16 @@ public void test_nullable_field_10f() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	if (o1 != null && o1 != null) // second term is redundant\n" + 
-		"	                  ^^\n" + 
-		"Redundant null check: The field o1 cannot be null at this location (ignoring concurrency)\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	if (o1 != null) // this if is redundant\n" + 
-		"	    ^^\n" + 
-		"Redundant null check: The field o1 cannot be null at this location (ignoring concurrency)\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	if (o1 != null && o1 != null) // second term is redundant\n" +
+		"	                  ^^\n" +
+		"Redundant null check: The field o1 cannot be null at this location (ignoring concurrency)\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	if (o1 != null) // this if is redundant\n" +
+		"	    ^^\n" +
+		"Redundant null check: The field o1 cannot be null at this location (ignoring concurrency)\n" +
 		"----------\n");
 }
 
@@ -5164,29 +5164,29 @@ public void test_nullable_field_11() {
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n" +
-				"class X {\n" + 
-				"    @Nullable Object o;\n" + 
-				"    public @NonNull Object foo(X x) {\n" + 
-				"    	return  x.o != null ? x.o : new Object();\n" + 
-				"	 }\n" + 
-				"    public void goo(X x) {\n" + 
-				"    	if (x.o != null) {\n" + 
-				"    		x.o.toString();\n" + 
-				"    	}\n" + 
-				"    }\n" + 
-				"    public void boo(X x) {\n" + 
-				"    	if (x.o instanceof String) {\n" + 
-				"    		x.o.toString();\n" + 
-				"    	}\n" + 
-				"    }\n" + 
-				"    public void zoo(X x) {\n" + 
-				"    	x.o = new Object();\n" + 
-				"    	System.out.println(\"hashCode of new Object = \" + x.o.hashCode());\n" + 
-				"    }\n" + 
-				"    public void doo(X x) {\n" + 
-				"    	x.o = foo(x); // foo is guaranteed to return @NonNull Object.\n" + 
-				"    	System.out.println(\"hashCode of new Object = \" + x.o.hashCode());\n" + 
-				"    }\n" + 
+				"class X {\n" +
+				"    @Nullable Object o;\n" +
+				"    public @NonNull Object foo(X x) {\n" +
+				"    	return  x.o != null ? x.o : new Object();\n" +
+				"	 }\n" +
+				"    public void goo(X x) {\n" +
+				"    	if (x.o != null) {\n" +
+				"    		x.o.toString();\n" +
+				"    	}\n" +
+				"    }\n" +
+				"    public void boo(X x) {\n" +
+				"    	if (x.o instanceof String) {\n" +
+				"    		x.o.toString();\n" +
+				"    	}\n" +
+				"    }\n" +
+				"    public void zoo(X x) {\n" +
+				"    	x.o = new Object();\n" +
+				"    	System.out.println(\"hashCode of new Object = \" + x.o.hashCode());\n" +
+				"    }\n" +
+				"    public void doo(X x) {\n" +
+				"    	x.o = foo(x); // foo is guaranteed to return @NonNull Object.\n" +
+				"    	System.out.println(\"hashCode of new Object = \" + x.o.hashCode());\n" +
+				"    }\n" +
 				"}\n"
 			},
 			options,
@@ -5202,29 +5202,29 @@ public void test_nullable_field_11a() {
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n" +
-				"class X {\n" + 
-				"    @Nullable Object o;\n" + 
-				"    public @NonNull Object foo() {\n" + 
-				"    	return  o != null ? o : new Object();\n" + 
-				"    }\n" + 
-				"    public void goo() {\n" + 
-				"    	if (o != null) {\n" + 
-				"    		o.toString();\n" + 
-				"    	}\n" + 
-				"    }\n" + 
-				"    public void boo() {\n" + 
-				"    	if (o instanceof String) {\n" + 
-				"    		o.toString();\n" + 
-				"    	}\n" + 
-				"    }\n" + 
-				"    public void zoo() {\n" + 
-				"    	o = new Object();\n" + 
-				"    	System.out.println(\"hashCode of new Object = \" + o.hashCode());\n" + 
-				"    }\n" + 
-				"    public void doo() {\n" + 
-				"    	o = foo(); // foo is guaranteed to return @NonNull Object.\n" + 
-				"    	System.out.println(\"hashCode of new Object = \" + o.hashCode());\n" + 
-				"    }\n" + 
+				"class X {\n" +
+				"    @Nullable Object o;\n" +
+				"    public @NonNull Object foo() {\n" +
+				"    	return  o != null ? o : new Object();\n" +
+				"    }\n" +
+				"    public void goo() {\n" +
+				"    	if (o != null) {\n" +
+				"    		o.toString();\n" +
+				"    	}\n" +
+				"    }\n" +
+				"    public void boo() {\n" +
+				"    	if (o instanceof String) {\n" +
+				"    		o.toString();\n" +
+				"    	}\n" +
+				"    }\n" +
+				"    public void zoo() {\n" +
+				"    	o = new Object();\n" +
+				"    	System.out.println(\"hashCode of new Object = \" + o.hashCode());\n" +
+				"    }\n" +
+				"    public void doo() {\n" +
+				"    	o = foo(); // foo is guaranteed to return @NonNull Object.\n" +
+				"    	System.out.println(\"hashCode of new Object = \" + o.hashCode());\n" +
+				"    }\n" +
 				"}\n"
 			},
 			options,
@@ -5258,26 +5258,26 @@ public void test_nullable_field_12() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	System.out.println(goo()+other.o1.toString()); // warn here: expired by call to goo()\n" + 
-		"	                               ^^\n" + 
-		potNPE_nullable("The field o1") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	System.out.println(goo()+other.o1.toString()); // warn here: expired by call to goo()\n" +
+		"	                               ^^\n" +
+		potNPE_nullable("The field o1") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
 		"	System.out.println(o2.toString()); // warn here: not protected\n" +
-		"	                   ^^\n" + 
+		"	                   ^^\n" +
 		potNPE_nullable("The field o2") +
 		"----------\n" +
-		"3. ERROR in X.java (at line 11)\n" + 
-		"	System.out.println(o3.toString()); // warn here: expired by empty statement\n" + 
-		"	                   ^^\n" + 
-		potNPE_nullable("The field o3") + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 13)\n" + 
-		"	System.out.println(o4.toString()); // warn here: expired by call to hoo()\n" + 
-		"	                   ^^\n" + 
-		potNPE_nullable("The field o4") + 
+		"3. ERROR in X.java (at line 11)\n" +
+		"	System.out.println(o3.toString()); // warn here: expired by empty statement\n" +
+		"	                   ^^\n" +
+		potNPE_nullable("The field o3") +
+		"----------\n" +
+		"4. ERROR in X.java (at line 13)\n" +
+		"	System.out.println(o4.toString()); // warn here: expired by call to hoo()\n" +
+		"	                   ^^\n" +
+		potNPE_nullable("The field o4") +
 		"----------\n");
 }
 
@@ -5301,11 +5301,11 @@ public void test_nullable_field_13() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	this.o2 = other.o1; // warn here: assign @Nullable to @NonNull\n" + 
-		"	          ^^^^^^^^\n" + 
-		mismatch_NonNull_Nullable("Object") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	this.o2 = other.o1; // warn here: assign @Nullable to @NonNull\n" +
+		"	          ^^^^^^^^\n" +
+		mismatch_NonNull_Nullable("Object") +
 		"----------\n");
 }
 
@@ -5350,11 +5350,11 @@ public void test_nullable_field_14a() {
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	return this.o.toString(); // warn here, check has no effect\n" + 
-		"	            ^\n" + 
-		potNPE_nullable("The field o") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	return this.o.toString(); // warn here, check has no effect\n" +
+		"	            ^\n" +
+		potNPE_nullable("The field o") +
 		"----------\n");
 }
 
@@ -5365,35 +5365,35 @@ public void test_nullable_field_15() {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class X {\n" +
-			"    @Nullable\n" + 
-			"    private Object nullable;\n" + 
-			"\n" + 
-			"    public void test() {\n" + 
-			"        if (nullable instanceof Number) {\n" + 
-			"            ((Number)nullable).intValue(); // A\n" + 
-			"        }\n" + 
-			"        if (nullable != null) {\n" + 
-			"            nullable.toString(); // B\n" + 
-			"        }\n" + 
-			"        nullable.toString(); // C\n" + 
+			"    @Nullable\n" +
+			"    private Object nullable;\n" +
+			"\n" +
+			"    public void test() {\n" +
+			"        if (nullable instanceof Number) {\n" +
+			"            ((Number)nullable).intValue(); // A\n" +
+			"        }\n" +
+			"        if (nullable != null) {\n" +
+			"            nullable.toString(); // B\n" +
+			"        }\n" +
+			"        nullable.toString(); // C\n" +
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	((Number)nullable).intValue(); // A\n" + 
-		"	         ^^^^^^^^\n" + 
-		potNPE_nullable("The field nullable") + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	nullable.toString(); // B\n" + 
-		"	^^^^^^^^\n" + 
-		potNPE_nullable("The field nullable") + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
-		"	nullable.toString(); // C\n" + 
-		"	^^^^^^^^\n" + 
-		potNPE_nullable("The field nullable") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	((Number)nullable).intValue(); // A\n" +
+		"	         ^^^^^^^^\n" +
+		potNPE_nullable("The field nullable") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	nullable.toString(); // B\n" +
+		"	^^^^^^^^\n" +
+		potNPE_nullable("The field nullable") +
+		"----------\n" +
+		"3. ERROR in X.java (at line 13)\n" +
+		"	nullable.toString(); // C\n" +
+		"	^^^^^^^^\n" +
+		potNPE_nullable("The field nullable") +
 		"----------\n");
 }
 // access to a nullable field - dereference after check in while loop
@@ -5409,35 +5409,35 @@ public void test_nullable_field_16() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class X {\n" +
 			"    @Nullable Object prop;\n" +
-			"    void testWhileAlone(){\n" + 
-			"        while(this.prop != null) {\n" + 
-			"          test(this.prop);\n" + 
-			"        }\n" + 
+			"    void testWhileAlone(){\n" +
+			"        while(this.prop != null) {\n" +
+			"          test(this.prop);\n" +
+			"        }\n" +
 			"    }\n" +
 			"	 @Nullable Object other;\n" +
 			"	 void testTwoFields() {\n" +
 			"		 boolean b = this.other != null;\n" + // we had funny interaction between analyses of other & prop
-			"        while(this.prop != null) {\n" + 
-			"          test(this.prop);\n" + 
-			"        }\n" + 
+			"        while(this.prop != null) {\n" +
+			"          test(this.prop);\n" +
+			"        }\n" +
 			"    }\n" +
 			"	 void testWhileInIf() {\n" +
 			"		 if (this.prop != null) {\n" +
-			"       	 while(this.other != null) {\n" + 
+			"       	 while(this.other != null) {\n" +
 			"       	   test(this.prop);\n" + // no longer protected by outer if
-			"       	 }\n" + 
+			"       	 }\n" +
 			"		 }\n" +
 			"	 }\n" +
-			"    void test(@NonNull Object param){\n" + 
-			"        assert param != null;\n" + 
+			"    void test(@NonNull Object param){\n" +
+			"        assert param != null;\n" +
 			"    }" +
 			"}\n"
 		},
 		options /*customOptions*/,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 19)\n" + 
-		"	test(this.prop);\n" + 
-		"	     ^^^^^^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 19)\n" +
+		"	test(this.prop);\n" +
+		"	     ^^^^^^^^^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Null type mismatch: required '@NonNull Object' but the provided value is specified as @Nullable\n"
 		: "Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n") +
@@ -5460,11 +5460,11 @@ public void test_nullable_field_17() {
 			"}\n"
 		},
 		options /*customOptions*/,
-		"----------\n" + 
-		"1. INFO in X.java (at line 5)\n" + 
-		"	return this.o.toString();\n" + 
+		"----------\n" +
+		"1. INFO in X.java (at line 5)\n" +
+		"	return this.o.toString();\n" +
 		"	            ^\n" +
-		potNPE_nullable("The field o") + 
+		potNPE_nullable("The field o") +
 		"----------\n");
 }
 // an enum is declared within the scope of a null-default
@@ -5521,7 +5521,7 @@ public void testBug372011() {
 		new String[] {
 			"X.java",
 			  "import p11.T11;\n" +
-			  "import p12.T12;\n" + 
+			  "import p12.T12;\n" +
 			  "import p12.T12a;\n" +
 			  "import p12.Public;\n" +
 			  "public class X {\n" +
@@ -5538,26 +5538,26 @@ public void testBug372011() {
 			  "     return new T11().retSomething();\n" +  // don't complain
 			  "   }\n" +
 			  "}\n"},
-	    "----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	new T11().t11foo(null);\n" + 
-		"	                 ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 8)\n" + 
-		"	new T12().new T122().foo122(null);\n" + 
-		"	                            ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 11)\n" + 
-		"	o.bar(null);\n" + 
-		"	      ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 15)\n" + 
-		"	new T12().new T122().new T1222().foo1222(null);\n" + 
-		"	                                         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+	    "----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	new T11().t11foo(null);\n" +
+		"	                 ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	new T12().new T122().foo122(null);\n" +
+		"	                            ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 11)\n" +
+		"	o.bar(null);\n" +
+		"	      ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 15)\n" +
+		"	new T12().new T122().new T1222().foo1222(null);\n" +
+		"	                                         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n",
 		libs,
 		true /* shouldFlush*/,
@@ -5581,7 +5581,7 @@ public void testBug374129() {
 				public static class C1binInner {
 					public String getId(String id, @Nullable String n) {
 						return id;
-					}		
+					}
 				}
 			}
 		p2bin/C2bin.java:
@@ -5597,7 +5597,7 @@ public void testBug374129() {
 				public static class C2binInner {
 					public String getId(String id, @Nullable String n) {
 						return id;
-					}		
+					}
 				}
 			}
 		p2bin/C3bin.java:
@@ -5607,7 +5607,7 @@ public void testBug374129() {
 			public class C3bin {
 				@NonNullByDefault public String getId(String id, @Nullable String n) {
 					return id;
-				}			
+				}
 			}
 	 */
 	String[] libs = new String[this.LIBS.length + 1];
@@ -5616,61 +5616,61 @@ public void testBug374129() {
 	runNegativeNullTest(
 		new String[] {
 			"bug374129/Test.java",
-				"package bug374129;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.NonNull;\n" + 
-				"import org.eclipse.jdt.annotation.Nullable;\n" + 
-				"\n" + 
-				"import p1bin.C1bin;\n" + 
-				"import p1bin.C1bin.C1binInner;\n" + 
-				"import p2bin.C2bin;\n" + 
-				"import p2bin.C2bin.C2binInner;\n" + 
-				"import p2bin.C3bin;\n" + 
-				"\n" + 
-				"public class Test {\n" + 
-				"	static C1bin c1 = new C1bin();\n" + 
-				"	static C1binInner c1i = new C1binInner();\n" + 
-				"	static C2bin c2 = new C2bin();\n" + 
-				"	static C2binInner c2i = new C2binInner();\n" + 
-				"	static C3bin c3 = new C3bin();\n" + 
-				"	\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		@Nullable String n = getN();\n" + 
-				"		@NonNull String s;\n" + 
-				"		s = c1.getId(n, n); // error on first arg (package default)\n" + 
-				"		s = c1i.getId(n, n); // error on first arg (package default propagated into inner)\n" + 
-				"		s = c2.getId(n, n); // error on first arg (type default)\n" + 
-				"		s = c2i.getId(n, n); // no arg error (canceled default), return requires unchecked conversion\n" + 
-				"		s = c3.getId(n, n); // error on first arg (method default)\n" + 
-				"	}\n" + 
-				"	static String getN() { return null; }\n" + 
-				"}\n" + 
+				"package bug374129;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"import p1bin.C1bin;\n" +
+				"import p1bin.C1bin.C1binInner;\n" +
+				"import p2bin.C2bin;\n" +
+				"import p2bin.C2bin.C2binInner;\n" +
+				"import p2bin.C3bin;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"	static C1bin c1 = new C1bin();\n" +
+				"	static C1binInner c1i = new C1binInner();\n" +
+				"	static C2bin c2 = new C2bin();\n" +
+				"	static C2binInner c2i = new C2binInner();\n" +
+				"	static C3bin c3 = new C3bin();\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		@Nullable String n = getN();\n" +
+				"		@NonNull String s;\n" +
+				"		s = c1.getId(n, n); // error on first arg (package default)\n" +
+				"		s = c1i.getId(n, n); // error on first arg (package default propagated into inner)\n" +
+				"		s = c2.getId(n, n); // error on first arg (type default)\n" +
+				"		s = c2i.getId(n, n); // no arg error (canceled default), return requires unchecked conversion\n" +
+				"		s = c3.getId(n, n); // error on first arg (method default)\n" +
+				"	}\n" +
+				"	static String getN() { return null; }\n" +
+				"}\n" +
 				"\n"},
-			"----------\n" + 
-			"1. ERROR in bug374129\\Test.java (at line 22)\n" + 
-			"	s = c1.getId(n, n); // error on first arg (package default)\n" + 
-			"	             ^\n" + 
-			mismatch_NonNull_Nullable("String") + 
-			"----------\n" + 
-			"2. ERROR in bug374129\\Test.java (at line 23)\n" + 
-			"	s = c1i.getId(n, n); // error on first arg (package default propagated into inner)\n" + 
-			"	              ^\n" + 
-			mismatch_NonNull_Nullable("String") + 
-			"----------\n" + 
-			"3. ERROR in bug374129\\Test.java (at line 24)\n" + 
-			"	s = c2.getId(n, n); // error on first arg (type default)\n" + 
-			"	             ^\n" + 
-			mismatch_NonNull_Nullable("String") + 
-			"----------\n" + 
-			"4. WARNING in bug374129\\Test.java (at line 25)\n" + 
-			"	s = c2i.getId(n, n); // no arg error (canceled default), return requires unchecked conversion\n" + 
-			"	    ^^^^^^^^^^^^^^^\n" + 
-			nullTypeSafety() + "The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
-			"----------\n" + 
-			"5. ERROR in bug374129\\Test.java (at line 26)\n" + 
-			"	s = c3.getId(n, n); // error on first arg (method default)\n" + 
-			"	             ^\n" + 
-			mismatch_NonNull_Nullable("String") + 
+			"----------\n" +
+			"1. ERROR in bug374129\\Test.java (at line 22)\n" +
+			"	s = c1.getId(n, n); // error on first arg (package default)\n" +
+			"	             ^\n" +
+			mismatch_NonNull_Nullable("String") +
+			"----------\n" +
+			"2. ERROR in bug374129\\Test.java (at line 23)\n" +
+			"	s = c1i.getId(n, n); // error on first arg (package default propagated into inner)\n" +
+			"	              ^\n" +
+			mismatch_NonNull_Nullable("String") +
+			"----------\n" +
+			"3. ERROR in bug374129\\Test.java (at line 24)\n" +
+			"	s = c2.getId(n, n); // error on first arg (type default)\n" +
+			"	             ^\n" +
+			mismatch_NonNull_Nullable("String") +
+			"----------\n" +
+			"4. WARNING in bug374129\\Test.java (at line 25)\n" +
+			"	s = c2i.getId(n, n); // no arg error (canceled default), return requires unchecked conversion\n" +
+			"	    ^^^^^^^^^^^^^^^\n" +
+			nullTypeSafety() + "The expression of type 'String' needs unchecked conversion to conform to \'@NonNull String\'\n" +
+			"----------\n" +
+			"5. ERROR in bug374129\\Test.java (at line 26)\n" +
+			"	s = c3.getId(n, n); // error on first arg (method default)\n" +
+			"	             ^\n" +
+			mismatch_NonNull_Nullable("String") +
 			"----------\n",
 		libs,
 		true /* shouldFlush*/,
@@ -5692,7 +5692,7 @@ public void testBug385626_1() {
 			"                    if (j != null) {\n" +
 			"                        @NonNull Integer j1 = i; // bogus error was here\n" +
 			"                    }\n" +
-			"                }\n" + 
+			"                }\n" +
 			"            }\n" +
 			"        }\n" +
 			"    }\n" +
@@ -5721,7 +5721,7 @@ public void testBug385626_2() {
 			"                    if (j != null) {\n" +
 			"                        @NonNull Integer j1 = i; // bogus error was here\n" +
 			"                    }\n" +
-			"                }\n" + 
+			"                }\n" +
 			"            }\n" +
 			"        }\n" +
 			"    }\n" +
@@ -5737,16 +5737,16 @@ public void testBug388630_1() {
 	runConformTestWithLibs(
 		new String[] {
 			"C0.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"public class C0 {\n" + 
-			"	C0 (@NonNull Object o) { }\n" + 
-			"	void test() { }\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"public class C0 {\n" +
+			"	C0 (@NonNull Object o) { }\n" +
+			"	void test() { }\n" +
 			"}\n",
 			"X.java",
-			"public class X {\n" + 
-			"	void foo() {\n" + 
-			"		new C0(\"\") { }.test();\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		new C0(\"\") { }.test();\n" +
+			"	}\n" +
 			"}\n"
 		},
 		null,
@@ -5759,31 +5759,31 @@ public void testBug388630_2() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"C0.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"public class C0 {\n" + 
-			"	C0 (@NonNull Object o) { }\n" + 
-			"	void test() { }\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"public class C0 {\n" +
+			"	C0 (@NonNull Object o) { }\n" +
+			"	void test() { }\n" +
 			"}\n",
 			"X.java",
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"public class X {\n" + 
-			"	void foo(final @Nullable Object a) {\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"public class X {\n" +
+			"	void foo(final @Nullable Object a) {\n" +
 			"		new C0(\"\") {\n" +
 			"           @Override\n" +
 			"           void test() {\n" +
 			"               System.out.println(a.toString());\n" +
 			"               super.test();\n" +
 			"           }\n" +
-			"       }.test();\n" + 
-			"	}\n" + 
+			"       }.test();\n" +
+			"	}\n" +
 			"}\n"
 		},
 		null,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	System.out.println(a.toString());\n" + 
-		"	                   ^\n" + 
-		variableMayBeNull("a") + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	System.out.println(a.toString());\n" +
+		"	                   ^\n" +
+		variableMayBeNull("a") +
 		"----------\n");
 }
 
@@ -5862,23 +5862,23 @@ public void testBug388281_01() {
 		new String[] {
 			"Client.java",
 			"import c.C1;\n" +
-			"public class Client {\n" + 
-			"    void test(C1 c) {\n" + 
-			"         String s = c.m2(null);               // (3)\n" + 
-			"         System.out.println(s.toUpperCase()); // (4)\n" + 
-			"    }\n" + 
+			"public class Client {\n" +
+			"    void test(C1 c) {\n" +
+			"         String s = c.m2(null);               // (3)\n" +
+			"         System.out.println(s.toUpperCase()); // (4)\n" +
+			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 4)\n" + 
-		"	String s = c.m2(null);               // (3)\n" + 
-		"	                ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in Client.java (at line 5)\n" + 
-		"	System.out.println(s.toUpperCase()); // (4)\n" + 
-		"	                   ^\n" + 
-		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n" +
+		"1. ERROR in Client.java (at line 4)\n" +
+		"	String s = c.m2(null);               // (3)\n" +
+		"	                ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in Client.java (at line 5)\n" +
+		"	System.out.println(s.toUpperCase()); // (4)\n" +
+		"	                   ^\n" +
+		"Potential null pointer access: The variable s may be null at this location\n" +
 		"----------\n",
 		libs,
 		true /* shouldFlush*/,
@@ -5901,46 +5901,46 @@ public void testBug388281_02() {
 			"package ctest;\n" +
 			"public class C extends c.C1 {\n" +
 			"    @Override\n" +
-			"    public Object m1(Object a1) {\n" + 
-			"         System.out.println(a1.toString());   // (1)\n" + 
-			"         return null;                         // (2)\n" + 
+			"    public Object m1(Object a1) {\n" +
+			"         System.out.println(a1.toString());   // (1)\n" +
+			"         return null;                         // (2)\n" +
 			"    }\n" +
 			"    @Override\n" +
-			"    public String m2(Object a2) {\n" + 
-			"         System.out.println(a2.toString());\n" + 
-			"         return null;\n" + 
+			"    public String m2(Object a2) {\n" +
+			"         System.out.println(a2.toString());\n" +
+			"         return null;\n" +
 			"    }\n" +
 			"}\n",
 			"Client.java",
 			"import ctest.C;\n" +
-			"public class Client {\n" + 
-			"    void test(C c) {\n" + 
-			"         String s = c.m2(null);               // (3)\n" + 
-			"         System.out.println(s.toUpperCase()); // (4)\n" + 
-			"    }\n" + 
+			"public class Client {\n" +
+			"    void test(C c) {\n" +
+			"         String s = c.m2(null);               // (3)\n" +
+			"         System.out.println(s.toUpperCase()); // (4)\n" +
+			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in ctest\\C.java (at line 5)\n" + 
-		"	System.out.println(a1.toString());   // (1)\n" + 
+		"----------\n" +
+		"1. ERROR in ctest\\C.java (at line 5)\n" +
+		"	System.out.println(a1.toString());   // (1)\n" +
 		"	                   ^^\n" +
 		potNPE_nullable_maybenull("The variable a1") +
-		"----------\n" + 
-		"2. ERROR in ctest\\C.java (at line 6)\n" + 
-		"	return null;                         // (2)\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
 		"----------\n" +
-		"1. ERROR in Client.java (at line 4)\n" + 
-		"	String s = c.m2(null);               // (3)\n" + 
-		"	                ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in Client.java (at line 5)\n" + 
-		"	System.out.println(s.toUpperCase()); // (4)\n" + 
-		"	                   ^\n" + 
-		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"2. ERROR in ctest\\C.java (at line 6)\n" +
+		"	return null;                         // (2)\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in Client.java (at line 4)\n" +
+		"	String s = c.m2(null);               // (3)\n" +
+		"	                ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in Client.java (at line 5)\n" +
+		"	System.out.println(s.toUpperCase()); // (4)\n" +
+		"	                   ^\n" +
+		"Potential null pointer access: The variable s may be null at this location\n" +
 		"----------\n",
 		libs,
 		true /* shouldFlush*/,
@@ -5962,13 +5962,13 @@ public void testBug388281_03() {
 			"ctest/C.java",
 			"package ctest;\n" +
 			"public class C implements i.I {\n" +
-			"    public Object m1(Object a1) {\n" + 
-			"         System.out.println(a1.toString());   // (1)\n" + 
-			"         return null;                         // (2)\n" + 
+			"    public Object m1(Object a1) {\n" +
+			"         System.out.println(a1.toString());   // (1)\n" +
+			"         return null;                         // (2)\n" +
 			"    }\n" +
-			"    public String m2(Object a2) {\n" + 
-			"         System.out.println(a2.toString());\n" + 
-			"         return null;\n" + 
+			"    public String m2(Object a2) {\n" +
+			"         System.out.println(a2.toString());\n" +
+			"         return null;\n" +
 			"    }\n" +
 			"    public Object m1(Object a1, Object a2) {\n" +
 			"        System.out.println(a1.toString());   // (3)\n" +
@@ -5976,19 +5976,19 @@ public void testBug388281_03() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in ctest\\C.java (at line 4)\n" + 
-		"	System.out.println(a1.toString());   // (1)\n" + 
+		"----------\n" +
+		"1. ERROR in ctest\\C.java (at line 4)\n" +
+		"	System.out.println(a1.toString());   // (1)\n" +
 		"	                   ^^\n" +
 		potNPE_nullable_maybenull("The variable a1") +
-		"----------\n" + 
-		"2. ERROR in ctest\\C.java (at line 5)\n" + 
-		"	return null;                         // (2)\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. ERROR in ctest\\C.java (at line 12)\n" + 
-		"	System.out.println(a1.toString());   // (3)\n" + 
+		"----------\n" +
+		"2. ERROR in ctest\\C.java (at line 5)\n" +
+		"	return null;                         // (2)\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"3. ERROR in ctest\\C.java (at line 12)\n" +
+		"	System.out.println(a1.toString());   // (3)\n" +
 		"	                   ^^\n" +
 		potNPE_nullable_maybenull("The variable a1") +
 		"----------\n",
@@ -6017,31 +6017,31 @@ public void testBug388281_04() {
 			"package ctest;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class C implements i.I {\n" +
-			"    public Object m1(@Nullable Object o1, String s2) {\n" + 
-			"         System.out.println(s2.toString());   // (1)\n" + 
-			"         return null;                         // (2)\n" + 
+			"    public Object m1(@Nullable Object o1, String s2) {\n" +
+			"         System.out.println(s2.toString());   // (1)\n" +
+			"         return null;                         // (2)\n" +
 			"    }\n" +
-			"    public @NonNull Object m1(String s1, Object o2) {\n" + 
-			"         System.out.println(s1.toString());   // (3)\n" + 
-			"         return new Object();\n" + 
+			"    public @NonNull Object m1(String s1, Object o2) {\n" +
+			"         System.out.println(s1.toString());   // (3)\n" +
+			"         return new Object();\n" +
 			"    }\n" +
 			"}\n"
 		},
 		options,
-		"----------\n" + 
-		"1. ERROR in ctest\\C.java (at line 5)\n" + 
-		"	System.out.println(s2.toString());   // (1)\n" + 
-		"	                   ^^\n" + 
+		"----------\n" +
+		"1. ERROR in ctest\\C.java (at line 5)\n" +
+		"	System.out.println(s2.toString());   // (1)\n" +
+		"	                   ^^\n" +
 		variableMayBeNull("s2") +
-		"----------\n" + 
-		"2. ERROR in ctest\\C.java (at line 6)\n" + 
-		"	return null;                         // (2)\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. ERROR in ctest\\C.java (at line 9)\n" + 
-		"	System.out.println(s1.toString());   // (3)\n" + 
-		"	                   ^^\n" + 
+		"----------\n" +
+		"2. ERROR in ctest\\C.java (at line 6)\n" +
+		"	return null;                         // (2)\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"3. ERROR in ctest\\C.java (at line 9)\n" +
+		"	System.out.println(s1.toString());   // (3)\n" +
+		"	                   ^^\n" +
 		variableMayBeNull("s1") +
 		"----------\n");
 }
@@ -6062,41 +6062,41 @@ public void testBug388281_05() {
 			"ctest/C.java",
 			"package ctest;\n" +
 			"public class C implements i2.I2 {\n" +
-			"    public Object m1(Object a1) {\n" + 
-			"         System.out.println(a1.toString());   // silent\n" + 
-			"         return null;                         // (1)\n" + 
+			"    public Object m1(Object a1) {\n" +
+			"         System.out.println(a1.toString());   // silent\n" +
+			"         return null;                         // (1)\n" +
 			"    }\n" +
-			"    public String m2(Object a2) {\n" + 
-			"         System.out.println(a2.toString());\n" + 
-			"         return null;						   // (2)\n" + 
+			"    public String m2(Object a2) {\n" +
+			"         System.out.println(a2.toString());\n" +
+			"         return null;						   // (2)\n" +
 			"    }\n" +
 			"}\n",
 			"Client.java",
 			"import ctest.C;\n" +
-			"public class Client {\n" + 
-			"    void test(C c) {\n" + 
-			"         String s = c.m2(null);               // (3)\n" + 
-			"    }\n" + 
-			"}\n"			
+			"public class Client {\n" +
+			"    void test(C c) {\n" +
+			"         String s = c.m2(null);               // (3)\n" +
+			"    }\n" +
+			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in ctest\\C.java (at line 5)\n" + 
-		"	return null;                         // (1)\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in ctest\\C.java (at line 9)\n" + 
-		"	return null;						   // (2)\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 		"----------\n" +
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 4)\n" + 
-		"	String s = c.m2(null);               // (3)\n" + 
-		"	                ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"1. ERROR in ctest\\C.java (at line 5)\n" +
+		"	return null;                         // (1)\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in ctest\\C.java (at line 9)\n" +
+		"	return null;						   // (2)\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in Client.java (at line 4)\n" +
+		"	String s = c.m2(null);               // (3)\n" +
+		"	                ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n",
-		libs,		
+		libs,
 		true /* shouldFlush*/,
 		options);
 }
@@ -6120,30 +6120,30 @@ public void testBug388281_06() {
 			"}\n"
 		},
 		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-		"----------\n" + 
-		"1. ERROR in ctest\\C.java (at line 2)\n" + 
-		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	                       ^^^^\n" + 
-		"The method m2(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"2. ERROR in ctest\\C.java (at line 2)\n" + 
-		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	                       ^^^^\n" + 
-		"The method m1(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
+		"----------\n" +
+		"1. ERROR in ctest\\C.java (at line 2)\n" +
+		"	public class C extends c.C2 implements i2.I2A {\n" +
+		"	                       ^^^^\n" +
+		"The method m2(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"2. ERROR in ctest\\C.java (at line 2)\n" +
+		"	public class C extends c.C2 implements i2.I2A {\n" +
+		"	                       ^^^^\n" +
+		"The method m1(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" +
 		"----------\n"
 		: // at 1.8 we show null type annotations:
-		"----------\n" + 
-		"1. ERROR in ctest\\C.java (at line 2)\n" + 
-		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	                       ^^^^\n" + 
-		"The method m2(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"2. ERROR in ctest\\C.java (at line 2)\n" + 
-		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	                       ^^^^\n" + 
-		"The method m1(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
+		"----------\n" +
+		"1. ERROR in ctest\\C.java (at line 2)\n" +
+		"	public class C extends c.C2 implements i2.I2A {\n" +
+		"	                       ^^^^\n" +
+		"The method m2(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"2. ERROR in ctest\\C.java (at line 2)\n" +
+		"	public class C extends c.C2 implements i2.I2A {\n" +
+		"	                       ^^^^\n" +
+		"The method m1(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" +
 		"----------\n"),
-		libs,		
+		libs,
 		true /* shouldFlush*/,
 		options);
 }
@@ -6181,29 +6181,29 @@ public void testBug388281_07() {
 			"        System.out.println(result.toString());  // (2)\n" +
 			"    }\n" +
 			"}\n"
-		}, 
+		},
 		options,
-		"----------\n" + 
-		"1. ERROR in p2\\Sub.java (at line 6)\n" + 
-		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" + 
-		"	       ^^^^^^\n" + 
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" + 
-		"----------\n" + 
-		"2. ERROR in p2\\Sub.java (at line 6)\n" + 
-		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" + 
-		"	                       ^^^\n" + 
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" + 
-		"----------\n" + 
-		"3. ERROR in p2\\Sub.java (at line 7)\n" + 
-		"	System.out.println(arg.toString()); // (1)\n" + 
-		"	                   ^^^\n" + 
+		"----------\n" +
+		"1. ERROR in p2\\Sub.java (at line 6)\n" +
+		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" +
+		"	       ^^^^^^\n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" +
+		"----------\n" +
+		"2. ERROR in p2\\Sub.java (at line 6)\n" +
+		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" +
+		"	                       ^^^\n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" +
+		"----------\n" +
+		"3. ERROR in p2\\Sub.java (at line 7)\n" +
+		"	System.out.println(arg.toString()); // (1)\n" +
+		"	                   ^^^\n" +
 		variableMayBeNull("arg") +
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 4)\n" + 
-		"	System.out.println(result.toString());  // (2)\n" + 
-		"	                   ^^^^^^\n" + 
-		"Potential null pointer access: The variable result may be null at this location\n" + 
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in Client.java (at line 4)\n" +
+		"	System.out.println(result.toString());  // (2)\n" +
+		"	                   ^^^^^^\n" +
+		"Potential null pointer access: The variable result may be null at this location\n" +
 		"----------\n");
 }
 
@@ -6223,15 +6223,15 @@ public void testBug388281_08() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class Ctest implements i2.II {\n" + // note: i2.II.m1(Object,Object) actually has a bug itself: conflicting default & inherited annotations
-			"    public Object m1(@Nullable Object a1) { // silent: conflict at a1 avoided\n" + 
-			"		return new Object();\n" + 
-			"    }\n" + 
-			"    public String m2(Object a2) { // (a) conflict at return\n" + 
-			"    	return null;\n" + 
-			"    }\n" + 
+			"    public Object m1(@Nullable Object a1) { // silent: conflict at a1 avoided\n" +
+			"		return new Object();\n" +
+			"    }\n" +
+			"    public String m2(Object a2) { // (a) conflict at return\n" +
+			"    	return null;\n" +
+			"    }\n" +
 			"    public String m1(Object o1, Object o2) { // (b) conflict at o1\n" +
-			"        System.out.println(o1.toString()); // (1) inherited @Nullable\n" +  
-			"        return null; // (2) @NonNullByDefault in i2.II\n" + 
+			"        System.out.println(o1.toString()); // (1) inherited @Nullable\n" +
+			"        return null; // (2) @NonNullByDefault in i2.II\n" +
 			"    }\n" +
 			"}\n",
 			"Client.java",
@@ -6241,32 +6241,32 @@ public void testBug388281_08() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in ctest\\Ctest.java (at line 8)\n" + 
-		"	public String m2(Object a2) { // (a) conflict at return\n" + 
-		"	       ^^^^^^\n" + 
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from I \n" + 
-		"----------\n" + 
-		"2. ERROR in ctest\\Ctest.java (at line 11)\n" + 
-		"	public String m1(Object o1, Object o2) { // (b) conflict at o1\n" + 
-		"	                        ^^\n" + 
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from II \n" + 
-		"----------\n" + 
-		"3. ERROR in ctest\\Ctest.java (at line 12)\n" + 
-		"	System.out.println(o1.toString()); // (1) inherited @Nullable\n" + 
+		"----------\n" +
+		"1. ERROR in ctest\\Ctest.java (at line 8)\n" +
+		"	public String m2(Object a2) { // (a) conflict at return\n" +
+		"	       ^^^^^^\n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from I \n" +
+		"----------\n" +
+		"2. ERROR in ctest\\Ctest.java (at line 11)\n" +
+		"	public String m1(Object o1, Object o2) { // (b) conflict at o1\n" +
+		"	                        ^^\n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from II \n" +
+		"----------\n" +
+		"3. ERROR in ctest\\Ctest.java (at line 12)\n" +
+		"	System.out.println(o1.toString()); // (1) inherited @Nullable\n" +
 		"	                   ^^\n" +
 		potNPE_nullable_maybenull("The variable o1") +
-		"----------\n" + 
-		"4. ERROR in ctest\\Ctest.java (at line 13)\n" + 
-		"	return null; // (2) @NonNullByDefault in i2.II\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 3)\n" + 
-		"	Object result = c.m1(null, null); // (3) 2nd arg @NonNullByDefault from i2.II\n" + 
-		"	                           ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"4. ERROR in ctest\\Ctest.java (at line 13)\n" +
+		"	return null; // (2) @NonNullByDefault in i2.II\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in Client.java (at line 3)\n" +
+		"	Object result = c.m1(null, null); // (3) 2nd arg @NonNullByDefault from i2.II\n" +
+		"	                           ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n",
 		libs,
 		true, // should flush
@@ -6308,28 +6308,28 @@ public void testBug388281_09() {
 			"        return null;\n" +
 			"    }\n" +
 			"}\n"
-		}, 
+		},
 		options,
-		"----------\n" + 
-		"1. ERROR in p2\\Sub.java (at line 4)\n" + 
-		"	public Object compatible(Object arg) {\n" + 
-		"	       ^^^^^^\n" + 
-		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" + 
-		"----------\n" + 
-		"2. ERROR in p2\\Sub.java (at line 4)\n" + 
-		"	public Object compatible(Object arg) {\n" + 
-		"	                         ^^^^^^\n" + 
-		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" + 
-		"----------\n" + 
-		"3. ERROR in p2\\Sub.java (at line 8)\n" + 
-		"	public Object incompatible(int dummy, Object arg) {\n" + 
-		"	       ^^^^^^\n" + 
-		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" + 
-		"----------\n" + 
-		"4. ERROR in p2\\Sub.java (at line 8)\n" + 
-		"	public Object incompatible(int dummy, Object arg) {\n" + 
-		"	                                      ^^^^^^\n" + 
-		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" + 
+		"----------\n" +
+		"1. ERROR in p2\\Sub.java (at line 4)\n" +
+		"	public Object compatible(Object arg) {\n" +
+		"	       ^^^^^^\n" +
+		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" +
+		"----------\n" +
+		"2. ERROR in p2\\Sub.java (at line 4)\n" +
+		"	public Object compatible(Object arg) {\n" +
+		"	                         ^^^^^^\n" +
+		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" +
+		"----------\n" +
+		"3. ERROR in p2\\Sub.java (at line 8)\n" +
+		"	public Object incompatible(int dummy, Object arg) {\n" +
+		"	       ^^^^^^\n" +
+		"Conflict between inherited null annotations \'@NonNull\' declared in I versus \'@Nullable\' declared in Super \n" +
+		"----------\n" +
+		"4. ERROR in p2\\Sub.java (at line 8)\n" +
+		"	public Object incompatible(int dummy, Object arg) {\n" +
+		"	                                      ^^^^^^\n" +
+		"Conflict between inherited null annotations \'@Nullable\' declared in I versus \'@NonNull\' declared in Super \n" +
 		"----------\n");
 }
 
@@ -6354,14 +6354,14 @@ public void testBug388281_10() {
 			"        arg = null;\n" +
 			"    }\n" +
 			"}\n"
-		}, 
+		},
 		options,
-		"----------\n" + 
-		"1. ERROR in p2\\Sub.java (at line 5)\n" + 
-		"	arg = null;\n" + 
-		"	      ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n"); 
+		"----------\n" +
+		"1. ERROR in p2\\Sub.java (at line 5)\n" +
+		"	arg = null;\n" +
+		"	      ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n");
 }
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
@@ -6372,7 +6372,7 @@ public void testBug382069_j() {
 	runNegativeTestWithLibs(
 		new String[] {
 			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
-			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,
 			"X.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
 			"public class X {\n" +
@@ -6391,21 +6391,21 @@ public void testBug382069_j() {
 			"  }\n" +
 			"}\n"},
 			options,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	return false; // dead code\n" + 
-			"	^^^^^^^^^^^^^\n" + 
-			"Dead code\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
-			"	return; // dead code\n" + 
-			"	^^^^^^^\n" + 
-			"Dead code\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 14)\n" + 
-			"	return; // dead code\n" + 
-			"	^^^^^^^\n" + 
-			"Dead code\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	return false; // dead code\n" +
+			"	^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	return; // dead code\n" +
+			"	^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 14)\n" +
+			"	return; // dead code\n" +
+			"	^^^^^^^\n" +
+			"Dead code\n" +
 			"----------\n");
 }
 
@@ -6418,7 +6418,7 @@ public void testBug382069_k() {
 	runNegativeTestWithLibs(
 		new String[] {
 			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
-			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,
 			"X.java",
 			"import org.eclipse.jdt.annotation.Nullable;\n" +
 			"public class X {\n" +
@@ -6442,11 +6442,11 @@ public void testBug382069_k() {
 			"  }\n" +
 			"}\n"},
 			options,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	return o1.length(); // no longer protected\n" + 
-			"	       ^^\n" + 
-			potNPE_nullable("The field o1") + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	return o1.length(); // no longer protected\n" +
+			"	       ^^\n" +
+			potNPE_nullable("The field o1") +
 			"----------\n");
 }
 //https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
@@ -6456,19 +6456,19 @@ public void test_conditional_expression_1() {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class X {\n" +
-			"	boolean badFunction5(int i) {\n" + 
-			"		// expected a potential null problem:\n" + 
-			"		return i > 0 ? true : getBoolean();\n" + 
+			"	boolean badFunction5(int i) {\n" +
+			"		// expected a potential null problem:\n" +
+			"		return i > 0 ? true : getBoolean();\n" +
 			"	}\n" +
-			"	private @Nullable Boolean getBoolean() {\n" + 
-			"		return null;\n" + 
+			"	private @Nullable Boolean getBoolean() {\n" +
+			"		return null;\n" +
 			"	}\n" +
 			"}\n"},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	return i > 0 ? true : getBoolean();\n" + 
-		"	                      ^^^^^^^^^^^^\n" + 
-		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	return i > 0 ? true : getBoolean();\n" +
+		"	                      ^^^^^^^^^^^^\n" +
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
 		"----------\n");
 }
 
@@ -6481,7 +6481,7 @@ public void testBug403086_1() {
 	runConformTestWithLibs(
 		new String[] {
 			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
-			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,
 			"Y.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"class Y {\n" +
@@ -6511,7 +6511,7 @@ public void testBug403086_2() {
 	runConformTestWithLibs(
 		new String[] {
 			NullReferenceTestAsserts.JUNIT_ASSERT_NAME,
-			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,		
+			NullReferenceTestAsserts.JUNIT_ASSERT_CONTENT,
 			"Y.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"class Y {\n" +
@@ -6540,10 +6540,10 @@ public void testBug412076() {
 		new String[] {
 			"Foo.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"@NonNullByDefault\n" + 
-			"public interface Foo<V> {\n" + 
-			"  V bar(String... values);\n" + 
-			"  V foo(String value);\n" + 
+			"@NonNullByDefault\n" +
+			"public interface Foo<V> {\n" +
+			"  V bar(String... values);\n" +
+			"  V foo(String value);\n" +
 			"}\n"
 		},
 		options,
@@ -6556,77 +6556,77 @@ public void testBug412076() {
 			(this.complianceLevel < ClassFileConstants.JDK1_8
 			? "@NonNullByDefault\n"
 			: "@NonNullByDefault({DefaultLocation.PARAMETER,DefaultLocation.RETURN_TYPE})\n" // avoid @NonNull on type argument <String>
-			) + 
-			"public class FooImpl implements Foo<String> {\n" + 
-			"  public String bar(final String... values) {\n" + 
-			"    return (\"\");\n" + 
-			"  }\n" + 
-			"  public String foo(final String value) {\n" + 
-			"    return (\"\");\n" + 
-			"  }\n" + 
+			) +
+			"public class FooImpl implements Foo<String> {\n" +
+			"  public String bar(final String... values) {\n" +
+			"    return (\"\");\n" +
+			"  }\n" +
+			"  public String foo(final String value) {\n" +
+			"    return (\"\");\n" +
+			"  }\n" +
 			"}\n"
 		},
 		options,
-		"");	
+		"");
 }
 
 public void testBug413460() {
 	runConformTestWithLibs(
 		new String[] {
 			"Class2.java",
-			"\n" + 
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
-			"public class Class2 {\n" + 
-			"	public class Class3 {\n" + 
-			"		public Class3(String nonNullArg) {\n" + 
-			"			assert nonNullArg != null;\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public Class2(String nonNullArg) {\n" + 
-			"		assert nonNullArg != null;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static Class2 create(String nonNullArg) {\n" + 
-			"		return new Class2(nonNullArg);\n" + 
-			"	}\n" + 
+			"\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class Class2 {\n" +
+			"	public class Class3 {\n" +
+			"		public Class3(String nonNullArg) {\n" +
+			"			assert nonNullArg != null;\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public Class2(String nonNullArg) {\n" +
+			"		assert nonNullArg != null;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static Class2 create(String nonNullArg) {\n" +
+			"		return new Class2(nonNullArg);\n" +
+			"	}\n" +
 			"}\n"
-		}, 
-		getCompilerOptions(), 
+		},
+		getCompilerOptions(),
 		"");
 	runNegativeTestWithLibs(false,
 		new String[] {
 			"Class1.java",
-			"public class Class1 {\n" + 
-			"	public static Class2 works() {\n" + 
-			"		return Class2.create(null);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static Class2 bug() {\n" + 
-			"		return new Class2(null);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	public static Class2.Class3 qualifiedbug() {\n" + 
-			"		return new Class2(\"\").new Class3(null);\n" + 
-			"	}\n" + 
+			"public class Class1 {\n" +
+			"	public static Class2 works() {\n" +
+			"		return Class2.create(null);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static Class2 bug() {\n" +
+			"		return new Class2(null);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static Class2.Class3 qualifiedbug() {\n" +
+			"		return new Class2(\"\").new Class3(null);\n" +
+			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" +
-		"1. ERROR in Class1.java (at line 3)\n" + 
-		"	return Class2.create(null);\n" + 
-		"	                     ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"1. ERROR in Class1.java (at line 3)\n" +
+		"	return Class2.create(null);\n" +
+		"	                     ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n" +
-		"2. ERROR in Class1.java (at line 7)\n" + 
-		"	return new Class2(null);\n" + 
-		"	                  ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"2. ERROR in Class1.java (at line 7)\n" +
+		"	return new Class2(null);\n" +
+		"	                  ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n" +
-		"3. ERROR in Class1.java (at line 11)\n" + 
-		"	return new Class2(\"\").new Class3(null);\n" + 
-		"	                                 ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"3. ERROR in Class1.java (at line 11)\n" +
+		"	return new Class2(\"\").new Class3(null);\n" +
+		"	                                 ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n");
 }
 
@@ -6662,30 +6662,30 @@ public void testBug415850_a() {
 			null/*options*/);
 }
 
-// avoid NPE in BinaryTypeBinding.getField(..) due to recursive dependency enum->package-info->annotation->enum 
+// avoid NPE in BinaryTypeBinding.getField(..) due to recursive dependency enum->package-info->annotation->enum
 public void testBug415850_b() {
 	runConformTestWithLibs(
 		new String[] {
 			"p/package-info.java",
-			"@p.Annot(state=p.MyEnum.BROKEN)\n" + 
+			"@p.Annot(state=p.MyEnum.BROKEN)\n" +
 			"package p;",
 			"p/Annot.java",
-			"package p;\n" + 
-			"@Annot(state=MyEnum.KO)\n" + 
-			"public @interface Annot {\n" + 
-			"	MyEnum state() default MyEnum.KO;\n" + 
+			"package p;\n" +
+			"@Annot(state=MyEnum.KO)\n" +
+			"public @interface Annot {\n" +
+			"	MyEnum state() default MyEnum.KO;\n" +
 			"}",
 			"p/MyEnum.java",
-			"package p;\n" + 
-			"@Annot(state=MyEnum.KO)\n" + 
-			"public enum MyEnum {\n" + 
-			"	WORKS, OK, KO, BROKEN, ;\n" + 
+			"package p;\n" +
+			"@Annot(state=MyEnum.KO)\n" +
+			"public enum MyEnum {\n" +
+			"	WORKS, OK, KO, BROKEN, ;\n" +
 			"}",
 			"test180/Test.java",
 			"package test180;\n" +
-			"import p.MyEnum;\n" + 
-			"import p.Annot;\n" + 
-			"@Annot(state=MyEnum.OK)\n" + 
+			"import p.MyEnum;\n" +
+			"import p.Annot;\n" +
+			"@Annot(state=MyEnum.OK)\n" +
 			"public class Test {}",
 		},
 		getCompilerOptions(),
@@ -6698,10 +6698,10 @@ public void testBug415850_b() {
 		new String[] {
 			"X.java",
 			"import test180.Test;\n" +
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(Test.class);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(Test.class);\n" +
+			"	}\n" +
 			"}"
 		},
 		options,
@@ -6713,18 +6713,18 @@ public void testBug417295_5() {
 		new String[] {
 			"AllAreNonNull.java",
 			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-			"public class AllAreNonNull {\n" + 
-			"	String s3 = \"\";\n" + 
-			"	void test() {\n" + 
-			"		this.s3 = null;\n" + 
-			"	}\n" + 
+			"public class AllAreNonNull {\n" +
+			"	String s3 = \"\";\n" +
+			"	void test() {\n" +
+			"		this.s3 = null;\n" +
+			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in AllAreNonNull.java (at line 5)\n" + 
-		"	this.s3 = null;\n" + 
-		"	          ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in AllAreNonNull.java (at line 5)\n" +
+		"	this.s3 = null;\n" +
+		"	          ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 		"----------\n");
 }
 public void testBug417295_7() {
@@ -6733,8 +6733,8 @@ public void testBug417295_7() {
 				"p1/AllAreNonNull.java",
 				"package p1;\n" +
 				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
-				"public class AllAreNonNull {\n" + 
-				"	public String s3 = \"\";\n" + 
+				"public class AllAreNonNull {\n" +
+				"	public String s3 = \"\";\n" +
 				"}\n"
 			},
 			getCompilerOptions(),
@@ -6743,51 +6743,51 @@ public void testBug417295_7() {
 		false,
 		new String[] {
 			"Client.java",
-			"public class Client {\n" + 
-			"	void test(p1.AllAreNonNull aann) {\n" + 
-			"		aann.s3 = null;\n" + 
-			"	}\n" + 
+			"public class Client {\n" +
+			"	void test(p1.AllAreNonNull aann) {\n" +
+			"		aann.s3 = null;\n" +
+			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in Client.java (at line 3)\n" + 
-		"	aann.s3 = null;\n" + 
-		"	          ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in Client.java (at line 3)\n" +
+		"	aann.s3 = null;\n" +
+		"	          ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 			"----------\n");
-}		
+}
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
 public void testBug415413() {
 	Map options = getCompilerOptions();
 	runNegativeTestWithLibs(
 		new String[]{
-			"ClassF.java",		
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"public class ClassF {\n" + 
-			"  public static void needNonNull(@NonNull Object o) {\n" + 
-			"    o.hashCode();\n" + 
-			"  }\n" + 
-			"  public void method() {\n" + 
-			"    for (int j = 0; j < 1; j++) {\n" + 
-			"      try {\n" + 
-			"        this.hashCode();\n" + 
-			"      } finally {\n" + 
-			"        for (int i = 0; i < 1; i++) {\n" + 
-			"          Object o = null;\n" + 
-			"          needNonNull(o);\n" + 
-			"        }\n" + 
-			"      }\n" + 
-			"    }\n" + 
-			"  }\n" + 
+			"ClassF.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"public class ClassF {\n" +
+			"  public static void needNonNull(@NonNull Object o) {\n" +
+			"    o.hashCode();\n" +
+			"  }\n" +
+			"  public void method() {\n" +
+			"    for (int j = 0; j < 1; j++) {\n" +
+			"      try {\n" +
+			"        this.hashCode();\n" +
+			"      } finally {\n" +
+			"        for (int i = 0; i < 1; i++) {\n" +
+			"          Object o = null;\n" +
+			"          needNonNull(o);\n" +
+			"        }\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" +
 			"}\n"
-		}, 
+		},
 		options,
-		"----------\n" + 
-		"1. ERROR in ClassF.java (at line 13)\n" + 
-		"	needNonNull(o);\n" + 
-		"	            ^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in ClassF.java (at line 13)\n" +
+		"	needNonNull(o);\n" +
+		"	            ^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
 		"----------\n");
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
@@ -6796,27 +6796,27 @@ public void testBug415413a() {
  Map options = getCompilerOptions();
  runConformTestWithLibs(
      new String[]{
-         "ClassF.java",      
-         "import org.eclipse.jdt.annotation.NonNull;\n" + 
-         "public class ClassF {\n" + 
-         "  public static void needNonNull(@NonNull Object o) {\n" + 
-         "    o.hashCode();\n" + 
-         "  }\n" + 
-         "  public void method() {\n" + 
-         "    for (int j = 0; j < 1; j++) {\n" + 
-         "      try {\n" + 
-         "        this.hashCode();\n" + 
-         "      } finally {\n" + 
-         "        Object o = new Object();\n" + 
-         "        for (int i = 0; i < 1; i++) {\n" + 
+         "ClassF.java",
+         "import org.eclipse.jdt.annotation.NonNull;\n" +
+         "public class ClassF {\n" +
+         "  public static void needNonNull(@NonNull Object o) {\n" +
+         "    o.hashCode();\n" +
+         "  }\n" +
+         "  public void method() {\n" +
+         "    for (int j = 0; j < 1; j++) {\n" +
+         "      try {\n" +
+         "        this.hashCode();\n" +
+         "      } finally {\n" +
+         "        Object o = new Object();\n" +
+         "        for (int i = 0; i < 1; i++) {\n" +
          "          needNonNull(o);\n" +
-         "          o = new Object();\n" + 
-         "        }\n" + 
-         "      }\n" + 
-         "    }\n" + 
-         "  }\n" + 
+         "          o = new Object();\n" +
+         "        }\n" +
+         "      }\n" +
+         "    }\n" +
+         "  }\n" +
          "}\n"
-     }, 
+     },
      options,
      "");
 }
@@ -6826,33 +6826,33 @@ public void testBug415413b() {
  Map options = getCompilerOptions();
  runNegativeTestWithLibs(
      new String[]{
-         "ClassF.java",      
-         "import org.eclipse.jdt.annotation.NonNull;\n" + 
-         "public class ClassF {\n" + 
-         "  public static void needNonNull(@NonNull Object o) {\n" + 
-         "    o.hashCode();\n" + 
-         "  }\n" + 
-         "  public void method() {\n" + 
-         "    for (int j = 0; j < 1; j++) {\n" + 
-         "      try {\n" + 
-         "        this.hashCode();\n" + 
-         "      } finally {\n" + 
-         "        Object o = null;\n" + 
-         "        for (int i = 0; i < 1; i++) {\n" + 
+         "ClassF.java",
+         "import org.eclipse.jdt.annotation.NonNull;\n" +
+         "public class ClassF {\n" +
+         "  public static void needNonNull(@NonNull Object o) {\n" +
+         "    o.hashCode();\n" +
+         "  }\n" +
+         "  public void method() {\n" +
+         "    for (int j = 0; j < 1; j++) {\n" +
+         "      try {\n" +
+         "        this.hashCode();\n" +
+         "      } finally {\n" +
+         "        Object o = null;\n" +
+         "        for (int i = 0; i < 1; i++) {\n" +
          "          needNonNull(o);\n" +
-         "          o = new Object();\n" + 
-         "        }\n" + 
-         "      }\n" + 
-         "    }\n" + 
-         "  }\n" + 
+         "          o = new Object();\n" +
+         "        }\n" +
+         "      }\n" +
+         "    }\n" +
+         "  }\n" +
          "}\n"
-     }, 
+     },
      options,
-     "----------\n" + 
-     "1. ERROR in ClassF.java (at line 13)\n" + 
-     "	needNonNull(o);\n" + 
-     "	            ^\n" + 
-     "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+     "----------\n" +
+     "1. ERROR in ClassF.java (at line 13)\n" +
+     "	needNonNull(o);\n" +
+     "	            ^\n" +
+     "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
      "----------\n");
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
@@ -6861,33 +6861,33 @@ public void testBug415413c() {
  Map options = getCompilerOptions();
  runNegativeTestWithLibs(
      new String[]{
-         "ClassF.java",      
-         "import org.eclipse.jdt.annotation.NonNull;\n" + 
-         "public class ClassF {\n" + 
-         "  public static void needNonNull(@NonNull Object o) {\n" + 
-         "    o.hashCode();\n" + 
-         "  }\n" + 
-         "  public void method() {\n" + 
-         "    for (int j = 0; j < 1; j++) {\n" + 
-         "      try {\n" + 
-         "        this.hashCode();\n" + 
-         "      } finally {\n" + 
-         "        Object o = new Object();\n" + 
-         "        for (int i = 0; i < 1; i++) {\n" + 
+         "ClassF.java",
+         "import org.eclipse.jdt.annotation.NonNull;\n" +
+         "public class ClassF {\n" +
+         "  public static void needNonNull(@NonNull Object o) {\n" +
+         "    o.hashCode();\n" +
+         "  }\n" +
+         "  public void method() {\n" +
+         "    for (int j = 0; j < 1; j++) {\n" +
+         "      try {\n" +
+         "        this.hashCode();\n" +
+         "      } finally {\n" +
+         "        Object o = new Object();\n" +
+         "        for (int i = 0; i < 1; i++) {\n" +
          "          needNonNull(o);\n" +
-         "          o = null;\n" + 
-         "        }\n" + 
-         "      }\n" + 
-         "    }\n" + 
-         "  }\n" + 
+         "          o = null;\n" +
+         "        }\n" +
+         "      }\n" +
+         "    }\n" +
+         "  }\n" +
          "}\n"
-     }, 
+     },
      options,
-     "----------\n" + 
-     "1. ERROR in ClassF.java (at line 13)\n" + 
-     "	needNonNull(o);\n" + 
-     "	            ^\n" + 
-     "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+     "----------\n" +
+     "1. ERROR in ClassF.java (at line 13)\n" +
+     "	needNonNull(o);\n" +
+     "	            ^\n" +
+     "Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" +
      "----------\n");
 }
 public void testBug_415269() {
@@ -6910,7 +6910,7 @@ public void testBug_415269() {
 			"    public void method(Object arg);\n"+
 			"  }\n"+
 			"}\n"
-		}, 
+		},
 		options,
 		"");
 }
@@ -6924,16 +6924,16 @@ public void testBug416267() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Missing m = new Missing() { };\n" + 
-		"	^^^^^^^\n" + 
-		"Missing cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	Missing m = new Missing() { };\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	Missing m = new Missing() { };\n" +
+		"	^^^^^^^\n" +
+		"Missing cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	Missing m = new Missing() { };\n" +
+		"	                ^^^^^^^\n" +
+		"Missing cannot be resolved to a type\n" +
 		"----------\n",
 		this.LIBS,
 		true, /*flush*/
@@ -6944,46 +6944,46 @@ public void testBug418843() {
 	runNegativeTest(
 		new String[] {
 			"TestEnum.java",
-			"public enum TestEnum {\n" + 
-			"	TestEntry(1){};\n" + 
+			"public enum TestEnum {\n" +
+			"	TestEntry(1){};\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in TestEnum.java (at line 2)\n" + 
-		"	TestEntry(1){};\n" + 
-		"	^^^^^^^^^\n" + 
-		"The constructor TestEnum(int) is undefined\n" + 
+		"----------\n" +
+		"1. ERROR in TestEnum.java (at line 2)\n" +
+		"	TestEntry(1){};\n" +
+		"	^^^^^^^^^\n" +
+		"The constructor TestEnum(int) is undefined\n" +
 		"----------\n",
 		this.LIBS,
 		true,/*flush*/
 		null/*options*/);
 }
 public void testBug418235() {
-	String[] testFiles = 
+	String[] testFiles =
             new String[] {
-                    "GenericInterface.java", 
-                    "public interface GenericInterface<T> {\n" + 
-                    "       T doSomethingGeneric(T o);\n" + 
+                    "GenericInterface.java",
+                    "public interface GenericInterface<T> {\n" +
+                    "       T doSomethingGeneric(T o);\n" +
                     "}",
                     "Implementation.java",
-                    "import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-                    "@NonNullByDefault\n" + 
-                    "public class Implementation implements GenericInterface<Object> {\n" + 
-                    "\n" + 
+                    "import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+                    "@NonNullByDefault\n" +
+                    "public class Implementation implements GenericInterface<Object> {\n" +
+                    "\n" +
                     (this.complianceLevel < ClassFileConstants.JDK1_6 ? "\n" : "      @Override\n" ) +
-                    "       public Object doSomethingGeneric(Object o) {\n" + 
-                    "               return o;\n" + 
-                    "       }\n" + 
+                    "       public Object doSomethingGeneric(Object o) {\n" +
+                    "               return o;\n" +
+                    "       }\n" +
                     "}\n"
 			};
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 	    runNegativeTestWithLibs(
 	            testFiles,
-	            "----------\n" + 
-	            "1. ERROR in Implementation.java (at line 6)\n" + 
-	    		"	public Object doSomethingGeneric(Object o) {\n" + 
-	    		"	                                 ^^^^^^\n" + 
-	            "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" + 
+	            "----------\n" +
+	            "1. ERROR in Implementation.java (at line 6)\n" +
+	    		"	public Object doSomethingGeneric(Object o) {\n" +
+	    		"	                                 ^^^^^^\n" +
+	            "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" +
 	            "----------\n");
 	} else {
 		// in 1.8 the nullness default also affects the type argument <Object> from which T is instantiated to '@NonNull Object'
@@ -6996,26 +6996,26 @@ public void testBug418235b() {
 		return;
 	runNegativeTestWithLibs(
 	        new String[] {
-			    "GenericInterface.java", 
-			    "public interface GenericInterface<T> {\n" + 
-				"       T doSomethingGeneric(T o);\n" + 
+			    "GenericInterface.java",
+			    "public interface GenericInterface<T> {\n" +
+				"       T doSomethingGeneric(T o);\n" +
 				"}",
 			    "Implementation.java",
-			    "import org.eclipse.jdt.annotation.*;\n" + 
-				"@NonNullByDefault({DefaultLocation.PARAMETER,DefaultLocation.RETURN_TYPE})\n" + 
-				"public class Implementation implements GenericInterface<Object> {\n" + 
-				"\n" + 
+			    "import org.eclipse.jdt.annotation.*;\n" +
+				"@NonNullByDefault({DefaultLocation.PARAMETER,DefaultLocation.RETURN_TYPE})\n" +
+				"public class Implementation implements GenericInterface<Object> {\n" +
+				"\n" +
 				"      @Override\n" +
-				"       public Object doSomethingGeneric(Object o) {\n" + 
-				"               return o;\n" + 
-				"       }\n" + 
+				"       public Object doSomethingGeneric(Object o) {\n" +
+				"               return o;\n" +
+				"       }\n" +
 				"}\n"
 			},
-	        "----------\n" + 
-	        "1. ERROR in Implementation.java (at line 6)\n" + 
-			"	public Object doSomethingGeneric(Object o) {\n" + 
-			"	                                 ^^^^^^\n" + 
-	        "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" + 
+	        "----------\n" +
+	        "1. ERROR in Implementation.java (at line 6)\n" +
+			"	public Object doSomethingGeneric(Object o) {\n" +
+			"	                                 ^^^^^^\n" +
+	        "Illegal redefinition of parameter o, inherited method from GenericInterface<Object> does not constrain this parameter\n" +
 	        "----------\n");
 }
 
@@ -7033,7 +7033,7 @@ public void testTypeAnnotationProblemNotIn17() {
 			new String[] {
 				"X.java",
 				source
-			}, 
+			},
 			getCompilerOptions(),
 			"");
 	else
@@ -7041,22 +7041,22 @@ public void testTypeAnnotationProblemNotIn17() {
 			new String[] {
 				"X.java",
 				source
-			}, 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" + 
-			"	       ^^^^^^^^\n" + 
-			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" + 
-			"	                                      ^^^^^^^^\n" + 
-			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 4)\n" + 
-			"	@NonNull java.lang.String local = arg;\n" + 
-			"	^^^^^^^^\n" + 
-			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" +
+			"	       ^^^^^^^^\n" +
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" +
+			"	                                      ^^^^^^^^\n" +
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	@NonNull java.lang.String local = arg;\n" +
+			"	^^^^^^^^\n" +
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" +
 			"----------\n",
 			this.LIBS,
 			true, // flush
@@ -7067,42 +7067,42 @@ public void testBug420313() {
 		true, /*flush*/
 		new String[] {
 			"OverrideTest.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class OverrideTest implements TypedBase<String>, UntypedBase\n" + 
-			"{\n" + 
-			"   public void doSomething(String text) // No warning\n" + 
-			"   {\n" + 
-			"      System.out.println(text);\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public void doSomethingElse(String text) // \"Missing non-null annotation\" warning\n" + 
-			"   {\n" + 
-			"      System.out.println(text);\n" + 
-			"   }\n" + 
-			"}\n" + 
-			"\n" + 
-			"interface TypedBase<T>\n" + 
-			"{\n" + 
-			"   void doSomething(@NonNull T text);\n" + 
-			"}\n" + 
-			"\n" + 
-			"interface UntypedBase\n" + 
-			"{\n" + 
-			"   void doSomethingElse(@NonNull String text);\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class OverrideTest implements TypedBase<String>, UntypedBase\n" +
+			"{\n" +
+			"   public void doSomething(String text) // No warning\n" +
+			"   {\n" +
+			"      System.out.println(text);\n" +
+			"   }\n" +
+			"   \n" +
+			"   public void doSomethingElse(String text) // \"Missing non-null annotation\" warning\n" +
+			"   {\n" +
+			"      System.out.println(text);\n" +
+			"   }\n" +
+			"}\n" +
+			"\n" +
+			"interface TypedBase<T>\n" +
+			"{\n" +
+			"   void doSomething(@NonNull T text);\n" +
+			"}\n" +
+			"\n" +
+			"interface UntypedBase\n" +
+			"{\n" +
+			"   void doSomethingElse(@NonNull String text);\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. WARNING in OverrideTest.java (at line 5)\n" + 
-		"	public void doSomething(String text) // No warning\n" + 
-		"	                        ^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from TypedBase<String> specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"2. WARNING in OverrideTest.java (at line 10)\n" + 
-		"	public void doSomethingElse(String text) // \"Missing non-null annotation\" warning\n" + 
-		"	                            ^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from UntypedBase specifies this parameter as @NonNull\n" + 
+		"----------\n" +
+		"1. WARNING in OverrideTest.java (at line 5)\n" +
+		"	public void doSomething(String text) // No warning\n" +
+		"	                        ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from TypedBase<String> specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"2. WARNING in OverrideTest.java (at line 10)\n" +
+		"	public void doSomethingElse(String text) // \"Missing non-null annotation\" warning\n" +
+		"	                            ^^^^^^\n" +
+		"Missing non-null annotation: inherited method from UntypedBase specifies this parameter as @NonNull\n" +
 		"----------\n");
 }
 // original test
@@ -7110,16 +7110,16 @@ public void testBug424624() {
 	runConformTestWithLibs(
 		new String[] {
 			"Test3.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class Test3 {\n" + 
-			"\n" + 
-			"	public Test3() {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	static public class Test3aa extends Object {}\n" + 
-			"	static public final @NonNull Test3aa Test3a = new Test3aa();\n" + 
-			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class Test3 {\n" +
+			"\n" +
+			"	public Test3() {\n" +
+			"	}\n" +
+			"\n" +
+			"	static public class Test3aa extends Object {}\n" +
+			"	static public final @NonNull Test3aa Test3a = new Test3aa();\n" +
+			"\n" +
 			"}\n",
 		},
 		getCompilerOptions(),
@@ -7128,20 +7128,20 @@ public void testBug424624() {
 		false /*flush*/,
 		new String[] {
 			"Test4.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class Test4 {\n" + 
-			"\n" + 
-			"	public Test4() {\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void test() {\n" + 
-			"		test1( Test3.Test3a);\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void test1( @NonNull Object object) {\n" + 
-			"	}\n" + 
-			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class Test4 {\n" +
+			"\n" +
+			"	public Test4() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void test() {\n" +
+			"		test1( Test3.Test3a);\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void test1( @NonNull Object object) {\n" +
+			"	}\n" +
+			"\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7159,31 +7159,31 @@ public void testBug424624a() {
 			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
 			:
 			""
-			)+ 
-			"\n" + 
-			"public class Test3 {\n" + 
-			"\n" + 
-			"	public Test3() {\n" + 
-			"	}\n" + 
-			"\n" + 
+			)+
+			"\n" +
+			"public class Test3 {\n" +
+			"\n" +
+			"	public Test3() {\n" +
+			"	}\n" +
+			"\n" +
 			"	public class Inner extends Object {\n" +
 			"		class DeepInner {}\n" +
-			"	}\n" + 
+			"	}\n" +
 			"	public static class Nested extends Object {\n" +
 			"		class InnerInNested {}\n" +
 			"		static class DeepNested {}\n" +
-			"	}\n" + 
-			"	static public final @NonNull Inner field1 = new Test3().new Inner();\n" + 
+			"	}\n" +
+			"	static public final @NonNull Inner field1 = new Test3().new Inner();\n" +
 			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"	static public final @NonNull Inner.DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final @NonNull Inner.DeepInner field2 = field1.new DeepInner();\n" +
 			"	static public final @NonNull Nested.InnerInNested field3 = new Nested().new InnerInNested();\n" +
 			"	static public final @NonNull Nested.DeepNested field4 = new Nested.DeepNested();\n"
 			:
-			"	static public final @Marker Inner.@NonNull DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final @Marker Inner.@NonNull DeepInner field2 = field1.new DeepInner();\n" +
 			"	static public final Nested.@NonNull InnerInNested field3 = new Nested().new InnerInNested();\n" +
 			"	static public final Nested.@NonNull DeepNested field4 = new Nested.DeepNested();\n"
-			) + 
-			"\n" + 
+			) +
+			"\n" +
 			"}\n",
 		},
 		getCompilerOptions(),
@@ -7193,23 +7193,23 @@ public void testBug424624a() {
 		new String[] {
 			"Test4.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			"import test.Test3;\n" + 
-			"\n" + 
-			"public class Test4 {\n" + 
-			"\n" + 
-			"	public Test4() {\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void test() {\n" + 
-			"		test1( Test3.field1);\n" + 
-			"		test1( Test3.field2);\n" + 
-			"		test1( Test3.field3);\n" + 
-			"		test1( Test3.field4);\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void test1( @NonNull Object object) {\n" + 
-			"	}\n" + 
-			"\n" + 
+			"import test.Test3;\n" +
+			"\n" +
+			"public class Test4 {\n" +
+			"\n" +
+			"	public Test4() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void test() {\n" +
+			"		test1( Test3.field1);\n" +
+			"		test1( Test3.field2);\n" +
+			"		test1( Test3.field3);\n" +
+			"		test1( Test3.field4);\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void test1( @NonNull Object object) {\n" +
+			"	}\n" +
+			"\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7226,50 +7226,50 @@ public void testBug424624b() {
 			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
 			:
 			""
-			)+ 
-			"\n" + 
-			"public class Test3 {\n" + 
-			"\n" + 
-			"	public Test3() {\n" + 
-			"	}\n" + 
-			"\n" + 
+			)+
+			"\n" +
+			"public class Test3 {\n" +
+			"\n" +
+			"	public Test3() {\n" +
+			"	}\n" +
+			"\n" +
 			"	public class Inner extends Object {\n" +
 			"		class DeepInner {}\n" +
-			"	}\n" + 
+			"	}\n" +
 			"	public static class Nested extends Object {\n" +
 			"		class InnerInNested {}\n" +
 			"		static class DeepNested {}\n" +
-			"	}\n" + 
-			"	static public final @NonNull Inner field1 = new Test3().new Inner();\n" + 
+			"	}\n" +
+			"	static public final @NonNull Inner field1 = new Test3().new Inner();\n" +
 			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"	static public final @NonNull Inner.DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final @NonNull Inner.DeepInner field2 = field1.new DeepInner();\n" +
 			"	static public final @NonNull Nested.InnerInNested field3 = new Nested().new InnerInNested();\n" +
 			"	static public final @NonNull Nested.DeepNested field4 = new Nested.DeepNested();\n"
 			:
-			"	static public final @Marker Inner.@NonNull DeepInner field2 = field1.new DeepInner();\n" + 
+			"	static public final @Marker Inner.@NonNull DeepInner field2 = field1.new DeepInner();\n" +
 			"	static public final Nested.@NonNull InnerInNested field3 = new Nested().new InnerInNested();\n" +
 			"	static public final Nested.@NonNull DeepNested field4 = new Nested.DeepNested();\n"
-			) + 
-			"\n" + 
+			) +
+			"\n" +
 			"}\n",
 			"Test4.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class Test4 {\n" + 
-			"\n" + 
-			"	public Test4() {\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void test() {\n" + 
-			"		test1( Test3.field1);\n" + 
-			"		test1( Test3.field2);\n" + 
-			"		test1( Test3.field3);\n" + 
-			"		test1( Test3.field4);\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void test1( @NonNull Object object) {\n" + 
-			"	}\n" + 
-			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class Test4 {\n" +
+			"\n" +
+			"	public Test4() {\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void test() {\n" +
+			"		test1( Test3.field1);\n" +
+			"		test1( Test3.field2);\n" +
+			"		test1( Test3.field3);\n" +
+			"		test1( Test3.field4);\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void test1( @NonNull Object object) {\n" +
+			"	}\n" +
+			"\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7297,13 +7297,13 @@ public void testBug430084() {
 }
 public void testBug432348() {
 	String sourceString =
-		"import org.eclipse.jdt.annotation.NonNull;\n" + 
+		"import org.eclipse.jdt.annotation.NonNull;\n" +
 		"import java.lang.annotation.*;\n" +
 		"\n" +
 		"@Target(ElementType.FIELD)\n" +
-		"@interface Marker {}\n" + 
-		"public enum E {\n" + 
-		"	@Marker @NonNull A, B, C\n" + 
+		"@interface Marker {}\n" +
+		"public enum E {\n" +
+		"	@Marker @NonNull A, B, C\n" +
 		"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		runConformTestWithLibs(
@@ -7319,11 +7319,11 @@ public void testBug432348() {
 				"E.java",
 				sourceString
 			},
-			"----------\n" + 
-			"1. ERROR in E.java (at line 7)\n" + 
-			"	@Marker @NonNull A, B, C\n" + 
-			"	        ^^^^^^^^\n" + 
-			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n" +
+			"1. ERROR in E.java (at line 7)\n" +
+			"	@Marker @NonNull A, B, C\n" +
+			"	        ^^^^^^^^\n" +
+			"Syntax error, type annotations are illegal here\n" +
 			"----------\n");
 	}
 }
@@ -7401,22 +7401,22 @@ public void testBug422796() {
 	runConformTestWithLibs(
 		new String[] {
 			"NullExprTest.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class NullExprTest {\n" + 
-			"	\n" + 
-			"	private @Nullable Boolean b() { return null; }\n" + 
-			"	\n" + 
-			"	public void testBoolean() {\n" + 
-			"		Boolean b1 = b();\n" + 
-			"		boolean b = b1 == null || \n" + 
-			"				b1; // <-- Previously bugggy: reported potential NPE (*)\n" + 
-			"		assertTrue(b);\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class NullExprTest {\n" +
+			"	\n" +
+			"	private @Nullable Boolean b() { return null; }\n" +
+			"	\n" +
+			"	public void testBoolean() {\n" +
+			"		Boolean b1 = b();\n" +
+			"		boolean b = b1 == null || \n" +
+			"				b1; // <-- Previously bugggy: reported potential NPE (*)\n" +
+			"		assertTrue(b);\n" +
 			"	}\n" +
-			"	static void assertTrue(boolean b) {}\n" + 
-			"\n" + 
+			"	static void assertTrue(boolean b) {}\n" +
+			"\n" +
 			"}"
 		},
 		getCompilerOptions(),
@@ -7427,22 +7427,22 @@ public void testBug422796a() {
 	runConformTestWithLibs(
 		new String[] {
 			"NullExprTest.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class NullExprTest {\n" + 
-			"	\n" + 
-			"	private @Nullable Boolean b() { return null; }\n" + 
-			"	\n" + 
-			"	public void testBoolean() {\n" + 
-			"		Boolean b1 = b();\n" + 
-			"		boolean b = b1 != null && \n" + 
-			"				b1; // <-- Previously bugggy: reported potential NPE (*)\n" + 
-			"		assertTrue(b);\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class NullExprTest {\n" +
+			"	\n" +
+			"	private @Nullable Boolean b() { return null; }\n" +
+			"	\n" +
+			"	public void testBoolean() {\n" +
+			"		Boolean b1 = b();\n" +
+			"		boolean b = b1 != null && \n" +
+			"				b1; // <-- Previously bugggy: reported potential NPE (*)\n" +
+			"		assertTrue(b);\n" +
 			"	}\n" +
-			"	static void assertTrue(boolean b) {}\n" + 
-			"\n" + 
+			"	static void assertTrue(boolean b) {}\n" +
+			"\n" +
 			"}"
 		},
 		getCompilerOptions(),
@@ -7453,103 +7453,103 @@ public void testBug422796b() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"NullExprTest.java",
-			"public class NullExprTest {\n" + 
-			"	\n" + 
-			"	private Boolean b() { return null; }\n" + 
-			"	\n" + 
-			"	public void testBoolean1() {\n" + 
-			"		Boolean b1 = b();\n" + 
-			"		boolean b = b1 == null && \n" + 
-			"				b1; // <-- definite NPE (*)\n" + 
-			"		assertTrue(b);\n" + 
+			"public class NullExprTest {\n" +
+			"	\n" +
+			"	private Boolean b() { return null; }\n" +
+			"	\n" +
+			"	public void testBoolean1() {\n" +
+			"		Boolean b1 = b();\n" +
+			"		boolean b = b1 == null && \n" +
+			"				b1; // <-- definite NPE (*)\n" +
+			"		assertTrue(b);\n" +
 			"	}\n" +
-			"	public void testBoolean2(boolean x) {\n" + 
-			"		Boolean b1 = b();\n" + 
-			"		boolean b = (b1 == null || x) && \n" + 
-			"				b1; // <-- potential NPE (*)\n" + 
-			"		assertTrue(b);\n" + 
+			"	public void testBoolean2(boolean x) {\n" +
+			"		Boolean b1 = b();\n" +
+			"		boolean b = (b1 == null || x) && \n" +
+			"				b1; // <-- potential NPE (*)\n" +
+			"		assertTrue(b);\n" +
 			"	}\n" +
-			"	static void assertTrue(boolean b) {}\n" + 
-			"\n" + 
+			"	static void assertTrue(boolean b) {}\n" +
+			"\n" +
 			"}"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in NullExprTest.java (at line 8)\n" + 
-		"	b1; // <-- definite NPE (*)\n" + 
-		"	^^\n" + 
-		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" + 
-		"----------\n" + 
-		"2. ERROR in NullExprTest.java (at line 14)\n" + 
-		"	b1; // <-- potential NPE (*)\n" + 
-		"	^^\n" + 
-		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" + 
+		"----------\n" +
+		"1. ERROR in NullExprTest.java (at line 8)\n" +
+		"	b1; // <-- definite NPE (*)\n" +
+		"	^^\n" +
+		"Null pointer access: This expression of type Boolean is null but requires auto-unboxing\n" +
+		"----------\n" +
+		"2. ERROR in NullExprTest.java (at line 14)\n" +
+		"	b1; // <-- potential NPE (*)\n" +
+		"	^^\n" +
+		"Potential null pointer access: This expression of type Boolean may be null but requires auto-unboxing\n" +
 		"----------\n");
 }
 public void testBug434374() {
 	runConformTestWithLibs(
 		new String[] {
 			"bal/AdapterService.java",
-			"/*******************************************************************************\n" + 
-			" * Copyright (c) 2013 BestSolution.at and others.\n" + 
-			" * All rights reserved. This program and the accompanying materials\n" + 
-			" * are made available under the terms of the Eclipse Public License v1.0\n" + 
-			" * which accompanies this distribution, and is available at\n" + 
-			" * http://www.eclipse.org/legal/epl-v10.html\n" + 
-			" *\n" + 
-			" * Contributors:\n" + 
-			" *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation\n" + 
-			" *******************************************************************************/\n" + 
-			"package bal;\n" + 
-			"\n" + 
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"public interface AdapterService {\n" + 
-			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType);\n" + 
-			"\n" + 
-			"	@Nullable\n" + 
-			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses);\n" + 
-			"\n" + 
-			"	public interface ValueAccess {\n" + 
-			"		@Nullable\n" + 
-			"		public <O> O getValue(@NonNull String key);\n" + 
-			"\n" + 
-			"		@Nullable\n" + 
-			"		public <O> O getValue(@NonNull Class<O> key);\n" + 
-			"	}\n" + 
+			"/*******************************************************************************\n" +
+			" * Copyright (c) 2013 BestSolution.at and others.\n" +
+			" * All rights reserved. This program and the accompanying materials\n" +
+			" * are made available under the terms of the Eclipse Public License v1.0\n" +
+			" * which accompanies this distribution, and is available at\n" +
+			" * http://www.eclipse.org/legal/epl-v10.html\n" +
+			" *\n" +
+			" * Contributors:\n" +
+			" *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation\n" +
+			" *******************************************************************************/\n" +
+			"package bal;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"public interface AdapterService {\n" +
+			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType);\n" +
+			"\n" +
+			"	@Nullable\n" +
+			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses);\n" +
+			"\n" +
+			"	public interface ValueAccess {\n" +
+			"		@Nullable\n" +
+			"		public <O> O getValue(@NonNull String key);\n" +
+			"\n" +
+			"		@Nullable\n" +
+			"		public <O> O getValue(@NonNull Class<O> key);\n" +
+			"	}\n" +
 			"}\n",
 			"bal/AdapterServiceImpl.java",
-			"/*******************************************************************************\n" + 
-			" * Copyright (c) 2013 BestSolution.at and others.\n" + 
-			" * All rights reserved. This program and the accompanying materials\n" + 
-			" * are made available under the terms of the Eclipse Public License v1.0\n" + 
-			" * which accompanies this distribution, and is available at\n" + 
-			" * http://www.eclipse.org/legal/epl-v10.html\n" + 
-			" *\n" + 
-			" * Contributors:\n" + 
-			" *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation\n" + 
-			" *******************************************************************************/\n" + 
-			"package bal;\n" + 
-			"\n" + 
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"public class AdapterServiceImpl implements AdapterService {\n" + 
-			"\n" + 
+			"/*******************************************************************************\n" +
+			" * Copyright (c) 2013 BestSolution.at and others.\n" +
+			" * All rights reserved. This program and the accompanying materials\n" +
+			" * are made available under the terms of the Eclipse Public License v1.0\n" +
+			" * which accompanies this distribution, and is available at\n" +
+			" * http://www.eclipse.org/legal/epl-v10.html\n" +
+			" *\n" +
+			" * Contributors:\n" +
+			" *     Tom Schindl <tom.schindl@bestsolution.at> - initial API and implementation\n" +
+			" *******************************************************************************/\n" +
+			"package bal;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class AdapterServiceImpl implements AdapterService {\n" +
+			"\n" +
 			(this.complianceLevel >= ClassFileConstants.JDK1_6
 			? "	@Override\n"
 			: "") +
-			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType) {\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
+			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
 			(this.complianceLevel >= ClassFileConstants.JDK1_6
 			? "	@Override\n"
 			: "") +
-			"	@Nullable\n" + 
-			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"	@Nullable\n" +
+			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses) {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7560,29 +7560,29 @@ public void testBug434374a() {
 	runConformTestWithLibs(
 		new String[] {
 			"bug434374/AdapterService.java",
-			"package bug434374;\n" + 
-			"\n" + 
-			"import org.eclipse.jdt.annotation.*;\n" + 
-			"\n" + 
-			"public interface AdapterService {\n" + 
-			"	public @NonNull <A> Class<A> getClassOfA(A object);\n" + 
-			"\n" + 
+			"package bug434374;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"public interface AdapterService {\n" +
+			"	public @NonNull <A> Class<A> getClassOfA(A object);\n" +
+			"\n" +
 			"}\n",
 			"bug434374/AdapterServiceImpl.java",
-			"package bug434374;\n" + 
-			"\n" + 
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class AdapterServiceImpl implements AdapterService {\n" + 
+			"package bug434374;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class AdapterServiceImpl implements AdapterService {\n" +
 			"\n" +
 			(this.complianceLevel >= ClassFileConstants.JDK1_6
 			? "	@Override\n"
 			: "") +
-			"	@NonNull\n" + 
-			"	public <A> Class<A> getClassOfA(A object) {\n" + 
-			"		throw new RuntimeException();\n" + 
-			"	}\n" + 
-			"\n" + 
+			"	@NonNull\n" +
+			"	public <A> Class<A> getClassOfA(A object) {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7593,22 +7593,22 @@ public void testBug434374b() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"bal/TestGeneric.java",
-			"package bal;\n" + 
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"public class TestGeneric<T> {\n" + 
-			"	@NonNull\n" + 
-			"	public T test() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"package bal;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class TestGeneric<T> {\n" +
+			"	@NonNull\n" +
+			"	public T test() {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in bal\\TestGeneric.java (at line 7)\n" + 
-		"	return null;\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in bal\\TestGeneric.java (at line 7)\n" +
+		"	return null;\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" +
 		"----------\n");
 }
 // rectified test:
@@ -7616,13 +7616,13 @@ public void testBug434374c() {
 	runConformTestWithLibs(
 		new String[] {
 			"bal/TestGeneric.java",
-			"package bal;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"public class TestGeneric<T> {\n" + 
-			"	public @Nullable T test() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"package bal;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestGeneric<T> {\n" +
+			"	public @Nullable T test() {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7634,21 +7634,21 @@ public void testBug443347() {
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.*;\n" + 
-			"abstract class Super {\n" + 
-			"  Super(String s) { }\n" + 
-			"  abstract void bar();\n" + 
-			"  void foo() { bar(); }\n" + 
-			"}\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class X {\n" + 
-			"  void test1(@Nullable String s) {\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"abstract class Super {\n" +
+			"  Super(String s) { }\n" +
+			"  abstract void bar();\n" +
+			"  void foo() { bar(); }\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"  void test1(@Nullable String s) {\n" +
 			"    new Super(s) {\n" +
-			"      @Override\n" + 
-			"      void bar() {}\n" + 
-			"    }.foo();\n" + 
-			"  }\n" + 
+			"      @Override\n" +
+			"      void bar() {}\n" +
+			"    }.foo();\n" +
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -7660,28 +7660,28 @@ public void testBug443347b() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.*;\n" + 
-			"abstract class Super {\n" + 
-			"  Super(@NonNull String s) { }\n" + 
-			"  abstract void bar();\n" + 
-			"  void foo() { bar(); }\n" + 
-			"}\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class X {\n" + 
-			"  void test1(@Nullable String s) {\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"abstract class Super {\n" +
+			"  Super(@NonNull String s) { }\n" +
+			"  abstract void bar();\n" +
+			"  void foo() { bar(); }\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"  void test1(@Nullable String s) {\n" +
 			"    new Super(s) {\n" +
-			"      @Override\n" + 
-			"      void bar() {}\n" + 
-			"    }.foo();\n" + 
-			"  }\n" + 
+			"      @Override\n" +
+			"      void bar() {}\n" +
+			"    }.foo();\n" +
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	new Super(s) {\n" + 
-		"	          ^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	new Super(s) {\n" +
+		"	          ^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n"
 		: "Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n") +
@@ -7693,29 +7693,29 @@ public void testBug443347c() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
-			"import org.eclipse.jdt.annotation.*;\n" + 
-			"@NonNullByDefault\n" + 
-			"abstract class Super {\n" + 
-			"  Super(String s) { }\n" + 
-			"  abstract void bar();\n" + 
-			"  void foo() { bar(); }\n" + 
-			"}\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class X {\n" + 
-			"  void test1(@Nullable String s) {\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"abstract class Super {\n" +
+			"  Super(String s) { }\n" +
+			"  abstract void bar();\n" +
+			"  void foo() { bar(); }\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"  void test1(@Nullable String s) {\n" +
 			"    new Super(s) {\n" +
-			"      @Override\n" + 
-			"      void bar() {}\n" + 
-			"    }.foo();\n" + 
-			"  }\n" + 
+			"      @Override\n" +
+			"      void bar() {}\n" +
+			"    }.foo();\n" +
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	new Super(s) {\n" + 
-		"	          ^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	new Super(s) {\n" +
+		"	          ^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n"
 		: "Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n") +
@@ -7762,32 +7762,32 @@ public void testBug435805() {
 			"org/foo/Nullable.java",
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
 			"public @interface Nullable {}\n",
 			"org/foo/NonNull.java",
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
 			"public @interface NonNull {}\n",
 			"TestNulls.java",
-			"import org.foo.*;\n" + 
-			"\n" + 
-			"public class TestNulls {\n" + 
-			"	public void testCase(@Nullable String theValue) {\n" + 
-			"		int len = theValue.length();					// Is nullable, so should report error here.\n" + 
-			"	}\n" + 
-			"\n" + 
+			"import org.foo.*;\n" +
+			"\n" +
+			"public class TestNulls {\n" +
+			"	public void testCase(@Nullable String theValue) {\n" +
+			"		int len = theValue.length();					// Is nullable, so should report error here.\n" +
+			"	}\n" +
+			"\n" +
 			"}"
 		},
 		null/*libs*/,
 		options,
-		"----------\n" + 
-		"1. ERROR in TestNulls.java (at line 5)\n" + 
-		"	int len = theValue.length();					// Is nullable, so should report error here.\n" + 
-		"	          ^^^^^^^^\n" + 
-		"Potential null pointer access: The variable theValue may be null at this location\n" + 
+		"----------\n" +
+		"1. ERROR in TestNulls.java (at line 5)\n" +
+		"	int len = theValue.length();					// Is nullable, so should report error here.\n" +
+		"	          ^^^^^^^^\n" +
+		"Potential null pointer access: The variable theValue may be null at this location\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -7795,12 +7795,12 @@ public void testBug445147() {
 	runConformTestWithLibs(
 		new String[] {
 			"foobar/Bar.java",
-			"package foobar;\n" + 
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"package foobar;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 			"interface Bar<B extends Bar<B, F>, F extends Foo<F, B>> {}",
 			"foobar/Foo.java",
-			"package foobar;\n" + 
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"package foobar;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 			"interface Foo<F extends Foo<F, B>, B extends Bar<B, F>> {}"
 		},
 		getCompilerOptions(),
@@ -7811,86 +7811,86 @@ public void testBug445708() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"SwitchTest.java",
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"public class SwitchTest\n" + 
-			"{\n" + 
-			"   private enum EnumValue\n" + 
-			"   {\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public static void main(String[] args)\n" + 
-			"   {\n" + 
-			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
-			"      switch (computeStringValue())\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      @Nullable String stringValue = null;\n" + 
-			"      \n" + 
-			"      // Properly flagged as \"Null pointer access.\"\n" + 
-			"      switch (stringValue)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      stringValue = computeStringValue();\n" + 
-			"      \n" + 
-			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
-			"      switch (stringValue)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      // Should also be flagged, but is not.\n" + 
-			"      switch (computeEnumValue())\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      @Nullable EnumValue enumValue = null;\n" + 
-			"      \n" + 
-			"      // Fixed in bug #403674.\n" + 
-			"      switch (enumValue)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   private static @Nullable String computeStringValue()\n" + 
-			"   {\n" + 
-			"      return null;\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   private static @Nullable EnumValue computeEnumValue()\n" + 
-			"   {\n" + 
-			"      return null;\n" + 
-			"   }\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class SwitchTest\n" +
+			"{\n" +
+			"   private enum EnumValue\n" +
+			"   {\n" +
+			"   }\n" +
+			"   \n" +
+			"   public static void main(String[] args)\n" +
+			"   {\n" +
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" +
+			"      switch (computeStringValue())\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      @Nullable String stringValue = null;\n" +
+			"      \n" +
+			"      // Properly flagged as \"Null pointer access.\"\n" +
+			"      switch (stringValue)\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      stringValue = computeStringValue();\n" +
+			"      \n" +
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" +
+			"      switch (stringValue)\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      // Should also be flagged, but is not.\n" +
+			"      switch (computeEnumValue())\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      @Nullable EnumValue enumValue = null;\n" +
+			"      \n" +
+			"      // Fixed in bug #403674.\n" +
+			"      switch (enumValue)\n" +
+			"      {\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   private static @Nullable String computeStringValue()\n" +
+			"   {\n" +
+			"      return null;\n" +
+			"   }\n" +
+			"   \n" +
+			"   private static @Nullable EnumValue computeEnumValue()\n" +
+			"   {\n" +
+			"      return null;\n" +
+			"   }\n" +
 			"}\n"
-		}, 
-		"----------\n" + 
-		"1. ERROR in SwitchTest.java (at line 12)\n" + 
-		"	switch (computeStringValue())\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Potential null pointer access: The method computeStringValue() may return null\n" + 
-		"----------\n" + 
-		"2. ERROR in SwitchTest.java (at line 19)\n" + 
-		"	switch (stringValue)\n" + 
-		"	        ^^^^^^^^^^^\n" + 
-		"Null pointer access: The variable stringValue can only be null at this location\n" + 
-		"----------\n" + 
-		"3. ERROR in SwitchTest.java (at line 26)\n" + 
-		"	switch (stringValue)\n" + 
+		},
+		"----------\n" +
+		"1. ERROR in SwitchTest.java (at line 12)\n" +
+		"	switch (computeStringValue())\n" +
+		"	        ^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential null pointer access: The method computeStringValue() may return null\n" +
+		"----------\n" +
+		"2. ERROR in SwitchTest.java (at line 19)\n" +
+		"	switch (stringValue)\n" +
+		"	        ^^^^^^^^^^^\n" +
+		"Null pointer access: The variable stringValue can only be null at this location\n" +
+		"----------\n" +
+		"3. ERROR in SwitchTest.java (at line 26)\n" +
+		"	switch (stringValue)\n" +
 		"	        ^^^^^^^^^^^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Potential null pointer access: The variable stringValue may be null at this location\n"
 		: "Potential null pointer access: this expression has a \'@Nullable\' type\n" ) +
-		"----------\n" + 
-		"4. ERROR in SwitchTest.java (at line 31)\n" + 
-		"	switch (computeEnumValue())\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^\n" + 
-		"Potential null pointer access: The method computeEnumValue() may return null\n" + 
-		"----------\n" + 
-		"5. ERROR in SwitchTest.java (at line 38)\n" + 
-		"	switch (enumValue)\n" + 
-		"	        ^^^^^^^^^\n" + 
-		"Null pointer access: The variable enumValue can only be null at this location\n" + 
+		"----------\n" +
+		"4. ERROR in SwitchTest.java (at line 31)\n" +
+		"	switch (computeEnumValue())\n" +
+		"	        ^^^^^^^^^^^^^^^^^^\n" +
+		"Potential null pointer access: The method computeEnumValue() may return null\n" +
+		"----------\n" +
+		"5. ERROR in SwitchTest.java (at line 38)\n" +
+		"	switch (enumValue)\n" +
+		"	        ^^^^^^^^^\n" +
+		"Null pointer access: The variable enumValue can only be null at this location\n" +
 		"----------\n");
 }
 // same as above but 1.8 with declaration annotations
@@ -7904,84 +7904,84 @@ public void testBug445708b() {
 			CUSTOM_NULLABLE_NAME,
 			CUSTOM_NULLABLE_CONTENT,
 			"SwitchTest.java",
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"public class SwitchTest\n" + 
-			"{\n" + 
-			"   private enum EnumValue\n" + 
-			"   {\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   public static void main(String[] args)\n" + 
-			"   {\n" + 
-			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
-			"      switch (computeStringValue())\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      @Nullable String stringValue = null;\n" + 
-			"      \n" + 
-			"      // Properly flagged as \"Null pointer access.\"\n" + 
-			"      switch (stringValue)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      stringValue = computeStringValue();\n" + 
-			"      \n" + 
-			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" + 
-			"      switch (stringValue)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      // Should also be flagged, but is not.\n" + 
-			"      switch (computeEnumValue())\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"      \n" + 
-			"      @Nullable EnumValue enumValue = null;\n" + 
-			"      \n" + 
-			"      // Fixed in bug #403674.\n" + 
-			"      switch (enumValue)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   private static @Nullable String computeStringValue()\n" + 
-			"   {\n" + 
-			"      return null;\n" + 
-			"   }\n" + 
-			"   \n" + 
-			"   private static @Nullable EnumValue computeEnumValue()\n" + 
-			"   {\n" + 
-			"      return null;\n" + 
-			"   }\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class SwitchTest\n" +
+			"{\n" +
+			"   private enum EnumValue\n" +
+			"   {\n" +
+			"   }\n" +
+			"   \n" +
+			"   public static void main(String[] args)\n" +
+			"   {\n" +
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" +
+			"      switch (computeStringValue())\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      @Nullable String stringValue = null;\n" +
+			"      \n" +
+			"      // Properly flagged as \"Null pointer access.\"\n" +
+			"      switch (stringValue)\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      stringValue = computeStringValue();\n" +
+			"      \n" +
+			"      // Should be flagged as \"Potential null pointer access,\" but is not.\n" +
+			"      switch (stringValue)\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      // Should also be flagged, but is not.\n" +
+			"      switch (computeEnumValue())\n" +
+			"      {\n" +
+			"      }\n" +
+			"      \n" +
+			"      @Nullable EnumValue enumValue = null;\n" +
+			"      \n" +
+			"      // Fixed in bug #403674.\n" +
+			"      switch (enumValue)\n" +
+			"      {\n" +
+			"      }\n" +
+			"   }\n" +
+			"   \n" +
+			"   private static @Nullable String computeStringValue()\n" +
+			"   {\n" +
+			"      return null;\n" +
+			"   }\n" +
+			"   \n" +
+			"   private static @Nullable EnumValue computeEnumValue()\n" +
+			"   {\n" +
+			"      return null;\n" +
+			"   }\n" +
 			"}\n"
-		}, 
-		"----------\n" + 
-		"1. ERROR in SwitchTest.java (at line 12)\n" + 
-		"	switch (computeStringValue())\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Potential null pointer access: The method computeStringValue() may return null\n" + 
-		"----------\n" + 
-		"2. ERROR in SwitchTest.java (at line 19)\n" + 
-		"	switch (stringValue)\n" + 
-		"	        ^^^^^^^^^^^\n" + 
-		"Null pointer access: The variable stringValue can only be null at this location\n" + 
-		"----------\n" + 
-		"3. ERROR in SwitchTest.java (at line 26)\n" + 
-		"	switch (stringValue)\n" + 
+		},
+		"----------\n" +
+		"1. ERROR in SwitchTest.java (at line 12)\n" +
+		"	switch (computeStringValue())\n" +
+		"	        ^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential null pointer access: The method computeStringValue() may return null\n" +
+		"----------\n" +
+		"2. ERROR in SwitchTest.java (at line 19)\n" +
+		"	switch (stringValue)\n" +
+		"	        ^^^^^^^^^^^\n" +
+		"Null pointer access: The variable stringValue can only be null at this location\n" +
+		"----------\n" +
+		"3. ERROR in SwitchTest.java (at line 26)\n" +
+		"	switch (stringValue)\n" +
 		"	        ^^^^^^^^^^^\n" +
 		"Potential null pointer access: this expression has a \'@Nullable\' type\n" +
-		"----------\n" + 
-		"4. ERROR in SwitchTest.java (at line 31)\n" + 
-		"	switch (computeEnumValue())\n" + 
-		"	        ^^^^^^^^^^^^^^^^^^\n" + 
-		"Potential null pointer access: The method computeEnumValue() may return null\n" + 
-		"----------\n" + 
-		"5. ERROR in SwitchTest.java (at line 38)\n" + 
-		"	switch (enumValue)\n" + 
-		"	        ^^^^^^^^^\n" + 
-		"Null pointer access: The variable enumValue can only be null at this location\n" + 
+		"----------\n" +
+		"4. ERROR in SwitchTest.java (at line 31)\n" +
+		"	switch (computeEnumValue())\n" +
+		"	        ^^^^^^^^^^^^^^^^^^\n" +
+		"Potential null pointer access: The method computeEnumValue() may return null\n" +
+		"----------\n" +
+		"5. ERROR in SwitchTest.java (at line 38)\n" +
+		"	switch (enumValue)\n" +
+		"	        ^^^^^^^^^\n" +
+		"Null pointer access: The variable enumValue can only be null at this location\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=452780 - Internal compiler error: arrayIndexOutOfBounds
@@ -7990,27 +7990,27 @@ public void testBug452780() {
 	runConformTestWithLibs(
 		new String[] {
 			"Tools2.java",
-			"import java.util.Arrays;\n" + 
-			"import java.util.List;\n" + 
-			"import java.util.Set;\n" + 
-			"import java.util.stream.Collector;\n" + 
-			"import java.util.stream.Collectors;\n" + 
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"public class Tools2 {\n" + 
-			"	@SafeVarargs\n" + 
-			"	public static <T> List<@NonNull T> asList(T... ts) {\n" + 
-			"		@SuppressWarnings(\"null\")\n" + 
-			"		@NonNull\n" + 
-			"		List<@NonNull T> res = Arrays.asList(ts);\n" + 
-			"		return res;\n" + 
-			"	}\n" + 
-			"	@SuppressWarnings(\"null\")\n" + 
-			"	public static <T> Collector<@NonNull T, @NonNull ?, @NonNull Set<@NonNull T>> toSet() {\n" + 
-			"		@NonNull\n" + 
-			"		Collector<@NonNull T, ?, @NonNull Set<@NonNull T>> res = Collectors\n" + 
-			"				.toSet();\n" + 
-			"		return res;\n" + 
-			"	}\n" + 
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Set;\n" +
+			"import java.util.stream.Collector;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"public class Tools2 {\n" +
+			"	@SafeVarargs\n" +
+			"	public static <T> List<@NonNull T> asList(T... ts) {\n" +
+			"		@SuppressWarnings(\"null\")\n" +
+			"		@NonNull\n" +
+			"		List<@NonNull T> res = Arrays.asList(ts);\n" +
+			"		return res;\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"null\")\n" +
+			"	public static <T> Collector<@NonNull T, @NonNull ?, @NonNull Set<@NonNull T>> toSet() {\n" +
+			"		@NonNull\n" +
+			"		Collector<@NonNull T, ?, @NonNull Set<@NonNull T>> res = Collectors\n" +
+			"				.toSet();\n" +
+			"		return res;\n" +
+			"	}\n" +
 			"}"
 		},
 		getCompilerOptions(),
@@ -8021,27 +8021,27 @@ public void testBug455557() {
 		true, /*flush*/
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" + 
-			"\n" + 
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	void test(List<String> list, boolean b) {\n" + 
-			"		if (b) {\n" + 
-			"			while (true) {\n" + 
-			"				for (@NonNull Object y : list) { \n" + 
-			"				}\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"import java.util.List;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"\n" +
+			"public class X {\n" +
+			"	void test(List<String> list, boolean b) {\n" +
+			"		if (b) {\n" +
+			"			while (true) {\n" +
+			"				for (@NonNull Object y : list) { \n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		},
 		null,
-		"----------\n" + 
-		"1. WARNING in X.java (at line 10)\n" + 
-		"	for (@NonNull Object y : list) { \n" + 
-		"	                         ^^^^\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 10)\n" +
+		"	for (@NonNull Object y : list) { \n" +
+		"	                         ^^^^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Null type safety: The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n"
 		: "Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n"
@@ -8053,22 +8053,22 @@ public void testBug455723() {
 		new String[] {
 			"Problem.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"public class Problem {\n" + 
-			"	public void fubar(final @Nullable String arg) {\n" + 
-			"		if (arg == null) {\n" + 
-			"			return;\n" + 
-			"		}\n" + 
-			"		\n" + 
-			"		doSomething(arg);\n" + 
-			"		// no errors here\n" + 
-			"		\n" + 
-			"		while (true) {	\n" + 
-			"			doSomething(arg);\n" + 
-			"			//          ^^^  compiler error\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	private void doSomething(@NonNull String arg) {	}\n" + 
+			"public class Problem {\n" +
+			"	public void fubar(final @Nullable String arg) {\n" +
+			"		if (arg == null) {\n" +
+			"			return;\n" +
+			"		}\n" +
+			"		\n" +
+			"		doSomething(arg);\n" +
+			"		// no errors here\n" +
+			"		\n" +
+			"		while (true) {	\n" +
+			"			doSomething(arg);\n" +
+			"			//          ^^^  compiler error\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"	private void doSomething(@NonNull String arg) {	}\n" +
 			"}\n"
 		},
 		null,
@@ -8079,17 +8079,17 @@ public void testBug455723b() {
 		new String[] {
 			"Problem.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"public class Problem {\n" + 
-			"	public void fubar(final @Nullable String arg) {\n" + 
-			"		if (arg == null) {\n" + 
-			"			return;\n" + 
-			"		}\n" + 
-			"		@NonNull String local;\n" + 
-			"		\n" + 
-			"		while (true) {	\n" + 
-			"			local = arg;\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class Problem {\n" +
+			"	public void fubar(final @Nullable String arg) {\n" +
+			"		if (arg == null) {\n" +
+			"			return;\n" +
+			"		}\n" +
+			"		@NonNull String local;\n" +
+			"		\n" +
+			"		while (true) {	\n" +
+			"			local = arg;\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		},
 		null,
@@ -8105,11 +8105,11 @@ public void test_null_with_apt() {
 	runConformTestWithLibs(
 		new String[] {
 			"NullWarn.java",
-			"@SuppressWarnings(\"null\")\n" + 
-			"public class NullWarn {\n" + 
-			"\n" + 
-			"    // Some code\n" + 
-			"\n" + 
+			"@SuppressWarnings(\"null\")\n" +
+			"public class NullWarn {\n" +
+			"\n" +
+			"    // Some code\n" +
+			"\n" +
 			"}\n"
 		},
 		customOptions,
@@ -8126,24 +8126,24 @@ public void test_null_with_apt_comment4() {
 		true, // flush
 		new String[] {
 			"Test.java",
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class Test {\n" + 
-			"\n" + 
-			"	public static final Test t = new Test(Integer.valueOf(0));\n" + 
-			"\n" + 
-			"	public Test(Integer integer) {\n" + 
-			"		\n" + 
-			"	}\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"\n" +
+			"	public static final Test t = new Test(Integer.valueOf(0));\n" +
+			"\n" +
+			"	public Test(Integer integer) {\n" +
+			"		\n" +
+			"	}\n" +
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in Test.java (at line 6)\n" + 
-		"	public static final Test t = new Test(Integer.valueOf(0));\n" + 
-		"	                                      ^^^^^^^^^^^^^^^^^^\n" + 
-		(this.complianceLevel < ClassFileConstants.JDK1_8 
+		"----------\n" +
+		"1. WARNING in Test.java (at line 6)\n" +
+		"	public static final Test t = new Test(Integer.valueOf(0));\n" +
+		"	                                      ^^^^^^^^^^^^^^^^^^\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Null type safety: The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n"
 		: "Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n"
 		) +
@@ -8171,9 +8171,9 @@ public void testBug457210() {
 			"TestRunner.java",
 			"import org.foo.*;\n" +
 			"public class TestRunner {\n" +
-			"	private TestRunner() {}\n" + 
-			"\n" + 
-			"	@Nullable\n" + 
+			"	private TestRunner() {}\n" +
+			"\n" +
+			"	@Nullable\n" +
 			"	OutputHelper m_outputHelper;\n" +
 			"	int foo(@NonNull OutputHelper helper) { return helper.i; }\n" +
 			"}\n",
@@ -8182,11 +8182,11 @@ public void testBug457210() {
 			"	public int i;\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in OutputHelper.java (at line 1)\n" + 
-		"	@org.foo.NonNull public class OutputHelper {\n" + 
-		"	^^^^^^^^^^^^^^^^\n" + 
-		"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+		"----------\n" +
+		"1. ERROR in OutputHelper.java (at line 1)\n" +
+		"	@org.foo.NonNull public class OutputHelper {\n" +
+		"	^^^^^^^^^^^^^^^^\n" +
+		"The nullness annotation \'NonNull\' is not applicable at this location\n" +
 		"----------\n",
 		null,
 		true,
@@ -8200,46 +8200,46 @@ public void testBug462790() {
 		true, /*flush*/
 		new String[] {
 			"EclipseBug.java",
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
-			"public class EclipseBug {\n" + 
-			"\n" + 
-			"	public void method(Class<? extends String> commandType) {\n" + 
-			"		String command = (String)getCommand(commandType);\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
-			"		try {\n" + 
-			"			return commandType.newInstance();\n" + 
-			"		} catch (InstantiationException | IllegalAccessException e) {\n" + 
-			"			throw new RuntimeException();\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class EclipseBug {\n" +
+			"\n" +
+			"	public void method(Class<? extends String> commandType) {\n" +
+			"		String command = (String)getCommand(commandType);\n" +
+			"	}\n" +
+			"	\n" +
+			"	public static <T extends String> T getCommand(Class<T> commandType) {\n" +
+			"		try {\n" +
+			"			return commandType.newInstance();\n" +
+			"		} catch (InstantiationException | IllegalAccessException e) {\n" +
+			"			throw new RuntimeException();\n" +
+			"		}\n" +
+			"	}\n" +
 			"}"
 		},
 		options,
-		"----------\n" + 
-		"1. WARNING in EclipseBug.java (at line 5)\n" + 
-		"	String command = (String)getCommand(commandType);\n" + 
-		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from capture#1-of ? extends String to String\n" + 
-		"----------\n" + 
-		"2. WARNING in EclipseBug.java (at line 8)\n" + 
-		"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
-		"	                         ^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" +
+		"1. WARNING in EclipseBug.java (at line 5)\n" +
+		"	String command = (String)getCommand(commandType);\n" +
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unnecessary cast from capture#1-of ? extends String to String\n" +
+		"----------\n" +
+		"2. WARNING in EclipseBug.java (at line 8)\n" +
+		"	public static <T extends String> T getCommand(Class<T> commandType) {\n" +
+		"	                         ^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" +
 		"----------\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		?
-		"3. WARNING in EclipseBug.java (at line 10)\n" + 
-		"	return commandType.newInstance();\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
+		"3. WARNING in EclipseBug.java (at line 10)\n" +
+		"	return commandType.newInstance();\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" +
 		"----------\n"
 		:
-		"3. INFO in EclipseBug.java (at line 10)\n" + 
-		"	return commandType.newInstance();\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"3. INFO in EclipseBug.java (at line 10)\n" +
+		"	return commandType.newInstance();\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 		"----------\n"));
 }
 public void testBug459967_Enum_valueOf() {
@@ -8262,7 +8262,7 @@ public void testBug459967_Enum_valueOf_binary() {
 	runConformTest(
 		new String[] {
 			"MyEnum.java",
-			"public enum MyEnum { V1, V2 }\n"			
+			"public enum MyEnum { V1, V2 }\n"
 		});
 	runConformTestWithLibs(
 		false /*flush*/,
@@ -8303,12 +8303,12 @@ public void testBug459967_Enum_values() {
 		runConformTestWithLibs(
 				testFiles,
 				getCompilerOptions(),
-				"----------\n" + 
-				"1. WARNING in X.java (at line 7)\n" + 
-				"	for (@NonNull MyEnum value : MyEnum.values())\n" + 
-				"	                             ^^^^^^^^^^^^^^^\n" + 
-				"Null type safety: The expression of type \'MyEnum\' needs unchecked conversion to conform to \'@NonNull MyEnum\'\n" + 
-				"----------\n");		
+				"----------\n" +
+				"1. WARNING in X.java (at line 7)\n" +
+				"	for (@NonNull MyEnum value : MyEnum.values())\n" +
+				"	                             ^^^^^^^^^^^^^^^\n" +
+				"Null type safety: The expression of type \'MyEnum\' needs unchecked conversion to conform to \'@NonNull MyEnum\'\n" +
+				"----------\n");
 	} else {
 		runConformTestWithLibs(
 				testFiles,
@@ -8345,12 +8345,12 @@ public void testBug459967_Enum_values_binary() {
 				false /*flush*/,
 				testFiles,
 				getCompilerOptions(),
-				"----------\n" + 
-				"1. WARNING in X.java (at line 7)\n" + 
-				"	for (@NonNull MyEnum value : MyEnum.values())\n" + 
-				"	                             ^^^^^^^^^^^^^^^\n" + 
-				"Null type safety: The expression of type \'MyEnum\' needs unchecked conversion to conform to \'@NonNull MyEnum\'\n" + 
-				"----------\n");		
+				"----------\n" +
+				"1. WARNING in X.java (at line 7)\n" +
+				"	for (@NonNull MyEnum value : MyEnum.values())\n" +
+				"	                             ^^^^^^^^^^^^^^^\n" +
+				"Null type safety: The expression of type \'MyEnum\' needs unchecked conversion to conform to \'@NonNull MyEnum\'\n" +
+				"----------\n");
 	} else {
 		runConformTestWithLibs(
 				false /*flush*/,
@@ -8555,10 +8555,10 @@ public void testBug407414c() {
 			"  int fI;\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Integer test1(int i) {\n" +
 			"		return fI = i;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Integer test2(int i) {\n" +
 			"		return fI += i;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -8573,7 +8573,7 @@ public void testBug407414d() {
 			"public class X {\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Long test(int i) {\n" +
 			"		return (long)i;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -8588,7 +8588,7 @@ public void testBug407414e() {
 			"public class X {\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Long test(long l, boolean b) {\n" +
 			"		return b ? l : 3;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -8603,10 +8603,10 @@ public void testBug407414f() {
 			"public class X {\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Long test1(long l) {\n" +
 			"		return l + 3;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Long test2(long l) {\n" +
 			"		return l << 3;\n" +
-			"  }\n" + 
+			"  }\n" +
 			"  @org.eclipse.jdt.annotation.NonNull Long test3(long l) {\n" +
 			"		return l++;\n" +
 			"  }\n" +
@@ -8676,8 +8676,8 @@ public void testBug237236() {
 			"X.java",
 			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 			"public class X {\n" +
-			"  public void x(Long l) {}\n" + 
-			"  public long z() { return 0L; }\n" + 
+			"  public void x(Long l) {}\n" +
+			"  public long z() { return 0L; }\n" +
 			"  public void y() { x(z()); }\n" +
 			"}\n"
 		},
@@ -8688,17 +8688,17 @@ public void testBug418236() {
 	runConformTestWithLibs(
 		new String[] {
 			"MyClass.java",
-			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
-			"public class MyClass {\n" + 
-			"  private static final int CONSTANT = 24;\n" + 
-			"\n" + 
-			"  public Integer returnConstant() {\n" + 
-			"    return CONSTANT; // <-- incorrect error. Integer.valueOf is declared as non-null.\n" + 
-			"  }\n" + 
-			"\n" + 
-			"  public Integer returnInteger() {\n" + 
-			"    return 24; // <-- no error reported here\n" + 
-			"  }\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class MyClass {\n" +
+			"  private static final int CONSTANT = 24;\n" +
+			"\n" +
+			"  public Integer returnConstant() {\n" +
+			"    return CONSTANT; // <-- incorrect error. Integer.valueOf is declared as non-null.\n" +
+			"  }\n" +
+			"\n" +
+			"  public Integer returnInteger() {\n" +
+			"    return 24; // <-- no error reported here\n" +
+			"  }\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -8711,25 +8711,25 @@ public void testBug461878() {
 		true, /*flush*/
 		new String[] {
 			"javax/annotation/Nonnull.java",
-			"package javax.annotation;\n" + 
-			"import java.lang.annotation.Retention;\n" + 
-			"import java.lang.annotation.RetentionPolicy;\n" + 
-			"@Retention(RetentionPolicy.RUNTIME)\n" + 
-			"public @interface Nonnull {\n" + 
+			"package javax.annotation;\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"public @interface Nonnull {\n" +
 			"}\n",
 			"edu/umd/cs/findbugs/annotations/PossiblyNull.java",
-			"package edu.umd.cs.findbugs.annotations;\n" + 
-			"@javax.annotation.Nonnull // <-- error!!!\n" + 
-			"public @interface PossiblyNull {\n" + 
+			"package edu.umd.cs.findbugs.annotations;\n" +
+			"@javax.annotation.Nonnull // <-- error!!!\n" +
+			"public @interface PossiblyNull {\n" +
 			"}\n"
 		},
 		null, /*libs*/
 		compilerOptions,
-		"----------\n" + 
-		"1. WARNING in edu\\umd\\cs\\findbugs\\annotations\\PossiblyNull.java (at line 2)\n" + 
-		"	@javax.annotation.Nonnull // <-- error!!!\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The nullness annotation \'Nonnull\' is not applicable at this location\n" + 
+		"----------\n" +
+		"1. WARNING in edu\\umd\\cs\\findbugs\\annotations\\PossiblyNull.java (at line 2)\n" +
+		"	@javax.annotation.Nonnull // <-- error!!!\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The nullness annotation \'Nonnull\' is not applicable at this location\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -8738,23 +8738,23 @@ public void testBug467610() {
 		new String[] {
 			"SuperClass.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"@NonNullByDefault\n" + 
-			"public abstract class SuperClass<T> {\n" + 
-			"\n" + 
-			"	abstract T doSomething(T arg);\n" + 
-			"\n" + 
-			"	abstract String returnAString();\n" + 
-			"\n" + 
-			"	public static abstract class SubClass<S> extends SuperClass<S> {\n" + 
-			"\n" + 
-			"		@Override\n" + 
-			"		abstract S doSomething(S arg);\n" + 
-			"\n" + 
-			"		@Override\n" + 
-			"		abstract String returnAString();\n" + 
-			"		\n" + 
-			"	}\n" + 
-			"\n" + 
+			"@NonNullByDefault\n" +
+			"public abstract class SuperClass<T> {\n" +
+			"\n" +
+			"	abstract T doSomething(T arg);\n" +
+			"\n" +
+			"	abstract String returnAString();\n" +
+			"\n" +
+			"	public static abstract class SubClass<S> extends SuperClass<S> {\n" +
+			"\n" +
+			"		@Override\n" +
+			"		abstract S doSomething(S arg);\n" +
+			"\n" +
+			"		@Override\n" +
+			"		abstract String returnAString();\n" +
+			"		\n" +
+			"	}\n" +
+			"\n" +
 			"}"
 		},
 		getCompilerOptions(),
@@ -8783,28 +8783,28 @@ public void testBug482075() {
 	runConformTestWithLibs(
 		new String[] {
 			"TestIncidentImports2.java",
-			"public class TestIncidentImports2 {\n" + 
-			"\n" + 
-			"    private String arg0;\n" + 
-			"    private TestIncidentImports2 arg2;\n" + 
-			"\n" + 
-			"    public TestIncidentImports2(String arg0) {\n" + 
-			"        this.arg0 = arg0;\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    protected void apply(Object o) throws Exception {\n" + 
-			"        arg0.length();\n" + 
+			"public class TestIncidentImports2 {\n" +
+			"\n" +
+			"    private String arg0;\n" +
+			"    private TestIncidentImports2 arg2;\n" +
+			"\n" +
+			"    public TestIncidentImports2(String arg0) {\n" +
+			"        this.arg0 = arg0;\n" +
+			"    }\n" +
+			"\n" +
+			"    protected void apply(Object o) throws Exception {\n" +
+			"        arg0.length();\n" +
 			"        other(arg0);\n" + // arg0 is protected by dereference as MessageSend.receiver
 // still triggers an error: QualifiedNameReference doesn't have an ASTNode representing the receiver
 //			"        if (arg2.arg0 != null && other(arg2))\n" + // arg2 is protected by dereference from QualifiedNameReference
-//			"			System.out.println(7);\n" + 
+//			"			System.out.println(7);\n" +
 			"        if (this.arg2.arg0 != null && other(arg2))\n" + // arg2 is protected by dereference as FieldReference.receiver
-			"			System.out.println(9);\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    boolean other(@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
-			"		return true;\n" + 
-			"    }\n" + 
+			"			System.out.println(9);\n" +
+			"    }\n" +
+			"\n" +
+			"    boolean other(@org.eclipse.jdt.annotation.NonNull Object o) {\n" +
+			"		return true;\n" +
+			"    }\n" +
 			"}\n"
 		},
 		options,
@@ -8820,24 +8820,24 @@ public void testMultipleAnnotations() {
 			"org/foo1/Nullable.java",
 			"package org.foo1;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
 			"public @interface Nullable {}\n",
 			"org/foo1/NonNull.java",
 			"package org.foo1;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
 			"public @interface NonNull {}\n",
 			"p1/TestNulls.java",
 			"package p1;\n" +
-			"import org.foo1.*;\n" + 
-			"\n" + 
-			"public class TestNulls {\n" + 
-			"	public @Nullable String weaken(@NonNull String theValue) {\n" + 
-			"		return theValue;\n" + 
-			"	}\n" + 
-			"\n" + 
+			"import org.foo1.*;\n" +
+			"\n" +
+			"public class TestNulls {\n" +
+			"	public @Nullable String weaken(@NonNull String theValue) {\n" +
+			"		return theValue;\n" +
+			"	}\n" +
+			"\n" +
 			"}"
 		},
 		options1);
@@ -8852,54 +8852,54 @@ public void testMultipleAnnotations() {
 			"org/foo2/Nullable2.java",
 			"package org.foo2;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
 			"public @interface Nullable2 {}\n",
 			"org/foo2/NonNull2.java",
 			"package org.foo2;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" +
 			"public @interface NonNull2 {}\n",
 			"org/foo2/NoNulls2.java",
 			"package org.foo2;\n" +
 			"import java.lang.annotation.*;\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" + 
-			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})\n" + 
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})\n" +
 			"public @interface NoNulls2 {}\n",
 			"p2/TestNulls2.java",
 			"package p2;\n" +
-			"import org.foo2.*;\n" + 
-			"\n" + 
-			"public class TestNulls2 {\n" + 
-			"	public @Nullable2 String weaken(@NonNull2 String theValue) {\n" + 
-			"		return theValue;\n" + 
+			"import org.foo2.*;\n" +
+			"\n" +
+			"public class TestNulls2 {\n" +
+			"	public @Nullable2 String weaken(@NonNull2 String theValue) {\n" +
+			"		return theValue;\n" +
 			"	}\n" +
-			"	@NoNulls2\n" + 
-			"	public String strong(String theValue) {\n" + 
-			"		return weaken(theValue);\n" + 
-			"	}\n" + 
-			"\n" + 
+			"	@NoNulls2\n" +
+			"	public String strong(String theValue) {\n" +
+			"		return weaken(theValue);\n" +
+			"	}\n" +
+			"\n" +
 			"}",
 			"p2/TestNulls2a.java",
 			"package p2;\n" +
-			"import org.foo2.*;\n" + 
-			"\n" + 
-			"@NoNulls2\n" + 
-			"public class TestNulls2a {\n" + 
-			"	public String strong(String theValue) {\n" + 
-			"		return theValue;\n" + 
-			"	}\n" + 
-			"\n" + 
+			"import org.foo2.*;\n" +
+			"\n" +
+			"@NoNulls2\n" +
+			"public class TestNulls2a {\n" +
+			"	public String strong(String theValue) {\n" +
+			"		return theValue;\n" +
+			"	}\n" +
+			"\n" +
 			"}"
 		},
 		null, //libs
 		options2,
-		"----------\n" + 
-		"1. WARNING in p2\\TestNulls2.java (at line 10)\n" + 
-		"	return weaken(theValue);\n" + 
-		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Null type mismatch: required \'@NonNull2 String\' but the provided value is specified as @Nullable2\n" + 
+		"----------\n" +
+		"1. WARNING in p2\\TestNulls2.java (at line 10)\n" +
+		"	return weaken(theValue);\n" +
+		"	       ^^^^^^^^^^^^^^^^\n" +
+		"Null type mismatch: required \'@NonNull2 String\' but the provided value is specified as @Nullable2\n" +
 		"----------\n",
 		"",
 		"",
@@ -8932,35 +8932,35 @@ public void testMultipleAnnotations() {
 				"}\n"
 			},
 			options3,
-				"----------\n" + 
-				"1. ERROR in p3\\Test.java (at line 8)\n" + 
-				"	return test.weaken(input);\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"1. ERROR in p3\\Test.java (at line 8)\n" +
+				"	return test.weaken(input);\n" +
+				"	       ^^^^^^^^^^^^^^^^^^\n" +
 				mismatch_NonNull_Nullable("String") +
-				"----------\n" + 
-				"2. ERROR in p3\\Test.java (at line 8)\n" + 
-				"	return test.weaken(input);\n" + 
-				"	                   ^^^^^\n" + 
+				"----------\n" +
+				"2. ERROR in p3\\Test.java (at line 8)\n" +
+				"	return test.weaken(input);\n" +
+				"	                   ^^^^^\n" +
 				mismatch_NonNull_Nullable("String") +
-				"----------\n" + 
-				"3. ERROR in p3\\Test.java (at line 11)\n" + 
-				"	return test.weaken(input);\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"----------\n" +
+				"3. ERROR in p3\\Test.java (at line 11)\n" +
+				"	return test.weaken(input);\n" +
+				"	       ^^^^^^^^^^^^^^^^^^\n" +
 				mismatch_NonNull_Nullable("String") +
-				"----------\n" + 
-				"4. ERROR in p3\\Test.java (at line 11)\n" + 
-				"	return test.weaken(input);\n" + 
-				"	                   ^^^^^\n" + 
+				"----------\n" +
+				"4. ERROR in p3\\Test.java (at line 11)\n" +
+				"	return test.weaken(input);\n" +
+				"	                   ^^^^^\n" +
 				mismatch_NonNull_Nullable("String") +
-				"----------\n" + 
-				"5. ERROR in p3\\Test.java (at line 14)\n" + 
-				"	return test.strong(input); // requires nonnull due to method-level default\n" + 
-				"	                   ^^^^^\n" + 
+				"----------\n" +
+				"5. ERROR in p3\\Test.java (at line 14)\n" +
+				"	return test.strong(input); // requires nonnull due to method-level default\n" +
+				"	                   ^^^^^\n" +
 				mismatch_NonNull_Nullable("String") +
-				"----------\n" + 
-				"6. ERROR in p3\\Test.java (at line 17)\n" + 
-				"	return test.strong(input); // requires nonnull due to type-level default\n" + 
-				"	                   ^^^^^\n" + 
+				"----------\n" +
+				"6. ERROR in p3\\Test.java (at line 17)\n" +
+				"	return test.strong(input); // requires nonnull due to type-level default\n" +
+				"	                   ^^^^^\n" +
 				mismatch_NonNull_Nullable("String") +
 				"----------\n");
 }
@@ -8985,7 +8985,7 @@ public void testBug489486conform() {
 			"test/package-info.java",
 			"@TheAnnotation(value = DurationAdapter.class)\n" +
 			"package test;\n",
-		}, 
+		},
 		getCompilerOptions(),
 		""
 	);
@@ -9012,11 +9012,11 @@ public void testBug489486negative() {
 			"@TheAnnotation(value = DurationAdapter.class)\n" +
 			"package test;\n",
 		},
-		"----------\n" + 
-		"1. ERROR in test\\package-info.java (at line 1)\n" + 
-		"	@TheAnnotation(value = DurationAdapter.class)\n" + 
-		"	                       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Class<DurationAdapter> to Class<? extends SoftReference<?>>\n" + 
+		"----------\n" +
+		"1. ERROR in test\\package-info.java (at line 1)\n" +
+		"	@TheAnnotation(value = DurationAdapter.class)\n" +
+		"	                       ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Class<DurationAdapter> to Class<? extends SoftReference<?>>\n" +
 		"----------\n",
 		this.LIBS,
 		true, /*flush*/
@@ -9048,7 +9048,7 @@ public void testBug502113() {
 			"	}\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		getCompilerOptions(),
 		""
 	);
@@ -9086,18 +9086,18 @@ public void testBug502113b() {
 			"	}\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in test\\X.java (at line 8)\n" + 
-		"	public boolean equals(Object other) {\n" + 
-		"	                      ^^^^^^\n" + 
-		"Missing nullable annotation: inherited method from I specifies this parameter as @Nullable\n" + 
-		"----------\n" + 
-		"2. ERROR in test\\X.java (at line 12)\n" + 
-		"	public String toString() {\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from I.toString() (mismatching null constraints)\n" + 
+		"----------\n" +
+		"1. ERROR in test\\X.java (at line 8)\n" +
+		"	public boolean equals(Object other) {\n" +
+		"	                      ^^^^^^\n" +
+		"Missing nullable annotation: inherited method from I specifies this parameter as @Nullable\n" +
+		"----------\n" +
+		"2. ERROR in test\\X.java (at line 12)\n" +
+		"	public String toString() {\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from I.toString() (mismatching null constraints)\n" +
 		"----------\n"
 	);
 }
@@ -9132,31 +9132,31 @@ public void testBug502214() {
 			"	}\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		getCompilerOptions(),
-		(this.complianceLevel < ClassFileConstants.JDK1_8 ? 
-		"----------\n" + 
-		"1. ERROR in test\\X.java (at line 22)\n" + 
-		"	class Y extends A implements I {\n" + 
-		"	                ^\n" + 
-		"The method m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"2. ERROR in test\\X.java (at line 22)\n" + 
-		"	class Y extends A implements I {\n" + 
-		"	                ^\n" + 
-		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
-		"----------\n"		
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+		"----------\n" +
+		"1. ERROR in test\\X.java (at line 22)\n" +
+		"	class Y extends A implements I {\n" +
+		"	                ^\n" +
+		"The method m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"2. ERROR in test\\X.java (at line 22)\n" +
+		"	class Y extends A implements I {\n" +
+		"	                ^\n" +
+		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" +
+		"----------\n"
 		:
-		"----------\n" + 
-		"1. ERROR in test\\X.java (at line 22)\n" + 
-		"	class Y extends A implements I {\n" + 
-		"	                ^\n" + 
-		"The method @Nullable String m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"2. ERROR in test\\X.java (at line 22)\n" + 
-		"	class Y extends A implements I {\n" + 
-		"	                ^\n" + 
-		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
+		"----------\n" +
+		"1. ERROR in test\\X.java (at line 22)\n" +
+		"	class Y extends A implements I {\n" +
+		"	                ^\n" +
+		"The method @Nullable String m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"2. ERROR in test\\X.java (at line 22)\n" +
+		"	class Y extends A implements I {\n" +
+		"	                ^\n" +
+		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" +
 		"----------\n"
 		)
 	);
@@ -9199,7 +9199,7 @@ public void testBug530970_param() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9224,21 +9224,21 @@ public void testBug530970_param() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	test1(null); // ERR\n" + 
-		"	      ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	test2(null); // ERR\n" + 
-		"	      ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 14)\n" + 
-		"	void redundant(@NonNullByDefault(DefaultLocation.PARAMETER) java.lang.Number in) { // WARNING\n" + 
-		"	               ^^^^^^^^^^^^^^^^^\n" + 
-		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	test1(null); // ERR\n" +
+		"	      ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	test2(null); // ERR\n" +
+		"	      ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 14)\n" +
+		"	void redundant(@NonNullByDefault(DefaultLocation.PARAMETER) java.lang.Number in) { // WARNING\n" +
+		"	               ^^^^^^^^^^^^^^^^^\n" +
+		"Nullness default is redundant with a default specified for the enclosing type X\n" +
 		"----------\n"
 	);
 }
@@ -9280,7 +9280,7 @@ public void testBug530970_return() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9298,11 +9298,11 @@ public void testBug530970_return() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	return null; // ERR\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	return null; // ERR\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
 		"----------\n");
 }
 
@@ -9343,7 +9343,7 @@ public void testBug530970_field() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9357,11 +9357,11 @@ public void testBug530970_field() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	Number field; // ERR since uninitialized\n" + 
-		"	       ^^^^^\n" + 
-		"The @NonNull field field may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	Number field; // ERR since uninitialized\n" +
+		"	       ^^^^^\n" +
+		"The @NonNull field field may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -9402,7 +9402,7 @@ public void testBug530970_default() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9422,11 +9422,11 @@ public void testBug530970_default() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	Number field; // ERR since uninitialized\n" + 
-		"	       ^^^^^\n" + 
-		"The @NonNull field field may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	Number field; // ERR since uninitialized\n" +
+		"	       ^^^^^\n" +
+		"The @NonNull field field may not have been initialized\n" +
 		"----------\n");
 }
 
@@ -9467,7 +9467,7 @@ public void testBug530970_param_bin() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9496,16 +9496,16 @@ public void testBug530970_param_bin() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in Y.java (at line 4)\n" + 
-		"	return x.test1(null); // error at arg, unchecked at return\n" + 
-		"	       ^^^^^^^^^^^^^\n" + 
-		"Null type safety: The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" + 
-		"----------\n" + 
-		"2. ERROR in Y.java (at line 4)\n" + 
-		"	return x.test1(null); // error at arg, unchecked at return\n" + 
-		"	               ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. WARNING in Y.java (at line 4)\n" +
+		"	return x.test1(null); // error at arg, unchecked at return\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"Null type safety: The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" +
+		"----------\n" +
+		"2. ERROR in Y.java (at line 4)\n" +
+		"	return x.test1(null); // error at arg, unchecked at return\n" +
+		"	               ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
 		"----------\n");
 }
 
@@ -9547,7 +9547,7 @@ public void testBug530970_return_bin() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9618,7 +9618,7 @@ public void testBug530970_field_bin() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9644,11 +9644,11 @@ public void testBug530970_field_bin() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in Y.java (at line 3)\n" + 
-		"	x.field = null; // ERR\n" + 
-		"	          ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in Y.java (at line 3)\n" +
+		"	x.field = null; // ERR\n" +
+		"	          ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
 		"----------\n");}
 
 //default default
@@ -9689,7 +9689,7 @@ public void testBug530970_default_bin() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9719,11 +9719,11 @@ public void testBug530970_default_bin() {
 			"}\n"
 		},
 		customOptions,
-		"----------\n" + 
-		"1. ERROR in Y.java (at line 4)\n" + 
-		"	x.field = null; // ERR\n" + 
-		"	          ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in Y.java (at line 4)\n" +
+		"	x.field = null; // ERR\n" +
+		"	          ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" +
 		"----------\n");}
 
 public void testBug530970_on_field_and_local() {
@@ -9763,7 +9763,7 @@ public void testBug530970_on_field_and_local() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -9901,128 +9901,128 @@ public void testBug530970_on_field_and_local() {
 			"    }\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in nnbd_test1\\Test.java (at line 32)\n" + 
-		"	public String f(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"2. ERROR in nnbd_test1\\Test.java (at line 33)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. ERROR in nnbd_test1\\Test.java (at line 35)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"4. ERROR in nnbd_test1\\Test.java (at line 40)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"5. WARNING in nnbd_test1\\Test.java (at line 44)\n" + 
-		"	public String h(Integer p) { // warning on parameter type expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"6. ERROR in nnbd_test1\\Test.java (at line 45)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"7. ERROR in nnbd_test1\\Test.java (at line 50)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"8. ERROR in nnbd_test1\\Test.java (at line 56)\n" + 
-		"	public String f(Integer p) { // warning on return type expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"9. ERROR in nnbd_test1\\Test.java (at line 57)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"10. ERROR in nnbd_test1\\Test.java (at line 63)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"11. ERROR in nnbd_test1\\Test.java (at line 63)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
-		"----------\n" + 
-		"12. ERROR in nnbd_test1\\Test.java (at line 73)\n" + 
-		"	public String i(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
-		"----------\n" + 
-		"13. WARNING in nnbd_test1\\Test.java (at line 82)\n" + 
-		"	public String f(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"14. ERROR in nnbd_test1\\Test.java (at line 83)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"15. ERROR in nnbd_test1\\Test.java (at line 85)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"16. ERROR in nnbd_test1\\Test.java (at line 90)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"17. WARNING in nnbd_test1\\Test.java (at line 94)\n" + 
-		"	public String h(Integer p) { // warning on parameter type expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"18. ERROR in nnbd_test1\\Test.java (at line 95)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"19. ERROR in nnbd_test1\\Test.java (at line 100)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"20. ERROR in nnbd_test1\\Test.java (at line 106)\n" + 
-		"	public String f(Integer p) { // warning on return type expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"21. ERROR in nnbd_test1\\Test.java (at line 107)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"22. ERROR in nnbd_test1\\Test.java (at line 113)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"23. ERROR in nnbd_test1\\Test.java (at line 113)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
-		"----------\n" + 
-		"24. ERROR in nnbd_test1\\Test.java (at line 123)\n" + 
-		"	public String i(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
+		"----------\n" +
+		"1. WARNING in nnbd_test1\\Test.java (at line 32)\n" +
+		"	public String f(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"2. ERROR in nnbd_test1\\Test.java (at line 33)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"3. ERROR in nnbd_test1\\Test.java (at line 35)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"4. ERROR in nnbd_test1\\Test.java (at line 40)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"5. WARNING in nnbd_test1\\Test.java (at line 44)\n" +
+		"	public String h(Integer p) { // warning on parameter type expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"6. ERROR in nnbd_test1\\Test.java (at line 45)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"7. ERROR in nnbd_test1\\Test.java (at line 50)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"8. ERROR in nnbd_test1\\Test.java (at line 56)\n" +
+		"	public String f(Integer p) { // warning on return type expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"9. ERROR in nnbd_test1\\Test.java (at line 57)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"10. ERROR in nnbd_test1\\Test.java (at line 63)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"11. ERROR in nnbd_test1\\Test.java (at line 63)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
+		"----------\n" +
+		"12. ERROR in nnbd_test1\\Test.java (at line 73)\n" +
+		"	public String i(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
+		"----------\n" +
+		"13. WARNING in nnbd_test1\\Test.java (at line 82)\n" +
+		"	public String f(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"14. ERROR in nnbd_test1\\Test.java (at line 83)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"15. ERROR in nnbd_test1\\Test.java (at line 85)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"16. ERROR in nnbd_test1\\Test.java (at line 90)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"17. WARNING in nnbd_test1\\Test.java (at line 94)\n" +
+		"	public String h(Integer p) { // warning on parameter type expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"18. ERROR in nnbd_test1\\Test.java (at line 95)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"19. ERROR in nnbd_test1\\Test.java (at line 100)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"20. ERROR in nnbd_test1\\Test.java (at line 106)\n" +
+		"	public String f(Integer p) { // warning on return type expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"21. ERROR in nnbd_test1\\Test.java (at line 107)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"22. ERROR in nnbd_test1\\Test.java (at line 113)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"23. ERROR in nnbd_test1\\Test.java (at line 113)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
+		"----------\n" +
+		"24. ERROR in nnbd_test1\\Test.java (at line 123)\n" +
+		"	public String i(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
 		"----------\n"
 	);
 }
@@ -10063,7 +10063,7 @@ public void testBug530970_on_field_bin() {
 			"public @interface Nullable {\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
 		""
 	);
@@ -10097,7 +10097,7 @@ public void testBug530970_on_field_bin() {
 				"    abstract String i(@NonNullByDefault({}) Integer p);\n" +
 				"}\n" +
 				"",
-			}, 
+			},
 			customOptions,
 			""
 		);
@@ -10235,128 +10235,128 @@ public void testBug530970_on_field_bin() {
 			"    }\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		customOptions,
-		"----------\n" + 
-		"1. WARNING in nnbd_test1\\Test.java (at line 32)\n" + 
-		"	public String f(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"2. ERROR in nnbd_test1\\Test.java (at line 33)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"3. ERROR in nnbd_test1\\Test.java (at line 35)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"4. ERROR in nnbd_test1\\Test.java (at line 40)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"5. WARNING in nnbd_test1\\Test.java (at line 44)\n" + 
-		"	public String h(Integer p) { // warning on parameter type expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"6. ERROR in nnbd_test1\\Test.java (at line 45)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"7. ERROR in nnbd_test1\\Test.java (at line 50)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"8. ERROR in nnbd_test1\\Test.java (at line 56)\n" + 
-		"	public String f(Integer p) { // warning on return type expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"9. ERROR in nnbd_test1\\Test.java (at line 57)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"10. ERROR in nnbd_test1\\Test.java (at line 63)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"11. ERROR in nnbd_test1\\Test.java (at line 63)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
-		"----------\n" + 
-		"12. ERROR in nnbd_test1\\Test.java (at line 73)\n" + 
-		"	public String i(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
-		"----------\n" + 
-		"13. WARNING in nnbd_test1\\Test.java (at line 82)\n" + 
-		"	public String f(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"14. ERROR in nnbd_test1\\Test.java (at line 83)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"15. ERROR in nnbd_test1\\Test.java (at line 85)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"16. ERROR in nnbd_test1\\Test.java (at line 90)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"17. WARNING in nnbd_test1\\Test.java (at line 94)\n" + 
-		"	public String h(Integer p) { // warning on parameter type expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" + 
-		"----------\n" + 
-		"18. ERROR in nnbd_test1\\Test.java (at line 95)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"19. ERROR in nnbd_test1\\Test.java (at line 100)\n" + 
-		"	return null; // warning expected\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n" + 
-		"20. ERROR in nnbd_test1\\Test.java (at line 106)\n" + 
-		"	public String f(Integer p) { // warning on return type expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"21. ERROR in nnbd_test1\\Test.java (at line 107)\n" + 
-		"	this.a = null; // warning expected\n" + 
-		"	         ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"22. ERROR in nnbd_test1\\Test.java (at line 113)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	       ^^^^^^\n" + 
-		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" + 
-		"----------\n" + 
-		"23. ERROR in nnbd_test1\\Test.java (at line 113)\n" + 
-		"	public String g(Integer p) { // warning on return type and parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
-		"----------\n" + 
-		"24. ERROR in nnbd_test1\\Test.java (at line 123)\n" + 
-		"	public String i(Integer p) { // warning on parameter expected\n" + 
-		"	                ^^^^^^^\n" + 
-		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" + 
+		"----------\n" +
+		"1. WARNING in nnbd_test1\\Test.java (at line 32)\n" +
+		"	public String f(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"2. ERROR in nnbd_test1\\Test.java (at line 33)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"3. ERROR in nnbd_test1\\Test.java (at line 35)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"4. ERROR in nnbd_test1\\Test.java (at line 40)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"5. WARNING in nnbd_test1\\Test.java (at line 44)\n" +
+		"	public String h(Integer p) { // warning on parameter type expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"6. ERROR in nnbd_test1\\Test.java (at line 45)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"7. ERROR in nnbd_test1\\Test.java (at line 50)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"8. ERROR in nnbd_test1\\Test.java (at line 56)\n" +
+		"	public String f(Integer p) { // warning on return type expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"9. ERROR in nnbd_test1\\Test.java (at line 57)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"10. ERROR in nnbd_test1\\Test.java (at line 63)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"11. ERROR in nnbd_test1\\Test.java (at line 63)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
+		"----------\n" +
+		"12. ERROR in nnbd_test1\\Test.java (at line 73)\n" +
+		"	public String i(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
+		"----------\n" +
+		"13. WARNING in nnbd_test1\\Test.java (at line 82)\n" +
+		"	public String f(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"14. ERROR in nnbd_test1\\Test.java (at line 83)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"15. ERROR in nnbd_test1\\Test.java (at line 85)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"16. ERROR in nnbd_test1\\Test.java (at line 90)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"17. WARNING in nnbd_test1\\Test.java (at line 94)\n" +
+		"	public String h(Integer p) { // warning on parameter type expected\n" +
+		"	                ^^^^^^^\n" +
+		"Missing non-null annotation: inherited method from X specifies this parameter as @NonNull\n" +
+		"----------\n" +
+		"18. ERROR in nnbd_test1\\Test.java (at line 95)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"19. ERROR in nnbd_test1\\Test.java (at line 100)\n" +
+		"	return null; // warning expected\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+		"----------\n" +
+		"20. ERROR in nnbd_test1\\Test.java (at line 106)\n" +
+		"	public String f(Integer p) { // warning on return type expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.f(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"21. ERROR in nnbd_test1\\Test.java (at line 107)\n" +
+		"	this.a = null; // warning expected\n" +
+		"	         ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"22. ERROR in nnbd_test1\\Test.java (at line 113)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	       ^^^^^^\n" +
+		"The return type is incompatible with \'@NonNull String\' returned from X.g(Integer) (mismatching null constraints)\n" +
+		"----------\n" +
+		"23. ERROR in nnbd_test1\\Test.java (at line 113)\n" +
+		"	public String g(Integer p) { // warning on return type and parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
+		"----------\n" +
+		"24. ERROR in nnbd_test1\\Test.java (at line 123)\n" +
+		"	public String i(Integer p) { // warning on parameter expected\n" +
+		"	                ^^^^^^^\n" +
+		"Illegal redefinition of parameter p, inherited method from X does not constrain this parameter\n" +
 		"----------\n"
 	);
 }
@@ -10365,7 +10365,7 @@ public void testBug542707_001() {
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -10403,11 +10403,11 @@ public void testBug542707_001() {
 			"}\n"
 				},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 0)\n" + 
-		"	import java.io.IOException;\n" + 
-		"	^\n" + 
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 0)\n" +
+		"	import java.io.IOException;\n" +
+		"	^\n" +
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 		"----------\n"
 	);
 }
@@ -10419,7 +10419,7 @@ public void testBug542707_002() {
 		return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -10444,11 +10444,11 @@ public void testBug542707_002() {
 			"}\n"
 				},
 		options,
-		"----------\n" + 
-		"1. ERROR in X.java (at line 0)\n" + 
-		"	import org.eclipse.jdt.annotation.*;\n" + 
-		"	^\n" + 
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 0)\n" +
+		"	import org.eclipse.jdt.annotation.*;\n" +
+		"	^\n" +
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 		"----------\n"
 	);
 }
@@ -10464,28 +10464,28 @@ public void testBug542707_003() {
 		"X.java",
 		"import org.eclipse.jdt.annotation.*;\n" +
 		"public class X {\n" +
-		"	@Nullable String maybe() { return null; }\n" + 
+		"	@Nullable String maybe() { return null; }\n" +
 		"	void test(int i) {\n" +
-		"		@NonNull String s = switch (i) {\n" + 
-		"			case 1 -> \"\";\n" + 
-		"			default -> i == 3 ? maybe() : \"\";\n" + 
-		"		};\n" + 
+		"		@NonNull String s = switch (i) {\n" +
+		"			case 1 -> \"\";\n" +
+		"			default -> i == 3 ? maybe() : \"\";\n" +
+		"		};\n" +
 		"		System.out.println(s.toLowerCase());\n" +
 		"	}\n" +
 		"}\n"
 	};
 	runner.expectedCompilerLog = checkPreviewAllowed() ?
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	default -> i == 3 ? maybe() : \"\";\n" + 
-			"	                    ^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	default -> i == 3 ? maybe() : \"\";\n" +
+			"	                    ^^^^^^^\n" +
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" +
 			"----------\n" :
-			"----------\n" + 
-			"1. ERROR in X.java (at line 0)\n" + 
-			"	import org.eclipse.jdt.annotation.*;\n" + 
-			"	^\n" + 
-			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 0)\n" +
+			"	import org.eclipse.jdt.annotation.*;\n" +
+			"	^\n" +
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10502,24 +10502,24 @@ public void _testBug542707_004() {
 		"X.java",
 		"import org.eclipse.jdt.annotation.*;\n" +
 		"public class X {\n" +
-		"	@Nullable String maybe() { return null; }\n" + 
-		"	void need(@NonNull String s) {\n" + 
-		"		System.out.println(s.toLowerCase());\n" + 
+		"	@Nullable String maybe() { return null; }\n" +
+		"	void need(@NonNull String s) {\n" +
+		"		System.out.println(s.toLowerCase());\n" +
 		"	}\n" +
 		"	void test(int i) {\n" +
-		"		need(switch (i) {\n" + 
-		"			case 1 -> \"\";\n" + 
-		"			default -> i == 3 ? maybe() : \"\";\n" + 
-		"		});\n" + 
+		"		need(switch (i) {\n" +
+		"			case 1 -> \"\";\n" +
+		"			default -> i == 3 ? maybe() : \"\";\n" +
+		"		});\n" +
 		"	}\n" +
 		"}\n"
 	};
 	runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	default -> i == 3 ? maybe() : \"\";\n" + 
-			"	                    ^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	default -> i == 3 ? maybe() : \"\";\n" +
+			"	                    ^^^^^^^\n" +
+			"Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10536,27 +10536,27 @@ public void testBug542707_005() {
 		"import org.eclipse.jdt.annotation.*;\n" +
 		"enum SomeDays { Mon, Wed, Fri }\n" +
 		"public class X {\n" +
-		"	int testEnum(@Nullable SomeDays day) {\n" + 
-		"		return switch(day) {\n" + 
-		"		case Mon -> 1;\n" + 
-		"		case Wed -> 2;\n" + 
-		"		case Fri -> 3;\n" + 
-		"		};\n" + 
+		"	int testEnum(@Nullable SomeDays day) {\n" +
+		"		return switch(day) {\n" +
+		"		case Mon -> 1;\n" +
+		"		case Wed -> 2;\n" +
+		"		case Fri -> 3;\n" +
+		"		};\n" +
 		"	}\n" +
 		"}\n"
 	};
 	runner.expectedCompilerLog = checkPreviewAllowed() ?
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	return switch(day) {\n" + 
-			"	              ^^^\n" + 
-			"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	return switch(day) {\n" +
+			"	              ^^^\n" +
+			"Potential null pointer access: this expression has a \'@Nullable\' type\n" +
 			"----------\n" :
-			"----------\n" + 
-			"1. ERROR in X.java (at line 0)\n" + 
-			"	import org.eclipse.jdt.annotation.*;\n" + 
-			"	^\n" + 
-			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 0)\n" +
+			"	import org.eclipse.jdt.annotation.*;\n" +
+			"	^\n" +
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10573,27 +10573,27 @@ public void testBug542707_006() {
 		"enum SomeDays { Mon, Wed, Fri }\n" +
 		"public class X {\n" +
 		"	int testEnum(boolean b) {\n" +
-		"		SomeDays day = b ? SomeDays.Mon : null;\n" + 
-		"		return switch(day) {\n" + 
-		"		case Mon -> 1;\n" + 
-		"		case Wed -> 2;\n" + 
-		"		case Fri -> 3;\n" + 
-		"		};\n" + 
+		"		SomeDays day = b ? SomeDays.Mon : null;\n" +
+		"		return switch(day) {\n" +
+		"		case Mon -> 1;\n" +
+		"		case Wed -> 2;\n" +
+		"		case Fri -> 3;\n" +
+		"		};\n" +
 		"	}\n" +
 		"}\n"
 	};
 	runner.expectedCompilerLog = checkPreviewAllowed() ?
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	return switch(day) {\n" + 
-			"	              ^^^\n" + 
-			"Potential null pointer access: The variable day may be null at this location\n" + 
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	return switch(day) {\n" +
+			"	              ^^^\n" +
+			"Potential null pointer access: The variable day may be null at this location\n" +
 			"----------\n" :
 			"----------\n" +
-			"1. ERROR in X.java (at line 0)\n" + 
-			"	enum SomeDays { Mon, Wed, Fri }\n" + 
-			"	^\n" + 
-			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
+			"1. ERROR in X.java (at line 0)\n" +
+			"	enum SomeDays { Mon, Wed, Fri }\n" +
+			"	^\n" +
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10654,11 +10654,11 @@ public void testBug548418_001a() {
 			"	}\n"+
 			"}\n"
 				},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 13)\n" + 
-		"	break x;\n" + 
-		"	^^^^^^^^\n" + 
-		"Breaking out of switch expressions not permitted\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 13)\n" +
+		"	break x;\n" +
+		"	^^^^^^^^\n" +
+		"Breaking out of switch expressions not permitted\n" +
 		"----------\n"
 	);
 }
@@ -10696,16 +10696,16 @@ public void testBug548418_001b() {
 			"	}\n"+
 			"}\n"
 				},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	x = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 15)\n" + 
-		"	default -> null;\n" + 
-		"	           ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	x = null;\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 15)\n" +
+		"	default -> null;\n" +
+		"	           ^^^^\n" +
+		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" +
 		"----------\n"
 	);
 }
@@ -10730,21 +10730,21 @@ public void testBug548418_002a() {
 			"		}\n" +
 			"}\n"
 				},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	break \"hello\";\n" + 
-		"	      ^^^^^^^\n" + 
-		"Syntax error on token \"\"hello\"\", delete this token\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 9)\n" + 
-		"	default : break \"world\";\n" + 
-		"	                ^^^^^^^\n" + 
-		"Syntax error on token \"\"world\"\", delete this token\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
-		"	Zork();\n" + 
-		"	^^^^\n" + 
-		"The method Zork() is undefined for the type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	break \"hello\";\n" +
+		"	      ^^^^^^^\n" +
+		"Syntax error on token \"\"hello\"\", delete this token\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	default : break \"world\";\n" +
+		"	                ^^^^^^^\n" +
+		"Syntax error on token \"\"world\"\", delete this token\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 13)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
 		"----------\n"
 	);
 }
@@ -10769,11 +10769,11 @@ public void testBug548418_002b() {
 			"		}\n" +
 			"}\n"
 				},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 13)\n" + 
-		"	Zork();\n" + 
-		"	^^^^\n" + 
-		"The method Zork() is undefined for the type X\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 13)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
 		"----------\n"
 			);
 }
@@ -10781,33 +10781,33 @@ public void testBug499714() {
 	runConformTestWithLibs(
 		new String[] {
 			"test/X.java",
-			"package test;\n" + 
-			"\n" + 
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"@NonNullByDefault\n" + 
-			"public class X {\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"        Object o = null;\n" + 
-			"        for (final String s : args) {\n" + 
-			"            if (s.equals(\"-x\")) {\n" + 
-			"                if (o != null) { // bogus warning here\n" + 
-			"                    //\n" + 
-			"                }\n" + 
-			"                continue;\n" + 
-			"            }\n" + 
-			"            o = read();\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    @Nullable\n" + 
-			"    public static Object read() {\n" + 
-			"        return \"\";\n" + 
-			"    }\n" + 
-			"}\n" + 
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        Object o = null;\n" +
+			"        for (final String s : args) {\n" +
+			"            if (s.equals(\"-x\")) {\n" +
+			"                if (o != null) { // bogus warning here\n" +
+			"                    //\n" +
+			"                }\n" +
+			"                continue;\n" +
+			"            }\n" +
+			"            o = read();\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    @Nullable\n" +
+			"    public static Object read() {\n" +
+			"        return \"\";\n" +
+			"    }\n" +
+			"}\n" +
 			"",
-		}, 
+		},
 		getCompilerOptions(),
 		"");
 }
@@ -10834,30 +10834,30 @@ public void testBug481931_source() {
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	if (INST_CONST == null) {\n" + 
-		"	    ^^^^^^^^^^\n" + 
-		"Null comparison always yields false: The field INST_CONST is a nonnull constant\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	if (INST_CONST == null) {\n" + 
-		"			System.out.println(\"null\");\n" + 
-		"		}\n" + 
-		"	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 12)\n" + 
-		"	if (CONST == null) {\n" + 
-		"	    ^^^^^\n" + 
-		"Null comparison always yields false: The field CONST is a nonnull constant\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\n" + 
-		"	if (CONST == null) {\n" + 
-		"			System.out.println(\"null\");\n" + 
-		"		}\n" + 
-		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	if (INST_CONST == null) {\n" +
+		"	    ^^^^^^^^^^\n" +
+		"Null comparison always yields false: The field INST_CONST is a nonnull constant\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	if (INST_CONST == null) {\n" +
+		"			System.out.println(\"null\");\n" +
+		"		}\n" +
+		"	                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 12)\n" +
+		"	if (CONST == null) {\n" +
+		"	    ^^^^^\n" +
+		"Null comparison always yields false: The field CONST is a nonnull constant\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 12)\n" +
+		"	if (CONST == null) {\n" +
+		"			System.out.println(\"null\");\n" +
+		"		}\n" +
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n");
 }
 public void testBug481931_binary() {
@@ -10898,30 +10898,30 @@ public void testBug481931_binary() {
 	runner.classLibraries = this.LIBS;
 	runner.customOptions = getCompilerOptions();
 	runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. ERROR in Y.java (at line 5)\n" + 
-			"	if (x.INST_CONST == null) {\n" + 
-			"	      ^^^^^^^^^^\n" + 
-			"Null comparison always yields false: The field INST_CONST is a nonnull constant\n" + 
-			"----------\n" + 
-			"2. WARNING in Y.java (at line 5)\n" + 
-			"	if (x.INST_CONST == null) {\n" + 
-			"			System.out.println(\"null\");\n" + 
-			"		}\n" + 
-			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Dead code\n" + 
-			"----------\n" + 
-			"3. ERROR in Y.java (at line 11)\n" + 
-			"	if (X.CONST == null) {\n" + 
-			"	      ^^^^^\n" + 
-			"Null comparison always yields false: The field CONST is a nonnull constant\n" + 
-			"----------\n" + 
-			"4. WARNING in Y.java (at line 11)\n" + 
-			"	if (X.CONST == null) {\n" + 
-			"			System.out.println(\"null\");\n" + 
-			"		}\n" + 
-			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Dead code\n" + 
+			"----------\n" +
+			"1. ERROR in Y.java (at line 5)\n" +
+			"	if (x.INST_CONST == null) {\n" +
+			"	      ^^^^^^^^^^\n" +
+			"Null comparison always yields false: The field INST_CONST is a nonnull constant\n" +
+			"----------\n" +
+			"2. WARNING in Y.java (at line 5)\n" +
+			"	if (x.INST_CONST == null) {\n" +
+			"			System.out.println(\"null\");\n" +
+			"		}\n" +
+			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"3. ERROR in Y.java (at line 11)\n" +
+			"	if (X.CONST == null) {\n" +
+			"	      ^^^^^\n" +
+			"Null comparison always yields false: The field CONST is a nonnull constant\n" +
+			"----------\n" +
+			"4. WARNING in Y.java (at line 11)\n" +
+			"	if (X.CONST == null) {\n" +
+			"			System.out.println(\"null\");\n" +
+			"		}\n" +
+			"	                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
 			"----------\n";
 	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
@@ -10930,135 +10930,135 @@ public void testBug459397() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"NonNullBug.java",
-			"import org.eclipse.jdt.annotation.NonNull;\n" + 
-			"import org.eclipse.jdt.annotation.Nullable;\n" + 
-			"\n" + 
-			"public class NonNullBug {\n" + 
-			"	public static final String PACKid_$metamodel$ = null;\n" + 
-			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_SimpleRDBMS = null;\n" + 
-			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_UMLtoRDBMS = null;\n" + 
-			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_simpleUML = null;\n" + 
-			"	public static final String CLSSid_Association = null;\n" + 
-			"	public static final String CLSSid_AssociationToForeignKey = null;\n" + 
-			"	public static final String CLSSid_Attribute = null;\n" + 
-			"	public static final String CLSSid_AttributeToColumn = null;\n" + 
-			"	public static final String CLSSid_Class = null;\n" + 
-			"	public static final String CLSSid_ClassToTable = null;\n" + 
-			"	public static final String CLSSid_Class_0 = null;\n" + 
-			"	public static final String CLSSid_Classifier = null;\n" + 
-			"	public static final String CLSSid_Column = null;\n" + 
-			"	public static final String CLSSid_ForeignKey = null;\n" + 
-			"	public static final String CLSSid_FromAttribute = null;\n" + 
-			"	public static final String CLSSid_Key = null;\n" + 
-			"	public static final String CLSSid_NonLeafAttribute = null;\n" + 
-			"	public static final String CLSSid_Package = null;\n" + 
-			"	public static final String CLSSid_PackageElement = null;\n" + 
-			"	public static final String CLSSid_PackageToSchema = null;\n" + 
-			"	public static final String CLSSid_PrimitiveDataType = null;\n" + 
-			"	public static final String CLSSid_PrimitiveToName = null;\n" + 
-			"	public static final String CLSSid_Schema = null;\n" + 
-			"	public static final String CLSSid_Table = null;\n" + 
-			"	public static final String STR_2 = \"2\";\n" + 
-			"	public static final String STR_BOOLEAN = \"BOOLEAN\";\n" + 
-			"	public static final String STR_Boolean = \"Boolean\";\n" + 
-			"	public static final String STR_Integer = \"Integer\";\n" + 
-			"	public static final String STR_NUMBER = \"NUMBER\";\n" + 
-			"	public static final String STR_String = \"String\";\n" + 
-			"	public static final String STR_VARCHAR = \"VARCHAR\";\n" + 
-			"	public static final String STR__ = \"_\";\n" + 
-			"	public static final String STR__pk = \"_pk\";\n" + 
-			"	public static final String STR__tid = \"_tid\";\n" + 
-			"	public static final String STR_base = \"base\";\n" + 
-			"	public static final String STR_persistent = \"persistent\";\n" + 
-			"	public static final String STR_primary = \"primary\";\n" + 
-			"	public static final String BAG_CLSSid_AttributeToColumn = null;\n" + 
-			"	public static final String BAG_CLSSid_FromAttribute = null;\n" + 
-			"	public static final String ORD_CLSSid_AssociationToForeignKey = null;\n" + 
-			"	public static final String ORD_CLSSid_Attribute = null;\n" + 
-			"	public static final String ORD_CLSSid_Column = null;\n" + 
-			"	public static final String ORD_CLSSid_ForeignKey = null;\n" + 
-			"	public static final String ORD_CLSSid_Key = null;\n" + 
-			"	public static final String ORD_CLSSid_PackageElement = null;\n" + 
-			"	public static final String SET_CLSSid_Association = null;\n" + 
-			"	public static final String SET_CLSSid_Attribute = null;\n" + 
-			"	public static final String SET_CLSSid_AttributeToColumn = null;\n" + 
-			"	public static final String SET_CLSSid_Class = null;\n" + 
-			"	public static final String SET_CLSSid_ClassToTable = null;\n" + 
-			"	public static final String SET_CLSSid_FromAttribute = null;\n" + 
-			"	public static final String SET_CLSSid_NonLeafAttribute = null;\n" + 
-			"	public static final String SET_CLSSid_Package = null;\n" + 
-			"	public static final String SET_CLSSid_PrimitiveToName = null;\n" + 
-			"\n" + 
-			"	protected final String OPPOSITE_OF_ClassToTable_table = null;\n" + 
-			"	protected final String OPPOSITE_OF_ClassToTable_umlClass = null;\n" + 
-			"	protected final String OPPOSITE_OF_FromAttribute_attribute = null;\n" + 
-			"	protected final String OPPOSITE_OF_PrimitiveToName_primitive = null;\n" + 
-			"\n" + 
-			"	@SuppressWarnings(\"unused\")\n" + 
-			"	private static final String[] classIndex2classId = new String[] {};\n" + 
-			"	@SuppressWarnings(\"unused\")\n" + 
-			"	private final static int[][] classIndex2allClassIndexes = new int[][] {};\n" + 
-			"\n" + 
-			"	protected String x(final @NonNull Exception a, final @NonNull String p_4, final @Nullable String p2s_9) throws Exception {\n" + 
-			"		final @Nullable Throwable destination = a.getCause();\n" + 
-			"		final @Nullable Throwable dc = a.getCause();\n" + 
-			"		if (dc == null) {\n" + 
-			"			throw new Exception();\n" + 
-			"		}\n" + 
-			"		try {\n" + 
-			"			if (dc instanceof Exception) {\n" + 
-			"				throw (Exception) dc;\n" + 
-			"			}\n" + 
-			"			boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" + 
-			"		} catch (Exception e) {\n" + 
-			"		}\n" + 
-			"		boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
-			"		return dc.toString();\n" + 
-			"	}\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class NonNullBug {\n" +
+			"	public static final String PACKid_$metamodel$ = null;\n" +
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_SimpleRDBMS = null;\n" +
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_UMLtoRDBMS = null;\n" +
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_simpleUML = null;\n" +
+			"	public static final String CLSSid_Association = null;\n" +
+			"	public static final String CLSSid_AssociationToForeignKey = null;\n" +
+			"	public static final String CLSSid_Attribute = null;\n" +
+			"	public static final String CLSSid_AttributeToColumn = null;\n" +
+			"	public static final String CLSSid_Class = null;\n" +
+			"	public static final String CLSSid_ClassToTable = null;\n" +
+			"	public static final String CLSSid_Class_0 = null;\n" +
+			"	public static final String CLSSid_Classifier = null;\n" +
+			"	public static final String CLSSid_Column = null;\n" +
+			"	public static final String CLSSid_ForeignKey = null;\n" +
+			"	public static final String CLSSid_FromAttribute = null;\n" +
+			"	public static final String CLSSid_Key = null;\n" +
+			"	public static final String CLSSid_NonLeafAttribute = null;\n" +
+			"	public static final String CLSSid_Package = null;\n" +
+			"	public static final String CLSSid_PackageElement = null;\n" +
+			"	public static final String CLSSid_PackageToSchema = null;\n" +
+			"	public static final String CLSSid_PrimitiveDataType = null;\n" +
+			"	public static final String CLSSid_PrimitiveToName = null;\n" +
+			"	public static final String CLSSid_Schema = null;\n" +
+			"	public static final String CLSSid_Table = null;\n" +
+			"	public static final String STR_2 = \"2\";\n" +
+			"	public static final String STR_BOOLEAN = \"BOOLEAN\";\n" +
+			"	public static final String STR_Boolean = \"Boolean\";\n" +
+			"	public static final String STR_Integer = \"Integer\";\n" +
+			"	public static final String STR_NUMBER = \"NUMBER\";\n" +
+			"	public static final String STR_String = \"String\";\n" +
+			"	public static final String STR_VARCHAR = \"VARCHAR\";\n" +
+			"	public static final String STR__ = \"_\";\n" +
+			"	public static final String STR__pk = \"_pk\";\n" +
+			"	public static final String STR__tid = \"_tid\";\n" +
+			"	public static final String STR_base = \"base\";\n" +
+			"	public static final String STR_persistent = \"persistent\";\n" +
+			"	public static final String STR_primary = \"primary\";\n" +
+			"	public static final String BAG_CLSSid_AttributeToColumn = null;\n" +
+			"	public static final String BAG_CLSSid_FromAttribute = null;\n" +
+			"	public static final String ORD_CLSSid_AssociationToForeignKey = null;\n" +
+			"	public static final String ORD_CLSSid_Attribute = null;\n" +
+			"	public static final String ORD_CLSSid_Column = null;\n" +
+			"	public static final String ORD_CLSSid_ForeignKey = null;\n" +
+			"	public static final String ORD_CLSSid_Key = null;\n" +
+			"	public static final String ORD_CLSSid_PackageElement = null;\n" +
+			"	public static final String SET_CLSSid_Association = null;\n" +
+			"	public static final String SET_CLSSid_Attribute = null;\n" +
+			"	public static final String SET_CLSSid_AttributeToColumn = null;\n" +
+			"	public static final String SET_CLSSid_Class = null;\n" +
+			"	public static final String SET_CLSSid_ClassToTable = null;\n" +
+			"	public static final String SET_CLSSid_FromAttribute = null;\n" +
+			"	public static final String SET_CLSSid_NonLeafAttribute = null;\n" +
+			"	public static final String SET_CLSSid_Package = null;\n" +
+			"	public static final String SET_CLSSid_PrimitiveToName = null;\n" +
+			"\n" +
+			"	protected final String OPPOSITE_OF_ClassToTable_table = null;\n" +
+			"	protected final String OPPOSITE_OF_ClassToTable_umlClass = null;\n" +
+			"	protected final String OPPOSITE_OF_FromAttribute_attribute = null;\n" +
+			"	protected final String OPPOSITE_OF_PrimitiveToName_primitive = null;\n" +
+			"\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private static final String[] classIndex2classId = new String[] {};\n" +
+			"	@SuppressWarnings(\"unused\")\n" +
+			"	private final static int[][] classIndex2allClassIndexes = new int[][] {};\n" +
+			"\n" +
+			"	protected String x(final @NonNull Exception a, final @NonNull String p_4, final @Nullable String p2s_9) throws Exception {\n" +
+			"		final @Nullable Throwable destination = a.getCause();\n" +
+			"		final @Nullable Throwable dc = a.getCause();\n" +
+			"		if (dc == null) {\n" +
+			"			throw new Exception();\n" +
+			"		}\n" +
+			"		try {\n" +
+			"			if (dc instanceof Exception) {\n" +
+			"				throw (Exception) dc;\n" +
+			"			}\n" +
+			"			boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" +
+			"		} catch (Exception e) {\n" +
+			"		}\n" +
+			"		boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" +
+			"		return dc.toString();\n" +
+			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
-		"----------\n" + 
-		"1. ERROR in NonNullBug.java (at line 80)\n" + 
-		"	boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" + 
-		"	                                                                 ^^\n" + 
-		"Null comparison always yields false: The variable dc cannot be null at this location\n" + 
-		"----------\n" + 
-		"2. ERROR in NonNullBug.java (at line 83)\n" + 
-		"	boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
-		"	                                                                ^^\n" + 
-		"Redundant null check: The variable dc cannot be null at this location\n" + 
+		"----------\n" +
+		"1. ERROR in NonNullBug.java (at line 80)\n" +
+		"	boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" +
+		"	                                                                 ^^\n" +
+		"Null comparison always yields false: The variable dc cannot be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in NonNullBug.java (at line 83)\n" +
+		"	boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" +
+		"	                                                                ^^\n" +
+		"Redundant null check: The variable dc cannot be null at this location\n" +
 		"----------\n");
 }
 public void testBug466477() {
 	runNegativeTestWithLibs(
 		new String[] {
 			"SuperI.java",
-			"import org.eclipse.jdt.annotation.*;\n" + 
-			"\n" + 
-			"public interface SuperI {\n" + 
-			"  void testNN(@NonNull String s);\n" + 
-			"  void testNu(@Nullable String s);\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"public interface SuperI {\n" +
+			"  void testNN(@NonNull String s);\n" +
+			"  void testNu(@Nullable String s);\n" +
 			"}\n",
 			"Base.java",
-			"public class Base {\n" + 
-			"  public void testNN(String s) { }\n" + 
-			"  public void testNu(String s) { }\n" + 
+			"public class Base {\n" +
+			"  public void testNN(String s) { }\n" +
+			"  public void testNu(String s) { }\n" +
 			"}\n",
 			"Custom.java",
-			"public class Custom extends Base implements SuperI {\n" + 
+			"public class Custom extends Base implements SuperI {\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in Custom.java (at line 1)\n" + 
-		"	public class Custom extends Base implements SuperI {\n" + 
-		"	                            ^^^^\n" + 
-		"The method testNu(String) from Base cannot implement the corresponding method from SuperI due to incompatible nullness constraints\n" + 
-		"----------\n" + 
-		"2. WARNING in Custom.java (at line 1)\n" + 
-		"	public class Custom extends Base implements SuperI {\n" + 
-		"	                            ^^^^\n" + 
-		"Parameter 1 of method testNN(String) lacks a @NonNull annotation as specified in type SuperI\n" + 
+		"----------\n" +
+		"1. ERROR in Custom.java (at line 1)\n" +
+		"	public class Custom extends Base implements SuperI {\n" +
+		"	                            ^^^^\n" +
+		"The method testNu(String) from Base cannot implement the corresponding method from SuperI due to incompatible nullness constraints\n" +
+		"----------\n" +
+		"2. WARNING in Custom.java (at line 1)\n" +
+		"	public class Custom extends Base implements SuperI {\n" +
+		"	                            ^^^^\n" +
+		"Parameter 1 of method testNN(String) lacks a @NonNull annotation as specified in type SuperI\n" +
 		"----------\n");
 }
 }

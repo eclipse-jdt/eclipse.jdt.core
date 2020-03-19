@@ -137,7 +137,7 @@ public final class StructDef<T> {
 
 			@Override
 			public boolean hasDestructor() {
-				return StructDef.this.hasUserDestructor || hasDestructableFields(); 
+				return StructDef.this.hasUserDestructor || hasDestructableFields();
 			}
 
 			@Override
@@ -170,7 +170,7 @@ public final class StructDef<T> {
 			public boolean isReadyForDeletion(Nd dom, long address) {
 				return StructDef.this.isReadyForDeletion(dom, address);
 			}
-			
+
 			@Override
 			public DeletionSemantics getDeletionSemantics() {
 				return StructDef.this.getDeletionSemantics();
@@ -251,7 +251,7 @@ public final class StructDef<T> {
 	}
 
 	protected boolean hasDestructableFields() {
-		return (!StructDef.this.destructableFields.isEmpty() || 
+		return (!StructDef.this.destructableFields.isEmpty() ||
 				(StructDef.this.superClass != null && StructDef.this.superClass.hasDestructableFields()));
 	}
 
@@ -369,7 +369,7 @@ public final class StructDef<T> {
 					+ "that uses " + this.superClass.deletionSemantics.toString() + " semantics");  //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
-		
+
 		this.offsetsComputed = true;
 
 		for (StructDef<? extends T> next : this.dependents) {

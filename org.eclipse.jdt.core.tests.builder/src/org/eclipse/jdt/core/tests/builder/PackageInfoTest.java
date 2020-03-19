@@ -140,7 +140,7 @@ public void test002() throws JavaModelException {
 	incrementalBuild(projectPath);
 	String javaVersion = System.getProperty("java.version");
 	if (javaVersion != null && JavaCore.compareJavaVersions(javaVersion, "9") >= 0) {
-		expectingProblemsFor(new Path("/Project/src/testcase/Main.java"), 
+		expectingProblemsFor(new Path("/Project/src/testcase/Main.java"),
 				"Problem : The method getPackage(String) from the type Package is deprecated [ resource : </Project/src/testcase/Main.java> range : <125,147> category : <110> severity : <1>]");
 	} else {
 		expectingNoProblems();
@@ -248,42 +248,42 @@ public void test258145() throws JavaModelException {
 		otherPackageInfoPath,
 		new Problem("my/foo/package-info.java", "The type package-info is already defined", otherPackageInfoPath, 0, 0, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323785 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323785
 // (NPE upon creation/deletion of package-info.java in default package)
 public void test323785 () throws JavaModelException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
-	
+	env.setOutputFolder(projectPath, "bin");
+
 	fullBuild(projectPath);
 
 	env.addFile(root, "package-info.java",	"");
 
 	incrementalBuild(projectPath);
 	expectingNoProblems();
-	
+
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323785
 // verify that changes to package info containing secondary types do trigger incremental build.
 public void test323785a () throws JavaModelException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
-	
+	env.setOutputFolder(projectPath, "bin");
+
 	IPath xJavaPath = env.addFile(root, "X.java",	"class X extends Y {}\n");
 	fullBuild(projectPath);
 	env.addFile(root, "package-info.java",	"class Y {}\n");
@@ -294,23 +294,23 @@ public void test323785a () throws JavaModelException {
 	expectingOnlySpecificProblemFor(
 			xJavaPath,
 			new Problem("X.java", "The type X cannot subclass the final class Y", xJavaPath, 16, 17, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR));
-	
+
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 // test missing default nullness annotation for a package without package-info
 // test when the package-info is added with the default annotation, the problem disappears
 public void testBug372012() throws JavaModelException, IOException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
+	env.setOutputFolder(projectPath, "bin");
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -335,11 +335,11 @@ public void testBug372012() throws JavaModelException, IOException {
 	IPath test1Path = env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
 	env.addClass(srcRoot, "p1", "Test3", test3Code);
-	
+
 	fullBuild(projectPath);
 	expectingNoProblemsFor(test1Path);
 	// should have only one marker
-	expectingProblemsFor(srcRoot, 
+	expectingProblemsFor(srcRoot,
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// add package-info.java with default annotation
@@ -358,16 +358,16 @@ public void testBug372012() throws JavaModelException, IOException {
 // test missing default nullness annotation for a package without package-info
 // test when the the default annotations are added to all top level types, the problem stays
 public void testBug372012a() throws JavaModelException, IOException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
+	env.setOutputFolder(projectPath, "bin");
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -387,11 +387,11 @@ public void testBug372012a() throws JavaModelException, IOException {
 
 	IPath test1Path = env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
-	
+
 	fullBuild(projectPath);
 	expectingNoProblemsFor(test1Path);
 	// should have only one marker
-	expectingProblemsFor(srcRoot, 
+	expectingProblemsFor(srcRoot,
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// add default annotation to Test1
@@ -406,7 +406,7 @@ public void testBug372012a() throws JavaModelException, IOException {
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 	incrementalBuild(projectPath);
 	// should have only one marker
-	expectingProblemsFor(srcRoot, 
+	expectingProblemsFor(srcRoot,
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// verify that all package CU's were recompiled
@@ -417,16 +417,16 @@ public void testBug372012a() throws JavaModelException, IOException {
 // test missing default nullness annotation for a package without package-info
 // test when the the default annotations is added to only 1 top level type, the problem stays
 public void testBug372012b() throws JavaModelException, IOException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
+	env.setOutputFolder(projectPath, "bin");
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -445,11 +445,11 @@ public void testBug372012b() throws JavaModelException, IOException {
 
 	IPath test1Path = env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
-	
+
 	fullBuild(projectPath);
 	expectingNoProblemsFor(test1Path);
 	// should have only one marker
-	expectingProblemsFor(srcRoot, 
+	expectingProblemsFor(srcRoot,
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// add default annotation to Test1
@@ -464,7 +464,7 @@ public void testBug372012b() throws JavaModelException, IOException {
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 	incrementalBuild(projectPath);
 	// should have only one marker
-	expectingProblemsFor(srcRoot, 
+	expectingProblemsFor(srcRoot,
 			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// verify that only Test1's CU's were recompiled
@@ -475,16 +475,16 @@ public void testBug372012b() throws JavaModelException, IOException {
 // test missing default nullness annotation for a package with package-info
 // test when the the default annotation is removed from package-info, the problem comes back
 public void testBug372012c() throws JavaModelException, IOException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
+	env.setOutputFolder(projectPath, "bin");
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -508,7 +508,7 @@ public void testBug372012c() throws JavaModelException, IOException {
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
 	env.addClass(srcRoot, "p1", "Test2", test2Code);
 	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
-	
+
 	fullBuild(projectPath);
 	// default annotation present, so no problem
 	expectingNoProblemsFor(srcRoot);
@@ -551,16 +551,16 @@ public void testBug367836() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374063
 // verify that markers are created on the correct resource
 public void testBug374063() throws JavaModelException, IOException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath srcRoot = env.addPackageFragmentRoot(projectPath, "src");
-	env.setOutputFolder(projectPath, "bin"); 
+	env.setOutputFolder(projectPath, "bin");
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -574,12 +574,12 @@ public void testBug374063() throws JavaModelException, IOException {
 		"}";
 
 	env.addClass(srcRoot, "p1", "Test1", test1Code);
-	
+
 	fullBuild(projectPath);
 	// resource for compile errors should be Test1 and not p1
-	expectingProblemsFor(projectPath, 
-			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]\n" + 
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+	expectingProblemsFor(projectPath,
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1> range : <8,10> category : <90> severity : <2>]\n" +
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
 			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
 
 	// add package-info.java with default annotation
@@ -588,7 +588,7 @@ public void testBug374063() throws JavaModelException, IOException {
 	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
 	incrementalBuild(projectPath);
 	expectingProblemsFor(projectPath,
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
 			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
 
 	// verify that all package CU's were recompiled
@@ -619,8 +619,8 @@ public void testBug382960() throws JavaModelException, IOException, CoreExceptio
 	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
 	fullBuild(projectPath);
 	expectingProblemsFor(projectPath,
-			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1/package-info.java> range : <8,10> category : <90> severity : <2>]\n" + 
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src/p1/package-info.java> range : <8,10> category : <90> severity : <2>]\n" +
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
 			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
 
 	packageInfoCode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
@@ -628,7 +628,7 @@ public void testBug382960() throws JavaModelException, IOException, CoreExceptio
 	env.addClass(srcRoot, "p1", "package-info", packageInfoCode);
 	incrementalBuild(projectPath);
 	expectingProblemsFor(projectPath,
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
 			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
 	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.package-info" });
 
@@ -638,26 +638,26 @@ public void testBug382960() throws JavaModelException, IOException, CoreExceptio
 
 	incrementalBuild(projectPath);
 	expectingProblemsFor(projectPath,
-			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" + 
+			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <130,134> category : <40> severity : <2>]\n" +
 			"Problem : List cannot be resolved to a type [ resource : </Project/src/p1/Test1.java> range : <58,62> category : <40> severity : <2>]");
 
 	// verify that only package-info was recompiled
 	expectingUniqueCompiledClasses(new String[] { "p1.package-info" });
 }
-// test that when a package-info.java has been created, markers on the 
+// test that when a package-info.java has been created, markers on the
 // package fragments in all source folders are removed.
 public void testBug525469() throws JavaModelException, IOException {
-	
-	IPath projectPath = env.addProject("Project", "1.5"); 
+
+	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
 
 	// remove old package fragment root so that names don't collide
-	env.removePackageFragmentRoot(projectPath, ""); 
+	env.removePackageFragmentRoot(projectPath, "");
 
 	IPath srcRoot1 = env.addPackageFragmentRoot(projectPath, "src1");
 	IPath srcRoot2 = env.addPackageFragmentRoot(projectPath, "src2");
-	env.setOutputFolder(projectPath, "bin"); 
+	env.setOutputFolder(projectPath, "bin");
 	// prepare the project:
 	setupProjectForNullAnnotations(projectPath);
 	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
@@ -672,33 +672,33 @@ public void testBug525469() throws JavaModelException, IOException {
 		"public class OtherClass {\n" +
 		"}";
 	env.addClass(srcRoot1, "p2", "OtherClass", otherClassCode);
-	
+
 	String packageInfoCode2 = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 		"package p2;\n";
 	env.addClass(srcRoot1, "p2", "package-info", packageInfoCode2);
 
 	fullBuild(projectPath);
-	
+
 	String test2Code = "package p1;\n"	+
 		"public class Test2 {\n" +
 		"}";
 
 	env.addClass(srcRoot2, "p1", "Test2", test2Code);
 	incrementalBuild(projectPath);
-	
+
 	// after the incremental build, as there is no package-info.java for p1, the error is visible in both source directories on the directory for the package p1
-	expectingProblemsFor(projectPath, 
-			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src1/p1> range : <8,10> category : <90> severity : <2>]\n" + 
-			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src2/p1> range : <8,10> category : <90> severity : <2>]"); 
+	expectingProblemsFor(projectPath,
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src1/p1> range : <8,10> category : <90> severity : <2>]\n" +
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src2/p1> range : <8,10> category : <90> severity : <2>]");
 
 	// add package-info.java with default annotation
 	String packageInfoCode1 = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 		"package p1;\n";
 	env.addClass(srcRoot1, "p1", "package-info", packageInfoCode1);
-	
+
 	// an incremental build is requested, but it will switch to a full build
 	incrementalBuild(projectPath);
-	
+
 	// verify the expected behaviour: the error marker in the src2 directory must be gone, too
 	expectingProblemsFor(projectPath,
 			"");

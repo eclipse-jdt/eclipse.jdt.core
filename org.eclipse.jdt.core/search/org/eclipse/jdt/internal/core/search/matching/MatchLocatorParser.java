@@ -614,7 +614,7 @@ protected void consumeReferenceExpression(ReferenceExpression referenceExpressio
 	} else if (referenceExpression.lhs instanceof QualifiedNameReference || referenceExpression.lhs instanceof QualifiedTypeReference) {
 		if ((this.patternFineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0) {
 			this.patternLocator.match(referenceExpression, this.nodeSet);
-		} 
+		}
 	}
 }
 

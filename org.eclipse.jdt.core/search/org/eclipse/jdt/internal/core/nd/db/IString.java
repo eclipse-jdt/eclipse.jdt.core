@@ -17,8 +17,8 @@ package org.eclipse.jdt.internal.core.nd.db;
 
 /**
  * Interface for strings stored in the database. There is more than one string
- * format. This interface hides that fact. 
- * 
+ * format. This interface hides that fact.
+ *
  * @author Doug Schaefer
  */
 public interface IString {
@@ -26,7 +26,7 @@ public interface IString {
 	 * Get the offset of this IString record in the Nd
 	 */
 	public long getRecord();
-	
+
 	// strcmp equivalents
 	/**
 	 * Compare this IString record and the specified IString record
@@ -39,7 +39,7 @@ public interface IString {
 	 * @throws IndexException
 	 */
 	public int compare(IString string, boolean caseSensitive) throws IndexException;
-	
+
 	/**
 	 * Compare this IString record and the specified String object
 	 * @param string
@@ -51,7 +51,7 @@ public interface IString {
 	 * @throws IndexException
 	 */
 	public int compare(String string, boolean caseSensitive) throws IndexException;
-	
+
 	/**
 	 * Compare this IString record and the specified character array
 	 * @param chars
@@ -87,7 +87,7 @@ public interface IString {
 	 * @throws IndexException
 	 */
 	public int compareCompatibleWithIgnoreCase(char[] chars) throws IndexException;
-	
+
 	/**
 	 * Compare this IString record and the specified character array
 	 * @param name the name to compare to
@@ -108,7 +108,7 @@ public interface IString {
 	 * @throws IndexException
 	 */
 	public char[] getChars() throws IndexException;
-	
+
 	/**
 	 * Get an equivalent String object to this IString record<p>
 	 * <b>N.B. This method can be expensive: compare and equals can be used for
@@ -117,7 +117,7 @@ public interface IString {
 	 * @throws IndexException
 	 */
 	public String getString() throws IndexException;
-	
+
 	/**
 	 * Free the associated record in the Nd
 	 * @throws IndexException

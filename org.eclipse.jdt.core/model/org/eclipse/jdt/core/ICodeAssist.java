@@ -87,7 +87,7 @@ public interface ICodeAssist {
  	 */
 	void codeComplete(int offset, CompletionRequestor requestor)
 		throws JavaModelException;
-	
+
 	/**
 	 * Performs code completion at the given offset position in this compilation unit,
 	 * reporting results to the given completion requestor. The <code>offset</code>
@@ -99,7 +99,7 @@ public interface ICodeAssist {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
-	 * 
+	 *
 	 * <pre>
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
@@ -188,7 +188,7 @@ public interface ICodeAssist {
 	 */
 	void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner)
 		throws JavaModelException;
-	
+
 	/**
 	 * Performs code completion at the given offset position in this compilation unit,
 	 * reporting results to the given completion requestor. The <code>offset</code>
@@ -207,7 +207,7 @@ public interface ICodeAssist {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
-	 * 
+	 *
 	 * <pre>
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms

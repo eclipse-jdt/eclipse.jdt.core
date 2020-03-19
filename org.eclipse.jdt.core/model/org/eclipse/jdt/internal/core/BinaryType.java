@@ -998,7 +998,7 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 	synchronized (projectInfo.javadocCache) {
 		cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);
 	}
-	
+
 	if (cachedJavadoc != null && cachedJavadoc != EMPTY_JAVADOC) {
 		return cachedJavadoc;
 	}

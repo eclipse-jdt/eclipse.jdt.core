@@ -146,7 +146,7 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
 		CompilationResult unitResult = new CompilationResult(sourceUnit, 1, 1, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = basicParser().dietParse(sourceUnit, unitResult);
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
-		this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // work done inside checkAndSetImports() 
+		this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // work done inside checkAndSetImports()
 	} else {
 		//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 		this.lookupEnvironment.problemReporter.abortDueToInternalError(
@@ -515,11 +515,11 @@ private void rememberAllTypes(CompilationUnitDeclaration parsedUnit, org.eclipse
 	}
 	if (!includeLocalTypes || (parsedUnit.localTypes == null && parsedUnit.functionalExpressions == null))
 		return;
-	
+
 	HandleFactory factory = new HandleFactory();
 	HashSet existingElements = new HashSet(parsedUnit.localTypeCount + parsedUnit.functionalExpressionsCount);
 	HashMap knownScopes = new HashMap(parsedUnit.localTypeCount + parsedUnit.functionalExpressionsCount);
-	
+
 	if (parsedUnit.localTypes != null) {
 		for (int i = 0; i < parsedUnit.localTypeCount; i++) {
 			LocalTypeBinding localType = parsedUnit.localTypes[i];
@@ -584,7 +584,7 @@ private void reportHierarchy(IType focus, TypeDeclaration focusLocalType, Refere
 	for (int current = this.typeIndex; current >= 0; current--) {
 		if (progressMonitor != null && progressMonitor.isCanceled())
 			throw new OperationCanceledException();
-		
+
 		ReferenceBinding typeBinding = this.typeBindings[current];
 
 		// java.lang.Object treated at the end
@@ -757,10 +757,10 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 							flags,
 							this.lookupEnvironment.problemReporter,
 							result);
-					
-					// We would have got all the necessary local types by now and hence there is no further need 
-					// to parse the method bodies. Parser.getMethodBodies, which is called latter in this function, 
-					// will not parse the method statements if ASTNode.HasAllMethodBodies is set. 
+
+					// We would have got all the necessary local types by now and hence there is no further need
+					// to parse the method bodies. Parser.getMethodBodies, which is called latter in this function,
+					// will not parse the method statements if ASTNode.HasAllMethodBodies is set.
 					if (containsLocalType && parsedUnit != null) parsedUnit.bits |= ASTNode.HasAllMethodBodies;
 				} else {
 					// create parsed unit from file

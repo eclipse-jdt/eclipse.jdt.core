@@ -95,7 +95,7 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public ITypeBinding getBound();
-	
+
 	/**
 	 * Returns the generic type associated with this wildcard type, if it has one.
 	 * Returns <code>null</code> if this is not a wildcard type.
@@ -116,7 +116,7 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.5
 	 */
 	public int getRank();
-	
+
 	/**
 	 * Returns the binding representing the component type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The component
@@ -285,14 +285,14 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * <p>The module of a recovered type reference binding is the module
 	 * associated with the package returned by {@link #getPackage()} ie either
-	 * the module associated with the package of the enclosing type, or, 
-	 * if the type name is the name of a {@linkplain AST#resolveWellKnownType(String) 
-	 * well-known type},  the module associated with the package of the matching 
+	 * the module associated with the package of the enclosing type, or,
+	 * if the type name is the name of a {@linkplain AST#resolveWellKnownType(String)
+	 * well-known type},  the module associated with the package of the matching
 	 * well-known type.</p>
 	 *
 	 * @return the binding of the module associated with the package
-	 * in which this class, interface, enum, or annotation type is declared, 
-	 * or <code>null</code> if this type binding represents a primitive type, an array type, 
+	 * in which this class, interface, enum, or annotation type is declared,
+	 * or <code>null</code> if this type binding represents a primitive type, an array type,
 	 * the null type, a type variable, a wildcard type or a capture binding.
 	 *
 	 * @since 3.14
@@ -313,9 +313,9 @@ public interface ITypeBinding extends IBinding {
 	 * Returns the binding representing the element type of this array type,
 	 * or <code>null</code> if this is not an array type binding. The element
 	 * type of an array type is never itself an array type.
-	 * 
+	 *
 	 * To get the type annotations on dimensions, clients should repeatedly
-	 *  call getComponentType() and get the type annotations from there. 
+	 *  call getComponentType() and get the type annotations from there.
 	 *
 	 * @return the element type binding, or <code>null</code> if this is
 	 *   not an array type
@@ -349,17 +349,17 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public ITypeBinding getErasure();
-	
+
 	/**
-	 * Returns the single abstract method that constitutes the single function 
-	 * contract (aside from any redeclarations of methods of <code>java.lang.Object</code>) 
-	 * of the receiver interface type or <code>null</code> if there is no such contract or if the receiver 
+	 * Returns the single abstract method that constitutes the single function
+	 * contract (aside from any redeclarations of methods of <code>java.lang.Object</code>)
+	 * of the receiver interface type or <code>null</code> if there is no such contract or if the receiver
 	 * is not an interface.
 	 * <p>
 	 * The returned method binding may be synthetic and its {@link #getDeclaringClass() declaring type}
 	 * may be a super interface type of this type binding.
 	 * </p>
-	 * 
+	 *
 	 * @return the single abstract method that represents the single function contract, or
 	 * <code>null</code> if the receiver is not a functional interface type
 	 *
@@ -570,19 +570,19 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding getSuperclass();
 
 	/**
-	 * Returns the type annotations that this type reference is annotated with. Since JLS8, 
-	 * multiple instances of type bindings may be created if they are annotated with 
+	 * Returns the type annotations that this type reference is annotated with. Since JLS8,
+	 * multiple instances of type bindings may be created if they are annotated with
 	 * different type use annotations.
 	 * <p>
-	 * For example, the following three type references would produce three distinct type 
+	 * For example, the following three type references would produce three distinct type
 	 * bindings for java.lang.String that share the same key:
 	 * <ul>
 	 * <li>java.lang.@Marker1 String</li>
 	 * <li>java.lang.@Marker2 String</li>
 	 * <li>java.lang.String</li>
 	 * </ul>
-	 * To get the type annotations on dimensions, clients should repeatedly call 
-	 * {@link #getComponentType()} and get the type annotations from there. 
+	 * To get the type annotations on dimensions, clients should repeatedly call
+	 * {@link #getComponentType()} and get the type annotations from there.
 
 	 * @return type annotations specified on this type reference, or an empty array if
 	 * no type use annotations are found.
@@ -615,7 +615,7 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding[] getTypeArguments();
 
 	/**
-	 * Returns the upper type bounds of this type variable, wildcard, capture, or intersectionType. 
+	 * Returns the upper type bounds of this type variable, wildcard, capture, or intersectionType.
 	 * If the variable, wildcard, or capture had no explicit bound, then it returns an empty list.
      * <p>
      * Note that per construction, it can only contain one class or array type,
@@ -863,8 +863,8 @@ public interface ITypeBinding extends IBinding {
 	 * Returns whether this type binding represents an intersection binding.
 	 * <p>
 	 * Intersection types can be derived from type parameter bounds and cast
-	 * expressions; they also arise in the processes of capture conversion 
-	 * and least upper bound computation as specified in section 4.9 of 
+	 * expressions; they also arise in the processes of capture conversion
+	 * and least upper bound computation as specified in section 4.9 of
 	 * <em>The Java Language Specification, Java SE 8 Edition</em> (JLS8).
 	 * </p>
 	 * <p>
@@ -888,11 +888,11 @@ public interface ITypeBinding extends IBinding {
 	 * of another class or interface. A local class is a subspecies of nested
 	 * type, and mutually exclusive with member types. For anonymous
 	 * classes, which are considered a subspecies of local classes, this method
-	 * returns true. 
+	 * returns true.
 	 * </p>
 	 * <p>
-	 * Note: This deviates from JLS3 14.3, which states that anonymous types are 
-	 * not local types since they do not have a name. Also note that interfaces 
+	 * Note: This deviates from JLS3 14.3, which states that anonymous types are
+	 * not local types since they do not have a name. Also note that interfaces
 	 * and annotation types cannot be local.
 	 * </p>
 	 *
@@ -1087,5 +1087,5 @@ public interface ITypeBinding extends IBinding {
 	 * @see #isUpperbound()
 	 */
 	public boolean isWildcardType();
-	
+
 }

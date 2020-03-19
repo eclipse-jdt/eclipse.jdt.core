@@ -98,7 +98,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 
 			if (jfo == null)
 				return null; // most common case
-	
+
 			try (InputStream inputStream = jfo.openInputStream()) {
 				ClassFileReader reader = ClassFileReader.read(inputStream, qualifiedBinaryFileName);
 				if (reader != null) {
@@ -165,7 +165,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public void acceptModule(IModule mod) {
 		// do nothing
 	}
-	
+
 	@Override
 	public char[][] getModulesDeclaringPackage(String aQualifiedPackageName, String moduleName) {
 		if (this.jrt != null) {
@@ -196,7 +196,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 		}
 		return singletonModuleNameIf(result);
 	}
-	
+
 	@Override
 	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
 		if (this.jrt != null)
@@ -242,7 +242,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public int getMode() {
 		return BINARY;
 	}
-	
+
 	@Override
 	public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 		return false;

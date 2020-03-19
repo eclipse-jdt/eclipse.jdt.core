@@ -31,8 +31,8 @@ import org.osgi.framework.Bundle;
 /**
  * Ensure that the apt.pluggable code is getting loaded, the test environment is as expected,
  * and the test utilities themselves are working.
- * Keeping these "infrastructure" tests separate from the "real" tests helps avoid confusion when 
- * the real tests fail. 
+ * Keeping these "infrastructure" tests separate from the "real" tests helps avoid confusion when
+ * the real tests fail.
  */
 public class InfrastructureTests extends TestBase
 {
@@ -43,7 +43,7 @@ public class InfrastructureTests extends TestBase
 	public static Test suite() {
 		return new TestSuite(InfrastructureTests.class);
 	}
-	
+
 	/**
 	 * Test that the apt.pluggable.core plug-in is present.  Obviously since this test plug-in
 	 * depends on it, this test will never fail; it will either succeed or not run at all.
@@ -53,7 +53,7 @@ public class InfrastructureTests extends TestBase
 		Bundle bundle = Platform.getBundle("org.eclipse.jdt.apt.pluggable.core");
 		assertNotNull("Couldn't get org.eclipse.jdt.apt.pluggable.core bundle", bundle);
 	}
-	
+
 	/**
 	 * Can we create a Java 1.6 test project populated with resources from this plug-in?
 	 * If not, there is not much point in testing the rest of annotation processing.

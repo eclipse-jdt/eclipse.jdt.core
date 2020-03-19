@@ -41,7 +41,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 
 	// lookup the null label, this should answer the returnContext - for implicit yields, the nesting
-	// doesn't occur since it immediately follow '->' and hence identical to default break - ie the 
+	// doesn't occur since it immediately follow '->' and hence identical to default break - ie the
 	// immediate breakable context is guaranteed to be the one intended;
 	// while explicit yield should move up the parent to the switch expression.
 	FlowContext targetContext = this.isImplicit ? flowContext.getTargetContextForDefaultBreak() :
@@ -124,7 +124,7 @@ public void resolve(BlockScope scope) {
 	if (this.expression == null) {
 		//currentScope.problemReporter().switchExpressionYieldMissingExpression(this);
 		return;
-		
+
 	}
 	if (this.switchExpression != null || this.isImplicit) {
 		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {

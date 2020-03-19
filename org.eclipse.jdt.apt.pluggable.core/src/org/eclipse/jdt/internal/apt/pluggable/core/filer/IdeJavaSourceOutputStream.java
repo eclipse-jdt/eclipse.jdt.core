@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
@@ -37,9 +37,9 @@ public class IdeJavaSourceOutputStream extends ByteArrayOutputStream {
 	private final CharSequence _name;
 	private final Collection<IFile> _parentFiles;
 	private boolean _closed = false;
-	
+
 	public IdeJavaSourceOutputStream(IdeProcessingEnvImpl env, CharSequence name,
-			Collection<IFile> parentFiles) 
+			Collection<IFile> parentFiles)
 	{
 		_env = env;
 		_name = name;
@@ -68,8 +68,8 @@ public class IdeJavaSourceOutputStream extends ByteArrayOutputStream {
 			}
 			else if ( phase == Phase.BUILD)	{
 				String charset = _env.getJavaProject().getProject().getDefaultCharset();
-				result = gfm.generateFileDuringBuild( 
-						_parentFiles,  _name.toString(), charset == null ? this.toString() : this.toString(charset), 
+				result = gfm.generateFileDuringBuild(
+						_parentFiles,  _name.toString(), charset == null ? this.toString() : this.toString(charset),
 						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );
 			}
 			if (result != null) {

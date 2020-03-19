@@ -62,10 +62,10 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		if (perWorkingCopyInfo == null) {
 			// close cu and its children
 			close();
-	
+
 			BecomeWorkingCopyOperation operation = new BecomeWorkingCopyOperation(workingCopy, problemRequestor);
 			operation.runOperation(monitor);
-	
+
 			return workingCopy;
 		}
 		return perWorkingCopyInfo.workingCopy;
@@ -109,7 +109,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	}
 	@Override
 	public abstract void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException;
-	
+
 	/**
 	 * @see ICodeAssist#codeSelect(int, int)
 	 */
@@ -119,7 +119,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	}
 	@Override
 	public abstract IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner) throws JavaModelException;
-	
+
 	/**
 	 * Returns a new element info for this element.
 	 */
@@ -133,7 +133,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		AbstractClassFile other = (AbstractClassFile) o;
 		return this.name.equals(other.name) && this.parent.equals(other.parent);
 	}
-	
+
 	/**
 	 * Finds the deepest <code>IJavaElement</code> in the hierarchy of
 	 * <code>elt</elt>'s children (including <code>elt</code> itself)
@@ -160,7 +160,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		}
 		return elt;
 	}
-	
+
 	@Override
 	public byte[] getBytes() throws JavaModelException {
 		JavaElement pkg = (JavaElement) getParent();
@@ -213,7 +213,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 			throw new OperationCanceledException();
 		return contents;
 	}
-	
+
 	@Override
 	public IBuffer getBuffer() throws JavaModelException {
 		IStatus status = validateClassFile();
@@ -235,7 +235,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	public ITypeRoot getTypeRoot() {
 		return this;
 	}
-	
+
 	/**
 	 * A class file has a corresponding resource unless it is contained
 	 * in a jar.
@@ -260,7 +260,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		} else {
 			int index = this.name.indexOf('$');
 			int prefixLength = index < 0 ? this.name.length() : index;
-	
+
 			IType type = null;
 			int start = -1;
 			int end = Integer.MAX_VALUE;
@@ -269,14 +269,14 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 				if (children[i] instanceof IOrdinaryClassFile) {
 					IOrdinaryClassFile classFile = (IOrdinaryClassFile) children[i];
 					String childName = classFile.getElementName();
-		
+
 					int childIndex = childName.indexOf('$');
 					int childPrefixLength = childIndex < 0 ? childName.indexOf('.') : childIndex;
 					if (prefixLength == childPrefixLength && this.name.regionMatches(0, childName, 0, prefixLength)) {
-		
+
 						// ensure this class file's buffer is open so that source ranges are computed
 						classFile.getBuffer();
-		
+
 						SourceRange range = mapper.getSourceRange(classFile.getType());
 						if (range == SourceMapper.UNKNOWN_RANGE) continue;
 						int newStart = range.getOffset();
@@ -320,7 +320,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 			return getParent().getPath().append(getElementName());
 		}
 	}
-	
+
 	/*
 	 * @see IJavaElement
 	 */
@@ -391,7 +391,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		IJavaProject project = getJavaProject();
 		return JavaConventions.validateClassFileName(getElementName(), project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 	}
-	
+
 
 	/**
 	 * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
@@ -467,7 +467,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 				}
 			});
 	}
-	
+
 	@Override
 	protected IStatus validateExistence(IResource underlyingResource) {
 		// check whether the class file can be opened
@@ -484,7 +484,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}
-	
+
 	@Override
 	public ISourceRange getNameRange() {
 		return null;

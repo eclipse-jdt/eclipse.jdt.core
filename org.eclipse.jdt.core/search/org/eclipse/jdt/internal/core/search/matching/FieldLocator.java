@@ -336,7 +336,7 @@ public int resolveLevel(Binding binding) {
 		// for matching the component in constructor of a record
 		if ( ((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof CompactConstructorDeclaration) {
 			return matchLocal((LocalVariableBinding) binding, true);
-		}	
+		}
 	}
 	if (!(binding instanceof FieldBinding)) return IMPOSSIBLE_MATCH;
 

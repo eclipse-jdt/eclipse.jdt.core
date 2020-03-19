@@ -77,7 +77,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 					"	private MyEnum(final int finalIntValue) { this.var = finalIntValue; }\n" +
 					"	int var;\n" +
 					"}\n";
-	
+
 	public static final String TEST_METHOD_PARAMETERS_TYPE3_PKG = "p";
 	public static final String TEST_METHOD_PARAMETERS_TYPE3_CLASS = "Foo";
 	public static final String TEST_METHOD_PARAMETERS_TYPE3_SOURCE =
@@ -180,7 +180,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 			ProcessorTestStatus.fail("Method doStuff() was not found");
 		}
 		if (mDoStuff.getKind() != ElementKind.METHOD) {
-			ProcessorTestStatus.fail("ElementKind of method doStuff() was " + mDoStuff.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of method doStuff() was " + mDoStuff.getKind() +
 					", expected METHOD");
 		}
 		// Examine parameters
@@ -196,7 +196,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 		// Cool, now check 'p.Bar.otherStuff' which is also the return type of doStuff
 		TypeMirror returnType = mDoStuff.getReturnType();
 		if (returnType.getKind() != TypeKind.DECLARED)
-			ProcessorTestStatus.fail("TypeKind of method doStuff()'s return type " + returnType.getKind() + 
+			ProcessorTestStatus.fail("TypeKind of method doStuff()'s return type " + returnType.getKind() +
 					", expected DECLARED");
 
 		DeclaredType barType = (DeclaredType) returnType;
@@ -212,7 +212,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 			ProcessorTestStatus.fail("Method otherStuff() was not found");
 		}
 		if (mOtherStuff.getKind() != ElementKind.METHOD) {
-			ProcessorTestStatus.fail("ElementKind of method otherStuff() was " + mOtherStuff.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of method otherStuff() was " + mOtherStuff.getKind() +
 					", expected METHOD");
 		}
 		// Examine parameters
@@ -231,14 +231,14 @@ public class ModelTester8Proc extends AbstractProcessor {
 			ProcessorTestStatus.fail("Method guess() was not found");
 		}
 		if (mGuess.getKind() != ElementKind.METHOD) {
-			ProcessorTestStatus.fail("ElementKind of method doStuff() was " + mGuess.getKind() + 
+			ProcessorTestStatus.fail("ElementKind of method doStuff() was " + mGuess.getKind() +
 					", expected METHOD");
 		}
 
 		// Cool, now check 'p.Bar.otherStuff' which is also the return type of doStuff
 		TypeMirror guessReturnType = mGuess.getReturnType();
 		if (guessReturnType.getKind() != TypeKind.DECLARED)
-			ProcessorTestStatus.fail("TypeKind of method guess()'s return type " + guessReturnType.getKind() + 
+			ProcessorTestStatus.fail("TypeKind of method guess()'s return type " + guessReturnType.getKind() +
 					", expected DECLARED");
 
 		DeclaredType myEnumType = (DeclaredType) guessReturnType;

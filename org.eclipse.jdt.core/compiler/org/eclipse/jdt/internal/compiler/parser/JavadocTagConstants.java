@@ -334,8 +334,8 @@ public interface JavadocTagConstants {
 		TAG_INDEX,
 		TAG_HIDDEN,
 		TAG_SUMMARY,
-		TAG_API_NOTE, 
-		TAG_IMPL_SPEC, 
+		TAG_API_NOTE,
+		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
 	};
 	public static final char[][] METHOD_TAGS = {

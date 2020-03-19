@@ -206,16 +206,16 @@ public class SearchEngine {
 	 * <p>
 	 * By default, hierarchy scopes include all direct and indirect supertypes and subtypes of the
 	 * focus type. This method, however, allows to restrict the hierarchy to true subtypes,
-	 * and exclude supertypes. Also, inclusion of the focus type itself is controlled by a parameter. 
+	 * and exclude supertypes. Also, inclusion of the focus type itself is controlled by a parameter.
 	 * </p>
-	 * 
+	 *
 	 * @param project the project to which to constrain the search, or <code>null</code> if
-	 *        search should consider all types in the workspace 
+	 *        search should consider all types in the workspace
 	 * @param type the focus of the hierarchy scope
 	 * @param onlySubtypes if <code>true</code> only subtypes of <code>type</code> are considered
-	 * @param includeFocusType if true the focus type <code>type</code> is included in the resulting scope, 
+	 * @param includeFocusType if true the focus type <code>type</code> is included in the resulting scope,
 	 * 		  otherwise it is excluded
-	 * @param owner the owner of working copies that take precedence over original compilation units, 
+	 * @param owner the owner of working copies that take precedence over original compilation units,
 	 *        or <code>null</code> if the primary working copy owner should be used
 	 * @return a new hierarchy scope
 	 * @exception JavaModelException if the hierarchy could not be computed on the given type
@@ -507,8 +507,8 @@ public class SearchEngine {
 	/**
 	 * Create a method name match on a given method with specific modifiers.
 	 * <p>
-	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases. 
-	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if 
+	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases.
+	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if
 	 * anyone plans to use this.
 	 * </p>
 	 * @param method The Java model handle of the method
@@ -674,11 +674,11 @@ public class SearchEngine {
 	 * Searches for all method declarations in the given scope. Accepted matches will be returned by
 	 * {@link MethodNameRequestor#acceptMethod}.
 	 * <p>
-	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases. 
-	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if 
+	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases.
+	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if
 	 * anyone plans to use this.
 	 * </p>
-	 * 
+	 *
 	 * @param packageName the full name of the package of the searched types, or a prefix for this
 	 *						package, or a wild-carded string for this package.
 	 *						May be <code>null</code>, then any package name is accepted.
@@ -702,7 +702,7 @@ public class SearchEngine {
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
 	 *							monitor is provided
 	 * @exception JavaModelException if the search failed.
-	 * 
+	 *
 	 * @since 3.12
 	 */
 	public void searchAllMethodNames(
@@ -720,27 +720,27 @@ public class SearchEngine {
 			IProgressMonitor progressMonitor)  throws JavaModelException {
 		MethodNameRequestorWrapper requestorWrapper = new MethodNameRequestorWrapper(nameRequestor);
 		this.basicEngine.searchAllMethodNames(
-				packageName, pkgMatchRule, 
-				declaringQualification, declQualificationMatchRule, 
-				declaringSimpleName, declSimpleNameMatchRule, 
-				methodName, methodMatchRule, 
-				scope, requestorWrapper, 
+				packageName, pkgMatchRule,
+				declaringQualification, declQualificationMatchRule,
+				declaringSimpleName, declSimpleNameMatchRule,
+				methodName, methodMatchRule,
+				scope, requestorWrapper,
 				waitingPolicy, progressMonitor);
 	}
 
 	/**
-	 * Searches for all method declarations in the given scope. 
+	 * Searches for all method declarations in the given scope.
 	 * <p>
 	 * Provided {@link MethodNameMatchRequestor} requestor will collect the {@link MethodNameMatch}
 	 * matches found during the search.
 
 	 * </p>
 	 * <p>
-	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases. 
-	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if 
+	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases.
+	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if
 	 * anyone plans to use this.
 	 * </p>
-	 * 
+	 *
 	 * @param packageName the full name of the package of the searched types, or a prefix for this
 	 *						package, or a wild-carded string for this package.
 	 *						May be <code>null</code>, then any package name is accepted.
@@ -764,7 +764,7 @@ public class SearchEngine {
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
 	 *							monitor is provided
 	 * @exception JavaModelException if the search failed.
-	 * 
+	 *
 	 * @since 3.12
 	 */
 	public void searchAllMethodNames(
@@ -786,7 +786,7 @@ public class SearchEngine {
 				declaringQualification, declQualificationMatchRule,
 				declaringSimpleName, declSimpleNameMatchRule,
 				methodName, methodMatchRule,
-				scope, requestorWrapper, 
+				scope, requestorWrapper,
 				waitingPolicy, progressMonitor);
 	}
 
@@ -794,11 +794,11 @@ public class SearchEngine {
 	 * Searches for all method declarations in the given scope. Accepted matches will be returned by
 	 * {@link MethodNameRequestor#acceptMethod}.
 	 * <p>
-	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases. 
-	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if 
+	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases.
+	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if
 	 * anyone plans to use this.
 	 * </p>
-	 * 
+	 *
 	 * @param qualifier qualifier including package name and qualified type name
 	 *	May be <code>null</code>, then any qualifier name is accepted.
 	 * @param qualifierMatchRule match rule for the qualifier and can be one of
@@ -812,7 +812,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the package name and types are
 	 *			camel case of the package and type of searched methods.</li>
 	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
-	 *			if the package name and type names are camel case with same part count of the 
+	 *			if the package name and type names are camel case with same part count of the
 	 *			package and types of searched methods.</li>
 	 * </ul>
 	 * @param methodName the method name searched for.
@@ -822,7 +822,7 @@ public class SearchEngine {
 	 *			is exact.</li>
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if method
 	 *			name is prefix of the names of the searched methods.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the method name 
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the method name
 	 *			contains wild-cards.</li>
 	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the method name is a
 	 *			camel case of the searched method name.</li>
@@ -843,7 +843,7 @@ public class SearchEngine {
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
 	 *							monitor is provided
 	 * @exception JavaModelException if the search failed.
-	 * 
+	 *
 	 * @since 3.12
 	 */
 	public void searchAllMethodNames(
@@ -857,24 +857,24 @@ public class SearchEngine {
 			IProgressMonitor progressMonitor)  throws JavaModelException {
 		MethodNameRequestorWrapper requestorWrapper = new MethodNameRequestorWrapper(nameRequestor);
 		this.basicEngine.searchAllMethodNames(
-				qualifier, qualifierMatchRule, 
-				methodName, methodMatchRule, 
-				scope, requestorWrapper, 
+				qualifier, qualifierMatchRule,
+				methodName, methodMatchRule,
+				scope, requestorWrapper,
 				waitingPolicy, progressMonitor);
 	}
 
 	/**
-	 * Searches for all method declarations in the given scope. 
+	 * Searches for all method declarations in the given scope.
 	 * <p>
 	 * Provided {@link MethodNameMatchRequestor} requestor will collect the {@link MethodNameMatch}
 	 * matches found during the search.
 	 * </p>
 	 * <p>
-	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases. 
-	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if 
+	 * NOTE: this is a first-cut version and might have noticeable delay times in some cases.
+	 * Targeted for optimization during 4.7. It is recommended to contact JDT Team if
 	 * anyone plans to use this.
 	 * </p>
-	 * 
+	 *
 	 * @param qualifier qualifier including package name and qualified type name
 	 *	May be <code>null</code>, then any qualifier name is accepted.
 	 * @param qualifierMatchRule match rule for the qualifier and can be one of
@@ -888,7 +888,7 @@ public class SearchEngine {
 	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the package name and types are
 	 *			camel case of the package and type of searched methods.</li>
 	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
-	 *			if the package name and type names are camel case with same part count of the 
+	 *			if the package name and type names are camel case with same part count of the
 	 *			package and types of searched methods.</li>
 	 * </ul>
 	 * @param methodName the method name searched for.
@@ -898,7 +898,7 @@ public class SearchEngine {
 	 *			is exact.</li>
 	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if method
 	 *			name is prefix of the names of the searched methods.</li>
-	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the method name 
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the method name
 	 *			contains wild-cards.</li>
 	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the method name is a
 	 *			camel case of the searched method name.</li>
@@ -919,7 +919,7 @@ public class SearchEngine {
 	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
 	 *							monitor is provided
 	 * @exception JavaModelException if the search failed.
-	 * 
+	 *
 	 * @since 3.12
 	 */
 	public void searchAllMethodNames(
@@ -935,7 +935,7 @@ public class SearchEngine {
 		this.basicEngine.searchAllMethodNames(
 				qualifier, qualifierMatchRule,
 				methodName, methodMatchRule,
-				scope, requestorWrapper, 
+				scope, requestorWrapper,
 				waitingPolicy, progressMonitor);
 	}
 	/**

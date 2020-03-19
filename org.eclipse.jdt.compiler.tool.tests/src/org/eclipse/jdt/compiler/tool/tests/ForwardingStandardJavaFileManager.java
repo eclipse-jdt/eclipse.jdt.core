@@ -59,7 +59,7 @@ class ForwardingStandardJavaFileManager<T extends StandardJavaFileManager> exten
 	@Override
 	public void setLocation(Location location, Iterable<? extends File> path)
 			throws IOException {
-		this.fileManager.setLocation(location, path);		
+		this.fileManager.setLocation(location, path);
 	}
 
 	@Override

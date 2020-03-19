@@ -42,7 +42,7 @@ public class ReconcilerTests9 extends ModifyingResourceTests {
 
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
-	
+
 	/*package*/ static final int JLS_LATEST = AST.JLS13;
 
 /**
@@ -287,11 +287,11 @@ public void testTerminalDeprecation1() throws CoreException {
 	try {
 		createJava9Project("P1");
 		createFolder("/P1/src/p");
-		createFile("/P1/src/p/X1.java", 
+		createFile("/P1/src/p/X1.java",
 				"package p;\n" +
 				"@Deprecated(forRemoval=true)\n" +
 				"public class X1 {}");
-		createFile("/P1/src/p/X2.java", 
+		createFile("/P1/src/p/X2.java",
 				"package p;\n" +
 				"public class X2 {\n" +
 				"   @Deprecated(forRemoval=true)\n" +
@@ -309,21 +309,21 @@ public void testTerminalDeprecation1() throws CoreException {
 				"}\n");
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /P1/src/Y.java (at line 1)\n" + 
-			"	public class Y extends p.X1 {\n" + 
-			"	                         ^^\n" + 
-			"The type X1 has been deprecated and marked for removal\n" + 
-			"----------\n" + 
-			"2. WARNING in /P1/src/Y.java (at line 3)\n" + 
-			"	x2.m();\n" + 
-			"	   ^^^\n" + 
-			"The method m() from the type X2 has been deprecated and marked for removal\n" + 
-			"----------\n" + 
-			"3. WARNING in /P1/src/Y.java (at line 4)\n" + 
-			"	return x2.field;\n" + 
-			"	          ^^^^^\n" + 
-			"The field X2.field has been deprecated and marked for removal\n" + 
+			"----------\n" +
+			"1. WARNING in /P1/src/Y.java (at line 1)\n" +
+			"	public class Y extends p.X1 {\n" +
+			"	                         ^^\n" +
+			"The type X1 has been deprecated and marked for removal\n" +
+			"----------\n" +
+			"2. WARNING in /P1/src/Y.java (at line 3)\n" +
+			"	x2.m();\n" +
+			"	   ^^^\n" +
+			"The method m() from the type X2 has been deprecated and marked for removal\n" +
+			"----------\n" +
+			"3. WARNING in /P1/src/Y.java (at line 4)\n" +
+			"	return x2.field;\n" +
+			"	          ^^^^^\n" +
+			"The field X2.field has been deprecated and marked for removal\n" +
 			"----------\n"
 		);
 	} finally {
@@ -378,26 +378,26 @@ public void testTerminalDeprecation2() throws CoreException, IOException {
 				"}\n");
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /P1/src/Y.java (at line 1)\n" + 
-			"	public class Y extends p.X1 {\n" + 
-			"	                         ^^\n" + 
+			"----------\n" +
+			"1. WARNING in /P1/src/Y.java (at line 1)\n" +
+			"	public class Y extends p.X1 {\n" +
+			"	                         ^^\n" +
 			deprecatedForRemoval("The type X1") +
-			"----------\n" + 
-			"2. WARNING in /P1/src/Y.java (at line 3)\n" + 
-			"	x2.m();\n" + 
-			"	   ^^^\n" + 
-			deprecatedForRemoval("The method m() from the type X2") + 
-			"----------\n" + 
-			"3. WARNING in /P1/src/Y.java (at line 4)\n" + 
-			"	x2.m2();\n" + 
-			"	   ^^^^\n" + 
-			"The method m2() from the type X2 is deprecated\n" + 
-			"----------\n" + 
-			"4. WARNING in /P1/src/Y.java (at line 5)\n" + 
-			"	return x2.field;\n" + 
-			"	          ^^^^^\n" + 
-			deprecatedForRemoval("The field X2.field") + 
+			"----------\n" +
+			"2. WARNING in /P1/src/Y.java (at line 3)\n" +
+			"	x2.m();\n" +
+			"	   ^^^\n" +
+			deprecatedForRemoval("The method m() from the type X2") +
+			"----------\n" +
+			"3. WARNING in /P1/src/Y.java (at line 4)\n" +
+			"	x2.m2();\n" +
+			"	   ^^^^\n" +
+			"The method m2() from the type X2 is deprecated\n" +
+			"----------\n" +
+			"4. WARNING in /P1/src/Y.java (at line 5)\n" +
+			"	return x2.field;\n" +
+			"	          ^^^^^\n" +
+			deprecatedForRemoval("The field X2.field") +
 			"----------\n");
 	} finally {
 		deleteProject("P1");
@@ -419,12 +419,12 @@ public void testBug540541() throws CoreException, IOException {
 					"package java.lang;\n" +
 					"public class Object {\n" +
 					"}\n");
-		
+
 		project1.setRawClasspath(new IClasspathEntry[] {JavaCore.newSourceEntry(new Path("/java.base/src"))}, null);
 		project1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IMarker[] markers = project1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 		assertMarkers("Unexpected markers on java.base", "", markers);
-		
+
 		project2 = createJava9Project("client", "9");
 		IClasspathAttribute[] attributes = new IClasspathAttribute[] { JavaCore.newClasspathAttribute("module", "true") };
 		IClasspathEntry projectEntry = JavaCore.newProjectEntry(project1.getPath(), null, false, attributes, false);
@@ -438,10 +438,10 @@ public void testBug540541() throws CoreException, IOException {
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
-						"----------\n" + 
+						"----------\n" +
 						"----------\n",
 						this.problemRequestor);
-		
+
 		markers = project2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 		assertMarkers("Unexpected markers on client", "", markers);
 	} finally {
@@ -503,7 +503,7 @@ public void testBug543092() throws Exception {
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
-						"----------\n" + 
+						"----------\n" +
 						"----------\n",
 						this.problemRequestor);
 
@@ -562,11 +562,11 @@ public void testBug543092b() throws Exception {
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
-						"----------\n" + 
-						"1. ERROR in /p/src/test/Test.java (at line 3)\n" + 
-						"	lib.lab.Lib lob;\n" + 
-						"	^^^^^^^\n" + 
-						"The package lib.lab is accessible from more than one module: <unnamed>, lib\n" + 
+						"----------\n" +
+						"1. ERROR in /p/src/test/Test.java (at line 3)\n" +
+						"	lib.lab.Lib lob;\n" +
+						"	^^^^^^^\n" +
+						"The package lib.lab is accessible from more than one module: <unnamed>, lib\n" +
 						"----------\n",
 						this.problemRequestor);
 	} finally {
@@ -584,51 +584,51 @@ public void testBug544017() throws CoreException {
 	try {
 		createFolder("testb/src/com/example/sub/b");
 		createFile("testb/src/com/example/sub/b/B.java",
-				"package com.example.sub.b;\n" + 
-				"public class B {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(\"B\");\n" + 
-				"	}\n" + 
+				"package com.example.sub.b;\n" +
+				"public class B {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"B\");\n" +
+				"	}\n" +
 				"}\n");
 		createFile("testb/src/module-info.java",
-				"open module com.example.sub.b {\n" + 
-				"	exports com.example.sub.b;\n" + 
+				"open module com.example.sub.b {\n" +
+				"	exports com.example.sub.b;\n" +
 				"}\n");
 
 		addModularProjectEntry(testa, testb);
 		createFolder("testa/src/com/example/sub/a");
 		createFile("testa/src/com/example/sub/a/A.java",
-				"package com.example.sub.a;\n" + 
-				"public class A {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(\"A\");\n" + 
-				"	}\n" + 
+				"package com.example.sub.a;\n" +
+				"public class A {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"A\");\n" +
+				"	}\n" +
 				"}\n");
 		createFile("testa/src/module-info.java",
-				"open module com.example.sub.a {\n" + 
-				"	exports com.example.sub.a;\n" + 
-				"	requires com.example.sub.b;\n" + 
+				"open module com.example.sub.a {\n" +
+				"	exports com.example.sub.a;\n" +
+				"	requires com.example.sub.b;\n" +
 				"}\n");
 
 		addModularProjectEntry(testmain, testa);
 		addModularProjectEntry(testmain, testb);
 		createFolder("testmain/src/com/example");
 		createFile("testmain/src/module-info.java",
-				"open module com.example {\n" + 
-				"    requires com.example.sub.a;\n" + 
-				"    requires com.example.sub.b;\n" + 
+				"open module com.example {\n" +
+				"    requires com.example.sub.a;\n" +
+				"    requires com.example.sub.b;\n" +
 				"}\n");
 		String pathExample = "testmain/src/com/example/Example.java";
 		String sourceExample =
-				"package com.example;\n" + 
-				"import com.example.sub.a.A;\n" + 
-				"import com.example.sub.b.B;\n" + 
-				"\n" + 
-				"public class Example {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"    	A.main(null);\n" + 
-				"    	B.main(null);\n" + 
-				"    }\n" + 
+				"package com.example;\n" +
+				"import com.example.sub.a.A;\n" +
+				"import com.example.sub.b.B;\n" +
+				"\n" +
+				"public class Example {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	A.main(null);\n" +
+				"    	B.main(null);\n" +
+				"    }\n" +
 				"}\n";
 		createFile(pathExample, sourceExample);
 
@@ -643,7 +643,7 @@ public void testBug544017() throws CoreException {
 		this.problemRequestor.initialize((sourceExample+" ").toCharArray());
 		wc.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
-						"----------\n" + 
+						"----------\n" +
 						"----------\n",
 						this.problemRequestor);
 	} finally {
@@ -741,42 +741,42 @@ public void testBug546315() throws Exception {
 		addModularLibraryEntry(p, new Path(getExternalResourcePath(fooBarPath)), null);
 		addLibraryEntry(p, new Path(getExternalResourcePath(fooPath)), null, null, null, null, testAttrs, false);
 		addLibraryEntry(p, new Path(getExternalResourcePath(fooBar2Path)), null, null, null, null, testAttrs, false);
-		
+
 		createFolder("p/src/main");
 		createFile("p/src/main/Main.java",
-				"package main;\n" + 
-				"\n" + 
-				"import foo.bar.FooBar;\n" + 
-				"\n" + 
-				"public class Main {\n" + 
-				"\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(FooBar.get());\n" + 
-				"	}\n" + 
-				"\n" + 
+				"package main;\n" +
+				"\n" +
+				"import foo.bar.FooBar;\n" +
+				"\n" +
+				"public class Main {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(FooBar.get());\n" +
+				"	}\n" +
+				"\n" +
 				"}\n");
 		createFile("p/src/module-info.java",
-				"module com.example.main {\n" + 
-				"	requires foo.bar;\n" + 
+				"module com.example.main {\n" +
+				"	requires foo.bar;\n" +
 				"}\n");
 		String testSource =
-				"package test;\n" + 
-				"\n" + 
-				"// errors shown in Java editor (but not in Problems view)\n" + 
-				"// can be run without dialog \"error exists...\"\n" + 
-				"\n" + 
-				"import foo.bar.FooBar;\n" + 
-				"import foo.bar2.FooBar2;\n" + 
-				"import foo.Foo; // <- The package foo is accessible from more than one module: <unnamed>, foo.bar\n" + 
-				"\n" + 
-				"public class Test {\n" + 
-				"\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(Foo.get()); // <- Foo cannot be resolved\n" + 
-				"		System.out.println(FooBar.get());\n" + 
-				"		System.out.println(FooBar2.get());\n" + 
-				"	}\n" + 
-				"\n" + 
+				"package test;\n" +
+				"\n" +
+				"// errors shown in Java editor (but not in Problems view)\n" +
+				"// can be run without dialog \"error exists...\"\n" +
+				"\n" +
+				"import foo.bar.FooBar;\n" +
+				"import foo.bar2.FooBar2;\n" +
+				"import foo.Foo; // <- The package foo is accessible from more than one module: <unnamed>, foo.bar\n" +
+				"\n" +
+				"public class Test {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(Foo.get()); // <- Foo cannot be resolved\n" +
+				"		System.out.println(FooBar.get());\n" +
+				"		System.out.println(FooBar2.get());\n" +
+				"	}\n" +
+				"\n" +
 				"}\n";
 		createFolder("p/src-test/test");
 		String mPath = "p/src-test/test/Test.java";
@@ -813,12 +813,12 @@ public void testBug544306() throws Exception {
 	try {
 		createFolder("p1/src/p1");
 		createFile("p1/src/p1/P1.java",
-				"package p1;\n" + 
-				"public class P1 {\n" + 
+				"package p1;\n" +
+				"public class P1 {\n" +
 				"}\n");
 		createFile("p1/src/module-info.java",
-				"module p1 {\n" + 
-				"	exports p1;\n" + 
+				"module p1 {\n" +
+				"	exports p1;\n" +
 				"}\n");
 
 		IClasspathAttribute[] testAttrs = { JavaCore.newClasspathAttribute("test", "true") };
@@ -828,18 +828,18 @@ public void testBug544306() throws Exception {
 		createFolder("p2/src-test/p2");
 
 		createFile("p2/src/module-info.java",
-				"module p2 {\n" + 
+				"module p2 {\n" +
 				"}\n");
 		String testSource = "package p2;\n" +
 		"import p1.P1;\n" +
 		"class Test extends P1{ }";
-		
+
 		createFile("p2/src-test/p2/Test.java", testSource);
 		waitForAutoBuild();
 		IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 		assertMarkers("Unexpected markers",
 				"",  markers);
-		
+
 		this.workingCopy.discardWorkingCopy();
 		this.workingCopy = getCompilationUnit("p2/src-test/p2/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(testSource.toCharArray());
@@ -861,68 +861,68 @@ public void testBug547113() throws CoreException {
 	try {
 		createFolder("a/src/com/example/a");
 		createFile("a/src/com/example/Base.java",
-				"package com.example;\n" + 
-				"\n" + 
+				"package com.example;\n" +
+				"\n" +
 				"public class Base {}\n");
 		createFile("a/src/com/example/a/A.java",
-				"package com.example.a;\n" + 
-				"\n" + 
+				"package com.example.a;\n" +
+				"\n" +
 				"public class A {}\n");
 		createFile("a/src/module-info.java",
-				"open module com.example.a {\n" + 
-				"	exports com.example;\n" + 
-				"	exports com.example.a;\n" + 
-				"	\n" + 
-				"	requires unnamed;\n" + 
+				"open module com.example.a {\n" +
+				"	exports com.example;\n" +
+				"	exports com.example.a;\n" +
+				"	\n" +
+				"	requires unnamed;\n" +
 				"}\n");
 		addModularProjectEntry(a, unnamed);
 
 		createFolder("b/src/com/example/b");
 		createFile("b/src/com/example/b/B.java",
-				"package com.example.b;\n" + 
-				"\n" + 
-				"import com.example.Base;\n" + 
-				"import com.example.a.A;\n" + 
-				"\n" + 
-				"public class B {\n" + 
-				"\n" + 
-				"	public void a(A a) {\n" + 
-				"		System.out.println(a);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	public void base(Base base) {\n" + 
-				"		System.out.println(base);\n" + 
-				"	}\n" + 
-				"\n" + 
+				"package com.example.b;\n" +
+				"\n" +
+				"import com.example.Base;\n" +
+				"import com.example.a.A;\n" +
+				"\n" +
+				"public class B {\n" +
+				"\n" +
+				"	public void a(A a) {\n" +
+				"		System.out.println(a);\n" +
+				"	}\n" +
+				"\n" +
+				"	public void base(Base base) {\n" +
+				"		System.out.println(base);\n" +
+				"	}\n" +
+				"\n" +
 				"}\n");
 		createFile("b/src/module-info.java",
-				"open module com.example.b {\n" + 
-				"	exports com.example.b;\n" + 
-				"	requires transitive com.example.a;\n" + 
+				"open module com.example.b {\n" +
+				"	exports com.example.b;\n" +
+				"	requires transitive com.example.a;\n" +
 				"}\n");
 		addModularProjectEntry(b, a);
 		addModularProjectEntry(b, unnamed);
 
 		createFolder("c/src/com/example/c");
-		String cSource = "package com.example.c;\n" + 
-				"\n" + 
-				"import com.example.Base;\n" + 
-				"import com.example.a.A;\n" + 
-				"import com.example.b.B;\n" + 
-				"\n" + 
-				"public class C {\n" + 
-				"\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		new B().a(new A());\n" + 
-				"		new B().base(new Base());\n" + 
-				"		System.out.println(\"done.\");\n" + 
-				"	}\n" + 
+		String cSource = "package com.example.c;\n" +
+				"\n" +
+				"import com.example.Base;\n" +
+				"import com.example.a.A;\n" +
+				"import com.example.b.B;\n" +
+				"\n" +
+				"public class C {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new B().a(new A());\n" +
+				"		new B().base(new Base());\n" +
+				"		System.out.println(\"done.\");\n" +
+				"	}\n" +
 				"}\n";
 		createFile("c/src/com/example/c/C.java", cSource);
 		createFile("c/src/module-info.java",
-				"open module com.example.c {\n" + 
-				"	exports com.example.c;\n" + 
-				"	requires com.example.b;\n" + 
+				"open module com.example.c {\n" +
+				"	exports com.example.c;\n" +
+				"	requires com.example.b;\n" +
 				"}\n");
 		addModularProjectEntry(c, a);
 		addModularProjectEntry(c, b);

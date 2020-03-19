@@ -65,7 +65,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 
 		return this.dimensions;
 	}
-	
+
 	@Override
 	public int extraDimensions() {
 		return this.extendedDimensions;
@@ -84,7 +84,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 		System.arraycopy(this.annotationsOnDimensions, 0, externalAnnotations, this.extendedDimensions, baseDimensions);
 		return externalAnnotations;
 	}
-	
+
 	@Override
 	public void setAnnotationsOnDimensions(Annotation [][] annotationsOnDimensions) {
 		this.annotationsOnDimensions = annotationsOnDimensions;
@@ -268,7 +268,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 		}
 		return scope.environment().createAnnotatedType(typeBinding, newAnnots);
 	}
-	
+
 	@Override
 	public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 		switch (position) {

@@ -612,7 +612,7 @@ protected static class JavacTestOptions {
 			if (additionalOptions != null)
 				result = result + " " + additionalOptions;
 			options.setCompilerOptions(result);
-			
+
 		}
 		else
 			throw new IllegalArgumentException("preview not supported at release "+release);
@@ -819,7 +819,7 @@ protected static class JavacTestOptions {
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug151275 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
-					Excuse excuseFor(JavacCompiler compiler) { 
+					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
 					}
 				} : null,
@@ -861,7 +861,7 @@ protected static class JavacTestOptions {
 		public static final EclipseJustification
 			EclipseJustification0001 = RUN_JAVAC ?
 					new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
-						Excuse excuseFor(JavacCompiler compiler) { 
+						Excuse excuseFor(JavacCompiler compiler) {
 							return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
 						}
 					} : null;
@@ -1270,7 +1270,7 @@ protected static class JavacTestOptions {
 			int end = index + Messages.classformat_classformatexception.length();
 			fail("ClassFormatException swallowed in Disassembler:\n..." + result.substring(start, end));
 		}
-		
+
 		FileInputStream stream = null;
 		try {
 			stream = new FileInputStream(classFile);
@@ -1986,14 +1986,14 @@ protected static class JavacTestOptions {
 		ICompilerRequestor clientRequestor,
 		boolean skipJavac) {
 		runConformTest(
-				testFiles, 
-				expectedSuccessOutputString, 
-				classLib, 
-				shouldFlushOutputDirectory, 
-				vmArguments, 
-				customOptions, 
-				clientRequestor, 
-				skipJavac, 
+				testFiles,
+				expectedSuccessOutputString,
+				classLib,
+				shouldFlushOutputDirectory,
+				vmArguments,
+				customOptions,
+				clientRequestor,
+				skipJavac,
 				(skipJavac ?
 						JavacTestOptions.SKIP :
 						JavacTestOptions.DEFAULT));
@@ -2501,7 +2501,7 @@ private void deleteSourceFiles(File directory) {
 }
 private boolean errorStringMatch(String expectedErrorStringStart, String actualError) {
 	/*
-	 * From TestVerifier.checkBuffers(): 
+	 * From TestVerifier.checkBuffers():
 	 * This is an opportunistic heuristic for error strings comparison:
 	 * - null means skip test;
 	 * - empty means exactly empty;
@@ -2813,8 +2813,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			boolean shouldFlushOutputDirectory,
 			Map customOptions,
 			String expectedErrorString) {
-			runNegativeTest(testFiles, expectedCompilerLog, classLibraries, 
-					shouldFlushOutputDirectory, customOptions, expectedErrorString, 
+			runNegativeTest(testFiles, expectedCompilerLog, classLibraries,
+					shouldFlushOutputDirectory, customOptions, expectedErrorString,
 					JavacTestOptions.DEFAULT);
 		}
 	protected void runNegativeTest(
@@ -3952,5 +3952,5 @@ protected void runNegativeTest(
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return options;
-	}	
+	}
 }

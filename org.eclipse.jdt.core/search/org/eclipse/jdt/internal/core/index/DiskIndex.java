@@ -168,7 +168,7 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	if (this.categoryOffsets == null) return null; // file is empty
 
 	HashtableOfObject results = null; // initialized if needed
-	
+
 	// No need to check the results table for duplicates while processing the
 	// first category table or if the first category tables doesn't have any results.
 	boolean prevResults = false;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 BEA Systems, Inc. 
+ * Copyright (c) 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.base;
@@ -40,14 +40,14 @@ import org.xml.sax.InputSource;
  * This could be done with existing third-party XMLDiff tools and a sufficiently articulate DTD, so
  * if it needs to be substantially enhanced at some point in the future, maintainers should consider
  * using that approach instead.
- * 
+ *
  * This is not a generic XML comparison tool; it has specific expectations about the structure of a
  * JSR269 model, for example, that declarations may contain annotations but not vice versa.
- * 
+ *
  * Note that in this body of code, we use the term "Decl" or "Declaration" to refer to the the
  * entities represented by javax.lang.model.element.Element, to avoid confusion with XML elements,
  * i.e. org.w3c.dom.Element.
- * 
+ *
  * @since 3.4
  */
 public class XMLComparer implements IXMLNames {
@@ -58,11 +58,11 @@ public class XMLComparer implements IXMLNames {
 	 * would return. The key is the simple name of the entity. The reason this is needed is because
 	 * simple names can be repeated, e.g., a class may contain both a method and a nested class with
 	 * the same name.
-	 * 
+	 *
 	 * The structure also has a holder for an &lt;annotations&gt; node, as a convenience, because
 	 * when searching the XML DOM we discover this node at the same time as the element
 	 * declarations.
-	 * 
+	 *
 	 * @since 3.4
 	 */
 	private class DeclarationContents {
@@ -79,7 +79,7 @@ public class XMLComparer implements IXMLNames {
 	 * Compare two JSR269 language models, using the approximate criteria of the JSR269 spec. Ignore
 	 * differences in order of sibling elements. If the two do not match, optionally send detailed
 	 * information about the mismatch to an output stream.
-	 * 
+	 *
 	 * @param actual
 	 *            the observed language model
 	 * @param expected
@@ -94,7 +94,7 @@ public class XMLComparer implements IXMLNames {
 	 *            true if mismatches corresponding to known javac bugs should be ignored.
 	 * @return true if the models match sufficiently to satisfy the spec.
 	 */
-	public static boolean compare(Document actual, Document expected, 
+	public static boolean compare(Document actual, Document expected,
 			OutputStream out, StringBuilder summary, boolean ignoreJavacBugs) {
 		XMLComparer comparer = new XMLComparer(actual, expected, out, summary, ignoreJavacBugs);
 		return comparer._compare();
@@ -103,7 +103,7 @@ public class XMLComparer implements IXMLNames {
 	private final Document _actual;
 
 	private final Document _expected;
-	
+
 	/**
 	 * If true, don't complain about mismatches corresponding to known javac bugs,
 	 * even if they represent a violation of the spec.  This is useful when running
@@ -112,7 +112,7 @@ public class XMLComparer implements IXMLNames {
 	private final boolean _ignoreJavacBugs;
 
 	private final PrintStream _out;
-	
+
 	private final StringBuilder _summary;
 
 	/**
@@ -135,7 +135,7 @@ public class XMLComparer implements IXMLNames {
 		_out = new PrintStream(os, true);
 		_summary = summary;
 	}
-	
+
 	/**
 	 * Test this class by creating a known XML language model and using
 	 * this class to compare it to a known reference model.  The models
@@ -144,25 +144,25 @@ public class XMLComparer implements IXMLNames {
 	 * @throws Exception
 	 */
 	public static boolean test() throws Exception {
-		final String XML_FRAMEWORK_TEST_MODEL = 
-			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + 
-			"<model>\n" + 
-			" <type-element kind=\"CLASS\" qname=\"pa.A\" sname=\"A\">\n" + 
-			"  <superclass>\n" + 
-			"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" + 
-			"  </superclass>\n" + 
-			"  <variable-element kind=\"FIELD\" sname=\"f\" type=\"java.lang.String\">\n" + 
-			"   <annotations>\n" + 
-			"    <annotation sname=\"Anno1\">\n" + 
-			"     <annotation-values>\n" + 
-			"      <annotation-value member=\"value\" type=\"java.lang.String\" value=\"spud\"/>\n" + 
-			"     </annotation-values>\n" + 
-			"    </annotation>\n" + 
-			"   </annotations>\n" + 
-			"  </variable-element>\n" + 
-			" </type-element>\n" + 
+		final String XML_FRAMEWORK_TEST_MODEL =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+			"<model>\n" +
+			" <type-element kind=\"CLASS\" qname=\"pa.A\" sname=\"A\">\n" +
+			"  <superclass>\n" +
+			"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Object\"/>\n" +
+			"  </superclass>\n" +
+			"  <variable-element kind=\"FIELD\" sname=\"f\" type=\"java.lang.String\">\n" +
+			"   <annotations>\n" +
+			"    <annotation sname=\"Anno1\">\n" +
+			"     <annotation-values>\n" +
+			"      <annotation-value member=\"value\" type=\"java.lang.String\" value=\"spud\"/>\n" +
+			"     </annotation-values>\n" +
+			"    </annotation>\n" +
+			"   </annotations>\n" +
+			"  </variable-element>\n" +
+			" </type-element>\n" +
 			"</model>\n";
-		
+
 		// create "actual" model
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document actualModel = factory.newDocumentBuilder().newDocument();
@@ -200,7 +200,7 @@ public class XMLComparer implements IXMLNames {
 		typeNode.appendChild(variableNode);
 		modelNode.appendChild(typeNode);
 		actualModel.appendChild(modelNode);
-		
+
 		// load reference model
     	InputSource source = new InputSource(new StringReader(XML_FRAMEWORK_TEST_MODEL));
         Document expectedModel = factory.newDocumentBuilder().parse(source);
@@ -221,7 +221,7 @@ public class XMLComparer implements IXMLNames {
 	/**
 	 * Non-static internal comparison routine called from
 	 * {@link #compare(Document, Document, OutputStream)}
-	 * 
+	 *
 	 * @return true if models are equivalent
 	 */
 	private boolean _compare() {
@@ -249,9 +249,9 @@ public class XMLComparer implements IXMLNames {
 	 * Collect the contents of an &lt;annotations&gt; node into a map. If there are declarations of
 	 * the same name, report an error; if there are unexpected contents (e.g., declarations, which
 	 * should not be contained within an annotations node), report an error.
-	 * 
+	 *
 	 * TODO: revisit this - we need to model duplications, in order to handle incorrect code.
-	 * 
+	 *
 	 * @param annotsNode
 	 *            must not be null
 	 * @param map
@@ -299,7 +299,7 @@ public class XMLComparer implements IXMLNames {
 	 * collection of maps. If there are declarations of the same type and simple name, report an
 	 * error; if there are unexpected contents), report an error.
 	 * TODO: revisit this - we need to model duplications, in order to handle incorrect code.
-	 * 
+	 *
 	 * @param elementNode
 	 *            must not be null
 	 * @param contents
@@ -366,7 +366,7 @@ public class XMLComparer implements IXMLNames {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Collect the &lt;type-mirror&gt; children of a parent node into a map,
 	 * keyed and sorted by the canonicalized type name.
@@ -405,7 +405,7 @@ public class XMLComparer implements IXMLNames {
 	 * but not on the expected annotation are not considered to be a mismatch. Note that the
 	 * language model representation in XML does not include default values, since these are
 	 * attributes of the annotation type rather than the annotation instance.
-	 * 
+	 *
 	 * @param actualAnnot
 	 *            must be non-null
 	 * @param expectedAnnot
@@ -455,13 +455,13 @@ public class XMLComparer implements IXMLNames {
 			printProblem("Found unexpected <annotation-values> in annotation: " + sname);
 			printDifferences();
 			return false;
-		} 
+		}
 		else if (expectedValues != null) {
 			// actualValues == null
 			printProblem("Missing expected <annotation-values> in annotation: " + sname);
 			printDifferences();
 			return false;
-		} 
+		}
 		// both null is okay
 
 		return true;
@@ -469,7 +469,7 @@ public class XMLComparer implements IXMLNames {
 
 	/**
 	 * Compare the contents of two &lt;annotations&gt; nodes.
-	 * 
+	 *
 	 * @param actualAnnots
 	 *            may be empty, but must not be null
 	 * @param expectedAnnots
@@ -503,7 +503,7 @@ public class XMLComparer implements IXMLNames {
 
 		return true;
 	}
-	
+
 	/**
 	 * Compare the contents of two &lt;annotation-values&gt; nodes; that is, compare
 	 * actual and expected lists of annotation member/value pairs.  These lists do
@@ -518,8 +518,8 @@ public class XMLComparer implements IXMLNames {
 		Node nActual = actual.getFirstChild();
 		for (Node nExpected = expected.getFirstChild(); nExpected != null; nExpected = nExpected.getNextSibling()) {
 			if (nExpected.getNodeType() == Node.ELEMENT_NODE && ANNOTATION_VALUE_TAG.equals(nExpected.getNodeName())) {
-				while (nActual != null && 
-						(nActual.getNodeType() != Node.ELEMENT_NODE || 
+				while (nActual != null &&
+						(nActual.getNodeType() != Node.ELEMENT_NODE ||
 						!ANNOTATION_VALUE_TAG.equals(nActual.getNodeName()))) {
 					nActual = nActual.getNextSibling();
 				}
@@ -578,9 +578,9 @@ public class XMLComparer implements IXMLNames {
 	 * Note that the DeclarationContents object also may contain an &lt;annotations&gt; node,
 	 * but that must be compared separately.
 	 * If an expected element has the "optional" attribute, it is allowed to be missing from
-	 * the actual contents.  It is always a mismatch if the actual contents include an element 
+	 * the actual contents.  It is always a mismatch if the actual contents include an element
 	 * that is not in the expected contents, though.
-	 * 
+	 *
 	 * @param actual
 	 *            must not be null
 	 * @param expected
@@ -590,7 +590,7 @@ public class XMLComparer implements IXMLNames {
 	private boolean compareDeclarationContents(DeclarationContents actual, DeclarationContents expected) {
 
 		// Compare each collection at this level
-		
+
 		if (!optionalMatch(actual.typeDecls, expected.typeDecls)) {
 			printProblem("Contents of <elements> nodes did not match: different sets of type-elements");
 			printDifferences();
@@ -638,7 +638,7 @@ public class XMLComparer implements IXMLNames {
 	 * (e.g., type-element, variable-element) and sname (e.g., "Foo") have already been compared.
 	 * Attributes that exist on the actual declaration element but not on the expected declaration
 	 * element are not considered to be a mismatch.
-	 * 
+	 *
 	 * @param actualDecl
 	 *            must be non-null
 	 * @param expectedDecl
@@ -652,7 +652,7 @@ public class XMLComparer implements IXMLNames {
 		if (!compareAttributes(actualDecl, expectedDecl)) {
 			return false;
 		}
-		
+
 
 		// Find nested element and <annotations> nodes
 		DeclarationContents actualContents = new DeclarationContents();
@@ -683,7 +683,7 @@ public class XMLComparer implements IXMLNames {
 			return false;
 		}
 		// both null at the same time is okay, not a mismatch
-		
+
 		// compare superclasses.  Ignore if reference does not specify a superclass.
 		if (expectedContents.superclass != null) {
 			if (actualContents.superclass == null) {
@@ -695,7 +695,7 @@ public class XMLComparer implements IXMLNames {
 				return false;
 			}
 		}
-		
+
 		// compare interface lists.  Ignore if reference does not specify interfaces.
 		// TODO: javac fails to provide unresolved interfaces.  Here, we ignore interfaces altogether
 		// if we're ignoring javac bugs, which means we also ignore the non-error cases.
@@ -717,10 +717,10 @@ public class XMLComparer implements IXMLNames {
 
 		return true;
 	}
-	
-	/** 
-	 * Compare two interface lists, i.e., &lt;interfaces&gt; nodes.  
-	 * Each is expected to contain zero or more &lt;type-mirror&gt; nodes. 
+
+	/**
+	 * Compare two interface lists, i.e., &lt;interfaces&gt; nodes.
+	 * Each is expected to contain zero or more &lt;type-mirror&gt; nodes.
 	 * The spec for {@link javax.lang.model.element.TypeElement#getInterfaces()}
 	 * does not say anything about the order of the items returned, so here we
 	 * load them into a Map<String, Element> keyed by the type's toString()
@@ -741,7 +741,7 @@ public class XMLComparer implements IXMLNames {
 		}
 		if (expectedTypes.size() != actualTypes.size()) {
 			if (_ignoreJavacBugs) {
-				// javac has a known bug where it does not correctly model 
+				// javac has a known bug where it does not correctly model
 				// unresolved interface types.  Ideally we could still verify
 				// the resolved ones but that seems like more work than it's worth.
 				return true;
@@ -767,7 +767,7 @@ public class XMLComparer implements IXMLNames {
 	/**
 	 * Compare two &lt;superclass&gt; nodes.  Each is expected to contain
 	 * exactly one &lt;type-mirror&gt; node.
-	 * 
+	 *
 	 * @param actual the observed &lt;superclass&gt; node; must not be null
 	 * @param expected the reference &lt;superclass&gt; node; must not be null
 	 * @return true if the superclass types are equivalent
@@ -789,7 +789,7 @@ public class XMLComparer implements IXMLNames {
 		}
 		return compareTypeMirrors(actualType, expectedType);
 	}
-	
+
 	private boolean compareTypeMirrors(Element actual, Element expected) {
 		String expectedKind = expected.getAttribute(KIND_TAG);
 		if (expectedKind != null && expectedKind.length() > 0) {
@@ -813,7 +813,7 @@ public class XMLComparer implements IXMLNames {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Given some non-null parent, find the first child element with a particular name
 	 * @return the child, or null if one was not found
@@ -826,11 +826,11 @@ public class XMLComparer implements IXMLNames {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Locate the outer &lt;model&gt; node. This node should always exist unless the model is
 	 * completely empty.
-	 * 
+	 *
 	 * @return the root model node, or null if one could not be found.
 	 */
 	private Element findRootNode(Document doc) {
@@ -841,7 +841,7 @@ public class XMLComparer implements IXMLNames {
 	 * Compare actual and expected.  Ignore the presence of any elements in
 	 * 'expected' that are absent from 'actual' iff the elements are tagged
 	 * with the "optional" attribute.
-	 * @return true if the collections match. 
+	 * @return true if the collections match.
 	 */
 	private boolean optionalMatch(Map<String, Element> actual, Map<String, Element> expected) {
 		// Does actual contain anything that is not in expected?
@@ -850,7 +850,7 @@ public class XMLComparer implements IXMLNames {
 		if (!extraActuals.isEmpty()) {
 			return false;
 		}
-		
+
 		// Does expected contain anything that is not in actual, that is not optional?
 		Set<String> extraExpecteds = new HashSet<String>(expected.keySet());
 		extraExpecteds.removeAll(actual.keySet());
@@ -867,7 +867,7 @@ public class XMLComparer implements IXMLNames {
 
 	/**
 	 * Print the actual and expected documents in string form
-	 * 
+	 *
 	 * TODO: a cursor to show what was being compared when the difference was detected.
 	 */
 	private void printDifferences() {

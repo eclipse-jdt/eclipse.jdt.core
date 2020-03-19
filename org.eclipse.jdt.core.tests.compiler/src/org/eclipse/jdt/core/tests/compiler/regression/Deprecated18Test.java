@@ -37,7 +37,7 @@ public void test412555() {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
-			"		Runnable r = () -> {\n" + 
+			"		Runnable r = () -> {\n" +
 			"			Y.callMe();\n" +
 			"		};\n" +
 			"	}\n" +
@@ -48,11 +48,11 @@ public void test412555() {
 			 "	public static void callMe() {}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	Y.callMe();\n" + 
-		"	  ^^^^^^^^\n" + 
-		"The method callMe() from the type Y is deprecated\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	Y.callMe();\n" +
+		"	  ^^^^^^^^\n" +
+		"The method callMe() from the type Y is deprecated\n" +
 		"----------\n",
 		null,
 		true,

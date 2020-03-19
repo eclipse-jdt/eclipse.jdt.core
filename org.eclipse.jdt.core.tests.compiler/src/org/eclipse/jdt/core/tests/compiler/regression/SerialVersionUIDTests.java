@@ -224,11 +224,11 @@ public void test011() {
 			"	private static final long serialVersionUID = 1L;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	private static final long serialVersionUID = 1L;\n" + 
-		"	                          ^^^^^^^^^^^^^^^^\n" + 
-		"The value of the field X.serialVersionUID is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private static final long serialVersionUID = 1L;\n" +
+		"	                          ^^^^^^^^^^^^^^^^\n" +
+		"The value of the field X.serialVersionUID is not used\n" +
 		"----------\n",
 		null,
 		true,
@@ -247,11 +247,11 @@ public void test012() {
 			"	private static final long serialVersionUID = 1L;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	private static final long serialVersionUID = 1L;\n" + 
-		"	                          ^^^^^^^^^^^^^^^^\n" + 
-		"The value of the field X<T>.serialVersionUID is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private static final long serialVersionUID = 1L;\n" +
+		"	                          ^^^^^^^^^^^^^^^^\n" +
+		"The value of the field X<T>.serialVersionUID is not used\n" +
 		"----------\n",
 		null,
 		true,
@@ -270,11 +270,11 @@ public void test013() {
 			"	private static final long serialPersistentFields = 1L;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	private static final long serialPersistentFields = 1L;\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The value of the field X<T>.serialPersistentFields is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private static final long serialPersistentFields = 1L;\n" +
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The value of the field X<T>.serialPersistentFields is not used\n" +
 		"----------\n",
 		null,
 		true,
@@ -292,11 +292,11 @@ public void test014() {
 			"	private static final long serialPersistentFields = 1L;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	private static final long serialPersistentFields = 1L;\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The value of the field X.serialPersistentFields is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private static final long serialPersistentFields = 1L;\n" +
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The value of the field X.serialPersistentFields is not used\n" +
 		"----------\n",
 		null,
 		true,
@@ -318,11 +318,11 @@ public void test015() {
 			"	private int i;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X<T>.i is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X<T>.i is not used\n" +
 		"----------\n",
 		null,
 		true,
@@ -343,11 +343,11 @@ public void test016() {
 			"	private int i;\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.i is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X.i is not used\n" +
 		"----------\n",
 		null,
 		true,

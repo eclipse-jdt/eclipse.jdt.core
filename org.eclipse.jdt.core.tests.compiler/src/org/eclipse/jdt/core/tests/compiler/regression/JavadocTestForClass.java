@@ -571,7 +571,7 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "	 * @see VisibilityPackage#unknown Invalid ref to non existent field of other package non visible class\n"
 					+ "	 * @see VisibilityPublic#unknown Invalid ref to non existent field of other package class\n"
 					+ "	 * @see VisibilityPublic#vf_private Invalid ref to not visible field of other package class\n"
-					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"	
+					+ "	 * @see VisibilityPublic.VpPrivate#unknown Invalid ref to a non visible other package private inner class (non existent field)\n"
 					+ "	 * @see VisibilityPublic.VpPublic#unknown Invalid ref to non existent field of other package public inner class\n"
 					+ "	 * @see VisibilityPublic.VpPublic#vf_private Invalid ref to not visible field of other package public inner class\n"
 					+ "	 */\n"
@@ -1007,83 +1007,83 @@ public class JavadocTestForClass extends JavadocTest {
 					+ "	}\n"
 					+ "}\n" });
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
 	public void test054() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			runNegativeTest(
 					new String[] {
 						"X.java",
-						"import java.util.Map;\n" + 
-						"import java.util.Map.Entry;\n" + 
-						"\n" + 
-						"/**\n" + 
-						" * <ul>\n" + 
-						" * <li> {@link Entry} </li>\n" + 
-						" * </ul>\n" + 
-						" */\n" + 
-						"public interface X extends Map {\n" + 
+						"import java.util.Map;\n" +
+						"import java.util.Map.Entry;\n" +
+						"\n" +
+						"/**\n" +
+						" * <ul>\n" +
+						" * <li> {@link Entry} </li>\n" +
+						" * </ul>\n" +
+						" */\n" +
+						"public interface X extends Map {\n" +
 						"	int i = 0;\n" +
 						"}\n",
 						},
-						"----------\n" + 
+						"----------\n" +
 						"1. WARNING in X.java (at line 2)\n"+
 						"	import java.util.Map.Entry;\n"+
 						"	       ^^^^^^^^^^^^^^^^^^^\n"+
 						"The import java.util.Map.Entry is never used\n"+
 						"----------\n"+
-						"2. ERROR in X.java (at line 6)\n" + 
-						"	* <li> {@link Entry} </li>\n" + 
-						"	              ^^^^^\n" + 
-						"Javadoc: Invalid member type qualification\n" + 
+						"2. ERROR in X.java (at line 6)\n" +
+						"	* <li> {@link Entry} </li>\n" +
+						"	              ^^^^^\n" +
+						"Javadoc: Invalid member type qualification\n" +
 						"----------\n");
 			return;
 		}
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Map;\n" + 
-				"import java.util.Map.Entry;\n" + 
-				"\n" + 
-				"/**\n" + 
-				" * <ul>\n" + 
-				" * <li> {@link Entry} </li>\n" + 
-				" * </ul>\n" + 
-				" */\n" + 
-				"public interface X extends Map {\n" + 
+				"import java.util.Map;\n" +
+				"import java.util.Map.Entry;\n" +
+				"\n" +
+				"/**\n" +
+				" * <ul>\n" +
+				" * <li> {@link Entry} </li>\n" +
+				" * </ul>\n" +
+				" */\n" +
+				"public interface X extends Map {\n" +
 				"	int i;\n" +
 				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	int i;\n" + 
-				"	    ^\n" + 
-				"The blank final field i may not have been initialized\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	int i;\n" +
+				"	    ^\n" +
+				"The blank final field i may not have been initialized\n" +
 				"----------\n");
-	}	
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750 - variation
 	public void test055() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Map;\n" + 
-				"\n" + 
-				"/**\n" + 
-				" * <ul>\n" + 
-				" * <li> {@link Entry} </li>\n" + 
-				" * </ul>\n" + 
-				" */\n" + 
-				"public interface X extends Map {\n" + 
-				"	Entry e = null;\n" + 
+				"import java.util.Map;\n" +
+				"\n" +
+				"/**\n" +
+				" * <ul>\n" +
+				" * <li> {@link Entry} </li>\n" +
+				" * </ul>\n" +
+				" */\n" +
+				"public interface X extends Map {\n" +
+				"	Entry e = null;\n" +
 				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	* <li> {@link Entry} </li>\n" + 
-				"	              ^^^^^\n" + 
-				"Javadoc: Invalid member type qualification\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	* <li> {@link Entry} </li>\n" +
+				"	              ^^^^^\n" +
+				"Javadoc: Invalid member type qualification\n" +
 				"----------\n");
-	}	
+	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=253750
 	public void test056() {
@@ -1091,51 +1091,51 @@ public class JavadocTestForClass extends JavadocTest {
 			runNegativeTest(
 					new String[] {
 						"X.java",
-						"import java.util.Map;\n" + 
-						"import java.util.Map.Entry;\n" + 
-						"\n" + 
-						"/**\n" + 
-						" * <ul>\n" + 
-						" * <li> {@link Entry} </li>\n" + 
-						" * </ul>\n" + 
-						" */\n" + 
-						"public interface X extends Map {\n" + 
-						"	Entry e = null;\n" + 
+						"import java.util.Map;\n" +
+						"import java.util.Map.Entry;\n" +
+						"\n" +
+						"/**\n" +
+						" * <ul>\n" +
+						" * <li> {@link Entry} </li>\n" +
+						" * </ul>\n" +
+						" */\n" +
+						"public interface X extends Map {\n" +
+						"	Entry e = null;\n" +
 						"}\n",
 						},
-						"----------\n" + 
+						"----------\n" +
 						"1. WARNING in X.java (at line 2)\n"+
 						"	import java.util.Map.Entry;\n"+
 						"	       ^^^^^^^^^^^^^^^^^^^\n"+
 						"The import java.util.Map.Entry is never used\n"+
 						"----------\n"+
-						"2. ERROR in X.java (at line 6)\n" + 
-						"	* <li> {@link Entry} </li>\n" + 
-						"	              ^^^^^\n" + 
-						"Javadoc: Invalid member type qualification\n" + 
+						"2. ERROR in X.java (at line 6)\n" +
+						"	* <li> {@link Entry} </li>\n" +
+						"	              ^^^^^\n" +
+						"Javadoc: Invalid member type qualification\n" +
 						"----------\n");
 			return;
 		}
 		runNegativeTest(
 			new String[] {
 				"X.java",
-				"import java.util.Map;\n" + 
-				"import java.util.Map.Entry;\n" + 
-				"\n" + 
-				"/**\n" + 
-				" * <ul>\n" + 
-				" * <li> {@link Entry} </li>\n" + 
-				" * </ul>\n" + 
-				" */\n" + 
-				"public interface X extends Map {\n" + 
-				"	Entry e;\n" + 
+				"import java.util.Map;\n" +
+				"import java.util.Map.Entry;\n" +
+				"\n" +
+				"/**\n" +
+				" * <ul>\n" +
+				" * <li> {@link Entry} </li>\n" +
+				" * </ul>\n" +
+				" */\n" +
+				"public interface X extends Map {\n" +
+				"	Entry e;\n" +
 				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 10)\n" + 
-				"	Entry e;\n" + 
-				"	      ^\n" + 
-				"The blank final field e may not have been initialized\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	Entry e;\n" +
+				"	      ^\n" +
+				"The blank final field e may not have been initialized\n" +
 				"----------\n");
-	}		
+	}
 }

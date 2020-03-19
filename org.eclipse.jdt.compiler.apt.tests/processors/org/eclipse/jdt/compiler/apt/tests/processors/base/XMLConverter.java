@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 BEA Systems, Inc. 
+ * Copyright (c) 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.base;
@@ -47,17 +47,17 @@ import org.w3c.dom.Node;
  * the XMLComparer class (which compares documents generated
  * by this class) and possibly to the reference models of
  * various tests.
- * 
+ *
  * @since 3.4
  */
 public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNames {
-	
+
 	private final Document _doc;
 	@Deprecated
 	private XMLConverter(Document doc) {
 		_doc = doc;
 	}
-	
+
 	/**
 	 * Convert an XML DOM document to a canonical string representation
 	 */
@@ -71,7 +71,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 			serializer = tf.newTransformer();
 			serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 			serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "1");
-			serializer.transform(domSource, streamResult); 
+			serializer.transform(domSource, streamResult);
 		} catch (Exception e) {
 			e.printStackTrace(new PrintWriter(s));
 		}
@@ -138,7 +138,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	    buffer.append("\"");
 	    return buffer.toString();
 	}
-	
+
 	/**
 	 * Recursively convert a collection of language elements (declarations) into an XML representation.
 	 * @param declarations the collection of language elements to convert
@@ -149,7 +149,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		Document model = factory.newDocumentBuilder().newDocument();
 		org.w3c.dom.Element modelNode = model.createElement(MODEL_TAG);
-		
+
 		XMLConverter converter = new XMLConverter(model);
 		converter.scan(declarations, modelNode);
 		model.appendChild(modelNode);
@@ -158,7 +158,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.lang.model.util.ElementScanner6#visitExecutable(javax.lang.model.element.ExecutableElement,
 	 *      java.lang.Object)
 	 */
@@ -178,7 +178,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.lang.model.util.ElementScanner6#visitPackage(javax.lang.model.element.PackageElement,
 	 *      java.lang.Object)
 	 */
@@ -190,7 +190,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.lang.model.util.ElementScanner6#visitType(javax.lang.model.element.TypeElement,
 	 *      java.lang.Object)
 	 */
@@ -200,7 +200,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 		typeNode.setAttribute(KIND_TAG, e.getKind().name());
 		typeNode.setAttribute(SNAME_TAG, e.getSimpleName().toString());
 		typeNode.setAttribute(QNAME_TAG, e.getQualifiedName().toString());
-		
+
 		convertSuperclass(e, typeNode);
 		convertInterfaces(e, typeNode);
 		convertAnnotationMirrors(e, typeNode);
@@ -213,7 +213,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.lang.model.util.ElementScanner6#visitTypeParameter(javax.lang.model.element.TypeParameterElement,
 	 *      java.lang.Object)
 	 */
@@ -225,7 +225,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see javax.lang.model.util.ElementScanner6#visitVariable(javax.lang.model.element.VariableElement,
 	 *      java.lang.Object)
 	 */
@@ -244,7 +244,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 		// Variables do not enclose any elements, so no need to call super.
 		return null;
 	}
-	
+
 	private void convertAnnotationMirrors(javax.lang.model.element.Element e, Node target) {
 		List<? extends AnnotationMirror> mirrors = e.getAnnotationMirrors();
 		if (mirrors != null && !mirrors.isEmpty()) {
@@ -259,7 +259,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	/**
 	 * Scan an annotation instance in the model and represent it in XML, including all its explicit
 	 * values (but not any default values).
-	 * 
+	 *
 	 * @param am
 	 *            the annotation mirror to be converted
 	 * @param target
@@ -327,11 +327,11 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/**
 	 * Represent an arbitrary TypeMirror in XML, and append it as a child to
-	 * the specified parent node.  
-	 * 
-	 * Note this is problematic, because TypeMirror has no well-specified ways 
+	 * the specified parent node.
+	 *
+	 * Note this is problematic, because TypeMirror has no well-specified ways
 	 * to canonicalize an arbitrary (and possibly erroneous) type.
-	 * 
+	 *
 	 * @param tm must be non-null
 	 * @param target the parent XML node, to which this new node will be appended
 	 */

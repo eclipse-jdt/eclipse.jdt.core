@@ -91,14 +91,14 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// may be in a non necessary <clinit> for innerclass with static final constant fields
 			if (this.binding.isAbstract() || this.binding.isNative())
 				return;
-			
+
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
 			if (this.typeParameters != null &&
 					!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 				for (int i = 0, length = this.typeParameters.length; i < length; ++i) {
 					TypeParameter typeParameter = this.typeParameters[i];
 					if ((typeParameter.binding.modifiers  & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
-						this.scope.problemReporter().unusedTypeParameter(typeParameter);						
+						this.scope.problemReporter().unusedTypeParameter(typeParameter);
 					}
 				}
 			}
@@ -163,7 +163,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						this.scope.problemReporter().methodCanBePotentiallyDeclaredStatic(this);
 					}
 				}
-					
+
 			}
 			this.scope.checkUnclosedCloseables(flowInfo, null, null/*don't report against a specific location*/, null);
 		} catch (AbortMethod e) {
@@ -179,10 +179,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			annotation.traverse(collector, (BlockScope) null);
 		}
 	}
-	
+
 	public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 		// parser associates SE8 annotations to the declaration
-		return TypeReference.containsNullAnnotation(this.annotations) || 
+		return TypeReference.containsNullAnnotation(this.annotations) ||
 				(this.returnType != null && this.returnType.hasNullTypeAnnotation(position)); // just in case
 	}
 
@@ -306,7 +306,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 									// actually overrides, but did not claim to do so
 									this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
 							}
-							
+
 						}
 				}
 				else {	//For 1.6 and above only

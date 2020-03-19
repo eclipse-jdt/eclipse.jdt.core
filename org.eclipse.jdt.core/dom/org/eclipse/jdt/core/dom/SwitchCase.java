@@ -24,7 +24,7 @@ import java.util.List;
  * SwitchCase:
  * 		<b>case</b> Expression  <b>:</b>
  * 		<b>default</b> <b>:</b>
- * 
+ *
  * Switch case allows multiple expressions and '->' as part of Java 12 preview feature (JEP 325)
  *		<b>case</b> [ Expression { <b>,</b> Expression } ]  <b>{ : | ->}</b>
  *		<b>default</b> <b>{ : | ->}</b>
@@ -51,7 +51,7 @@ public class SwitchCase extends Statement {
 	 */
 	public static final ChildListPropertyDescriptor EXPRESSIONS2_PROPERTY  =
 			new ChildListPropertyDescriptor(SwitchCase.class, "expression", Expression.class, CYCLE_RISK); //$NON-NLS-1$);
-	
+
 	/**
 	 * The "switchLabeledRule" structural property of this node type (type: {@link Boolean}).
 	 * @noreference This property is not intended to be referenced by clients as it is a part of Java preview feature.
@@ -59,14 +59,14 @@ public class SwitchCase extends Statement {
 	 */
 	public static final SimplePropertyDescriptor SWITCH_LABELED_RULE_PROPERTY =
 		new SimplePropertyDescriptor(SwitchCase.class, "switchLabeledRule", boolean.class, MANDATORY); //$NON-NLS-1$
-	
+
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
-	
+
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
@@ -79,7 +79,7 @@ public class SwitchCase extends Statement {
 		createPropertyList(SwitchCase.class, propertyList);
 		addProperty(EXPRESSION_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
-		
+
 		propertyList = new ArrayList(2);
 		createPropertyList(SwitchCase.class, propertyList);
 		addProperty(EXPRESSIONS2_PROPERTY , propertyList);
@@ -110,15 +110,15 @@ public class SwitchCase extends Statement {
 	 * @see #expressionInitialized
 	 */
 	private Expression optionalExpression = null;
-	
+
 	/**
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 */
 	private boolean switchLabeledRule = false;
 
-	
+
 	/**
-	 * The expression list; <code>empty</code> for none; 
+	 * The expression list; <code>empty</code> for none;
 	 */
 	private ASTNode.NodeList expressions = null;
 
@@ -182,7 +182,7 @@ public class SwitchCase extends Statement {
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
-	
+
 	@Override
 	final int getNodeType0() {
 		return SWITCH_CASE;
@@ -244,7 +244,7 @@ public class SwitchCase extends Statement {
 		}
 		return this.optionalExpression;
 	}
-	
+
 	/**
 	 * Returns the list of expressions of this switch case, or
 	 * <code>empty</code> if there is none (the "default:" case).
@@ -283,7 +283,7 @@ public class SwitchCase extends Statement {
 		this.expressionInitialized = true;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
-	
+
 	/**
 	 * Sets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>.
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
@@ -298,7 +298,7 @@ public class SwitchCase extends Statement {
 		this.switchLabeledRule = switchLabeledRule;
 		postValueChange(SWITCH_LABELED_RULE_PROPERTY);
 	}
-	
+
 	/**
 	 * Gets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>.
 	 *<code>true</code> indicates "->" and <code>false</code> indicates ":".
@@ -340,6 +340,6 @@ public class SwitchCase extends Statement {
 			memSize()
 			+ (this.optionalExpression == null ? 0 : this.optionalExpression.treeSize());
 	}
-	
+
 
 }

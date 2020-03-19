@@ -19,8 +19,8 @@ import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
-class APTProblem extends CategorizedProblem 
-{	
+class APTProblem extends CategorizedProblem
+{
 	private static final String[] NO_ARGS = new String[0];
 	private final Severity _severity;
 	private int _startingOffset;
@@ -29,13 +29,13 @@ class APTProblem extends CategorizedProblem
 	private IFile _resource;
 	private final String _message;
 	private final String _markerType;
-	
+
 	// May be null
 	private final String[] _arguments;
-	
-	APTProblem(final String msg, 
-			   final Severity severity, 
-			   final IFile file, 
+
+	APTProblem(final String msg,
+			   final Severity severity,
+			   final IFile file,
 			   final int startingOffset,
 			   final int endingOffset,
 			   final int line,
@@ -61,57 +61,57 @@ class APTProblem extends CategorizedProblem
 			return EclipseMessager.APT_PROBLEM_ID;
 		}
 	}
-	
+
 	@Override
-	public String[] getArguments() {	
+	public String[] getArguments() {
 		return _arguments == null ? NO_ARGS : (String[])_arguments.clone();
 	}
-	
+
 	@Override
-	public String getMessage() {	
+	public String getMessage() {
 		return _message;
 	}
-	
+
 	@Override
-	public char[] getOriginatingFileName() {		
+	public char[] getOriginatingFileName() {
 		return _resource.getName().toCharArray();
 	}
-	
+
 	@Override
 	public int getSourceStart() {
 		return _startingOffset;
 	}
-	
+
 	@Override
-	public int getSourceEnd() {	
+	public int getSourceEnd() {
 		return _endingOffset;
 	}
-	
+
 	@Override
-	public int getSourceLineNumber() {		
+	public int getSourceLineNumber() {
 		return _line;
 	}
-	
+
 	@Override
 	public void setSourceStart(int sourceStart) {
 		_startingOffset = sourceStart;
-	}	
-	
+	}
+
 	@Override
 	public void setSourceEnd(int sourceEnd) {
 		_endingOffset = sourceEnd;
 	}
-	
+
 	@Override
 	public void setSourceLineNumber(int lineNumber) {
-		_line = lineNumber;		
+		_line = lineNumber;
 	}
-	
+
 	@Override
 	public boolean isError() {
 		return _severity == Severity.ERROR;
 	}
-	
+
 	@Override
 	public boolean isWarning() {
 		return _severity == Severity.WARNING;
@@ -121,19 +121,19 @@ class APTProblem extends CategorizedProblem
 	public boolean isInfo() {
 		return _severity == Severity.INFO;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return _message == null ? "<null message>" : _message ;  //$NON-NLS-1$
 	}
-	
+
 	@Override
 	public int getCategoryID() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
+
 	@Override
 	public String getMarkerType() {
 		return _markerType;

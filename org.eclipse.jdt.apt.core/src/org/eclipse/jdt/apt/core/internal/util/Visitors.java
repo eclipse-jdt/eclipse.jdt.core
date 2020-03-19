@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
  * Home for ast visitors of various flavors.
  */
 public class Visitors {
-	
+
 	/**
      * Traverse the ast looking for annotations at the declaration level.
      * This visitor only operates at the declaration level. Method body
@@ -91,10 +91,10 @@ public class Visitors {
 		public boolean visit(IfStatement ifStatement){ return false; }
         @Override
 		public boolean visit(TryStatement tryStatement){ return false; }
-        
+
         public void reset(){ _annotations.clear(); }
     }
-    
+
     /**
      * Locate all the annotations and the declaration that they annotate.
      * This visitor only operates at the declaration level. Method body
@@ -103,11 +103,11 @@ public class Visitors {
     public static final class AnnotatedNodeVisitor extends ASTVisitor
     {
         private final Map<ASTNode, List<Annotation>> _result;
-        
+
         /**
-         * @param map to be populated by this visitor. 
-         *        Key is the declaration ast node and the value is the list 
-         *        of annotation ast nodes that annotate the declaration.        
+         * @param map to be populated by this visitor.
+         *        Key is the declaration ast node and the value is the list
+         *        of annotation ast nodes that annotate the declaration.
          */
         public AnnotatedNodeVisitor(Map<ASTNode, List<Annotation>> map)
         {
@@ -247,11 +247,11 @@ public class Visitors {
         @Override
 		public boolean visit(SingleMemberAnnotation node){ return false; }
     }
-	
+
     /**
-     * Given an annotation locate the declaration that its annotates. 
+     * Given an annotation locate the declaration that its annotates.
      * This visitor only operates at the declaration level. Method body
-     * and field initializers and static block will be ignored.   
+     * and field initializers and static block will be ignored.
      *
      */
     public static final class DeclarationFinder extends ASTVisitor
@@ -265,12 +265,12 @@ public class Visitors {
     	{
     		_anno = annotation;
     	}
-    	
+
     	/**
     	 *  @return back the result of the search.
     	 */
     	public ASTNode getAnnotatedNode(){return _result;}
-    	
+
     	/**
     	 * We only visit nodes that can have annotations on them
     	 */
@@ -278,42 +278,42 @@ public class Visitors {
 		public boolean visit(AnnotationTypeDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(AnnotationTypeMemberDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(EnumDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(EnumConstantDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(FieldDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(MethodDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(TypeDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	@Override
 		public boolean visit(SingleVariableDeclaration node) {
     		return internalVisit(node);
     	}
-    	
+
     	private boolean internalVisit(ASTNode node) {
     		// terminate the search.
     		if( _result != null ) return false;
@@ -321,7 +321,7 @@ public class Visitors {
     		int nodeEnd = nodeStart + node.getLength();
     		int annoStart = _anno.getStartPosition();
     		int annoEnd = annoStart + _anno.getLength();
-    		
+
     		if (nodeStart > annoEnd) {
     			// We've passed our position. No need to search any further
     			return false;
@@ -336,20 +336,20 @@ public class Visitors {
     			else {
     				BodyDeclaration declaration = (BodyDeclaration)node;
     				extendedModifiers = declaration.modifiers();
-    			}    			
+    			}
     			for (IExtendedModifier modifier : extendedModifiers) {
     				// found what we came to look for.
     				if( modifier == _anno ){
     					_result = node;
     					return false;
     				}
-    			}   			
+    			}
     		}
-    		
+
     		// Keep searching
     		return true;
     	}
-    	
+
     	/**
 		 * @return false so we skip everything beyond declaration level.
 		 */
@@ -366,20 +366,20 @@ public class Visitors {
 		public boolean visit(SingleMemberAnnotation node){ return false; }
     }
 	/**
-	 * Responsible for finding the ending offset of the tighest ast node match that starts 
-	 * at a given offset. This ast visitor can operator on an array of offsets in one pass.   
-     * @author tyeung     
+	 * Responsible for finding the ending offset of the tighest ast node match that starts
+	 * at a given offset. This ast visitor can operator on an array of offsets in one pass.
+     * @author tyeung
      */
-    public static class EndingOffsetFinder extends ASTVisitor 
+    public static class EndingOffsetFinder extends ASTVisitor
     {
     	private final int[] _sortedStartingOffset;
-    	/** 
-    	 * parallel to <code>_sortedOffsets</code> and contains 
-    	 * the ending offset of the ast node that has the tightest match for the 
+    	/**
+    	 * parallel to <code>_sortedOffsets</code> and contains
+    	 * the ending offset of the ast node that has the tightest match for the
     	 * corresponding starting offset.
     	 */
     	private final int[] _endingOffsets;
-    	
+
     	/**
     	 * @param offsets the array of offsets which will be sorted.
     	 * @throws IllegalArgumentException if <code>offsets</code> is <code>null</code>.
@@ -390,36 +390,36 @@ public class Visitors {
     			throw new IllegalArgumentException("argument cannot be null."); //$NON-NLS-1$
     		// sort the array first
     		Arrays.sort(offsets);
-    	
-    		// look for duplicates.		
-    		int count = 0;	
+
+    		// look for duplicates.
+    		int count = 0;
     		for( int i=1, len=offsets.length; i<len; i++){
     			if( offsets[i-1] == offsets[i] )
-    				continue;			
+    				continue;
     			count ++;
-    		}	
-    	
+    		}
+
     		if( count != offsets.length ){
     			_sortedStartingOffset = new int[count];
-    	
+
     			int index = 0;
     			for( int i=0, len=offsets.length; i<len; i++){
     				if( i != 0 && offsets[i-1] == offsets[i] )
     					continue;
     				_sortedStartingOffset[index++] = offsets[i];
-    			}		
+    			}
     		}
     		else{
     			_sortedStartingOffset = offsets;
     		}
-    		
+
     		_endingOffsets = new int[count];
     		for( int i=0; i<count; i++ )
     			_endingOffsets[i] = 0;
     	}
-    	
+
     	@Override
-		public void preVisit(ASTNode node) 
+		public void preVisit(ASTNode node)
     	{
     		final int startingOffset = node.getStartPosition();
     		final int endingOffset = startingOffset + node.getLength();
@@ -428,25 +428,25 @@ public class Visitors {
     		// ending offset is exclusive
     		int endIndex = Arrays.binarySearch(_sortedStartingOffset, endingOffset);
     		if( startIndex < 0 )
-    			startIndex = - startIndex - 1;		
+    			startIndex = - startIndex - 1;
     		if( endIndex < 0 )
     			endIndex = - endIndex - 1;
-    		else 
-    			// endIndex needs to be exclusive and we want to 
+    		else
+    			// endIndex needs to be exclusive and we want to
     			// include the 'endIndex'th entry in our computation.
-    			endIndex ++; 
+    			endIndex ++;
     		if( startIndex >= _sortedStartingOffset.length )
     			return;
-    		
-    		for( int i=startIndex; i<endIndex; i++ ){    			
+
+    		for( int i=startIndex; i<endIndex; i++ ){
     			if( _endingOffsets[i] == 0 )
     				_endingOffsets[i] = endingOffset;
     			else if( endingOffset < _endingOffsets[i] )
     				_endingOffsets[i] = endingOffset;
     		}
     	}
-    	
-    	
+
+
     	public int getEndingOffset(final int startingOffset)
     	{
     		int index = Arrays.binarySearch(_sortedStartingOffset, startingOffset);

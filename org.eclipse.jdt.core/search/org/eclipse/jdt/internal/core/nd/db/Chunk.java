@@ -28,7 +28,7 @@ final class Chunk {
 	final Database fDatabase;
 	/**
 	 * Holds the database-specific chunk number. This is the index into the database's chunk array and indicates the
-	 * start of the range of addresses held by this chunk. Non-negative. 
+	 * start of the range of addresses held by this chunk. Non-negative.
 	 */
 	final int fSequenceNumber;
 	/**

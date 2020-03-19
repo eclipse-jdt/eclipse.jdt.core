@@ -36,7 +36,7 @@ public class CodeSnippetParsingUtil {
 
 	public RecordedParsingInformation recordedParsingInformation;
 	public boolean ignoreMethodBodies;
-	
+
 	public CodeSnippetParsingUtil(boolean ignoreMethodBodies) {
 		this.ignoreMethodBodies = ignoreMethodBodies;
 	}

@@ -27,12 +27,12 @@ public class ValueConversionProcessorFactory extends BaseFactory {
 		super(Annotation.class.getName(),
 			  RefAnnotation.class.getName(),
 			  AnnotationWithArray.class.getName(),
-			  RefAnnotationWithArray.class.getName()); 
+			  RefAnnotationWithArray.class.getName());
 	}
 
 	public AnnotationProcessor getProcessorFor(
 			Set<AnnotationTypeDeclaration> atds,
-			AnnotationProcessorEnvironment env) 
+			AnnotationProcessorEnvironment env)
 	{
 		return new ValueConversionProcessor( env );
 	}

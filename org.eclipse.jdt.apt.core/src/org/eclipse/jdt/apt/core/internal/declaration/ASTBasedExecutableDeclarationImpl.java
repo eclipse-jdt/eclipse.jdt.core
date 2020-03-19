@@ -28,30 +28,30 @@ import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class ASTBasedExecutableDeclarationImpl 
-	extends ASTBasedMemberDeclarationImpl 
+public abstract class ASTBasedExecutableDeclarationImpl
+	extends ASTBasedMemberDeclarationImpl
 	implements ExecutableDeclaration{
-	
+
 	public ASTBasedExecutableDeclarationImpl(
-			final org.eclipse.jdt.core.dom.BodyDeclaration astNode, 
+			final org.eclipse.jdt.core.dom.BodyDeclaration astNode,
 			final IFile file,
 			final BaseProcessorEnv env)
 	{
 		super(astNode, file, env);
 	}
-	
+
 	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitExecutableDeclaration(this);
     }
-	
+
     @Override
 	public Collection<TypeParameterDeclaration> getFormalTypeParameters()
     {
     	return ExecutableUtil.getFormalTypeParameters(this, _env);
     }
-    
+
     @Override
 	public Collection<ParameterDeclaration> getParameters()
     {
@@ -73,15 +73,15 @@ public abstract class ASTBasedExecutableDeclarationImpl
     @Override
 	public String getSimpleName()
     {
-    	final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = getMethodAstNode(); 
+    	final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = getMethodAstNode();
     	final SimpleName nameNode = methodAstNode.getName();
     	return nameNode == null ? EMPTY_STRING : nameNode.getIdentifier();
     }
-    
-    org.eclipse.jdt.core.dom.MethodDeclaration getMethodAstNode(){ 
-		return (org.eclipse.jdt.core.dom.MethodDeclaration)_astNode; 
+
+    org.eclipse.jdt.core.dom.MethodDeclaration getMethodAstNode(){
+		return (org.eclipse.jdt.core.dom.MethodDeclaration)_astNode;
 	}
-    
+
     @Override
 	public String toString()
     {

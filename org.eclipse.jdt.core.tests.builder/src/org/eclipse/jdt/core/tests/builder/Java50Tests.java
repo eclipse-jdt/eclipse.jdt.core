@@ -342,9 +342,9 @@ public class Java50Tests extends BuilderTests {
 		fullBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
-				"Problem : Bound mismatch: The type SubInterface.SubInterfaceGetter is not a valid substitute for the bounded parameter <G extends SuperInterface.SuperInterfaceGetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <105,136> category : <40> severity : <2>]\n" + 
-				"Problem : Bound mismatch: The type SubInterface.SubInterfaceSetter is not a valid substitute for the bounded parameter <S extends SuperInterface.SuperInterfaceSetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <157,188> category : <40> severity : <2>]\n" + 
-				"Problem : SuperInterfaceGetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <244,264> category : <40> severity : <2>]\n" + 
+				"Problem : Bound mismatch: The type SubInterface.SubInterfaceGetter is not a valid substitute for the bounded parameter <G extends SuperInterface.SuperInterfaceGetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <105,136> category : <40> severity : <2>]\n" +
+				"Problem : Bound mismatch: The type SubInterface.SubInterfaceSetter is not a valid substitute for the bounded parameter <S extends SuperInterface.SuperInterfaceSetter> of the type SuperInterface<G,S> [ resource : </Project/subint/SubInterface.java> range : <157,188> category : <40> severity : <2>]\n" +
+				"Problem : SuperInterfaceGetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <244,264> category : <40> severity : <2>]\n" +
 				"Problem : SuperInterfaceSetter cannot be resolved to a type [ resource : </Project/subint/SubInterface.java> range : <320,340> category : <40> severity : <2>]"
 			);
 	}

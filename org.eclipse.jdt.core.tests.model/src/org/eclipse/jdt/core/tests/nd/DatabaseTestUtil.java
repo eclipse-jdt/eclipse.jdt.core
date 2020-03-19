@@ -25,13 +25,13 @@ import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * 
+ *
  */
 public class DatabaseTestUtil {
 
 	public static IPath getTestDir() {
 		Plugin plugin = Activator.getInstance();
-		
+
 		IPath path = plugin.getStateLocation().append("tests/");
 		File file = path.toFile();
 		if (!file.exists())
@@ -46,7 +46,7 @@ public class DatabaseTestUtil {
 	/**
 	 * Creates an empty {@link Nd} with an empty type registry and randomly-named
 	 * database for the given test name
-	 * 
+	 *
 	 * @param testName
 	 * @return the new {@link Nd}
 	 */

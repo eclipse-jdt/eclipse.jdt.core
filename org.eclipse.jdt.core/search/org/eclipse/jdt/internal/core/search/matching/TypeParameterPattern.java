@@ -91,7 +91,7 @@ public class TypeParameterPattern extends JavaSearchPattern {
     	    IModuleDescription md = root.getModuleDescription();
             if(md != null) {
             	String module = md.getElementName();
-            	documentPath = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR 
+            	documentPath = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR
             			+ module + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;
             } else {
             	documentPath = root.getPath() + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + relativePath;

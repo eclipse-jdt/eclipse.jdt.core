@@ -471,7 +471,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 						default:
 							codeStream.dup_x2();
 							break;
-					}					
+					}
 				}
 				// current stack is:
 				// value field receiver value
@@ -489,7 +489,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					default:
 						codeStream.dup();
 						break;
-				}				
+				}
 			}
 			codeStream.store(localBinding, false);
 	}

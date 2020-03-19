@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2004, Sun Microsystems, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -15,7 +15,7 @@
  *     * Neither the name of the Sun Microsystems, Inc. nor the names of
  *       its contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
  * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -45,19 +45,19 @@ public interface RoundState {
      * processing; returns <code>false</code> if there will be a subsequent round.
      */
     boolean finalRound();
- 
+
     /**
      * Returns <code>true</code> if an error was raised in this round of processing;
      * returns <code>false</code> otherwise.
      */
     boolean errorRaised();
- 
+
     /**
      * Returns <code>true</code> if new source files were created in this round of
      * processing; returns <code>false</code> otherwise.
      */
     boolean sourceFilesCreated();
- 
+
     /**
      * Returns <code>true</code> if new class files were created in this round of
      * processing; returns <code>false</code> otherwise.

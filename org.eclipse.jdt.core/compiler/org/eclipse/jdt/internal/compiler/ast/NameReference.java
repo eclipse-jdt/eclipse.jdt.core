@@ -13,7 +13,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
- *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()? 
+ *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()?
  *     Jesper S Moller - Contributions for
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
@@ -39,7 +39,7 @@ public NameReference() {
 	this.bits |= Binding.TYPE | Binding.VARIABLE; // restrictiveFlag
 }
 
-/** 
+/**
  * Use this method only when sure that the current reference is <strong>not</strong>
  * a chain of several fields (QualifiedNameReference with more than one field).
  * Otherwise use {@link #lastFieldBinding()}.
@@ -102,7 +102,7 @@ public abstract String unboundReferenceErrorName();
 
 public abstract char[][] getName();
 
-/* Called during code generation to ensure that outer locals's effectively finality is guaranteed. 
+/* Called during code generation to ensure that outer locals's effectively finality is guaranteed.
    Aborts if constraints are violated. Due to various complexities, this check is not conveniently
    implementable in resolve/analyze phases.
 */

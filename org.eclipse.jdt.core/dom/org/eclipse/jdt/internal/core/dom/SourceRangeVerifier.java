@@ -29,9 +29,9 @@ public class SourceRangeVerifier extends ASTVisitor {
 
 	public static boolean DEBUG = false;
 	public static boolean DEBUG_THROW = false;
-	
-	private StringBuffer bugs; 
-	
+
+	private StringBuffer bugs;
+
 	/**
 	 * Verifies proper node nesting as specified in {@link ASTParser#setKind(int)}:
 	 * <p>
@@ -39,7 +39,7 @@ public class SourceRangeVerifier extends ASTVisitor {
 	 * within the source range of its parent, and the source ranges of sibling
 	 * nodes never overlap.
 	 * </p>
-	 * 
+	 *
 	 * @param node
 	 * @return <code>null</code> if everything is OK; a list of errors otherwise
 	 */
@@ -52,11 +52,11 @@ public class SourceRangeVerifier extends ASTVisitor {
 			return null;
 		return buffer.toString();
 	}
-	
+
 	@Override
 	public boolean preVisit2(ASTNode node) {
 		ASTNode previous = null;
-		
+
 		List properties = node.structuralPropertiesForType();
 		for (int i = 0; i < properties.size(); i++) {
 			StructuralPropertyDescriptor property = (StructuralPropertyDescriptor) properties.get(i);
@@ -89,24 +89,24 @@ public class SourceRangeVerifier extends ASTVisitor {
 	private boolean checkChild(ASTNode parent, ASTNode previous, ASTNode child) {
 		if ((parent.getFlags() & (ASTNode.RECOVERED | ASTNode.MALFORMED)) != 0
 				|| (child.getFlags() & (ASTNode.RECOVERED | ASTNode.MALFORMED)) != 0)
-			return false; 
+			return false;
 		if (DOMASTUtil.isRecordDeclarationSupported(child.getAST()) && child instanceof SingleVariableDeclaration) {
 			if (previous != null && previous instanceof MethodDeclaration && ((MethodDeclaration)previous).isCompactConstructor()) {
 				return true; // For compact constructors, do not validate for parameters
 			}
 		}
-		
+
 		int parentStart = parent.getStartPosition();
 		int parentEnd = parentStart + parent.getLength();
-		
+
 		int childStart = child.getStartPosition();
 		int childEnd = childStart + child.getLength();
-		
+
 		if (previous != null) {
 			// Turn a blind eye on a known problem ... see https://bugs.eclipse.org/391894#c4
 			if (child.getLocationInParent() == ArrayCreation.DIMENSIONS_PROPERTY)
 				return false;
-			
+
 			int previousStart = previous.getStartPosition();
 			int previousEnd = previousStart + previous.getLength();
 			if (childStart < previousEnd) {

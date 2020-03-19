@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -72,7 +72,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test234609() throws JavaModelException {
 
 		String newContents = 	"package p;\n" +
-		"import java.util.HashMap;\n" + 
+		"import java.util.HashMap;\n" +
 		"public class X {\n" +
 		"  /*start*/HashMap<? extends Integer,? super String>/*end*/ s;" +
 		"}";
@@ -110,7 +110,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 						},
 						getJavaProject("Converter15")
 					);
-		
+
 		if (bindingFromKey.length != 1)
 			fail("Problem in going from key to binding\n");
 		if (!composedBindingKey.equals(bindingFromKey[0].getKey()))
@@ -120,27 +120,27 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 			fail("Bad signature");
 
 		assertTrue("Equals", bindingFromKey[0].isEqualTo(bindingFromAST));
-		
+
 		// check existence of getGenericType() API.
 		ITypeBinding gType = bindingFromAST.getTypeArguments()[0].getGenericTypeOfWildcardType();
 		if (gType == null)
 			fail("Missing generic type");
 		if (!gType.getKey().equals("Ljava/util/HashMap<TK;TV;>;"))
 			fail("getKey() API is broken");
-		
+
 		// test for getRank API.
 		if (bindingFromAST.getTypeArguments()[0].getRank() != 0)
 			fail ("Wrong rank");
-		
+
 		if (bindingFromAST.getTypeArguments()[1].getRank() != 1)
-			fail ("Wrong rank");	
+			fail ("Wrong rank");
 	}
 
 	// Similar test as above - variation in wildcard type being unbounded.
 	public void test234609b() throws JavaModelException {
 
 		String newContents = 	"package p;\n" +
-		"import java.util.ArrayList;\n" + 
+		"import java.util.ArrayList;\n" +
 		"public class X {\n" +
 		"  /*start*/ArrayList<?>/*end*/ s;" +
 		"}";
@@ -156,7 +156,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 
 		String genericTypeKey = BindingKey.createTypeBindingKey("java.util.ArrayList");
 		String [] wildcardKeys = new String [] { BindingKey.createWildcardTypeBindingKey(genericTypeKey, Signature.C_STAR, null, 0) };
-		
+
 		String composedBindingKey = BindingKey.createParameterizedTypeBindingKey(genericTypeKey, wildcardKeys);
 
 		if (!composedBindingKey.equals(recoveredBindingKey))
@@ -176,7 +176,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 						},
 						getJavaProject("Converter15")
 					);
-		
+
 		if (bindingFromKey.length != 1)
 			fail("Problem in going from key to binding\n");
 		if (!composedBindingKey.equals(bindingFromKey[0].getKey()))
@@ -186,7 +186,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 			fail("Bad signature");
 		assertTrue("Equals", bindingFromKey[0].isEqualTo(bindingFromAST));
 	}
-	
+
 	public void test0001() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0001", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -666,7 +666,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
 			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
 		assertProblemsSize(compilationUnit, 2, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
@@ -893,7 +893,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" + 
+			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
 			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
 		assertProblemsSize(compilationUnit, 2, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
@@ -3257,12 +3257,12 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents.toCharArray());
-		ASTNode node = runConversion(getJLS8(), this.workingCopy, true);		
+		ASTNode node = runConversion(getJLS8(), this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String expectedOutput = "Dead code";
 		assertProblemsSize(compilationUnit, 1, expectedOutput);
-		
+
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not an assert statement", ASTNode.ASSERT_STATEMENT, node.getNodeType());
 		AssertStatement assertStatement = (AssertStatement) node;
@@ -10353,15 +10353,15 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0316/X.java", true/*resolve*/);
 		ClassInstanceCreation expression = (ClassInstanceCreation) buildAST(
 				"package test0316;\n" +
-				"class AbstractClass {\n" + 
-				"	XXList<Class> statements = null;\n" + 
-				"}\n" + 
+				"class AbstractClass {\n" +
+				"	XXList<Class> statements = null;\n" +
+				"}\n" +
 				"import java.util.ArrayList;\n" +
-				"public class X extends AbstractClass {\n" + 
-				"	public List<Class> compute() {\n" + 
-				"		statements = /*start*/new ArrayList<Class>()/*end*/;\n" + 
-				"		return statements;\n" + 
-				"	}\n" + 
+				"public class X extends AbstractClass {\n" +
+				"	public List<Class> compute() {\n" +
+				"		statements = /*start*/new ArrayList<Class>()/*end*/;\n" +
+				"		return statements;\n" +
+				"	}\n" +
 				"}",
 				this.workingCopy,
 				false,
@@ -10377,14 +10377,14 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0317/X.java", true/*resolve*/);
 		ClassInstanceCreation expression = (ClassInstanceCreation) buildAST(
 				"package test0317;\n" +
-				"import java.util.ArrayList;\n" + 
-				"import java.util.List;\n" + 
-				"public class X {\n" + 
-				"	XXList<Class> statements = null;\n" + 
-				"	public List<Class> compute() {\n" + 
-				"		statements = /*start*/new ArrayList<Class>()/*end*/;\n" + 
-				"		return statements;\n" + 
-				"	}\n" + 
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	XXList<Class> statements = null;\n" +
+				"	public List<Class> compute() {\n" +
+				"		statements = /*start*/new ArrayList<Class>()/*end*/;\n" +
+				"		return statements;\n" +
+				"	}\n" +
 				"}",
 				this.workingCopy,
 				false,
@@ -10399,15 +10399,15 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test0318() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0317/X.java", true/*resolve*/);
 		SimpleType type = (SimpleType) buildAST(
-				"class X {\n" + 
-				"	{\n" + 
-				"		abstract class B<T> {\n" + 
-				"			abstract class A {}\n" + 
-				"			public void foo() {\n" + 
-				"				new /*start*/A/*end*/() {};\n" + 
-				"			}\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"class X {\n" +
+				"	{\n" +
+				"		abstract class B<T> {\n" +
+				"			abstract class A {}\n" +
+				"			public void foo() {\n" +
+				"				new /*start*/A/*end*/() {};\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
 				"}",
 				this.workingCopy,
 				false,
@@ -10467,13 +10467,13 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		String contents =
 			"package test0321;\n" +
 			"import java.util.*;\n" +
-			"class X {\n" + 
-			"	<T extends Collection<? extends Number>> T getLonger(T t1, T t2) {\n" + 
-			"		return t1.size() > t2.size() ? t1 : t2;\n" + 
-			"	}\n" + 
-			"	void m(HashSet<? extends Double> list, ArrayList<? extends Integer> set) {\n" + 
-			"		/*start*/getLonger(list, set)/*end*/;\n" + 
-			"	}\n" + 
+			"class X {\n" +
+			"	<T extends Collection<? extends Number>> T getLonger(T t1, T t2) {\n" +
+			"		return t1.size() > t2.size() ? t1 : t2;\n" +
+			"	}\n" +
+			"	void m(HashSet<? extends Double> list, ArrayList<? extends Integer> set) {\n" +
+			"		/*start*/getLonger(list, set)/*end*/;\n" +
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy(
 				"/Converter15/src/test0321/X.java",
@@ -10490,17 +10490,17 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test0322() throws JavaModelException {
 		String contents =
 			"package test0322;\n" +
-			"@interface Range {\n" + 
-			"	long min() default -9223372036854775808L;\n" + 
-			"	long max() default 9223372036854775807L;\n" + 
-			"	String message() default \"\";\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"	private int id;\n" + 
-			"	/*start*/@Range(max=9999999999999999)/*end*/\n" + 
-			"	public long getId() {\n" + 
-			"		return id;\n" + 
-			"	}\n" + 
+			"@interface Range {\n" +
+			"	long min() default -9223372036854775808L;\n" +
+			"	long max() default 9223372036854775807L;\n" +
+			"	String message() default \"\";\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	private int id;\n" +
+			"	/*start*/@Range(max=9999999999999999)/*end*/\n" +
+			"	public long getId() {\n" +
+			"		return id;\n" +
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy(
 				"/Converter15/src/test0322/X.java",
@@ -10518,20 +10518,20 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0323() throws JavaModelException {
 		String contents =
-			"class X {\n" + 
-			"	{\n" + 
+			"class X {\n" +
+			"	{\n" +
 			"		for(Object obj:\n" +
 			"			new Object[]{\n" +
-			"				new Object(){\n" + 
+			"				new Object(){\n" +
 			"					int field=method(\n" +
-			"					});\n" + 
+			"					});\n" +
 			"				}\n" +
-			"			});\n" + 
-			"	}\n" + 
+			"			});\n" +
+			"	}\n" +
 			"	int method(int...args){\n" +
 			"		return args.length;\n" +
-			"	}\n" + 
-			"}\n" + 
+			"	}\n" +
+			"}\n" +
 			"";
 		this.workingCopy = getWorkingCopy(
 				"/Converter15/src/test0322/X.java",
@@ -10558,7 +10558,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		ParenthesizedExpression newParenthesizedExpression = (ParenthesizedExpression) ASTNode.copySubtree(
 				intValueReceiver.getAST(), intValueReceiver);
 		replaceNodeInParent(methodCall, newParenthesizedExpression);
-		
+
 		// copied node
 		ClassInstanceCreation constructorCall = (ClassInstanceCreation) newParenthesizedExpression.getExpression();
 		constructorCall.resolveTypeBinding();
@@ -10655,16 +10655,16 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0329() throws JavaModelException {
 		String contents =
-			"package test0329;\n" + 
-			"@JoinTable(\n" + 
-			"	name=\"EMP_PROJ\",\n" + 
-			"	joinColumns = {\n" + 
-			"			@JoinColumn(name = \"EMP_ID\", referencedColumnName = \"EMP_ID\")\n" + 
-			"	},\n" + 
-			"	inverseJoinColumns = {\n" + 
-			"			@JoinColumn(name = \"PROJ_ID\", referencedColumnName = \"PROJ_ID\")\n" + 
+			"package test0329;\n" +
+			"@JoinTable(\n" +
+			"	name=\"EMP_PROJ\",\n" +
+			"	joinColumns = {\n" +
+			"			@JoinColumn(name = \"EMP_ID\", referencedColumnName = \"EMP_ID\")\n" +
+			"	},\n" +
+			"	inverseJoinColumns = {\n" +
+			"			@JoinColumn(name = \"PROJ_ID\", referencedColumnName = \"PROJ_ID\")\n" +
 			"	}\n" +
-			")\n" + 
+			")\n" +
 			"public class X {}";
 		this.workingCopy = getWorkingCopy(
 				"/Converter15/src/test0329/X.java",
@@ -10694,12 +10694,12 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0331() throws JavaModelException {
 		String contents =
-			"package test0331;\n" + 
-			"@JoinTable(\n" + 
-			"	name=\"EMP_PROJ\",\n" + 
-			"	joinColumns = @JoinColumn(name = \"EMP_ID\", referencedColumnName = \"EMP_ID\"),\n" + 
+			"package test0331;\n" +
+			"@JoinTable(\n" +
+			"	name=\"EMP_PROJ\",\n" +
+			"	joinColumns = @JoinColumn(name = \"EMP_ID\", referencedColumnName = \"EMP_ID\"),\n" +
 			"	inverseJoinColumns = @JoinColumn(name = \"PROJ_ID\", referencedColumnName = \"PROJ_ID\")\n" +
-			")\n" + 
+			")\n" +
 			"public class X {}";
 		this.workingCopy = getWorkingCopy(
 				"/Converter15/src/test0331/X.java",
@@ -10855,18 +10855,18 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0337() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"        void m() {\n" + 
-			"                int x= 1      ;\n" + 
-			"                int y= - 1  , z=0   ;\n" + 
-			"                // Assignment nodes too long:\n" + 
-			"                int a= x = 2      ;\n" + 
-			"                System.out.print(    x=1     );\n" + 
-			"                java.util.Arrays.asList(    x = 1    /*bla*/  , x= 2\n" + 
-			"                        // comment      \n" + 
-			"                );\n" + 
-			"        }\n" + 
-			"}\n" + 
+			"public class X {\n" +
+			"        void m() {\n" +
+			"                int x= 1      ;\n" +
+			"                int y= - 1  , z=0   ;\n" +
+			"                // Assignment nodes too long:\n" +
+			"                int a= x = 2      ;\n" +
+			"                System.out.print(    x=1     );\n" +
+			"                java.util.Arrays.asList(    x = 1    /*bla*/  , x= 2\n" +
+			"                        // comment      \n" +
+			"                );\n" +
+			"        }\n" +
+			"}\n" +
 			"";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit= (CompilationUnit) buildAST(
@@ -10896,11 +10896,11 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0338() throws JavaModelException {
 		String contents =
-			"/**\n" + 
-			" * The first enum value for my enum.\n" + 
-			" *\n" + 
-			" * @enum myEnum\n" + 
-			" */\n" + 
+			"/**\n" +
+			" * The first enum value for my enum.\n" +
+			" *\n" +
+			" * @enum myEnum\n" +
+			" */\n" +
 			"public class X {}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit= (CompilationUnit) buildAST(
@@ -10920,11 +10920,11 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0339() throws JavaModelException {
 		String contents =
-			"/**\n" + 
-			" * Use const as a tag element name.\n" + 
-			" *\n" + 
-			" * @const new constant\n" + 
-			" */\n" + 
+			"/**\n" +
+			" * Use const as a tag element name.\n" +
+			" *\n" +
+			" * @const new constant\n" +
+			" */\n" +
 			"public class X {}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit= (CompilationUnit) buildAST(
@@ -10944,11 +10944,11 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	 */
 	public void test0340() throws JavaModelException {
 		String contents =
-			"/**\n" + 
-			" * Use the goto as a tag element name.\n" + 
-			" *\n" + 
-			" * @goto new position\n" + 
-			" */\n" + 
+			"/**\n" +
+			" * Use the goto as a tag element name.\n" +
+			" *\n" +
+			" * @goto new position\n" +
+			" */\n" +
 			"public class X {}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit= (CompilationUnit) buildAST(
@@ -11043,56 +11043,56 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=223225
 	public void test344() throws JavaModelException {
 		String contents =
-			"public class X {\n" + 
-			"    private @interface Strings {\n" + 
-			"        String[] value() default \"default element\";\n" + 
-			"    }\n" + 
-			"    private @interface Annot {\n" + 
-			"        String[] value();\n" + 
-			"    }\n" + 
-			"    private @interface Annot2 {\n" + 
-			"        String value();\n" + 
-			"    }\n" + 
-			"    private @interface Annot3 {\n" + 
-			"        Class<?> value();\n" + 
-			"    }\n" + 
-			"    @Strings\n" + 
-			"    public void marker() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Strings(\"single element\")\n" + 
-			"    public void single() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Strings(value = \"single element\")\n" + 
-			"    public void singleValue() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Strings({\"single element\"})\n" + 
-			"    public void singleArray() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Strings(value = {\"single element\"})\n" + 
-			"    public void singleArrayValue() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Strings({\"one\", \"two\", \"three\"})\n" + 
-			"    public void multi() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Strings(value = {\"one\", \"two\", \"three\"})\n" + 
-			"    public void multiValue() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
-			"    @Annot(\"test\")\n" + 
-			"    public void singleValue2() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"    private @interface Strings {\n" +
+			"        String[] value() default \"default element\";\n" +
+			"    }\n" +
+			"    private @interface Annot {\n" +
+			"        String[] value();\n" +
+			"    }\n" +
+			"    private @interface Annot2 {\n" +
+			"        String value();\n" +
+			"    }\n" +
+			"    private @interface Annot3 {\n" +
+			"        Class<?> value();\n" +
+			"    }\n" +
+			"    @Strings\n" +
+			"    public void marker() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Strings(\"single element\")\n" +
+			"    public void single() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Strings(value = \"single element\")\n" +
+			"    public void singleValue() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Strings({\"single element\"})\n" +
+			"    public void singleArray() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Strings(value = {\"single element\"})\n" +
+			"    public void singleArrayValue() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Strings({\"one\", \"two\", \"three\"})\n" +
+			"    public void multi() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Strings(value = {\"one\", \"two\", \"three\"})\n" +
+			"    public void multiValue() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
+			"    @Annot(\"test\")\n" +
+			"    public void singleValue2() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
 			"    @Annot2(\"test\")\n" +
-			"    @Annot3(Object.class)\n" + 
-			"    public void singleValue3() {\n" + 
-			"        // nothing\n" + 
-			"    }\n" + 
+			"    @Annot3(Object.class)\n" +
+			"    public void singleValue3() {\n" +
+			"        // nothing\n" +
+			"    }\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit= (CompilationUnit) buildAST(
@@ -11171,9 +11171,9 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test0345() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0345/X.java", true/*resolve*/);
 		String contents =
-				"package test0345;\n" + 
-				"public class X extends A {\n" + 
-				"	/*start*/@Test(groups = NAME)/*end*/ int i;\n" + 
+				"package test0345;\n" +
+				"public class X extends A {\n" +
+				"	/*start*/@Test(groups = NAME)/*end*/ int i;\n" +
 				"}";
 		NormalAnnotation annotation = (NormalAnnotation) buildAST(
 				contents,
@@ -11191,9 +11191,9 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test0346() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0346/X.java", true/*resolve*/);
 		String contents =
-				"package test0346;\n" + 
-				"public class X extends A {\n" + 
-				"	/*start*/@Test(groups = NAME)/*end*/ int i;\n" + 
+				"package test0346;\n" +
+				"public class X extends A {\n" +
+				"	/*start*/@Test(groups = NAME)/*end*/ int i;\n" +
 				"}";
 		NormalAnnotation annotation = (NormalAnnotation) buildAST(
 				contents,
@@ -11212,12 +11212,12 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test0347() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter15/src/test0347/X.java", true/*resolve*/);
 		String contents =
-				"package test0347;\n" + 
-				"public class X implements One</*start*/Outer<Integer>.Inner<Double>[]/*end*/> {\n" + 
-				"}\n" + 
-				"interface One<T> {}\n" + 
-				"class Outer<T> {\n" + 
-				"	public class Inner<S> {}\n" + 
+				"package test0347;\n" +
+				"public class X implements One</*start*/Outer<Integer>.Inner<Double>[]/*end*/> {\n" +
+				"}\n" +
+				"interface One<T> {}\n" +
+				"class Outer<T> {\n" +
+				"	public class Inner<S> {}\n" +
 				"}";
 		ArrayType type = (ArrayType) buildAST(
 				contents,
@@ -11276,7 +11276,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 			}
 		}
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=334119
 	 * Ensures that dollar in a type name is not confused as the starting of member type
@@ -11294,7 +11294,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 				"Lp/X$Y;",	// should not be Lp/X$Y-X$Y;
 			binding.getKey());
 	}
-	
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=334119
 	 * Ensures that dollar in a type name is not confused as the starting of member type
@@ -11318,11 +11318,11 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	public void test0349() throws JavaModelException {
 		String contents =
 			"import java.util.*;\n" +
-			"public class X {\n" + 
-			"	public static Object foo() {\n" + 
+			"public class X {\n" +
+			"	public static Object foo() {\n" +
 			"		List<String> l = new ArrayList<>();\n" +
 			"		return l;\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit unit = (CompilationUnit) buildAST(

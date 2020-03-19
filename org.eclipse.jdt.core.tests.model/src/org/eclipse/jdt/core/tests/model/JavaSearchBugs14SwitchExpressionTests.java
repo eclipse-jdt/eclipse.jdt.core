@@ -1007,7 +1007,7 @@ public void testBug549413_019() throws CoreException {
 
 	try {
 		search("yield", FIELD, REFERENCES);
-		assertSearchResults("src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" + 
+		assertSearchResults("src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
 				"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
 				"src/X.java void X.main(String[]) [yield] EXACT_MATCH\n" +
 				"src/X.java void X.main(String[]) [yield] EXACT_MATCH");

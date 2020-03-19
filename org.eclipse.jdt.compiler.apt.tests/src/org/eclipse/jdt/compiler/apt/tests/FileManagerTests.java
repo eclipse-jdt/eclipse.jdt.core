@@ -77,18 +77,18 @@ public class FileManagerTests extends TestCase {
 		StandardJavaFileManager fileManager = null;
 		try {
 			fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
-	
+
 			List<File> fins = new ArrayList<File>();
 			fins.add(dir);
-	
+
 			JavaFileManager.Location sourceLoc = javax.tools.StandardLocation.SOURCE_PATH;
 			fileManager.setLocation(sourceLoc, fins);
-	
+
 			Set<JavaFileObject.Kind> fileTypes = new HashSet<JavaFileObject.Kind>();
 			fileTypes.add(JavaFileObject.Kind.SOURCE);
-	
+
 			Iterable<? extends JavaFileObject> compilationUnits = fileManager.list(sourceLoc, "", fileTypes, true);
-	
+
 			Iterator<? extends JavaFileObject> it = compilationUnits.iterator();
 			StringBuilder builder = new StringBuilder();
 			while (it.hasNext()) {
@@ -99,7 +99,7 @@ public class FileManagerTests extends TestCase {
 				builder.append(name.substring(lastIndexOf + 1));
 			}
 			assertEquals("Wrong contents", "X.java", String.valueOf(builder));
-			
+
 			List<File> files = new ArrayList<File>();
 			files.add(dir);
 			try {
@@ -108,7 +108,7 @@ public class FileManagerTests extends TestCase {
 			} catch(IllegalArgumentException iae) {
 				// Do nothing
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -145,12 +145,12 @@ public class FileManagerTests extends TestCase {
 		}
 		try {
 			StandardJavaFileManager fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
-	
+
 			List<File> fins = new ArrayList<File>();
 			fins.add(dir);
 			JavaFileManager.Location sourceLoc = javax.tools.StandardLocation.SOURCE_PATH;
 			fileManager.setLocation(sourceLoc, fins);
-	
+
 			Set<JavaFileObject.Kind> fileTypes = new HashSet<JavaFileObject.Kind>();
 			fileTypes.add(JavaFileObject.Kind.OTHER);
 
@@ -189,7 +189,7 @@ public class FileManagerTests extends TestCase {
 			assertTrue("rt.jar not found", found);
 		} catch (IOException e) {
 			fail(e.getMessage());
-		} 
+		}
 	}
 	private boolean isOnJRE9() {
 		try {

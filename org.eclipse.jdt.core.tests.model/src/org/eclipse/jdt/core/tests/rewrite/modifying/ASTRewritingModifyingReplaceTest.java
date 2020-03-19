@@ -466,7 +466,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331138
 	// Make sure comments between removed and replaced node are not removed.
 	public void test0014a() throws Exception {
@@ -498,10 +498,10 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 		List statements = body.statements();
 		VariableDeclarationStatement varDeclaration = (VariableDeclarationStatement) statements.get(0);
 		statements.remove(0);
-		
+
 		statements.set(0, varDeclaration);
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0014;\n");
 		buf.append("public class X {\n");
@@ -518,7 +518,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331138
 	// Make sure comments between removed and replaced node are not removed.
 	public void test0014b() throws Exception {
@@ -551,10 +551,10 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 		List statements = body.statements();
 		VariableDeclarationStatement varDeclaration = (VariableDeclarationStatement) statements.get(0);
 		statements.remove(0);
-		
+
 		statements.set(0, varDeclaration);
 		String preview = evaluateRewrite(cu, astRoot);
-		
+
 		buf= new StringBuffer();
 		buf.append("package test0014;\n");
 		buf.append("public class X {\n");

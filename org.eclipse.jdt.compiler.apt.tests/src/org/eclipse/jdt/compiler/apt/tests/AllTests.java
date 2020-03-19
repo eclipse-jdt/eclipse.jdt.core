@@ -11,7 +11,7 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - Java 8 support
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.compiler.apt.tests;
 

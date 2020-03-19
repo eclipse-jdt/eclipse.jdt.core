@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -737,43 +737,43 @@ public void test0007() {
 // incorrectly used modifier
 public void test0008() {
 	String s =
-		"public class Try {\n" + 
-		"\n" + 
-		"    void m() {\n" + 
-		"\n" + 
-		"        synchronized new Object();\n" + 
-		"\n" + 
+		"public class Try {\n" +
+		"\n" +
+		"    void m() {\n" +
+		"\n" +
+		"        synchronized new Object();\n" +
+		"\n" +
 		"    }\n" +
-		"}\n" + 
+		"}\n" +
 		"\n";
 
 	String expectedDietUnitToString =
-			"public class Try {\n" + 
-			"  public Try() {\n" + 
-			"  }\n" + 
-			"  void m() {\n" + 
-			"  }\n" + 
+			"public class Try {\n" +
+			"  public Try() {\n" +
+			"  }\n" +
+			"  void m() {\n" +
+			"  }\n" +
 			"}\n";
 
 		String expectedDietWithStatementRecoveryUnitToString =
 			expectedDietUnitToString;
 
 		String expectedDietPlusBodyUnitToString =
-				"public class Try {\n" + 
-				"  public Try() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void m() {\n" + 
-				"  }\n" + 
+				"public class Try {\n" +
+				"  public Try() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void m() {\n" +
+				"  }\n" +
 				"}\n";
 
 		String expectedDietPlusBodyWithStatementRecoveryUnitToString =
-				"public class Try {\n" + 
-				"  public Try() {\n" + 
-				"    super();\n" + 
-				"  }\n" + 
-				"  void m() {\n" + 
-				"  }\n" + 
+				"public class Try {\n" +
+				"  public Try() {\n" +
+				"    super();\n" +
+				"  }\n" +
+				"  void m() {\n" +
+				"  }\n" +
 				"}\n";
 
 		String expectedFullUnitToString =

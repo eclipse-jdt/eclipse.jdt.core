@@ -696,7 +696,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 		// we may use a different resource for certain problems such as IProblem.MissingNonNullByDefaultAnnotationOnPackage
 		// but at the start of the next problem we should reset it to the source file's resource
 		IResource resource = sourceFile.resource;
-		
+
 		// handle buildpath problems (missing classfile, unresolved add-reads...)
 		String buildPathProblemMessage = null;
 		if (id == IProblem.IsClassPathCorrect) {
@@ -741,7 +741,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 				PackageFragment pkg = null;
 				if (pkgEnd != -1)
 					pkg = (PackageFragment) Util.getPackageFragment(sourceFile.getFileName(), pkgEnd, -1 /*no jar separator for java files*/);
-				
+
 				if (pkg != null) {
 					try {
 						IMarker[] existingMarkers = pkg.resource().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);

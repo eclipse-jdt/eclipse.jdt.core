@@ -232,7 +232,7 @@ class MethodBinding implements IMethodBinding {
 						((metaTagBits & TagBits.AnnotationTargetMASK) != 0)) {
 					continue;
 				}
-				
+
 				final IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
 				if (annotationInstance == null) {
 					continue;
@@ -241,7 +241,7 @@ class MethodBinding implements IMethodBinding {
 			}
 			if (convertedAnnotationCount == length) return tempAnnotations;
 			if (convertedAnnotationCount == 0) return AnnotationBinding.NoAnnotations;
-			
+
 			System.arraycopy(tempAnnotations, 0, (tempAnnotations = new IAnnotationBinding[convertedAnnotationCount]), 0, convertedAnnotationCount);
 			return tempAnnotations;
 		}

@@ -48,7 +48,7 @@ public class BuilderTests extends TestBase
 	public static Test suite() {
 		return new TestSuite(BuilderTests.class);
 	}
-	
+
 	/**
 	 * Verify that a new type generated in the final round does not get
 	 * annotations processed, but does get compiled. The JSR269 spec is somewhat
@@ -69,7 +69,7 @@ public class BuilderTests extends TestBase
 		IProject proj = jproj.getProject();
 		IPath projPath = proj.getFullPath();
 		IPath root = projPath.append("src");
-		
+
 		// The @FinalRoundTestTrigger processor does not generate any files when it
 		// first runs; but on its final round it then generates a new Java type
 		// that is annotated with @FinalRoundTestTrigger.
@@ -80,16 +80,16 @@ public class BuilderTests extends TestBase
 				"public class Foo {}"
 		);
 		AptConfig.setEnabled(jproj, true);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		// Processor should have run total of two rounds; compiled classes
 		// should include Foo and FinalRoundGen.
 		assertEquals(2, TestFinalRoundProc.getNumRounds());
 		expectingUniqueCompiledClasses(new String[] {"t.Foo", "g.FinalRoundGen"});
 	}
-	
+
 	/**
 	 * Verify that a class whose superclass is annotated with an inherited annotation
 	 * gets treated the same as if the annotation were present on the class itself.
@@ -102,7 +102,7 @@ public class BuilderTests extends TestBase
 		IProject proj = jproj.getProject();
 		IPath projPath = proj.getFullPath();
 		IPath root = projPath.append("src");
-		
+
 		env.addClass(root, "", "Base",
 				"import org.eclipse.jdt.apt.pluggable.tests.annotations.InheritedTrigger;\n" +
 				"@InheritedTrigger(0)\n" +
@@ -114,9 +114,9 @@ public class BuilderTests extends TestBase
 				"public class Sub extends Base {\n" +
 				"}"
 		);
-			
+
 		AptConfig.setEnabled(jproj, true);
-		
+
 		fullBuild();
 		expectingNoProblems();
 		List<String> elements = InheritedAnnoProc.getProcessedElements();
@@ -139,7 +139,7 @@ public class BuilderTests extends TestBase
 		assertTrue(elements.contains("Sub"));
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
-		
+
 		// Modify subclass and verify that it gets processed
 		InheritedAnnoProc.clearProcessedElements();
 		env.addClass(root, "", "Sub",
@@ -154,9 +154,9 @@ public class BuilderTests extends TestBase
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
-	
+
 	/**
-	 * Deleting FooEvent caused the reference to FooEvent in 
+	 * Deleting FooEvent caused the reference to FooEvent in
 	 * FooImpl to appear as a package in one case and as a type in another,
 	 * in turn causing a null binding to be passed to APT.
 	 *
@@ -169,38 +169,38 @@ public class BuilderTests extends TestBase
 		IProject proj = jproj.getProject();
 		IPath projPath = proj.getFullPath();
 		IPath root = projPath.append("src");
-		
+
 		env.addClass(root, "test295948", "FooEvent",
 				"package test295948;\n" +
-				"public class FooEvent {\n" + 
-				"    public interface Handler {\n" + 
-				"        void handle(FooEvent event);\n" + 
-				"    }\n" + 
-				"}\n" + 
+				"public class FooEvent {\n" +
+				"    public interface Handler {\n" +
+				"        void handle(FooEvent event);\n" +
+				"    }\n" +
+				"}\n" +
 				"\n"
 		);
-		
+
 		IPath fooImplClass = env.addClass(root, "test295948", "FooImpl",
 				"package test295948;\n" +
-				"public class FooImpl implements FooEvent.Handler {\n" + 
-				"    @Override\n" + 
-				"    public void handle(FooEvent event) {\n" + 
-				"    }\n" + 
+				"public class FooImpl implements FooEvent.Handler {\n" +
+				"    @Override\n" +
+				"    public void handle(FooEvent event) {\n" +
+				"    }\n" +
 				"}\n"
 		);
-		
+
 		AptConfig.setEnabled(jproj, true);
-		
+
 		fullBuild();
 		expectingNoProblems();
-		
+
 		// Delete FooEvent and recompile
 		proj.findMember("src/test295948/FooEvent.java").delete(false, null);
 		incrementalBuild();
 		expectingProblemsFor(fooImplClass,
-				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <108,116> category : <40> severity : <2>]\n" + 
+				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <108,116> category : <40> severity : <2>]\n" +
 				"Problem : FooEvent cannot be resolved to a type [ resource : </" + _projectName + "/src/test295948/FooImpl.java> range : <52,60> category : <40> severity : <2>]");
-	}	
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=407841
 	public void testBug407841() throws Throwable {
 		int old = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
@@ -211,7 +211,7 @@ public class BuilderTests extends TestBase
 			disableJava5Factories(jproj);
 			IProject proj = jproj.getProject();
 			IdeTestUtils.copyResources(proj, "targets/bug407841", "src/targets/bug407841");
-			
+
 			AptConfig.setEnabled(jproj, true);
 			fullBuild();
 			expectingNoProblems();
@@ -257,7 +257,7 @@ public class BuilderTests extends TestBase
 		} finally {
 		}
 	}
-	
+
 	public void testBug387956() throws Exception {
 		ProcessorTestStatus.reset();
 		IJavaProject jproj = createJavaProject(_projectName);
@@ -281,7 +281,7 @@ public class BuilderTests extends TestBase
 			// Force the build to be batched
 			AbstractImageBuilder.MAX_AT_ONCE = 1;
 			ProcessorTestStatus.reset();
-			
+
 			env.addClass(root, "test", "Foo",
 					"package test;\n" +
 					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
@@ -297,12 +297,12 @@ public class BuilderTests extends TestBase
 			        "    public Foo foo;\n" +
 				    "}");
 			AptConfig.setEnabled(jproj, true);
-			
+
 			fullBuild();
 			expectingNoProblems();
 			expectingUniqueCompiledClasses(
 					new String[] {"test.Foo", "test.Bar", "test.FooGen", "test.BarGen"});
-			
+
 		} finally {
 			AbstractImageBuilder.MAX_AT_ONCE = old;
 			env.removeClass(packagePath, "Foo");
@@ -312,7 +312,7 @@ public class BuilderTests extends TestBase
 
 		}
 	}
-	
+
 	public void testBug468853() throws Throwable {
 		int old = AbstractImageBuilder.MAX_AT_ONCE;
 		IJavaProject jproj = createJavaProject(_projectName);
@@ -325,7 +325,7 @@ public class BuilderTests extends TestBase
 			// Force the build to be batched
 			AbstractImageBuilder.MAX_AT_ONCE = 2;
 			ProcessorTestStatus.reset();
-			
+
 			env.addClass(root, "test", "Foo",
 					"package test;\n" +
 							"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
@@ -342,18 +342,18 @@ public class BuilderTests extends TestBase
 							"    public Foo foo;\n" +
 					"}");
 			AptConfig.setEnabled(jproj, true);
-			
+
 			fullBuild();
 			expectingNoProblems();
 			expectingUniqueCompiledClasses(
 					new String[] {"test.Foo", "test.Bar", "test.FooGen", "test.FooGenGen"});
-			
+
 		} finally {
 			AbstractImageBuilder.MAX_AT_ONCE = old;
 			env.removeClass(packagePath, "Foo");
 			env.removeClass(packagePath, "Bar");
 			env.removeClass(packagePath, "FooGen");
-			
+
 		}
 	}
 
@@ -389,7 +389,7 @@ public class BuilderTests extends TestBase
 		fullBuild();
 		assertTrue("Processor should be able to compile with passed options", Bug341298Processor.success());
 	}
-	
+
 	public void testBug539663() throws Throwable {
 		if (!canRunJava9()) {
 			return;
@@ -403,7 +403,7 @@ public class BuilderTests extends TestBase
 		IPath packagePath = root.append("test");
 		try {
 			env.addClass(root, null, "module-info", "module example {requires annotations;}");
-			
+
 			env.addClass(root, "test", "Foo",
 					"package test;\n" +
 					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
@@ -412,9 +412,9 @@ public class BuilderTests extends TestBase
 			        "    public void f(ImmutableFoo o) { }\n" +
 				    "}");
 			AptConfig.setEnabled(jproj, true);
-			
+
 			fullBuild();
-			expectingNoProblems();			
+			expectingNoProblems();
 		} finally {
 			env.removeClass(packagePath, "module-info");
 			env.removeClass(packagePath, "Foo");

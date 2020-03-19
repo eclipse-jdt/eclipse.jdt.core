@@ -43,14 +43,14 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 	static {
 //		 TESTS_NAMES = new String[] { "testAddReads" };
 	}
-	
+
 	public static Test suite() {
 		return buildModelTestSuite(ModuleOptionsTests.class, BYTECODE_DECLARATION_ORDER);
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		ClasspathJrt.resetCaches();
-	}	
+	}
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 	}
@@ -102,9 +102,9 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0));
 			assertMarkers("Unexpected markers",
-					"java.awt cannot be resolved to a type\n" + 
 					"java.awt cannot be resolved to a type\n" +
-					"java.desktop cannot be resolved to a module\n" + 
+					"java.awt cannot be resolved to a type\n" +
+					"java.desktop cannot be resolved to a module\n" +
 					"java.datatransfer cannot be resolved to a module",
 					markers);
 		} finally {
@@ -189,8 +189,8 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 				"src/org/astro/Test2.java",
 				"package org.astro;\n" +
 				"public class Test2 {\n" +
-				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" + 
-				"		return unsafe.addressSize();\n" + 
+				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
+				"		return unsafe.addressSize();\n" +
 				"	}" +
 				"}\n",
 			};
@@ -359,7 +359,7 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			String[] sources = new String[] {
 					"src/module-info.java",
 					"module org.astro {\n" +
-					"	exports org.astro;\n" + 
+					"	exports org.astro;\n" +
 					"}",
 					"src/org/astro/World.java",
 					"package org.astro;\n" +
@@ -421,8 +421,8 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			setCPAttributes(p2, attrs, dep2);
 			getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers",	
-					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" + 
+			assertMarkers("Unexpected markers",
+					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" +
 					"The type org.astro.World cannot be resolved. It is indirectly referenced from required .class files",
 					markers);
 		} finally {
@@ -439,7 +439,7 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			String[] sources = new String[] {
 					"src/module-info.java",
 					"module org.astro {\n" +
-					"	exports org.astro;\n" + 
+					"	exports org.astro;\n" +
 					"}",
 					"src/org/astro/World.java",
 					"package org.astro;\n" +
@@ -493,8 +493,8 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupModuleProject("com.greetings", src2, new IClasspathEntry[] { dep1, dep2 });
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers",	
-					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" + 
+			assertMarkers("Unexpected markers",
+					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" +
 					"The type org.astro.World cannot be resolved. It is indirectly referenced from required .class files",
 					markers);
 			IClasspathAttribute[] attrs = new IClasspathAttribute[] {
@@ -599,20 +599,20 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 				"}\n"
 			};
 			createSourceFiles(patchProject, patchSources);
-			
+
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = patchProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The type jdk.internal.misc.Unsafe is not accessible\n" + 
+					"The type jdk.internal.misc.Unsafe is not accessible\n" +
 					"Signal cannot be resolved to a type",
 					markers);
-			
+
 			attributes = new IClasspathAttribute[] {
 				JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
 				JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.base")
 			};
 			setJRECPAttributes(patchProject, attributes);
-			
+
 			getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 
 			markers = patchProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -647,19 +647,19 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 				"}\n"
 			};
 			createSourceFiles(patchProject, patchSources);
-			
+
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			
+
 			attributes = new IClasspathAttribute[] {
 				JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
 			};
 			setJRECPAttributes(patchProject, attributes);
-			
+
 			getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 
 			IMarker[] markers = patchProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The type jdk.internal.misc.Unsafe is not accessible\n" + 
+					"The type jdk.internal.misc.Unsafe is not accessible\n" +
 					"Signal cannot be resolved to a type",
 					markers);
 		} finally {

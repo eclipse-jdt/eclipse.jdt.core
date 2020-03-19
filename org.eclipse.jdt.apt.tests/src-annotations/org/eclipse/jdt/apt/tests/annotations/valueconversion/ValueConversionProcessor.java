@@ -29,9 +29,9 @@ import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.AnnotationType;
 
 public class ValueConversionProcessor extends BaseProcessor {
-	
+
 	public static final Byte BYTE_49 = 49;
-	public static final Byte BYTE_50 = 50; 
+	public static final Byte BYTE_50 = 50;
 	public static final Character CHAR_ONE = '1';
 	public static final Character CHAR_TWO = '2';
 	public static final Double DOUBLE_49 = 49d;
@@ -44,39 +44,39 @@ public class ValueConversionProcessor extends BaseProcessor {
 	public static final Long LONG_50 = 50l;
 	public static final Short SHORT_49 = 49;
 	public static final Short SHORT_50 = 50;
-	
+
 	public ValueConversionProcessor(AnnotationProcessorEnvironment env)
 	{
 		super(env);
 	}
-	
-	public void process() 
+
+	public void process()
 	{
 		ProcessorTestStatus.setProcessorRan();
 		final TypeDeclaration test = _env.getTypeDeclaration("sample.Test");
 		if( test == null )
 			junit.framework.TestCase.assertNotNull("failed to locate type 'sample.Test'", test);
-		
+
 		testCompilerAPIPath(test);
 		testReflectionPath(test);
 	}
-	
+
 	private void testCompilerAPIPath(TypeDeclaration test){
 		final Collection<AnnotationMirror> annotations = test.getAnnotationMirrors();
 		final int numAnnotations = annotations == null ? 0 : annotations.size();
 		junit.framework.TestCase.assertEquals("annotation number mismatch", 1, numAnnotations);
-		
+
 		final AnnotationMirror annotation = annotations.iterator().next();
 		final AnnotationType annotationType = annotation.getAnnotationType();
 		final String annoTypeName = annotationType.getDeclaration().getQualifiedName();
 		if( !Annotation.class.getName().equals( annoTypeName ) &&
 			!AnnotationWithArray.class.getName().equals( annoTypeName ))
 			return;
-	
+
 		final Map<AnnotationTypeElementDeclaration, AnnotationValue> elementValues =
 			annotation.getElementValues();
-		
-		for( Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : 
+
+		for( Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry :
 			 elementValues.entrySet() ){
 			AnnotationTypeElementDeclaration elementDecl = entry.getKey();
 			final String name = elementDecl.getSimpleName();
@@ -84,7 +84,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 			compare(name, value.getValue());
 		}
 	}
-	
+
 	private void testReflectionPath(TypeDeclaration test){
 		final RefAnnotation refAnno = test.getAnnotation(RefAnnotation.class);
 		if( refAnno != null ){
@@ -110,7 +110,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 			compare("str", refAnnoArray.str());
 		}
 	}
-	
+
 	private void compare(final String name, final Object actualValue){
 		if( name.length() == 1 )
 		{
@@ -125,7 +125,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 			case 'b':
 				expectedType = Byte.class;
 				expectedValue = BYTE_49;
-				break;					
+				break;
 			case 'c':
 				expectedType = Character.class;
 				expectedValue = CHAR_ONE;
@@ -155,7 +155,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 				throw new IllegalStateException(); // won't get here.
 			}
 			assertValueTypeMatch(name, actualValue, expectedType, expectedValue);
-		}	
+		}
 		else{
 			final Class<?> expectedElementType;
 			final Object[] expectedElementValues;
@@ -186,7 +186,7 @@ public class ValueConversionProcessor extends BaseProcessor {
 			else if( "floats".equals(name) ){
 				expectedElementType = Float.class;
 				expectedElementValues = new Object[]{FLOAT_49, FLOAT_50};
-				
+
 			}
 			else if( "doubles".equals(name) ){
 				expectedElementType = Double.class;
@@ -205,257 +205,257 @@ public class ValueConversionProcessor extends BaseProcessor {
 			assertArrayValueTypeMatch(name, actualList, expectedElementType, expectedElementValues);
 		}
 	}
-	
+
 	private void assertValueTypeMatch(
-			final String name, 
-			final Object actualValue, 
+			final String name,
+			final Object actualValue,
 			final Class<?> expectedType,
 			final Object expectedValue)
 	{
 		if( actualValue != null && expectedType != actualValue.getClass() ){
-			final Messager msgr = _env.getMessager(); 
-			msgr.printError("type mismatch for member " + name + 
+			final Messager msgr = _env.getMessager();
+			msgr.printError("type mismatch for member " + name +
 					" expected " + expectedType.getName() + " but got " + actualValue.getClass().getName());
 		}
 		else if( !expectedValue.equals(actualValue) ){
-			final Messager msgr = _env.getMessager(); 
-			msgr.printError("value mismatch for member " + name + 
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
 					" expected " + expectedValue + " but got " + actualValue);
 		}
 	}
-	
+
 	private void assertArrayValueTypeMatch(
-			final String name, 
-			final List<AnnotationValue> actualValues, 
+			final String name,
+			final List<AnnotationValue> actualValues,
 			final Class<?> expectedElementType,
 			final Object[] expectedValues)
-	{	
+	{
 		int i=0;
 		for( AnnotationValue av : actualValues ){
 			assertValueTypeMatch(name, av.getValue(), expectedElementType, expectedValues[i] );
 			i++;
 		}
 	}
-	
+
 	private void assertValueMatch(
 			final String name,
 			final boolean actual,
 			final boolean expected){
-		
+
 		if( actual != expected ){
 			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final byte actual,
-			final byte expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final char actual,
-			final char expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final double actual,
-			final double expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final float actual,
-			final float expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final int actual,
-			final int expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final long actual,
-			final long expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
-					" expected " + expected + " but got " + actual);
-		}
-	}
-	
-	private void assertValueMatch(
-			final String name,
-			final short actual,
-			final short expected){
-		
-		if( actual != expected ){
-			final Messager msgr = _env.getMessager();
-			msgr.printError("value mismatch for member " + name + 
+			msgr.printError("value mismatch for member " + name +
 					" expected " + expected + " but got " + actual);
 		}
 	}
 
-	
+	private void assertValueMatch(
+			final String name,
+			final byte actual,
+			final byte expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+	private void assertValueMatch(
+			final String name,
+			final char actual,
+			final char expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+	private void assertValueMatch(
+			final String name,
+			final double actual,
+			final double expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+	private void assertValueMatch(
+			final String name,
+			final float actual,
+			final float expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+	private void assertValueMatch(
+			final String name,
+			final int actual,
+			final int expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+	private void assertValueMatch(
+			final String name,
+			final long actual,
+			final long expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+	private void assertValueMatch(
+			final String name,
+			final short actual,
+			final short expected){
+
+		if( actual != expected ){
+			final Messager msgr = _env.getMessager();
+			msgr.printError("value mismatch for member " + name +
+					" expected " + expected + " but got " + actual);
+		}
+	}
+
+
 	private void assertArrayValueMatch(
 			final String name,
 			final boolean[] actual,
 			final boolean[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( boolean a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final byte[] actual,
 			final byte[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( byte a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final char[] actual,
 			final char[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( char a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final double[] actual,
 			final double[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( double a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final float[] actual,
 			final float[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( float a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final int[] actual,
 			final int[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( int a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final long[] actual,
 			final long[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( long a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;
 		}
 	}
-	
+
 	private void assertArrayValueMatch(
 			final String name,
 			final short[] actual,
 			final short[] expected){
-		
+
 		int i=0;
-		final Messager msgr = _env.getMessager(); 
+		final Messager msgr = _env.getMessager();
 		for( short a : actual ){
 			if( a != expected[i] ){
-				msgr.printError("value mismatch for member " + name + 
+				msgr.printError("value mismatch for member " + name +
 						" expected " + expected[i] + " but got " + a);
 			}
 			i++;

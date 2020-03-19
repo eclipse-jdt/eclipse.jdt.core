@@ -65,7 +65,7 @@ import org.eclipse.osgi.util.NLS;
  * INT_SIZE * (M + 1)   | pointer to head of linked list of blocks of size (M + MIN_BLOCK_DELTAS) * BLOCK_SIZE_DELTA
  * FREE_BLOCK_OFFSET    | chunk number for the root of the large block free space trie
  * WRITE_NUMBER_OFFSET  | long integer which is incremented on every write
- * MALLOC_STATS_OFFSET  | memory usage statistics  
+ * MALLOC_STATS_OFFSET  | memory usage statistics
  * DATA_AREA            | The database singletons are stored here and use the remainder of chunk 0
  *
  * M = CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS
@@ -84,7 +84,7 @@ import org.eclipse.osgi.util.NLS;
  * offset            content
  * 	                 _____________________________
  * 0                | size of block (negative indicates the block is in use) (2 bytes)
- * 2                | content of the struct 
+ * 2                | content of the struct
  *
  */
 public class Database {
@@ -99,7 +99,7 @@ public class Database {
 
 	public static final int BLOCK_SIZE_DELTA_BITS = 3;
 	public static final int BLOCK_SIZE_DELTA= 1 << BLOCK_SIZE_DELTA_BITS;
-	
+
 	// Fields that are only used by free blocks
 	private static final int BLOCK_PREV_OFFSET = BLOCK_HEADER_SIZE;
 	private static final int BLOCK_NEXT_OFFSET = BLOCK_HEADER_SIZE + INT_SIZE;
@@ -309,8 +309,8 @@ public class Database {
 
 	/**
 	 * Attempts to perform an uninterruptable write operation on the database. Returns true if an attempt was made
-	 * to interrupt it. 
-	 * 
+	 * to interrupt it.
+	 *
 	 * @throws IOException
 	 */
 	private boolean performUninterruptableWrite(IORunnable runnable) throws IOException {
@@ -334,7 +334,7 @@ public class Database {
 			}
 		}
 	}
-	
+
 	public void transferTo(FileChannel target) throws IOException {
 		assert this.fLocked;
         final FileChannel from= this.fFile.getChannel();
@@ -365,7 +365,7 @@ public class Database {
 	 * Empty the contents of the Database, make it ready to start again. Interrupting the thread with
 	 * {@link Thread#interrupt()} won't interrupt the write. Returns true iff the thread was interrupted
 	 * with {@link Thread#interrupt()}.
-	 * 
+	 *
 	 * @throws IndexException
 	 */
 	public boolean clear(int version) throws IndexException {
@@ -434,7 +434,7 @@ public class Database {
 
 	/**
 	 * Return the Chunk that contains the given offset.
-	 * 
+	 *
 	 * @throws IndexException
 	 */
 	public Chunk getChunk(long offset) throws IndexException {
@@ -531,7 +531,7 @@ public class Database {
 		assert this.fExclusiveLock;
 		assert datasize >= 0;
 		assert datasize <= MAX_MALLOC_SIZE;
-		
+
 		long result;
 		int usedSize;
 		this.log.start(this.mallocTag);
@@ -549,7 +549,7 @@ public class Database {
 				if (needDeltas < MIN_BLOCK_DELTAS) {
 					needDeltas = MIN_BLOCK_DELTAS;
 				}
-	
+
 				// Which block size.
 				int useDeltas;
 				for (useDeltas = needDeltas; useDeltas <= MAX_BLOCK_DELTAS; useDeltas++) {
@@ -557,7 +557,7 @@ public class Database {
 					if (freeBlock != 0)
 						break;
 				}
-	
+
 				// Get the block.
 				Chunk chunk;
 				if (freeBlock == 0) {
@@ -579,18 +579,18 @@ public class Database {
 					}
 					removeBlock(chunk, useDeltas * BLOCK_SIZE_DELTA, freeBlock);
 				}
-	
+
 				final int unusedDeltas = useDeltas - needDeltas;
 				if (unusedDeltas >= MIN_BLOCK_DELTAS) {
 					// Add in the unused part of our block.
 					addBlock(chunk, unusedDeltas * BLOCK_SIZE_DELTA, freeBlock + needDeltas * BLOCK_SIZE_DELTA);
 					useDeltas = needDeltas;
 				}
-	
+
 				// Make our size negative to show in use.
 				usedSize = useDeltas * BLOCK_SIZE_DELTA;
 				chunk.putShort(freeBlock, (short) -usedSize);
-	
+
 				// Clear out the block, lots of people are expecting this.
 				chunk.clear(freeBlock + BLOCK_HEADER_SIZE, usedSize - BLOCK_HEADER_SIZE);
 				result = freeBlock + BLOCK_HEADER_SIZE;
@@ -616,7 +616,7 @@ public class Database {
 
 	/**
 	 * Clears all the bytes in the given range by setting them to zero.
-	 * 
+	 *
 	 * @param startAddress first address to clear
 	 * @param bytesToClear number of addresses to clear
 	 */
@@ -649,7 +649,7 @@ public class Database {
 	/**
 	 * Obtains a new block that can fit the given number of bytes (at minimum). Returns the
 	 * chunk number.
-	 * 
+	 *
 	 * @param datasize minimum number of bytes needed
 	 * @return the chunk number
 	 */
@@ -733,7 +733,7 @@ public class Database {
 	/**
 	 * Unlinks a free block (which currently belongs to the free block trie) so that it may
 	 * be reused.
-	 * 
+	 *
 	 * @param freeBlockChunkNum chunk number of the block to be unlinked
 	 */
 	private void unlinkFreeBlock(int freeBlockChunkNum) {
@@ -809,7 +809,7 @@ public class Database {
 	/**
 	 * Returns the chunk number of a free block that contains at least the given number of chunks, or
 	 * 0 if there is no existing contiguous free block containing at least the given number of chunks.
-	 * 
+	 *
 	 * @param numChunks minumum number of chunks desired
 	 * @return the chunk number of a free block containing at least the given number of chunks or 0
 	 * if there is no existing free block containing that many chunks.
@@ -834,7 +834,7 @@ public class Database {
 	/**
 	 * Given the chunk number of a block somewhere in the free space trie, this returns the smallest
 	 * child in the subtree that is no smaller than the given number of chunks.
-	 * 
+	 *
 	 * @param trieNodeChunkNum chunk number of a block in the free space trie
 	 * @param numChunks desired number of chunks
 	 * @return the chunk number of the first chunk in a contiguous free block containing at least the
@@ -876,7 +876,7 @@ public class Database {
 	/**
 	 * Link the given unused block into the free block tries. The block does not need to have
 	 * its header filled in already.
-	 * 
+	 *
 	 * @param freeBlockChunkNum chunk number of the start of the block
 	 * @param numChunks number of chunks in the block
 	 */
@@ -1056,11 +1056,11 @@ public class Database {
 			}
 		}
 	}
-	
+
 	/**
 	 * Adds the given child block to the given parent subtree of the free space trie. Any existing
 	 * subtree under the given child block will be retained.
-	 * 
+	 *
 	 * @param parentChunkNum root of the existing tree, or 0 if the child is going to be the new root
 	 * @param newChildChunkNum the new child to insert
 	 */
@@ -1097,7 +1097,7 @@ public class Database {
 	 * Adds the given block to the linked list of equally-sized free chunks in the free space trie.
 	 * Both chunks must be unused, must be the same size, and the previous chunk must already
 	 * be linked into the free space trie. The newly-added chunk must not have any children.
-	 * 
+	 *
 	 * @param prevChunkNum chunk number of previous block in the existing list
 	 * @param newChunkNum new chunk to be added to the list
 	 */
@@ -1118,7 +1118,7 @@ public class Database {
 	/**
 	 * Returns the chunk number of the chunk at the start of a block, given the
 	 * chunk number of the chunk at the start of the following block.
-	 * 
+	 *
 	 * @param chunkNum the chunk number of the chunk immediately following the
 	 * chunk being queried
 	 * @return the chunk number of the chunk at the start of the previous block
@@ -1131,7 +1131,7 @@ public class Database {
 	/**
 	 * Sets the block header and footer for the given range of chunks which make
 	 * up a contiguous block.
-	 * 
+	 *
 	 * @param firstChunkNum chunk number of the first chunk in the block
 	 * @param headerContent the content of the header. Its magnitude is the number of
 	 * chunks in the block. It is positive if the chunk is free and negative if
@@ -1325,11 +1325,11 @@ public class Database {
 				}
 				addBlock(chunk, (int) blockSize, block);
 			}
-	
+
 			if (DEBUG_FREE_SPACE) {
 				periodicValidateFreeSpace();
 			}
-	
+
 			this.freed += blockSize;
 			this.memoryUsage.recordFree(poolId, blockSize);
 		} finally {
@@ -1668,7 +1668,7 @@ public class Database {
 	/**
 	 * Interrupting the thread with {@link Thread#interrupt()} won't interrupt the write. Returns true iff an attempt
 	 * was made to interrupt the thread with {@link Thread#interrupt()}.
-	 * 
+	 *
 	 * @throws IndexException
 	 */
 	private boolean flushAndUnlockChunks(final ArrayList<Chunk> dirtyChunks, boolean isComplete) throws IndexException {

@@ -148,7 +148,7 @@ public class EclipseCompilerImpl extends Main {
 						throw new IllegalArgumentException(this.bind("unit.missing", name)); //$NON-NLS-1$
 					CompilationUnit cu = new CompilationUnit(null,
 							name,
-							null, 
+							null,
 							this.destinationPaths[i],
 							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()), this.modNames[i]) {
 
@@ -521,7 +521,7 @@ public class EclipseCompilerImpl extends Main {
 						Classpath classpath = FileSystem.getClasspath(
 								file.getAbsolutePath(),
 								null,
-								null, 
+								null,
 								this.options,
 								this.releaseVersion);
 							if (classpath != null) {
@@ -545,7 +545,7 @@ public class EclipseCompilerImpl extends Main {
 					system = FileSystem.getOlderSystemRelease(javaHome.getAbsolutePath(), versionFromJdkLevel, null);
 				} else {
 					system = FileSystem.getJrtClasspath(javaHome.toString(), null, null, null);
-				}						
+				}
 				Classpath classpath = new ClasspathJsr199(system, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
 				fileSystemClasspaths.add(classpath);
 			} else {
@@ -567,7 +567,7 @@ public class EclipseCompilerImpl extends Main {
 					Classpath classpath = FileSystem.getClasspath(
 							file.getAbsolutePath(),
 							null,
-							null, 
+							null,
 							this.options,
 							this.releaseVersion);
 					if (classpath != null) {
@@ -581,7 +581,7 @@ public class EclipseCompilerImpl extends Main {
 					Classpath classpath = FileSystem.getClasspath(
 						file.getAbsolutePath(),
 						null,
-						null, 
+						null,
 						this.options,
 						this.releaseVersion);
 					if (classpath != null) {
@@ -605,7 +605,7 @@ public class EclipseCompilerImpl extends Main {
 							Collection<String> moduleNames = classpath.getModuleNames(null);
 							for (String modName : moduleNames) {
 								Path p = Paths.get(classpath.getPath());
-								standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, modName, 
+								standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, modName,
 										Collections.singletonList(p));
 								p = Paths.get(classpath.getDestinationPath());
 							}
@@ -625,7 +625,7 @@ public class EclipseCompilerImpl extends Main {
 									Collection<String> moduleNames = classpath.getModuleNames(null);
 									for (String string : moduleNames) {
 										Path path = Paths.get(classpath.getPath());
-										standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_PATH, string, 
+										standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_PATH, string,
 												Collections.singletonList(path));
 									}
 								}
@@ -653,7 +653,7 @@ public class EclipseCompilerImpl extends Main {
 				if (this.fileManager.hasLocation(StandardLocation.SYSTEM_MODULES)) {
 					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.SYSTEM_MODULES);
 					fileSystemClasspaths.add(classpath);
-				}				
+				}
 				if (this.fileManager.hasLocation(StandardLocation.PATCH_MODULE_PATH)) {
 					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PATCH_MODULE_PATH);
 					fileSystemClasspaths.add(classpath);
@@ -870,6 +870,6 @@ public class EclipseCompilerImpl extends Main {
 		public String getMarkerType() {
 			return this.original.getMarkerType();
 		}
-		
+
 	}
 }

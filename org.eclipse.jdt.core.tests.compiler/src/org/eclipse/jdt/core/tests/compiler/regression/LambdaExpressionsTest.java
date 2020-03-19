@@ -104,13 +104,13 @@ public void test003() {
 				"  }\n" +
 				"}\n",
 				"BiFunction.java",
-				"@FunctionalInterface\n" + 
-				"public interface BiFunction<T, U, R> {\n" + 
-				"    R apply(T t, U u);\n" + 
+				"@FunctionalInterface\n" +
+				"public interface BiFunction<T, U, R> {\n" +
+				"    R apply(T t, U u);\n" +
 				"}",
 				"BinaryOperator.java",
-				"@FunctionalInterface\n" + 
-				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" + 
+				"@FunctionalInterface\n" +
+				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" +
 				"}"
 			},
 			"SUCCESS");
@@ -131,25 +131,25 @@ public void test004() {
 				"  }\n" +
 				"}\n",
 				"BiFunction.java",
-				"@FunctionalInterface\n" + 
-				"public interface BiFunction<T, U, R> {\n" + 
-				"    R apply(T t, U u);\n" + 
+				"@FunctionalInterface\n" +
+				"public interface BiFunction<T, U, R> {\n" +
+				"    R apply(T t, U u);\n" +
 				"}",
 				"BinaryOperator.java",
-				"@FunctionalInterface\n" + 
-				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" + 
+				"@FunctionalInterface\n" +
+				"public interface BinaryOperator<T> extends BiFunction<T,T,T> {\n" +
 				"}"
 			},
-			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" + 
-			"	^^^^^^^^^^^^^^\n" + 
-			"BinaryOperator is a raw type. References to generic type BinaryOperator<T> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" + 
-			"	                                         ^^^\n" + 
-			"The operator + is undefined for the argument type(s) java.lang.Object, java.lang.Object\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" +
+			"	^^^^^^^^^^^^^^\n" +
+			"BinaryOperator is a raw type. References to generic type BinaryOperator<T> should be parameterized\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	BinaryOperator binOp = (x,y) -> { return x+y; };\n" +
+			"	                                         ^^^\n" +
+			"The operator + is undefined for the argument type(s) java.lang.Object, java.lang.Object\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406175, [1.8][compiler][codegen] Generate code for lambdas with expression body.
@@ -320,44 +320,44 @@ public void test014() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" + 
-					"	void doit();\n" + 
-					"}\n" + 
-					"public class X {\n" + 
-					"  public static void nonmain(String[] args) {\n" + 
-					"    int var = 2;\n" + 
-					"    I x2 = () -> {\n" + 
-					"      System.out.println(\"Argc = \" + args.length);\n" + 
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void nonmain(String[] args) {\n" +
+					"    int var = 2;\n" +
+					"    I x2 = () -> {\n" +
+					"      System.out.println(\"Argc = \" + args.length);\n" +
 					"      for (int i = 0; i < args.length; i++) {\n" +
 					"          System.out.println(\"Argv[\" + i + \"] = \" + args[i]);\n" +
 					"      }\n" +
 					"    };\n" +
 					"    x2.doit();\n" +
-					"    var=2;\n" + 
+					"    var=2;\n" +
 					"  }\n" +
-					"  public static void main(String[] args) {\n" + 
+					"  public static void main(String[] args) {\n" +
 					"      nonmain(new String[] {\"Hello! \", \"World!\" });\n" +
 					"  }\n" +
 					"}" ,
 				},
-				"Argc = 2\n" + 
-				"Argv[0] = Hello! \n" + 
+				"Argc = 2\n" +
+				"Argv[0] = Hello! \n" +
 				"Argv[1] = World!");
 }
 public void test015() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" + 
-					"	void doit();\n" + 
-					"}\n" + 
-					"public class X {\n" + 
-					"  public static void main(String[] args) {\n" + 
-					"    try {\n" + 
-					"      new java.io.File((String) null).getCanonicalPath();\n" + 
-					"    } catch (NullPointerException | java.io.IOException ioe) {\n" + 
-					"      I x2 = () -> {\n" + 
-					"        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" + 
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    try {\n" +
+					"      new java.io.File((String) null).getCanonicalPath();\n" +
+					"    } catch (NullPointerException | java.io.IOException ioe) {\n" +
+					"      I x2 = () -> {\n" +
+					"        System.out.println(ioe.getMessage()); // OK: args is not re-assignment since declaration/first assignment\n" +
 					"      };\n" +
 					"      x2.doit();\n" +
 					"    };\n"+
@@ -370,20 +370,20 @@ public void test016() {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"interface I {\n" + 
-					"	void doit();\n" + 
-					"}\n" + 
-					"public class X {\n" + 
-					"  public static void main(String[] args) {\n" + 
-					"    java.util.List<String> list = new java.util.ArrayList<>();\n" + 
+					"interface I {\n" +
+					"	void doit();\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    java.util.List<String> list = new java.util.ArrayList<>();\n" +
 					"    list.add(\"SomeString\");\n" +
-					"    for (String s : list) {\n" + 
-					"      I x2 = () -> {\n" + 
-					"        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" + 
-					"      };\n" + 
+					"    for (String s : list) {\n" +
+					"      I x2 = () -> {\n" +
+					"        System.out.println(s); // OK: args is not re-assignment since declaration/first assignment\n" +
+					"      };\n" +
 					"      x2.doit();\n" +
-					"    };\n" + 
-					"  }\n" + 
+					"    };\n" +
+					"  }\n" +
 					"\n" +
 					"}\n" ,
 				},
@@ -432,7 +432,7 @@ public void test018() {
 					"	}\n" +
 					"}\n",
 				},
-				"631\n" + 
+				"631\n" +
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
@@ -454,7 +454,7 @@ public void test019() {
 					"	}\n" +
 					"}\n",
 				},
-				"631\n" + 
+				"631\n" +
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
@@ -476,7 +476,7 @@ public void test020() {
 					"	}\n" +
 					"}\n",
 				},
-				"631\n" + 
+				"631\n" +
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405071, [1.8][compiler][codegen] Generate code for array constructor references
@@ -498,7 +498,7 @@ public void test021() {
 					"	}\n" +
 					"}\n",
 				},
-				"631\n" + 
+				"631\n" +
 				"136");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
@@ -533,7 +533,7 @@ public void test022() {
 					"    }\n" +
 					"}\n" ,
 				},
-				"OK\n" + 
+				"OK\n" +
 				"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406388,  [1.8][compiler][codegen] Runtime evaluation of method reference produces "BootstrapMethodError: call site initialization exception"
@@ -597,7 +597,7 @@ public void test025() {
 				},
 				"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched
 public void test026() {
 	this.runConformTest(
 			new String[] {
@@ -625,11 +625,11 @@ public void test026() {
 					"	}\n" +
 					"}\n",
 				},
-				"Y.foo(1234,4321)\n" + 
-				"X.foo(1234,4321)\n" + 
+				"Y.foo(1234,4321)\n" +
+				"X.foo(1234,4321)\n" +
 				"5555");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406589, [1.8][compiler][codegen] super call misdispatched
 public void test027() {
 	this.runConformTest(
 			new String[] {
@@ -665,11 +665,11 @@ public void test027() {
 					"	}\n" +
 					"}\n",
 				},
-				"I.foo(1234,4321)\n" + 
-				"5555\n" + 
+				"I.foo(1234,4321)\n" +
+				"5555\n" +
 				"Exception");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406584, Bug 406584 - [1.8][compiler][codegen] ClassFormatError: Invalid method signature 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406584, Bug 406584 - [1.8][compiler][codegen] ClassFormatError: Invalid method signature
 public void test028() {
 	this.runConformTest(
 			new String[] {
@@ -686,10 +686,10 @@ public void test028() {
 					"    }\n" +
 					"}\n",
 				},
-				"deadbeef\n" + 
+				"deadbeef\n" +
 				"feedface");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test029() {
 	this.runConformTest(
 			new String[] {
@@ -722,11 +722,11 @@ public void test029() {
 					"	}\n" +
 					"}\n",
 				},
-				"beeffeed\n" + 
-				"feedface\n" + 
+				"beeffeed\n" +
+				"feedface\n" +
 				"deadbeef");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test030() {
 	this.runConformTest(
 			new String[] {
@@ -751,7 +751,7 @@ public void test030() {
 				},
 				"class Y");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test031() {
 	this.runConformTest(
 			new String[] {
@@ -785,7 +785,7 @@ public void test031() {
 				},
 				"deadbeef");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test032() {
 	this.runConformTest(
 			new String[] {
@@ -819,7 +819,7 @@ public void test032() {
 				},
 				"deadbeef");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test033() {
 	this.runConformTest(
 			new String[] {
@@ -856,7 +856,7 @@ public void test033() {
 				},
 				"beefface");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
 public void test034() {
 	this.runConformTest(
 			new String[] {
@@ -878,7 +878,7 @@ public void test034() {
 				},
 				"5555");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
 public void test035() {
 	this.runConformTest(
 			new String[] {
@@ -905,7 +905,7 @@ public void test035() {
 				},
 				"OK");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
 public void test036() {
 	this.runConformTest(
 			new String[] {
@@ -954,7 +954,7 @@ public void test036() {
 				},
 				"Lambda code generation with instance and local capture works fine in the eclipse compiler");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406319, [1.8][compiler][codegen] Generate code for enclosing instance capture in lambda methods.
 public void test037() {
 	this.runConformTest(
 			new String[] {
@@ -1116,7 +1116,7 @@ public void test042() {
 					"\n" +
 					"}\n",
 				},
-				"X(123456)\n" + 
+				"X(123456)\n" +
 				"Y(987654)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
@@ -1163,8 +1163,8 @@ public void test043() {
 					"\n" +
 					"}\n",
 				},
-				"X(123456)\n" + 
-				"Y(987654)\n" + 
+				"X(123456)\n" +
+				"Y(987654)\n" +
 				"Z(456789)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
@@ -1214,8 +1214,8 @@ public void test044() {
 					"	}\n" +
 					"}\n",
 				},
-				"X(123456)\n" + 
-				"Y(987654)\n" + 
+				"X(123456)\n" +
+				"Y(987654)\n" +
 				"Z(456789)");
 }
 public void test045() {
@@ -1252,36 +1252,36 @@ public void test045() {
 					"	}\n" +
 					"}\n",
 				},
-				"----------\n" + 
-				"1. WARNING in X.java (at line 6)\n" + 
-				"	class Y extends X {\n" + 
-				"	      ^\n" + 
-				"The type Y is never used locally\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 7)\n" + 
-				"	private Y (int y) {\n" + 
-				"	        ^^^^^^^^^\n" + 
-				"The constructor Y(int) is never used locally\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 10)\n" + 
-				"	Y() {\n" + 
-				"	^^^\n" + 
-				"The constructor Y() is never used locally\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 13)\n" + 
-				"	I i = X::new;\n" + 
-				"	  ^\n" + 
-				"The local variable i is hiding a field from type X\n" + 
-				"----------\n" + 
-				"5. ERROR in X.java (at line 15)\n" + 
-				"	i = X.Y::new;\n" + 
-				"	    ^^^\n" + 
-				"X.Y cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"6. ERROR in X.java (at line 27)\n" + 
-				"	new X().new Y().f();\n" + 
-				"	            ^\n" + 
-				"X.Y cannot be resolved to a type\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 6)\n" +
+				"	class Y extends X {\n" +
+				"	      ^\n" +
+				"The type Y is never used locally\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 7)\n" +
+				"	private Y (int y) {\n" +
+				"	        ^^^^^^^^^\n" +
+				"The constructor Y(int) is never used locally\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 10)\n" +
+				"	Y() {\n" +
+				"	^^^\n" +
+				"The constructor Y() is never used locally\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 13)\n" +
+				"	I i = X::new;\n" +
+				"	  ^\n" +
+				"The local variable i is hiding a field from type X\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 15)\n" +
+				"	i = X.Y::new;\n" +
+				"	    ^^^\n" +
+				"X.Y cannot be resolved to a type\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 27)\n" +
+				"	new X().new Y().f();\n" +
+				"	            ^\n" +
+				"X.Y cannot be resolved to a type\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406760, [1.8][compiler][codegen] "VerifyError: Bad type on operand stack" with qualified super method references
@@ -1319,7 +1319,7 @@ public void test046() {
 					"	}\n" +
 					"}\n",
 				},
-				"B\'s toString\n" + 
+				"B\'s toString\n" +
 				"X\'s toString");
 }
 public void test047() {
@@ -1344,10 +1344,10 @@ public void test047() {
 					"	}\n" +
 					"}\n",
 				},
-				"long = 1234\n" + 
-				"args length = 0\n" + 
-				"double = 1234.5678\n" + 
-				"x = 9876\n" + 
+				"long = 1234\n" +
+				"args length = 0\n" +
+				"double = 1234.5678\n" +
+				"x = 9876\n" +
 				"y = 4321");
 }
 public void test048() {
@@ -1378,12 +1378,12 @@ public void test048() {
 					"	}\n" +
 					"}\n",
 				},
-				"long = 1234\n" + 
-				"args length = 0\n" + 
-				"double = 1234.5678\n" + 
-				"x = 9876\n" + 
-				"y = 4321\n" + 
-				"Hello !\n" + 
+				"long = 1234\n" +
+				"args length = 0\n" +
+				"double = 1234.5678\n" +
+				"x = 9876\n" +
+				"y = 4321\n" +
+				"Hello !\n" +
 				"World");
 }
 public void test049() {
@@ -1404,7 +1404,7 @@ public void test049() {
 					"	}\n" +
 					"}\n",
 				},
-				"Hello\n" + 
+				"Hello\n" +
 				"World!");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
@@ -1454,14 +1454,14 @@ public void test050() {
 					"	}\n" +
 					"}\n",
 				},
-				"1246\n" + 
-				"240\n" + 
-				"110\n" + 
-				"11\n" + 
-				"3\n" + 
-				"1246\n" + 
-				"240\n" + 
-				"110\n" + 
+				"1246\n" +
+				"240\n" +
+				"110\n" +
+				"11\n" +
+				"3\n" +
+				"1246\n" +
+				"240\n" +
+				"110\n" +
 				"11");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
@@ -1504,14 +1504,14 @@ public void test051() {
 					"	}\n" +
 					"}"
 				},
-				"A\'s static foo\n" + 
+				"A\'s static foo\n" +
 				"A\'s instance goo");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test052() {
 	this.runConformTest(
 			new String[] {
-					"X.java", 
+					"X.java",
 					"interface I {\n" +
 					"	void foo(int x);\n" +
 					"}\n" +
@@ -1561,8 +1561,8 @@ public void test053() {
 	      "  }\n" +
 	      "}\n"
 	    },
-	    "0 -> A\n" + 
-	    "1 -> B\n" + 
+	    "0 -> A\n" +
+	    "1 -> B\n" +
 	    "2 -> C");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406847, [1.8] lambda code compiles but then produces IncompatibleClassChangeError when run
@@ -1600,7 +1600,7 @@ public void test055() {
 		  "	int foo(int x) {\n" +
 		  "		return x;\n" +
 		  "	}\n" +
-		  "}\n" 
+		  "}\n"
 	    },
 	    "");
 }
@@ -1624,7 +1624,7 @@ public void test056() {
 		  "	int foo(int x) {\n" +
 		  "		return x;\n" +
 		  "	}\n" +
-		  "}\n" 
+		  "}\n"
 	    },
 	    "null");
 }
@@ -1686,7 +1686,7 @@ public void test058() {
 public void testGenericArrayCreation() {
 		this.runConformTest(
 			new String[] {
-					"X.java", 
+					"X.java",
 					"interface I {\n" +
 					"	X<?, ?, ?>[] makeArray(int i);\n" +
 					"}\n" +
@@ -1695,14 +1695,14 @@ public void testGenericArrayCreation() {
 					"		I i = X<?, ?, ?>[]::new; // OK.\n" +
 					"		System.out.println(i.makeArray(1024).length);\n" +
 					"	}\n" +
-					"}\n" + 
+					"}\n" +
 					""
 			},
 			"1024"
 		);
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off.
 public void test421536() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1720,12 +1720,12 @@ public void test421536() {
 			"       System.out.println(\"OK\");\n" +
 			"	}\n" +
 			"}\n"
-		}, 
+		},
 		"OK",
-		customOptions);		
+		customOptions);
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421536, [1.8][compiler] Verify error with small program when preserved unused variables is off.
 public void test421536a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -1744,12 +1744,12 @@ public void test421536a() {
 			"       System.out.println(\"OK\");\n" +
 			"	}\n" +
 			"}\n"
-		}, 
+		},
 		"OK",
-		customOptions);		
+		customOptions);
 }
 
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421607, [1.8][compiler] Verify Error with intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421607, [1.8][compiler] Verify Error with intersection casts
 public void test421607() {
 	runConformTest(
 		new String[] {
@@ -1767,8 +1767,8 @@ public void test421607() {
 			"		((C & I) (I) new C()).foo();\n" +
 			"	}\n" +
 			"}\n"
-		}, 
-		"You will get here");		
+		},
+		"You will get here");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421712, [1.8][compiler] java.lang.NoSuchMethodError with lambda expression in interface default method.
@@ -1792,8 +1792,8 @@ public void test421712() {
 			"		x.foo();\n" +
 			"	}\n" +
 			"}\n"
-		}, 
-		"Lambda instantiated");		
+		},
+		"Lambda instantiated");
 }
 
 
@@ -1801,7 +1801,7 @@ public void test421712() {
 public void test422515() {
 	this.runConformTest(
 			new String[] {
-					"X.java", 
+					"X.java",
 					"public class X {\n" +
 					"    public static void main(String[] args) throws InterruptedException {\n" +
 					"        final int[] result = { 0 };\n" +
@@ -1820,7 +1820,7 @@ public void test422515() {
 public void test422515a() {
 	this.runConformTest(
 			new String[] {
-					"X.java", 
+					"X.java",
 					"public class X {\n" +
 					"    public static void main(String[] args) throws InterruptedException {\n" +
 					"        final int[] result= { 0 };\n" +
@@ -1842,7 +1842,7 @@ public void test422515a() {
 public void test422800() {
 	this.runConformTest(
 			new String[] {
-					"X.java", 
+					"X.java",
 					"public class X {\n" +
 					"    private String fField; // must be here; can be used or unused\n" +
 					"    public void foo(Integer arg) {\n" +
@@ -1863,7 +1863,7 @@ public void test422800() {
 public void test421927() {
 	this.runConformTest(
 			new String[] {
-					"X.java", 
+					"X.java",
 					"interface I { \n" +
 					"	int foo();\n" +
 					"}\n" +
@@ -1949,16 +1949,16 @@ public void testReferenceExpressionInference3b() {
 			"	<V,W extends Number> W bar(V v) { return null; }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
-		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" +
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from I<Object,Object> to I<X,String>\n" +
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" + 
-		"	                                     ^^^^^^^^^\n" + 
-		"The type X does not define i2s(Object) that is applicable here\n" + 
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" +
+		"	                                     ^^^^^^^^^\n" +
+		"The type X does not define i2s(Object) that is applicable here\n" +
 		"----------\n");
 }
 public void testLambdaInference1() {
@@ -2012,20 +2012,20 @@ public void testBug419048_1() {
 			"import java.util.stream.*;\n" +
 			"public class X {\n" +
 			"	public void test() {\n" +
-			"		 List<Person> roster = new ArrayList<>();\n" + 
-			"        \n" + 
-			"        Map<String, Person> map = \n" + 
-			"            roster\n" + 
-			"                .stream()\n" + 
-			"                .collect(\n" + 
-			"                    Collectors.toMap(\n" + 
-			"                        p -> p.getLast(),\n" + 
-			"                        p -> p\n" + 
+			"		 List<Person> roster = new ArrayList<>();\n" +
+			"        \n" +
+			"        Map<String, Person> map = \n" +
+			"            roster\n" +
+			"                .stream()\n" +
+			"                .collect(\n" +
+			"                    Collectors.toMap(\n" +
+			"                        p -> p.getLast(),\n" +
+			"                        p -> p\n" +
 			"                    ));\n" +
 			"	}\n" +
 			"}\n" +
-			"class Person {\n" + 
-			"  public String getLast() { return null; }\n" + 
+			"class Person {\n" +
+			"  public String getLast() { return null; }\n" +
 			"}\n"
 		});
 }
@@ -2039,20 +2039,20 @@ public void testBug419048_2() {
 			"import java.util.stream.*;\n" +
 			"public class X {\n" +
 			"	public void test() {\n" +
-			"		 List<Person> roster = new ArrayList<>();\n" + 
-			"        \n" + 
-			"        Map<String, Person> map = \n" + 
-			"            roster\n" + 
-			"                .stream()\n" + 
-			"                .collect(\n" + 
-			"                    Collectors.toMap(\n" + 
-			"                        Person::getLast,\n" + 
-			"                        Function.identity()\n" + 
+			"		 List<Person> roster = new ArrayList<>();\n" +
+			"        \n" +
+			"        Map<String, Person> map = \n" +
+			"            roster\n" +
+			"                .stream()\n" +
+			"                .collect(\n" +
+			"                    Collectors.toMap(\n" +
+			"                        Person::getLast,\n" +
+			"                        Function.identity()\n" +
 			"                    ));\n" +
 			"	}\n" +
 			"}\n" +
-			"class Person {\n" + 
-			"  public String getLast() { return null; }\n" + 
+			"class Person {\n" +
+			"  public String getLast() { return null; }\n" +
 			"}\n"
 		});
 }
@@ -2066,24 +2066,24 @@ public void testBug419048_3() {
 			"import java.util.stream.*;\n" +
 			"public class X {\n" +
 			"	public void test() {\n" +
-			"		 List<Person> roster = new ArrayList<>();\n" + 
-			"        \n" + 
-			"        Map<String, Person> map = \n" + 
-			"            roster\n" + 
-			"                .stream()\n" + 
-			"                .collect(\n" + 
-			"                    Collectors.toMap(\n" + 
-			"                        new Function<Person, String>() {\n" + 
-			"                            public String apply(Person p) { \n" + 
-			"                                return p.getLast(); \n" + 
-			"                            } \n" + 
-			"                        },\n" + 
-			"                        Function.identity()\n" + 
+			"		 List<Person> roster = new ArrayList<>();\n" +
+			"        \n" +
+			"        Map<String, Person> map = \n" +
+			"            roster\n" +
+			"                .stream()\n" +
+			"                .collect(\n" +
+			"                    Collectors.toMap(\n" +
+			"                        new Function<Person, String>() {\n" +
+			"                            public String apply(Person p) { \n" +
+			"                                return p.getLast(); \n" +
+			"                            } \n" +
+			"                        },\n" +
+			"                        Function.identity()\n" +
 			"                    ));\n" +
 			"	}\n" +
 			"}\n" +
-			"class Person {\n" + 
-			"  public String getLast() { return null; }\n" + 
+			"class Person {\n" +
+			"  public String getLast() { return null; }\n" +
 			"}\n"
 		});
 }
@@ -2137,7 +2137,7 @@ public void test423684() {
 			"        }\n" +
 			"    }\n" +
 			"}\n",
-			"mypackage/MyPublicClass.java",	
+			"mypackage/MyPublicClass.java",
 			"package mypackage;\n" +
 			"class MyPackagePrivateBaseClass {\n" +
 			"    public void doSomething(String input) {\n" +
@@ -2146,39 +2146,39 @@ public void test423684() {
 			"}\n" +
 			"public class MyPublicClass extends MyPackagePrivateBaseClass {\n" +
 			"}\n"
-		}, 
-		"first\n" + 
-		"second\n" + 
-		"third\n" + 
-		"first\n" + 
-		"second\n" + 
+		},
+		"first\n" +
+		"second\n" +
+		"third\n" +
+		"first\n" +
+		"second\n" +
 		"third");
 }
 public void testBug424742() {
 	runNegativeTest(
 		new String[] {
 			"TestInlineLambdaArray.java",
-			"package two.test;\n" + 
-			"\n" + 
-			"class TestInlineLambdaArray {\n" + 
-			"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" + 
-			"	public TestInlineLambda(FI fi) {}\n" + 
-			"}\n" + 
-			"\n" + 
-			"interface FI {\n" + 
-			"		void foo();\n" + 
+			"package two.test;\n" +
+			"\n" +
+			"class TestInlineLambdaArray {\n" +
+			"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" +
+			"	public TestInlineLambda(FI fi) {}\n" +
+			"}\n" +
+			"\n" +
+			"interface FI {\n" +
+			"		void foo();\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in TestInlineLambdaArray.java (at line 4)\n" + 
-		"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" + 
-		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The constructor TestInlineLambdaArray((<no type> x) -> {}) is undefined\n" + 
-		"----------\n" + 
-		"2. ERROR in TestInlineLambdaArray.java (at line 5)\n" + 
-		"	public TestInlineLambda(FI fi) {}\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Return type for the method is missing\n" + 
+		"----------\n" +
+		"1. ERROR in TestInlineLambdaArray.java (at line 4)\n" +
+		"	TestInlineLambdaArray h = new TestInlineLambdaArray(x -> x++);	// [9]\n" +
+		"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The constructor TestInlineLambdaArray((<no type> x) -> {}) is undefined\n" +
+		"----------\n" +
+		"2. ERROR in TestInlineLambdaArray.java (at line 5)\n" +
+		"	public TestInlineLambda(FI fi) {}\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Return type for the method is missing\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424589, [1.8][compiler] NPE in TypeSystem.getUnannotatedType
@@ -2200,16 +2200,16 @@ public void test424589() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	Set<Z> x = foo(Set::new);\n" + 
-		"	    ^\n" + 
-		"Z cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	Set<Z> x = foo(Set::new);\n" + 
-		"	               ^^^\n" + 
-		"Cannot instantiate the type Set\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	Set<Z> x = foo(Set::new);\n" +
+		"	    ^\n" +
+		"Z cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	Set<Z> x = foo(Set::new);\n" +
+		"	               ^^^\n" +
+		"Cannot instantiate the type Set\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425152, [1.8] [compiler] NPE in LambdaExpression.analyzeCode
@@ -2244,11 +2244,11 @@ public void test425512() throws Exception {
 				"    }\n" +
 				"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	int [] a = (int [] & Cloneable & Serializable) new int[5];\n" + 
-		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Arrays are not allowed in intersection cast operator\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	int [] a = (int [] & Cloneable & Serializable) new int[5];\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Arrays are not allowed in intersection cast operator\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424628, [1.8][compiler] Multiple method references to inherited method throws LambdaConversionException
@@ -2277,7 +2277,7 @@ public void test424628() throws Exception {
 		},
 		"123\n123");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425712, [1.8][compiler] Valid program rejected by the compiler. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425712, [1.8][compiler] Valid program rejected by the compiler.
 public void test425712() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2297,7 +2297,7 @@ public void test425712() throws Exception {
 		},
 		"OK");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426074, [1.8][compiler] 18.5.2 Functional interface parameterization inference problem with intersection types. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426074, [1.8][compiler] 18.5.2 Functional interface parameterization inference problem with intersection types.
 public void test426074() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2317,7 +2317,7 @@ public void test426074() throws Exception {
 		},
 		"main");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
 public void test426411() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2331,7 +2331,7 @@ public void test426411() throws Exception {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
 public void test426411b() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2346,7 +2346,7 @@ public void test426411b() throws Exception {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
 public void test426411c() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2360,7 +2360,7 @@ public void test426411c() throws Exception {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
 public void test426411d() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2375,7 +2375,7 @@ public void test426411d() throws Exception {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
 public void test426411e() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2394,7 +2394,7 @@ public void test426411e() throws Exception {
 		},
 		"99");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426411, [1.8][compiler] NoSuchMethodError at runtime due to emission order of casts in intersection casts
 public void test426411f() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2413,7 +2413,7 @@ public void test426411f() throws Exception {
 		},
 		"99");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class
 public void test426086() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2440,7 +2440,7 @@ public void test426086() throws Exception {
 		},
 		"9");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426086, [1.8] LambdaConversionException when method reference to an inherited method is invoked from sub class
 public void test426086a() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -2477,7 +2477,7 @@ public void test406744a() {
 				"	void foo(Integer a1, Integer a2, String a3);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	static void m(Number a1, Object... rest) {\n" + 
+				"	static void m(Number a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"	}\n" +
@@ -2506,7 +2506,7 @@ public void test406744b() {
 				"	int foo(Integer a1, Integer a2, String a3);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	static int m(Number a1, Object... rest) {\n" + 
+				"	static int m(Number a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"		return 1;\n" +
@@ -2536,11 +2536,11 @@ public void test406744c() {
 				"	void foo(Integer a1, Integer a2, String a3);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	 Y(Number a1, Object... rest) {\n" + 
+				"	 Y(Number a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"	}\n" +
-				"	static void m(Number a1, Object... rest) {\n" + 
+				"	static void m(Number a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"	}\n" +
@@ -2569,7 +2569,7 @@ public void test406744d() {
 				"	void foo(int a1, Integer a2, String a3);\n" +
 				"}\n" +
 				"interface Y {\n" +
-				"	static void m(float a1, Object... rest) {\n" + 
+				"	static void m(float a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"	}\n" +
@@ -2630,7 +2630,7 @@ public void test406744f() {
 				"	void foo(Integer a1, Integer a2, String a3);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	void m(Number a1, Object... rest) {\n" + 
+				"	void m(Number a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"	}\n" +
@@ -2647,7 +2647,7 @@ public void test406744f() {
 				"	public static void main(String [] args) {\n" +
 				"		new X().foo();\n" +
 				"	}\n" +
-				"	void foo() {\n" + 
+				"	void foo() {\n" +
 				"		I i = super::m;\n" +
 				"		i.foo(10, 20, \"10, 20\");\n" +
 				"	}\n" +
@@ -2672,7 +2672,7 @@ public void test406744g() {
 				"	}\n" +
 				"}\n" +
 				"public class X extends Y {\n" +
-				"	private void m(Number a1, Object... rest) {\n" + 
+				"	private void m(Number a1, Object... rest) {\n" +
 				"		System.out.println(a1);\n" +
 				"		print(rest);\n" +
 				"	}\n" +
@@ -2683,7 +2683,7 @@ public void test406744g() {
 				"	public static void main(String [] args) {\n" +
 				"		new X().foo();\n" +
 				"	}\n" +
-				"	void foo() {\n" + 
+				"	void foo() {\n" +
 				"		I i = this::m;\n" +
 				"		i.foo(10, 20, \"10, 20\");\n" +
 				"	}\n" +
@@ -2702,7 +2702,7 @@ public void test406744h() {
 				"	void foo(int [] ia);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	void m(Object... rest) {\n" + 
+				"	void m(Object... rest) {\n" +
 				"		System.out.println(\"Hello \" + rest.length);\n" +
 				"	}\n" +
 				"	static void print (Object [] o) {\n" +
@@ -2714,7 +2714,7 @@ public void test406744h() {
 				"	public static void main(String [] args) {\n" +
 				"		new X().foo();\n" +
 				"	}\n" +
-				"	void foo() {\n" + 
+				"	void foo() {\n" +
 				"		I i = super::m;\n" +
 				"		i.foo(new int [0]);\n" +
 				"	}\n" +
@@ -2734,7 +2734,7 @@ public void test406744i() {
 				"	void foo(int [] ia);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	void m(Object... rest) {\n" + 
+				"	void m(Object... rest) {\n" +
 				"		System.out.println(\"Hello \" + rest.length);\n" +
 				"	}\n" +
 				"	static void print (Object [] o) {\n" +
@@ -2746,7 +2746,7 @@ public void test406744i() {
 				"	public static void main(String [] args) {\n" +
 				"		new X().foo();\n" +
 				"	}\n" +
-				"	void foo() {\n" + 
+				"	void foo() {\n" +
 				"		I i = super::m;\n" +
 				"		i.foo(new int [0]);\n" +
 				"		I1 i1 = super::m;\n" +
@@ -2766,11 +2766,11 @@ public void test406744j() {
 				"	void foo(int [] ia);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	void m(Object... rest) {\n" + 
+				"	void m(Object... rest) {\n" +
 				"		I i = this::n;\n" +
 				"		i.foo(new int [0]);\n" +
 				"	}\n" +
-				"	void n(Object... rest) {\n" + 
+				"	void n(Object... rest) {\n" +
 				"		System.out.println(\"Hello \" + rest.length);\n" +
 				"	}\n" +
 				"	static void print (Object [] o) {\n" +
@@ -2782,7 +2782,7 @@ public void test406744j() {
 				"	public static void main(String [] args) {\n" +
 				"		new X().foo();\n" +
 				"	}\n" +
-				"	void foo() {\n" + 
+				"	void foo() {\n" +
 				"		I i = super::m;\n" +
 				"		i.foo(new int [0]);\n" +
 				"	}\n" +
@@ -2799,7 +2799,7 @@ public void test406744k() {
 				"	void foo(int [] ia);\n" +
 				"}\n" +
 				"class Y {\n" +
-				"	static void m(Object... rest) {\n" + 
+				"	static void m(Object... rest) {\n" +
 				"		System.out.println(\"Hello \" + rest.length);\n" +
 				"	}\n" +
 				"	static void print (Object [] o) {\n" +
@@ -2812,7 +2812,7 @@ public void test406744k() {
 				"	public static void main(String [] args) {\n" +
 				"		new X().foo();\n" +
 				"	}\n" +
-				"	void foo() {\n" + 
+				"	void foo() {\n" +
 				"		I i = Y::m;\n" +
 				"		i.foo(new int [0]);\n" +
 				"		i = Y1::m;\n" +
@@ -3035,7 +3035,7 @@ public void test406744t() {
 				"	}\n" +
 				"}\n",
 			},
-			"Hello\n" + 
+			"Hello\n" +
 			"Y::Y"
 			);
 }
@@ -3062,7 +3062,7 @@ public void test406744u() {
 				"	}\n" +
 				"}\n",
 			},
-			"Hello\n" + 
+			"Hello\n" +
 			"Y::Y"
 			);
 }
@@ -3089,7 +3089,7 @@ public void test406744v() {
 				"	}\n" +
 				"}\n",
 			},
-			"X::X\n" + 
+			"X::X\n" +
 			"X::X"
 			);
 }
@@ -3118,7 +3118,7 @@ public void test406744w() {
 				"		new B().new Y().g();\n" +
 				"	}\n" +
 				"}\n",
-				"p1/A.java", 
+				"p1/A.java",
 				"package p1;\n" +
 				"import p2.*;\n" +
 				"public class A {\n" +
@@ -3130,7 +3130,7 @@ public void test406744w() {
 				"	}\n" +
 				"}\n"
 			},
-			"A\'s static foo\n" + 
+			"A\'s static foo\n" +
 			"A\'s instance goo"
 			);
 }
@@ -3465,7 +3465,7 @@ public void test429112() {
 				"  }\n" +
 				"}\n"
 			},
-			"class [[[Ljava.lang.String;\n" + 
+			"class [[[Ljava.lang.String;\n" +
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
@@ -3486,7 +3486,7 @@ public void test429112a() {
 				"  }\n" +
 				"}\n"
 			},
-			"class [[[Ljava.util.function.IntFunction;\n" + 
+			"class [[[Ljava.util.function.IntFunction;\n" +
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
@@ -3507,7 +3507,7 @@ public void test429112b() {
 				"  }\n" +
 				"}\n"
 			},
-			"class [Ljava.util.function.IntFunction;\n" + 
+			"class [Ljava.util.function.IntFunction;\n" +
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112,  [1.8][compiler] Exception when compiling Serializable array constructor reference
@@ -3528,7 +3528,7 @@ public void test429112c() {
 				"  }\n" +
 				"}\n"
 			},
-			"class [Ljava.lang.String;\n" + 
+			"class [Ljava.lang.String;\n" +
 			"10");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428857, [1.8] Method reference to instance method of generic class incorrectly gives raw type warning
@@ -3620,7 +3620,7 @@ public void test428857c() {
 			"[a, b]",
 			customOptions);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter
 public void test429763() {
 	this.runConformTest(
 			new String[] {
@@ -3643,7 +3643,7 @@ public void test429763() {
 			},
 			"NPE");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429763,  [1.8][compiler] Incompatible type specified for lambda expression's parameter
 public void test429763a() {
 	this.runConformTest(
 			new String[] {
@@ -3735,7 +3735,7 @@ public void test429969() {
 			},
 			"done");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430015, [1.8] NPE trying to disassemble classfile with lambda method and MethodParameters
 public void test430015() {
 	this.runConformTest(
 			new String[] {
@@ -3761,7 +3761,7 @@ public void test430015() {
 			},
 			"[int arg0]");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430040, [1.8] [compiler] Type Type mismatch: cannot convert from Junk13.ExpressionHelper<Object> to Junk13.ExpressionHelper<Object> 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430040, [1.8] [compiler] Type Type mismatch: cannot convert from Junk13.ExpressionHelper<Object> to Junk13.ExpressionHelper<Object>
 public void test430040() {
 	this.runConformTest(
 			new String[] {
@@ -3794,7 +3794,7 @@ public void test430040() {
 			},
 			"OK");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430043, [1.8][compiler] Cannot infer type arguments for Junk14<> 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430043, [1.8][compiler] Cannot infer type arguments for Junk14<>
 public void test430043() {
 	this.runConformTest(
 			new String[] {
@@ -3830,7 +3830,7 @@ public void test430043() {
 			},
 			"OK");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035() {
 	this.runConformTest(
 			new String[] {
@@ -3848,15 +3848,15 @@ public void test430035() {
 				"    }\n" +
 				"}\n"
 			},
-			"m(direct call)\n" + 
+			"m(direct call)\n" +
 			"m(bridge method)");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035a() { // test reference expressions requiring bridges.
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.util.function.Consumer;\n" +			
+				"import java.util.function.Consumer;\n" +
 				"public class X {\n" +
 				"    interface StringConsumer extends Consumer<String> {\n" +
 				"        void accept(String t);\n" +
@@ -3870,10 +3870,10 @@ public void test430035a() { // test reference expressions requiring bridges.
 				"    }\n" +
 				"}\n"
 			},
-			"m(direct call)\n" + 
+			"m(direct call)\n" +
 			"m(bridge method)");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035b() {
 	this.runConformTest(
 			new String[] {
@@ -3901,7 +3901,7 @@ public void test430035b() {
 			"m(bridge method)\n" +
 			"m(bridge method)");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035c() {
 	this.runConformTest(
 			new String[] {
@@ -3926,11 +3926,11 @@ public void test430035c() {
 				"    }\n" +
 				"}\n"
 			},
-			"m(direct call)\n" + 
-			"m(bridge method(j))\n" + 
+			"m(direct call)\n" +
+			"m(bridge method(j))\n" +
 			"m(bridge method(i))");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035d() { // 8b131 complains of ambiguity.
 	this.runConformTest(
 			false,
@@ -3956,11 +3956,11 @@ public void test430035d() { // 8b131 complains of ambiguity.
 				"    }\n" +
 				"}\n"
 			},
-			"m(direct call)\n" + 
-			"m(bridge method(j))\n" + 
+			"m(direct call)\n" +
+			"m(bridge method(j))\n" +
 			"m(bridge method(i))");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035e() { // 8b131 complains of ambiguity in call.
 	this.runConformTest(
 			false,
@@ -3986,11 +3986,11 @@ public void test430035e() { // 8b131 complains of ambiguity in call.
 				"    }\n" +
 				"}\n"
 			},
-			"direct call\n" + 
-			"bridge method(j)\n" + 
+			"direct call\n" +
+			"bridge method(j)\n" +
 			"bridge method(i)");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035f() { // ensure co-variant return emits a bridge request.
 	this.runConformTest(
 			new String[] {
@@ -4014,8 +4014,8 @@ public void test430035f() { // ensure co-variant return emits a bridge request.
 				"    }\n" +
 				"}\n"
 			},
-			"direct call\n" + 
-			"bridge method(j)\n" + 
+			"direct call\n" +
+			"bridge method(j)\n" +
 			"bridge method(i)");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430241,  [1.8][compiler] Raw return type results in incorrect covariant return bridge request to LambdaMetaFactory
@@ -4203,7 +4203,7 @@ public void test432682() throws Exception {
 		},
 		"true");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432520, compiler "duplicate method" bug with lamdas and generic interfaces 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432520, compiler "duplicate method" bug with lamdas and generic interfaces
 public void test432520() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4224,7 +4224,7 @@ public void test432520() throws Exception {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432625, [1.8] VerifyError with lambdas and wildcards  
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432625, [1.8] VerifyError with lambdas and wildcards
 public void test432625() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -4265,16 +4265,16 @@ public void test430766() {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 17)\n" + 
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" + 
-			"	                                             ^^^^^^^^^\n" + 
-			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::getEmail)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 17)\n" + 
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" + 
-			"	                                                       ^^^^^^^^^^^^^^^^\n" + 
-			"The type X.Person does not define getEmail(T, T) that is applicable here\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 17)\n" +
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" +
+			"	                                             ^^^^^^^^^\n" +
+			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::getEmail)\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 17)\n" +
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::getEmail)));\n" +
+			"	                                                       ^^^^^^^^^^^^^^^^\n" +
+			"The type X.Person does not define getEmail(T, T) that is applicable here\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430766, [1.8] Internal compiler error.
@@ -4307,16 +4307,16 @@ public void test430766a() {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 21)\n" + 
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" + 
-			"	                                             ^^^^^^^^^\n" + 
-			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::<Runnable>isRunnable)\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 21)\n" + 
-			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" + 
-			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The type X.Person does not define isRunnable(T, T) that is applicable here\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 21)\n" +
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" +
+			"	                                             ^^^^^^^^^\n" +
+			"The method nullsLast(Comparator<? super T>) in the type Comparator is not applicable for the arguments (Person::<Runnable>isRunnable)\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 21)\n" +
+			"	persons.sort(Comparator.comparing(Comparator.nullsLast(Person::<Runnable>isRunnable)));\n" +
+			"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The type X.Person does not define isRunnable(T, T) that is applicable here\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431190, [1.8] VerifyError when using a method reference
@@ -4347,20 +4347,20 @@ public void test431514() {
 	this.runConformTest(
 			new String[] {
 				"X.java",
-				"class X {\n" + 
-				"	void fun1(int x) {\n" + 
-				"		class Local {\n" + 
-				"			FI test= () -> {\n" + 
-				"				try {\n" + 
+				"class X {\n" +
+				"	void fun1(int x) {\n" +
+				"		class Local {\n" +
+				"			FI test= () -> {\n" +
+				"				try {\n" +
 				"				} catch (Exception e) {\n" +
 				"					int x;\n" +
-				"				};\n" + 
-				"			};\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"interface FI {\n" + 
-				"	void foo();\n" + 
+				"				};\n" +
+				"			};\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"interface FI {\n" +
+				"	void foo();\n" +
 				"}"
 		});
 }
@@ -4369,21 +4369,21 @@ public void test431514a() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n" + 
-			"	void fun1(int x) {\n" + 
-			"		class Local {\n" + 
-			"			class L1 { }\n" + 
-			"			int y;\n" + 
-			"			FI test= () -> {\n" + 
-			"				class L1 { } \n" + 
-			"				int y; \n" + 
-			"			};\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"}\n" + 
-			"interface FI {\n" + 
-			"	void foo();\n" + 
+			"class X {\n" +
+			"	void fun1(int x) {\n" +
+			"		class Local {\n" +
+			"			class L1 { }\n" +
+			"			int y;\n" +
+			"			FI test= () -> {\n" +
+			"				class L1 { } \n" +
+			"				int y; \n" +
+			"			};\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n" +
+			"interface FI {\n" +
+			"	void foo();\n" +
 			"}"
 	});
 }
@@ -4391,19 +4391,19 @@ public void test431514a() {
 public void test432531() {
 	this.runConformTest(
 		new String[] {
-			"Y.java", 
-			"import java.util.function.Supplier;\n" + 
-			"class E {\n" + 
-			"	E(Supplier<Object> factory) { }\n" + 
-			"}\n" + 
-			"public class Y extends E {\n" + 
-			"	Y() {\n" + 
-			"		super(() -> new Object() {\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Y();\n" + 
-			"	}\n" + 
+			"Y.java",
+			"import java.util.function.Supplier;\n" +
+			"class E {\n" +
+			"	E(Supplier<Object> factory) { }\n" +
+			"}\n" +
+			"public class Y extends E {\n" +
+			"	Y() {\n" +
+			"		super(() -> new Object() {\n" +
+			"		});\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Y();\n" +
+			"	}\n" +
 			"}"
 	});
 }
@@ -4411,27 +4411,27 @@ public void test432531() {
 public void test434297() {
 	this.runConformTest(
 		new String[] {
-			"X.java", 
-			"import java.util.ArrayList;\n" + 
-			"import java.util.Collection;\n" + 
-			"import java.util.Collections;\n" + 
-			"import java.util.Comparator;\n" + 
-			"import java.util.List;\n" + 
-			"public class X {\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"  }\n" + 
-			"  public void bla() {\n" + 
-			"    boolean b = Boolean.TRUE.booleanValue();\n" + 
-			"    List<String> c1 = new ArrayList<>();\n" + 
-			"    Collections.sort(c1, b ? null : new Bar(new ArrayList<>(),Comparator.nullsLast((a,e) -> {return 0;})));\n" + 
-			"  }\n" + 
-			"  private static class Bar implements Comparator<String>{\n" + 
-			"	  public <T> Bar(Collection<T> col, Comparator<T> comp) { }\n" + 
-			"	@Override\n" + 
-			"	public int compare(String o1, String o2) {\n" + 
-			"		return 0;\n" + 
-			"	}\n" + 
-			"  }\n" + 
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"  }\n" +
+			"  public void bla() {\n" +
+			"    boolean b = Boolean.TRUE.booleanValue();\n" +
+			"    List<String> c1 = new ArrayList<>();\n" +
+			"    Collections.sort(c1, b ? null : new Bar(new ArrayList<>(),Comparator.nullsLast((a,e) -> {return 0;})));\n" +
+			"  }\n" +
+			"  private static class Bar implements Comparator<String>{\n" +
+			"	  public <T> Bar(Collection<T> col, Comparator<T> comp) { }\n" +
+			"	@Override\n" +
+			"	public int compare(String o1, String o2) {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"  }\n" +
 			"}"
 	});
 }
@@ -4440,35 +4440,35 @@ public void test436542() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"Utility.java",
-			"import java.util.Collection;\n" + 
-			"import java.util.List;\n" + 
-			"import java.util.function.Function;\n" + 
-			"import java.util.stream.Collectors;\n" + 
-			"public class Utility {\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"        System.out.println(\"Success\");\n" + 
-			"    }\n" + 
-			"    public static <T, R> List<R> mapList(Collection<T> original, Function<T, R> func) {\n" + 
-			"        return original.stream().map(func).collect(Collectors.toList());\n" + 
-			"    }\n" + 
-			"    public static <S, T> void bindMap(List<T> dest, ObservableList<S> src, Function<S, T> func) {\n" + 
-			"        dest.addAll(mapList(src, func));\n" + 
-			"        src.addListener((ListChangeListener<S>) changes -> {\n" + 
-			"            for (int i = changes.getFrom(); i < changes.getTo(); i++)\n" + 
-			"                dest.set(i, func.apply(src.get(i)));\n" + 
-			"        });\n" + 
-			"    }\n" + 
-			"    public interface ObservableList<E> extends List<E> {\n" + 
-			"        public void addListener(ListChangeListener<? super E> listener);\n" + 
-			"    }\n" + 
-			"    @FunctionalInterface\n" + 
-			"    public interface ListChangeListener<E> {\n" + 
-			"        public abstract static class Change<E> {\n" + 
-			"            public abstract int getFrom();\n" + 
-			"            public abstract int getTo();\n" + 
-			"        }\n" + 
-			"        public void onChanged(Change<? extends E> c);\n" + 
-			"    }\n" + 
+			"import java.util.Collection;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"public class Utility {\n" +
+			"    public static void main(String[] args) {\n" +
+			"        System.out.println(\"Success\");\n" +
+			"    }\n" +
+			"    public static <T, R> List<R> mapList(Collection<T> original, Function<T, R> func) {\n" +
+			"        return original.stream().map(func).collect(Collectors.toList());\n" +
+			"    }\n" +
+			"    public static <S, T> void bindMap(List<T> dest, ObservableList<S> src, Function<S, T> func) {\n" +
+			"        dest.addAll(mapList(src, func));\n" +
+			"        src.addListener((ListChangeListener<S>) changes -> {\n" +
+			"            for (int i = changes.getFrom(); i < changes.getTo(); i++)\n" +
+			"                dest.set(i, func.apply(src.get(i)));\n" +
+			"        });\n" +
+			"    }\n" +
+			"    public interface ObservableList<E> extends List<E> {\n" +
+			"        public void addListener(ListChangeListener<? super E> listener);\n" +
+			"    }\n" +
+			"    @FunctionalInterface\n" +
+			"    public interface ListChangeListener<E> {\n" +
+			"        public abstract static class Change<E> {\n" +
+			"            public abstract int getFrom();\n" +
+			"            public abstract int getTo();\n" +
+			"        }\n" +
+			"        public void onChanged(Change<? extends E> c);\n" +
+			"    }\n" +
 			"}",
 		},
 		"Success",
@@ -4495,7 +4495,7 @@ public void test436542() throws Exception {
 public void test439515() {
 	this.runConformTest(
 		new String[] {
-			"X.java", 
+			"X.java",
 			"interface Fun<T, R> {\n" +
 			"	R apply(T arg);\n" +
 			"}\n" +
@@ -4522,7 +4522,7 @@ public void test439515() {
 public void test439515a() {
 	this.runConformTest(
 		new String[] {
-			"X.java", 
+			"X.java",
 			"interface Fun<T, R> {\n" +
 			"	R apply(T arg);\n" +
 			"}\n" +
@@ -4548,26 +4548,26 @@ public void test439515a() {
 public void test438534() {
 	this.runConformTest(
 		new String[] {
-			"ByteCodeTest.java", 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.security.AccessController;\n" + 
-			"import java.security.PrivilegedAction;\n" + 
-			"import java.util.Collections;\n" + 
-			"import java.util.Comparator;\n" + 
-			"public class ByteCodeTest {\n" + 
-			"  public static class BrokenByteCode {\n" + 
-			"    public void hello() {\n" + 
-			"      Collections.sort(Collections.<String> emptyList(), Comparator.comparing((String data) -> data.length()));\n" + 
-			"    }\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    for (Method method : AccessController.doPrivileged((PrivilegedAction<Method[]>) () -> BrokenByteCode.class.getDeclaredMethods())) {\n" + 
-			"      method.getGenericExceptionTypes();\n" + 
-			"      method.getGenericParameterTypes();\n" + 
-			"      method.getGenericReturnType();\n" + 
-			"    }\n" + 
+			"ByteCodeTest.java",
+			"import java.lang.reflect.Method;\n" +
+			"import java.security.AccessController;\n" +
+			"import java.security.PrivilegedAction;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"public class ByteCodeTest {\n" +
+			"  public static class BrokenByteCode {\n" +
+			"    public void hello() {\n" +
+			"      Collections.sort(Collections.<String> emptyList(), Comparator.comparing((String data) -> data.length()));\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    for (Method method : AccessController.doPrivileged((PrivilegedAction<Method[]>) () -> BrokenByteCode.class.getDeclaredMethods())) {\n" +
+			"      method.getGenericExceptionTypes();\n" +
+			"      method.getGenericParameterTypes();\n" +
+			"      method.getGenericReturnType();\n" +
+			"    }\n" +
 			"    System.out.println(\"SUCCESS\");\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}\n"
 	    },
 	    "SUCCESS");
@@ -4577,16 +4577,16 @@ public void test440152() {
 	this.runConformTest(
 		new String[] {
 			"Foo.java",
-			"import java.util.function.Function;\n" + 
-			"interface Foo {void alpha(Bar pBar);}\n" + 
-			"class Bar {Object bravo() {return null;}}\n" + 
-			"class Test {\n" + 
-			"  Test(Function pFunction) {\n" + 
-			"    class Baz {public Baz(Object pObj) {pFunction.apply(pObj);}}\n" + 
-			"    delta(pBar -> charlie(new Baz(pBar.bravo())));\n" + 
-			"  }\n" + 
-			"  void charlie(Object pRemovals) {}\n" + 
-			"  void delta(Foo pListener) {}\n" + 
+			"import java.util.function.Function;\n" +
+			"interface Foo {void alpha(Bar pBar);}\n" +
+			"class Bar {Object bravo() {return null;}}\n" +
+			"class Test {\n" +
+			"  Test(Function pFunction) {\n" +
+			"    class Baz {public Baz(Object pObj) {pFunction.apply(pObj);}}\n" +
+			"    delta(pBar -> charlie(new Baz(pBar.bravo())));\n" +
+			"  }\n" +
+			"  void charlie(Object pRemovals) {}\n" +
+			"  void delta(Foo pListener) {}\n" +
 			"}"
 	});
 }
@@ -4595,25 +4595,25 @@ public void test440152a() {
 	this.runConformTest(
 		new String[] {
 			"Foo.java",
-			"import java.util.function.Function;\n" + 
-			"interface Foo {void alpha(Bar pBar);}\n" + 
-			"class Bar {Object bravo() {return null;}}\n" + 
-			"class Test {\n" + 
-			"	Test(Function pFunction) {\n" + 
-			"	    class Baz {\n" + 
-			"	    	public Baz(Object pObj) {\n" + 
-			"	    	}\n" + 
-			"	    	class NestedBaz extends Baz {\n" + 
-			"	    		NestedBaz(Object pObj) {\n" + 
-			"	    			super(pObj);\n" + 
-			"	    			pFunction.apply(pObj);\n" + 
-			"	    		}\n" + 
-			"	    	}\n" + 
-			"	    	}\n" + 
-			"	    delta(pBar -> charlie(new Baz(pBar).new NestedBaz(pBar.bravo())));\n" + 
-			"	  }\n" + 
-			"	  void charlie(Object pRemovals) {}\n" + 
-			"	  void delta(Foo pListener) {}\n" + 
+			"import java.util.function.Function;\n" +
+			"interface Foo {void alpha(Bar pBar);}\n" +
+			"class Bar {Object bravo() {return null;}}\n" +
+			"class Test {\n" +
+			"	Test(Function pFunction) {\n" +
+			"	    class Baz {\n" +
+			"	    	public Baz(Object pObj) {\n" +
+			"	    	}\n" +
+			"	    	class NestedBaz extends Baz {\n" +
+			"	    		NestedBaz(Object pObj) {\n" +
+			"	    			super(pObj);\n" +
+			"	    			pFunction.apply(pObj);\n" +
+			"	    		}\n" +
+			"	    	}\n" +
+			"	    	}\n" +
+			"	    delta(pBar -> charlie(new Baz(pBar).new NestedBaz(pBar.bravo())));\n" +
+			"	  }\n" +
+			"	  void charlie(Object pRemovals) {}\n" +
+			"	  void delta(Foo pListener) {}\n" +
 			"}\n"
 	});
 }
@@ -4639,7 +4639,7 @@ public void test432110() {
 			"        System.out.println(\"OK\");\n" +
 			"    }\n" +
 			"}\n",
-		}, 
+		},
 		"OK");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=441929, [1.8][compiler] @SuppressWarnings("unchecked") not accepted on local variable
@@ -4666,7 +4666,7 @@ public void test441929() {
 			"        });\n" +
 			"    }\n" +
 			"}\n",
-		}, 
+		},
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=437781, [1.8][compiler] Eclipse accepts code rejected by javac because of ambiguous method reference
@@ -4689,16 +4689,16 @@ public void test437781() {
 			"	}	\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	new X().visit( System.out::println );\n" + 
-		"	        ^^^^^\n" + 
-		"The method visit(Function<Integer,Boolean>) is ambiguous for the type X\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	new X().visit( System.out::println );\n" + 
-		"	               ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The type of println(Object) from the type PrintStream is void, this is incompatible with the descriptor\'s return type: Boolean\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	new X().visit( System.out::println );\n" +
+		"	        ^^^^^\n" +
+		"The method visit(Function<Integer,Boolean>) is ambiguous for the type X\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	new X().visit( System.out::println );\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^\n" +
+		"The type of println(Object) from the type PrintStream is void, this is incompatible with the descriptor\'s return type: Boolean\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443889, [1.8][compiler] Lambdas get compiled to duplicate methods
@@ -4736,11 +4736,11 @@ public void test443889() {
 			"    }\n" +
 			"}\n"
 		},
-		"BEFORE\n" + 
-		"DISP: Salomon 42\n" + 
+		"BEFORE\n" +
+		"DISP: Salomon 42\n" +
 		"AFTER");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=441907, [1.8][compiler] Eclipse 4.4.x compiler generics bugs with streams and lambdas 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=441907, [1.8][compiler] Eclipse 4.4.x compiler generics bugs with streams and lambdas
 public void test441907() {
 	this.runConformTest(
 		new String[] {
@@ -4770,7 +4770,7 @@ public void test441907() {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444773, [1.8][compiler] NullPointerException in LambdaExpression.analyseCode 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444773, [1.8][compiler] NullPointerException in LambdaExpression.analyseCode
 public void test444773() {
 	this.runConformTest(
 		new String[] {
@@ -4798,7 +4798,7 @@ public void test444773() {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444772, [1.8][compiler] NullPointerException in ReferenceExpression.shouldGenerateImplicitLambda 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=444772, [1.8][compiler] NullPointerException in ReferenceExpression.shouldGenerateImplicitLambda
 public void test444772() {
 	this.runConformTest(
 		new String[] {
@@ -4903,7 +4903,7 @@ public void test444785() {
 		},
 		"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
 public void test447119() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4933,7 +4933,7 @@ public void test447119() {
 			"- interface java.util.List lambda$main$0([interface java.util.List])";
 	runner.runConformTest();
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
 public void test447119a() {
 	this.runConformTest(
 			new String[] {
@@ -4958,7 +4958,7 @@ public void test447119a() {
 			},
 			"");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
 public void test447119b() {
 	Runner runner = new Runner();
 	runner.testFiles =
@@ -4990,7 +4990,7 @@ public void test447119b() {
 			"- interface java.util.List lambda$main$7796d039$1([interface java.util.List])";
 	runner.runConformTest();
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
 public void test447119c() {
 	this.runConformTest(
 			new String[] {
@@ -5017,7 +5017,7 @@ public void test447119c() {
 			},
 			"- java.util.List<java.lang.String> foo([java.util.List<java.lang.String>])");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
 public void test447119d() {
 	this.runConformTest(
 			new String[] {
@@ -5056,17 +5056,17 @@ public void test447119d() {
 				"	}\n" +
 				"}\n"
 			},
-			"Lambda binds to: X.noop\n" + 
-			"Methods (with generics):\n" + 
+			"Lambda binds to: X.noop\n" +
+			"Methods (with generics):\n" +
 			"[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
 			null,
 			true,
-			(isJRE9Plus 
-			? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
+			(isJRE9Plus
+			? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" }
 			: new String [] { "-Ddummy" }) // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 			);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression)
 public void test447119e() {
 	this.runConformTest(
 			new String[] {
@@ -5095,7 +5095,7 @@ public void test447119e() {
 public void test432605() {
 	this.runConformTest(
 		new String[] {
-			"X.java", 
+			"X.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.HashMap;\n" +
 			"import java.util.function.Function;\n" +
@@ -5152,7 +5152,7 @@ public void test432605() {
 public void testreduced432605() {
 	this.runConformTest(
 		new String[] {
-			"X.java", 
+			"X.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.HashMap;\n" +
 			"import java.util.function.Function;\n" +
@@ -5192,7 +5192,7 @@ public void test448802() throws Exception {
 		},
 		"true");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
@@ -5200,30 +5200,30 @@ public void test449063() {
 		false,
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.invoke.SerializedLambda;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test {\n" + 
-			"    public static interface Map<IN, OUT> {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
-			"        // Use the type information stored in signature\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.invoke.SerializedLambda;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test {\n" +
+			"    public static interface Map<IN, OUT> {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
+			"        // Use the type information stored in signature\n" +
 			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" + 
-			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"                  System.out.println(t);\n" + 
+			"              System.out.println(m.getGenericReturnType());\n" +
+			"              for (Type t : m.getGenericParameterTypes()) {\n" +
+			"                  System.out.println(t);\n" +
 			"              }\n" +
 			"            }\n" +
 			"        }\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}"
 			},
 		null,
@@ -5237,7 +5237,7 @@ public void test449063() {
 		null,
 		EclipseJustification.EclipseBug449063);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
@@ -5245,61 +5245,61 @@ public void test449063a() {
 		false,
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.invoke.SerializedLambda;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test {\n" + 
-			"    public static interface Map<IN, OUT> extends Serializable {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
-			"        SerializedLambda sl = getSerializedLambda(map);      \n" + 
-			"        Method m = getLambdaMethod(sl);\n" + 
-			"        // Use the type information stored in signature\n" + 
-			"        System.out.println(m.getGenericReturnType());\n" + 
-			"        for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"            System.out.println(t);\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" + 
-			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" + 
-			"        Class<?> implClass = Class.forName(implClassName);\n" + 
-			"        String lambdaName = lambda.getImplMethodName();\n" + 
-			"        for (Method m : implClass.getDeclaredMethods()) {\n" + 
-			"            if (m.getName().equals(lambdaName)) {\n" + 
-			"                return m;\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        throw new Exception(\"Lambda Method not found\");\n" + 
-			"    }\n" + 
-			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" + 
-			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" + 
-			"            throw new IllegalArgumentException();\n" + 
-			"        }\n" + 
-			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" + 
-			"            try {\n" + 
-			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" + 
-			"                replaceMethod.setAccessible(true);\n" + 
-			"                Object serializedForm = replaceMethod.invoke(function);\n" + 
-			"                if (serializedForm instanceof SerializedLambda) {\n" + 
-			"                    return (SerializedLambda) serializedForm;\n" + 
-			"                }\n" + 
-			"            }\n" + 
-			"            catch (NoSuchMethodError e) {\n" + 
-			"                // fall through the loop and try the next class\n" + 
-			"            }\n" + 
-			"            catch (Throwable t) {\n" + 
-			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        throw new Exception(\"writeReplace method not found\");\n" + 
-			"    }\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.invoke.SerializedLambda;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test {\n" +
+			"    public static interface Map<IN, OUT> extends Serializable {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
+			"        SerializedLambda sl = getSerializedLambda(map);      \n" +
+			"        Method m = getLambdaMethod(sl);\n" +
+			"        // Use the type information stored in signature\n" +
+			"        System.out.println(m.getGenericReturnType());\n" +
+			"        for (Type t : m.getGenericParameterTypes()) {\n" +
+			"            System.out.println(t);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" +
+			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" +
+			"        Class<?> implClass = Class.forName(implClassName);\n" +
+			"        String lambdaName = lambda.getImplMethodName();\n" +
+			"        for (Method m : implClass.getDeclaredMethods()) {\n" +
+			"            if (m.getName().equals(lambdaName)) {\n" +
+			"                return m;\n" +
+			"            }\n" +
+			"        }\n" +
+			"        throw new Exception(\"Lambda Method not found\");\n" +
+			"    }\n" +
+			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" +
+			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" +
+			"            throw new IllegalArgumentException();\n" +
+			"        }\n" +
+			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" +
+			"            try {\n" +
+			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" +
+			"                replaceMethod.setAccessible(true);\n" +
+			"                Object serializedForm = replaceMethod.invoke(function);\n" +
+			"                if (serializedForm instanceof SerializedLambda) {\n" +
+			"                    return (SerializedLambda) serializedForm;\n" +
+			"                }\n" +
+			"            }\n" +
+			"            catch (NoSuchMethodError e) {\n" +
+			"                // fall through the loop and try the next class\n" +
+			"            }\n" +
+			"            catch (Throwable t) {\n" +
+			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" +
+			"            }\n" +
+			"        }\n" +
+			"        throw new Exception(\"writeReplace method not found\");\n" +
+			"    }\n" +
 			"}"
 			},
 		null,
@@ -5313,211 +5313,211 @@ public void test449063a() {
 		null,
 		EclipseJustification.EclipseBug449063);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.invoke.SerializedLambda;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test {\n" + 
-			"    public static interface Map<IN, OUT> {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
-			"        // Use the type information stored in signature\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.invoke.SerializedLambda;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test {\n" +
+			"    public static interface Map<IN, OUT> {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
+			"        // Use the type information stored in signature\n" +
 			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" + 
-			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"                  System.out.println(t);\n" + 
+			"              System.out.println(m.getGenericReturnType());\n" +
+			"              for (Type t : m.getGenericParameterTypes()) {\n" +
+			"                  System.out.println(t);\n" +
 			"              }\n" +
 			"            }\n" +
 			"        }\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}"
 			},
 			"class Test$Tuple\n" +
 			"class Test$Tuple",
 			customOptions);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.invoke.SerializedLambda;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test {\n" + 
-			"    public static interface Map<IN, OUT> extends Serializable {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" + 
-			"        SerializedLambda sl = getSerializedLambda(map);      \n" + 
-			"        Method m = getLambdaMethod(sl);\n" + 
-			"        // Use the type information stored in signature\n" + 
-			"        System.out.println(m.getGenericReturnType());\n" + 
-			"        for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"            System.out.println(t);\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" + 
-			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" + 
-			"        Class<?> implClass = Class.forName(implClassName);\n" + 
-			"        String lambdaName = lambda.getImplMethodName();\n" + 
-			"        for (Method m : implClass.getDeclaredMethods()) {\n" + 
-			"            if (m.getName().equals(lambdaName)) {\n" + 
-			"                return m;\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        throw new Exception(\"Lambda Method not found\");\n" + 
-			"    }\n" + 
-			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" + 
-			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" + 
-			"            throw new IllegalArgumentException();\n" + 
-			"        }\n" + 
-			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" + 
-			"            try {\n" + 
-			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" + 
-			"                replaceMethod.setAccessible(true);\n" + 
-			"                Object serializedForm = replaceMethod.invoke(function);\n" + 
-			"                if (serializedForm instanceof SerializedLambda) {\n" + 
-			"                    return (SerializedLambda) serializedForm;\n" + 
-			"                }\n" + 
-			"            }\n" + 
-			"            catch (NoSuchMethodError e) {\n" + 
-			"                // fall through the loop and try the next class\n" + 
-			"            }\n" + 
-			"            catch (Throwable t) {\n" + 
-			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        throw new Exception(\"writeReplace method not found\");\n" + 
-			"    }\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.invoke.SerializedLambda;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test {\n" +
+			"    public static interface Map<IN, OUT> extends Serializable {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = (in) -> new Tuple<>();\n" +
+			"        SerializedLambda sl = getSerializedLambda(map);      \n" +
+			"        Method m = getLambdaMethod(sl);\n" +
+			"        // Use the type information stored in signature\n" +
+			"        System.out.println(m.getGenericReturnType());\n" +
+			"        for (Type t : m.getGenericParameterTypes()) {\n" +
+			"            System.out.println(t);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" +
+			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" +
+			"        Class<?> implClass = Class.forName(implClassName);\n" +
+			"        String lambdaName = lambda.getImplMethodName();\n" +
+			"        for (Method m : implClass.getDeclaredMethods()) {\n" +
+			"            if (m.getName().equals(lambdaName)) {\n" +
+			"                return m;\n" +
+			"            }\n" +
+			"        }\n" +
+			"        throw new Exception(\"Lambda Method not found\");\n" +
+			"    }\n" +
+			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" +
+			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" +
+			"            throw new IllegalArgumentException();\n" +
+			"        }\n" +
+			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" +
+			"            try {\n" +
+			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" +
+			"                replaceMethod.setAccessible(true);\n" +
+			"                Object serializedForm = replaceMethod.invoke(function);\n" +
+			"                if (serializedForm instanceof SerializedLambda) {\n" +
+			"                    return (SerializedLambda) serializedForm;\n" +
+			"                }\n" +
+			"            }\n" +
+			"            catch (NoSuchMethodError e) {\n" +
+			"                // fall through the loop and try the next class\n" +
+			"            }\n" +
+			"            catch (Throwable t) {\n" +
+			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" +
+			"            }\n" +
+			"        }\n" +
+			"        throw new Exception(\"writeReplace method not found\");\n" +
+			"    }\n" +
 			"}"
 			},
 			"class Test$Tuple\n" +
 			"class Test$Tuple",
 			customOptions);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.invoke.SerializedLambda;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test {\n" + 
-			"    public static interface Map<IN, OUT> {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.invoke.SerializedLambda;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test {\n" +
+			"    public static interface Map<IN, OUT> {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
 			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" + 
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
-			"        // Use the type information stored in signature\n" + 
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" +
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
+			"        // Use the type information stored in signature\n" +
 			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" + 
-			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"                  System.out.println(t);\n" + 
+			"              System.out.println(m.getGenericReturnType());\n" +
+			"              for (Type t : m.getGenericParameterTypes()) {\n" +
+			"                  System.out.println(t);\n" +
 			"              }\n" +
 			"            }\n" +
 			"        }\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}"
 			},
 			"",
 			customOptions);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063e() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.DO_NOT_GENERATE);
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.invoke.SerializedLambda;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test {\n" + 
-			"    public static interface Map<IN, OUT> extends Serializable {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.invoke.SerializedLambda;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test {\n" +
+			"    public static interface Map<IN, OUT> extends Serializable {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
 			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" + 
-			"        SerializedLambda sl = getSerializedLambda(map);      \n" + 
-			"        Method m = getLambdaMethod(sl);\n" + 
-			"        // Use the type information stored in signature\n" + 
-			"        System.out.println(m.getGenericReturnType());\n" + 
-			"        for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"            System.out.println(t);\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" + 
-			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" + 
-			"        Class<?> implClass = Class.forName(implClassName);\n" + 
-			"        String lambdaName = lambda.getImplMethodName();\n" + 
-			"        for (Method m : implClass.getDeclaredMethods()) {\n" + 
-			"            if (m.getName().equals(lambdaName)) {\n" + 
-			"                return m;\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        throw new Exception(\"Lambda Method not found\");\n" + 
-			"    }\n" + 
-			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" + 
-			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" + 
-			"            throw new IllegalArgumentException();\n" + 
-			"        }\n" + 
-			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" + 
-			"            try {\n" + 
-			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" + 
-			"                replaceMethod.setAccessible(true);\n" + 
-			"                Object serializedForm = replaceMethod.invoke(function);\n" + 
-			"                if (serializedForm instanceof SerializedLambda) {\n" + 
-			"                    return (SerializedLambda) serializedForm;\n" + 
-			"                }\n" + 
-			"            }\n" + 
-			"            catch (NoSuchMethodError e) {\n" + 
-			"                // fall through the loop and try the next class\n" + 
-			"            }\n" + 
-			"            catch (Throwable t) {\n" + 
-			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        throw new Exception(\"writeReplace method not found\");\n" + 
-			"    }\n" + 
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" +
+			"        SerializedLambda sl = getSerializedLambda(map);      \n" +
+			"        Method m = getLambdaMethod(sl);\n" +
+			"        // Use the type information stored in signature\n" +
+			"        System.out.println(m.getGenericReturnType());\n" +
+			"        for (Type t : m.getGenericParameterTypes()) {\n" +
+			"            System.out.println(t);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static Method getLambdaMethod(SerializedLambda lambda) throws Exception {\n" +
+			"        String implClassName = lambda.getImplClass().replace(\'/\', \'.\');\n" +
+			"        Class<?> implClass = Class.forName(implClassName);\n" +
+			"        String lambdaName = lambda.getImplMethodName();\n" +
+			"        for (Method m : implClass.getDeclaredMethods()) {\n" +
+			"            if (m.getName().equals(lambdaName)) {\n" +
+			"                return m;\n" +
+			"            }\n" +
+			"        }\n" +
+			"        throw new Exception(\"Lambda Method not found\");\n" +
+			"    }\n" +
+			"    public static SerializedLambda getSerializedLambda(Object function) throws Exception {\n" +
+			"        if (function == null || !(function instanceof java.io.Serializable)) {\n" +
+			"            throw new IllegalArgumentException();\n" +
+			"        }\n" +
+			"        for (Class<?> clazz = function.getClass(); clazz != null; clazz = clazz.getSuperclass()) {\n" +
+			"            try {\n" +
+			"                Method replaceMethod = clazz.getDeclaredMethod(\"writeReplace\");\n" +
+			"                replaceMethod.setAccessible(true);\n" +
+			"                Object serializedForm = replaceMethod.invoke(function);\n" +
+			"                if (serializedForm instanceof SerializedLambda) {\n" +
+			"                    return (SerializedLambda) serializedForm;\n" +
+			"                }\n" +
+			"            }\n" +
+			"            catch (NoSuchMethodError e) {\n" +
+			"                // fall through the loop and try the next class\n" +
+			"            }\n" +
+			"            catch (Throwable t) {\n" +
+			"                throw new RuntimeException(\"Error while extracting serialized lambda\", t);\n" +
+			"            }\n" +
+			"        }\n" +
+			"        throw new Exception(\"writeReplace method not found\");\n" +
+			"    }\n" +
 			"}"
 			},
 			(reflectNestedClassUseDollar
@@ -5527,37 +5527,37 @@ public void test449063e() {
 			  "Test.Test$Tuple<java.lang.String, java.lang.Double>"),
 			customOptions);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions
 public void test449063f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.io.Serializable;\n" + 
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Type;\n" + 
-			"public class Test implements Serializable{\n" + 
-			"    public static interface Map<IN, OUT> {\n" + 
-			"        public OUT map(IN in);\n" + 
-			"    }\n" + 
+			"import java.io.Serializable;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Type;\n" +
+			"public class Test implements Serializable{\n" +
+			"    public static interface Map<IN, OUT> {\n" +
+			"        public OUT map(IN in);\n" +
+			"    }\n" +
 			"    public static Tuple<Integer, String> noop(Tuple<String, Double> t){return null;}\n" +
-			"    public static class Tuple<T1, T2> {\n" + 
-			"        private T1 field1;\n" + 
-			"        private T2 field2;\n" + 
-			"    }\n" + 
-			"    public static void main(String[] strings) throws Exception {\n" + 
-			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" + 
-			"        for(Method m : Test.class.getDeclaredMethods()) {\n" + 
-			"        // Use the type information stored in signature\n" + 
+			"    public static class Tuple<T1, T2> {\n" +
+			"        private T1 field1;\n" +
+			"        private T2 field2;\n" +
+			"    }\n" +
+			"    public static void main(String[] strings) throws Exception {\n" +
+			"        Map<Tuple<String, Double>, Tuple<Integer, String>> map = Test::noop;\n" +
+			"        for(Method m : Test.class.getDeclaredMethods()) {\n" +
+			"        // Use the type information stored in signature\n" +
 			"            if (m.getName().contains(\"lambda\")) {\n" +
-			"              System.out.println(m.getGenericReturnType());\n" + 
-			"              for (Type t : m.getGenericParameterTypes()) {\n" + 
-			"                  System.out.println(t);\n" + 
+			"              System.out.println(m.getGenericReturnType());\n" +
+			"              for (Type t : m.getGenericParameterTypes()) {\n" +
+			"                  System.out.println(t);\n" +
 			"              }\n" +
 			"            }\n" +
 			"        }\n" +
-			"    }\n" + 
+			"    }\n" +
 			"}"
 			},
 			"",
@@ -5692,20 +5692,20 @@ public void test467825() {
 	this.runConformTest(
 		new String[] {
 			"Main.java",
-			"import java.util.function.Function;\n" + 
-			"public class Main {\n" + 
-			"    public Function<String, String> f(int x) {\n" + 
-			"    	class A {\n" + 
-			"    		void g() {\n" + 
-			"    	        System.out.println(x);\n" + 
-			"    		}\n" + 
-			"    	}\n" + 
-			"        return s -> {\n" + 
-			"        	A a = new A();\n" + 
-			"            return s;\n" + 
-			"        };\n" + 
-			"    }\n" + 
-			"}\n" 
+			"import java.util.function.Function;\n" +
+			"public class Main {\n" +
+			"    public Function<String, String> f(int x) {\n" +
+			"    	class A {\n" +
+			"    		void g() {\n" +
+			"    	        System.out.println(x);\n" +
+			"    		}\n" +
+			"    	}\n" +
+			"        return s -> {\n" +
+			"        	A a = new A();\n" +
+			"            return s;\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n"
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
@@ -5713,27 +5713,27 @@ public void test467825a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.function.Function;\n" + 
-			"interface Foo {void alpha(Bar pBar);}\n" + 
-			"class Bar {Object bravo() {return null;}}\n" + 
-			"class Test {\n" + 
-			"	Foo foo(Function pFunction) {\n" + 
-			"	    class Baz {\n" + 
-			"	    	public Baz(Object pObj) {\n" + 
-			"	    	}\n" + 
-			"	    	class NestedBaz extends Baz {\n" + 
-			"	    		NestedBaz(Object pObj) {\n" + 
-			"	    			super(pObj);\n" + 
-			"	    			pFunction.apply(pObj);\n" + 
-			"	    		}\n" + 
-			"	    	}\n" + 
-			"	    }\n" + 
-			"	    return pBar -> {\n" + 
-			"	    		Object o = new Baz(pBar).new NestedBaz(pBar.bravo());\n" + 
-			"	    	};\n" + 
-			"	  }\n" + 
-			"	  void charlie(Object pRemovals) {}\n" + 
-			"	  void delta(Foo pListener) {}\n" + 
+			"import java.util.function.Function;\n" +
+			"interface Foo {void alpha(Bar pBar);}\n" +
+			"class Bar {Object bravo() {return null;}}\n" +
+			"class Test {\n" +
+			"	Foo foo(Function pFunction) {\n" +
+			"	    class Baz {\n" +
+			"	    	public Baz(Object pObj) {\n" +
+			"	    	}\n" +
+			"	    	class NestedBaz extends Baz {\n" +
+			"	    		NestedBaz(Object pObj) {\n" +
+			"	    			super(pObj);\n" +
+			"	    			pFunction.apply(pObj);\n" +
+			"	    		}\n" +
+			"	    	}\n" +
+			"	    }\n" +
+			"	    return pBar -> {\n" +
+			"	    		Object o = new Baz(pBar).new NestedBaz(pBar.bravo());\n" +
+			"	    	};\n" +
+			"	  }\n" +
+			"	  void charlie(Object pRemovals) {}\n" +
+			"	  void delta(Foo pListener) {}\n" +
 			"}\n"
 	});
 }
@@ -5744,25 +5744,25 @@ public void test461004() {
 		JavacHasABug.JavacBugFixed_901,
 		new String[] {
 			"Ice.java",
-			"import java.util.function.BiPredicate;\n" + 
-			"import java.util.function.Function;\n" + 
-			"class Ice {\n" + 
-			"  static <T> BiPredicate<T, T> create(BiPredicate<? super T, ? super T> fn) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"  static <T, K> BiPredicate<T, T> create(Function<? super T, ? super K> map) {\n" + 
-			"    return null;\n" + 
-			"  }\n" + 
-			"  void someMethod(BiPredicate<String, String> b) {}\n" + 
-			"  void method() {\n" + 
-			"    BiPredicate<String, String> eq = String::equalsIgnoreCase;\n" + 
-			"    // these all compile:\n" + 
-			"    BiPredicate<String, String> ok1 = create( eq );\n" + 
-			"    BiPredicate<String, String> ok2 = create( (a, b) -> true );\n" + 
-			"    BiPredicate<String, String> ok3 = create( String::valueOf );\n" + 
-			"    // this causes an internal compiler error, ArrayIndexOutOfBoundsException: 1\n" + 
-			"    someMethod(create( String::equalsIgnoreCase ));\n" + 
-			"  }\n" + 
+			"import java.util.function.BiPredicate;\n" +
+			"import java.util.function.Function;\n" +
+			"class Ice {\n" +
+			"  static <T> BiPredicate<T, T> create(BiPredicate<? super T, ? super T> fn) {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"  static <T, K> BiPredicate<T, T> create(Function<? super T, ? super K> map) {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"  void someMethod(BiPredicate<String, String> b) {}\n" +
+			"  void method() {\n" +
+			"    BiPredicate<String, String> eq = String::equalsIgnoreCase;\n" +
+			"    // these all compile:\n" +
+			"    BiPredicate<String, String> ok1 = create( eq );\n" +
+			"    BiPredicate<String, String> ok2 = create( (a, b) -> true );\n" +
+			"    BiPredicate<String, String> ok3 = create( String::valueOf );\n" +
+			"    // this causes an internal compiler error, ArrayIndexOutOfBoundsException: 1\n" +
+			"    someMethod(create( String::equalsIgnoreCase ));\n" +
+			"  }\n" +
 			"}\n"
 	}, null);
 }
@@ -5771,33 +5771,33 @@ public void test478533() {
 	this.runConformTest(
 		new String[] {
 			"test/BugDemonstrator.java",
-			"package test;\n" + 
-			"import test.subpackage.B;\n" + 
-			"public class BugDemonstrator {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		// OK\n" + 
-			"		invoke(new B() {\n" + 
-			"			public String invoke(Integer input) {\n" + 
-			"				return null;\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"		// ERROR\n" + 
-			"		invoke((Integer i) -> { // Error is here: The type A<Object,Integer> from the descriptor computed for the target context is not visible here.\n" + 
-			"			return null;\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"	private static String invoke(B b) {\n" + 
-			"		return b.invoke(1);\n" + 
-			"	}\n" + 
+			"package test;\n" +
+			"import test.subpackage.B;\n" +
+			"public class BugDemonstrator {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		// OK\n" +
+			"		invoke(new B() {\n" +
+			"			public String invoke(Integer input) {\n" +
+			"				return null;\n" +
+			"			}\n" +
+			"		});\n" +
+			"		// ERROR\n" +
+			"		invoke((Integer i) -> { // Error is here: The type A<Object,Integer> from the descriptor computed for the target context is not visible here.\n" +
+			"			return null;\n" +
+			"		});\n" +
+			"	}\n" +
+			"	private static String invoke(B b) {\n" +
+			"		return b.invoke(1);\n" +
+			"	}\n" +
 			"}\n",
 			"test/subpackage/A.java",
-			"package test.subpackage;\n" + 
-			"interface A<I> {\n" + 
-			"	String invoke(I input);\n" + 
+			"package test.subpackage;\n" +
+			"interface A<I> {\n" +
+			"	String invoke(I input);\n" +
 			"}\n",
 			"test/subpackage/B.java",
-			"package test.subpackage;\n" + 
-			"public interface B extends A<Integer> {}\n" 
+			"package test.subpackage;\n" +
+			"public interface B extends A<Integer> {}\n"
 	});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=478533 [compiler][1.8][lambda] check visibility of target context is broken
@@ -5805,30 +5805,30 @@ public void test478533a() {
 	this.runNegativeTest(
 		new String[] {
 			"test/BugDemonstrator.java",
-			"package test;\n" + 
-			"import test.subpackage.C;\n" + 
-			"public class BugDemonstrator {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		C c = new C();\n" + 
-			"		c.invoke((Integer i) -> { \n" + 
-			"			return null;\n" + 
-			"		}, 2);\n" + 
-			"	}\n" + 
+			"package test;\n" +
+			"import test.subpackage.C;\n" +
+			"public class BugDemonstrator {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		C c = new C();\n" +
+			"		c.invoke((Integer i) -> { \n" +
+			"			return null;\n" +
+			"		}, 2);\n" +
+			"	}\n" +
 			"}\n",
 			"test/subpackage/A.java",
-			"package test.subpackage;\n" + 
-			"public interface A<I> {\n" + 
-			"	String invoke(I input);\n" + 
+			"package test.subpackage;\n" +
+			"public interface A<I> {\n" +
+			"	String invoke(I input);\n" +
 			"}\n",
 			"test/subpackage/B.java",
-			"package test.subpackage;\n" + 
+			"package test.subpackage;\n" +
 			"interface B extends A<Integer> {}\n" ,
 			"test/subpackage/C.java",
-			"package test.subpackage;\n" + 
-			"public class C {\n" + 
-			"	public String invoke(B b, Integer input) {\n" + 
-			"		return b.invoke(input);\n" + 
-			"	}\n" + 
+			"package test.subpackage;\n" +
+			"public class C {\n" +
+			"	public String invoke(B b, Integer input) {\n" +
+			"		return b.invoke(input);\n" +
+			"	}\n" +
 			"}\n"
 	},
 	"----------\n" +
@@ -5843,25 +5843,25 @@ public void test477263() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.function.Function;\n" + 
-			"public interface Test<T> {\n" + 
-			"    static <K> void test(Function<?, ? extends K> function) {\n" + 
-			"        class Outer {\n" + 
-			"        	Outer(K k) {}\n" + 
-			"            class Inner {\n" + 
-			"                public Inner(K k) {}\n" + 
-			"                private void method(K k) {\n" + 
-			"                    System.out.println(function.apply(null));\n" + 
-			"                    Function<K, Inner> f = Inner::new;\n" + 
-			"                    Function<K, Outer> f2 = Outer::new;\n" + 
-			"                }\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        new Outer(null).new Inner(null).method(null);\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"		Test.test((k) -> \"Success\");\n" + 
-			"	}\n" + 
+			"import java.util.function.Function;\n" +
+			"public interface Test<T> {\n" +
+			"    static <K> void test(Function<?, ? extends K> function) {\n" +
+			"        class Outer {\n" +
+			"        	Outer(K k) {}\n" +
+			"            class Inner {\n" +
+			"                public Inner(K k) {}\n" +
+			"                private void method(K k) {\n" +
+			"                    System.out.println(function.apply(null));\n" +
+			"                    Function<K, Inner> f = Inner::new;\n" +
+			"                    Function<K, Outer> f2 = Outer::new;\n" +
+			"                }\n" +
+			"            }\n" +
+			"        }\n" +
+			"        new Outer(null).new Inner(null).method(null);\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		Test.test((k) -> \"Success\");\n" +
+			"	}\n" +
 			"}"
 	},
 	"Success");
@@ -5873,34 +5873,34 @@ public void test477263a() {
 		JavacHasABug.JavacBug8144673,
 		new String[] {
 			"X.java",
-			"interface I {\n" + 
-			"	X makeX(int x);\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"	void foo() {\n" + 
-			"		int local = 10;\n" + 
-			"		class Y extends X {\n" + 
-			"			class Z extends X  {\n" + 
-			"				private Z(int z) {\n" + 
-			"				}\n" + 
-			"				private Z() {}\n" + 
-			"			}\n" + 
-			"			private Y(int y) {\n" + 
-			"				System.out.println(y);\n" + 
-			"			}\n" + 
-			"			 Y() {\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"		I i = Y :: new;\n" + 
-			"		i.makeX(local);\n" + 
-			"	}\n" + 
-			"	private X(int x) {\n" + 
-			"	}\n" + 
-			"	X() {\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X().foo();\n" + 
-			"	}\n" + 
+			"interface I {\n" +
+			"	X makeX(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		int local = 10;\n" +
+			"		class Y extends X {\n" +
+			"			class Z extends X  {\n" +
+			"				private Z(int z) {\n" +
+			"				}\n" +
+			"				private Z() {}\n" +
+			"			}\n" +
+			"			private Y(int y) {\n" +
+			"				System.out.println(y);\n" +
+			"			}\n" +
+			"			 Y() {\n" +
+			"			}\n" +
+			"		}\n" +
+			"		I i = Y :: new;\n" +
+			"		i.makeX(local);\n" +
+			"	}\n" +
+			"	private X(int x) {\n" +
+			"	}\n" +
+			"	X() {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().foo();\n" +
+			"	}\n" +
 			"}"
 	},
 	"10");
@@ -5910,39 +5910,39 @@ public void test477263b() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" + 
-			"	X makeX(int x);\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"	void foo() {\n" + 
-			"		int local = 10;\n" + 
-			"		class Y extends X {\n" + 
-			"			class Z extends X  {\n" + 
-			"				private Z(int z) {\n" + 
-			"					System.out.println(local);\n" + 
-			"				}\n" + 
-			"				void f(int in) {\n" + 
-			"					I i2 = Z::new;\n" + 
-			"					i2.makeX(in);\n" + 
-			"				}\n" + 
-			"				private Z() {}\n" + 
-			"			}\n" + 
-			"			private Y(int y) {\n" + 
-			"				System.out.println(\"Y\");\n" + 
-			"			}\n" + 
-			"			 Y() {\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"		new Y().new Z().f(0);\n" + 
-			"	}\n" + 
-			"	private X(int x) {\n" + 
-			"		System.out.println(x);\n" + 
-			"	}\n" + 
-			"	X() {\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X().foo();\n" + 
-			"	}\n" + 
+			"interface I {\n" +
+			"	X makeX(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		int local = 10;\n" +
+			"		class Y extends X {\n" +
+			"			class Z extends X  {\n" +
+			"				private Z(int z) {\n" +
+			"					System.out.println(local);\n" +
+			"				}\n" +
+			"				void f(int in) {\n" +
+			"					I i2 = Z::new;\n" +
+			"					i2.makeX(in);\n" +
+			"				}\n" +
+			"				private Z() {}\n" +
+			"			}\n" +
+			"			private Y(int y) {\n" +
+			"				System.out.println(\"Y\");\n" +
+			"			}\n" +
+			"			 Y() {\n" +
+			"			}\n" +
+			"		}\n" +
+			"		new Y().new Z().f(0);\n" +
+			"	}\n" +
+			"	private X(int x) {\n" +
+			"		System.out.println(x);\n" +
+			"	}\n" +
+			"	X() {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().foo();\n" +
+			"	}\n" +
 			"}"
 	},
 	"10");
@@ -5951,48 +5951,48 @@ public void testBug487586() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"\n" + 
-			"interface Calculator {\n" + 
-			"    public int calculate(int a, int b);\n" + 
-			"}\n" + 
-			"\n" + 
-			"interface Sumator {\n" + 
-			"    public int test();\n" + 
-			"\n" + 
-			"    public int test3(int a, int b);\n" + 
-			"}\n" + 
-			"\n" + 
-			"// intersection of both types\n" + 
-			"interface Both extends Sumator, Calculator {\n" + 
-			"\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" + 
-			"    System.out.println(test.calculate(2, 3));\n" + 
-			"\n" + 
-			"    Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" + 
-			"    sumator.test();\n" + 
-			"\n" + 
-			"    Both both = (Both) (a, b) -> a + b; // does not compile\n" + 
-			"  }\n" + 
+			"\n" +
+			"interface Calculator {\n" +
+			"    public int calculate(int a, int b);\n" +
+			"}\n" +
+			"\n" +
+			"interface Sumator {\n" +
+			"    public int test();\n" +
+			"\n" +
+			"    public int test3(int a, int b);\n" +
+			"}\n" +
+			"\n" +
+			"// intersection of both types\n" +
+			"interface Both extends Sumator, Calculator {\n" +
+			"\n" +
+			"}\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" +
+			"    System.out.println(test.calculate(2, 3));\n" +
+			"\n" +
+			"    Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" +
+			"    sumator.test();\n" +
+			"\n" +
+			"    Both both = (Both) (a, b) -> a + b; // does not compile\n" +
+			"  }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 18)\n" + 
-		"	Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" + 
-		"	                                         ^^^^^^^^^^^^^^^\n" + 
-		"The target type of this expression must be a functional interface\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 21)\n" + 
-		"	Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" + 
-		"	                                         ^^^^^^^^^^^^^^^\n" + 
-		"The target type of this expression must be a functional interface\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 24)\n" + 
-		"	Both both = (Both) (a, b) -> a + b; // does not compile\n" + 
-		"	                   ^^^^^^^^^^^^^^^\n" + 
-		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 18)\n" +
+		"	Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" +
+		"	                                         ^^^^^^^^^^^^^^^\n" +
+		"The target type of this expression must be a functional interface\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 21)\n" +
+		"	Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" +
+		"	                                         ^^^^^^^^^^^^^^^\n" +
+		"The target type of this expression must be a functional interface\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 24)\n" +
+		"	Both both = (Both) (a, b) -> a + b; // does not compile\n" +
+		"	                   ^^^^^^^^^^^^^^^\n" +
+		"The target type of this expression must be a functional interface\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=452587 Java 8: Method references to the same method do not share BootstrapMethod
@@ -6000,15 +6000,15 @@ public void testBug452587() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			" public class Test {\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"      Runnable m = Test::m;\n" + 
-			"      Runnable n = Test::m;\n" + 
-			"      Runnable o = Test::m;\n" + 
-			"      Runnable p = Test::m;\n" + 
-			"      Runnable q = Test::m;\n" + 
-			"    }\n" + 
-			"    public static void m() {}\n" + 
+			" public class Test {\n" +
+			"    public static void main(String[] args) {\n" +
+			"      Runnable m = Test::m;\n" +
+			"      Runnable n = Test::m;\n" +
+			"      Runnable o = Test::m;\n" +
+			"      Runnable p = Test::m;\n" +
+			"      Runnable q = Test::m;\n" +
+			"    }\n" +
+			"    public static void m() {}\n" +
 			"  }\n"
 	});
 	IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "Test.class", IClassFileReader.ALL);
@@ -6029,31 +6029,31 @@ public void testBug485529() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface I {\n" + 
-			"	X makeX(int x);\n" + 
-			"}\n" + 
-			"public class X {\n" + 
-			"		class Y extends X {\n" + 
-			"			class Z extends X  {\n" + 
-			"				private Z(int z) {\n" + 
-			"				}\n" + 
-			"				private Z() {}\n" + 
-			"			}\n" + 
-			"			private Y(int y) {\n" + 
-			"			}\n" + 
-			"			 Y() {\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"		I i = Y :: new;\n" + 
-			"	private X(int x) {\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	X() {\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X();\n" + 
-			"		\n" + 
-			"	}\n" + 
+			"interface I {\n" +
+			"	X makeX(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"		class Y extends X {\n" +
+			"			class Z extends X  {\n" +
+			"				private Z(int z) {\n" +
+			"				}\n" +
+			"				private Z() {}\n" +
+			"			}\n" +
+			"			private Y(int y) {\n" +
+			"			}\n" +
+			"			 Y() {\n" +
+			"			}\n" +
+			"		}\n" +
+			"		I i = Y :: new;\n" +
+			"	private X(int x) {\n" +
+			"	}\n" +
+			"	\n" +
+			"	X() {\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X();\n" +
+			"		\n" +
+			"	}\n" +
 			"}"
 	},
 	"");
@@ -6063,50 +6063,50 @@ public void testBug479284() {
 	runNegativeTest(
 		new String[] {
 			"BadInferenceMars451.java",
-			"package bug.report;\n" + 
-			"import java.util.ArrayList;\n" + 
-			"import java.util.Arrays;\n" + 
-			"import java.util.List;\n" + 
-			"import java.util.Map;\n" + 
-			"import java.util.function.BinaryOperator;\n" + 
-			"import java.util.function.Function;\n" + 
-			"import java.util.stream.Collectors;\n" + 
-			"/**\n" + 
-			" * Problem is valid on Version: Mars.1 Release (4.5.1) Build id: 20150924-1200\n" + 
-			" */\n" + 
-			"public class BadInferenceMars451 {\n" + 
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" + 
-			"		List<X> stuff = new ArrayList<>();\n" + 
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" + 
-			"	}\n" + 
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed1() {\n" + 
-			"		List<X> stuff = new ArrayList<>();\n" + 
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), (BinaryOperator<List<X>>) BadInferenceMars451::sum));\n" + 
-			"	}\n" + 
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed2() {\n" + 
-			"		List<X> stuff = new ArrayList<>();\n" + 
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.<X> asList(t), BadInferenceMars451::sum));\n" + 
-			"	}\n" + 
-			"	/* \n" + 
-			"	 * Uncomment this to see eclipse crash at build\n" + 
-			"	 * this doesnt work but it should not crash the ide\n" + 
-			"	 */ \n" + 
-			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Crash() {\n" + 
-			"		List<X> stuff = new ArrayList<>();\n" + 
-			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" + 
-			"	}\n" + 
-			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public static class X {\n" + 
-			"	}\n" + 
+			"package bug.report;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.function.BinaryOperator;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"/**\n" +
+			" * Problem is valid on Version: Mars.1 Release (4.5.1) Build id: 20150924-1200\n" +
+			" */\n" +
+			"public class BadInferenceMars451 {\n" +
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" +
+			"		List<X> stuff = new ArrayList<>();\n" +
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" +
+			"	}\n" +
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed1() {\n" +
+			"		List<X> stuff = new ArrayList<>();\n" +
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), (BinaryOperator<List<X>>) BadInferenceMars451::sum));\n" +
+			"	}\n" +
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed2() {\n" +
+			"		List<X> stuff = new ArrayList<>();\n" +
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.<X> asList(t), BadInferenceMars451::sum));\n" +
+			"	}\n" +
+			"	/* \n" +
+			"	 * Uncomment this to see eclipse crash at build\n" +
+			"	 * this doesnt work but it should not crash the ide\n" +
+			"	 */ \n" +
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Crash() {\n" +
+			"		List<X> stuff = new ArrayList<>();\n" +
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" +
+			"	}\n" +
+			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static class X {\n" +
+			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in BadInferenceMars451.java (at line 31)\n" + 
-		"	return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" + 
-		"	                                                                                           ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The type BadInferenceMars451 is not generic; it cannot be parameterized with arguments <BadInferenceMars451.X>\n" + 
+		"----------\n" +
+		"1. ERROR in BadInferenceMars451.java (at line 31)\n" +
+		"	return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" +
+		"	                                                                                           ^^^^^^^^^^^^^^^^^^^\n" +
+		"The type BadInferenceMars451 is not generic; it cannot be parameterized with arguments <BadInferenceMars451.X>\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=491139 Lambda that redefines a default method with generics
@@ -6114,23 +6114,23 @@ public void testBug491139() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"public class Test {\n" + 
-			"	interface Foo<T> {\n" + 
-			"			default String bar(String s) {\n" + 
-			"			return (\"default : \" + s);\n" + 
-			"		}\n" + 
-			"		String bar(T t);\n" + 
-			"	}\n" + 
-			"	public String testLambdaRedefiningADefault() {\n" + 
-			"		Foo<String> foo =\n" + 
-			"		    (t) -> {\n" + 
-			"		      return \"lambda : \" + t;\n" + 
-			"		  };\n" + 
-			"		return (((Foo)foo).bar(\"String\"));\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(new Test().testLambdaRedefiningADefault());\n" + 
-			"	}\n" + 
+			"public class Test {\n" +
+			"	interface Foo<T> {\n" +
+			"			default String bar(String s) {\n" +
+			"			return (\"default : \" + s);\n" +
+			"		}\n" +
+			"		String bar(T t);\n" +
+			"	}\n" +
+			"	public String testLambdaRedefiningADefault() {\n" +
+			"		Foo<String> foo =\n" +
+			"		    (t) -> {\n" +
+			"		      return \"lambda : \" + t;\n" +
+			"		  };\n" +
+			"		return (((Foo)foo).bar(\"String\"));\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(new Test().testLambdaRedefiningADefault());\n" +
+			"	}\n" +
 			"}\n"
 	},
 	"lambda : String");
@@ -6140,24 +6140,24 @@ public void test489631() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.ArrayList;\n" + 
+			"import java.util.ArrayList;\n" +
 			"import java.util.List;\n" +
-			"interface I { int getLength(); }\n" + 
-			"public class Test {\n" + 
-			"	public void test() {\n" + 
-			"		class A<T> {\n" + 
-			"			List<T> l;\n" + 
-			"			public A(List<T> l) {\n" + 
-			"				this.l = l;\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"		List<Integer> list = new ArrayList<>();\n" + 
-			"		I i = () -> new A<>(list).l.size();\n" + 
-			"		System.out.println(i.getLength());\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Test().test();\n" + 
-			"	}\n" + 
+			"interface I { int getLength(); }\n" +
+			"public class Test {\n" +
+			"	public void test() {\n" +
+			"		class A<T> {\n" +
+			"			List<T> l;\n" +
+			"			public A(List<T> l) {\n" +
+			"				this.l = l;\n" +
+			"			}\n" +
+			"		}\n" +
+			"		List<Integer> list = new ArrayList<>();\n" +
+			"		I i = () -> new A<>(list).l.size();\n" +
+			"		System.out.println(i.getLength());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Test().test();\n" +
+			"	}\n" +
 			"}"
 	},
 	"0");
@@ -6167,31 +6167,31 @@ public void test489631a() {
 	this.runConformTest(
 		new String[] {
 			"Test.java",
-			"import java.util.ArrayList;\n" + 
-			"import java.util.List;\n" + 
-			"interface I { int getLength(); }\n" + 
-			"public class Test {\n" + 
-			"	public void test() {\n" + 
-			"		class A<T> {\n" + 
-			"			List<T> l;\n" + 
-			"			public A(List<T> l) {\n" + 
-			"				this.l = l;\n" + 
-			"			}\n" + 
-			"			class B {\n" + 
-			"				List<Integer> iL;\n" + 
-			"				public B(List<Integer> l) {\n" + 
-			"					// super(l);\n" + 
-			"					this.iL = l;\n" + 
-			"				}\n" + 
-			"			}\n" + 
-			"		}\n" + 
-			"		List<Integer> list = new ArrayList<>();\n" + 
-			"		I i = () -> new A<>(list).new B(list).iL.size();\n" + 
-			"		System.out.println(i.getLength());\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new Test().test();\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"interface I { int getLength(); }\n" +
+			"public class Test {\n" +
+			"	public void test() {\n" +
+			"		class A<T> {\n" +
+			"			List<T> l;\n" +
+			"			public A(List<T> l) {\n" +
+			"				this.l = l;\n" +
+			"			}\n" +
+			"			class B {\n" +
+			"				List<Integer> iL;\n" +
+			"				public B(List<Integer> l) {\n" +
+			"					// super(l);\n" +
+			"					this.iL = l;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"		List<Integer> list = new ArrayList<>();\n" +
+			"		I i = () -> new A<>(list).new B(list).iL.size();\n" +
+			"		System.out.println(i.getLength());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Test().test();\n" +
+			"	}\n" +
 			"}"
 	},
 	"0");
@@ -6202,16 +6202,16 @@ public void test476859() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"import java.lang.reflect.Method;\n" + 
-			"import java.util.function.Function;\n" + 
-			"public class Test {\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    final Function<Void,Method> f = __ -> {\n" + 
-			"    	class Dummy{}\n" + 
-			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" + 
-			"    };\n" + 
-			"    System.out.println(f.apply(null));\n" + 
-			"  }\n" + 
+			"import java.lang.reflect.Method;\n" +
+			"import java.util.function.Function;\n" +
+			"public class Test {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    final Function<Void,Method> f = __ -> {\n" +
+			"    	class Dummy{}\n" +
+			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" +
+			"    };\n" +
+			"    System.out.println(f.apply(null));\n" +
+			"  }\n" +
 			"}"
 		};
 	runner.expectedOutputString =
@@ -6226,27 +6226,27 @@ public void test476859a() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"import java.lang.reflect.Method;\n" + 
-			"import java.util.function.Function;\n" + 
-			"public class Test {\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"	  \n" + 
-			"    final Function<Void,Method> f = __ -> {\n" + 
-			"    	class Dummy{}\n" + 
-			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" + 
-			"    };\n" + 
-			"    System.out.println(f.apply(null));\n" + 
-			"    new AnotherClass().foo();\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class AnotherClass {\n" + 
-			"	void foo() {\n" + 
-			"		final Function<Void,Method> f = __ -> {\n" + 
-			"	    	class Dummy{}\n" + 
-			"	      return new Dummy(){}.getClass().getEnclosingMethod();\n" + 
-			"	    };\n" + 
-			"	    System.out.println(f.apply(null));\n" + 
-			"	}\n" + 
+			"import java.lang.reflect.Method;\n" +
+			"import java.util.function.Function;\n" +
+			"public class Test {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	  \n" +
+			"    final Function<Void,Method> f = __ -> {\n" +
+			"    	class Dummy{}\n" +
+			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" +
+			"    };\n" +
+			"    System.out.println(f.apply(null));\n" +
+			"    new AnotherClass().foo();\n" +
+			"  }\n" +
+			"}\n" +
+			"class AnotherClass {\n" +
+			"	void foo() {\n" +
+			"		final Function<Void,Method> f = __ -> {\n" +
+			"	    	class Dummy{}\n" +
+			"	      return new Dummy(){}.getClass().getEnclosingMethod();\n" +
+			"	    };\n" +
+			"	    System.out.println(f.apply(null));\n" +
+			"	}\n" +
 			"}\n"
 		};
 	runner.expectedOutputString =
@@ -6288,35 +6288,35 @@ public void test500374() {
 	this.runConformTest(
 		new String[] {
 			"client/Client.java",
-			"package client;\n" + 
-			"import lib.Sub;\n" + 
-			"public class Client {\n" + 
-			"    public static void main(String[] args) throws Throwable {\n" + 
-			"        Sub s1 = new Sub();\n" + 
-			"        doSomething(() -> s1.m());\n" + 
-			"        doSomething(s1::m);\n" + 
-			"    }\n" + 
-			"    interface Aaa {\n" + 
-			"        Object f() throws Throwable;\n" + 
-			"    }\n" + 
-			"    public static void doSomething(Aaa a) throws Throwable {\n" + 
-			"        System.out.println(\"Done\");\n" + 
-			"    }\n" + 
+			"package client;\n" +
+			"import lib.Sub;\n" +
+			"public class Client {\n" +
+			"    public static void main(String[] args) throws Throwable {\n" +
+			"        Sub s1 = new Sub();\n" +
+			"        doSomething(() -> s1.m());\n" +
+			"        doSomething(s1::m);\n" +
+			"    }\n" +
+			"    interface Aaa {\n" +
+			"        Object f() throws Throwable;\n" +
+			"    }\n" +
+			"    public static void doSomething(Aaa a) throws Throwable {\n" +
+			"        System.out.println(\"Done\");\n" +
+			"    }\n" +
 			"}\n",
 			"lib/Sub.java",
-			"package lib;\n" + 
+			"package lib;\n" +
 			"public class Sub extends Base<Sub> {}",
 			"lib/Base.java",
-			"package lib;\n" + 
-			"class Base<T> {\n" + 
-			"    public T m() {\n" + 
-			"        System.out.println(\"m\");\n" + 
-			"        return thisInstance();\n" + 
-			"    }\n" + 
-			"    @SuppressWarnings(\"unchecked\")\n" + 
-			"    T thisInstance() {\n" + 
-			"        return (T) this;\n" + 
-			"    }\n" + 
+			"package lib;\n" +
+			"class Base<T> {\n" +
+			"    public T m() {\n" +
+			"        System.out.println(\"m\");\n" +
+			"        return thisInstance();\n" +
+			"    }\n" +
+			"    @SuppressWarnings(\"unchecked\")\n" +
+			"    T thisInstance() {\n" +
+			"        return (T) this;\n" +
+			"    }\n" +
 			"}"
 	},
 	"Done\n" +
@@ -6327,37 +6327,37 @@ public void test500374a() {
 	this.runConformTest(
 		new String[] {
 			"client/Client.java",
-			"package client;\n" + 
-			"import java.lang.invoke.MethodHandle;\n" + 
-			"import java.lang.invoke.MethodHandles;\n" + 
-			"import java.lang.invoke.MethodType;\n" + 
-			"import lib.Sub;\n" + 
-			"public class Client {\n" + 
-			"    public static void main(String[] args) throws Throwable {\n" + 
-			"        MethodHandle mh = MethodHandles.lookup().findVirtual(Sub.class, \"m\", MethodType.methodType(Object.class));\n" + 
-			"        doSomething(mh::invoke);\n" + 
-			"    }\n" + 
-			"    interface Aaa {\n" + 
-			"        Object f() throws Throwable;\n" + 
-			"    }\n" + 
-			"    public static void doSomething(Aaa a) throws Throwable {\n" + 
-			"        System.out.println(\"Done\");\n" + 
-			"    }\n" + 
+			"package client;\n" +
+			"import java.lang.invoke.MethodHandle;\n" +
+			"import java.lang.invoke.MethodHandles;\n" +
+			"import java.lang.invoke.MethodType;\n" +
+			"import lib.Sub;\n" +
+			"public class Client {\n" +
+			"    public static void main(String[] args) throws Throwable {\n" +
+			"        MethodHandle mh = MethodHandles.lookup().findVirtual(Sub.class, \"m\", MethodType.methodType(Object.class));\n" +
+			"        doSomething(mh::invoke);\n" +
+			"    }\n" +
+			"    interface Aaa {\n" +
+			"        Object f() throws Throwable;\n" +
+			"    }\n" +
+			"    public static void doSomething(Aaa a) throws Throwable {\n" +
+			"        System.out.println(\"Done\");\n" +
+			"    }\n" +
 			"}\n",
 			"lib/Sub.java",
-			"package lib;\n" + 
+			"package lib;\n" +
 			"public class Sub extends Base<Sub> {}",
 			"lib/Base.java",
-			"package lib;\n" + 
-			"class Base<T> {\n" + 
-			"    public T m() {\n" + 
-			"        System.out.println(\"m\");\n" + 
-			"        return thisInstance();\n" + 
-			"    }\n" + 
-			"    @SuppressWarnings(\"unchecked\")\n" + 
-			"    T thisInstance() {\n" + 
-			"        return (T) this;\n" + 
-			"    }\n" + 
+			"package lib;\n" +
+			"class Base<T> {\n" +
+			"    public T m() {\n" +
+			"        System.out.println(\"m\");\n" +
+			"        return thisInstance();\n" +
+			"    }\n" +
+			"    @SuppressWarnings(\"unchecked\")\n" +
+			"    T thisInstance() {\n" +
+			"        return (T) this;\n" +
+			"    }\n" +
 			"}"
 	},
 	"Done");
@@ -6390,27 +6390,27 @@ public void testBug502871() {
 			"	}\n" +
 			"}\n" +
 			"",
-		}, 
-		"----------\n" + 
-		"1. WARNING in test\\GryoMapper.java (at line 11)\n" + 
-		"	public void addCustom(Generic c) {\n" + 
-		"	                      ^^^^^^^\n" + 
-		"Generic is a raw type. References to generic type Generic<A> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in test\\GryoMapper.java (at line 12)\n" + 
-		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" + 
-		"	                                ^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked invocation of(Generic) of the generic method of(Generic<E>) of type GryoMapper.GryoTypeReg\n" + 
-		"----------\n" + 
-		"3. WARNING in test\\GryoMapper.java (at line 12)\n" + 
-		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" + 
-		"	                                ^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type GryoMapper.GryoTypeReg needs unchecked conversion to conform to GryoMapper.GryoTypeReg<Object>\n" + 
-		"----------\n" + 
-		"4. WARNING in test\\GryoMapper.java (at line 12)\n" + 
-		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" + 
-		"	                                               ^\n" + 
-		"Type safety: The expression of type Generic needs unchecked conversion to conform to Generic<Object>\n" + 
+		},
+		"----------\n" +
+		"1. WARNING in test\\GryoMapper.java (at line 11)\n" +
+		"	public void addCustom(Generic c) {\n" +
+		"	                      ^^^^^^^\n" +
+		"Generic is a raw type. References to generic type Generic<A> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in test\\GryoMapper.java (at line 12)\n" +
+		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
+		"	                                ^^^^^^^^^^^^^^^^^\n" +
+		"Type safety: Unchecked invocation of(Generic) of the generic method of(Generic<E>) of type GryoMapper.GryoTypeReg\n" +
+		"----------\n" +
+		"3. WARNING in test\\GryoMapper.java (at line 12)\n" +
+		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
+		"	                                ^^^^^^^^^^^^^^^^^\n" +
+		"Type safety: The expression of type GryoMapper.GryoTypeReg needs unchecked conversion to conform to GryoMapper.GryoTypeReg<Object>\n" +
+		"----------\n" +
+		"4. WARNING in test\\GryoMapper.java (at line 12)\n" +
+		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
+		"	                                               ^\n" +
+		"Type safety: The expression of type Generic needs unchecked conversion to conform to Generic<Object>\n" +
 		"----------\n"
 	);
 }
@@ -6419,30 +6419,30 @@ public void testBUg490469() {
 	this.runConformTest(
 		new String[] {
 			"AbstractClientProxy.java",
-			"import java.util.function.Supplier;\n" + 
-			"public abstract class AbstractClientProxy {\n" + 
-			"	protected <T> T getRemoteObject(String url, Class<T> responseType, Object... urlVariables) {\n" + 
-			"		return handleException(this.bindGet(REST::getForObject, url, responseType, urlVariables));\n" + 
-			"	}\n" + 
-			"	private <T> T handleException(Supplier<T> s){\n" + 
-			"		T t = null;\n" + 
-			"		try{\n" + 
-			"			t= s.get();\n" + 
-			"		}catch(Exception e){\n" + 
-			"		}\n" + 
-			"		return t;\n" + 
-			"	}\n" + 
-			"	private  <T> Supplier<T> bindGet(GetFunc fn, String url, Class<T> responseType, Object... uriVariables) {\n" + 
-			"		return () -> fn.invoke(url, responseType, uriVariables);\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class REST {\n" + 
-			"	static <T> T getForObject(String url, Class<T> respType, Object... vars) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface GetFunc {\n" + 
-			"	<T> T invoke(String url, Class<T> responseType, Object... uriVariables);\n" + 
+			"import java.util.function.Supplier;\n" +
+			"public abstract class AbstractClientProxy {\n" +
+			"	protected <T> T getRemoteObject(String url, Class<T> responseType, Object... urlVariables) {\n" +
+			"		return handleException(this.bindGet(REST::getForObject, url, responseType, urlVariables));\n" +
+			"	}\n" +
+			"	private <T> T handleException(Supplier<T> s){\n" +
+			"		T t = null;\n" +
+			"		try{\n" +
+			"			t= s.get();\n" +
+			"		}catch(Exception e){\n" +
+			"		}\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	private  <T> Supplier<T> bindGet(GetFunc fn, String url, Class<T> responseType, Object... uriVariables) {\n" +
+			"		return () -> fn.invoke(url, responseType, uriVariables);\n" +
+			"	}\n" +
+			"}\n" +
+			"class REST {\n" +
+			"	static <T> T getForObject(String url, Class<T> respType, Object... vars) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"interface GetFunc {\n" +
+			"	<T> T invoke(String url, Class<T> responseType, Object... uriVariables);\n" +
 			"}\n"
 	});
 }
@@ -6452,19 +6452,19 @@ public void test509804() {
 	runner.testFiles =
 		new String[] {
 			"Test.java",
-			"import java.lang.reflect.Method;\n" + 
-			"import java.util.function.Supplier;\n" + 
-			"public enum Test {\n" + 
-			"	A(Object::new),\n" + 
-			"	B(() -> new Object(){}),\n" + 
-			"	;\n" + 
-			"	private final Supplier<Object> s;\n" + 
-			"	Test(Supplier<Object> e){\n" + 
-			"		this.s = e;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) throws NoSuchMethodException, SecurityException {\n" + 
-			"		System.out.println(B.s.get().getClass().getEnclosingMethod());\n" + 
-			"	}\n" + 
+			"import java.lang.reflect.Method;\n" +
+			"import java.util.function.Supplier;\n" +
+			"public enum Test {\n" +
+			"	A(Object::new),\n" +
+			"	B(() -> new Object(){}),\n" +
+			"	;\n" +
+			"	private final Supplier<Object> s;\n" +
+			"	Test(Supplier<Object> e){\n" +
+			"		this.s = e;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) throws NoSuchMethodException, SecurityException {\n" +
+			"		System.out.println(B.s.get().getClass().getEnclosingMethod());\n" +
+			"	}\n" +
 			"}\n"
 		};
 	runner.expectedOutputString =
@@ -6477,21 +6477,21 @@ public void testBug514105() {
 	runConformTest(
 		new String[] {
 			"FunctionalInterfaceBug.java",
-			"import java.util.function.Function;\n" + 
-			"import java.util.function.UnaryOperator;\n" + 
-			"\n" + 
-			"@FunctionalInterface\n" + 
-			"interface BaseFunction<S, T> extends Function<S, T> {\n" + 
-			"\n" + 
-			"    T foo(final S s);\n" + 
-			"\n" + 
-			"    default T apply(final S s) {\n" + 
-			"        return null;\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"\n" + 
-			"@FunctionalInterface\n" + 
-			"interface SubFunction<T> extends UnaryOperator<T>, BaseFunction<T, T> {\n" + 
+			"import java.util.function.Function;\n" +
+			"import java.util.function.UnaryOperator;\n" +
+			"\n" +
+			"@FunctionalInterface\n" +
+			"interface BaseFunction<S, T> extends Function<S, T> {\n" +
+			"\n" +
+			"    T foo(final S s);\n" +
+			"\n" +
+			"    default T apply(final S s) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"@FunctionalInterface\n" +
+			"interface SubFunction<T> extends UnaryOperator<T>, BaseFunction<T, T> {\n" +
 			"}\n" +
 			"public class FunctionalInterfaceBug {}\n"
 		});
@@ -6530,34 +6530,34 @@ public void testBug517299() {
 	runConformTest(
 		new String[] {
 			"example/FooTest.java",
-			"package example;\n" + 
-			"import java.util.function.Consumer;\n" + 
-			"import foo.Foo;\n" + 
-			"public class FooTest {\n" + 
-			"	public void test() {\n" + 
-			"		Foo.Bar foo = new Foo.Bar();\n" + 
-			"		foo.print(\"direct\");\n" + 
-			"		invoke(foo::print, \"methodReference\");\n" + 
-			"	}\n" + 
-			"	private static void invoke(Consumer<String> method, String name) {\n" + 
-			"		method.accept(name);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new FooTest().test();\n" + 
-			"	}\n" + 
+			"package example;\n" +
+			"import java.util.function.Consumer;\n" +
+			"import foo.Foo;\n" +
+			"public class FooTest {\n" +
+			"	public void test() {\n" +
+			"		Foo.Bar foo = new Foo.Bar();\n" +
+			"		foo.print(\"direct\");\n" +
+			"		invoke(foo::print, \"methodReference\");\n" +
+			"	}\n" +
+			"	private static void invoke(Consumer<String> method, String name) {\n" +
+			"		method.accept(name);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new FooTest().test();\n" +
+			"	}\n" +
 			"}",
 			"foo/Foo.java",
-			"package foo;\n" + 
-			"public abstract class Foo {\n" + 
-			"	public static class Bar extends Baz {}\n" + 
-			"	static class Baz {\n" + 
-			"		public final void print(String name) {\n" + 
-			"			System.out.println(\"Baz.print called - \"+name);\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"package foo;\n" +
+			"public abstract class Foo {\n" +
+			"	public static class Bar extends Baz {}\n" +
+			"	static class Baz {\n" +
+			"		public final void print(String name) {\n" +
+			"			System.out.println(\"Baz.print called - \"+name);\n" +
+			"		}\n" +
+			"	}\n" +
 			"}"
 		},
-		"Baz.print called - direct\n" + 
+		"Baz.print called - direct\n" +
 		"Baz.print called - methodReference"
 	);
 }
@@ -6565,23 +6565,23 @@ public void testBug521808() {
 	runConformTest(
 		new String[] {
 			"Z.java",
-			"interface FI1 {\n" + 
-			"	Object m(Integer... s);\n" + 
-			"}\n" + 
-			"interface FI2<T> {\n" + 
-			"	Object m(T... arg);\n" + 
-			"}\n" + 
-			"public class Z {\n" + 
-			"	static Object m(FI1 fi, Integer v1, Integer v2) {\n" + 
-			"		return fi.m(v1, v2);\n" + 
-			"	}\n" + 
-			"	static <V extends Integer> Object m(FI2<V> fi, V v1, V v2) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public static void main(String argv[]) {\n" + 
-			"		Object obj = m((FI1) (Integer... is) -> is[0] + is[1], 3, 4);\n" + 
-			"		obj = m((Integer... is) -> is[0] + is[1], 3, 4); // Javac compiles, ECJ won't\n" + 
-			"	}\n" + 
+			"interface FI1 {\n" +
+			"	Object m(Integer... s);\n" +
+			"}\n" +
+			"interface FI2<T> {\n" +
+			"	Object m(T... arg);\n" +
+			"}\n" +
+			"public class Z {\n" +
+			"	static Object m(FI1 fi, Integer v1, Integer v2) {\n" +
+			"		return fi.m(v1, v2);\n" +
+			"	}\n" +
+			"	static <V extends Integer> Object m(FI2<V> fi, V v1, V v2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static void main(String argv[]) {\n" +
+			"		Object obj = m((FI1) (Integer... is) -> is[0] + is[1], 3, 4);\n" +
+			"		obj = m((Integer... is) -> is[0] + is[1], 3, 4); // Javac compiles, ECJ won't\n" +
+			"	}\n" +
 			"}",
 		}
 	);
@@ -6590,14 +6590,14 @@ public void testBug522469() {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<R> {\n" + 
-			"\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		I<?> i = (X<?> x) -> \"\";\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String m(X<? extends T> x);\n" + 
+			"public class X<R> {\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I<?> i = (X<?> x) -> \"\";\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String m(X<? extends T> x);\n" +
 			"}\n"
 		}
 	);
@@ -6606,20 +6606,20 @@ public void testBug517951() {
 	runConformTest(
 		new String[] {
 			"Minimal.java",
-			"public class Minimal {\n" + 
-			"    public void iCrash() {\n" + 
-			"        try {\n" + 
-			"            System.out.println(\"Body can't be empty\");\n" + 
-			"        } finally {\n" + 
-			"            consumes(sneaky()::withVarargs);\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public static void main(String[] args) {\n" + 
-			"		new Minimal().iCrash();\n" + 
-			"	}\n" + 
-			"    private Minimal sneaky() { return this; }\n" + 
-			"    private void withVarargs(String... test) {}\n" + 
-			"    private void consumes(Runnable r) {}\n" + 
+			"public class Minimal {\n" +
+			"    public void iCrash() {\n" +
+			"        try {\n" +
+			"            System.out.println(\"Body can't be empty\");\n" +
+			"        } finally {\n" +
+			"            consumes(sneaky()::withVarargs);\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public static void main(String[] args) {\n" +
+			"		new Minimal().iCrash();\n" +
+			"	}\n" +
+			"    private Minimal sneaky() { return this; }\n" +
+			"    private void withVarargs(String... test) {}\n" +
+			"    private void consumes(Runnable r) {}\n" +
 			"}"
 		},
 		"Body can't be empty"
@@ -6629,22 +6629,22 @@ public void testBug517951a() {
 	runConformTest(
 		new String[] {
 			"Snippet.java",
-			"import java.nio.file.Files;\n" + 
-			"import java.nio.file.Paths;\n" + 
-			"import java.util.function.Consumer;\n" + 
-			"public class Snippet {\n" + 
-			"	void postError( String fmt, Object ... args ) {\n" + 
-			"	}\n" + 
-			"	public boolean test(Consumer<String> postError ) {\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"	void func() {\n" + 
-			"		try( java.io.InputStream istr = Files.newInputStream( Paths.get( \"\" ) )){\n" + 
-			"		} catch( Exception e ) {\n" + 
-			"		} finally {\n" + 
-			"			test( this::postError);\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"import java.nio.file.Files;\n" +
+			"import java.nio.file.Paths;\n" +
+			"import java.util.function.Consumer;\n" +
+			"public class Snippet {\n" +
+			"	void postError( String fmt, Object ... args ) {\n" +
+			"	}\n" +
+			"	public boolean test(Consumer<String> postError ) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	void func() {\n" +
+			"		try( java.io.InputStream istr = Files.newInputStream( Paths.get( \"\" ) )){\n" +
+			"		} catch( Exception e ) {\n" +
+			"		} finally {\n" +
+			"			test( this::postError);\n" +
+			"		}\n" +
+			"	}\n" +
 			"}"
 		}
 	);
@@ -6653,28 +6653,28 @@ public void testBug517951b() {
 	runConformTest(
 		new String[] {
 			"Element.java",
-			"public class Element\n" + 
-			"{\n" + 
-			"    Operation operation = new Operation(Element::new);\n" + 
-			"    public Element(Integer matrix)\n" + 
-			"    {\n" + 
-			"    		//...\n" + 
-			"    }\n" + 
-			"    public Element(Operation... operation)\n" + 
-			"    {\n" + 
-			"    		//...\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"class Operation\n" + 
-			"{\n" + 
-			"    public Operation(Factory factory)\n" + 
-			"    {\n" + 
-			"        //...\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"interface Factory\n" + 
-			"{\n" + 
-			"    Element create(Operation... operations);\n" + 
+			"public class Element\n" +
+			"{\n" +
+			"    Operation operation = new Operation(Element::new);\n" +
+			"    public Element(Integer matrix)\n" +
+			"    {\n" +
+			"    		//...\n" +
+			"    }\n" +
+			"    public Element(Operation... operation)\n" +
+			"    {\n" +
+			"    		//...\n" +
+			"    }\n" +
+			"}\n" +
+			"class Operation\n" +
+			"{\n" +
+			"    public Operation(Factory factory)\n" +
+			"    {\n" +
+			"        //...\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Factory\n" +
+			"{\n" +
+			"    Element create(Operation... operations);\n" +
 			"}"
 		}
 	);
@@ -6683,30 +6683,30 @@ public void testBug517951c() {
 	runConformTest(
 		new String[] {
 			"npetest/NpeTest.java",
-			"package npetest;\n" + 
-			"public class NpeTest {\n" + 
-			"    public NpeTestScheduler scheduler;\n" + 
-			"    private void doIt(Object... params) {\n" + 
-			"        try {\n" + 
-			"            System.out.println(\"Done\");\n" + 
-			"        }\n" + 
-			"        finally {\n" + 
-			"            scheduler.schedule(this::doIt);\n" + 
-			"        }\n" + 
-			"    }\n" + 
+			"package npetest;\n" +
+			"public class NpeTest {\n" +
+			"    public NpeTestScheduler scheduler;\n" +
+			"    private void doIt(Object... params) {\n" +
+			"        try {\n" +
+			"            System.out.println(\"Done\");\n" +
+			"        }\n" +
+			"        finally {\n" +
+			"            scheduler.schedule(this::doIt);\n" +
+			"        }\n" +
+			"    }\n" +
 			"}",
 			"npetest/NpeTestIf.java",
-			"package npetest;\n" + 
-			"@FunctionalInterface\n" + 
-			"public interface NpeTestIf {\n" + 
-			"    void doSomething(Object... params);\n" + 
+			"package npetest;\n" +
+			"@FunctionalInterface\n" +
+			"public interface NpeTestIf {\n" +
+			"    void doSomething(Object... params);\n" +
 			"}",
 			"npetest/NpeTestScheduler.java",
-			"package npetest;\n" + 
-			"public class NpeTestScheduler {\n" + 
-			"    public void schedule(NpeTestIf what) {\n" + 
-			"        what.doSomething();\n" + 
-			"    }\n" + 
+			"package npetest;\n" +
+			"public class NpeTestScheduler {\n" +
+			"    public void schedule(NpeTestIf what) {\n" +
+			"        what.doSomething();\n" +
+			"    }\n" +
 			"}"
 		}
 	);
@@ -6716,38 +6716,38 @@ public void testBug521818() {
 	runner.testFiles =
 		new String[] {
 			"test/Main.java",
-			"package test;\n" + 
-			"class C {}\n" + 
-			"class D {\n" + 
+			"package test;\n" +
+			"class C {}\n" +
+			"class D {\n" +
 			"	<T extends C & Runnable> D(int i, T t) {" +
 			"		System.out.println(\"D\");\n" +
-			"}\n" + 
-			"}\n" + 
-			"interface Goo {\n" + 
-			"    <T extends C & Runnable> String m(T p);\n" + 
-			"}\n" + 
-			"class A {\n" + 
+			"}\n" +
+			"}\n" +
+			"interface Goo {\n" +
+			"    <T extends C & Runnable> String m(T p);\n" +
+			"}\n" +
+			"class A {\n" +
 			"    public static <K extends Runnable> String bar(K a) {\n" +
 			"		System.out.println(\"Bar\");\n" +
-			"       return null;\n" + 
-			"    }\n" + 
+			"       return null;\n" +
+			"    }\n" +
 			"    public static <K extends Runnable> D baz(int i, K a) {\n" +
 			"		System.out.println(\"Baz\");\n" +
-			"       return null;\n" + 
-			"    }\n"+ 
-			"}\n" +  
-			"interface Foo<Z extends C & Runnable> {\n" + 
-			"	D get(int i, Z z);\n" + 
-			"}\n" + 
-			"public class Main  {\n" +  
-			"    public static void main(String[] args) {\n" + 
-			"    	Foo<? extends C> h = A::baz;\n" + 
-			"    	h.get(0,  null);\n" + 
-			"    	Foo<? extends C> h2 = D::new;\n" + 
-			"    	h2.get(0,  null);\n" + 
-			"    	Goo g = A::bar;\n" + 
-			"    	g.m(null);\n" + 
-			"    } \n" + 
+			"       return null;\n" +
+			"    }\n"+
+			"}\n" +
+			"interface Foo<Z extends C & Runnable> {\n" +
+			"	D get(int i, Z z);\n" +
+			"}\n" +
+			"public class Main  {\n" +
+			"    public static void main(String[] args) {\n" +
+			"    	Foo<? extends C> h = A::baz;\n" +
+			"    	h.get(0,  null);\n" +
+			"    	Foo<? extends C> h2 = D::new;\n" +
+			"    	h2.get(0,  null);\n" +
+			"    	Goo g = A::bar;\n" +
+			"    	g.m(null);\n" +
+			"    } \n" +
 			"}"
 		};
 	runner.expectedOutputString =
@@ -6762,62 +6762,62 @@ public void testBug522469a() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.List;\n" + 
-			"public class X<R> {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		I<?> i = (X<?> x) -> \"\";\n" + 
-			"		J<?, Y> j = (C<?, Y> y) -> \"\";\n" + 
-			"		J<?, Y> j2 = (C<? extends Object, Y> y) -> \"\";\n" + 
-			"		J<? extends Object, Y> j3 = (C<?, Y> y) -> \"\";\n" + 
-			"		J<? extends Object, Y> j4 = (C<? extends Object, Y> y) -> \"\";\n" + 
-			"		J<?, Y> j5 = (C<?, Z> y) -> \"\";\n" + 
-			"		K<? extends List<?>> k = (D<? extends List<?>> d) -> \"\";\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"class C<T, U> {}\n" + 
-			"class D<T extends List<T>> {}\n" + 
-			"class Z {}\n" + 
-			"class Y extends Z {}\n" + 
-			"interface I<T> {\n" + 
-			"	String m(X<? extends T> x);\n" + 
-			"}\n" + 
-			"interface J<R, S extends Z> {\n" + 
-			"	String m(C<? extends R, S> ya);\n" + 
-			"}\n" + 
-			"interface K<R extends List<R>> {\n" + 
-			"	String m(D<? extends R> d);\n" + 
+			"import java.util.List;\n" +
+			"public class X<R> {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		I<?> i = (X<?> x) -> \"\";\n" +
+			"		J<?, Y> j = (C<?, Y> y) -> \"\";\n" +
+			"		J<?, Y> j2 = (C<? extends Object, Y> y) -> \"\";\n" +
+			"		J<? extends Object, Y> j3 = (C<?, Y> y) -> \"\";\n" +
+			"		J<? extends Object, Y> j4 = (C<? extends Object, Y> y) -> \"\";\n" +
+			"		J<?, Y> j5 = (C<?, Z> y) -> \"\";\n" +
+			"		K<? extends List<?>> k = (D<? extends List<?>> d) -> \"\";\n" +
+			"	}\n" +
+			"}\n" +
+			"class C<T, U> {}\n" +
+			"class D<T extends List<T>> {}\n" +
+			"class Z {}\n" +
+			"class Y extends Z {}\n" +
+			"interface I<T> {\n" +
+			"	String m(X<? extends T> x);\n" +
+			"}\n" +
+			"interface J<R, S extends Z> {\n" +
+			"	String m(C<? extends R, S> ya);\n" +
+			"}\n" +
+			"interface K<R extends List<R>> {\n" +
+			"	String m(D<? extends R> d);\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	J<?, Y> j5 = (C<?, Z> y) -> \"\";\n" + 
-		"	             ^^^^^^^^^^^^^^^^^\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	J<?, Y> j5 = (C<?, Z> y) -> \"\";\n" +
+		"	             ^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from J<Object,Z> to J<?,Y>\n" +
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	K<? extends List<?>> k = (D<? extends List<?>> d) -> \"\";\n" + 
-		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	K<? extends List<?>> k = (D<? extends List<?>> d) -> \"\";\n" +
+		"	                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" +
 		"----------\n");
 }
 public void testBug522469b() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
-			"class C<T> {}\n" + 
-			"public class X  {\n" + 
-			"    interface I<T> {\n" + 
-			"        void foo(C<? super Long> l);\n" + 
-			"    }\n" + 
-			"    public static void run() {\n" + 
-			"        I<String> i = (C<? super Number> l) -> {};\n" + 
-			"    }\n" + 
+			"class C<T> {}\n" +
+			"public class X  {\n" +
+			"    interface I<T> {\n" +
+			"        void foo(C<? super Long> l);\n" +
+			"    }\n" +
+			"    public static void run() {\n" +
+			"        I<String> i = (C<? super Number> l) -> {};\n" +
+			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
 		"	I<String> i = (C<? super Number> l) -> {};\n" +
-		"	               ^\n" + 
+		"	               ^\n" +
 		"Lambda expression's parameter l is expected to be of type C<? super Long>\n" +
 		"----------\n");
 }
@@ -6825,25 +6825,25 @@ public void testBug529199() {
 	runConformTest(
 		new String[] {
 			"p2/Test.java",
-			"package p2;\n" + 
-			"public class Test {\n" + 
-			"   public static void main(String... args) {\n" + 
-			"       p1.B.m(); // ok\n" + 
-			"       Runnable r = p1.B::m; r.run(); // runtime error\n" + 
-			"   }\n" + 
+			"package p2;\n" +
+			"public class Test {\n" +
+			"   public static void main(String... args) {\n" +
+			"       p1.B.m(); // ok\n" +
+			"       Runnable r = p1.B::m; r.run(); // runtime error\n" +
+			"   }\n" +
 			"}",
 			"p1/A.java",
-			"package p1;\n" + 
-			"class A {\n" + 
-			"   public static void m() { System.out.println(\"A.m\"); }\n" + 
+			"package p1;\n" +
+			"class A {\n" +
+			"   public static void m() { System.out.println(\"A.m\"); }\n" +
 			"}\n",
 			"p1/B.java",
-			"package p1;\n" + 
-			"public class B extends A {\n" + 
+			"package p1;\n" +
+			"public class B extends A {\n" +
 			"}\n"
 		},
 		"A.m\n" +
-		"A.m"		
+		"A.m"
 	);
 }
 public void testBug553885a() {
@@ -6953,19 +6953,19 @@ public void testBug521182() {
 	runConformTest(
 		new String[] {
 			"MethodRef.java",
-			"import java.util.function.Supplier;\n" + 
-			"public class MethodRef {\n" + 
-			"  public static void m(Supplier<?> s) {\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
+			"import java.util.function.Supplier;\n" +
+			"public class MethodRef {\n" +
+			"  public static void m(Supplier<?> s) {\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
 			"    Object ref = null;\n" +
 			"	 try {\n" +
 			"    	m(ref::toString);\n" +
-			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" + 
+			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" +
 			"	 } catch (NullPointerException e) {\n" +
 			"		System.out.println(\"Success\");\n" +
 			"	 }\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}"
 		},
 		"Success");
@@ -6974,20 +6974,20 @@ public void testBug521182a() {
 	runConformTest(
 		new String[] {
 			"MethodRef.java",
-			"import java.util.function.Supplier;\n" + 
+			"import java.util.function.Supplier;\n" +
 			"public class MethodRef {\n" +
 			"	Object field = null;\n" +
-			"  public static void m(Supplier<?> s) {\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
+			"  public static void m(Supplier<?> s) {\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
 			"	 try {\n" +
 			"		MethodRef ref = new MethodRef();\n" +
 			"    	m(ref.field::toString);\n" +
-			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" + 
+			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" +
 			"	 } catch (NullPointerException e) {\n" +
 			"		System.out.println(\"Success\");\n" +
 			"	 }\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}"
 		},
 		"Success");
@@ -6996,21 +6996,21 @@ public void testBug521182b() {
 	runConformTest(
 		new String[] {
 			"MethodRef.java",
-			"import java.util.function.Supplier;\n" + 
+			"import java.util.function.Supplier;\n" +
 			"public class MethodRef {\n" +
-			"  public static void m(Supplier<?> s) {\n" + 
-			"  }\n" + 
+			"  public static void m(Supplier<?> s) {\n" +
+			"  }\n" +
 			"  public static Object get() {\n" +
 			"	 return null;\n" +
 			"  }\n" +
-			"  public static void main(String[] args) {\n" + 
+			"  public static void main(String[] args) {\n" +
 			"	 try {\n" +
 			"    	m(get()::toString);\n" +
-			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" + 
+			"	    System.out.println(\"A NPE should have been thrown !!!!!\");\n" +
 			"	 } catch (NullPointerException e) {\n" +
 			"		System.out.println(\"Success\");\n" +
 			"	 }\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}"
 		},
 		"Success");
@@ -7021,23 +7021,23 @@ public void testBug516833() {
 	this.runConformTest(
 		new String[] {
 			"ParameterTest.java",
-			"import java.lang.reflect.Method;\n" + 
-			"import java.lang.reflect.Parameter;\n" + 
-			"import java.util.Arrays;\n" + 
-			"import java.util.List;\n" + 
-			"public class ParameterTest {\n" + 
-			"	void foo(String s, List<String> s1) {\n" + 
-			"		s1.stream().filter(p -> p.equals(s));\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		for (Method m : ParameterTest.class.getDeclaredMethods()) {\n" + 
-			"			if (m.getName().contains(\"lambda\")) {\n" + 
-			"				Parameter[] params = m.getParameters();\n" + 
-			"				System.out.println(Arrays.asList(params));\n" + 
-			"			}\n" + 
-			"			\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"import java.lang.reflect.Method;\n" +
+			"import java.lang.reflect.Parameter;\n" +
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class ParameterTest {\n" +
+			"	void foo(String s, List<String> s1) {\n" +
+			"		s1.stream().filter(p -> p.equals(s));\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		for (Method m : ParameterTest.class.getDeclaredMethods()) {\n" +
+			"			if (m.getName().contains(\"lambda\")) {\n" +
+			"				Parameter[] params = m.getParameters();\n" +
+			"				System.out.println(Arrays.asList(params));\n" +
+			"			}\n" +
+			"			\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"[java.lang.String arg0, java.lang.String arg1]", options);
@@ -7070,7 +7070,7 @@ public void testBug531093comment1() {
 			"	}\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		""
 	);
 }
@@ -7102,7 +7102,7 @@ public void testBug531093() {
 			"    }\n" +
 			"}\n" +
 			"",
-		}, 
+		},
 		""
 	);
 }
@@ -7110,67 +7110,67 @@ public void testBug540520() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"Run.java",
-			"import java.util.ArrayList;\n" + 
-			"import java.util.HashMap;\n" + 
-			"import java.util.List;\n" + 
-			"import java.util.Map;\n" + 
-			"import java.util.stream.Collectors;\n" + 
-			"\n" + 
-			"public class Run {\n" + 
-			"\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		\n" + 
-			"		List<TypeDeptCount> list = new ArrayList<>();\n" + 
-			"		for(int i=0;i<10;i++) {\n" + 
-			"			TypeDeptCount ty = new TypeDeptCount();\n" + 
-			"			ty.setCykbbm(\"10\"+i);\n" + 
-			"			ty.setCount(i);\n" + 
-			"		}\n" + 
-			"        List<Map<String, Object>> datas = list.stream().collect(Collectors.groupingBy(TypeDeptCount::getType))\n" + 
-			"                .entrySet().stream().map(item -> item.getValue().stream().reduce(new HashMap<String, Object>() {\n" + 
-			"                    private static final long serialVersionUID = 1L;\n" + 
-			"                    {\n" + 
-			"                        put(\"count\", 0);\n" + 
-			"                        put(\"type\", item.getKey());\n" + 
-			"                    }\n" + 
-			"                }, (data1, val) -> {\n" + 
-			"                    data1.put(val.getCykbbm(), val.getCount());\n" + 
-			"                    data1.put(\"count\", (Integer) data1.get(\"count\") + val.getCount());\n" + 
-			"                    return data1;\n" + 
-			"                }, (data1, data2) -> {\n" + 
-			"                    data2.put(\"count\", (Integer) data1.get(\"count\") + (Integer) data2.get(\"count\"));\n" + 
-			"                    data1.putAll(data2);\n" + 
-			"                    return data1;\n" + 
-			"                })).sorted((item1, item2) -> (Integer) item2.get(\"count\") - (Integer) item1.get(\"count\"))\n" + 
-			"                .collect(Collectors.toList());\n" + 
-			"        System.out.println(datas);\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.HashMap;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"\n" +
+			"public class Run {\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		\n" +
+			"		List<TypeDeptCount> list = new ArrayList<>();\n" +
+			"		for(int i=0;i<10;i++) {\n" +
+			"			TypeDeptCount ty = new TypeDeptCount();\n" +
+			"			ty.setCykbbm(\"10\"+i);\n" +
+			"			ty.setCount(i);\n" +
+			"		}\n" +
+			"        List<Map<String, Object>> datas = list.stream().collect(Collectors.groupingBy(TypeDeptCount::getType))\n" +
+			"                .entrySet().stream().map(item -> item.getValue().stream().reduce(new HashMap<String, Object>() {\n" +
+			"                    private static final long serialVersionUID = 1L;\n" +
+			"                    {\n" +
+			"                        put(\"count\", 0);\n" +
+			"                        put(\"type\", item.getKey());\n" +
+			"                    }\n" +
+			"                }, (data1, val) -> {\n" +
+			"                    data1.put(val.getCykbbm(), val.getCount());\n" +
+			"                    data1.put(\"count\", (Integer) data1.get(\"count\") + val.getCount());\n" +
+			"                    return data1;\n" +
+			"                }, (data1, data2) -> {\n" +
+			"                    data2.put(\"count\", (Integer) data1.get(\"count\") + (Integer) data2.get(\"count\"));\n" +
+			"                    data1.putAll(data2);\n" +
+			"                    return data1;\n" +
+			"                })).sorted((item1, item2) -> (Integer) item2.get(\"count\") - (Integer) item1.get(\"count\"))\n" +
+			"                .collect(Collectors.toList());\n" +
+			"        System.out.println(datas);\n" +
+			"	}\n" +
 			"}\n",
 			"TypeDeptCount.java",
-			"public class TypeDeptCount {\n" + 
-			"\n" + 
-			"    private String type;\n" + 
-			"    private String cykbbm;\n" + 
-			"    private Integer count;\n" + 
-			"    \n" + 
-			"	public String getType() {\n" + 
-			"		return type;\n" + 
-			"	}\n" + 
-			"	public void setType(String type) {\n" + 
-			"		this.type = type;\n" + 
-			"	}\n" + 
-			"	public String getCykbbm() {\n" + 
-			"		return cykbbm;\n" + 
-			"	}\n" + 
-			"	public void setCykbbm(String cykbbm) {\n" + 
-			"		this.cykbbm = cykbbm;\n" + 
-			"	}\n" + 
-			"	public Integer getCount() {\n" + 
-			"		return count;\n" + 
-			"	}\n" + 
-			"	public void setCount(Integer count) {\n" + 
-			"		this.count = count;\n" + 
-			"	}\n" + 
+			"public class TypeDeptCount {\n" +
+			"\n" +
+			"    private String type;\n" +
+			"    private String cykbbm;\n" +
+			"    private Integer count;\n" +
+			"    \n" +
+			"	public String getType() {\n" +
+			"		return type;\n" +
+			"	}\n" +
+			"	public void setType(String type) {\n" +
+			"		this.type = type;\n" +
+			"	}\n" +
+			"	public String getCykbbm() {\n" +
+			"		return cykbbm;\n" +
+			"	}\n" +
+			"	public void setCykbbm(String cykbbm) {\n" +
+			"		this.cykbbm = cykbbm;\n" +
+			"	}\n" +
+			"	public Integer getCount() {\n" +
+			"		return count;\n" +
+			"	}\n" +
+			"	public void setCount(Integer count) {\n" +
+			"		this.count = count;\n" +
+			"	}\n" +
 			"}\n"
 		};
 	runner.runConformTest();
@@ -7179,27 +7179,27 @@ public void testBug540631() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"EclipseCompileBug.java",
-			"public enum EclipseCompileBug {\n" + 
-			"	/*\n" + 
-			"	 * Next line fails with these errors in Eclipse, works with javac:\n" + 
-			"	 * <li>Test cannot be resolved to a type\n" + 
-			"	 * <li>Cannot reference a field before it is defined\n" + 
-			"	 */\n" + 
-			"	Test(Test::new);\n" + 
-			"\n" + 
-			"	@FunctionalInterface\n" + 
-			"    public interface IConstructor<T extends Object> {\n" + 
-			"        T apply();\n" + 
-			"    }\n" + 
-			"\n" + 
-			"    private final IConstructor<?> constructor;\n" + 
-			"	private EclipseCompileBug (IConstructor<?> newObj) {\n" + 
-			"		constructor = newObj;\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public static class Test {\n" + 
-			"		\n" + 
-			"	}\n" + 
+			"public enum EclipseCompileBug {\n" +
+			"	/*\n" +
+			"	 * Next line fails with these errors in Eclipse, works with javac:\n" +
+			"	 * <li>Test cannot be resolved to a type\n" +
+			"	 * <li>Cannot reference a field before it is defined\n" +
+			"	 */\n" +
+			"	Test(Test::new);\n" +
+			"\n" +
+			"	@FunctionalInterface\n" +
+			"    public interface IConstructor<T extends Object> {\n" +
+			"        T apply();\n" +
+			"    }\n" +
+			"\n" +
+			"    private final IConstructor<?> constructor;\n" +
+			"	private EclipseCompileBug (IConstructor<?> newObj) {\n" +
+			"		constructor = newObj;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public static class Test {\n" +
+			"		\n" +
+			"	}\n" +
 			"}\n"
 		};
 	runner.runConformTest();

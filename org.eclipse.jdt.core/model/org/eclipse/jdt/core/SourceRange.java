@@ -42,7 +42,7 @@ public final class SourceRange implements ISourceRange {
 
 	/**
 	 * Instantiate a new source range using the given offset and the given length.
-	 * 
+	 *
 	 * @param offset the given offset
 	 * @param length the given length
 	 */

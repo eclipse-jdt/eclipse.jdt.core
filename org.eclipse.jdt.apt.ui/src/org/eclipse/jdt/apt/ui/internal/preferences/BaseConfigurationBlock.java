@@ -66,7 +66,7 @@ import org.eclipse.ui.preferences.IWorkingCopyManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**
- * The ConfigurationBlock hierarchy is used to organize controls and keys 
+ * The ConfigurationBlock hierarchy is used to organize controls and keys
  * within a property/preference page.  The implementor derives from this
  * class and creates dialog controls, layout, and response code.
  * <p>
@@ -79,16 +79,16 @@ public abstract class BaseConfigurationBlock {
 	protected static class ControlData {
 		private Key fKey;
 		private String[] fValues;
-		
+
 		public ControlData(Key key, String[] values) {
 			fKey= key;
 			fValues= values;
 		}
-		
+
 		public Key getKey() {
 			return fKey;
 		}
-		
+
 		public int getSelection(String value) {
 			if (value != null) {
 				for (int i= 0; i < fValues.length; i++) {
@@ -99,31 +99,31 @@ public abstract class BaseConfigurationBlock {
 			}
 			return fValues.length -1; // assume the last option is the least severe
 		}
-		
+
 		public String getValue(boolean selection) {
 			int index= selection ? 0 : 1;
 			return fValues[index];
-		}		
-		
+		}
+
 		public String getValue(int index) {
 			return fValues[index];
 		}
 	}
-	
+
 	public static final class Key {
-		
+
 		private String fKey;
 		private String fQualifier;
-		
+
 		public Key(String qualifier, String key) {
 			fQualifier= qualifier;
 			fKey= key;
 		}
-		
+
 		public String getName() {
 			return fKey;
 		}
-		
+
 		private IEclipsePreferences getNode(IScopeContext context, IWorkingCopyManager manager) {
 			IEclipsePreferences node= context.getNode(fQualifier);
 			if (manager != null) {
@@ -131,15 +131,15 @@ public abstract class BaseConfigurationBlock {
 			}
 			return node;
 		}
-		
+
 		public String getQualifier() {
 			return fQualifier;
 		}
-		
+
 		public String getStoredValue(IScopeContext context, IWorkingCopyManager manager) {
 			return getNode(context, manager).get(fKey, null);
 		}
-		
+
 		public String getStoredValue(IScopeContext[] lookupOrder, boolean ignoreTopScope, IWorkingCopyManager manager) {
 			for (int i= ignoreTopScope ? 1 : 0; i < lookupOrder.length; i++) {
 				String value= getStoredValue(lookupOrder[i], manager);
@@ -149,7 +149,7 @@ public abstract class BaseConfigurationBlock {
 			}
 			return null;
 		}
-			
+
 		public void setStoredValue(IScopeContext context, String value, IWorkingCopyManager manager) {
 			if (value != null) {
 				getNode(context, manager).put(fKey, value);
@@ -166,14 +166,14 @@ public abstract class BaseConfigurationBlock {
 		}
 
 	}
-	
+
 	protected class UpdateAdapter implements IDialogFieldListener {
-		
+
 		public void dialogFieldChanged(DialogField field) {
 			updateModel(field);
 		}
 	}
-	
+
 	private static final String SETTINGS_EXPANDED= "expanded"; //$NON-NLS-1$
 
 	protected final Key[] fAllKeys;
@@ -187,11 +187,11 @@ public abstract class BaseConfigurationBlock {
 	protected final ArrayList<ExpandableComposite> fExpandedComposites;
 	protected final HashMap<Scrollable, Label> fLabels;
 	protected final ArrayList<Text> fTextBoxes;
-	
+
 	private ModifyListener fTextModifyListener;
 	protected IStatusChangeListener fContext;
 	private SelectionListener fSelectionListener;
-	
+
 	protected final IProject fProject; // project or null
 	protected final AptProject fAptProject; // null for workspace prefs
 
@@ -199,11 +199,11 @@ public abstract class BaseConfigurationBlock {
 	private Shell fShell;
 
 	private Control fBlockControl;
-	
+
 	protected static Key getKey(String plugin, String name) {
 		return new Key(plugin, name);
 	}
-	
+
 	public BaseConfigurationBlock(IStatusChangeListener context, IProject project, Key[] keys, IWorkbenchPreferenceContainer container) {
 		fContext= context;
 		fProject= project;
@@ -218,7 +218,7 @@ public abstract class BaseConfigurationBlock {
 		*/
 		// Workaround for Bugzilla 115731 - always use our own WCM.
 		fManager = new WorkingCopyManager();
-		
+
 		if (fProject != null) {
 			fLookupOrder= new IScopeContext[] {
 				new ProjectScope(fProject),
@@ -233,7 +233,7 @@ public abstract class BaseConfigurationBlock {
 			};
 			fAptProject = null;
 		}
-		
+
 		testIfOptionsComplete(keys);
 		if (fProject == null || hasProjectSpecificOptionsNoCache(fProject)) {
 			fDisabledProjectSettings= null;
@@ -244,62 +244,62 @@ public abstract class BaseConfigurationBlock {
 				fDisabledProjectSettings.put(curr, curr.getStoredValue(fLookupOrder, false, fManager));
 			}
 		}
-		
+
 		settingsUpdated();
-		
+
 		fCheckBoxes= new ArrayList<>();
 		fComboBoxes= new ArrayList<>();
 		fTextBoxes= new ArrayList<>(2);
 		fLabels= new HashMap<>();
 		fExpandedComposites= new ArrayList<>();
 	}
-	
+
 	protected Button addCheckBox(Composite parent, String label, Key key, String[] values, int indent) {
 		ControlData data= new ControlData(key, values);
-		
+
 		GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gd.horizontalSpan= 3;
 		gd.horizontalIndent= indent;
-		
+
 		Button checkBox= new Button(parent, SWT.CHECK);
 		checkBox.setFont(JFaceResources.getDialogFont());
 		checkBox.setText(label);
 		checkBox.setData(data);
 		checkBox.setLayoutData(gd);
 		checkBox.addSelectionListener(getSelectionListener());
-		
+
 		makeScrollableCompositeAware(checkBox);
-		
+
 		String currValue= getValue(key);
 		checkBox.setSelection(data.getSelection(currValue) == 0);
-		
+
 		fCheckBoxes.add(checkBox);
-		
+
 		return checkBox;
 	}
-	
+
 	protected Combo addComboBox(Composite parent, String label, Key key, String[] values, String[] valueLabels, int indent) {
 		GridData gd= new GridData(GridData.FILL, GridData.CENTER, true, false, 2, 1);
 		gd.horizontalIndent= indent;
-				
+
 		Label labelControl= new Label(parent, SWT.LEFT);
 		labelControl.setFont(JFaceResources.getDialogFont());
 		labelControl.setText(label);
 		labelControl.setLayoutData(gd);
-				
+
 		Combo comboBox= newComboControl(parent, key, values, valueLabels);
 		comboBox.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 
 		fLabels.put(comboBox, labelControl);
-		
+
 		return comboBox;
 	}
-	
+
 	protected Combo addInversedComboBox(Composite parent, String label, Key key, String[] values, String[] valueLabels, int indent) {
 		GridData gd= new GridData(GridData.HORIZONTAL_ALIGN_BEGINNING);
 		gd.horizontalIndent= indent;
 		gd.horizontalSpan= 3;
-		
+
 		Composite composite= new Composite(parent, SWT.NONE);
 		GridLayout layout= new GridLayout();
 		layout.marginHeight= 0;
@@ -307,34 +307,34 @@ public abstract class BaseConfigurationBlock {
 		layout.numColumns= 2;
 		composite.setLayout(layout);
 		composite.setLayoutData(gd);
-		
+
 		Combo comboBox= newComboControl(composite, key, values, valueLabels);
 		comboBox.setFont(JFaceResources.getDialogFont());
 		comboBox.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-		
+
 		Label labelControl= new Label(composite, SWT.LEFT | SWT.WRAP);
 		labelControl.setText(label);
 		labelControl.setLayoutData(new GridData());
-		
+
 		fLabels.put(comboBox, labelControl);
 		return comboBox;
 	}
-	
-	protected Text addTextField(Composite parent, String label, Key key, int indent, int widthHint) {	
+
+	protected Text addTextField(Composite parent, String label, Key key, int indent, int widthHint) {
 		Label labelControl= new Label(parent, SWT.WRAP);
 		labelControl.setText(label);
 		labelControl.setFont(JFaceResources.getDialogFont());
 		labelControl.setLayoutData(new GridData());
-				
+
 		Text textBox= new Text(parent, SWT.BORDER | SWT.SINGLE);
 		textBox.setData(key);
 		textBox.setLayoutData(new GridData());
-		
+
 		makeScrollableCompositeAware(textBox);
-		
+
 		fLabels.put(textBox, labelControl);
-		
-		String currValue= getValue(key);	
+
+		String currValue= getValue(key);
 		if (currValue != null) {
 			textBox.setText(currValue);
 		}
@@ -350,17 +350,17 @@ public abstract class BaseConfigurationBlock {
 
 		fTextBoxes.add(textBox);
 		return textBox;
-	}	
-			
+	}
+
 	protected boolean checkValue(Key key, String value) {
 		return value.equals(getValue(key));
 	}
-	
+
 	protected void controlChanged(Widget widget) {
 		ControlData data= (ControlData) widget.getData();
 		String newValue= null;
 		if (widget instanceof Button) {
-			newValue= data.getValue(((Button)widget).getSelection());			
+			newValue= data.getValue(((Button)widget).getSelection());
 		} else if (widget instanceof Combo) {
 			newValue= data.getValue(((Combo)widget).getSelectionIndex());
 		} else {
@@ -368,8 +368,8 @@ public abstract class BaseConfigurationBlock {
 		}
 		String oldValue= setValue(data.getKey(), newValue);
 		validateSettings(data.getKey(), oldValue, newValue);
-	}	
-	
+	}
+
 	/**
 	 * Called from BasePreferencePage#createPreferenceContent.
 	 */
@@ -393,7 +393,7 @@ public abstract class BaseConfigurationBlock {
 	/**
 	 * This will be called when settings are first loaded and
 	 * whenever changes are applied.
-	 * Derived classes may use this to cache the saved settings 
+	 * Derived classes may use this to cache the saved settings
 	 * values, for later comparison to see if anything changed.
 	 */
 	protected void cacheOriginalValues() {
@@ -432,7 +432,7 @@ public abstract class BaseConfigurationBlock {
 	 */
 	public void dispose() {
 	}
-	
+
 	protected final void expandedStateChanged(ExpandableComposite expandable) {
 		ScrolledPageContent parentScrolledComposite= getParentScrolledComposite(expandable);
 		if (parentScrolledComposite != null) {
@@ -455,11 +455,11 @@ public abstract class BaseConfigurationBlock {
 		}
 		return null;
 	}
-	
+
 	protected boolean getBooleanValue(Key key) {
 		return Boolean.valueOf(getValue(key)).booleanValue();
 	}
-	
+
 	protected Button getCheckBox(Key key) {
 		for (int i= fCheckBoxes.size() - 1; i >= 0; i--) {
 			Button curr= fCheckBoxes.get(i);
@@ -468,9 +468,9 @@ public abstract class BaseConfigurationBlock {
 				return curr;
 			}
 		}
-		return null;		
+		return null;
 	}
-	
+
 	protected Combo getComboBox(Key key) {
 		for (int i= fComboBoxes.size() - 1; i >= 0; i--) {
 			Combo curr= fComboBoxes.get(i);
@@ -479,9 +479,9 @@ public abstract class BaseConfigurationBlock {
 				return curr;
 			}
 		}
-		return null;		
+		return null;
 	}
-	
+
 	/**
 	 * Provide the strings needed to ask the user whether to rebuild.
 	 * Derived classes can override this to change the strings, or to
@@ -489,7 +489,7 @@ public abstract class BaseConfigurationBlock {
 	 * rebuild will not be triggered.
 	 * @param workspaceSettings true if workspace settings have changed,
 	 * false if only project-specific settings have changed.
-	 * @return an array whose first entry is the dialog title, and whose 
+	 * @return an array whose first entry is the dialog title, and whose
 	 * second entry is a query asking the user whether to rebuild.
 	 */
 	protected String[] getFullBuildDialogStrings(boolean workspaceSettings) {
@@ -503,7 +503,7 @@ public abstract class BaseConfigurationBlock {
 		}
 		return strings;
 	}
-	
+
 	protected ExpandableComposite getParentExpandableComposite(Control control) {
 		Control parent= control.getParent();
 		while (!(parent instanceof ExpandableComposite) && parent != null) {
@@ -514,7 +514,7 @@ public abstract class BaseConfigurationBlock {
 		}
 		return null;
 	}
-	
+
 	protected ScrolledPageContent getParentScrolledComposite(Control control) {
 		Control parent= control.getParent();
 		while (!(parent instanceof ScrolledPageContent) && parent != null) {
@@ -525,16 +525,16 @@ public abstract class BaseConfigurationBlock {
 		}
 		return null;
 	}
-	
+
 	protected final IWorkbenchPreferenceContainer getPreferenceContainer() {
 		return fContainer;
 	}
-	
+
 	protected SelectionListener getSelectionListener() {
 		if (fSelectionListener == null) {
 			fSelectionListener= new SelectionListener() {
 				public void widgetDefaultSelected(SelectionEvent e) {}
-	
+
 				public void widgetSelected(SelectionEvent e) {
 					controlChanged(e.widget);
 				}
@@ -542,11 +542,11 @@ public abstract class BaseConfigurationBlock {
 		}
 		return fSelectionListener;
 	}
-	
+
 	protected Shell getShell() {
 		return fShell;
-	}		
-	
+	}
+
 	/**
 	 * Retuens the value as actually stored in the preference store.
 	 * @param key
@@ -555,7 +555,7 @@ public abstract class BaseConfigurationBlock {
 	protected String getStoredValue(Key key) {
 		return key.getStoredValue(fLookupOrder, false, fManager);
 	}
-	
+
 	protected Text getTextControl(Key key) {
 		for (int i= fTextBoxes.size() - 1; i >= 0; i--) {
 			Text curr= fTextBoxes.get(i);
@@ -564,8 +564,8 @@ public abstract class BaseConfigurationBlock {
 				return curr;
 			}
 		}
-		return null;		
-	}	
+		return null;
+	}
 
 	protected ModifyListener getTextModifyListener() {
 		if (fTextModifyListener == null) {
@@ -577,9 +577,9 @@ public abstract class BaseConfigurationBlock {
 		}
 		return fTextModifyListener;
 	}
-	
+
 	protected String[] getTokens(String text, String separator) {
-		StringTokenizer tok= new StringTokenizer(text, separator); 
+		StringTokenizer tok= new StringTokenizer(text, separator);
 		int nTokens= tok.countTokens();
 		String[] res= new String[nTokens];
 		for (int i= 0; i < res.length; i++) {
@@ -587,17 +587,17 @@ public abstract class BaseConfigurationBlock {
 		}
 		return res;
 	}
-	
+
 	protected String getValue(Key key) {
 		if (fDisabledProjectSettings != null) {
 			return fDisabledProjectSettings.get(key);
 		}
 		return key.getStoredValue(fLookupOrder, false, fManager);
 	}
-	
+
 	/**
 	 * TODO: this method is a workaround for Bugzilla 111144 and 106111.  When
-	 * 111144 is fixed, remove this method and call hasProjectSpecificOptions() 
+	 * 111144 is fixed, remove this method and call hasProjectSpecificOptions()
 	 * instead.  The difference is that this one does not cause project prefs nodes
 	 * to be cached in the WorkingCopyManager.
 	 * @return true if the project has project-specific options.
@@ -621,21 +621,21 @@ public abstract class BaseConfigurationBlock {
 			parentScrolledComposite.adaptChild(control);
 		}
 	}
-	
+
 	protected Combo newComboControl(Composite composite, Key key, String[] values, String[] valueLabels) {
 		ControlData data= new ControlData(key, values);
-		
+
 		Combo comboBox= new Combo(composite, SWT.READ_ONLY);
 		comboBox.setItems(valueLabels);
 		comboBox.setData(data);
 		comboBox.addSelectionListener(getSelectionListener());
 		comboBox.setFont(JFaceResources.getDialogFont());
-			
+
 		makeScrollableCompositeAware(comboBox);
-		
-		String currValue= getValue(key);	
+
+		String currValue= getValue(key);
 		comboBox.select(data.getSelection(currValue));
-		
+
 		fComboBoxes.add(comboBox);
 		return comboBox;
 	}
@@ -643,8 +643,8 @@ public abstract class BaseConfigurationBlock {
 	public boolean performApply() {
 		return processChanges(null); // apply directly
 	}
-	
-	
+
+
 	public void performDefaults() {
 		IScopeContext[] lookupOrder; // not same as fLookupOrder!  Starts one layer deeper.
 		if (fProject != null) {
@@ -663,16 +663,16 @@ public abstract class BaseConfigurationBlock {
 			String defValue= curr.getStoredValue(lookupOrder, false, null);
 			setValue(curr, defValue);
 		}
-		
+
 		settingsUpdated();
 		updateControls();
 		validateSettings(null, null, null);
 	}
-	
+
 	public boolean performOk() {
 		return processChanges(fContainer);
 	}
-	
+
 	/**
 	 * @since 3.1
 	 */
@@ -682,12 +682,12 @@ public abstract class BaseConfigurationBlock {
 			String origValue= curr.getStoredValue(fLookupOrder, false, null);
 			setValue(curr, origValue);
 		}
-		
+
 		settingsUpdated();
 		updateControls();
 		validateSettings(null, null, null);
 	}
-	
+
 	/**
 	 * If there are changed settings, save them and ask user whether to rebuild.
 	 * This is called by performOk() and performApply().
@@ -695,7 +695,7 @@ public abstract class BaseConfigurationBlock {
 	 * @return false to abort exiting the preference pane.
 	 */
 	protected boolean processChanges(IWorkbenchPreferenceContainer container) {
-		
+
 		boolean projectSpecificnessChanged = false;
 		boolean isProjectSpecific= (fProject != null) && fBlockControl.getEnabled();
 		if (fOriginallyHadProjectSettings ^ isProjectSpecific) {
@@ -710,21 +710,21 @@ public abstract class BaseConfigurationBlock {
 		if (!projectSpecificnessChanged && !settingsChanged(fLookupOrder[0])) {
 			return true;
 		}
-		
+
 		int response= 1; // "NO" rebuild unless we put up the dialog.
 		String[] strings= getFullBuildDialogStrings(fProject == null);
 		if (strings != null) {
 			MessageDialog dialog= new MessageDialog(
-					getShell(), 
-					strings[0], 
-					null, 
-					strings[1], 
-					MessageDialog.QUESTION, 
-					new String[] { 
-						IDialogConstants.YES_LABEL, 
-						IDialogConstants.NO_LABEL, 
-						IDialogConstants.CANCEL_LABEL 
-					}, 
+					getShell(),
+					strings[0],
+					null,
+					strings[1],
+					MessageDialog.QUESTION,
+					new String[] {
+						IDialogConstants.YES_LABEL,
+						IDialogConstants.NO_LABEL,
+						IDialogConstants.CANCEL_LABEL
+					},
 					2);
 			response= dialog.open();
 		}
@@ -772,7 +772,7 @@ public abstract class BaseConfigurationBlock {
 			}
 		}
 	}
-	
+
 	public void selectOption(Key key) {
 		Control control= findControl(key);
 		if (control != null) {
@@ -789,7 +789,7 @@ public abstract class BaseConfigurationBlock {
 			control.setFocus();
 		}
 	}
-	
+
 	public void selectOption(String key, String qualifier) {
 		for (int i= 0; i < fAllKeys.length; i++) {
 			Key curr= fAllKeys[i];
@@ -798,18 +798,18 @@ public abstract class BaseConfigurationBlock {
 			}
 		}
 	}
-	
+
 	protected void setComboEnabled(Key key, boolean enabled) {
 		Combo combo= getComboBox(key);
 		Label label= fLabels.get(combo);
 		combo.setEnabled(enabled);
 		label.setEnabled(enabled);
 	}
-	
+
 	protected void setShell(Shell shell) {
 		fShell= shell;
 	}
-	
+
 	/**
 	 * Checks the state of all Keys in the dialog to see whether there have been changes.
 	 * Derived classes which include settings managed outside of the Key infrastructure
@@ -832,14 +832,14 @@ public abstract class BaseConfigurationBlock {
 		}
 		return needsBuild;
 	}
-	
+
 	protected void settingsUpdated() {
 	}
-	
+
 	protected String setValue(Key key, boolean value) {
 		return setValue(key, String.valueOf(value));
 	}
-	
+
 	protected String setValue(Key key, String value) {
 		if (fDisabledProjectSettings != null) {
 			return fDisabledProjectSettings.put(key, value);
@@ -848,14 +848,14 @@ public abstract class BaseConfigurationBlock {
 		key.setStoredValue(fLookupOrder[0], value, fManager);
 		return oldValue;
 	}
-	
+
 	protected void storeSectionExpansionStates(IDialogSettings settings) {
 		for (int i= 0; i < fExpandedComposites.size(); i++) {
 			ExpandableComposite curr= fExpandedComposites.get(i);
 			settings.put(SETTINGS_EXPANDED + String.valueOf(i), curr.isExpanded());
 		}
 	}
-	
+
 	private void testIfOptionsComplete(Key[] allKeys) {
 		for (int i= 0; i < allKeys.length; i++) {
 			if (allKeys[i].getStoredValue(fLookupOrder, false, fManager) == null) {
@@ -873,18 +873,18 @@ public abstract class BaseConfigurationBlock {
 
 	protected void updateCheckBox(Button curr) {
 		ControlData data= (ControlData) curr.getData();
-		
-		String currValue= getValue(data.getKey());	
-		curr.setSelection(data.getSelection(currValue) == 0);						
+
+		String currValue= getValue(data.getKey());
+		curr.setSelection(data.getSelection(currValue) == 0);
 	}
 
 	protected void updateCombo(Combo curr) {
 		ControlData data= (ControlData) curr.getData();
-		
-		String currValue= getValue(data.getKey());	
-		curr.select(data.getSelection(currValue));					
+
+		String currValue= getValue(data.getKey());
+		curr.select(data.getSelection(currValue));
 	}
-	
+
 	protected void updateControls() {
 		// update the UI
 		for (int i= fCheckBoxes.size() - 1; i >= 0; i--) {
@@ -902,13 +902,13 @@ public abstract class BaseConfigurationBlock {
 
 	protected void updateText(Text curr) {
 		Key key= (Key) curr.getData();
-		
+
 		String currValue= getValue(key);
 		if (currValue != null) {
 			curr.setText(currValue);
 		}
 	}
-	
+
 	public void useProjectSpecificSettings(boolean enable) {
 		boolean hasProjectSpecificOption= fDisabledProjectSettings == null;
 		if (enable != hasProjectSpecificOption && fProject != null) {
@@ -935,6 +935,6 @@ public abstract class BaseConfigurationBlock {
 	/* (non-javadoc)
 	 * Update fields and validate.
 	 * @param changedKey Key that changed, or null, if all changed.
-	 */	
+	 */
 	protected abstract void validateSettings(Key changedKey, String oldValue, String newValue);
 }

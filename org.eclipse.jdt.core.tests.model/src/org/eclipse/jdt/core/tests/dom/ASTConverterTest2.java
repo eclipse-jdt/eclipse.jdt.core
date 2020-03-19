@@ -52,7 +52,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTest2.class);
 	}
-	/** 
+	/**
 	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
 	 * @deprecated
 	 */
@@ -5556,7 +5556,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				workingCopy.discardWorkingCopy();
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446. NPE while building abridged AST
 	public void test0610() throws CoreException {
 		ICompilationUnit workingCopy = null;
@@ -5572,7 +5572,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"	  }\n" +
 				"	}\n"
 			);
-			
+
 			// Create parser
 			ASTParser parser = ASTParser.newParser(getJLS3());
 			parser.setSource(workingCopy);

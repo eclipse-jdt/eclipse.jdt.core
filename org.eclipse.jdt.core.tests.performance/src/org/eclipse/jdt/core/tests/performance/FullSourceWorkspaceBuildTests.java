@@ -284,7 +284,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	void compile (String[] srcPaths, String options, String compliance, boolean log) throws IOException {
 		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getCanonicalPath();
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
-		
+
 		String pluginDir = getPluginBinariesDirectoryPath();
 		String sources = "";
 		for (int i=0, l=srcPaths.length; i<l; i++) {
@@ -296,13 +296,13 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		}
 		compile(sources, options, "", compliance, log, logFileName);
 	}
-	
-	// compile the given sources using batch compiler 
+
+	// compile the given sources using batch compiler
 	private void compile(String sources, String options, String classpath, String compliance, boolean log, String logFileName) {
 		// Warm up
-		if (compliance == null) 
+		if (compliance == null)
 			compliance = " -" + (COMPLIANCE==null ? "1.4" : COMPLIANCE);
-		else 
+		else
 			compliance = " -" + compliance;
 		final String cmdLine = classpath + compliance + " -g -preserveAllLocals "+(options==null?"":options)+" -d " + COMPILER_OUTPUT_DIR + (log?" -log "+logFileName:"") + sources;
 		if (PRINT) System.out.println("	Compiler command line = "+cmdLine);
@@ -787,13 +787,13 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		};
 		compile("org.eclipse.swt", "", null, false/*no log*/, sourcePaths);
 	}
-	
+
 	/**
 	 * Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=315978
 	 */
 	public void testBuildGenericType() throws IOException, CoreException {
 		tagAsSummary("Build Generic Type ", false); // do NOT put in fingerprint
-		compile(new String[] {"EclipseVisitorBug.java"}, "", "1.6", false /*no log*/ );	
+		compile(new String[] {"EclipseVisitorBug.java"}, "", "1.6", false /*no log*/ );
 	}
 
 	/**
@@ -801,6 +801,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBug434326() throws IOException, CoreException {
 		tagAsSummary("Build with Generic Types ", false); // do NOT put in fingerprint
-		compile(new String[] {"GenericsTest.java"}, "", "1.8", false /*no log*/ );	
+		compile(new String[] {"GenericsTest.java"}, "", "1.8", false /*no log*/ );
 	}
 }

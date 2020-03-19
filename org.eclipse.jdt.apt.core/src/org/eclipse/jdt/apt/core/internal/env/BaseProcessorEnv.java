@@ -80,10 +80,10 @@ import com.sun.mirror.util.Types;
 /**
  * Base annotation processor environment that supports type system navigation.
  * No support for problem registration as well as type generation.
- *  
+ *
  * @author tyeung
  */
-public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
+public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 {
 	static{
 		final AST ast = AST.newAST(AST.JLS13, true);
@@ -102,16 +102,16 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	private static final int INT_INDEX = 5;
 	private static final int LONG_INDEX = 6;
 	private static final int SHORT_INDEX = 7;
-	
+
 	private static final String DOT_JAVA = ".java"; //$NON-NLS-1$
-	
+
 	protected CompilationUnit _astRoot;
 	protected final Phase _phase;
 	protected IFile _file;
 	protected final IJavaProject _javaProject;
 	protected final AptProject _aptProject;
 	private final boolean _isTestCode;
-	
+
 	/**
 	 * Unmodifiable map of processor options, including -A options.
 	 * Set in ctor and then not changed.
@@ -120,7 +120,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 
 	/**
      * Mapping model compilation unit to dom compilation unit.
-     * The assumption here is that once the client examine some binding from some file, 
+     * The assumption here is that once the client examine some binding from some file,
      * it will continue to examine other bindings from came from that same file.
      */
     protected final Map<ICompilationUnit, CompilationUnit> _modelCompUnit2astCompUnit;
@@ -132,14 +132,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// is outside of the workspace.
 	private VoidTypeImpl _voidType;
 	private PrimitiveTypeImpl[] _primitives;
-	
-	// This type cache exists for the duration of a single round. 
+
+	// This type cache exists for the duration of a single round.
 	// We store positive as well as negative hits. Negative hits are
 	// stored with a value of null
 	protected final Map<String,TypeDeclaration> _typeCache = new HashMap<>();
-	
+
 	protected IPackageFragmentRoot[] _packageRootsCache;
-	
+
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
 						    IFile file,
 						    IJavaProject javaProj,
@@ -155,20 +155,20 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		_aptProject = AptPlugin.getAptProject(javaProj);
 		_isTestCode = isTestCode;
 	}
-  
+
 	/**
      * Set the _options map based on the current project/workspace settings.
-     * There is a bug in Sun's apt implementation: it parses the command line 
-     * incorrectly, such that -Akey=value gets added to the options map as 
-     * key "-Akey=value" and value "".  In order to support processors written 
+     * There is a bug in Sun's apt implementation: it parses the command line
+     * incorrectly, such that -Akey=value gets added to the options map as
+     * key "-Akey=value" and value "".  In order to support processors written
      * to run on Sun's apt as well as processors written without this bug
      * in mind, we populate the map with two copies of every option, one the
-     * expected way ("key" / "value") and the other the Sun way 
+     * expected way ("key" / "value") and the other the Sun way
      * ("-Akey=value" / "").  We make exceptions for the non-dash-A options
      * that we set automatically, such as -classpath, -target, and so forth;
      * since these wouldn't have come from a -A option we don't construct a
      * -Akey=value variant.
-     * 
+     *
      * Called from constructor.  A new Env is constructed for each build pass,
      * so this will always be up to date with the latest settings.
 	 */
@@ -176,7 +176,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj, isTestCode());
 		// options is large enough to include the translated -A options
 		Map<String, String> options = new HashMap<>(procOptions.size() * 2);
-		
+
 		// Add configured options
 		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
 			String value = entry.getValue();
@@ -201,23 +201,23 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     {
 		return new TypesUtil(this);
     }
-	
+
 	@Override
 	public Declarations getDeclarationUtils()
     {
         return new DeclarationsUtil();
     }
-	
+
 	@Override
 	public void addListener(AnnotationProcessorListener listener) {
 		throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
 	}
-	
+
 	@Override
 	public void removeListener(AnnotationProcessorListener listener) {
 		throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
 	}
-	
+
 	/**
      * @return the list of all named type declarations in the compilation units associated with
      *         this environment - usually just one compilation unit, except in batch mode
@@ -241,15 +241,15 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 
 		return mirrorDecls;
     }
-    
+
 	protected List<AbstractTypeDeclaration> searchLocallyForTypeDeclarations()
     {
     	return _astRoot.types();
     }
-    
+
     private List<ITypeBinding> getTypeBindings()
 	{
-    	final List<AbstractTypeDeclaration> declTypes = searchLocallyForTypeDeclarations();    	
+    	final List<AbstractTypeDeclaration> declTypes = searchLocallyForTypeDeclarations();
 		if( declTypes == null || declTypes.isEmpty() )
 			return Collections.emptyList();
 		final List<ITypeBinding> typeBindings = new ArrayList<>(declTypes.size());
@@ -259,7 +259,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		return typeBindings;
 	}
-    
+
     /**
 	 * Add <code>type</code> and all its declared nested type(s) to <code>types</code>
 	 * @param type the container type
@@ -275,13 +275,13 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			getTypeBindings(nestedType, typeBindings);
 		}
 	}
-    
+
     @Override
 	public Collection<TypeDeclaration> getSpecifiedTypeDeclarations()
     {
         return getTypeDeclarations();
     }
-    
+
     @Override
 	public Collection<Declaration> getDeclarationsAnnotatedWith(AnnotationTypeDeclaration a)
     {
@@ -289,10 +289,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
          if( annotationType == null  || !annotationType.isAnnotation()) return Collections.emptyList();
          return getDeclarationsAnnotatedWith(annotationType);
     }
-    
+
     /**
      * Go through the current compilation unit and look for ast nodes that has annotations.
-     * @return the map between ast node and 
+     * @return the map between ast node and
      */
     protected Map<ASTNode, List<Annotation>> getASTNodesWithAnnotations()
     {
@@ -304,7 +304,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 
     private List<Declaration> getDeclarationsAnnotatedWith(final ITypeBinding annotationType)
     {
-        final Map<ASTNode, List<Annotation>> astNode2Anno = getASTNodesWithAnnotations();       
+        final Map<ASTNode, List<Annotation>> astNode2Anno = getASTNodesWithAnnotations();
 		if( astNode2Anno.isEmpty() )
 			return Collections.emptyList();
 		final List<Declaration> decls = new ArrayList<>();
@@ -319,15 +319,15 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
         return decls;
 
     }
-    
+
     protected IFile getFileForNode(final ASTNode node)
     {
     	if( node.getRoot() == _astRoot )
     		return _file;
-    	
+
     	throw new IllegalStateException(); // should never get here.
     }
-    
+
     /**
 	 * @param node the ast node in question
 	 * @param decls the list to be populated.
@@ -344,7 +344,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
                 ((org.eclipse.jdt.core.dom.FieldDeclaration)node).fragments();
 			for( VariableDeclarationFragment frag : fragments ){
 				final IBinding fieldBinding = frag.resolveBinding();
-				final EclipseDeclarationImpl decl; 
+				final EclipseDeclarationImpl decl;
 				if( fieldBinding != null )
 					decl = Factory.createDeclaration(fieldBinding, this);
 				else{
@@ -379,7 +379,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             throw new UnsupportedOperationException("unknown node type: " + node.getNodeType()); //$NON-NLS-1$
         }
 
-		final EclipseDeclarationImpl decl; 
+		final EclipseDeclarationImpl decl;
 		if( binding != null )
 			decl = Factory.createDeclaration(binding, this);
 		else{
@@ -387,12 +387,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		if( decl != null )
 			decls.add( decl );
-        
+
         return;
     }
 
-	
-	
+
+
 	/**
      * @param binding must be correspond to a type, method or field declaration.
      * @return the ast node the corresponds to the declaration of the given binding.
@@ -401,25 +401,25 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     public ASTNode getASTNodeForBinding(final IBinding binding)
     {
     	final CompilationUnit astUnit = getCompilationUnitForBinding(binding);
-		if( astUnit == null ) 
+		if( astUnit == null )
 			return null;
 		return astUnit.findDeclaringNode(binding.getKey());
     }
-    
+
     @Override
 	public Map<String, String> getOptions(){ return _options; }
-    
+
     // does not generate dependencies
     @Override
 	public TypeDeclaration getTypeDeclaration(String name)
-    {	
+    {
     	if( name == null || name.length() == 0 ) return null;
 
     	// get rid of the generics parts.
 		final int index = name.indexOf('<');
 		if( index != -1 )
 			name = name.substring(0, index);
-		
+
 		ITypeBinding typeBinding = null;
 		try {
 			typeBinding = getTypeDefinitionBindingFromName(name);
@@ -430,10 +430,10 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			// We'll ignore this and return null to the user
 			AptPlugin.log(e, "Unable to get type definition binding for: " + name); //$NON-NLS-1$
 		}
-		
+
     	return Factory.createReferenceType(typeBinding, this);
     }
-    
+
     /**
      * @param fullyQualifiedName the fully qualified name of a type.
      * The name cannot contain type argument or array signature.
@@ -449,8 +449,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     		toplevelTypeName = fullyQualifiedName;
     	else
     		toplevelTypeName = fullyQualifiedName.substring(0, dollarIndex);
-    	
-    	// locate the compilation unit for the type of interest. 
+
+    	// locate the compilation unit for the type of interest.
     	// we need this information so that when we request the binding for 'fullyQualifiedName'
     	// we can get the dom pipeline to return back to us the ast compilation unit
     	// which we will need to correctly compute the number of methods, fields and constructors.
@@ -459,7 +459,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
        	final String key = BindingKey.createTypeBindingKey(fullyQualifiedName);
     	return (ITypeBinding)getBindingFromKey(key, unit);
     }
-  
+
     private ITypeBinding getTypeDefinitionBindingFromName(String fullyQualifiedName) {
     	// We don't know for sure that the name we have represents a top-level type,
     	// so we need to loop backwards until we find one, in case we have something
@@ -470,14 +470,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     		if (dotIndex == -1) {
     			break;
     		}
-    		fullyQualifiedName = fullyQualifiedName.substring(0, dotIndex) + 
+    		fullyQualifiedName = fullyQualifiedName.substring(0, dotIndex) +
     			"$" +  //$NON-NLS-1$
     			fullyQualifiedName.substring(dotIndex + 1);
     		binding = getTypeDefinitionBindingFromCorrectName(fullyQualifiedName);
     	}
     	return binding;
     }
-    
+
     /**
      * @param key
      * @param unit the unit that contains the definition of type whose type key is <code>key</code>
@@ -485,15 +485,15 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * @return return the type binding for the given key or null if none is found.
      */
     protected IBinding getBindingFromKey(final String key, final ICompilationUnit unit){
-    	
+
 		class BindingRequestor extends ASTRequestor
 		{
 			private IBinding _result = null;
 			private int _kind;
-			
+
 			@Override
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
-				if( source == unit ){		
+				if( source == unit ){
 					_modelCompUnit2astCompUnit.put(source, ast);
 				}
 			}
@@ -517,7 +517,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		parser.createASTs(units, new String[]{key}, requestor, null);
 		final IBinding result = requestor._result;
 		if(result != null && unit != null){
-			final CompilationUnit astUnit = _modelCompUnit2astCompUnit.get(unit);	
+			final CompilationUnit astUnit = _modelCompUnit2astCompUnit.get(unit);
 			// make sure everything is lining up properly.  Only cache real types, not package-infos.
 			if( requestor._kind == IBinding.TYPE && astUnit.findDeclaringNode(result) != null ){
 				ITypeBinding declaringClass = getDeclaringClass(result);
@@ -526,7 +526,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		return result;
     }
-    
+
     /**
 	 * @param key the key to a type binding, could be reference type, array or primitive.
 	 * @return the binding corresponding to the given key or null if none is found.
@@ -534,20 +534,20 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	public ITypeBinding getTypeBindingFromKey(final String key)
 	{
 		return (ITypeBinding)getBindingFromKey(key, null);
-		
+
 	}
-	
+
 	public TypeDeclaration getTypeDeclaration(final IType type) {
 		if (type == null) return null;
 		String name = type.getFullyQualifiedName();
 		return getTypeDeclaration(name);
 	}
-    
+
 	@Override
 	public PackageDeclaration getPackage(String name)
 	{
 		if (name == null)
-			throw new IllegalArgumentException("name cannot be null"); //$NON-NLS-1$		
+			throw new IllegalArgumentException("name cannot be null"); //$NON-NLS-1$
 		IPackageFragment[] pkgFrags = PackageUtil.getPackageFragments(name, this);
 
 		// No packages found, null expected
@@ -570,7 +570,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 
 			// We should be able to create a class or
 			// source file from one of the packages.
-			// If we find package-info, don't use it, but set 
+			// If we find package-info, don't use it, but set
 			// it aside in case it's all we can find.
 			ICompilationUnit compUnit = null;
 			IOrdinaryClassFile classFile = null;
@@ -642,34 +642,34 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		// This package is empty: no types and no package-info.
 		return new PackageDeclarationImplNoBinding(pkgFrags);
 	}
-	
-	// There doesn't seem to be a public inverse of 
+
+	// There doesn't seem to be a public inverse of
 	// org.eclipse.jdt.internal.compiler.lookup.PackageBinding.computeUniqueKey().
 	private String getPackageBindingKey(String packageName) {
 		return packageName.replace('.', '/');
 	}
-	
+
 	protected CompilationUnit searchLocallyForBinding(final IBinding binding)
 	{
 		if (_astRoot == null) {
 			throw new IllegalStateException("_astRoot is null. Check that types or environments are not being cached between builds or reconciles by user code"); //$NON-NLS-1$
 		}
-		
+
 		final ASTNode node = _astRoot.findDeclaringNode(binding);
 		if( node != null )
 			return _astRoot;
 		return null;
 	}
-	
+
 	/**
-	 * Retrieve the <code>ICompilationUnit</code> whose top-level type has 
+	 * Retrieve the <code>ICompilationUnit</code> whose top-level type has
 	 * <code>topTypeQName</code> as its fully qualified name.
 	 * @param topTypeQName
-	 * @return the <code>ICompilationUnit</code> matching <code>topTypeQName</code> or 
+	 * @return the <code>ICompilationUnit</code> matching <code>topTypeQName</code> or
 	 * <code>null</code> if one doesn't exist.
 	 */
 	private ICompilationUnit getICompilationUnitForTopLevelType(final String topTypeQName ){
-		final String pathname = topTypeQName.replace('.', File.separatorChar) + DOT_JAVA;		
+		final String pathname = topTypeQName.replace('.', File.separatorChar) + DOT_JAVA;
 		final IPath path = Path.fromOSString(pathname);
 		try{
 			final IJavaElement element = _javaProject.findElement(path);
@@ -682,7 +682,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			return null;
 		}
 	}
-    
+
 	/**
      * @param binding must be correspond to a type, method or field declaration.
      * @return the compilation unit that contains the declaration of the given binding.
@@ -692,8 +692,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
         assert binding.getKind() == IBinding.TYPE ||
                binding.getKind() == IBinding.METHOD ||
                binding.getKind() == IBinding.VARIABLE ;
-        CompilationUnit domUnit = searchLocallyForBinding(binding);        
-        if( domUnit != null ) 
+        CompilationUnit domUnit = searchLocallyForBinding(binding);
+        if( domUnit != null )
         	return domUnit;
         else{
 			final IMember member = (IMember)binding.getJavaElement();
@@ -731,17 +731,17 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             }
         }
     }
-    
-    @Override
-	public Filer getFiler(){ 
-    	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
-    }    
 
     @Override
-	public Messager getMessager(){ 
+	public Filer getFiler(){
     	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
     }
-    
+
+    @Override
+	public Messager getMessager(){
+    	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
+    }
+
     /**
 	 * @param binding a type, method or field binding.
 	 * @return the top-level type binding that declares <code>binding</code>
@@ -771,7 +771,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		return aTypeBinding;
 	}
-	
+
 	/**
 	 * The environment caches the package fragment roots, as
 	 * they are expensive to compute
@@ -780,21 +780,21 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		if (_packageRootsCache == null) {
 			_packageRootsCache = getJavaProject().getAllPackageFragmentRoots();
 		}
-		return _packageRootsCache;		
+		return _packageRootsCache;
 	}
-	
+
 	protected IFile searchLocallyForIFile(final IBinding binding)
 	{
 		if (_astRoot == null) {
 			return null;
 		}
-		
+
 		ASTNode node = _astRoot.findDeclaringNode(binding);
 		if( node != null )
 			return _file;
 		return null;
 	}
-	
+
 	/**
 	 * @param binding must be correspond to a type, method or field declaration
 	 * @return the file that contains the declaration of given binding.
@@ -806,9 +806,9 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		       binding.getKind() == IBinding.VARIABLE ;
 		// check to see whether it is in the current file.
 		IFile file = searchLocallyForIFile(binding);
-		if( file != null ) 
+		if( file != null )
 			return file;
-	
+
 		final IMember member = (IMember)binding.getJavaElement();
 		if( member != null ){
 			final ICompilationUnit unit = member.getCompilationUnit();
@@ -827,9 +827,9 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			return (IFile)unit.getResource();
 		}
 	}
-	
+
 	static class BaseRequestor extends ASTRequestor
-	{	
+	{
 		ICompilationUnit[] parseUnits;
 		CompilationUnit[] asts;
 		BaseRequestor(ICompilationUnit[] parseUnits)
@@ -839,7 +839,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			Arrays.fill(asts, EMPTY_AST_UNIT);
 			this.parseUnits = parseUnits;
 		}
-		
+
 		@Override
 		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 			for( int i=0, len = asts.length; i<len; i++ ){
@@ -849,16 +849,16 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 				}
 			}
 		}
-		
+
 	}
-	
+
 	/**
-	 * Parse and fully resolve all files. 
+	 * Parse and fully resolve all files.
 	 * @param javaProject
 	 * @param parseUnits the files to be parsed and resolved.
 	 */
 	static void createASTs(
-			final IJavaProject javaProject, 
+			final IJavaProject javaProject,
 			final ICompilationUnit[] parseUnits,
 			ASTRequestor requestor)
 	{
@@ -876,27 +876,27 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		p.setIgnoreMethodBodies(true);
 		p.createASTs( parseUnits, keys,  requestor, null);
 	}
-	
+
 	/**
 	 *  This should create an AST without imports or method-body statements
 	 */
 	public static CompilationUnit createAST(
-			IJavaProject javaProject, 
+			IJavaProject javaProject,
 			final ICompilationUnit compilationUnit)
-	{	
+	{
 		if(compilationUnit == null)
 			return null;
-		
+
 		class CompilationUnitRequestor extends ASTRequestor
-		{	
+		{
 			CompilationUnit domUnit = EMPTY_AST_UNIT;
 			@Override
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				if( source == compilationUnit )
-					domUnit = ast;			
+					domUnit = ast;
 			}
 		}
-		
+
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
 		ASTParser p = ASTParser.newParser( AST.JLS13 );
 		p.setResolveBindings(true);
@@ -910,25 +910,25 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		return requestor.domUnit;
 	}
-	
+
 	/**
 	 * @return the ast current being processed
 	 */
 	protected AST getCurrentDietAST(){
 		return _astRoot.getAST();
 	}
-	
+
 	private void initPrimitives()
 	{
 		if(_primitives != null ) return;
 		AST ast = getCurrentDietAST();
-		 
+
 		_primitives = new PrimitiveTypeImpl[8];
 		// boolean
-		ITypeBinding binding = ast.resolveWellKnownType(ITypeConstants.BOOLEAN);		
+		ITypeBinding binding = ast.resolveWellKnownType(ITypeConstants.BOOLEAN);
 		if( binding == null )
 			throw new IllegalStateException("fail to locate " + ITypeConstants.BOOLEAN); //$NON-NLS-1$
-		_primitives[BOOLEAN_INDEX] = new PrimitiveTypeImpl(binding);		
+		_primitives[BOOLEAN_INDEX] = new PrimitiveTypeImpl(binding);
 		// byte
 		binding = ast.resolveWellKnownType(ITypeConstants.BYTE);
 		if( binding == null )
@@ -970,44 +970,44 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			throw new IllegalStateException("fail to locate " + ITypeConstants.BYTE); //$NON-NLS-1$
 		_voidType = new VoidTypeImpl(binding);
 	}
-	
+
 	public PrimitiveTypeImpl getBooleanType(){
 		initPrimitives();
-		return _primitives[BOOLEAN_INDEX]; 
+		return _primitives[BOOLEAN_INDEX];
 	}
-	public PrimitiveTypeImpl getByteType(){ 
+	public PrimitiveTypeImpl getByteType(){
 		initPrimitives();
-		return _primitives[BYTE_INDEX]; 
+		return _primitives[BYTE_INDEX];
 	}
 	public PrimitiveTypeImpl getCharType(){
 		initPrimitives();
-		return _primitives[CHAR_INDEX]; 
+		return _primitives[CHAR_INDEX];
 	}
-	public PrimitiveTypeImpl getDoubleType(){ 
+	public PrimitiveTypeImpl getDoubleType(){
 		initPrimitives();
-		return _primitives[DOUBLE_INDEX]; 
+		return _primitives[DOUBLE_INDEX];
 	}
 	public PrimitiveTypeImpl getFloatType(){
 		initPrimitives();
-		return _primitives[FLOAT_INDEX]; 
+		return _primitives[FLOAT_INDEX];
 	}
-	public PrimitiveTypeImpl getIntType(){ 
+	public PrimitiveTypeImpl getIntType(){
 		initPrimitives();
-		return _primitives[INT_INDEX]; 
+		return _primitives[INT_INDEX];
 	}
-	public PrimitiveTypeImpl getLongType(){ 
+	public PrimitiveTypeImpl getLongType(){
 		initPrimitives();
-		return _primitives[LONG_INDEX]; 
+		return _primitives[LONG_INDEX];
 	}
-	public PrimitiveTypeImpl getShortType(){ 
+	public PrimitiveTypeImpl getShortType(){
 		initPrimitives();
-		return _primitives[SHORT_INDEX]; 
+		return _primitives[SHORT_INDEX];
 	}
-	public VoidTypeImpl getVoidType(){ 
+	public VoidTypeImpl getVoidType(){
 		initPrimitives();
-		return _voidType; 
+		return _voidType;
 	}
-	
+
 	public CompilationUnit  getAstCompilationUnit(){ return _astRoot; }
 	public IFile            getFile() { return _file; }
 	public Phase            getPhase(){ return _phase; }

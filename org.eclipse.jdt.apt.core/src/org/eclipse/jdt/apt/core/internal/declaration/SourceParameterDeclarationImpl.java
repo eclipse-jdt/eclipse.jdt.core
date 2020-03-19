@@ -29,28 +29,28 @@ import com.sun.mirror.util.DeclarationVisitor;
 /**
  * Represents a formal parameter that came from source
  */
-public class SourceParameterDeclarationImpl 
+public class SourceParameterDeclarationImpl
 	extends ASTBasedDeclarationImpl implements ParameterDeclaration{
-   
+
     /**
      * Parameter declaration from source files
      * @param astNode the ast node that defines this parameter
-     * @param file the file where the ast node originates 
+     * @param file the file where the ast node originates
      * @param env
      */
     public SourceParameterDeclarationImpl(SingleVariableDeclaration astNode,
     									  IFile file,
 										  BaseProcessorEnv env)
-    {	
+    {
     	super( astNode, file, env);
     }
-    
+
     @Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitParameterDeclaration(this);
-    }  
-    
+    }
+
     @Override
 	public TypeMirror getType()
     {
@@ -83,34 +83,34 @@ public class SourceParameterDeclarationImpl
     	     }
     	}
     }
-    
+
     @Override
 	public String getSimpleName()
     {
     	final Name nameNode = getAstNode().getName();
     	return nameNode == null ? EMPTY_STRING : nameNode.toString();
     }
-    
+
     @Override
 	public String getDocComment()
-    {   
+    {
     	return EMPTY_STRING;
     }
-    
+
     @Override
 	SingleVariableDeclaration getAstNode()
     {
     	return (SingleVariableDeclaration)_astNode;
-    }  
-    
+    }
+
     @Override
 	public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
-    
+
     @Override
 	public String toString(){
     	return _astNode.toString();
     }
-	
+
 	@Override
 	public boolean equals(Object obj){
         if( obj instanceof SourceParameterDeclarationImpl ){
@@ -119,7 +119,7 @@ public class SourceParameterDeclarationImpl
         }
         return false;
     }
-	
+
 	@Override
 	public int hashCode(){
 		return _astNode.hashCode();

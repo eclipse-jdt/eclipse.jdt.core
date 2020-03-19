@@ -67,7 +67,7 @@ public class GenericsProc extends BaseProcessor
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
+
 		if (!collectElements()) {
 			return false;
 		}
@@ -83,7 +83,7 @@ public class GenericsProc extends BaseProcessor
 		if (!examineFTypeParams()) {
 			return false;
 		}
-		
+
 		reportSuccess();
 		return false;
 	}
@@ -162,7 +162,7 @@ public class GenericsProc extends BaseProcessor
 		Iterator<? extends TypeParameterElement> iter = params.iterator();
 		TypeParameterElement t1 = iter.next();
 		TypeParameterElement t2 = iter.next();
-		if (!"T1".equals(t1.getSimpleName().toString()) || 
+		if (!"T1".equals(t1.getSimpleName().toString()) ||
 				!"T2".equals(t2.getSimpleName().toString())) {
 			reportError("Type parameters of element AC are not named T1 and T2");
 			return false;
@@ -206,7 +206,7 @@ public class GenericsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Examine the type parameters of element F
 	 * @return true if all tests passed

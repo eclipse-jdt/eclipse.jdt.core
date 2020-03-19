@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * String constants used to access APT preference store
- * 
+ *
  * This class is not intended to be subclassed or instantiated.
  */
 public class AptPreferenceConstants {
@@ -39,7 +39,7 @@ public class AptPreferenceConstants {
 	// used for APT_PROCESSANNOTATIONS setting:
 	public static final String ENABLED = "enabled"; //$NON-NLS-1$
 	public static final String DISABLED = "disabled"; //$NON-NLS-1$
-	
+
 	// Used in preference to indicate null value for processor option
 	public static final String APT_NULLVALUE = APT_STRING_BASE + ".NULLVALUE"; //$NON-NLS-1$
 
@@ -48,7 +48,7 @@ public class AptPreferenceConstants {
 	 * @since 3.6
 	 */
 	public static final String DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME = ".apt_generated_tests"; //$NON-NLS-1$
-	
+
 	/**
 	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
 	 * in order to enable type generation while editing, that is, during reconcile.  This setting will be ignored if
@@ -59,7 +59,7 @@ public class AptPreferenceConstants {
 	/**
 	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
 	 * in order to disable processing while editing, that is, during reconcile.  If this option is set, ie if processing
-	 * is disabled, then the value of {@link #RTTG_ENABLED_OPTION} will be ignored.  Whether a processor is called 
+	 * is disabled, then the value of {@link #RTTG_ENABLED_OPTION} will be ignored.  Whether a processor is called
 	 * during reconcile is also influenced by the project settings and the project factory path.
 	 *
 	 * @see AptConfig#setProcessDuringReconcile(org.eclipse.jdt.core.IJavaProject, boolean)
@@ -67,7 +67,7 @@ public class AptPreferenceConstants {
 	public static final String PROCESSING_IN_EDITOR_DISABLED_OPTION = "disableProcessingInEditor"; //$NON-NLS-1$
 
 	public static Map<String,String> DEFAULT_OPTIONS_MAP;
-	
+
 	static {
 		Map<String,String> options = new HashMap<>();
 		options.put(AptPreferenceConstants.APT_ENABLED, "false"); //$NON-NLS-1$
@@ -77,7 +77,7 @@ public class AptPreferenceConstants {
 		options.put(AptPreferenceConstants.APT_RECONCILEENABLED, "true"); //$NON-NLS-1$
 		DEFAULT_OPTIONS_MAP = Collections.unmodifiableMap(options);
 	}
-	
+
 	/**
 	 * Names of all apt settings that can be read from APT preference store.
 	 * Order is unimportant.  Note that not all "apt settings" may be in the
@@ -92,7 +92,7 @@ public class AptPreferenceConstants {
 		APT_PROCESSOROPTIONS,
 		APT_RECONCILEENABLED,
 	};
-	
+
 	/**
 	 * Number of apt settings in the APT preference store.
 	 */

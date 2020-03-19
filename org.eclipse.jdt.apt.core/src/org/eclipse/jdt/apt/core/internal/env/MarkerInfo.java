@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc. 
+ * Copyright (c) 2005 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
@@ -29,13 +29,13 @@ public class MarkerInfo {
 	private final Severity severity;
 	private final String msg;
 	private final int line;
-	
-	
+
+
 	public MarkerInfo(final int start,
-							final int end, 
+							final int end,
 							final Severity severity,
 							final String msg,
-							final int line) 
+							final int line)
 	{
 		this.start = start;
 		this.end = end;
@@ -43,10 +43,10 @@ public class MarkerInfo {
 		this.msg = msg;
 		this.line = line;
 	}
-	
+
 	private int getSeverity() {
 		switch (severity) {
-		case ERROR : 
+		case ERROR :
 			return IMarker.SEVERITY_ERROR;
 		case WARNING :
 			return IMarker.SEVERITY_WARNING;
@@ -55,11 +55,11 @@ public class MarkerInfo {
 		}
 		throw new IllegalStateException("Unhandled severity level: " + severity); //$NON-NLS-1$
 	}
-	
+
 	public boolean isError(){
 		return severity == Severity.ERROR;
 	}
-	
+
 	/**
 	 * Copy this info into the provided marker
 	 */

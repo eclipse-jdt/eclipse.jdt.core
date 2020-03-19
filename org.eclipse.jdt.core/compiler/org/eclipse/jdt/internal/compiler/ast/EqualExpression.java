@@ -52,7 +52,7 @@ public class EqualExpression extends BinaryExpression {
 				rightNonNullChecked = scope.problemReporter().expressionNonNullComparison(this.right, checkEquality);
 			}
 		}
-		
+
 		boolean contextualCheckEquality = checkEquality ^ ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) != 0);
 		// perform flowInfo-based checks for variables and record info for syntactic null analysis for fields:
 		if (!leftNonNullChecked) {
@@ -62,7 +62,7 @@ public class EqualExpression extends BinaryExpression {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
 				}
 			} else if (this.left instanceof Reference
-							&& ((!contextualCheckEquality && rightStatus == FlowInfo.NULL) 
+							&& ((!contextualCheckEquality && rightStatus == FlowInfo.NULL)
 									|| (contextualCheckEquality && rightStatus == FlowInfo.NON_NULL))
 							&& scope.compilerOptions().enableSyntacticNullAnalysisForFields)
 			{
@@ -74,19 +74,19 @@ public class EqualExpression extends BinaryExpression {
 		}
 		if (!rightNonNullChecked) {
 			LocalVariableBinding local = this.right.localVariableBinding();
-			if (local != null) { 
+			if (local != null) {
 				if ((local.type.tagBits & TagBits.IsBaseType) == 0) {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
 				}
 			} else if (this.right instanceof Reference
-							&& ((!contextualCheckEquality && leftStatus == FlowInfo.NULL) 
+							&& ((!contextualCheckEquality && leftStatus == FlowInfo.NULL)
 									|| (contextualCheckEquality && leftStatus == FlowInfo.NON_NULL))
-							&& scope.compilerOptions().enableSyntacticNullAnalysisForFields) 
+							&& scope.compilerOptions().enableSyntacticNullAnalysisForFields)
 			{
 				FieldBinding field = ((Reference)this.right).lastFieldBinding();
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
-				}				
+				}
 			}
 		}
 

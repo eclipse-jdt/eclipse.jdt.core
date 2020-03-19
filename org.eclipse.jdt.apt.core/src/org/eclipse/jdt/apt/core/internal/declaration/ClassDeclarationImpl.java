@@ -12,7 +12,7 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.declaration; 
+package org.eclipse.jdt.apt.core.internal.declaration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,27 +49,27 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     {
         visitor.visitClassDeclaration(this);
     }
-    
+
     @SuppressWarnings("rawtypes")
 	private void getASTConstructor(
     		final AbstractTypeDeclaration typeDecl,
     		final List<ConstructorDeclaration> results){
-    	
+
     	final List bodyDecls = typeDecl.bodyDeclarations();
-    	IFile file = null; 
+    	IFile file = null;
     	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
     		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
     		if( bodyDecl.getNodeType() == ASTNode.METHOD_DECLARATION ){
-    			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl = 
-    					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;    			
-    			
+    			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl =
+    					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;
+
     			if( methodDecl.isConstructor() ){
     				final IMethodBinding methodBinding = methodDecl.resolveBinding();
     				// built an ast based representation.
     				if( methodBinding == null ){
     					if( file == null )
         					file = getResource();
-        				ConstructorDeclaration mirrorDecl = 
+        				ConstructorDeclaration mirrorDecl =
         					(ConstructorDeclaration)Factory.createDeclaration(methodDecl, file, _env);
         				if( mirrorDecl != null )
         					results.add(mirrorDecl);
@@ -84,10 +84,10 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     {
     	final List<ConstructorDeclaration> results = new ArrayList<>();
     	if( isFromSource() ){
-    		// need to consult the ast since methods with broken signature 
+    		// need to consult the ast since methods with broken signature
     		// do not appear in bindings.
     		final ITypeBinding typeBinding = getDeclarationBinding();
-    		final ASTNode node = 
+    		final ASTNode node =
     			_env.getASTNodeForBinding(typeBinding);
     		if( node != null ){
     			switch( node.getNodeType() )
@@ -95,7 +95,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     			case ASTNode.TYPE_DECLARATION:
     			case ASTNode.ANNOTATION_TYPE_DECLARATION:
     			case ASTNode.ENUM_DECLARATION:
-    				AbstractTypeDeclaration typeDecl = 
+    				AbstractTypeDeclaration typeDecl =
     					(AbstractTypeDeclaration)node;
     				// built the ast based methods first.
     				getASTConstructor(typeDecl, results);
@@ -107,9 +107,9 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     			}
     		}
     	}
-        // build methods for binding type or 
+        // build methods for binding type or
     	// build the binding based method for source type.
-    	
+
         final IMethodBinding[] methods = getDeclarationBinding().getDeclaredMethods();
         for( IMethodBinding method : methods ){
             if( method.isSynthetic() ) continue;
@@ -152,7 +152,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     @Override
 	public ClassDeclaration getDeclaration()
     {
-        return (ClassDeclaration)super.getDeclaration();        
+        return (ClassDeclaration)super.getDeclaration();
     }
     // End of implementation of ClassType API
 

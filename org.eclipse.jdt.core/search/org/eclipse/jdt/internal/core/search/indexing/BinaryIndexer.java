@@ -657,7 +657,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			if (contents == null) return;
 			final String path = this.document.getPath();
 			ClassFileReader reader = new ClassFileReader(contents, path == null ? null : path.toCharArray());
-			
+
 			IModule module = reader.getModuleDeclaration();
 			if (module != null) {
 				indexModule(module);
@@ -746,7 +746,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			if (tagBits != 0) {
 				addBinaryStandardAnnotations(tagBits);
 			}
-			
+
 			int extraFlags = ExtraFlags.getExtraFlags(reader);
 
 			// first reference all methods declarations and field declarations
@@ -773,7 +773,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 						addConstructorDeclaration(
 								name,
 								parameterTypes == null ? 0 : parameterTypes.length,
-								signature,	
+								signature,
 								parameterTypes,
 								method.getArgumentNames(),
 								method.getModifiers(),
@@ -795,7 +795,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 										null,
 										selector,
 										parameterTypes == null ? 0 : parameterTypes.length,
-												signature,	
+												signature,
 												parameterTypes,
 												method.getArgumentNames(),
 												returnType,
@@ -858,7 +858,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					e));
 		}
 	}
-	
+
 	private void indexModule(IModule module) {
 		addModuleDeclaration(module.name());
 		IModuleReference[] requiredModules = module.requires();
@@ -908,7 +908,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			return;
 		addTypeReference(ref);
 	}
-	
+
 	private char[] removeFirstSyntheticParameter(char[] descriptor) {
 		if (descriptor == null) return null;
 		if (descriptor.length < 3) return descriptor;

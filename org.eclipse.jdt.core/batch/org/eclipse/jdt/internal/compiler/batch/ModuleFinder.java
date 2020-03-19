@@ -53,14 +53,14 @@ public class ModuleFinder {
 		}
 		return modulePath;
 	}
-	protected static void scanForModules(String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath, 
+	protected static void scanForModules(String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath,
 			boolean thisAnAutomodule, List<FileSystem.Classpath> collector, final File file, String release) {
 		FileSystem.Classpath entry = FileSystem.getClasspath(
 				file.getAbsolutePath(),
 				null,
 				!isModulepath,
 				null,
-				destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
+				destinationPath == null ? null : (destinationPath + File.separator + file.getName()),
 				options,
 				release);
 		if (entry != null) {
@@ -140,10 +140,10 @@ public class ModuleFinder {
 	 * Extracts the single reads clause from the given
 	 * command line option (--add-reads). The result is a String[] with two
 	 * element, first being the source module and second being the target module.
-	 * The expected format is: 
+	 * The expected format is:
 	 *  --add-reads <source-module>=<target-module>
 	 * @param option
-	 * @return a String[] with source and target module of the "reads" clause. 
+	 * @return a String[] with source and target module of the "reads" clause.
 	 */
 	protected static String[] extractAddonRead(String option) {
 		StringTokenizer tokenizer = new StringTokenizer(option, "="); //$NON-NLS-1$

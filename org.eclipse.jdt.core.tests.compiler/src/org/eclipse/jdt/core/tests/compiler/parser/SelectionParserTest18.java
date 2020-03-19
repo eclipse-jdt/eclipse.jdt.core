@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,7 @@ public SelectionParserTest18(String testName) {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation
 public void test424110() throws JavaModelException {
-	String string = 
+	String string =
 			"public class X {\n" +
 			"	static F f = X::m; // [1] Works\n" +
 			"	int i = fun(X::m); // [2] Does not work\n" +
@@ -53,20 +53,20 @@ public void test424110() throws JavaModelException {
 
 	String completionIdentifier = "m";
 	String expectedUnitDisplayString =
-					"public class X {\n" + 
-					"  static F f = <SelectionOnReferenceExpressionName:X::m>;\n" + 
-					"  int i;\n" + 
-					"  <clinit>() {\n" + 
-					"  }\n" + 
-					"  public X() {\n" + 
-					"  }\n" + 
-					"  public static int m(int x) {\n" + 
-					"  }\n" + 
-					"  private int fun(F f) {\n" + 
-					"  }\n" + 
-					"}\n" + 
-					"interface F {\n" + 
-					"  int foo(int x);\n" + 
+					"public class X {\n" +
+					"  static F f = <SelectionOnReferenceExpressionName:X::m>;\n" +
+					"  int i;\n" +
+					"  <clinit>() {\n" +
+					"  }\n" +
+					"  public X() {\n" +
+					"  }\n" +
+					"  public static int m(int x) {\n" +
+					"  }\n" +
+					"  private int fun(F f) {\n" +
+					"  }\n" +
+					"}\n" +
+					"interface F {\n" +
+					"  int foo(int x);\n" +
 					"}\n";
 	String expectedReplacedSource = "X::m";
 	String testName = "<select>";
@@ -86,7 +86,7 @@ public void test424110() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424110, [1.8][hovering] Hover, F3 does not work for method reference in method invocation
 public void test424110a() throws JavaModelException {
-	String string = 
+	String string =
 			"public class X {\n" +
 			"	int i = fun(X::m); // [2] Does not work\n" +
 			"	public static int m(int x) {\n" +
@@ -106,17 +106,17 @@ public void test424110a() throws JavaModelException {
 
 	String completionIdentifier = "m";
 	String expectedUnitDisplayString =
-					"public class X {\n" + 
-					"  int i = fun(<SelectionOnReferenceExpressionName:X::m>);\n" + 
-					"  public X() {\n" + 
-					"  }\n" + 
-					"  public static int m(int x) {\n" + 
-					"  }\n" + 
-					"  private int fun(F f) {\n" + 
-					"  }\n" + 
-					"}\n" + 
-					"interface F {\n" + 
-					"  int foo(int x);\n" + 
+					"public class X {\n" +
+					"  int i = fun(<SelectionOnReferenceExpressionName:X::m>);\n" +
+					"  public X() {\n" +
+					"  }\n" +
+					"  public static int m(int x) {\n" +
+					"  }\n" +
+					"  private int fun(F f) {\n" +
+					"  }\n" +
+					"}\n" +
+					"interface F {\n" +
+					"  int foo(int x);\n" +
 					"}\n";
 	String expectedReplacedSource = "X::m";
 	String testName = "<select>";
@@ -136,7 +136,7 @@ public void test424110a() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430572, [1.8] CCE on hovering over 'super' in lambda expression
 public void test430572() throws JavaModelException {
-	String string = 
+	String string =
 			"@FunctionalInterface\n" +
 			"interface FI {\n" +
 			"	default int getID() {\n" +
@@ -154,15 +154,15 @@ public void test430572() throws JavaModelException {
 
 	String completionIdentifier = "super";
 	String expectedUnitDisplayString =
-					"@FunctionalInterface interface FI {\n" + 
-					"  default int getID() {\n" + 
-					"  }\n" + 
-					"  void print();\n" + 
-					"}\n" + 
-					"class T {\n" + 
-					"  FI f2 = () -> System.out.println(<SelectOnSuper:super>.toString());\n" + 
-					"  T() {\n" + 
-					"  }\n" + 
+					"@FunctionalInterface interface FI {\n" +
+					"  default int getID() {\n" +
+					"  }\n" +
+					"  void print();\n" +
+					"}\n" +
+					"class T {\n" +
+					"  FI f2 = () -> System.out.println(<SelectOnSuper:super>.toString());\n" +
+					"  T() {\n" +
+					"  }\n" +
 					"}\n";
 	String expectedReplacedSource = "super";
 	String testName = "<select>";
@@ -182,7 +182,7 @@ public void test430572() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
 public void test476693() throws JavaModelException {
-	String string = 
+	String string =
 			"import static java.util.stream.Collectors.toList;\n" +
 			"import java.util.List;\n" +
 			"import java.util.Spliterator;\n" +
@@ -254,7 +254,7 @@ public void test476693() throws JavaModelException {
 			testName);
 }
 public void test495912() {
-	String string = 
+	String string =
 			"package xy;\n" +
 			"public class Test {\n" +
 			"	{\n" +
@@ -276,27 +276,27 @@ public void test495912() {
 
 	String completionIdentifier = "byteValue";
 	String expectedUnitDisplayString =
-					"package xy;\n" + 
-					"public class Test {\n" + 
-					"  {\n" + 
-					"    {\n" + 
-					"      Runnable r = () ->       {\n" + 
-					"        Integer i;\n" + 
-					"        byte b = <SelectOnMessageSend:i.byteValue()>;\n" + 
-					"        if (true)\n" + 
-					"            {\n" + 
-					"              if (false)\n" + 
-					"                  {\n" + 
-					"                  }\n" + 
-					"            }\n" + 
-					"        String s;\n" + 
+					"package xy;\n" +
+					"public class Test {\n" +
+					"  {\n" +
+					"    {\n" +
+					"      Runnable r = () ->       {\n" +
+					"        Integer i;\n" +
+					"        byte b = <SelectOnMessageSend:i.byteValue()>;\n" +
+					"        if (true)\n" +
+					"            {\n" +
+					"              if (false)\n" +
+					"                  {\n" +
+					"                  }\n" +
+					"            }\n" +
+					"        String s;\n" +
 					"      };\n" +
-					"    }\n" + 
-					"  }\n" + 
-					"  public Test() {\n" + 
-					"  }\n" + 
-					"  public void foo(Runnable r) {\n" + 
-					"  }\n" + 
+					"    }\n" +
+					"  }\n" +
+					"  public Test() {\n" +
+					"  }\n" +
+					"  public void foo(Runnable r) {\n" +
+					"  }\n" +
 					"}\n";
 	String expectedReplacedSource = "i.byteValue()";
 	String testName = "<select>";
@@ -315,7 +315,7 @@ public void test495912() {
 			testName);
 }
 public void test495912a() {
-	String string = 
+	String string =
 			"package xy;\n" +
 			"public class Test {\n" +
 			"	{\n" +
@@ -338,29 +338,29 @@ public void test495912a() {
 
 	String completionIdentifier = "byteValue";
 	String expectedUnitDisplayString =
-					"package xy;\n" + 
-					"public class Test {\n" + 
-					"  {\n" + 
+					"package xy;\n" +
+					"public class Test {\n" +
+					"  {\n" +
 					"    {\n" +
-					"      Runnable r = () ->       {\n" + 
-					"        Integer i;\n" + 
-					"        byte b = <SelectOnMessageSend:i.byteValue()>;\n" + 
+					"      Runnable r = () ->       {\n" +
+					"        Integer i;\n" +
+					"        byte b = <SelectOnMessageSend:i.byteValue()>;\n" +
 					"        if (true)\n" +
 					"            {\n" +
 					"              if (false)\n" +
 					"                  {\n" +
 					"                  }\n" +
 					"            }\n" +
-					"        for (int i1;; (i1 < 42); i1 ++) \n" + 
-					"          {\n" + 
-					"          }\n" + 
-					"      };\n" + 
-					"    }\n" + 
-					"  }\n" + 
-					"  public Test() {\n" + 
-					"  }\n" + 
-					"  public void foo(Runnable r) {\n" + 
-					"  }\n" + 
+					"        for (int i1;; (i1 < 42); i1 ++) \n" +
+					"          {\n" +
+					"          }\n" +
+					"      };\n" +
+					"    }\n" +
+					"  }\n" +
+					"  public Test() {\n" +
+					"  }\n" +
+					"  public void foo(Runnable r) {\n" +
+					"  }\n" +
 					"}\n";
 	String expectedReplacedSource = "i.byteValue()";
 	String testName = "<select>";
@@ -379,7 +379,7 @@ public void test495912a() {
 			testName);
 }
 public void test495912b() {
-	String string = 
+	String string =
 			"package xy;\n" +
 			"import org.eclipse.e4.ui.internal.workbench.PartServiceImpl;\n" +
 			"import org.eclipse.e4.ui.model.application.ui.basic.MPart;\n" +
@@ -413,36 +413,36 @@ public void test495912b() {
 
 	String selectionIdentifier = "getTransientData";
 	String expectedUnitDisplayString =
-			"package xy;\n" + 
-					"import org.eclipse.e4.ui.internal.workbench.PartServiceImpl;\n" + 
-					"import org.eclipse.e4.ui.model.application.ui.basic.MPart;\n" + 
-					"import org.eclipse.swt.widgets.Table;\n" + 
-					"import org.eclipse.ui.IWorkbenchWindow;\n" + 
-					"public abstract class CycleViewHandler extends CycleBaseHandler {\n" + 
-					"  public CycleViewHandler() {\n" + 
-					"  }\n" + 
-					"  protected @Override void addItems(Table table, WorkbenchPage page) {\n" + 
+			"package xy;\n" +
+					"import org.eclipse.e4.ui.internal.workbench.PartServiceImpl;\n" +
+					"import org.eclipse.e4.ui.model.application.ui.basic.MPart;\n" +
+					"import org.eclipse.swt.widgets.Table;\n" +
+					"import org.eclipse.ui.IWorkbenchWindow;\n" +
+					"public abstract class CycleViewHandler extends CycleBaseHandler {\n" +
+					"  public CycleViewHandler() {\n" +
+					"  }\n" +
+					"  protected @Override void addItems(Table table, WorkbenchPage page) {\n" +
 					"    List<MPart> parts;\n" + // this is the missing part without the fix in RecoveredMethod#add(Block....)
-					"    parts.stream().sorted((<no type> firstPart, <no type> secondPart) -> {\n" + 
-					"  Long firstPartActivationTime = (Long) <SelectOnMessageSend:firstPart.getTransientData()>.getOrDefault(PartServiceImpl.PART_ACTIVATION_TIME, Long.MIN_VALUE);\n" + 
-					"  Long secondPartActivationTime;\n" + 
-					"  return 0;\n" + 
-					"}).forEach((<no type> part) -> {\n" + 
-					"  if (true)\n" + 
-					"      {\n" + 
-					"        if (true)\n" + 
-					"            {\n" + 
-					"            }\n" + 
-					"      }\n" + 
-					"  else\n" + 
-					"      {\n" + 
-					"        IWorkbenchWindow iwbw;\n" + 
-					"        if (true)\n" + 
-					"            {\n" + 
-					"            }\n" + 
-					"      }\n" + 
-					"});\n" + 
-					"  }\n" + 
+					"    parts.stream().sorted((<no type> firstPart, <no type> secondPart) -> {\n" +
+					"  Long firstPartActivationTime = (Long) <SelectOnMessageSend:firstPart.getTransientData()>.getOrDefault(PartServiceImpl.PART_ACTIVATION_TIME, Long.MIN_VALUE);\n" +
+					"  Long secondPartActivationTime;\n" +
+					"  return 0;\n" +
+					"}).forEach((<no type> part) -> {\n" +
+					"  if (true)\n" +
+					"      {\n" +
+					"        if (true)\n" +
+					"            {\n" +
+					"            }\n" +
+					"      }\n" +
+					"  else\n" +
+					"      {\n" +
+					"        IWorkbenchWindow iwbw;\n" +
+					"        if (true)\n" +
+					"            {\n" +
+					"            }\n" +
+					"      }\n" +
+					"});\n" +
+					"  }\n" +
 					"}\n";
 	String expectedReplacedSource = "firstPart.getTransientData()";
 	String testName = "<select>";

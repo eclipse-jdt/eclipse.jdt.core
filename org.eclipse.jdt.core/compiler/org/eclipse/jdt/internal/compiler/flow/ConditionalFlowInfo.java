@@ -121,7 +121,7 @@ public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 
 @Override
 public boolean hasNullInfoFor(LocalVariableBinding local) {
-	return this.initsWhenTrue.hasNullInfoFor(local) 
+	return this.initsWhenTrue.hasNullInfoFor(local)
 			|| this.initsWhenFalse.hasNullInfoFor(local);
 }
 

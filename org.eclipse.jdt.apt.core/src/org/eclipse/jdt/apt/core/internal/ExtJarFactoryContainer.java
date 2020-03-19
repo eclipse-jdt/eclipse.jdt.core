@@ -23,7 +23,7 @@ import java.io.File;
 public class ExtJarFactoryContainer extends JarFactoryContainer {
 	private String _id;
 	private File _jarFile;
-	
+
 	/**
 	 * @param jar must not be null
 	 */

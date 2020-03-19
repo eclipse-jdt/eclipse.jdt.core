@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
@@ -49,7 +49,7 @@ import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl
  * @since 3.3
  */
 public class IdeFilerImpl implements Filer {
-	
+
 	//private final IdeAnnotationProcessorManager _dispatchManager;
 	private final IdeProcessingEnvImpl _env;
 
@@ -65,12 +65,12 @@ public class IdeFilerImpl implements Filer {
 	@Override
 	public JavaFileObject createClassFile(CharSequence name, Element... originatingElements)
 			throws IOException {
-		
+
 		// Pre-emptively check parameters here, rather than later on when the resource is written and closed.
 		if (null == name) {
 			throw new IllegalArgumentException("Name is null");
 		}
-    
+
     	String nameAsString = name.toString();
 		IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(nameAsString);
 
@@ -93,18 +93,18 @@ public class IdeFilerImpl implements Filer {
     	file = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, pkg, name + ".class");
 		path = path.append(nameAsString);
 		path = new Path(path.toString() + ".class");
-	
+
 		return new IdeOutputClassFileObject(_env, file, nameAsString);
 	}
 
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.Filer#createResource(javax.tools.JavaFileManager.Location, java.lang.CharSequence, java.lang.CharSequence, javax.lang.model.element.Element[])
 	 * In the IDE implementation, we support only two Locations: SOURCE_OUTPUT, which means the APT generated source folder,
-	 * and CLASS_OUTPUT, which means the binary output folder associated with the APT generated source folder. 
+	 * and CLASS_OUTPUT, which means the binary output folder associated with the APT generated source folder.
 	 */
 	@Override
 	public FileObject createResource(Location location, CharSequence pkg,
-			CharSequence relativeName, Element... originatingElements) throws IOException 
+			CharSequence relativeName, Element... originatingElements) throws IOException
 	{
 		// Pre-emptively check parameters here, rather than later on when the resource is written and closed.
 		if (null == location) {
@@ -113,7 +113,7 @@ public class IdeFilerImpl implements Filer {
 		if (!location.isOutputLocation()) {
 			throw new IllegalArgumentException("Location " + location.getName() + " is not an output location");
 		}
-		
+
 		if (null == pkg) {
 			throw new IllegalArgumentException("Package is null");
 		}
@@ -127,7 +127,7 @@ public class IdeFilerImpl implements Filer {
 		if (AptCompilationParticipant.getInstance().getJava6GeneratedFiles().contains(file)) {
 			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
 		}
-		
+
 		Set<IFile> parentFiles;
 		if (originatingElements != null && originatingElements.length > 0) {
 			parentFiles = new HashSet<IFile>(originatingElements.length);
@@ -150,7 +150,7 @@ public class IdeFilerImpl implements Filer {
 	 */
 	@Override
 	public JavaFileObject createSourceFile(CharSequence name, Element... originatingElements)
-			throws IOException 
+			throws IOException
 	{
 		// Pre-emptively check parameters here, rather than later on when the resource is written and closed.
 		if (null == name) {
@@ -161,10 +161,10 @@ public class IdeFilerImpl implements Filer {
 			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
 		}
 		// TODO: is the following correct?
-		// JDK 9's createSourceFile API mentions '/' as separator for a module prefix. 
+		// JDK 9's createSourceFile API mentions '/' as separator for a module prefix.
 		// Otherwise shouldn't <code>name</code> already be "."-separated?
 //		name = name.toString().replace('/', '.');
-//		
+//
 //		ModuleBinding m = _env._current_module;
 //		if (m == null)
 //			m = _env.getCompiler().lookupEnvironment.UnNamedModule;
@@ -199,7 +199,7 @@ public class IdeFilerImpl implements Filer {
 	 */
 	@Override
 	public FileObject getResource(Location location, CharSequence pkg, CharSequence relativeName)
-			throws IOException 
+			throws IOException
 	{
 		IFile file = getFileFromOutputLocation(location, pkg, relativeName);
 		return new IdeInputFileObject(file);
@@ -219,7 +219,7 @@ public class IdeFilerImpl implements Filer {
     	IPath path = null;
     	if ( loc == StandardLocation.CLASS_OUTPUT )
     	{
-    		try 
+    		try
     		{
     			path = gsfm.getBinaryOutputLocation();
     		}
@@ -235,19 +235,19 @@ public class IdeFilerImpl implements Filer {
     	else {
     		throw new IllegalArgumentException("Unsupported location: " + loc);
     	}
-    	
+
         if( pkg.length() > 0 )
             path = path.append(pkg.toString().replace('.', File.separatorChar) );
 
         path = path.append(relPath.toString());
-    	
+
         IFile file = _env.getProject().getFile(path);
 
 		validatePath(file);
-        
+
     	return file;
     }
-    
+
     /**
      * Validate that a path fits the rules for being created.
      * @see IWorkspace#validatePath()

@@ -96,16 +96,16 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 		Expression expression = fragment.getInitializer();
 		assertTrue(expression instanceof LambdaExpression);
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
-		
+
 		{// add a parameter to the lambda expression
 			List parameters= lambdaExpression.parameters();
 			assertTrue("must be 1 parameter", parameters.size() == 1);
 			ASTNode firstParam= (ASTNode) parameters.get(0);
 			VariableDeclarationFragment newParam= ast.newVariableDeclarationFragment();
 			newParam.setName(ast.newSimpleName("wlambda"));
-			rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).insertAfter(newParam, firstParam, null);		
+			rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).insertAfter(newParam, firstParam, null);
 		}
-		
+
 		{// replace the block body with a float literal expression body.
 			ASTNode body = lambdaExpression.getBody();
 			ASTNode newBody = ast.newNumberLiteral("3.14");
@@ -117,13 +117,13 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 		expression = fragment.getInitializer();
 		assertTrue(expression instanceof LambdaExpression);
 		lambdaExpression = (LambdaExpression)expression;
-		
+
 		{// add a parameter to the lambda expression - border case - empty list initially
 			List parameters= lambdaExpression.parameters();
 			assertTrue("must be 0 parameter", parameters.size() == 0);
 			VariableDeclarationFragment newParam= ast.newVariableDeclarationFragment();
 			newParam.setName(ast.newSimpleName("vlambda"));
-			rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).insertFirst(newParam, null);		
+			rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).insertFirst(newParam, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
@@ -141,7 +141,7 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	public void testLambdaExpressions_Parentheses_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -187,29 +187,20 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(fCount++);
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
 		LambdaExpression lambdaExpression = (LambdaExpression)fragment.getInitializer();
-		
+
 		{// set parentheses
 			assertTrue("lambda expression has parantheses", lambdaExpression.hasParentheses() == false);
 			rewrite.set(lambdaExpression, LambdaExpression.PARENTHESES_PROPERTY, Boolean.TRUE, null);
 		}
-		
+
 		fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(fCount++);
 		fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
 		lambdaExpression = (LambdaExpression)fragment.getInitializer();
-		
+
 		{// reset parentheses - a legal operation here.
 			assertTrue("lambda expression has parantheses", lambdaExpression.hasParentheses() == true);
 			rewrite.set(lambdaExpression, LambdaExpression.PARENTHESES_PROPERTY, Boolean.FALSE, null);
 		}
-		
-		fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(fCount++);
-		fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
-		lambdaExpression = (LambdaExpression)fragment.getInitializer();
-
-		{// reset parentheses - an illegal operation here.
-			assertTrue("lambda expression does not have parantheses", lambdaExpression.hasParentheses() == true);
-			rewrite.set(lambdaExpression, LambdaExpression.PARENTHESES_PROPERTY, Boolean.FALSE, null);
-		}
 
 		fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(fCount++);
 		fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
@@ -219,7 +210,16 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 			assertTrue("lambda expression does not have parantheses", lambdaExpression.hasParentheses() == true);
 			rewrite.set(lambdaExpression, LambdaExpression.PARENTHESES_PROPERTY, Boolean.FALSE, null);
 		}
-		
+
+		fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(fCount++);
+		fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+		lambdaExpression = (LambdaExpression)fragment.getInitializer();
+
+		{// reset parentheses - an illegal operation here.
+			assertTrue("lambda expression does not have parantheses", lambdaExpression.hasParentheses() == true);
+			rewrite.set(lambdaExpression, LambdaExpression.PARENTHESES_PROPERTY, Boolean.FALSE, null);
+		}
+
 		{// change all the parameter to SVD ie add type info to the parameters.
 			List parameters = lambdaExpression.parameters();
 			VariableDeclaration param = (VariableDeclaration)parameters.get(0);
@@ -227,7 +227,7 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 			newParam.setName(ast.newSimpleName(new String(param.toString())));
 			newParam.setType(ast.newPrimitiveType(PrimitiveType.INT));
 			rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).replace(param, newParam, null);
-			
+
 			param = (VariableDeclaration)parameters.get(1);
 			newParam= ast.newSingleVariableDeclaration();
 			newParam.setName(ast.newSimpleName(new String(param.toString())));
@@ -246,14 +246,14 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 				SingleVariableDeclaration param = (SingleVariableDeclaration)parameters.get(i);
 				VariableDeclarationFragment newParam= ast.newVariableDeclarationFragment();
 				newParam.setName(ast.newSimpleName(new String(param.getName().toString())));
-				rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).replace(param, newParam, null);				
+				rewrite.getListRewrite(lambdaExpression, LambdaExpression.PARAMETERS_PROPERTY).replace(param, newParam, null);
 			}
 		}
 
 		fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(fCount++);
 		fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
 		lambdaExpression = (LambdaExpression)fragment.getInitializer();
-	
+
 		{// remove the only parameter and the rewriter should automatically add the parentheses
 			List parameters = lambdaExpression.parameters();
 			ASTNode param = (ASTNode)parameters.get(0);

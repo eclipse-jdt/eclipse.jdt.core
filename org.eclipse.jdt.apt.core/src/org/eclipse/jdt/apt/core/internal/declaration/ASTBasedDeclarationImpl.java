@@ -36,10 +36,10 @@ import com.sun.mirror.util.SourcePosition;
 
 /**
  * Most mirror implementation are based on bindings but in some cases because of
- * incomplete information no bindings will be created at all. This implementation 
+ * incomplete information no bindings will be created at all. This implementation
  * is to allow clients to get to the partial information that's available on certain
  * declarations.
- * 
+ *
  * The prefered implementation of the API is to rely on the binding since it is a more
  * complete and versatile representation of a declaration.
  */
@@ -58,15 +58,15 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		super(env);
 		assert astNode != null : "ast node cannot be missing"; //$NON-NLS-1$
 		assert file != null : "file cannot be missing";//$NON-NLS-1$
-		
-		assert astNode instanceof BodyDeclaration || 
+
+		assert astNode instanceof BodyDeclaration ||
 		   astNode instanceof VariableDeclaration :
 		   "ast node must be either a body declaration or a variable declaration"; //$NON-NLS-1$
-		
+
 		_astNode = astNode;
 		_file = file;
 	}
-	
+
 	@Override
 	public Collection<Modifier> getModifiers()
 	{
@@ -80,39 +80,39 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 			if( _astNode instanceof BodyDeclaration )
 				modBits = ((BodyDeclaration)parent).getModifiers();
 		}
-		
+
 		return getModifiers(modBits);
 	}
-	
+
 	private Collection<Modifier> getModifiers(int modBits)
-	{	
+	{
 		final List<Modifier> mods = new ArrayList<>(4);
-        if( org.eclipse.jdt.core.dom.Modifier.isAbstract(modBits) )		
+        if( org.eclipse.jdt.core.dom.Modifier.isAbstract(modBits) )
         	mods.add(Modifier.ABSTRACT);
-        if( org.eclipse.jdt.core.dom.Modifier.isFinal(modBits) ) 		
+        if( org.eclipse.jdt.core.dom.Modifier.isFinal(modBits) )
         	mods.add(Modifier.FINAL);
-        if( org.eclipse.jdt.core.dom.Modifier.isNative(modBits) ) 		
+        if( org.eclipse.jdt.core.dom.Modifier.isNative(modBits) )
         	mods.add(Modifier.NATIVE);
-        if( org.eclipse.jdt.core.dom.Modifier.isPrivate(modBits) ) 		
+        if( org.eclipse.jdt.core.dom.Modifier.isPrivate(modBits) )
         	mods.add(Modifier.PRIVATE);
-        if( org.eclipse.jdt.core.dom.Modifier.isProtected(modBits) ) 
+        if( org.eclipse.jdt.core.dom.Modifier.isProtected(modBits) )
         	mods.add(Modifier.PROTECTED);
-        if( org.eclipse.jdt.core.dom.Modifier.isPublic(modBits) ) 	
+        if( org.eclipse.jdt.core.dom.Modifier.isPublic(modBits) )
         	mods.add(Modifier.PUBLIC);
-        if( org.eclipse.jdt.core.dom.Modifier.isStatic(modBits) ) 	
+        if( org.eclipse.jdt.core.dom.Modifier.isStatic(modBits) )
         	mods.add(Modifier.STATIC);
-        if( org.eclipse.jdt.core.dom.Modifier.isStrictfp(modBits) ) 
+        if( org.eclipse.jdt.core.dom.Modifier.isStrictfp(modBits) )
         	mods.add(Modifier.STRICTFP);
-        if( org.eclipse.jdt.core.dom.Modifier.isSynchronized(modBits) ) 
+        if( org.eclipse.jdt.core.dom.Modifier.isSynchronized(modBits) )
         	mods.add(Modifier.SYNCHRONIZED);
-        if( org.eclipse.jdt.core.dom.Modifier.isTransient(modBits) ) 
+        if( org.eclipse.jdt.core.dom.Modifier.isTransient(modBits) )
         	mods.add(Modifier.TRANSIENT);
-        if( org.eclipse.jdt.core.dom.Modifier.isVolatile(modBits) ) 	
+        if( org.eclipse.jdt.core.dom.Modifier.isVolatile(modBits) )
         	mods.add(Modifier.VOLATILE);
         return mods;
-		
+
 	}
-	
+
 	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
@@ -124,12 +124,12 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IAnnotationBinding[] instances = getAnnotationInstancesFromAST();
-		return _getAnnotationMirrors(instances);		
+		return _getAnnotationMirrors(instances);
     }
-	
+
 	@SuppressWarnings("rawtypes") // DOM AST API returns raw collections
 	private IAnnotationBinding[] getAnnotationInstancesFromAST()
-	{	
+	{
 		IAnnotationBinding[] instances = null;
 		List extendsMods = null;
 		switch( _astNode.getNodeType() )
@@ -143,7 +143,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		case ASTNode.ENUM_CONSTANT_DECLARATION:
 			extendsMods = ((BodyDeclaration)_astNode).modifiers();
 			break;
-			
+
 		case ASTNode.SINGLE_VARIABLE_DECLARATION:
 			extendsMods = ((SingleVariableDeclaration)_astNode).modifiers();
 			break;
@@ -152,8 +152,8 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 			if( parent instanceof BodyDeclaration )
 				extendsMods = ((BodyDeclaration)parent).modifiers();
 			break;
-			
-		default:			
+
+		default:
 			throw new IllegalStateException();
 		}
 		if( extendsMods != null ){
@@ -168,20 +168,20 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 			for( Object obj : extendsMods ){
 				final IExtendedModifier extMod = (IExtendedModifier)obj;
 				if( extMod.isAnnotation() )
-					instances[index ++] = 
+					instances[index ++] =
 						((org.eclipse.jdt.core.dom.Annotation)extMod).resolveAnnotationBinding();
 			}
 		}
 		return instances;
 	}
-	
+
 	@Override
 	public boolean isFromSource(){ return true; }
-	
+
 	@Override
 	ASTNode getAstNode(){
 		return _astNode;
-	}   
+	}
 
     @Override
 	CompilationUnit getCompilationUnit(){
@@ -192,37 +192,37 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 	public IFile getResource(){
 		return _file;
 	}
-	
+
 	@Override
 	public SourcePosition getPosition()
 	{
 		final ASTNode node = getRangeNode();
-		if( node == null ) return null;			       
+		if( node == null ) return null;
         final CompilationUnit unit = getCompilationUnit();
-        final int start = node.getStartPosition();    		
+        final int start = node.getStartPosition();
         return new SourcePositionImpl(
         		start,
 				node.getLength(),
 				unit.getLineNumber(start),
 				unit.getColumnNumber(start),
 				this);
-    
+
 	}
-	
+
 	@Override
 	public boolean isBindingBased(){ return false; }
-	
+
 	@Override
 	public boolean equals(Object obj)
     {
         if(obj instanceof ASTBasedDeclarationImpl)
         	return _astNode == ((ASTBasedDeclarationImpl)obj)._astNode;
-            
+
         return false;
     }
-	
+
 	@Override
-	public int hashCode(){ 
+	public int hashCode(){
 		return _astNode.hashCode();
 	}
 }

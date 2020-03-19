@@ -72,7 +72,7 @@ public class CaptureBinding extends TypeVariableBinding {
 			}
 		}
 	}
-	
+
 	// for subclass CaptureBinding18
 	protected CaptureBinding(ReferenceBinding sourceType, char[] sourceName, int start, int end, int captureID, LookupEnvironment environment) {
 		super(sourceName, null, 0, environment);
@@ -94,7 +94,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.tagBits |= (prototype.tagBits & TagBits.HasCapturedWildcard);
 		this.cud = prototype.cud;
 	}
-	
+
 	// Captures may get cloned and annotated during type inference.
 	@Override
 	public TypeBinding clone(TypeBinding enclosingType) {
@@ -397,7 +397,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 		return super.readableName();
 	}
-	
+
 	@Override
 	public char[] signableName() {
 		if (this.wildcard != null) {
@@ -429,7 +429,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 		return super.shortReadableName();
 	}
-	
+
 	@Override
 	public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) {
 	    StringBuffer nameBuffer = new StringBuffer(10);
@@ -467,13 +467,13 @@ public class CaptureBinding extends TypeVariableBinding {
 			return this;
 		if (this.wildcard != null && this.wildcard.hasNullTypeAnnotations()) {
 			WildcardBinding newWildcard = (WildcardBinding) this.wildcard.withoutToplevelNullAnnotation();
-			if (newWildcard != this.wildcard) { //$IDENTITY-COMPARISON$	
-				
+			if (newWildcard != this.wildcard) { //$IDENTITY-COMPARISON$
+
 				CaptureBinding newCapture = (CaptureBinding) this.environment.getUnannotatedType(this).clone(null);
 				if (newWildcard.hasTypeAnnotations())
 					newCapture.tagBits |= TagBits.HasTypeAnnotations;
 				newCapture.wildcard = newWildcard;
-				
+
 				// manually transfer the following two, because we are not in a context where we can call initializeBounds():
 				newCapture.superclass = this.superclass;
 				newCapture.superInterfaces = this.superInterfaces;
@@ -514,7 +514,7 @@ public class CaptureBinding extends TypeVariableBinding {
 			this.pendingSubstitute = null;
 		}
 	}
-	
+
 	@Override
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
 		super.setTypeAnnotations(annotations, evalNullAnnotations);

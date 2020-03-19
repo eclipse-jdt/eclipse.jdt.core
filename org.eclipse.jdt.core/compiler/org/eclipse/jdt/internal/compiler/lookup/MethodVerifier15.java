@@ -141,7 +141,7 @@ void checkForBridgeMethod(MethodBinding currentMethod, MethodBinding inheritedMe
 			if (thisMethod.areParameterErasuresEqual(bridge) && TypeBinding.equalsEquals(thisMethod.returnType.erasure(), bridge.returnType.erasure())) {
 				// use inherited method for problem reporting.
 				problemReporter(thisMethod).methodNameClash(thisMethod, inheritedMethod.declaringClass.isRawType() ? inheritedMethod : inheritedMethod.original(), ProblemSeverities.Error);
-				return;	
+				return;
 			}
 		}
 	}
@@ -317,8 +317,8 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 					//   (Not asking ParameterizedGenericMethodBinding.isRawMethod(),
 					//    because that is true only for methods of a RawTypeBinding,
 					//    but here we look for rawness regarding the method's type variables).
-					if (TypeBinding.equalsEquals(concreteMethod.declaringClass, methods[i].declaringClass) 
-							&& concreteMethod.typeVariables.length != methods[i].typeVariables.length) 
+					if (TypeBinding.equalsEquals(concreteMethod.declaringClass, methods[i].declaringClass)
+							&& concreteMethod.typeVariables.length != methods[i].typeVariables.length)
 					{
 						if (concreteMethod.typeVariables == Binding.NO_TYPE_VARIABLES
 								&& concreteMethod.original() == methods[i])
@@ -356,7 +356,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 }
 boolean checkInheritedDefaultMethods(MethodBinding[] methods, boolean[] isOverridden, int length) {
 	// JLS8  9.4.1.3 (interface) and  8.4.8.4 (class):
-	// default method clashes with other inherited method which is override-equivalent 
+	// default method clashes with other inherited method which is override-equivalent
 	if (length < 2) return true;
 	boolean ok = true;
 	findDefaultMethod: for (int i=0; i<length; i++) {
@@ -364,7 +364,7 @@ boolean checkInheritedDefaultMethods(MethodBinding[] methods, boolean[] isOverri
 			findEquivalent: for (int j=0; j<length; j++) {
 				if (j == i || isOverridden[j]) continue findEquivalent;
 				if (isMethodSubsignature(methods[i], methods[j])) {
-					if (!doesMethodOverride(methods[i], methods[j]) && !doesMethodOverride(methods[j], methods[i])) { 
+					if (!doesMethodOverride(methods[i], methods[j]) && !doesMethodOverride(methods[j], methods[i])) {
 						problemReporter().inheritedDefaultMethodConflictsWithOtherInherited(this.type, methods[i], methods[j]);
 						ok = false;
 						continue findDefaultMethod;
@@ -399,7 +399,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 {
 	super.checkAgainstInheritedMethods(currentMethod, methods, length, allInheritedMethods);
 	CompilerOptions options = this.environment.globalOptions;
-	if (options.isAnnotationBasedNullAnalysisEnabled 
+	if (options.isAnnotationBasedNullAnalysisEnabled
 			&& (currentMethod.tagBits & TagBits.IsNullnessKnown) == 0)
 	{
 		// if annotations are inherited these have been checked during STB.resolveTypesFor() (for methods explicit in this.type)
@@ -415,7 +415,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 }
 
 @Override
-void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclaration srcMethod, 
+void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclaration srcMethod,
 		boolean hasReturnNonNullDefault, ParameterNonNullDefaultProvider hasParameterNonNullDefault, boolean complain, MethodBinding inheritedMethod, MethodBinding[] allInherited, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos)
 {
 	complain &= !currentMethod.isConstructor();
@@ -425,8 +425,8 @@ void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclara
 		return;
 	}
 	// in this context currentMethod can be inherited, too. Recurse if needed.
-	if (TypeBinding.notEquals(currentMethod.declaringClass, this.type) 
-			&& (currentMethod.tagBits & TagBits.IsNullnessKnown) == 0) 
+	if (TypeBinding.notEquals(currentMethod.declaringClass, this.type)
+			&& (currentMethod.tagBits & TagBits.IsNullnessKnown) == 0)
 	{
 		this.buddyImplicitNullAnnotationsVerifier.checkImplicitNullAnnotations(currentMethod, srcMethod, complain, scope);
 	}
@@ -436,7 +436,7 @@ void checkNullSpecInheritance(MethodBinding currentMethod, AbstractMethodDeclara
 void reportRawReferences() {
 	CompilerOptions compilerOptions = this.type.scope.compilerOptions();
 	if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5 // shouldn't whine at all
-			|| compilerOptions.reportUnavoidableGenericTypeProblems) { // must have already whined 
+			|| compilerOptions.reportUnavoidableGenericTypeProblems) { // must have already whined
 		return;
 	}
 	/* Code below is only for a method that does not override/implement a super type method. If it were to,
@@ -481,7 +481,7 @@ void reportRawReferences() {
 public void reportRawReferences(MethodBinding currentMethod, MethodBinding inheritedMethod) {
 	CompilerOptions compilerOptions = this.type.scope.compilerOptions();
 	if (compilerOptions.sourceLevel < ClassFileConstants.JDK1_5 // shouldn't whine at all
-			|| compilerOptions.reportUnavoidableGenericTypeProblems) { // must have already whined 
+			|| compilerOptions.reportUnavoidableGenericTypeProblems) { // must have already whined
 		return;
 	}
 	AbstractMethodDeclaration methodDecl = currentMethod.sourceMethod();
@@ -510,7 +510,7 @@ public void reportRawReferences(MethodBinding currentMethod, MethodBinding inher
 		final TypeBinding methodType = currentMethod.returnType;
 		if (methodType.leafComponentType().isRawType()) {
 			if (inheritedMethodType.leafComponentType().isRawType()) {
-				// 
+				//
 			} else {
 				if ((returnType.bits & ASTNode.IgnoreRawTypeCheck) == 0
 						&& compilerOptions.getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
@@ -533,7 +533,7 @@ void checkMethods() {
 		MethodBinding[] inherited = (MethodBinding[]) this.inheritedMethods.valueTable[s];
 		// ensure that if we have a concrete method this shows up at position [0]:
 		inherited = Sorting.concreteFirst(inherited, inherited.length);
-		
+
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660, if current type is exposed,
 		// inherited methods of super classes are too. current != null case handled below.
 		if (current == null && !isOrEnclosedByPrivateType) {
@@ -609,7 +609,7 @@ void checkMethods() {
 		// (and perform some side effects : bridge methods & use flags)
 		for (int i = 0; i < inheritedLength; i++) {
 			MethodBinding matchMethod = foundMatch[i];
-			
+
 			if (matchMethod == null && current != null && this.type.isPublic()) { // current == null case handled already.
 				MethodBinding inheritedMethod = inherited[i];
 				if (inheritedMethod.isPublic() && (!inheritedMethod.declaringClass.isInterface() && !inheritedMethod.declaringClass.isPublic())) {
@@ -619,7 +619,7 @@ void checkMethods() {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660, if current type is exposed,
 			// inherited methods of super classes are too. current == null case handled already.
 			if (!isOrEnclosedByPrivateType && matchMethod == null && current != null) {
-				inherited[i].original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;	
+				inherited[i].original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
 			MethodBinding inheritedMethod = inherited[i];
 			for (int j = i + 1; j < inheritedLength; j++) {
@@ -661,7 +661,7 @@ void checkMethods() {
 						skip[j] = true;
 					} else if ((replaceMatch = findReplacedMethod(otherInheritedMethod, inheritedMethod)) != null) {
 						matchingInherited[++index] = replaceMatch;
-						skip[j] = true;						
+						skip[j] = true;
 					} else if (matchMethod == null) {
 						// none replaced by the other, check these methods against each other now:
 						checkInheritedMethods(inheritedMethod, otherInheritedMethod);
@@ -690,7 +690,7 @@ void checkMethods() {
 					matchingIsOverridden = isOverridden;
 					matchingIsInherited = isInherited;
 				}
-				
+
 				checkInheritedMethods(matchingInherited, length, matchingIsOverridden, matchingIsInherited); // pass in the length of matching
 			}
 			else if (mustImplementAbstractMethods && matchingInherited[0].isAbstract() && matchMethod == null)
@@ -721,7 +721,7 @@ boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, b
 			isOverridden[idx] = true;
 			return true;
 		}
-	} else if (specificIsInterface == generalIsInterface) { 
+	} else if (specificIsInterface == generalIsInterface) {
 		if (specific.declaringClass.isCompatibleWith(general.declaringClass) && isMethodSubsignature(specific, general)) {
 			skip[idx] = true;
 			isOverridden[idx] = true;
@@ -732,17 +732,17 @@ boolean isSkippableOrOverridden(MethodBinding specific, MethodBinding general, b
 }
 /* 'general' is considered as replaced by 'specific' if
  * - 'specific' is "at least as concrete as" 'general'
- * - 'specific' has a signature that is a subsignature of the substituted signature of 'general' (as seen from specific's declaring class)  
+ * - 'specific' has a signature that is a subsignature of the substituted signature of 'general' (as seen from specific's declaring class)
  * - default methods should also be considered replaced by class methods that meet the signature that is a subsignature criteria.
  */
 MethodBinding findReplacedMethod(MethodBinding specific, MethodBinding general) {
 	MethodBinding generalSubstitute = computeSubstituteMethod(general, specific);
-	if (generalSubstitute != null 
-			&& (!specific.isAbstract() || general.isAbstract() || (general.isDefaultMethod() && specific.declaringClass.isClass()))	// if (abstract(specific) => abstract(general)) check if 'specific' overrides 'general' 
-			&& isSubstituteParameterSubsignature(specific, generalSubstitute)) 
+	if (generalSubstitute != null
+			&& (!specific.isAbstract() || general.isAbstract() || (general.isDefaultMethod() && specific.declaringClass.isClass()))	// if (abstract(specific) => abstract(general)) check if 'specific' overrides 'general'
+			&& isSubstituteParameterSubsignature(specific, generalSubstitute))
 	{
 		return generalSubstitute;
-	} 
+	}
 	return null;
 }
 void checkTypeVariableMethods(TypeParameter typeParameter) {
@@ -789,7 +789,7 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 					}
 					if (interfaceMethod != null && implementation != null && !implementation.isAbstract() && !isAsVisible(implementation, interfaceMethod))
 						problemReporter().inheritedMethodReducesVisibility(typeParameter, implementation, new MethodBinding [] {interfaceMethod});
-					
+
 					if (areReturnTypesCompatible(first, match)) continue;
 					// unrelated interfaces - check to see if return types are compatible
 					if (first.declaringClass.isInterface() && match.declaringClass.isInterface() && areReturnTypesCompatible(match, first))
@@ -810,7 +810,7 @@ boolean detectInheritedNameClash(MethodBinding inherited, MethodBinding otherInh
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322001
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=323693
 	// When reporting a name clash between two inherited methods, we should not look for a
-	// signature clash, but instead should be looking for method descriptor clash. 
+	// signature clash, but instead should be looking for method descriptor clash.
 	if (TypeBinding.notEquals(inherited.returnType.erasure(), otherInherited.returnType.erasure()))
 		return false;
 	// skip it if otherInherited is defined by a subtype of inherited's declaringClass or vice versa.
@@ -841,10 +841,10 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited, boolean 
 		// For a user method, see if current class overrides the inherited method. If it does,
 		// then any grievance we may have ought to be against the current class's method and
 		// NOT against any super implementations. https://bugs.eclipse.org/bugs/show_bug.cgi?id=293615
-		
+
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=315978 : we now defer this rather expensive
 		// check to just before reporting (the incorrect) name clash. In the event there is no name
-		// clash to report to begin with (the common case), no penalty needs to be paid.  
+		// clash to report to begin with (the common case), no penalty needs to be paid.
 		MethodBinding[] currentNamesakes = (MethodBinding[]) this.currentMethods.get(inherited.selector);
 		if (currentNamesakes.length > 1) { // we know it ought to at least one and that current is NOT the override
 			for (int i = 0, length = currentNamesakes.length; i < length; i++) {
@@ -1020,7 +1020,7 @@ void verify() {
 		this.type.detectAnnotationCycle();
 
 	super.verify();
-	
+
 	reportRawReferences();
 
 	for (int i = this.type.typeVariables.length; --i >= 0;) {

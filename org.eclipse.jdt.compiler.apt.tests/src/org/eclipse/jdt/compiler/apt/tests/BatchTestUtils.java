@@ -373,7 +373,7 @@ public class BatchTestUtils {
 		}
 	}
 	protected static void findClassesUnder(Path root, Path folder, List<String> classes, String moduleName) throws IOException {
-		if (folder == null) 
+		if (folder == null)
 			folder = root;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
 	        for (Path entry : stream) {

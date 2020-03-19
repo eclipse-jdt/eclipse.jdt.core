@@ -93,7 +93,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public static final Integer REBUILDING_STATE = 3;
 	public static final Integer REUSE_STATE = 4;
 
-	private final IndexNamesRegistry nameRegistry = new IndexNamesRegistry(new File(getSavedIndexesDirectory(), 
+	private final IndexNamesRegistry nameRegistry = new IndexNamesRegistry(new File(getSavedIndexesDirectory(),
 			"savedIndexNames.txt"), getJavaPluginWorkingLocation()); //$NON-NLS-1$
 	// search participants who register indexes with the index manager
 	private SimpleLookupTable participantsContainers = null;
@@ -472,8 +472,8 @@ private SimpleLookupTable getIndexStates() {
 			}
 		}
 	} else {
-		// All the index files are getting deleted and hence there is no need to 
-		// further check for change in javaLikeNames. 
+		// All the index files are getting deleted and hence there is no need to
+		// further check for change in javaLikeNames.
 		writeJavaLikeNamesFile();
 		this.javaLikeNamesChanged = false;
 		deleteIndexFiles();
@@ -499,12 +499,12 @@ private File getSavedIndexesDirectory() {
 /*
  * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=286379
  * Returns true if there is a change in javaLikeNames since it
- * has been last stored. 
- * The javaLikeNames stored in the file javaLikeNames.txt 
- * is compared with the current javaLikeNames and if there is a change, this 
- * function returns true. If the file javaLikeNames.txt doesn't exist and there 
- * is only one javaLikeName (.java), then this returns false so that no-reindexing 
- * happens. 
+ * has been last stored.
+ * The javaLikeNames stored in the file javaLikeNames.txt
+ * is compared with the current javaLikeNames and if there is a change, this
+ * function returns true. If the file javaLikeNames.txt doesn't exist and there
+ * is only one javaLikeName (.java), then this returns false so that no-reindexing
+ * happens.
  */
 private boolean hasJavaLikeNamesChanged() {
 	char[][] currentNames = Util.getJavaLikeExtensions();
@@ -522,12 +522,12 @@ private boolean hasJavaLikeNamesChanged() {
 		return true;
 	}
 	if (current > 1) {
-		// Sort the current java like names. 
+		// Sort the current java like names.
 		// Copy the array to avoid modifying the Util static variable
 		System.arraycopy(currentNames, 0, currentNames = new char[current][], 0, current);
 		Util.sort(currentNames);
 	}
-	
+
 	// The JavaLikeNames would have been sorted before getting stored in the file,
 	// hence just do a direct compare.
 	for (int i = 0; i < current; i++) {
@@ -550,12 +550,12 @@ public void indexDocument(SearchDocument searchDocument, SearchParticipant searc
 public void indexResolvedDocument(SearchDocument searchDocument, SearchParticipant searchParticipant, Index index, IPath indexLocation) {
 	searchParticipant.resolveDocument(searchDocument);
 	ReadWriteMonitor monitor = index.monitor;
-	if (monitor == null) 
+	if (monitor == null)
 		return; // index got deleted since acquired
 	try {
 		monitor.enterWrite(); // ask permission to write
 		searchDocument.setIndex(index);
-		searchParticipant.indexResolvedDocument(searchDocument, indexLocation);	
+		searchParticipant.indexResolvedDocument(searchDocument, indexLocation);
 	} finally {
 		searchDocument.setIndex(null);
 		monitor.exitWrite();
@@ -640,7 +640,7 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL, f
 	IndexRequest request = null;
 	Object target = JavaModel.getTarget(path, true);
 	if (target instanceof IFile) {
-		request = isJrt(((IFile) target).getFullPath().toOSString()) ? 
+		request = isJrt(((IFile) target).getFullPath().toOSString()) ?
 				new AddJrtToIndex((IFile) target, indexFile, this, forceIndexUpdate) :
 					new AddJarFileToIndex((IFile) target, indexFile, this, forceIndexUpdate);
 	} else if (target instanceof File) {
@@ -719,7 +719,7 @@ public String processName(){
 }
 private char[][] readJavaLikeNamesFile() {
 	try {
-		String pathName = getJavaPluginWorkingLocation().toOSString();	
+		String pathName = getJavaPluginWorkingLocation().toOSString();
 		File javaLikeNamesFile = new File(pathName, "javaLikeNames.txt"); //$NON-NLS-1$
 		if (!javaLikeNamesFile.exists())
 			return null;
@@ -755,7 +755,7 @@ private void rebuildIndex(IndexLocation indexLocation, IPath containerPath, fina
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder) target, this);
 	} else if (target instanceof IFile) {
-		request = isJrt(((IFile) target).getFullPath().toOSString()) ? 
+		request = isJrt(((IFile) target).getFullPath().toOSString()) ?
 				new AddJrtToIndex((IFile) target, null, this, updateIndex) :
 					new AddJarFileToIndex((IFile) target, null, this, updateIndex);
 	} else if (target instanceof File) {
@@ -1121,7 +1121,7 @@ private void readIndexMap() {
 					this.indexLocations.put(new Path(new String(names[i+1])), indexPath );
 					this.indexStates.put(indexPath, REUSE_STATE);
 				}
-			}		
+			}
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
@@ -1137,14 +1137,14 @@ private void readParticipantsIndexNamesFile() {
 			char[][] names = CharOperation.splitOn('\n', participantIndexNames);
 			if (names.length >= 3) {
 				// First line is DiskIndex signature  (see writeParticipantsIndexNamesFile())
-				if (DiskIndex.SIGNATURE.equals(new String(names[0]))) {					
+				if (DiskIndex.SIGNATURE.equals(new String(names[0]))) {
 					for (int i = 1, l = names.length-1 ; i < l ; i+=2) {
 						IndexLocation indexLocation = new FileIndexLocation(new File(new String(names[i])), true);
 						containers.put(indexLocation, new Path(new String(names[i+1])));
 					}
-				}				
+				}
 			}
-		}	
+		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
 			Util.verbose("Failed to read participant index file names"); //$NON-NLS-1$
@@ -1213,11 +1213,11 @@ public void updateParticipant(IPath indexPath, IPath containerPath) {
 private void writeJavaLikeNamesFile() {
 	BufferedWriter writer = null;
 	String pathName = getJavaPluginWorkingLocation().toOSString();
-	try {		
+	try {
 		char[][] currentNames = Util.getJavaLikeExtensions();
 		int length = currentNames.length;
 		if (length > 1) {
-			// Sort the current java like names. 
+			// Sort the current java like names.
 			// Copy the array to avoid modifying the Util static variable
 			System.arraycopy(currentNames, 0, currentNames=new char[length][], 0, length);
 			Util.sort(currentNames);
@@ -1228,9 +1228,9 @@ private void writeJavaLikeNamesFile() {
 			writer.write(currentNames[i]);
 			writer.write('\n');
 		}
-		if (length > 0) 
+		if (length > 0)
 			writer.write(currentNames[length-1]);
-		
+
 	} catch (IOException ignored) {
 		if (VERBOSE)
 			Util.verbose("Failed to write javaLikeNames file", System.err); //$NON-NLS-1$

@@ -20,9 +20,9 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class CharLiteral extends NumberLiteral {
-	
+
 	char value;
-	
+
 public CharLiteral(char[] token, int s, int e) {
 	super(token, s, e);
 	computeValue();

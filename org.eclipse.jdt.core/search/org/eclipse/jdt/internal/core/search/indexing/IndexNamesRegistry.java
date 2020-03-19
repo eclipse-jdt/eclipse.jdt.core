@@ -100,7 +100,7 @@ public class IndexNamesRegistry {
 		}
 
 		subMonitor.setWorkRemaining(newContents.length);
-		
+
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.savedIndexNamesFile))) {
 			writer.write(DiskIndex.SIGNATURE);
 			writer.write('+');
@@ -136,6 +136,6 @@ public class IndexNamesRegistry {
 		synchronized (this.queueMutex) {
 			this.pendingWrite = null;
 		}
-		this.savedIndexNamesFile.delete(); 
+		this.savedIndexNamesFile.delete();
 	}
 }

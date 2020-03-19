@@ -1651,7 +1651,7 @@ public class DefaultCodeFormatterOptions {
 		if (insertNewLineBeforeWhileInDoStatementOption != null) {
 			this.insert_new_line_before_while_in_do_statement = JavaCore.INSERT.equals(insertNewLineBeforeWhileInDoStatementOption);
 		}
-		
+
 		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_ANNOTATION_DECLARATION_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
 				v -> this.keep_annotation_declaration_on_one_line = v);
 		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_ANONYMOUS_TYPE_DECLARATION_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
@@ -2451,7 +2451,7 @@ public class DefaultCodeFormatterOptions {
 			// reverse values swapping performed by IndentationTabPage
 			if (!JavaCore.SPACE.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))
 				this.tab_size = tabSize;
-			if (!DefaultCodeFormatterConstants.MIXED.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))			
+			if (!DefaultCodeFormatterConstants.MIXED.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))
 				this.indentation_size = tabSize;
 		}
 		final Object useTabsOnlyForLeadingIndentationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS);
@@ -2620,7 +2620,7 @@ public class DefaultCodeFormatterOptions {
 	 * so that the formatter recognizes those deprecated options when used with project specific formatter profiles.
 	 * (see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=544776">Bug 544776</a>)
 	 * </p>
-	 * 
+	 *
 	 * @param settings the given map
 	 * @deprecated
 	 */
@@ -2640,17 +2640,17 @@ public class DefaultCodeFormatterOptions {
 				this.comment_clear_blank_lines_in_block_comment = DefaultCodeFormatterConstants.TRUE.equals(commentClearBlankLinesInBlockCommentOption);
 			}
 		}
-		
+
 		// New line after annotations
 		final Object insertNewLineAfterAnnotationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION);
-		
+
 		final Object insertNewLineAfterAnnotationOnMemberOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER);
 		final Object insertNewLineAfterAnnotationOnTypeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE);
 		final Object insertNewLineAfterAnnotationOnEnumConstantOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT);
 		final Object insertNewLineAfterAnnotationOnFieldOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD);
 		final Object insertNewLineAfterAnnotationOnMethodOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD);
 		final Object insertNewLineAfterAnnotationOnPackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE);
-		
+
 		final Object insertNewLineAfterAnnotationOnParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PARAMETER);
 		final Object insertNewLineAfterAnnotationOnLocalVariableOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE);
 
@@ -2667,7 +2667,7 @@ public class DefaultCodeFormatterOptions {
 				this.insert_new_line_after_annotation_on_field = insert;
 				this.insert_new_line_after_annotation_on_method = insert;
 				this.insert_new_line_after_annotation_on_package = insert;
-				
+
 				// and use the other 3.4 options if available
 				if (insertNewLineAfterAnnotationOnParameterOption != null) {
 					this.insert_new_line_after_annotation_on_parameter = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnParameterOption);
@@ -2966,7 +2966,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_new_lines_at_javadoc_boundaries = true;
 		this.comment_line_length = 80;
 		this.comment_count_line_length_from_starting_position = true;
-		this.comment_preserve_white_space_between_code_and_line_comments= false; 
+		this.comment_preserve_white_space_between_code_and_line_comments= false;
 		this.continuation_indentation = 2;
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 0;
@@ -3348,7 +3348,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_new_lines_at_javadoc_boundaries = true;
 		this.comment_line_length = 80;
 		this.comment_count_line_length_from_starting_position = true;
-		this.comment_preserve_white_space_between_code_and_line_comments= false; 
+		this.comment_preserve_white_space_between_code_and_line_comments= false;
 		this.continuation_indentation = 2;
 		this.continuation_indentation_for_array_initializer = 2;
 		this.blank_lines_after_imports = 1;

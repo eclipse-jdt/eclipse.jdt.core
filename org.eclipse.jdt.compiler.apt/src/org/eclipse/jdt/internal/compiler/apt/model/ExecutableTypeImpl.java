@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  *
  */
 public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType {
-	
+
 	ExecutableTypeImpl(BaseProcessingEnvImpl env, MethodBinding binding) {
 		super(env, binding);
 	}

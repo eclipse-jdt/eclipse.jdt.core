@@ -33,8 +33,8 @@ import javax.tools.JavaFileObject;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the java 11 specific elements and validates the lambda and 
- * type annotated elements. To enable this processor, add 
+ * A processor that explores the java 11 specific elements and validates the lambda and
+ * type annotated elements. To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java11ElementProcessor to the command line.
  * @since 3.14
  */
@@ -58,7 +58,7 @@ public class Java11ElementProcessor extends BaseProcessor {
 		if (roundEnv.processingOver()) {
 			return false;
 		}
-		
+
 		this.roundEnv = roundEnv;
 		Map<String, String> options = processingEnv.getOptions();
 		if (!options.containsKey(this.getClass().getName())) {
@@ -142,7 +142,7 @@ public class Java11ElementProcessor extends BaseProcessor {
 		if (!name.contains("mod.a")) {
 			reportError("source should be created inside the module");
 		}
-		
+
 	}
 	@Override
 	public void reportError(String msg) {
@@ -214,14 +214,14 @@ public class Java11ElementProcessor extends BaseProcessor {
         	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
         }
     }
-    
+
     static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
         }
         return expected.equals(actual);
     }
-    
+
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
 			StringBuffer buf = new StringBuffer();
@@ -232,7 +232,7 @@ public class Java11ElementProcessor extends BaseProcessor {
 	}
 	public void assertEquals(Object expected, Object actual) {
 		if (expected != actual) {
-			
+
 		}
 	}
 	private class AssertionFailedError extends Error {

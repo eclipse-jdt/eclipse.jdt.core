@@ -95,7 +95,7 @@ public final class Options {
 		Options.ONE_ARGUMENT_OPTIONS.add("-processor");//$NON-NLS-1$
 		Options.ONE_ARGUMENT_OPTIONS.add("-classNames");//$NON-NLS-1$
 		Options.ONE_ARGUMENT_OPTIONS.add("-properties");//$NON-NLS-1$
-	
+
 	}
 	public static int processOptionsFileManager(String option) {
 		if (option == null) return -1;
@@ -136,7 +136,7 @@ public final class Options {
 			}
 			int warnTokenStart;
 			switch (option.charAt(6)) {
-				case '+' : 
+				case '+' :
 					warnTokenStart = 7;
 					break;
 				case '-' :
@@ -145,7 +145,7 @@ public final class Options {
 				default:
 					warnTokenStart = 6;
 			}
-		
+
 			StringTokenizer tokenizer =
 				new StringTokenizer(option.substring(warnTokenStart, option.length()), ","); //$NON-NLS-1$
 			int tokenCounter = 0;

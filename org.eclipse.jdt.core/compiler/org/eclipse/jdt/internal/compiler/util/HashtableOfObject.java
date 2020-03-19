@@ -136,7 +136,7 @@ public final class HashtableOfObject implements Cloneable {
 		}
 		this.keyTable[index] = key;
 		this.valueTable[index] = value;
-	
+
 		// assumes the threshold is never equal to the size of the table
 		if (++this.elementSize > this.threshold) {
 			rehash();

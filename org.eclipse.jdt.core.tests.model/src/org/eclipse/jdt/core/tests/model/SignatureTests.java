@@ -354,7 +354,7 @@ public void testGetParameterTypes() {
 	parameterTypes = Signature.getParameterTypes(methodSig);
 	assertEquals("Signature#getParameterTypes 6", 1, parameterTypes.length);
 	assertEquals("Signature#getParameterTypes 6", "La;", parameterTypes[0]);
-	
+
 	methodSig = "(La<TE;>;)V";
 	parameterTypes = Signature.getParameterTypes(methodSig);
 	assertEquals("Signature#getParameterTypes 6", 1,
@@ -1600,34 +1600,34 @@ public void testCreateIntersectionTypeSignature2() {
 }
 // Bug 380048 - error popup when navigating to source files
 public void testSourceMapperSigConversion01() {
-	SourceMapper mapper = new SourceMapper();		
+	SourceMapper mapper = new SourceMapper();
 	char[][] typeNames = new char[][] {
 		"java.lang.String".toCharArray(),
-		
-		("apache.Mapper" + 
-		"<?,?,ap.Text,ap.ClusterObservations>" + 
+
+		("apache.Mapper" +
+		"<?,?,ap.Text,ap.ClusterObservations>" +
 		".Context"
 		).toCharArray(),
 
-		("apache.Mapper" + 
-		"<?,?,ap.Text,ap.ClusterObservations>" + 
+		("apache.Mapper" +
+		"<?,?,ap.Text,ap.ClusterObservations>" +
 		".Context<java.lang.String>"
 		).toCharArray(),
-		
-		("app.Mapper" + 
+
+		("app.Mapper" +
 		"<?,?,ap.Text,ap2.ClusterObservations>"
 		).toCharArray(),
-		
+
 		"Context<String>".toCharArray(),
 
-		("Mapper" + 
-		"<?,?,Text,ClusterObservations>" + 
+		("Mapper" +
+		"<?,?,Text,ClusterObservations>" +
 		".Context"
 		+"<String>"
 		).toCharArray(),
-		
+
 		"Iterable<Mapper<?,?,Text,ClusterObservations>.Context>".toCharArray(),
-		
+
 		"java.util.Iterable<Mapper<?,?,Text,ClusterObservations>.Context>".toCharArray(),
 
 		"Mapper<?,?,Text,Mapper<?,?,Text,ClusterObservations>.Context>.Context".toCharArray()
@@ -1641,7 +1641,7 @@ public void testSourceMapperSigConversion01() {
 		"QContext<QString;>;",
 		"QIterable<QContext;>;",
 		"QIterable<QContext;>;",
-		"QContext;"	
+		"QContext;"
 	};
 	String[] ss = mapper.convertTypeNamesToSigs(typeNames);
 	assertEquals("Wrong number of signatures", expectedSigs.length, ss.length);

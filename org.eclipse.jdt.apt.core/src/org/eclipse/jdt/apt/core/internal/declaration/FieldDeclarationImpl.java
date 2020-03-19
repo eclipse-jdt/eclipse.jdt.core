@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
  *******************************************************************************/
@@ -30,7 +30,7 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
         super(binding, env);
         assert binding.isField() : "binding doesn't represent a field"; //$NON-NLS-1$
     }
-    
+
     @Override
 	public void accept(DeclarationVisitor visitor)
     {
@@ -43,7 +43,7 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
         final IVariableBinding field = getDeclarationBinding();
         final Object constant = field.getConstantValue();
         if( constant == null ) return null;
-        return constant.toString();   
+        return constant.toString();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
     {
         return (IVariableBinding)_binding;
     }
-    
+
     @Override
 	public String toString()
     {

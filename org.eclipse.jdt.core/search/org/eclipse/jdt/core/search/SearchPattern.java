@@ -218,7 +218,7 @@ public abstract class SearchPattern {
 	 * of other match rule flags are combined with this one, then match rule validation
 	 * will return a modified rule in order to perform a better appropriate search request
 	 * (see {@link #validateMatchRule(String, int)} for more details).
-	 * 
+	 *
 	 * <p>
 	 * This is implemented only for code assist and not available for normal search.
 	 *
@@ -239,7 +239,7 @@ public abstract class SearchPattern {
 	 * of other match rule flags are combined with this one, then match rule validation
 	 * will return a modified rule in order to perform a better appropriate search request
 	 * (see {@link #validateMatchRule(String, int)} for more details).
-	 * 
+	 *
 	 * <p>
 	 * This is implemented only for code assist and not available for normal search.
 	 *
@@ -259,7 +259,7 @@ public abstract class SearchPattern {
 
 	/**
 	 * The focus element (used for reference patterns)
-	 * @noreference This field is not intended to be referenced by clients. 
+	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public IJavaElement focus;
 
@@ -267,12 +267,12 @@ public abstract class SearchPattern {
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public int kind;
-	
+
 	/**
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public boolean mustResolve = true;
-	
+
 /**
  * Creates a search pattern with the rule to apply for matching index keys.
  * It can be exact match, prefix match, pattern match or regexp match.
@@ -354,14 +354,14 @@ public void acceptMatch(String relativePath, String containerPath, char separato
 		String documentPath = buffer.toString();
 		boolean encloses = (scope instanceof HierarchyScope) ? ((HierarchyScope)scope).encloses(documentPath, monitor)
 							: scope.encloses(documentPath);
-		if (encloses) 
+		if (encloses)
 			if (!requestor.acceptIndexMatch(documentPath, pattern, participant, null))
 				throw new OperationCanceledException();
 
 	}
 }
 /**
- * @noreference This method is not intended to be referenced by clients. 
+ * @noreference This method is not intended to be referenced by clients.
  * @nooverride This method is not intended to be re-implemented or extended by clients.
  */
 public SearchPattern currentPattern() {
@@ -832,7 +832,7 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  *     <code>'?*'</code>, <code>'???'</code>, etc.) when using a pattern
  *     match rule.
  *     </p>
- * 
+ *
  * @since 3.5
  */
 public static final int[] getMatchingRegions(String pattern, String name, int matchRule) {
@@ -1474,7 +1474,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *      Unnamed modules can also be included and are represented either by an absence of module name implicitly
  *      or explicitly by specifying ALL-UNNAMED for module name.
  * 		Module graph search is also supported with the limitTo option set to <code>IJavaSearchConstants.MODULE_GRAPH</code>.
- *      In the module graph case, the given type is searched in all the modules required directly as well 
+ *      In the module graph case, the given type is searched in all the modules required directly as well
  *      as indirectly by the given module(s).
  *      </p>
  *      <p>
@@ -1486,7 +1486,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 				<li><code>java.base/java.lang.Object</code></li>
  *				<li><code>mod.one, mod.two/pack.X</code> find declaration in the list of given modules.</li>
  *				<li><code>/pack.X</code> find in the unnamed module.</li>
- *				<li><code>ALL-UNNAMED/pack.X</code> find in the unnamed module.</li> 
+ *				<li><code>ALL-UNNAMED/pack.X</code> find in the unnamed module.</li>
  *			</ul>
  *			<p>
  * 	</li>
@@ -1562,12 +1562,12 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *				Note that types may be only classes or only interfaces if {@link IJavaSearchConstants#CLASS CLASS} or
  *				{@link IJavaSearchConstants#INTERFACE INTERFACE} is respectively used instead of {@link IJavaSearchConstants#TYPE TYPE}.
  *		</li>
- *		 <li>{@link IJavaSearchConstants#MODULE_GRAPH MODULE_GRAPH}: for types with a module prefix, 
+ *		 <li>{@link IJavaSearchConstants#MODULE_GRAPH MODULE_GRAPH}: for types with a module prefix,
  *             will find all types present in required modules (directly or indirectly required) ie
  *             in any module present in the module graph of the given module.
  *		</li>
  *		 <li>All other fine grain constants defined in the <b>limitTo</b> category
- *				of the {@link IJavaSearchConstants} are also accepted nature: 
+ *				of the {@link IJavaSearchConstants} are also accepted nature:
  * 			<table>
  *     			<tr>
  *         		<th>Fine grain constant
@@ -1661,7 +1661,7 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 	on non-generic types/methods search.</p>
  *
  * 	<p>Note that {@link #R_REGEXP_MATCH} is supported since 3.14  for the special case of
- * {@link IJavaSearchConstants#DECLARATIONS DECLARATIONS} search of 
+ * {@link IJavaSearchConstants#DECLARATIONS DECLARATIONS} search of
  * {@link IJavaSearchConstants#MODULE MODULE}</p>
  * 	<p>
  * 	Note also that the default behavior for generic types/methods search is to find exact matches.</p>
@@ -1753,7 +1753,7 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  *				references as specified above.
  *		</li>
  *		 <li>All other fine grain constants defined in the <b>limitTo</b> category
- *				of the {@link IJavaSearchConstants} are also accepted nature: 
+ *				of the {@link IJavaSearchConstants} are also accepted nature:
  * 			<table>
  *     			<tr>
  *         		<th>Fine grain constant
@@ -1865,7 +1865,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *				references as specified above.
  *		</li>
  *		 <li>All other fine grain constants defined in the <b>limitTo</b> category
- *				of the {@link IJavaSearchConstants} are also accepted nature: 
+ *				of the {@link IJavaSearchConstants} are also accepted nature:
  * 			<table>
  *     			<tr>
  *         		<th>Fine grain constant
@@ -2402,8 +2402,8 @@ public void decodeIndexKey(char[] key) {
 }
 /**
  * Query a given index for matching entries. Assumes the sender has opened the index and will close when finished.
- * 
- * @noreference This method is not intended to be referenced by clients. 
+ *
+ * @noreference This method is not intended to be referenced by clients.
  * @nooverride This method is not intended to be re-implemented or extended by clients.
  */
 public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchParticipant participant, IJavaSearchScope scope, IProgressMonitor monitor) throws IOException {
@@ -2486,7 +2486,7 @@ public final int getMatchRule() {
 	return this.matchRule;
 }
 /**
- * @noreference This method is not intended to be referenced by clients. 
+ * @noreference This method is not intended to be referenced by clients.
  * @nooverride This method is not intended to be re-implemented or extended by clients.
  */
 public boolean isPolymorphicSearch() {
@@ -2674,7 +2674,7 @@ public static int validateMatchRule(String stringPattern, int matchRule) {
 
 // enabling special cases (read regular expressions) based on searchFor and limitTo
 private static int validateMatchRule(String stringPattern, int searchFor, int limitTo, int matchRule) {
-	if (searchFor == IJavaSearchConstants.MODULE && 
+	if (searchFor == IJavaSearchConstants.MODULE &&
 			limitTo == IJavaSearchConstants.DECLARATIONS &&
 			matchRule == SearchPattern.R_REGEXP_MATCH)
 		return matchRule;
@@ -2707,7 +2707,7 @@ private static boolean validateCamelCasePattern(String stringPattern) {
 }
 
 /**
- * @noreference This method is not intended to be referenced by clients. 
+ * @noreference This method is not intended to be referenced by clients.
  * @nooverride This method is not intended to be re-implemented or extended by clients.
  */
 public EntryResult[] queryIn(Index index) throws IOException {

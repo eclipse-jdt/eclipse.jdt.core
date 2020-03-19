@@ -26,7 +26,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *								Bug 408815 - [batch][null] Add CLI option for COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
@@ -507,22 +507,22 @@ public void test009(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-        "	Warn warn;\n" + 
-        "	^^^^\n" + 
-        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-        "	KO ko;\n" + 
-        "	^^\n" + 
-        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-        "	Zork z;\n" + 
-        "	^^^^\n" + 
-        "Zork cannot be resolved to a type\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+        "	Warn warn;\n" +
+        "	^^^^\n" +
+        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+        "	KO ko;\n" +
+        "	^^\n" +
+        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+        "	Zork z;\n" +
+        "	^^^^\n" +
+        "Zork cannot be resolved to a type\n" +
+        "----------\n" +
         "3 problems (1 error, 2 warnings)\n",
         true);
 }
@@ -623,11 +623,11 @@ public void test012(){
         "                       created); this option can be overridden per source\n" +
         "                       directory\n" +
         "    -d none            generate no .class files\n" +
-        "    -encoding <enc>    specify default encoding for all source files. Each\n" + 
-        "                       file/directory can override it when suffixed with\n" + 
-        "                       ''[''<enc>'']'' (e.g. X.java[utf8]).\n" + 
-        "                       If multiple default encodings are specified, the last\n" + 
-        "                       one will be used.\n" + 
+        "    -encoding <enc>    specify default encoding for all source files. Each\n" +
+        "                       file/directory can override it when suffixed with\n" +
+        "                       ''[''<enc>'']'' (e.g. X.java[utf8]).\n" +
+        "                       If multiple default encodings are specified, the last\n" +
+        "                       one will be used.\n" +
         " \n" +
         " Module compilation options:\n" +
         "   These options are meaningful only in Java 9 environment or later.\n" +
@@ -636,7 +636,7 @@ public void test012(){
         "    -p --module-path <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify where to find application modules\n" +
         "    --processor-module-path <directories separated by " + File.pathSeparator + ">\n" +
-        "                       specify module path where annotation processors\n" + 
+        "                       specify module path where annotation processors\n" +
         "                       can be found\n" +
         "    --system <jdk>      Override location of system modules\n" +
         "    --add-exports <module>/<package>=<other-module>(,<other-module>)*\n" +
@@ -675,28 +675,28 @@ public void test012(){
         "                       be ignored\n" +
         "    -?:warn -help:warn display advanced warning options\n" +
         " \n" +
-        " Error options:\n" + 
-        "    -err:<warnings separated by ,>    convert exactly the listed warnings\n" + 
-        "                                      to be reported as errors\n" + 
-        "    -err:+<warnings separated by ,>   enable additional warnings to be\n" + 
-        "                                      reported as errors\n" + 
-        "    -err:-<warnings separated by ,>   disable specific warnings to be\n" + 
-        "                                      reported as errors\n" + 
-        " \n" + 
-        " Info options:\n" + 
-        "    -info:<warnings separated by ,>    convert exactly the listed warnings\n" + 
-        "                                      to be reported as infos\n" + 
-        "    -info:+<warnings separated by ,>   enable additional warnings to be\n" + 
-        "                                      reported as infos\n" + 
-        "    -info:-<warnings separated by ,>   disable specific warnings to be\n" + 
-        "                                      reported as infos\n" + 
-        " \n" + 
-        " Setting warning, error or info options using properties file:\n" + 
-        "    -properties <file>   set warnings/errors/info option based on the properties\n" + 
-        "                          file contents. This option can be used with -nowarn,\n" + 
-        "                          -err:.., -info: or -warn:.. options, but the last one\n" + 
-        "                          on the command line sets the options to be used.\n" + 
-        " \n" + 
+        " Error options:\n" +
+        "    -err:<warnings separated by ,>    convert exactly the listed warnings\n" +
+        "                                      to be reported as errors\n" +
+        "    -err:+<warnings separated by ,>   enable additional warnings to be\n" +
+        "                                      reported as errors\n" +
+        "    -err:-<warnings separated by ,>   disable specific warnings to be\n" +
+        "                                      reported as errors\n" +
+        " \n" +
+        " Info options:\n" +
+        "    -info:<warnings separated by ,>    convert exactly the listed warnings\n" +
+        "                                      to be reported as infos\n" +
+        "    -info:+<warnings separated by ,>   enable additional warnings to be\n" +
+        "                                      reported as infos\n" +
+        "    -info:-<warnings separated by ,>   disable specific warnings to be\n" +
+        "                                      reported as infos\n" +
+        " \n" +
+        " Setting warning, error or info options using properties file:\n" +
+        "    -properties <file>   set warnings/errors/info option based on the properties\n" +
+        "                          file contents. This option can be used with -nowarn,\n" +
+        "                          -err:.., -info: or -warn:.. options, but the last one\n" +
+        "                          on the command line sets the options to be used.\n" +
+        " \n" +
         " Debug options:\n" +
         "    -g[:lines,vars,source] custom debug info\n" +
         "    -g:lines,source  + both lines table and source debug info\n" +
@@ -730,10 +730,10 @@ public void test012(){
         "                       default)\n" +
         "    -log <file>        log to a file. If the file extension is ''.xml'', then\n" +
         "                       the log will be a xml file.\n" +
-        "    -proceedOnError[:Fatal]\n" + 
-        "                       do not stop at first error, dumping class files with\n" + 
-        "                       problem methods\n" + 
-        "                       With \":Fatal\", all optional errors are treated as fatal\n" + 
+        "    -proceedOnError[:Fatal]\n" +
+        "                       do not stop at first error, dumping class files with\n" +
+        "                       problem methods\n" +
+        "                       With \":Fatal\", all optional errors are treated as fatal\n" +
         "    -failOnWarning     fail compilation if there are warnings\n" +
         "    -verbose           enable verbose output\n" +
         "    -referenceInfo     compute reference info\n" +
@@ -749,12 +749,12 @@ public void test012(){
         "    -Xemacs            used to enable emacs-style output in the console.\n" +
         "                       It does not affect the xml log output\n" +
         "    -missingNullDefault  report missing default nullness annotation\n" +
-        "    -annotationpath <directories and ZIP archives separated by " + File.pathSeparator + ">\n" + 
-        "                       specify locations where to find external annotations\n" + 
-        "                       to support annotation-based null analysis.\n" + 
-        "                       The special name CLASSPATH will cause lookup of\n" + 
-        "                       external annotations from the classpath and sourcepath.\n" + 
-        " \n" + 
+        "    -annotationpath <directories and ZIP archives separated by " + File.pathSeparator + ">\n" +
+        "                       specify locations where to find external annotations\n" +
+        "                       to support annotation-based null analysis.\n" +
+        "                       The special name CLASSPATH will cause lookup of\n" +
+        "                       external annotations from the classpath and sourcepath.\n" +
+        " \n" +
         "    -? -help           print this help message\n" +
         "    -v -version        print compiler version\n" +
         "    -showversion       print compiler version and continue\n" +
@@ -797,147 +797,147 @@ public void test012b(){
         "{0} {1}\n" +
         "{2}\n" +
         " \n" +
-        " Warning options:\n" + 
-        "    -deprecation         + deprecation outside deprecated code\n" + 
-        "    -nowarn -warn:none disable all warnings and infos\n" + 
+        " Warning options:\n" +
+        "    -deprecation         + deprecation outside deprecated code\n" +
+        "    -nowarn -warn:none disable all warnings and infos\n" +
         "    -nowarn:[<directories separated by " + File.pathSeparator+ ">]\n" +
         "                       specify directories from which optional problems should\n" +
         "                       be ignored\n" +
-        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" + 
-        "    -warn:+<warnings separated by ,>   enable additional warnings\n" + 
-        "    -warn:-<warnings separated by ,>   disable specific warnings\n" + 
-        "      all                  enable all warnings\n" + 
-        "      allDeadCode          dead code including trivial if(DEBUG) check\n" + 
-        "      allDeprecation       deprecation including inside deprecated code\n" + 
-        "      allJavadoc           invalid or missing javadoc\n" + 
-        "      allOver-ann          all missing @Override annotations\n" + 
-        "      all-static-method    all method can be declared as static warnings\n" + 
-        "      assertIdentifier   + ''assert'' used as identifier\n" + 
-        "      boxing               autoboxing conversion\n" + 
-        "      charConcat         + char[] in String concat\n" + 
-        "      compareIdentical   + comparing identical expressions\n" + 
-        "      conditionAssign      possible accidental boolean assignment\n" + 
-        "      constructorName    + method with constructor name\n" + 
-        "      deadCode           + dead code excluding trivial if (DEBUG) check\n" + 
-        "      dep-ann              missing @Deprecated annotation\n" + 
-        "      deprecation        + deprecation outside deprecated code\n" + 
-        "      discouraged        + use of types matching a discouraged access rule\n" + 
-        "      emptyBlock           undocumented empty block\n" + 
-        "      enumIdentifier       ''enum'' used as identifier\n" + 
-        "      enumSwitch           incomplete enum switch\n" + 
-        "      enumSwitchPedantic + report missing enum switch cases even\n" + 
-        "                           in the presence of a default case\n" + 
-        "      fallthrough          possible fall-through case\n" + 
-        "      fieldHiding          field hiding another variable\n" + 
-        "      finalBound           type parameter with final bound\n" + 
-        "      finally            + finally block not completing normally\n" + 
-        "      forbidden          + use of types matching a forbidden access rule\n" + 
-        "      hashCode              missing hashCode() method when overriding equals()\n" + 
-        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" + 
-        "                           maskedCatchBlock\n" + 
-        "      includeAssertNull    raise null warnings for variables\n" + 
-        "                           that got tainted in an assert expression\n" + 
+        "    -warn:<warnings separated by ,>    enable exactly the listed warnings\n" +
+        "    -warn:+<warnings separated by ,>   enable additional warnings\n" +
+        "    -warn:-<warnings separated by ,>   disable specific warnings\n" +
+        "      all                  enable all warnings\n" +
+        "      allDeadCode          dead code including trivial if(DEBUG) check\n" +
+        "      allDeprecation       deprecation including inside deprecated code\n" +
+        "      allJavadoc           invalid or missing javadoc\n" +
+        "      allOver-ann          all missing @Override annotations\n" +
+        "      all-static-method    all method can be declared as static warnings\n" +
+        "      assertIdentifier   + ''assert'' used as identifier\n" +
+        "      boxing               autoboxing conversion\n" +
+        "      charConcat         + char[] in String concat\n" +
+        "      compareIdentical   + comparing identical expressions\n" +
+        "      conditionAssign      possible accidental boolean assignment\n" +
+        "      constructorName    + method with constructor name\n" +
+        "      deadCode           + dead code excluding trivial if (DEBUG) check\n" +
+        "      dep-ann              missing @Deprecated annotation\n" +
+        "      deprecation        + deprecation outside deprecated code\n" +
+        "      discouraged        + use of types matching a discouraged access rule\n" +
+        "      emptyBlock           undocumented empty block\n" +
+        "      enumIdentifier       ''enum'' used as identifier\n" +
+        "      enumSwitch           incomplete enum switch\n" +
+        "      enumSwitchPedantic + report missing enum switch cases even\n" +
+        "                           in the presence of a default case\n" +
+        "      fallthrough          possible fall-through case\n" +
+        "      fieldHiding          field hiding another variable\n" +
+        "      finalBound           type parameter with final bound\n" +
+        "      finally            + finally block not completing normally\n" +
+        "      forbidden          + use of types matching a forbidden access rule\n" +
+        "      hashCode              missing hashCode() method when overriding equals()\n" +
+        "      hiding               macro for fieldHiding, localHiding, typeHiding and\n" +
+        "                           maskedCatchBlock\n" +
+        "      includeAssertNull    raise null warnings for variables\n" +
+        "                           that got tainted in an assert expression\n" +
         "      indirectStatic       indirect reference to static member\n" +
-        "      inheritNullAnnot     inherit null annotations\n" + 
-        "      intfAnnotation     + annotation type used as super interface\n" + 
-        "      intfNonInherited   + interface non-inherited method compatibility\n" + 
-        "      intfRedundant        find redundant superinterfaces\n" + 
-        "      invalidJavadoc       all warnings for malformed javadoc tags\n" + 
-        "      invalidJavadocTag    validate javadoc tag arguments\n" + 
-        "      invalidJavadocTagDep validate deprecated references in javadoc tag args\n" + 
-        "      invalidJavadocTagNotVisible  validate non-visible references in javadoc\n" + 
-        "							tag args\n" + 
-        "      invalidJavadocVisibility(<visibility>)  specify visibility modifier\n" + 
-        "							for malformed javadoc tag warnings\n" + 
-        "      javadoc              invalid javadoc\n" + 
-        "      localHiding          local variable hiding another variable\n" + 
-        "      maskedCatchBlock   + hidden catch block\n" + 
-        "      missingJavadocTags   missing Javadoc tags\n" + 
-        "      missingJavadocTagsOverriding missing Javadoc tags in overriding methods\n" + 
-        "      missingJavadocTagsMethod missing Javadoc tags for method type parameter\n" + 
-        "      missingJavadocTagsVisibility(<visibility>)  specify visibility modifier\n" + 
-        "							for missing javadoc tags warnings\n" + 
-        "      missingJavadocComments   missing Javadoc comments\n" + 
-        "      missingJavadocCommentsOverriding   missing Javadoc tags in overriding\n" + 
-        "							methods\n" + 
-        "      missingJavadocCommentsVisibility(<visibility>)  specify visibility\n" + 
-        "							modifier for missing javadoc comments warnings\n" + 
-        "      module             + module related problems.\n" + 
-        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" + 
-        "      noEffectAssign     + assignment without effect\n" + 
-        "      null                 potential missing or redundant null check\n" + 
-        "      nullAnnot(<annot. names separated by |>)   annotation based null analysis,\n" + 
-        "                           nullable|nonnull|nonnullbydefault annotation types\n" + 
-        "                           optionally specified using fully qualified names.\n" + 
-        "							Enabling this option enables all null-annotation\n" + 
-        "							related sub-options. These can be individually\n" + 
-        "							controlled using options listed below.\n" + 
-        "      nullAnnotConflict    conflict between null annotation specified\n" + 
-        "							and nullness inferred. Is effective only with\n" + 
-        "							nullAnnot option enabled.\n" + 
-        "      nullAnnotRedundant   redundant specification of null annotation. Is\n" + 
-        "							effective only with nullAnnot option enabled.\n" + 
-        "      nullDereference    + missing null check\n" + 
-        "	   nullUncheckedConversion unchecked conversion from non-annotated type\n" + 
-        "							to @NonNull type. Is effective only with\n" + 
-        "							nullAnnot option enabled.\n" + 
-        "      over-ann             missing @Override annotation (superclass)\n" + 
-        "      paramAssign          assignment to a parameter\n" + 
-        "      pkgDefaultMethod   + attempt to override package-default method\n" + 
-        "      raw                + usage of raw type\n" + 
-        "      removal            + deprecation marked for removal\n" + 
-        "      resource           + (pot.) unsafe usage of resource of type Closeable\n" + 
-        "      semicolon            unnecessary semicolon, empty statement\n" + 
-        "      serial             + missing serialVersionUID\n" + 
-        "      specialParamHiding   constructor or setter parameter hiding a field\n" + 
-        "      static-method        method can be declared as static\n" + 
-        "      static-access        macro for indirectStatic and staticReceiver\n" + 
-        "      staticReceiver     + non-static reference to static member\n" + 
-        "      super                overriding a method without making a super invocation\n" + 
-        "      suppress           + enable @SuppressWarnings\n" + 
-        "                           When used with -err:, it can also silence optional\n" + 
-        "                           errors and warnings\n" + 
+        "      inheritNullAnnot     inherit null annotations\n" +
+        "      intfAnnotation     + annotation type used as super interface\n" +
+        "      intfNonInherited   + interface non-inherited method compatibility\n" +
+        "      intfRedundant        find redundant superinterfaces\n" +
+        "      invalidJavadoc       all warnings for malformed javadoc tags\n" +
+        "      invalidJavadocTag    validate javadoc tag arguments\n" +
+        "      invalidJavadocTagDep validate deprecated references in javadoc tag args\n" +
+        "      invalidJavadocTagNotVisible  validate non-visible references in javadoc\n" +
+        "							tag args\n" +
+        "      invalidJavadocVisibility(<visibility>)  specify visibility modifier\n" +
+        "							for malformed javadoc tag warnings\n" +
+        "      javadoc              invalid javadoc\n" +
+        "      localHiding          local variable hiding another variable\n" +
+        "      maskedCatchBlock   + hidden catch block\n" +
+        "      missingJavadocTags   missing Javadoc tags\n" +
+        "      missingJavadocTagsOverriding missing Javadoc tags in overriding methods\n" +
+        "      missingJavadocTagsMethod missing Javadoc tags for method type parameter\n" +
+        "      missingJavadocTagsVisibility(<visibility>)  specify visibility modifier\n" +
+        "							for missing javadoc tags warnings\n" +
+        "      missingJavadocComments   missing Javadoc comments\n" +
+        "      missingJavadocCommentsOverriding   missing Javadoc tags in overriding\n" +
+        "							methods\n" +
+        "      missingJavadocCommentsVisibility(<visibility>)  specify visibility\n" +
+        "							modifier for missing javadoc comments warnings\n" +
+        "      module             + module related problems.\n" +
+        "      nls                  string literal lacking non-nls tag //$NON-NLS-<n>$\n" +
+        "      noEffectAssign     + assignment without effect\n" +
+        "      null                 potential missing or redundant null check\n" +
+        "      nullAnnot(<annot. names separated by |>)   annotation based null analysis,\n" +
+        "                           nullable|nonnull|nonnullbydefault annotation types\n" +
+        "                           optionally specified using fully qualified names.\n" +
+        "							Enabling this option enables all null-annotation\n" +
+        "							related sub-options. These can be individually\n" +
+        "							controlled using options listed below.\n" +
+        "      nullAnnotConflict    conflict between null annotation specified\n" +
+        "							and nullness inferred. Is effective only with\n" +
+        "							nullAnnot option enabled.\n" +
+        "      nullAnnotRedundant   redundant specification of null annotation. Is\n" +
+        "							effective only with nullAnnot option enabled.\n" +
+        "      nullDereference    + missing null check\n" +
+        "	   nullUncheckedConversion unchecked conversion from non-annotated type\n" +
+        "							to @NonNull type. Is effective only with\n" +
+        "							nullAnnot option enabled.\n" +
+        "      over-ann             missing @Override annotation (superclass)\n" +
+        "      paramAssign          assignment to a parameter\n" +
+        "      pkgDefaultMethod   + attempt to override package-default method\n" +
+        "      raw                + usage of raw type\n" +
+        "      removal            + deprecation marked for removal\n" +
+        "      resource           + (pot.) unsafe usage of resource of type Closeable\n" +
+        "      semicolon            unnecessary semicolon, empty statement\n" +
+        "      serial             + missing serialVersionUID\n" +
+        "      specialParamHiding   constructor or setter parameter hiding a field\n" +
+        "      static-method        method can be declared as static\n" +
+        "      static-access        macro for indirectStatic and staticReceiver\n" +
+        "      staticReceiver     + non-static reference to static member\n" +
+        "      super                overriding a method without making a super invocation\n" +
+        "      suppress           + enable @SuppressWarnings\n" +
+        "                           When used with -err:, it can also silence optional\n" +
+        "                           errors and warnings\n" +
         "      switchDefault        switch statement lacking a default case\n" +
-        "      syncOverride         missing synchronized in synchr. method override\n" + 
-        "      syntacticAnalysis    perform syntax-based null analysis for fields\n" + 
-        "      syntheticAccess      synthetic access for innerclass\n" + 
-        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
-        "      typeHiding         + type parameter hiding another type\n" + 
-        "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" + 
-        "                                   due to raw APIs\n" + 
-        "      unchecked          + unchecked type operation\n" + 
+        "      syncOverride         missing synchronized in synchr. method override\n" +
+        "      syntacticAnalysis    perform syntax-based null analysis for fields\n" +
+        "      syntheticAccess      synthetic access for innerclass\n" +
+        "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" +
+        "      typeHiding         + type parameter hiding another type\n" +
+        "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" +
+        "                                   due to raw APIs\n" +
+        "      unchecked          + unchecked type operation\n" +
         "      unlikelyCollectionMethodArgumentType\n" +
-        "                         + unlikely argument type for collection method\n" + 
-        "                           declaring an Object parameter\n" + 
-        "      unlikelyEqualsArgumentType unlikely argument type for method equals()\n" + 
-        "      unnecessaryElse      unnecessary else clause\n" + 
-        "      unqualifiedField     unqualified reference to field\n" + 
-        "      unused               macro for unusedAllocation, unusedArgument,\n" + 
-        "                               unusedImport, unusedLabel, unusedLocal,\n" + 
-        "                               unusedPrivate, unusedThrown, and unusedTypeArgs,\n" + 
+        "                         + unlikely argument type for collection method\n" +
+        "                           declaring an Object parameter\n" +
+        "      unlikelyEqualsArgumentType unlikely argument type for method equals()\n" +
+        "      unnecessaryElse      unnecessary else clause\n" +
+        "      unqualifiedField     unqualified reference to field\n" +
+        "      unused               macro for unusedAllocation, unusedArgument,\n" +
+        "                               unusedImport, unusedLabel, unusedLocal,\n" +
+        "                               unusedPrivate, unusedThrown, and unusedTypeArgs,\n" +
         "								unusedExceptionParam\n"+
-        "      unusedAllocation     allocating an object that is not used\n" + 
+        "      unusedAllocation     allocating an object that is not used\n" +
         "      unusedArgument       unread method parameter\n" +
-        "      unusedExceptionParam unread exception parameter\n" + 
-        "      unusedImport       + unused import declaration\n" + 
-        "      unusedLabel        + unused label\n" + 
-        "      unusedLocal        + unread local variable\n" + 
-        "      unusedParam		    unused parameter\n" + 
-        "      unusedParamOverriding unused parameter for overriding method\n" + 
-        "      unusedParamImplementing unused parameter for implementing method\n" + 
-        "      unusedParamIncludeDoc unused parameter documented in comment tag\n" + 
-        "      unusedPrivate      + unused private member declaration\n" + 
-        "      unusedThrown         unused declared thrown exception\n" + 
-        "      unusedThrownWhenOverriding unused declared thrown exception in \n" + 
-        "							overriding method\n" + 
-        "      unusedThrownIncludeDocComment     unused declared thrown exception,\n" + 
-        "							documented in a comment tag\n" + 
-        "      unusedThrownExemptExceptionThrowable  unused declared thrown exception,\n" + 
-        "							exempt Exception and Throwable\n" + 
-        "      unusedTypeArgs     + unused type arguments for method and constructor\n" + 
-        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" + 
-        "      varargsCast        + varargs argument need explicit cast\n" + 
-        "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" + 
+        "      unusedExceptionParam unread exception parameter\n" +
+        "      unusedImport       + unused import declaration\n" +
+        "      unusedLabel        + unused label\n" +
+        "      unusedLocal        + unread local variable\n" +
+        "      unusedParam		    unused parameter\n" +
+        "      unusedParamOverriding unused parameter for overriding method\n" +
+        "      unusedParamImplementing unused parameter for implementing method\n" +
+        "      unusedParamIncludeDoc unused parameter documented in comment tag\n" +
+        "      unusedPrivate      + unused private member declaration\n" +
+        "      unusedThrown         unused declared thrown exception\n" +
+        "      unusedThrownWhenOverriding unused declared thrown exception in \n" +
+        "							overriding method\n" +
+        "      unusedThrownIncludeDocComment     unused declared thrown exception,\n" +
+        "							documented in a comment tag\n" +
+        "      unusedThrownExemptExceptionThrowable  unused declared thrown exception,\n" +
+        "							exempt Exception and Throwable\n" +
+        "      unusedTypeArgs     + unused type arguments for method and constructor\n" +
+        "      uselessTypeCheck     unnecessary cast/instanceof operation\n" +
+        "      varargsCast        + varargs argument need explicit cast\n" +
+        "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" +
         "\n";
 	String expandedExpectedOutput =
 		MessageFormat.format(expectedOutput, new Object[] {
@@ -984,183 +984,183 @@ public void test012b(){
 				true);
 		String logContents = Util.fileContent(logFileName);
 		String expectedLogContents =
-			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
-			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.006 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_006.dtd\">\n" + 
-			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" + 
-			"	<command_line>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" + 
-			"		<argument value=\"-1.5\"/>\n" + 
-			"		<argument value=\"-proceedOnError\"/>\n" + 
-			"		<argument value=\"-log\"/>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}log.xml\"/>\n" + 
-			"		<argument value=\"-d\"/>\n" + 
-			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" + 
-			"	</command_line>\n" + 
-			"	<options>\n" + 
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+			"<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.006 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_006.dtd\">\n" +
+			"<compiler copyright=\"{2}\" name=\"{1}\" version=\"{3}\">\n" +
+			"	<command_line>\n" +
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.java\"/>\n" +
+			"		<argument value=\"-1.5\"/>\n" +
+			"		<argument value=\"-proceedOnError\"/>\n" +
+			"		<argument value=\"-log\"/>\n" +
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---{0}log.xml\"/>\n" +
+			"		<argument value=\"-d\"/>\n" +
+			"		<argument value=\"---OUTPUT_DIR_PLACEHOLDER---\"/>\n" +
+			"	</command_line>\n" +
+			"	<options>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.inheritNullAnnotations\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnull\" value=\"org.eclipse.jdt.annotation.NonNull\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnull\" value=\"org.eclipse.jdt.annotation.NonNull\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnull.secondary\" value=\"\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault\" value=\"org.eclipse.jdt.annotation.NonNullByDefault\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault\" value=\"org.eclipse.jdt.annotation.NonNullByDefault\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault.secondary\" value=\"\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable\" value=\"org.eclipse.jdt.annotation.Nullable\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable\" value=\"org.eclipse.jdt.annotation.Nullable\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable.secondary\" value=\"\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullanalysis\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullanalysis\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.lambda.genericSignature\" value=\"do not generate\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.methodParameters\" value=\"do not generate\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.methodParameters\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.shareCommonFinallyBlocks\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.debug.sourceFile\" value=\"generate\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.doc.comment.support\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.emulateJavacBug8031744\" value=\"enabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.generateClassFiles\" value=\"enabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.generateClassFiles\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.maxProblemPerUnit\" value=\"100\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.APILeak\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotatedTypeArgumentToUnannotated\" value=\"info\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.comparingIdentical\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCode\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotatedTypeArgumentToUnannotated\" value=\"info\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.assertIdentifier\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.autoboxing\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.comparingIdentical\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCode\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deadCodeInTrivialIfStatement\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fallthroughCase\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadoc\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTags\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"public\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fallthroughCase\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fatalOptionalError\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.fieldHiding\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finalParameterBound\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.forbiddenReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.includeNullInfoFromAsserts\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadoc\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTags\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsDeprecatedRef\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsNotVisibleRef\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.invalidJavadocTagsVisibility\" value=\"public\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.localVariableHiding\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDefaultCase\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingEnumCaseDespiteDefault\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription\" value=\"return_tag\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTags\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsMethodTypeParameters\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocComments\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsOverriding\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocCommentsVisibility\" value=\"public\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagDescription\" value=\"return_tag\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTags\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsMethodTypeParameters\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsOverriding\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingJavadocTagsVisibility\" value=\"public\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotationForInterfaceMethodImplementation\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSerialVersion\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noEffectAssignment\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nonnullTypeVariableFromLegacyInvocation\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict\" value=\"error\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullSpecViolation\" value=\"error\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict\" value=\"error\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullSpecViolation\" value=\"error\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.parameterAssignment\" value=\"ignore\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.pessimisticNullAnalysisForFreeTypeVariables\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarningsNotFullyAnalysed\" value=\"info\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentialNullReference\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.rawTypeReference\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantNullCheck\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.specialParameterHidingField\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressOptionalErrors\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarnings\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.suppressWarningsNotFullyAnalysed\" value=\"info\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntacticNullAnalysisForFields\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.terminalDeprecation\" value=\"warning\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unclosedCloseable\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unclosedCloseable\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uninternedIdentityComparison\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType\" value=\"info\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unstableAutoModuleName\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType\" value=\"info\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unstableAutoModuleName\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionExemptExceptionAndThrowable\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionIncludeDocCommentReference\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownExceptionWhenOverriding\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedExceptionParameter\" value=\"ignore\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLabel\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedImport\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLabel\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedLocal\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameter\" value=\"ignore\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedTypeParameter\" value=\"ignore\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedWarningToken\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.release\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unusedWarningToken\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast\" value=\"warning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.processAnnotations\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.release\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.source\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.storeAnnotations\" value=\"disabled\"/>\n" +
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" + 
-			"	</options>\n" + 
-			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
-			"	<sources>\n" + 
-			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" + 
-			"			<problems errors=\"1\" infos=\"0\" problems=\"1\" warnings=\"0\">\n" + 
-			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" problemID=\"16777218\" severity=\"ERROR\">\n" + 
-			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
-			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" + 
-			"					<arguments>\n" + 
-			"						<argument value=\"Zork\"/>\n" + 
-			"					</arguments>\n" + 
-			"				</problem>\n" + 
-			"			</problems>\n" + 
-			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.class\"/>\n" + 
-			"		</source>\n" + 
-			"	</sources>\n" + 
-			"	<stats>\n" + 
-			"		<problem_summary errors=\"1\" infos=\"0\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" + 
-			"	</stats>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskCaseSensitive\" value=\"enabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskPriorities\" value=\"\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.taskTags\" value=\"\"/>\n" +
+			"	</options>\n" +
+			"	<classpaths>NORMALIZED SECTION</classpaths>\n" +
+			"	<sources>\n" +
+			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" +
+			"			<problems errors=\"1\" infos=\"0\" problems=\"1\" warnings=\"0\">\n" +
+			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" problemID=\"16777218\" severity=\"ERROR\">\n" +
+			"					<message value=\"Zork cannot be resolved to a type\"/>\n" +
+			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" +
+			"					<arguments>\n" +
+			"						<argument value=\"Zork\"/>\n" +
+			"					</arguments>\n" +
+			"				</problem>\n" +
+			"			</problems>\n" +
+			"			<classfile path=\"---OUTPUT_DIR_PLACEHOLDER---{0}X.class\"/>\n" +
+			"		</source>\n" +
+			"	</sources>\n" +
+			"	<stats>\n" +
+			"		<problem_summary errors=\"1\" infos=\"0\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" +
+			"	</stats>\n" +
 			"</compiler>\n";
 		String normalizedExpectedLogContents =
 				MessageFormat.format(
@@ -1547,21 +1547,21 @@ public void test019(){
 	        + " -d \"" + OUTPUT_DIR + "\"",
 	        "",
 			"----------\n" +
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-			"	Warn warn;\n" + 
-			"	^^^^\n" + 
-			"Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-			"----------\n" + 
-			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-			"	KO ko;\n" + 
-			"	^^\n" + 
-			"Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-			"----------\n" + 
-			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-			"	Zork z;\n" + 
-			"	^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+			"	Warn warn;\n" +
+			"	^^^^\n" +
+			"Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+			"----------\n" +
+			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+			"	KO ko;\n" +
+			"	^^\n" +
+			"Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+			"----------\n" +
+			"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
 			"3 problems (1 error, 2 warnings)\n",
 	        true);
 	}
@@ -1848,22 +1848,22 @@ public void test027(){
         //               generated, once able to avoid console echoing
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-        "	Warn warn;\n" + 
-        "	^^^^\n" + 
-        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/p1\')\n" + 
-        "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-        "	KO ko;\n" + 
-        "	^^\n" + 
-        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
-        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-        "	Zork z;\n" + 
-        "	^^^^\n" + 
-        "Zork cannot be resolved to a type\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+        "	Warn warn;\n" +
+        "	^^^^\n" +
+        "Discouraged access: The type \'Warn\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/p1\')\n" +
+        "----------\n" +
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+        "	KO ko;\n" +
+        "	^^\n" +
+        "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
+        "3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+        "	Zork z;\n" +
+        "	^^^^\n" +
+        "Zork cannot be resolved to a type\n" +
+        "----------\n" +
         "3 problems (1 error, 2 warnings)\n",
         true);
 }
@@ -2435,12 +2435,12 @@ public void test036(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" + 
-        "	public class Y extends p.X {\n" + 
-        "	                       ^^^\n" + 
-        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 2)\n" +
+        "	public class Y extends p.X {\n" +
+        "	                       ^^^\n" +
+        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
+        "----------\n" +
         "1 problem (1 warning)\n",
         false);
 }
@@ -2513,32 +2513,32 @@ public void test039(){
         + " -proceedOnError -referenceInfo"
         + " -d \"" + OUTPUT_DIR + File.separator + "bin2/\"",
         "",
-        "----------\n" + 
-       "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
-       "	X x1;\n" + 
-       "	^\n" + 
-       "Discouraged access: The type \'X<T>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
-       "----------\n" + 
-       "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" + 
-       "	X x1;\n" + 
-       "	^\n" + 
-       "X is a raw type. References to generic type X<T> should be parameterized\n" + 
-       "----------\n" + 
-       "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-       "	X<String> x2 = new X<String>();\n" + 
-       "	^\n" + 
-       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
-       "----------\n" + 
-       "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-       "	X<String> x2 = new X<String>();\n" + 
-       "	                   ^\n" + 
-       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
-       "----------\n" + 
-       "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" + 
-       "	X<String> x2 = new X<String>();\n" + 
-       "	                   ^\n" + 
-       "Discouraged access: The constructor \'X<String>()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" + 
-       "----------\n" + 
+        "----------\n" +
+       "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
+       "	X x1;\n" +
+       "	^\n" +
+       "Discouraged access: The type \'X<T>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
+       "----------\n" +
+       "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 3)\n" +
+       "	X x1;\n" +
+       "	^\n" +
+       "X is a raw type. References to generic type X<T> should be parameterized\n" +
+       "----------\n" +
+       "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
+       "	X<String> x2 = new X<String>();\n" +
+       "	^\n" +
+       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
+       "----------\n" +
+       "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
+       "	X<String> x2 = new X<String>();\n" +
+       "	                   ^\n" +
+       "Discouraged access: The type \'X<String>\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
+       "----------\n" +
+       "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src2/Y.java (at line 4)\n" +
+       "	X<String> x2 = new X<String>();\n" +
+       "	                   ^\n" +
+       "Discouraged access: The constructor \'X<String>()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/bin1\')\n" +
+       "----------\n" +
        "5 problems (5 warnings)\n",
         false);
 }
@@ -2581,12 +2581,12 @@ public void test040(){
         + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
-        "	p.Z z;\n" + 
-        "	^^^\n" + 
-        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
+        "	p.Z z;\n" +
+        "	^^^\n" +
+        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
         "1 problem (1 warning)\n",
         false);
 }
@@ -2630,12 +2630,12 @@ public void test041(){
         + " -warn:-discouraged -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
-        "	p.Z z;\n" + 
-        "	^^^\n" + 
-        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
+        "	p.Z z;\n" +
+        "	^^^\n" +
+        "Access restriction: The type \'Z\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
         "1 problem (1 warning)\n",
         false);
 }
@@ -2679,12 +2679,12 @@ public void test042(){
         + " -warn:-forbidden -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
-        "	p.X x;\n" + 
-        "	^^^\n" + 
-        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
+        "	p.X x;\n" +
+        "	^^^\n" +
+        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
         "1 problem (1 warning)\n",
         false);
 }
@@ -2888,17 +2888,17 @@ public void test048(){
         + " -warn:+discouraged,forbidden,deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "",
-        "----------\n" + 
-        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)\n" + 
-        "	@SuppressWarnings(\"deprecation\")\n" + 
-        "	                  ^^^^^^^^^^^^^\n" + 
-        "Unnecessary @SuppressWarnings(\"deprecation\")\n" + 
-        "----------\n" + 
-        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" + 
-        "	p.X x;\n" + 
-        "	^^^\n" + 
-        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-        "----------\n" + 
+        "----------\n" +
+        "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 2)\n" +
+        "	@SuppressWarnings(\"deprecation\")\n" +
+        "	                  ^^^^^^^^^^^^^\n" +
+        "Unnecessary @SuppressWarnings(\"deprecation\")\n" +
+        "----------\n" +
+        "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 4)\n" +
+        "	p.X x;\n" +
+        "	^^^\n" +
+        "Discouraged access: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+        "----------\n" +
         "2 problems (2 warnings)\n",
         false);
 }
@@ -3655,12 +3655,12 @@ public void test073_per_source_output_directory(){
         + " -sourcepath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
-		"	X f;\n" + 
-		"	^\n" + 
-		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
+		"	X f;\n" +
+		"	^\n" +
+		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -3844,12 +3844,12 @@ public void test079_per_source_output_directory(){
         + " -classpath \"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
-		"	X f;\n" + 
-		"	^\n" + 
-		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
+		"	X f;\n" +
+		"	^\n" +
+		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -4038,12 +4038,12 @@ public void test085_per_source_output_directory(){
         	"\"" + OUTPUT_DIR + File.separator + source1 + "\"" +
         	"[-**/*][-d \"" + OUTPUT_DIR + File.separator + output1 + "\"]",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" + 
-		"	X f;\n" + 
-		"	^\n" + 
-		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Z.java (at line 2)\n" +
+		"	X f;\n" +
+		"	^\n" +
+		"Access restriction: The type \'X\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---/src1\')\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -5327,37 +5327,37 @@ public void test148_access_restrictions(){
   + " -warn:+deprecation,syntheticAccess,uselessTypeCheck,unsafe,finalBound,unusedLocal"
   + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
   "",
-  "----------\n" + 
-  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-  "	KO ko;\n" + 
-  "	^^\n" + 
-  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-  "----------\n" + 
-  "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-  "	ko = new KO();\n" + 
-  "	         ^^\n" + 
-  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-  "----------\n" + 
-  "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-  "	ko = new KO();\n" + 
-  "	         ^^\n" + 
-  "Access restriction: The constructor \'KO()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-  "----------\n" + 
-  "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
-  "	ko.bar();\n" + 
-  "	   ^^^\n" + 
-  "Access restriction: The method \'KO.bar()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-  "----------\n" + 
-  "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-  "	if (ko.m) {}\n" + 
-  "	       ^\n" + 
-  "Access restriction: The field \'KO.m\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" + 
-  "----------\n" + 
-  "6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
-  "	Zork z;\n" + 
-  "	^^^^\n" + 
-  "Zork cannot be resolved to a type\n" + 
-  "----------\n" + 
+  "----------\n" +
+  "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+  "	KO ko;\n" +
+  "	^^\n" +
+  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+  "----------\n" +
+  "2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+  "	ko = new KO();\n" +
+  "	         ^^\n" +
+  "Access restriction: The type \'KO\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+  "----------\n" +
+  "3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+  "	ko = new KO();\n" +
+  "	         ^^\n" +
+  "Access restriction: The constructor \'KO()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+  "----------\n" +
+  "4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+  "	ko.bar();\n" +
+  "	   ^^^\n" +
+  "Access restriction: The method \'KO.bar()\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+  "----------\n" +
+  "5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+  "	if (ko.m) {}\n" +
+  "	       ^\n" +
+  "Access restriction: The field \'KO.m\' is not API (restriction on classpath entry \'---OUTPUT_DIR_PLACEHOLDER---\')\n" +
+  "----------\n" +
+  "6. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+  "	Zork z;\n" +
+  "	^^^^\n" +
+  "Zork cannot be resolved to a type\n" +
+  "----------\n" +
   "6 problems (1 error, 5 warnings)\n",
   true);
 }
@@ -6899,11 +6899,11 @@ public void test191_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"8 problems (8 warnings)\n",
 		true);
 }
@@ -7209,11 +7209,11 @@ public void test199_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -7274,11 +7274,11 @@ public void test200_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -7339,11 +7339,11 @@ public void test201_warn_options() {
 		"	      ^^^^^^\n" +
 		"Unused type arguments for the non generic method bar() of type X; it should not be parameterized with arguments <String>\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -7404,11 +7404,11 @@ public void test202_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -7469,11 +7469,11 @@ public void test203_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -7534,11 +7534,11 @@ public void test204_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -7599,11 +7599,11 @@ public void test205_warn_options() {
 		"	^^^^\n" +
 		"The label next is never explicitly referenced\n" +
 		"----------\n" +
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" + 
-		"	<T> void bar() {\n" + 
-		"	 ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 14)\n" +
+		"	<T> void bar() {\n" +
+		"	 ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"7 problems (7 warnings)\n",
 		true);
 }
@@ -8298,12 +8298,12 @@ public void test230_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedTypeArgs -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-		"	X<String> x = new X<String>();\n" + 
-		"	                  ^\n" + 
-		"Redundant specification of type arguments <String>\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+		"	X<String> x = new X<String>();\n" +
+		"	                  ^\n" +
+		"Redundant specification of type arguments <String>\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -8738,12 +8738,12 @@ public void test235_classpath() throws IOException, InterruptedException {
 		sourceFilePath /* commandLine */
 		+ " -proc:none " + commonOptions,
 		"" /* expectedOutOutputString */,
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" + 
-		"	System.out.println(X.CONST);\n" + 
-		"	                     ^^^^^\n" + 
-		"CONST cannot be resolved or is not a field\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/Y.java (at line 3)\n" +
+		"	System.out.println(X.CONST);\n" +
+		"	                     ^^^^^\n" +
+		"CONST cannot be resolved or is not a field\n" +
+		"----------\n" +
 		"1 problem (1 error)\n",
 		false /* shouldFlushOutputDirectory */,
 		null /* progress */);
@@ -9037,12 +9037,12 @@ public void test241_jar_ref_in_jar(){
 			+ " -proceedOnError -referenceInfo"
 			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			"",
-			"----------\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
-			"	int j = R.R3;\n" + 
-			"	          ^^\n" + 
-			"R3 cannot be resolved or is not a field\n" + 
-			"----------\n" + 
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
+			"	int j = R.R3;\n" +
+			"	          ^^\n" +
+			"R3 cannot be resolved or is not a field\n" +
+			"----------\n" +
 			"1 problem (1 error)\n",
 			true);
 }
@@ -9067,12 +9067,12 @@ public void test242_jar_ref_in_jar(){
 			+ " -proceedOnError -referenceInfo"
 			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 			"",
-			"----------\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" + 
-			"	int j = R.R3;\n" + 
-			"	          ^^\n" + 
-			"R3 cannot be resolved or is not a field\n" + 
-			"----------\n" + 
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 5)\n" +
+			"	int j = R.R3;\n" +
+			"	          ^^\n" +
+			"R3 cannot be resolved or is not a field\n" +
+			"----------\n" +
 			"1 problem (1 error)\n",
 			true);
 }
@@ -9303,12 +9303,12 @@ public void test251_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
-		"	A a;\n" + 
-		"	^\n" + 
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
+		"	A a;\n" +
+		"	^\n" +
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -9464,12 +9464,12 @@ public void test256_jar_ref_in_jar(){
 		+ " -proceedOnError -referenceInfo"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
-		"	A a;\n" + 
-		"	^\n" + 
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
+		"	A a;\n" +
+		"	^\n" +
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -10290,21 +10290,21 @@ public void test288_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface IX {}\n" + 
-			"class BaseX implements IX {}\n" + 
-			"public class X extends BaseX implements IX {\n" + 
+			"interface IX {}\n" +
+			"class BaseX implements IX {}\n" +
+			"public class X extends BaseX implements IX {\n" +
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:+intfRedundant -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	public class X extends BaseX implements IX {\n" + 
-		"	                                        ^^\n" + 
-		"Redundant superinterface IX for the type X, already defined by BaseX\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	public class X extends BaseX implements IX {\n" +
+		"	                                        ^^\n" +
+		"Redundant superinterface IX for the type X, already defined by BaseX\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -10313,21 +10313,21 @@ public void test289_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface IX {}\n" + 
-			"class BaseX implements IX {}\n" + 
-			"public class X extends BaseX implements IX {\n" + 
+			"interface IX {}\n" +
+			"class BaseX implements IX {}\n" +
+			"public class X extends BaseX implements IX {\n" +
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:+redundantSuperinterface -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	public class X extends BaseX implements IX {\n" + 
-		"	                                        ^^\n" + 
-		"Redundant superinterface IX for the type X, already defined by BaseX\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	public class X extends BaseX implements IX {\n" +
+		"	                                        ^^\n" +
+		"Redundant superinterface IX for the type X, already defined by BaseX\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -10336,9 +10336,9 @@ public void test290_warn_options() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface IX {}\n" + 
-			"class BaseX implements IX {}\n" + 
-			"public class X extends BaseX implements IX {\n" + 
+			"interface IX {}\n" +
+			"class BaseX implements IX {}\n" +
+			"public class X extends BaseX implements IX {\n" +
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
@@ -10348,7 +10348,7 @@ public void test290_warn_options() {
 		"",
 		true);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251079
 public void test291_jar_ref_in_jar() throws Exception {
 	ManifestAnalyzer analyzer = new ManifestAnalyzer();
 	assertTrue(analyzeManifestContents(
@@ -10361,8 +10361,8 @@ public void test291_jar_ref_in_jar() throws Exception {
 	List calledFileNames = analyzer.getCalledFileNames();
 	String actual = calledFileNames == null ? "<null>" : Util.toString((String[]) calledFileNames.toArray(new String[calledFileNames.size()]), false/*don't add extra new lines*/);
 	assertStringEquals(
-		"<null>", 
-		actual, 
+		"<null>",
+		actual,
 		true/*show line serators*/);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
@@ -10447,32 +10447,32 @@ public void test293_warn_options() {
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:null,includeAssertNull -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-		"	if (a!=null) {\n" + 
-		"	    ^\n" + 
-		"Null comparison always yields false: The variable a can only be null at this location\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
-		"	a = null;\n" + 
-		"	^\n" + 
-		"Redundant assignment: The variable a can only be null at this location\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
-		"	if (a== null) {}\n" + 
-		"	    ^\n" + 
-		"Redundant null check: The variable a can only be null at this location\n" + 
-		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" + 
-		"	if (b!=null) {\n" + 
-		"	    ^\n" + 
-		"Redundant null check: The variable b cannot be null at this location\n" + 
-		"----------\n" + 
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)\n" + 
-		"	if (c.equals(a)) {\n" + 
-		"	    ^\n" + 
-		"Null pointer access: The variable c can only be null at this location\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+		"	if (a!=null) {\n" +
+		"	    ^\n" +
+		"Null comparison always yields false: The variable a can only be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+		"	a = null;\n" +
+		"	^\n" +
+		"Redundant assignment: The variable a can only be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" +
+		"	if (a== null) {}\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable a can only be null at this location\n" +
+		"----------\n" +
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" +
+		"	if (b!=null) {\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable b cannot be null at this location\n" +
+		"----------\n" +
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 18)\n" +
+		"	if (c.equals(a)) {\n" +
+		"	    ^\n" +
+		"Null pointer access: The variable c can only be null at this location\n" +
+		"----------\n" +
 		"5 problems (5 warnings)\n",
 		true);
 }
@@ -10486,50 +10486,50 @@ public void test294_warn_options() {
 			"X.java",
 			"public class X {\n" +
 			"	public static int field1;\n" +
-			"	public static int field2;\n" + 
-			"	public void bar(int i) {\n" + 
+			"	public static int field2;\n" +
+			"	public void bar(int i) {\n" +
 			"		System.out.println(foo());\n" +
 			"		foo();" +
 			"		System.out.println(X.field1);\n" +
 			"		System.out.println(field2);\n" +
 			"		field2 = 1;\n" +
-			"	}\n" + 
-			"	private static String foo() {\n" + 
-			"		return null;\n" + 
+			"	}\n" +
+			"	private static String foo() {\n" +
+			"		return null;\n" +
 			"	}\n" +
 			"	private void foo1() {\n" +
 			"		System.out.println();\n" +
 			"	}\n" +
 			"	public final void foo2() {\n" +
 			"		System.out.println();\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n" +
 			"final class A {" +
 			"	public void foo() {\n" +
 			"		System.out.println();\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
-		"	private void foo1() {\n" + 
-		"	             ^^^^^^\n" + 
-		"The method foo1() from the type X can be declared as static\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" + 
-		"	public final void foo2() {\n" + 
-		"	                  ^^^^^^\n" + 
-		"The method foo2() from the type X can be declared as static\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" + 
-		"	final class A {	public void foo() {\n" + 
-		"	               	            ^^^^^\n" + 
-		"The method foo() from the type A can be declared as static\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
+		"	private void foo1() {\n" +
+		"	             ^^^^^^\n" +
+		"The method foo1() from the type X can be declared as static\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" +
+		"	public final void foo2() {\n" +
+		"	                  ^^^^^^\n" +
+		"The method foo2() from the type X can be declared as static\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" +
+		"	final class A {	public void foo() {\n" +
+		"	               	            ^^^^^\n" +
+		"The method foo() from the type A can be declared as static\n" +
+		"----------\n" +
 		"3 problems (3 warnings)\n",
 		true);
 }
@@ -10543,55 +10543,55 @@ public void test295_warn_options() {
 			"X.java",
 			"public class X {\n" +
 			"	public static int field1;\n" +
-			"	public static int field2;\n" + 
-			"	public void bar(int i) {\n" + 
+			"	public static int field2;\n" +
+			"	public void bar(int i) {\n" +
 			"		System.out.println(foo());\n" +
 			"		foo();" +
 			"		System.out.println(X.field1);\n" +
 			"		System.out.println(field2);\n" +
 			"		field2 = 1;\n" +
-			"	}\n" + 
-			"	private static String foo() {\n" + 
-			"		return null;\n" + 
+			"	}\n" +
+			"	private static String foo() {\n" +
+			"		return null;\n" +
 			"	}\n" +
 			"	private void foo1() {\n" +
 			"		System.out.println();\n" +
 			"	}\n" +
 			"	public final void foo2() {\n" +
 			"		System.out.println();\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n" +
 			"final class A {" +
 			"	public void foo() {\n" +
 			"		System.out.println();\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:all-static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-		"	public void bar(int i) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method bar(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" + 
-		"	private void foo1() {\n" + 
-		"	             ^^^^^^\n" + 
-		"The method foo1() from the type X can be declared as static\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" + 
-		"	public final void foo2() {\n" + 
-		"	                  ^^^^^^\n" + 
-		"The method foo2() from the type X can be declared as static\n" + 
-		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" + 
-		"	final class A {	public void foo() {\n" + 
-		"	               	            ^^^^^\n" + 
-		"The method foo() from the type A can be declared as static\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+		"	public void bar(int i) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method bar(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 13)\n" +
+		"	private void foo1() {\n" +
+		"	             ^^^^^^\n" +
+		"The method foo1() from the type X can be declared as static\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 16)\n" +
+		"	public final void foo2() {\n" +
+		"	                  ^^^^^^\n" +
+		"The method foo2() from the type X can be declared as static\n" +
+		"----------\n" +
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 20)\n" +
+		"	final class A {	public void foo() {\n" +
+		"	               	            ^^^^^\n" +
+		"The method foo() from the type A can be declared as static\n" +
+		"----------\n" +
 		"4 problems (4 warnings)\n",
 		true);
 }
@@ -10615,12 +10615,12 @@ public void test293(){
 		+ " -proceedOnError -referenceInfo -err:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
-		"	A a;\n" + 
-		"	^\n" + 
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
+		"	A a;\n" +
+		"	^\n" +
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
+		"----------\n" +
 		"1 problem (1 error)\n",
 		true);
 }
@@ -10709,17 +10709,17 @@ public void test299(){
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-		"	@SuppressWarnings(\"unused\")\n" + 
-		"	                  ^^^^^^^^\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
+		"	@SuppressWarnings(\"unused\")\n" +
+		"	                  ^^^^^^^^\n" +
 		"Unnecessary @SuppressWarnings(\"unused\")\n" +
-		"----------\n" + 
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.i is not used\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X.i is not used\n" +
+		"----------\n" +
 		"2 problems (1 error, 1 warning)\n",
 		true);
 }
@@ -10754,12 +10754,12 @@ public void test301(){
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.i is not used\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X.i is not used\n" +
+		"----------\n" +
 		"1 problem (1 error)\n",
 		true);
 }
@@ -10777,12 +10777,12 @@ public void test302(){
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.i is not used\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X.i is not used\n" +
+		"----------\n" +
 		"1 problem (1 error)\n",
 		true);
 }
@@ -10800,17 +10800,17 @@ public void test303(){
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-		"	@SuppressWarnings(\"unused\")\n" + 
-		"	                  ^^^^^^^^\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
+		"	@SuppressWarnings(\"unused\")\n" +
+		"	                  ^^^^^^^^\n" +
 		"Unnecessary @SuppressWarnings(\"unused\")\n" +
-		"----------\n" + 
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.i is not used\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X.i is not used\n" +
+		"----------\n" +
 		"2 problems (1 error, 1 warning)\n",
 		true);
 }
@@ -10828,12 +10828,12 @@ public void test304(){
 		+ " -1.5 -g -preserveAllLocals"
 		+ " -proceedOnError -err:+suppress,unused -warn:-suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	private int i;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.i is not used\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	private int i;\n" +
+		"	            ^\n" +
+		"The value of the field X.i is not used\n" +
+		"----------\n" +
 		"1 problem (1 error)\n",
 		true);
 }
@@ -10846,7 +10846,7 @@ public void test305(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -encoding UTF-8 -1.5 -g -encoding ISO-8859-1",
-		"Found encoding ISO-8859-1. A different encoding was specified: UTF-8\n" + 
+		"Found encoding ISO-8859-1. A different encoding was specified: UTF-8\n" +
 		"Multiple encoding specified: ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
 		"",
 		true);
@@ -10860,8 +10860,8 @@ public void test306(){
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
 		+ " -encoding UTF-8 -1.5 -encoding Cp1252 -g -encoding ISO-8859-1",
-		"Found encoding Cp1252. A different encoding was specified: UTF-8\n" + 
-		"Found encoding ISO-8859-1. Different encodings were specified: Cp1252, UTF-8\n" + 
+		"Found encoding Cp1252. A different encoding was specified: UTF-8\n" +
+		"Found encoding ISO-8859-1. Different encodings were specified: Cp1252, UTF-8\n" +
 		"Multiple encoding specified: Cp1252, ISO-8859-1, UTF-8. The default encoding has been set to ISO-8859-1\n",
 		"",
 		true);
@@ -10924,7 +10924,7 @@ public void test0307a(){
 	String os= System.getProperty("os.name");
     if (!os.startsWith("Windows")) // https://bugs.eclipse.org/bugs/show_bug.cgi?id=323558
     	return;
-    	
+
 	final String javaClassspath = System.getProperty("java.class.path");
 	final String javaUserDir = System.getProperty("user.dir");
 	try {
@@ -10955,18 +10955,18 @@ public void test0307a(){
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" + 
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
-		        "	import p.Y.I;\n" + 
-		        "	       ^^^\n" + 
-		        "The import p.Y cannot be resolved\n" + 
-		        "----------\n" + 
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	I i;\n" + 
-		        "	^\n" + 
-		        "I cannot be resolved to a type\n" + 
-		        "----------\n" + 
+		        "no classpath defined, using default directory instead\n" +
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		        "	import p.Y.I;\n" +
+		        "	       ^^^\n" +
+		        "The import p.Y cannot be resolved\n" +
+		        "----------\n" +
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		        "	I i;\n" +
+		        "	^\n" +
+		        "I cannot be resolved to a type\n" +
+		        "----------\n" +
 		        "2 problems (2 errors)\n",
 		        false);
 		final String userDir = System.getProperty("user.dir");
@@ -11020,18 +11020,18 @@ public void test0307b(){
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" + 
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
-		        "	import p.Y.I;\n" + 
-		        "	       ^^^\n" + 
-		        "The import p.Y cannot be resolved\n" + 
-		        "----------\n" + 
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	I i;\n" + 
-		        "	^\n" + 
-		        "I cannot be resolved to a type\n" + 
-		        "----------\n" + 
+		        "no classpath defined, using default directory instead\n" +
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		        "	import p.Y.I;\n" +
+		        "	       ^^^\n" +
+		        "The import p.Y cannot be resolved\n" +
+		        "----------\n" +
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		        "	I i;\n" +
+		        "	^\n" +
+		        "I cannot be resolved to a type\n" +
+		        "----------\n" +
 		        "2 problems (2 errors)\n",
 		        false);
 		final String userDir = System.getProperty("user.dir");
@@ -11085,18 +11085,18 @@ public void test0307c(){
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" + 
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
-		        "	import p.Y.I;\n" + 
-		        "	       ^^^^^\n" + 
-		        "The import p.Y.I cannot be resolved\n" + 
-		        "----------\n" + 
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	I i;\n" + 
-		        "	^\n" + 
-		        "I cannot be resolved to a type\n" + 
-		        "----------\n" + 
+		        "no classpath defined, using default directory instead\n" +
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		        "	import p.Y.I;\n" +
+		        "	       ^^^^^\n" +
+		        "The import p.Y.I cannot be resolved\n" +
+		        "----------\n" +
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		        "	I i;\n" +
+		        "	^\n" +
+		        "I cannot be resolved to a type\n" +
+		        "----------\n" +
 		        "2 problems (2 errors)\n",
 		        false);
 		final String userDir = System.getProperty("user.dir");
@@ -11150,18 +11150,18 @@ public void test0307d(){
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" + 
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
-		        "	import p.Y.I;\n" + 
-		        "	       ^^^\n" + 
-		        "The import p.Y cannot be resolved\n" + 
-		        "----------\n" + 
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	I i;\n" + 
-		        "	^\n" + 
-		        "I cannot be resolved to a type\n" + 
-		        "----------\n" + 
+		        "no classpath defined, using default directory instead\n" +
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		        "	import p.Y.I;\n" +
+		        "	       ^^^\n" +
+		        "The import p.Y cannot be resolved\n" +
+		        "----------\n" +
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		        "	I i;\n" +
+		        "	^\n" +
+		        "I cannot be resolved to a type\n" +
+		        "----------\n" +
 		        "2 problems (2 errors)\n",
 		        false);
 		final String userDir = System.getProperty("user.dir");
@@ -11215,18 +11215,18 @@ public void test0307e(){
 		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		        + " -1.5 -g -preserveAllLocals -proceedOnError -referenceInfo ",
 		        "",// this is not the runtime output
-		        "no classpath defined, using default directory instead\n" + 
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
-		        "	import p.Y.I;\n" + 
-		        "	       ^^^\n" + 
-		        "The import p.Y cannot be resolved\n" + 
-		        "----------\n" + 
-		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		        "	I i;\n" + 
-		        "	^\n" + 
-		        "I cannot be resolved to a type\n" + 
-		        "----------\n" + 
+		        "no classpath defined, using default directory instead\n" +
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		        "	import p.Y.I;\n" +
+		        "	       ^^^\n" +
+		        "The import p.Y cannot be resolved\n" +
+		        "----------\n" +
+		        "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		        "	I i;\n" +
+		        "	^\n" +
+		        "I cannot be resolved to a type\n" +
+		        "----------\n" +
 		        "2 problems (2 errors)\n",
 		        false);
 		final String userDir = System.getProperty("user.dir");
@@ -11270,7 +11270,7 @@ public void testInferenceIn14Project(){
 				new String[] {
 						"src/X.java",
 						"public class X {\n" +
-						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
+						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" +
 						"}\n" +
 						"class BundleWiring {}\n",
 				},
@@ -11281,12 +11281,12 @@ public void testInferenceIn14Project(){
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" + 
-		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
-		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		        "Type mismatch: cannot convert from Object to Bundle\n" + 
-		        "----------\n" + 
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
+		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" +
+		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		        "Type mismatch: cannot convert from Object to Bundle\n" +
+		        "----------\n" +
 		        "1 problem (1 error)\n",
 		        true);
 	} catch (IOException e) {
@@ -11321,7 +11321,7 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 				new String[] {
 						"src/X.java",
 						"public class X {\n" +
-						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
+						"    Bundle b = Bundle.adapt(BundleWiring.class);\n" +
 						"}\n" +
 						"class BundleWiring {}\n",
 				},
@@ -11332,12 +11332,12 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 				+ " -proceedOnError -referenceInfo"
 				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		        "",
-		        "----------\n" + 
-		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" + 
-		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" + 
-		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		        "Type mismatch: cannot convert from BundleWiring to Bundle\n" + 
-		        "----------\n" + 
+		        "----------\n" +
+		        "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/X.java (at line 2)\n" +
+		        "	Bundle b = Bundle.adapt(BundleWiring.class);\n" +
+		        "	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		        "Type mismatch: cannot convert from BundleWiring to Bundle\n" +
+		        "----------\n" +
 		        "1 problem (1 error)\n",
 		        true);
 	} catch (IOException e) {
@@ -11346,7 +11346,7 @@ public void testInferenceIn15Project(){  // ensure 1.5 complains too
 		new File(lib1Path).delete();
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 Test interaction between 1.4 and 1.5 class files 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565 Test interaction between 1.4 and 1.5 class files
 public void test186565(){
 	String outputDirName = OUTPUT_DIR + File.separator + "d",
 	  metaInfDirName = outputDirName + File.separator + "META-INF",
@@ -11471,17 +11471,17 @@ public void testReportingUnavoidableGenericProblems() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -warn:-unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-		"	public Object getAdapter(Class clazz);    \n" + 
-		"	                         ^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
+		"	public Object getAdapter(Class clazz);    \n" +
+		"	                         ^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
+		"----------\n" +
 		"2 problems (1 error, 1 warning)\n",
 		true);
 }
@@ -11503,22 +11503,22 @@ public void testReportingUnavoidableGenericProblems2() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -1.5 -warn:+unavoidableGenericProblems -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-		"	public Object getAdapter(Class clazz);    \n" + 
-		"	                         ^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
-		"	public Object getAdapter(Class clazz) {\n" + 
-		"	                         ^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
+		"	public Object getAdapter(Class clazz);    \n" +
+		"	                         ^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+		"	public Object getAdapter(Class clazz) {\n" +
+		"	                         ^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 8)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
+		"----------\n" +
 		"3 problems (1 error, 2 warnings)\n",
 		true);
 }
@@ -11562,12 +11562,12 @@ public void test0309_warn_options() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:+resource -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" + 
-		"	FileReader r = new FileReader(\"f1\");\n" + 
-		"	           ^\n" + 
-		"Potential resource leak: \'r\' may not be closed\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+		"	FileReader r = new FileReader(\"f1\");\n" +
+		"	           ^\n" +
+		"Potential resource leak: \'r\' may not be closed\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -11586,8 +11586,8 @@ public void test310_warn_options() {
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
 		"	class Y extends X { @Override void foo() { } }\n" +
 		"	                                   ^^^^^\n" +
 		"The method Y.foo() is overriding a synchronized method without being synchronized\n" +
@@ -11603,7 +11603,7 @@ public void test310b_warn_options() {
 	this.runConformTest(
 		new String[] {
 				"X.java",
-				"public class X {\n" + 
+				"public class X {\n" +
 				"  void bar() { new X() { @Override void foo() {} }; }\n"+
 				"  synchronized void foo() { }\n"+
 				"}"
@@ -11612,8 +11612,8 @@ public void test310b_warn_options() {
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -warn:syncOverride -1.5 -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
 		"	void bar() { new X() { @Override void foo() {} }; }\n"+
 		"	                                      ^^^^^\n" +
 		"The method new X(){}.foo() is overriding a synchronized method without being synchronized\n" +
@@ -11675,58 +11675,58 @@ public void test312_warn_options() {
 		+ " -1.5"
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
-		"	public void test() { Object o = null; o.toString();}\n" + 
-		"	                                      ^\n" + 
-		"Null pointer access: The variable o can only be null at this location\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
-		"	if (o.toString() == \"\"){ return null;}\n" + 
-		"	    ^\n" + 
-		"Potential null pointer access: The variable o may be null at this location\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" + 
-		"	if (o.toString() == \"\"){ return null;}\n" + 
-		"	                                ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" + 
-		"	if (o2 == null) {}\n" + 
-		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" + 
-		"----------\n" + 
-		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" + 
-		"	goo(null).toString();\n" + 
-		"	^^^^^^^^^\n" + 
-		"Potential null pointer access: The method goo(Object) may return null\n" + 
-		"----------\n" + 
-		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" + 
-		"	goo(null).toString();\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" + 
-		"	return null;\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
-		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" + 
-		"	if (o2 == null){}\n" + 
-		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" + 
-		"----------\n" + 
-		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" + 
-		"	if (o2 == null){\n" + 
-		"	    ^^\n" + 
-		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" +
+		"	public void test() { Object o = null; o.toString();}\n" +
+		"	                                      ^\n" +
+		"Null pointer access: The variable o can only be null at this location\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"	if (o.toString() == \"\"){ return null;}\n" +
+		"	    ^\n" +
+		"Potential null pointer access: The variable o may be null at this location\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)\n" +
+		"	if (o.toString() == \"\"){ return null;}\n" +
+		"	                                ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)\n" +
+		"	if (o2 == null) {}\n" +
+		"	    ^^\n" +
+		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
+		"----------\n" +
+		"5. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
+		"	goo(null).toString();\n" +
+		"	^^^^^^^^^\n" +
+		"Potential null pointer access: The method goo(Object) may return null\n" +
+		"----------\n" +
+		"6. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 10)\n" +
+		"	goo(null).toString();\n" +
+		"	    ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"7. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 13)\n" +
+		"	return null;\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
+		"8. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 19)\n" +
+		"	if (o2 == null){}\n" +
+		"	    ^^\n" +
+		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
+		"----------\n" +
+		"9. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 20)\n" +
+		"	if (o2 == null){\n" +
+		"	    ^^\n" +
+		"Null comparison always yields false: The variable o2 is specified as @NonNull\n" +
+		"----------\n" +
 		"9 problems (9 warnings)\n",
 		true);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
-// -warn/-error option : enumSwitchPedantic 
+// -warn/-error option : enumSwitchPedantic
 public void test317_warn_options() {
 	this.runConformTest(
 		new String[] {
@@ -11839,7 +11839,7 @@ public void test317_nowarn_options() {
 			},
 			"\"" + OUTPUT_DIR + File.separator + "src/X.java\""
 			+ " -warn:javadoc -nowarn:[\"" +
-			OUTPUT_DIR + File.separator + "src" + 
+			OUTPUT_DIR + File.separator + "src" +
 			"\"] -proc:none -d \"" + OUTPUT_DIR + "\"",
 			"",
 			"",
@@ -12219,31 +12219,31 @@ public void testBug375409a() {
 				"public class X {\n" +
 				"/** \n" +
 				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" + 
+				"* @param a\n" +
 				"*/\n" +
-				"public void foo(int i) {}}\n" 
+				"public void foo(int i) {}}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:invalidJavadoc -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" + 
-		"	* Description {@see String}, {@category cat}\n" + 
-		"	                ^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" + 
-		"	* Description {@see String}, {@category cat}\n" + 
-		"	                               ^^^^^^^^\n" + 
-		"Javadoc: Unexpected tag\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" + 
-		"	* @param a\n" + 
-		"	         ^\n" + 
-		"Javadoc: Parameter a is not declared\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" +
+		"	* Description {@see String}, {@category cat}\n" +
+		"	                ^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" +
+		"	* Description {@see String}, {@category cat}\n" +
+		"	                               ^^^^^^^^\n" +
+		"Javadoc: Unexpected tag\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 5)\n" +
+		"	* @param a\n" +
+		"	         ^\n" +
+		"Javadoc: Parameter a is not declared\n" +
+		"----------\n" +
 		"3 problems (3 warnings)\n",
 		true);
 }
@@ -12256,21 +12256,21 @@ public void testBug375409b() {
 				"public class X {\n" +
 				"/** \n" +
 				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" + 
+				"* @param a\n" +
 				"*/\n" +
-				"public void foo(int i) {}}\n" 
+				"public void foo(int i) {}}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:missingJavadocTags,missingJavadocTagsVisibility(public) -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 7)\n" + 
-		"	public void foo(int i) {}}\n" + 
-		"	                    ^\n" + 
-		"Javadoc: Missing tag for parameter i\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 7)\n" +
+		"	public void foo(int i) {}}\n" +
+		"	                    ^\n" +
+		"Javadoc: Missing tag for parameter i\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -12283,21 +12283,21 @@ public void testBug375409c() {
 				"public class X {\n" +
 				"/** \n" +
 				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" + 
+				"* @param a\n" +
 				"*/\n" +
-				"public void foo(int i) {}}\n" 
+				"public void foo(int i) {}}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:missingJavadocComments -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 2)\n" + 
-		"	public class X {\n" + 
-		"	             ^\n" + 
-		"Javadoc: Missing comment for public declaration\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 2)\n" +
+		"	public class X {\n" +
+		"	             ^\n" +
+		"Javadoc: Missing comment for public declaration\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -12310,26 +12310,26 @@ public void testBug375409d() {
 				"public class X {\n" +
 				"/** \n" +
 				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" + 
+				"* @param a\n" +
 				"*/\n" +
 				"void foo(int i) {}\n" +
 				"/** \n" +
 				"* Description {@see String}, {@category cat}\n" +
-				"* @param a\n" + 
+				"* @param a\n" +
 				"*/\n" +
-				"public void foo2(int i2) {}}\n" 
+				"public void foo2(int i2) {}}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + "\""
 		+ " -1.5"
 		+ " -warn:missingJavadocTags,missingJavadocTagsVisibility(public) -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 12)\n" + 
-		"	public void foo2(int i2) {}}\n" + 
-		"	                     ^^\n" + 
-		"Javadoc: Missing tag for parameter i2\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 12)\n" +
+		"	public void foo2(int i2) {}}\n" +
+		"	                     ^^\n" +
+		"Javadoc: Missing tag for parameter i2\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -12373,7 +12373,7 @@ public void testBug375409e() {
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault),+null,-nullAnnotConflict "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"", 
+		"",
 		true);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
@@ -12411,12 +12411,12 @@ public void testBug375409f() {
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault),+null,-nullAnnotRedundant "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" + 
-		"	return null;\n" + 
-		"	       ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 6)\n" +
+		"	return null;\n" +
+		"	       ^^^^\n" +
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		true);
 }
@@ -12458,7 +12458,7 @@ public void testBug375409g() {
 		+ " -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null -warn:-nullUncheckedConversion "
 		+ "-proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"", 
+		"",
 		true);
 }
 
@@ -12468,21 +12468,21 @@ public void testBug375409g() {
 public void testBug375366a() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
-			"eclipse.preferences.version=1\n" + 
+			"eclipse.preferences.version=1\n" +
 			"org.eclipse.jdt.core.compiler.problem.unusedParameter=warning\n");
 	this.runConformTest(
 		new String[] {
 			"bugs/warning/ShowBug.java",
-			"package bugs.warning;\n" + 
-			"\n" + 
-			"public class ShowBug {\n" + 
-			"	/**\n" + 
-			"	 * \n" + 
-			"	 * @param unusedParam\n" + 
-			"	 */\n" + 
-			"	public void foo(Object unusedParam) {\n" + 
-			"		\n" + 
-			"	}\n" + 
+			"package bugs.warning;\n" +
+			"\n" +
+			"public class ShowBug {\n" +
+			"	/**\n" +
+			"	 * \n" +
+			"	 * @param unusedParam\n" +
+			"	 */\n" +
+			"	public void foo(Object unusedParam) {\n" +
+			"		\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
@@ -12490,7 +12490,7 @@ public void testBug375366a() throws IOException {
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"", 
+		"",
 		false /*don't flush output dir*/);
 }
 
@@ -12499,36 +12499,36 @@ public void testBug375366a() throws IOException {
 public void testBug375366b() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
-			"eclipse.preferences.version=1\n" + 
+			"eclipse.preferences.version=1\n" +
 			"org.eclipse.jdt.core.compiler.problem.unusedParameter=warning\n" +
 			"org.eclipse.jdt.core.compiler.doc.comment.support=disabled\n");
 	this.runTest(
 		true, // compile OK, expecting only warning
 		new String[] {
 			"bugs/warning/ShowBug.java",
-			"package bugs.warning;\n" + 
-			"\n" + 
-			"public class ShowBug {\n" + 
-			"	/**\n" + 
-			"	 * \n" + 
-			"	 * @param unusedParam\n" + 
-			"	 */\n" + 
-			"	public void foo(Object unusedParam) {\n" + 
-			"		\n" + 
-			"	}\n" + 
+			"package bugs.warning;\n" +
+			"\n" +
+			"public class ShowBug {\n" +
+			"	/**\n" +
+			"	 * \n" +
+			"	 * @param unusedParam\n" +
+			"	 */\n" +
+			"	public void foo(Object unusedParam) {\n" +
+			"		\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
 		+ " -1.5"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
-		"", 
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" + 
-		"	public void foo(Object unusedParam) {\n" + 
-		"	                       ^^^^^^^^^^^\n" + 
-		"The value of the parameter unusedParam is not used\n" + 
-		"----------\n" + 
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" +
+		"	public void foo(Object unusedParam) {\n" +
+		"	                       ^^^^^^^^^^^\n" +
+		"The value of the parameter unusedParam is not used\n" +
+		"----------\n" +
 		"1 problem (1 warning)\n",
 		false /*don't flush output dir*/,
 		null /* progress */);
@@ -12562,27 +12562,27 @@ public void test385780_warn_option() {
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -warn:unusedTypeParameter -proc:none -1.7 -d \"" + OUTPUT_DIR + "\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" + 
-		"	public class X<T> {\n" + 
-		"	               ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
-		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
-		"	public <S> X() {\n" + 
-		"	        ^\n" + 
-		"Unused type parameter S\n" + 
-		"----------\n" + 
-		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" + 
-		"	interface doNothingInterface<T> {\n" + 
-		"	                             ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
-		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" + 
-		"	public <T> void doNothingMethod() {}\n" + 
-		"	        ^\n" + 
-		"Unused type parameter T\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 1)\n" +
+		"	public class X<T> {\n" +
+		"	               ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
+		"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" +
+		"	public <S> X() {\n" +
+		"	        ^\n" +
+		"Unused type parameter S\n" +
+		"----------\n" +
+		"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+		"	interface doNothingInterface<T> {\n" +
+		"	                             ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
+		"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n" +
+		"	public <T> void doNothingMethod() {}\n" +
+		"	        ^\n" +
+		"Unused type parameter T\n" +
+		"----------\n" +
 		"4 problems (4 warnings)\n",
 		true);
 }
@@ -12803,7 +12803,7 @@ public void testBug419351() {
 		Util.createJar(
 				new String[] {
 						"java/lang/String.java",
-						"package java.lang;\n" + 
+						"package java.lang;\n" +
 						"public class String {\n" +
 						"    public String(java.lang.Object obj) {}\n" +
 						"}\n"
@@ -12947,12 +12947,12 @@ public void test496137a(){
 		+ " -proceedOnError -referenceInfo -info:+discouraged"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
 		"",
-		"----------\n" + 
-		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
-		"	A a;\n" + 
-		"	^\n" + 
-		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
+		"	A a;\n" +
+		"	^\n" +
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" +
+		"----------\n" +
 		"1 problem (1 info)\n",
 		true);
 }
@@ -13014,36 +13014,36 @@ public void test496137d(){
 public void test496137e() throws IOException {
 	createOutputTestDirectory("regression/.settings");
 	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
-			"eclipse.preferences.version=1\n" + 
+			"eclipse.preferences.version=1\n" +
 			"org.eclipse.jdt.core.compiler.problem.unusedParameter=info\n" +
 			"org.eclipse.jdt.core.compiler.doc.comment.support=disabled\n");
 	this.runTest(
 		true, // compile OK, expecting only warning
 		new String[] {
 			"bugs/warning/ShowBug.java",
-			"package bugs.warning;\n" + 
-			"\n" + 
-			"public class ShowBug {\n" + 
-			"	/**\n" + 
-			"	 * \n" + 
-			"	 * @param unusedParam\n" + 
-			"	 */\n" + 
-			"	public void foo(Object unusedParam) {\n" + 
-			"		\n" + 
-			"	}\n" + 
+			"package bugs.warning;\n" +
+			"\n" +
+			"public class ShowBug {\n" +
+			"	/**\n" +
+			"	 * \n" +
+			"	 * @param unusedParam\n" +
+			"	 */\n" +
+			"	public void foo(Object unusedParam) {\n" +
+			"		\n" +
+			"	}\n" +
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
 		+ " -1.5"
 		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
 		+ " -d \"" + OUTPUT_DIR + "\"",
-		"", 
-		"----------\n" + 
-		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" + 
-		"	public void foo(Object unusedParam) {\n" + 
-		"	                       ^^^^^^^^^^^\n" + 
-		"The value of the parameter unusedParam is not used\n" + 
-		"----------\n" + 
+		"",
+		"----------\n" +
+		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" +
+		"	public void foo(Object unusedParam) {\n" +
+		"	                       ^^^^^^^^^^^\n" +
+		"The value of the parameter unusedParam is not used\n" +
+		"----------\n" +
 		"1 problem (1 info)\n",
 		false /*don't flush output dir*/,
 		null /* progress */);
@@ -13094,12 +13094,12 @@ public void testReleaseOption() throws Exception {
 
 public void testBug531579() throws Exception {
 	if (!isJRE9Plus) return;
-	// these types replace inaccessible types from JRE/javax.xml.bind: 
+	// these types replace inaccessible types from JRE/javax.xml.bind:
 	runConformTest(new String[] {
 			"src/javax/xml/bind/JAXBContext.java",
 			"package javax.xml.bind;\n" +
-			"public abstract class JAXBContext {\n" + 
-			"	public static JAXBContext newInstance( String contextPath )\n" + 
+			"public abstract class JAXBContext {\n" +
+			"	public static JAXBContext newInstance( String contextPath )\n" +
 			"		throws JAXBException {\n" +
 			"		return null;\n" +
 			"	}\n" +
@@ -13117,21 +13117,21 @@ public void testBug531579() throws Exception {
 		"",
 		"",
 		true);
-		
+
 	runConformTest(new String[] {
-			"src/p1/ImportJAXBType.java", 
-			"package p1;\n" + 
-			"\n" + 
-			"import javax.xml.bind.JAXBContext;\n" + 
-			"\n" + 
-			"public class ImportJAXBType {\n" + 
-			"\n" + 
-			"	public static void main(String[] args) throws Exception {\n" + 
-			"		JAXBContext context = JAXBContext.newInstance(\"\");\n" + 
-			"	}\n" + 
-			"\n" + 
+			"src/p1/ImportJAXBType.java",
+			"package p1;\n" +
+			"\n" +
+			"import javax.xml.bind.JAXBContext;\n" +
+			"\n" +
+			"public class ImportJAXBType {\n" +
+			"\n" +
+			"	public static void main(String[] args) throws Exception {\n" +
+			"		JAXBContext context = JAXBContext.newInstance(\"\");\n" +
+			"	}\n" +
+			"\n" +
 			"}\n"
-		},	
+		},
 		"\"" + OUTPUT_DIR +  File.separator + "src/p1/ImportJAXBType.java\""
 		+ " -cp \"" + OUTPUT_DIR + File.separator + "bin\" "
 		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
@@ -13157,7 +13157,7 @@ public void testFailOnWarnings_NoWarning() {
 		"",
 		"",
 		true);
-	
+
 }
 
 public void testFailOnWarnings_WithWarning() {
@@ -13166,21 +13166,21 @@ public void testFailOnWarnings_WithWarning() {
 			"X.java",
 			"/** */\n" +
 			"public class X {\n" +
-			"private int a;\n" +		
+			"private int a;\n" +
 			"}",
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		+ " -failOnWarning"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		"",
-		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	private int a;\n" + 
-		"	            ^\n" + 
-		"The value of the field X.a is not used\n" + 
-		"----------\n" + 
-		"1 problem (1 warning)\n" + 
-		"error: warnings found and -failOnWarning specified\n" + 
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	private int a;\n" +
+		"	            ^\n" +
+		"The value of the field X.a is not used\n" +
+		"----------\n" +
+		"1 problem (1 warning)\n" +
+		"error: warnings found and -failOnWarning specified\n" +
 		"",
 		true);
 }
@@ -13198,12 +13198,12 @@ public void testUnusedObjectAllocation() {
 		+ " -err:+unused"
 		+ " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
 		"",
-		"----------\n" + 
-		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
-		"	new X();\n" + 
-		"	^^^^^^^\n" + 
-		"The allocated object is never used\n" + 
-		"----------\n" + 
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+		"	new X();\n" +
+		"	^^^^^^^\n" +
+		"The allocated object is never used\n" +
+		"----------\n" +
 		"1 problem (1 error)\n",
 		true);
 

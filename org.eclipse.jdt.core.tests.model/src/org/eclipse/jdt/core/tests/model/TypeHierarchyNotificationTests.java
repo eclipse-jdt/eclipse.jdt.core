@@ -1285,7 +1285,7 @@ public void testRenameExternalCompilationUnit() throws CoreException {
 
 /*
  * Ensures that getting a non-primary working copy does NOT trigger
- * a type hierarchy notification for the concerned hierarchy. 
+ * a type hierarchy notification for the concerned hierarchy.
  * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=275805
  */
 public void testGetWorkingCopy() throws CoreException {
@@ -1293,7 +1293,7 @@ public void testGetWorkingCopy() throws CoreException {
 	ICompilationUnit superCopy = null;
 	ICompilationUnit aWorkingCopy = null;
 	try {
-		
+
 		createJavaProject("P");
 		createFolder("/P/p");
 		createFile(
@@ -1302,7 +1302,7 @@ public void testGetWorkingCopy() throws CoreException {
 			"public interface IX {\n" +
 			"}"
 		);
-		
+
 		createFile(
 				"/P/p/X.java",
 				"package p;\n" +
@@ -1312,11 +1312,11 @@ public void testGetWorkingCopy() throws CoreException {
 
 		superCopy = getCompilationUnit("/P/p/IX.java");
 		superCopy.becomeWorkingCopy(null/*no progress*/);
-		h = superCopy.getType("IX").newTypeHierarchy(null);		
+		h = superCopy.getType("IX").newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
-		
+
 		aWorkingCopy = getCompilationUnit("P/p/X.java").getWorkingCopy(null);
-		
+
 		assertTrue("Should receive NO change", !this.changeReceived);
 	} finally {
 		if (h != null)
@@ -1325,14 +1325,14 @@ public void testGetWorkingCopy() throws CoreException {
 			aWorkingCopy.discardWorkingCopy();
 		if (superCopy!= null)
 			superCopy.discardWorkingCopy();
-		
+
 		deleteProject("P");
 	}
 }
 
 /*
  * Ensures that working copies with different owner than that of the
- * type hierarchy listener are ignored. 
+ * type hierarchy listener are ignored.
  * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=275805
  */
 public void testOwner() throws CoreException {
@@ -1348,7 +1348,7 @@ public void testOwner() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		
+
 		aWorkingCopy = getCompilationUnit("/P/p/X.java").getWorkingCopy(null);
 		h = aWorkingCopy.getType("X").newTypeHierarchy(null);
 		h.addTypeHierarchyChangedListener(this);
@@ -1373,10 +1373,10 @@ public void testOwner() throws CoreException {
 }
 /**
  * @bug 316654: ITypeHierarchyChangedListener receive spurious callbacks
- * 
+ *
  * Test that a non-Java resource added to a folder package fragment root doesn't
  * result in a type hierarchy changed event.
- * 
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
  * @throws CoreException
  */
@@ -1396,9 +1396,9 @@ public void testBug316654() throws CoreException {
 	}
 }
 /**
- * Additional test - Test that a relevant Java source resource change results in a type hierarchy 
- * change event.  
- * 
+ * Additional test - Test that a relevant Java source resource change results in a type hierarchy
+ * change event.
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
  * @throws CoreException
  */
@@ -1410,7 +1410,7 @@ public void testBug316654_a() throws CoreException {
 	h.addTypeHierarchyChangedListener(this);
 	IPath filePath = project.getProject().getFullPath().append("src").append("p").append("Y.java");
 	try {
-		createFile(filePath.toOSString(), 
+		createFile(filePath.toOSString(),
 					"package p;\n" +
 					"class Y extends X{\n" +
 					"}");
@@ -1421,9 +1421,9 @@ public void testBug316654_a() throws CoreException {
 	}
 }
 /**
- * Additional test - Test that a relevant external archive change results in a type hierarchy 
- * change event.  
- * 
+ * Additional test - Test that a relevant external archive change results in a type hierarchy
+ * change event.
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
  * @throws CoreException
  */
@@ -1439,7 +1439,7 @@ public void testBug316654_b() throws CoreException {
 	ITypeHierarchy h = throwableClass.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
 	reset();
-	
+
 	try {
 		jarFile.setLastModified(System.currentTimeMillis());
 		refreshExternalArchives(project);
@@ -1450,22 +1450,22 @@ public void testBug316654_b() throws CoreException {
 	}
 }
 /**
- * Additional test - Test that a relevant archive change results in a type hierarchy 
+ * Additional test - Test that a relevant archive change results in a type hierarchy
  * change event.
- * 
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
  * @throws CoreException
  */
 public void testBug316654_c() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
-	IPath jarPath = project.getPath().append("test316654.jar"); 
+	IPath jarPath = project.getPath().append("test316654.jar");
 	IFile jarFile = getFile(jarPath.toOSString());
 
 	IType type = getClassFile("TypeHierarchyNotification", jarPath.toOSString(), "a", "A.class").getType();
 	ITypeHierarchy h = type.newTypeHierarchy(project, null);
 	h.addTypeHierarchyChangedListener(this);
 	reset();
-	
+
 	try {
 		jarFile.touch(null);
 		refresh(project);

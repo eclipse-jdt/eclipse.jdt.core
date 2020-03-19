@@ -109,7 +109,7 @@ public class InheritenceTests extends BaseTestCase {
 			super(nd, deletionDetector);
 		}
 	}
-	
+
 	public static class Reference extends NdNode {
 		public static final FieldManyToOne<BaseClass> BASE_CLASS_REFERENCE;
 		public static final FieldManyToOne<BaseClass> OWNER;

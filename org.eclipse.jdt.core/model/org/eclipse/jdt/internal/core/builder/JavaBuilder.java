@@ -274,7 +274,7 @@ private void buildAll() {
 	BatchImageBuilder testImageBuilder = new BatchImageBuilder(imageBuilder, true, CompilationGroup.TEST);
 	imageBuilder.build();
 	if (testImageBuilder.sourceLocations.length > 0) {
-		// Note: testImageBuilder *MUST* have a separate output folder, or it will delete the files created by imageBuilder.build() 
+		// Note: testImageBuilder *MUST* have a separate output folder, or it will delete the files created by imageBuilder.build()
 		testImageBuilder.build();
 	} else {
 		testImageBuilder.cleanUp();
@@ -520,7 +520,7 @@ private boolean hasJdtCoreSettingsChange(SimpleLookupTable deltas) {
 }
 
 private boolean hasClasspathChanged() {
-	return hasClasspathChanged(CompilationGroup.MAIN) || hasClasspathChanged(CompilationGroup.TEST);	
+	return hasClasspathChanged(CompilationGroup.MAIN) || hasClasspathChanged(CompilationGroup.TEST);
 }
 
 private boolean hasClasspathChanged(CompilationGroup compilationGroup) {

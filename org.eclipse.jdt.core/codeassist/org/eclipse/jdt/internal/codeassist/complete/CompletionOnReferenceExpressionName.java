@@ -24,14 +24,14 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class CompletionOnReferenceExpressionName extends ReferenceExpression {
-	
+
 	public CompletionOnReferenceExpressionName(Scanner scanner) {
 		super(scanner);
 	}
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
-		
+
 		final CompilerOptions compilerOptions = scope.compilerOptions();
 		TypeBinding lhsType;
 		boolean typeArgumentsHaveErrors;
@@ -54,7 +54,7 @@ public class CompletionOnReferenceExpressionName extends ReferenceExpression {
 			if (typeArgumentsHaveErrors || lhsType == null)
 				throw new CompletionNodeFound();
 		}
-    	
+
 		if (lhsType != null && lhsType.isValidBinding())
 			throw new CompletionNodeFound(this, lhsType, scope);
 		throw new CompletionNodeFound();

@@ -62,7 +62,7 @@ public class JavadocParser extends AbstractCommentParser {
 	// returns whether this JavadocParser should report errors or not (overrides reportProblems)
 	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
 	public boolean shouldReportProblems = true;
-	
+
 	// flag to let the parser know that the current tag is waiting for a description
 	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
 	private int tagWaitingForDescription;
@@ -484,7 +484,7 @@ public class JavadocParser extends AbstractCommentParser {
 				}
 				break;
 		}
-		
+
 		// Read tag name
 		char[] tagName = new char[32];
 		int length = 0;
@@ -632,7 +632,7 @@ public class JavadocParser extends AbstractCommentParser {
 					this.tagValue = TAG_LINKPLAIN_VALUE;
 					if (this.inlineTagStarted) {
 						valid = parseReference();
-					} 
+					}
 				} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName, 0, length)) {
 					this.tagValue = TAG_LITERAL_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
@@ -955,7 +955,7 @@ public class JavadocParser extends AbstractCommentParser {
 		// Set positions
 		if (this.inheritedPositions != null && this.inheritedPositionsPtr != this.inheritedPositions.length) {
 			// Compact array by shrinking.
-			System.arraycopy(this.inheritedPositions, 0, 
+			System.arraycopy(this.inheritedPositions, 0,
 					this.inheritedPositions = new long[this.inheritedPositionsPtr], 0, this.inheritedPositionsPtr);
 		}
 		this.docComment.inheritedPositions = this.inheritedPositions;
@@ -975,13 +975,13 @@ public class JavadocParser extends AbstractCommentParser {
 		this.docComment.usesReferences = this.usesReferencesPtr >= 0 ? new IJavadocTypeReference[this.usesReferencesPtr+1] : NO_QUALIFIED_TYPE_REFERENCE;
 		for (int i = 0; i <= this.usesReferencesPtr; ++i) {
 			TypeReference ref = this.usesReferencesStack[i];
-			this.docComment.usesReferences[i] = (IJavadocTypeReference)ref; 
+			this.docComment.usesReferences[i] = (IJavadocTypeReference)ref;
 		}
 
 		this.docComment.providesReferences = this.providesReferencesPtr >= 0 ? new IJavadocTypeReference[this.providesReferencesPtr+1] : NO_QUALIFIED_TYPE_REFERENCE;
 		for (int i = 0; i <= this.providesReferencesPtr; ++i) {
 			TypeReference ref = this.providesReferencesStack[i];
-			this.docComment.providesReferences[i] = (IJavadocTypeReference)ref; 
+			this.docComment.providesReferences[i] = (IJavadocTypeReference)ref;
 		}
 
 		// If no nodes stored return

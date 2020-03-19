@@ -581,7 +581,7 @@ public void test025() {
 	} else if (this.complianceLevel >= ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
-			TAG_CODE, TAG_LITERAL, 
+			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
 		};
 	}

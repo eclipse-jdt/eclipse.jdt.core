@@ -40,12 +40,12 @@ import org.eclipse.text.edits.TextEdit;
  * CompilationUnit:
  *     OrdinaryCompilationUnit
  *     ModularCompilationUnit
- *     
+ *
  * OrdinaryCompilationUnit:
  *     [ PackageDeclaration ]
  *         { ImportDeclaration }
  *         { TypeDeclaration | EnumDeclaration | AnnotationTypeDeclaration | <b>;</b> }
- * 
+ *
  * ModularCompilationUnit:
  *     {ImportDeclaration}
  *         ModuleDeclaration
@@ -672,18 +672,18 @@ public class CompilationUnit extends ASTNode {
 
 	/**
 	 * Internal method
-	 * 
+	 *
 	 * This method return internal data used to perform statements recovery.
-	 * 
+	 *
 	 * @return internal data used to perform statements recovery.
-	 * 
+	 *
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 3.5
 	 */
 	public Object getStatementsRecoveryData() {
 		return this.statementsRecoveryData;
 	}
-	
+
 	/**
 	 * The Java type root (a {@link org.eclipse.jdt.core.ICompilationUnit compilation unit} or a {@link org.eclipse.jdt.core.IClassFile class file})
 	 * this compilation unit was created from, or <code>null</code> if it was not created from a Java type root.
@@ -1111,13 +1111,13 @@ public class CompilationUnit extends ASTNode {
 		}
 		this.problems = problems;
 	}
-	
+
 	/**
 	 * Internal method
-	 * 
+	 *
 	 * Sets internal data used to perform statements recovery.
 	 * @param data
-	 * 
+	 *
 	 * @since 3.5
 	 */
 	void setStatementsRecoveryData(Object data) {

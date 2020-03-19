@@ -243,7 +243,7 @@ public void test006b() throws JavaModelException {
 			"argument[LOCAL_VARIABLE_REF]{argument, null, Ljava.lang.Object;, argument, null, " + (R_DEFAULT + 21) + "}", // FIXME should be "I" and 22 like test006
 			requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405126, [1.8][code assist] Lambda parameters incorrectly recovered as fields. 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=405126, [1.8][code assist] Lambda parameters incorrectly recovered as fields.
 public void test007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -609,7 +609,7 @@ public void test017() throws JavaModelException { // ensure higher relevance for
 	requestor.setComputeEnclosingElement(false);
 	requestor.setComputeVisibleElements(true);
 	requestor.setAssignableType("LX;");
-	
+
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "xyz";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -654,7 +654,7 @@ public void test018() throws JavaModelException { // computing visible elements 
 	requestor.setComputeEnclosingElement(false);
 	requestor.setComputeVisibleElements(true);
 	requestor.setAssignableType("LX;");
-	
+
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "xyz.";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -707,7 +707,7 @@ public void test018a() throws JavaModelException { // computing visible elements
 	requestor.setComputeEnclosingElement(false);
 	requestor.setComputeVisibleElements(true);
 	requestor.setAssignableType("LX;");
-	
+
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "xyz.";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -889,12 +889,12 @@ public void testBug405125a() throws JavaModelException {
 		requestor.setRequireExtendedContext(true);
 		requestor.setComputeVisibleElements(true);
 		requestor.allowAllRequiredProposals();
-	
+
 	    String str = this.workingCopies[0].getSource();
 	    String completeBehind = "(int x5, int x2) -> bar";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	    
+
 	    assertResults(
 	    	"bars[METHOD_REF]{bars(), LB;, ()I, bars, null, " + (R_DEFAULT + 22) + "}",
 	    	requestor.getResults());
@@ -922,7 +922,7 @@ public void testBug405125b() throws JavaModelException {
 	    String completeBehind = "(int x5, int x2) -> anot";
 	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	    
+
 	    assertResults(
 	    	"another[FIELD_REF]{another, LB;, I, another, null, " + (R_DEFAULT + 22) + "}",
 	    	requestor.getResults());
@@ -952,7 +952,7 @@ public void test425084() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"tryit[LOCAL_VARIABLE_REF]{tryit, null, I, null, null, tryit, null, [99, 102], " + (R_DEFAULT + 22) + "}\n" +
-			"try[KEYWORD]{try, null, null, null, null, try, null, [99, 102], " + (R_DEFAULT + 23) + "}", 
+			"try[KEYWORD]{try, null, null, null, null, try, null, [99, 102], " + (R_DEFAULT + 23) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
@@ -1132,7 +1132,7 @@ public void test427532b() throws JavaModelException {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427464, [1.8][content assist] CCE : MethodDeclaration incompatible with CompletionOnAnnotationOfType 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427464, [1.8][content assist] CCE : MethodDeclaration incompatible with CompletionOnAnnotationOfType
 public void test427464() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1222,7 +1222,7 @@ public void test428735b() throws JavaModelException {
 			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
 			"	}\n" +
 			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> x.getLastName().compareTo(y.get));\n" + 
+			"       people.sort((x,y) -> x.getLastName().compareTo(y.get));\n" +
 			"   }\n" +
 			"}\n");
 
@@ -1249,7 +1249,7 @@ public void test428735c() throws JavaModelException {
 			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
 			"	}\n" +
 			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> x.getLastName() + y.get);\n" + 
+			"       people.sort((x,y) -> x.getLastName() + y.get);\n" +
 			"   }\n" +
 			"}\n");
 
@@ -1276,7 +1276,7 @@ public void test428735d() throws JavaModelException {
 			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
 			"	}\n" +
 			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> \"\" + x.get); \n" + 
+			"       people.sort((x,y) -> \"\" + x.get); \n" +
 			"   }\n" +
 			"}\n");
 
@@ -1511,7 +1511,7 @@ public void test431402() throws JavaModelException {
 				"asList[LOCAL_VARIABLE_REF]{asList, null, Ljava.lang.Object;, asList, null, " + (R_DEFAULT + 42) + "}",
 			requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432527, Content Assist crashes sometimes using JDK8 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432527, Content Assist crashes sometimes using JDK8
 public void test432527() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -1603,7 +1603,7 @@ public void test430441() throws JavaModelException {
 		javaProject.setOptions(options);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430656, [1.8][content assist] Content assist does not work for method reference argument 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430656, [1.8][content assist] Content assist does not work for method reference argument
 public void test430656() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -1659,7 +1659,7 @@ public void test433178() throws JavaModelException {
 	String completeBehind = "ne";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("new[KEYWORD]{new, null, null, null, null, new, null, [183, 185], " + 
+	assertResults("new[KEYWORD]{new, null, null, null, null, new, null, [183, 185], " +
 											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
 											+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED) + "}", requestor.getResults());
 }
@@ -1690,7 +1690,7 @@ public void test433178a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1709,7 +1709,7 @@ public void test435219() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("out[FIELD_REF]{out, Ljava.lang.System;, Ljava.io.PrintStream;, null, null, out, null, [83, 84], " + (R_DEFAULT + 21) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1748,7 +1748,7 @@ public void test435219a() throws JavaModelException {
 			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, (Z)V, null, null, println, (arg0), [87, 88], " + (R_DEFAULT + 30) + "}\n" +
 			"println[METHOD_REF]{println(), Ljava.io.PrintStream;, ([C)V, null, null, println, (arg0), [87, 88], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1769,7 +1769,7 @@ public void test435219b() throws JavaModelException {
 			"stop[METHOD_REF]{stop(), Ljava.lang.Thread;, ()V, null, null, stop, null, [103, 105], " + (R_DEFAULT + 30) + "}\n" +
 			"stop[METHOD_REF]{stop(), Ljava.lang.Thread;, (Ljava.lang.Throwable;)V, null, null, stop, (arg0), [103, 105], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1793,7 +1793,7 @@ public void test435219c() throws JavaModelException {
 			"highestOneBit[METHOD_REF]{highestOneBit(), Ljava.lang.Integer;, (I)I, null, null, highestOneBit, (arg0), [187, 188], " + (R_DEFAULT + 49) + "}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Integer;, ()I, null, null, hashCode, null, [187, 188], " + (R_DEFAULT + 60) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1835,7 +1835,7 @@ public void test435219d() throws JavaModelException {
 			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], " + (R_DEFAULT + 30) + "}\n" +
 			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219e() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1861,7 +1861,7 @@ public void test435219e() throws JavaModelException {
 			"doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [355, 358], " + (R_DEFAULT + 19) + "}\n" +
 			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [355, 358], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219f() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1886,7 +1886,7 @@ public void test435219f() throws JavaModelException {
 	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [391, 392], " + (R_DEFAULT + 30) + "}\n" +
 			"get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.lang.Double;>;, ()Ljava.lang.Double;, null, null, get, null, [391, 392], " + (R_DEFAULT + 50) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219g() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1912,7 +1912,7 @@ public void test435219g() throws JavaModelException {
 				  "doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [376, 379], " + (R_DEFAULT + 49) + "}\n" +
 				  "doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [376, 379], " + (R_DEFAULT + 60) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression
 public void test435682() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1934,7 +1934,7 @@ public void test435682() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [237, 239], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression
 public void test435682a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1956,7 +1956,7 @@ public void test435682a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [246, 248], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
 public void test430667() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -1983,7 +1983,7 @@ public void test430667() throws JavaModelException {
 	assertResults("D_F[POTENTIAL_METHOD_DECLARATION]{D_F, LD_DemoRefactorings;, ()V, null, null, D_F, null, [195, 198], " + (R_DEFAULT + 9) + "}\n" +
 				  "D_FI[TYPE_REF]{D_FI, , LD_FI;, null, null, null, null, [195, 198], " + (R_DEFAULT + 22) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
 public void test430667a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -2011,7 +2011,7 @@ public void test430667a() throws JavaModelException {
 	assertResults("D_F[POTENTIAL_METHOD_DECLARATION]{D_F, LD_DemoRefactorings;, ()V, null, null, D_F, null, [150, 153], " + (R_DEFAULT + 9) + "}\n" +
 			"D_FI[TYPE_REF]{D_FI, , LD_FI;, null, null, null, null, [150, 153], " + (R_DEFAULT + 22) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
 public void test430667b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -2064,7 +2064,7 @@ public void test443932() throws JavaModelException {
 			"toUnsignedString[METHOD_NAME_REFERENCE]{toUnsignedString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], " + (R_DEFAULT + 19) + "}\n" +
 			"toString[METHOD_NAME_REFERENCE]{toString, Ljava.lang.Integer;, ()Ljava.lang.String;, null, null, toString, null, [90, 98], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 	assertTrue(str.substring(90, 98).equals("toString"));
-	
+
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
 public void test444300() throws JavaModelException {
@@ -2088,7 +2088,7 @@ public void test444300() throws JavaModelException {
 	assertResults("charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, null, null, charAt, (arg0), [232, 234], " + (R_DEFAULT + 30) + "}\n" +
 			"chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, null, null, chars, null, [232, 234], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
 public void test435219h() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2111,7 +2111,7 @@ public void test435219h() throws JavaModelException {
 			"highestOneBit[METHOD_REF]{highestOneBit(), Ljava.lang.Integer;, (I)I, null, null, highestOneBit, (arg0), [164, 165], " + (R_DEFAULT + 49) + "}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Integer;, ()I, null, null, hashCode, null, [164, 165], " + (R_DEFAULT + 60) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
 public void test435219i() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2152,7 +2152,7 @@ public void test435219i() throws JavaModelException {
 			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [188, 191], " + (R_DEFAULT + 30) + "}\n" +
 			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [188, 191], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
 public void test435219j() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2176,7 +2176,7 @@ public void test435219j() throws JavaModelException {
 			"doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [235, 238], " + (R_DEFAULT + 19) + "}\n" +
 			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [235, 238], " + (R_DEFAULT + 30) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
 public void test435219k() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2199,7 +2199,7 @@ public void test435219k() throws JavaModelException {
 	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [271, 272], " + (R_DEFAULT + 30) + "}\n" +
 			"get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.lang.Double;>;, ()Ljava.lang.Double;, null, null, get, null, [271, 272], " + (R_DEFAULT + 50) + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
 public void test435219l() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2321,7 +2321,7 @@ public void test447774() throws JavaModelException {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last
 public void test449358() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -2353,9 +2353,9 @@ public void test449358() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("localmethod1[METHOD_REF]{localmethod1(), LLambdaBug;, ()V, null, null, localmethod1, null, [181, 190], " + (R_DEFAULT + 12) + "}\n" +
                   "localmethod2[METHOD_REF]{localmethod2(), LLambdaBug;, ()V, null, null, localmethod2, null, [181, 190], " + (R_DEFAULT + 12) + "}", requestor.getResults());
-	
+
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449358, Content assist inside lambda broken in all methods except last
 public void test449358a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -2386,7 +2386,7 @@ public void test449358a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("localmethod1[METHOD_REF]{localmethod1(), LLambdaBug;, ()V, null, null, localmethod1, null, [282, 291], " + (R_DEFAULT + 12) + "}\n" +
 				  "localmethod2[METHOD_REF]{localmethod2(), LLambdaBug;, ()V, null, null, localmethod2, null, [282, 291], " + (R_DEFAULT + 12) + "}", requestor.getResults());
-	
+
 }
 public void testBug459189_001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2708,8 +2708,8 @@ public void test484479() throws JavaModelException {
 	String completeBehind = "::pr";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("print[METHOD_NAME_REFERENCE]{print, LBar;, ()LBar;, null, null, print, null, [160, 162], " + 
-											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + 
+	assertResults("print[METHOD_NAME_REFERENCE]{print, LBar;, ()LBar;, null, null, print, null, [160, 162], " +
+											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED +
 													RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED +
 													RelevanceConstants.R_CASE) + "}", requestor.getResults());
 }
@@ -2736,7 +2736,7 @@ public void test473008a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
 	assertResults(
-			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [147, 159], " + relevance + "}\n" + 
+			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [147, 159], " + relevance + "}\n" +
 			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [147, 159], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
 			, requestor.getResults());
 }
@@ -2762,7 +2762,7 @@ public void test473008b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
 	assertResults(
-			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [149, 161], " + relevance + "}\n" + 
+			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [149, 161], " + relevance + "}\n" +
 			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [149, 161], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
 			, requestor.getResults());
 }
@@ -2788,7 +2788,7 @@ public void test473008c() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
 	assertResults(
-			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [151, 163], " + relevance + "}\n" + 
+			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [151, 163], " + relevance + "}\n" +
 			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [151, 163], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
 			, requestor.getResults());
 }
@@ -2931,46 +2931,46 @@ public void testBug493705() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/HelloWorld.java",
-			"package b493705;\n" + 
-			"\n" + 
-			"import java.util.function.BiFunction;\n" + 
-			"\n" + 
-			"class Control { }\n" + 
-			"class Composite extends Control { }\n" + 
-			"class Label extends Control {\n" + 
-			"	public Label(Composite p, int i) {}\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Viewer { }\n" + 
-			"interface ViewerSupplier {\n" + 
-			"	ViewerUI<? extends Viewer> getViewerUI();\n" + 
-			"}\n" + 
-			"class ViewerUI<V extends Viewer> extends SwtUI<Control>{\n" + 
-			"\n" + 
-			"}\n" + 
-			"interface ControlSupplier {\n" + 
-			"	SwtUI<? extends Control> getControlUI();\n" + 
-			"}\n" + 
-			"class SwtUI<T> {\n" + 
-			"	public SwtUI<T> child(ControlSupplier supplier) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public SwtUI<T> child(ViewerSupplier supplier) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public static <T extends Control> SwtUI<T> create(BiFunction<Composite, Integer, T> ctor) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	public SwtUI<T> text(String text) {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"public class HelloWorld {\n" + 
-			"	void test(SwtUI<Composite> root) {\n" + 
-			"		root.child(() -> SwtUI.create(Label::new)\n" + 
-			"				.text(\"Selection\").\n" + 
-			"				);\n" + 
-			"	}\n" + 
+			"package b493705;\n" +
+			"\n" +
+			"import java.util.function.BiFunction;\n" +
+			"\n" +
+			"class Control { }\n" +
+			"class Composite extends Control { }\n" +
+			"class Label extends Control {\n" +
+			"	public Label(Composite p, int i) {}\n" +
+			"}\n" +
+			"\n" +
+			"class Viewer { }\n" +
+			"interface ViewerSupplier {\n" +
+			"	ViewerUI<? extends Viewer> getViewerUI();\n" +
+			"}\n" +
+			"class ViewerUI<V extends Viewer> extends SwtUI<Control>{\n" +
+			"\n" +
+			"}\n" +
+			"interface ControlSupplier {\n" +
+			"	SwtUI<? extends Control> getControlUI();\n" +
+			"}\n" +
+			"class SwtUI<T> {\n" +
+			"	public SwtUI<T> child(ControlSupplier supplier) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public SwtUI<T> child(ViewerSupplier supplier) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static <T extends Control> SwtUI<T> create(BiFunction<Composite, Integer, T> ctor) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public SwtUI<T> text(String text) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"public class HelloWorld {\n" +
+			"	void test(SwtUI<Composite> root) {\n" +
+			"		root.child(() -> SwtUI.create(Label::new)\n" +
+			"				.text(\"Selection\").\n" +
+			"				);\n" +
+			"	}\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
@@ -2983,21 +2983,21 @@ public void testBug493705() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_STATIC;
 	assertResults(
-			"create[METHOD_REF]{create(), LSwtUI<LLabel;>;, <T:LControl;>(Ljava.util.function.BiFunction<LComposite;Ljava.lang.Integer;TT;>;)LSwtUI<TT;>;, null, null, create, (ctor), [853, 853], "+relevance1+"}\n" + 
-			"new[KEYWORD]{new, null, null, null, null, new, null, [853, 853], "+relevance1+"}\n" + 
-			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LControlSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" + 
-			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LViewerSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" + 
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [853, 853], "+relevance2+"}\n" + 
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [853, 853], "+relevance2+"}\n" + 
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [853, 853], "+relevance2+"}\n" + 
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [853, 853], "+relevance2+"}\n" + 
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [853, 853], "+relevance2+"}\n" + 
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [853, 853], "+relevance2+"}\n" + 
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [853, 853], "+relevance2+"}\n" + 
-			"text[METHOD_REF]{text(), LSwtUI<LLabel;>;, (Ljava.lang.String;)LSwtUI<LLabel;>;, null, null, text, (text), [853, 853], "+relevance2+"}\n" + 
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [853, 853], "+relevance2+"}\n" + 
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [853, 853], "+relevance2+"}\n" + 
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [853, 853], "+relevance2+"}\n" + 
+			"create[METHOD_REF]{create(), LSwtUI<LLabel;>;, <T:LControl;>(Ljava.util.function.BiFunction<LComposite;Ljava.lang.Integer;TT;>;)LSwtUI<TT;>;, null, null, create, (ctor), [853, 853], "+relevance1+"}\n" +
+			"new[KEYWORD]{new, null, null, null, null, new, null, [853, 853], "+relevance1+"}\n" +
+			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LControlSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" +
+			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LViewerSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [853, 853], "+relevance2+"}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [853, 853], "+relevance2+"}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [853, 853], "+relevance2+"}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [853, 853], "+relevance2+"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [853, 853], "+relevance2+"}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [853, 853], "+relevance2+"}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [853, 853], "+relevance2+"}\n" +
+			"text[METHOD_REF]{text(), LSwtUI<LLabel;>;, (Ljava.lang.String;)LSwtUI<LLabel;>;, null, null, text, (text), [853, 853], "+relevance2+"}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [853, 853], "+relevance2+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [853, 853], "+relevance2+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [853, 853], "+relevance2+"}\n" +
 			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [853, 853], "+relevance2+"}"
 			, requestor.getResults());
 }
@@ -3165,8 +3165,8 @@ public void testBug529349a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Y.Super[TYPE_REF]{p.Y.Super, p, Lp.Y$Super;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_NON_RESTRICTED + R_CLASS ) + "}\n" + 
-			"Super[TYPE_REF]{Super, p, Lp.Super;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}\n" + 
+			"Y.Super[TYPE_REF]{p.Y.Super, p, Lp.Y$Super;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_NON_RESTRICTED + R_CLASS ) + "}\n" +
+			"Super[TYPE_REF]{Super, p, Lp.Super;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}\n" +
 			"SuperSuper[TYPE_REF]{SuperSuper, p, Lp.SuperSuper;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}",
 			requestor.getResults());
 }
@@ -3174,16 +3174,16 @@ public void testBug473654() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/Foo.java",
-		"class Foo {\n" + 
-		"    Runnable foo() {\n" + 
-		"        return () -> new Object() {\n" + 
-		"            // press Ctrl+Space before the comment\n" + 
-		"        };\n" + 
-		"    }\n" + 
-		"    \n" + 
-		"    static void bar() { /**/ }\n" + 
+		"class Foo {\n" +
+		"    Runnable foo() {\n" +
+		"        return () -> new Object() {\n" +
+		"            // press Ctrl+Space before the comment\n" +
+		"        };\n" +
+		"    }\n" +
+		"    \n" +
+		"    static void bar() { /**/ }\n" +
 		"}\n");
-	
+
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
 	String completeBefore = "// press Ctrl+Space before the comment";
@@ -3194,26 +3194,26 @@ public void testBug473654() throws Exception {
 	int overrideRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_METHOD_OVERIDE;
 
 	assertResults(
-			"[POTENTIAL_METHOD_DECLARATION]{, LObject;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" + 
-			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" + 
-			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" + 
-			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" + 
-			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" + 
-			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" + 
-			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" + 
-			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" + 
-			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" + 
-			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" + 
-			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" + 
-			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" + 
-			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" + 
-			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" + 
-			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" + 
-			"Foo[TYPE_REF]{Foo, , LFoo;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED)+"}\n" + 
-			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" + 
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" + 
-			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" + 
-			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" + 
+			"[POTENTIAL_METHOD_DECLARATION]{, LObject;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" +
+			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" +
+			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" +
+			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" +
+			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" +
+			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" +
+			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" +
+			"Foo[TYPE_REF]{Foo, , LFoo;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED)+"}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" +
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
 			requestor.getResults());
 }
@@ -3221,18 +3221,18 @@ public void testBug537679() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/p/SuperSuper.java",
-		"import static java.util.stream.Collectors.toList;\n" + 
-		"import java.util.List;\n" + 
-		"\n" + 
-		"public class Test {\n" + 
-		"	void foo(List<Object> list) {\n" + 
-		"		bar(list.stream().map(m -> new Object() {\n" + 
-		"			// here\n" + 
-		"		}).collect(toList()));\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	private void bar(List<Object> collect) {\n" + 
-		"	}\n" + 
+		"import static java.util.stream.Collectors.toList;\n" +
+		"import java.util.List;\n" +
+		"\n" +
+		"public class Test {\n" +
+		"	void foo(List<Object> list) {\n" +
+		"		bar(list.stream().map(m -> new Object() {\n" +
+		"			// here\n" +
+		"		}).collect(toList()));\n" +
+		"	}\n" +
+		"\n" +
+		"	private void bar(List<Object> collect) {\n" +
+		"	}\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3243,26 +3243,26 @@ public void testBug537679() throws JavaModelException {
 	int keywordRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
 	int overrideRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_METHOD_OVERIDE;
 	assertResults(
-			"[POTENTIAL_METHOD_DECLARATION]{, LObject;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" + 
-			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" + 
-			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" + 
-			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" + 
-			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" + 
-			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" + 
-			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" + 
-			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" + 
-			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" + 
-			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" + 
-			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" + 
-			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" + 
-			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" + 
-			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" + 
-			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" + 
-			"Test[TYPE_REF]{Test, p, Lp.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED)+"}\n" + 
-			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" + 
-			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" + 
-			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" + 
-			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" + 
+			"[POTENTIAL_METHOD_DECLARATION]{, LObject;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" +
+			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" +
+			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" +
+			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" +
+			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" +
+			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" +
+			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" +
+			"Test[TYPE_REF]{Test, p, Lp.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED)+"}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" +
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
 			requestor.getResults());
 }
@@ -3279,7 +3279,7 @@ public void testBug460750a() throws JavaModelException {
 			"	}\n" +
 			"	public void meth() {\n" +
 			"		this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);\n" +
-			"	    }\n" +	
+			"	    }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3288,7 +3288,7 @@ public void testBug460750a() throws JavaModelException {
 	String completeBehind = "FOO:BAR";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	
+
 	assertResults(
 			"BAR[FIELD_REF]{MyEnum.BAR, LFoo$MyEnum;, LFoo$MyEnum;, BAR, null, 108}",
 			requestor.getResults());
@@ -3308,8 +3308,8 @@ public void testBug460750b() throws JavaModelException {
 			"		this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);\n" +
 			"	    MyEnum e= MyEnum.FOO;\n" +
 			"	    if(e  !=QUZ) {    	\n" +
-			"	    }\n" +	
-			"	    }\n" +	
+			"	    }\n" +
+			"	    }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3325,15 +3325,15 @@ public void testBug460750b() throws JavaModelException {
 }
 
 /*
-* Test that completion doesn't throw NPE 
+* Test that completion doesn't throw NPE
 */
 public void testBug535743a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/FooNPE.java",
-				"package test;\n" +	
+				"package test;\n" +
 				 		"public class FooNPE {\n" +
-				 		"	public static void main(String[] args) {	\n" +	
+				 		"	public static void main(String[] args) {	\n" +
 				 		"		java.util.function.Consumer<Object> consumer = object -> {new SomeClass().something(obj -> {/*nop*/}).\n" +
 				 		"		};\n" +
 				 		"	}\n" +
@@ -3360,9 +3360,9 @@ public void testBug535743b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/FooNPE.java",
-			"package test;\n" +	
+			"package test;\n" +
 			 		"public class FooNPE {\n" +
-			 		"	public static void main(String[] args) {	\n" +	
+			 		"	public static void main(String[] args) {	\n" +
 			 		"		java.util.function.Consumer<Object> consumer = object -> {new SomeClass().something(obj -> {}).\n" +
 			 		"		};\n" +
 			 		"	}\n" +
@@ -3397,10 +3397,10 @@ public void testBug526044() throws Exception {
 			"}\n" +
 			"public class Test {\n" +
 			"	void foo() {\n" +
-			"		ProcessHandle.allProcesses().forEach(p -> {\n" + 
-			"			p.info().command().ifPresent(o -> {\n" + 
-			"				System.out.println(o);\n" + 
-			"			}).\n" + 
+			"		ProcessHandle.allProcesses().forEach(p -> {\n" +
+			"			p.info().command().ifPresent(o -> {\n" +
+			"				System.out.println(o);\n" +
+			"			}).\n" +
 			"		});" +
 			"	}\n" +
 			"}\n");
@@ -3420,18 +3420,18 @@ public void testBug539546() throws Exception {
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
 			"package p;\n" +
-			"public class Test {\n" + 
-			"	public Test(Runnable run) {}\n" + 
+			"public class Test {\n" +
+			"	public Test(Runnable run) {}\n" +
 			"}\n");
 	this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/p/Test.java",
 			"package p;\n" +
-			"public class Main {\n" + 
-			"	public void myTestOfStackOverflow() {\n" + 
-			"		() -> {\n" + 
-			"			new Test(() -> {}).\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class Main {\n" +
+			"	public void myTestOfStackOverflow() {\n" +
+			"		() -> {\n" +
+			"			new Test(() -> {}).\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3442,102 +3442,102 @@ public void testBug539546() throws Exception {
 
 	assertResults(
 			"",
-			requestor.getResults());	
+			requestor.getResults());
 }
 public void testBug477626() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/p/Snippet29.java",
 			"package p;\n" +
-			"import java.util.Arrays;\n" + 
-			"import java.util.function.Consumer;\n" + 
-			"\n" + 
-			"public class Snippet29 {\n" + 
-			"\n" + 
-			"class Display {\n" + 
-			"	public void asyncExec(Runnable runnable) { }\n" + 
-			"}\n" + 
-			"class Shell {\n" + 
-			"	Shell(Display display) {}\n" + 
-			"	public Shell(Shell shell, int i) { }\n" + 
-			"	public void setLayout(GridLayout gridLayout) { }\n" + 
-			"	public void setText(String string) { }\n" + 
-			"	public void pack() { }\n" + 
-			"	public Point getLocation() { return null; }\n" + 
-			"	public void open() { }\n" + 
-			"	public void close() { }\n" + 
-			"	public void setLocation(int i, int j) { }\n" + 
-			"}\n" + 
-			"class Point {\n" + 
-			"	int x, y;\n" + 
-			"}\n" + 
-			"class GridLayout {\n" + 
-			"	public GridLayout() { }\n" + 
-			"	public GridLayout(int i, boolean b) { }\n" + 
-			"}\n" + 
-			"class GridData {\n" + 
-			"	public GridData(int fill, int fill2, boolean b, boolean c, int i, int j) { }\n" + 
-			"	public GridData(int fill, int fill2, boolean b, boolean c) { }\n" + 
-			"}\n" + 
-			"class Widget {\n" + 
-			"	public void setText(String string) { }\n" + 
-			"	public void setLayoutData(GridData gridData) { }\n" + 
-			"}\n" + 
-			"class Button extends Widget {\n" + 
-			"	Button(Shell shell, int style) { }\n" + 
-			"	public void addListener(int selection, Consumer<Event> listener) { }\n" + 
-			"}\n" + 
-			"class Label extends Widget {\n" + 
-			"	public Label(Shell dialog, int none) { }\n" + 
-			"}\n" + 
-			"class Event {}\n" + 
-			"class SWT {\n" + 
-			"	public static final int PUSH = 1;\n" + 
-			"	public static final int Selection = 2;\n" + 
-			"	protected static final int DIALOG_TRIM = 3;\n" + 
-			"	protected static final int APPLICATION_MODAL = 4;\n" + 
-			"	protected static final int NONE = 5;\n" + 
-			"	protected static final int FILL = 6;\n" + 
-			"}\n" + 
-			"class Timer {\n" + 
-			"	public void schedule(TimerTask timerTask, int i) { }\n" + 
-			"}\n" + 
-			"abstract class TimerTask implements Runnable {}\n" + 
-			"public static void main (String [] args) {\n" + 
-			"	Display display = new Display ();\n" + 
-			"	Shell shell = new Shell (display);\n" + 
-			"	shell.setLayout(new GridLayout());\n" + 
-			"	Button b = new Button(shell, SWT.PUSH);\n" + 
-			"	b.setText(\"Open dialog in 3s\");\n" + 
-			"	b.addListener(SWT.Selection, e -> {\n" + 
-			"		new Timer().schedule(new TimerTask() {\n" + 
-			"			@Override\n" + 
-			"			public void run() {\n" + 
-			"				display.asyncExec(new Runnable() {\n" + 
-			"					@Override\n" + 
-			"					public void run() {\n" + 
-			"						Shell dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);\n" + 
-			"						dialog.setText(\"Question\");\n" + 
-			"						dialog.setLayout(new GridLayout(3, true));\n" + 
-			"						Label label = new Label(dialog, SWT.NONE);\n" + 
-			"						label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));\n" + 
-			"						label.setText(\"Do you really want to clear the runtime workspace?\");\n" + 
-			"						Arrays.asList(\"Yes\", \"No\", \"Cancel\").forEach(t -> {\n" + 
-			"							Button button = new Button(dialog, SWT.PUSH);\n" + 
-			"							button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));\n" + 
-			"							button.setText(t);\n" + 
-			"							button.addListener(SWT.Selection, e -> { dialog.close(); });\n" + 
-			"						});\n" + 
-			"						dialog.pack();\n" + 
-			"						dialog.setLocation(shell.getLocation().x + 40, shell.getLocation().y + 80);\n" + 
-			"						dialog.open();\n" + 
-			"					}\n" + 
-			"				}).;\n" + 
-			"			}\n" + 
-			"		}, 2000);\n" + 
-			"	});\n" + 
-			"}\n" + 
-			"\n" + 
+			"import java.util.Arrays;\n" +
+			"import java.util.function.Consumer;\n" +
+			"\n" +
+			"public class Snippet29 {\n" +
+			"\n" +
+			"class Display {\n" +
+			"	public void asyncExec(Runnable runnable) { }\n" +
+			"}\n" +
+			"class Shell {\n" +
+			"	Shell(Display display) {}\n" +
+			"	public Shell(Shell shell, int i) { }\n" +
+			"	public void setLayout(GridLayout gridLayout) { }\n" +
+			"	public void setText(String string) { }\n" +
+			"	public void pack() { }\n" +
+			"	public Point getLocation() { return null; }\n" +
+			"	public void open() { }\n" +
+			"	public void close() { }\n" +
+			"	public void setLocation(int i, int j) { }\n" +
+			"}\n" +
+			"class Point {\n" +
+			"	int x, y;\n" +
+			"}\n" +
+			"class GridLayout {\n" +
+			"	public GridLayout() { }\n" +
+			"	public GridLayout(int i, boolean b) { }\n" +
+			"}\n" +
+			"class GridData {\n" +
+			"	public GridData(int fill, int fill2, boolean b, boolean c, int i, int j) { }\n" +
+			"	public GridData(int fill, int fill2, boolean b, boolean c) { }\n" +
+			"}\n" +
+			"class Widget {\n" +
+			"	public void setText(String string) { }\n" +
+			"	public void setLayoutData(GridData gridData) { }\n" +
+			"}\n" +
+			"class Button extends Widget {\n" +
+			"	Button(Shell shell, int style) { }\n" +
+			"	public void addListener(int selection, Consumer<Event> listener) { }\n" +
+			"}\n" +
+			"class Label extends Widget {\n" +
+			"	public Label(Shell dialog, int none) { }\n" +
+			"}\n" +
+			"class Event {}\n" +
+			"class SWT {\n" +
+			"	public static final int PUSH = 1;\n" +
+			"	public static final int Selection = 2;\n" +
+			"	protected static final int DIALOG_TRIM = 3;\n" +
+			"	protected static final int APPLICATION_MODAL = 4;\n" +
+			"	protected static final int NONE = 5;\n" +
+			"	protected static final int FILL = 6;\n" +
+			"}\n" +
+			"class Timer {\n" +
+			"	public void schedule(TimerTask timerTask, int i) { }\n" +
+			"}\n" +
+			"abstract class TimerTask implements Runnable {}\n" +
+			"public static void main (String [] args) {\n" +
+			"	Display display = new Display ();\n" +
+			"	Shell shell = new Shell (display);\n" +
+			"	shell.setLayout(new GridLayout());\n" +
+			"	Button b = new Button(shell, SWT.PUSH);\n" +
+			"	b.setText(\"Open dialog in 3s\");\n" +
+			"	b.addListener(SWT.Selection, e -> {\n" +
+			"		new Timer().schedule(new TimerTask() {\n" +
+			"			@Override\n" +
+			"			public void run() {\n" +
+			"				display.asyncExec(new Runnable() {\n" +
+			"					@Override\n" +
+			"					public void run() {\n" +
+			"						Shell dialog = new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);\n" +
+			"						dialog.setText(\"Question\");\n" +
+			"						dialog.setLayout(new GridLayout(3, true));\n" +
+			"						Label label = new Label(dialog, SWT.NONE);\n" +
+			"						label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 3, 1));\n" +
+			"						label.setText(\"Do you really want to clear the runtime workspace?\");\n" +
+			"						Arrays.asList(\"Yes\", \"No\", \"Cancel\").forEach(t -> {\n" +
+			"							Button button = new Button(dialog, SWT.PUSH);\n" +
+			"							button.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));\n" +
+			"							button.setText(t);\n" +
+			"							button.addListener(SWT.Selection, e -> { dialog.close(); });\n" +
+			"						});\n" +
+			"						dialog.pack();\n" +
+			"						dialog.setLocation(shell.getLocation().x + 40, shell.getLocation().y + 80);\n" +
+			"						dialog.open();\n" +
+			"					}\n" +
+			"				}).;\n" +
+			"			}\n" +
+			"		}, 2000);\n" +
+			"	});\n" +
+			"}\n" +
+			"\n" +
 			"} \n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -3553,20 +3553,20 @@ public void testBug477626() throws Exception {
 public void testBug490096() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/ShowSOEInEclipseMars2.java",
-			"import java.util.concurrent.CompletableFuture;\n" + 
-			"\n" + 
-			"public class ShowSOEInEclipseMars2 {\n" + 
-			" \n" + 
-			"public void crashWithStackOverflowError() {\n" + 
-			"   \n" + 
-			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" + 
-			"  try {\n" + 
-			"   CompletableFuture.supplyAsync(() -> { return 0D; }).;\n" + 
-			"  } catch (Exception e) {\n" + 
-			"  }\n" + 
-			"  return 1D;\n" + 
-			" });\n" + 
-			" }\n" + 
+			"import java.util.concurrent.CompletableFuture;\n" +
+			"\n" +
+			"public class ShowSOEInEclipseMars2 {\n" +
+			" \n" +
+			"public void crashWithStackOverflowError() {\n" +
+			"   \n" +
+			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" +
+			"  try {\n" +
+			"   CompletableFuture.supplyAsync(() -> { return 0D; }).;\n" +
+			"  } catch (Exception e) {\n" +
+			"  }\n" +
+			"  return 1D;\n" +
+			" });\n" +
+			" }\n" +
 			"}\n");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3576,95 +3576,95 @@ public void testBug490096() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	int relevance2 = relevance1 + R_NON_STATIC;
 	assertResults(
-			"allOf[METHOD_REF]{allOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, allOf, (arg0), " + relevance1 + "}\n" + 
-			"anyOf[METHOD_REF]{anyOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Object;>;, anyOf, (arg0), " + relevance1 + "}\n" + 
-			"completedFuture[METHOD_REF]{completedFuture(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(TU;)Ljava.util.concurrent.CompletableFuture<TU;>;, completedFuture, (arg0), " + relevance1 + "}\n" + 
-			"new[KEYWORD]{new, null, null, new, null, " + relevance1 + "}\n" + 
-			"runAsync[METHOD_REF]{runAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAsync, (arg0), " + relevance1 + "}\n" + 
-			"runAsync[METHOD_REF]{runAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAsync, (arg0, arg1), " + relevance1 + "}\n" + 
-			"supplyAsync[METHOD_REF]{supplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Supplier<TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, supplyAsync, (arg0), " + relevance1 + "}\n" + 
-			"supplyAsync[METHOD_REF]{supplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Supplier<TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, supplyAsync, (arg0, arg1), " + relevance1 + "}\n" + 
-			"acceptEither[METHOD_REF]{acceptEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEither, (arg0, arg1), " + relevance2 + "}\n" + 
-			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"applyToEither[METHOD_REF]{applyToEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEither, (arg0, arg1), " + relevance2 + "}\n" + 
-			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"cancel[METHOD_REF]{cancel(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Z)Z, cancel, (arg0), " + relevance2 + "}\n" + 
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + relevance2 + "}\n" + 
-			"complete[METHOD_REF]{complete(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)Z, complete, (arg0), " + relevance2 + "}\n" + 
-			"completeExceptionally[METHOD_REF]{completeExceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Throwable;)Z, completeExceptionally, (arg0), " + relevance2 + "}\n" + 
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + relevance2 + "}\n" + 
-			"exceptionally[METHOD_REF]{exceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Function<Ljava.lang.Throwable;+Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, exceptionally, (arg0), " + relevance2 + "}\n" + 
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + relevance2 + "}\n" + 
-			"get[METHOD_REF]{get(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.Double;, get, null, " + relevance2 + "}\n" + 
-			"get[METHOD_REF]{get(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (JLjava.util.concurrent.TimeUnit;)Ljava.lang.Double;, get, (arg0, arg1), " + relevance2 + "}\n" + 
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, " + relevance2 + "}\n" + 
-			"getNow[METHOD_REF]{getNow(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)Ljava.lang.Double;, getNow, (arg0), " + relevance2 + "}\n" + 
-			"getNumberOfDependents[METHOD_REF]{getNumberOfDependents(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()I, getNumberOfDependents, null, " + relevance2 + "}\n" + 
-			"handle[METHOD_REF]{handle(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, handle, (arg0), " + relevance2 + "}\n" + 
-			"handleAsync[METHOD_REF]{handleAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, handleAsync, (arg0), " + relevance2 + "}\n" + 
-			"handleAsync[METHOD_REF]{handleAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, handleAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + relevance2 + "}\n" + 
-			"isCancelled[METHOD_REF]{isCancelled(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isCancelled, null, " + relevance2 + "}\n" + 
-			"isCompletedExceptionally[METHOD_REF]{isCompletedExceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isCompletedExceptionally, null, " + relevance2 + "}\n" + 
-			"isDone[METHOD_REF]{isDone(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isDone, null, " + relevance2 + "}\n" + 
-			"join[METHOD_REF]{join(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.Double;, join, null, " + relevance2 + "}\n" + 
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + relevance2 + "}\n" + 
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + relevance2 + "}\n" + 
-			"obtrudeException[METHOD_REF]{obtrudeException(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Throwable;)V, obtrudeException, (arg0), " + relevance2 + "}\n" + 
-			"obtrudeValue[METHOD_REF]{obtrudeValue(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)V, obtrudeValue, (arg0), " + relevance2 + "}\n" + 
-			"runAfterBoth[METHOD_REF]{runAfterBoth(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBoth, (arg0, arg1), " + relevance2 + "}\n" + 
-			"runAfterBothAsync[METHOD_REF]{runAfterBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBothAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"runAfterBothAsync[METHOD_REF]{runAfterBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBothAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"runAfterEither[METHOD_REF]{runAfterEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEither, (arg0, arg1), " + relevance2 + "}\n" + 
-			"runAfterEitherAsync[METHOD_REF]{runAfterEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"runAfterEitherAsync[METHOD_REF]{runAfterEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"thenAccept[METHOD_REF]{thenAccept(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAccept, (arg0), " + relevance2 + "}\n" + 
-			"thenAcceptAsync[METHOD_REF]{thenAcceptAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptAsync, (arg0), " + relevance2 + "}\n" + 
-			"thenAcceptAsync[METHOD_REF]{thenAcceptAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenAcceptBoth[METHOD_REF]{thenAcceptBoth(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBoth, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenAcceptBothAsync[METHOD_REF]{thenAcceptBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBothAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenAcceptBothAsync[METHOD_REF]{thenAcceptBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBothAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"thenApply[METHOD_REF]{thenApply(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApply, (arg0), " + relevance2 + "}\n" + 
-			"thenApplyAsync[METHOD_REF]{thenApplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApplyAsync, (arg0), " + relevance2 + "}\n" + 
-			"thenApplyAsync[METHOD_REF]{thenApplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApplyAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenCombine[METHOD_REF]{thenCombine(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombine, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenCombineAsync[METHOD_REF]{thenCombineAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombineAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenCombineAsync[METHOD_REF]{thenCombineAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombineAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"thenCompose[METHOD_REF]{thenCompose(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenCompose, (arg0), " + relevance2 + "}\n" + 
-			"thenComposeAsync[METHOD_REF]{thenComposeAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenComposeAsync, (arg0), " + relevance2 + "}\n" + 
-			"thenComposeAsync[METHOD_REF]{thenComposeAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenComposeAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"thenRun[METHOD_REF]{thenRun(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRun, (arg0), " + relevance2 + "}\n" + 
-			"thenRunAsync[METHOD_REF]{thenRunAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRunAsync, (arg0), " + relevance2 + "}\n" + 
-			"thenRunAsync[METHOD_REF]{thenRunAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRunAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"toCompletableFuture[METHOD_REF]{toCompletableFuture(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, toCompletableFuture, null, " + relevance2 + "}\n" + 
-			"toString[METHOD_REF]{toString(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.String;, toString, null, " + relevance2 + "}\n" + 
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + relevance2 + "}\n" + 
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + relevance2 + "}\n" + 
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + relevance2 + "}\n" + 
-			"whenComplete[METHOD_REF]{whenComplete(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenComplete, (arg0), " + relevance2 + "}\n" + 
-			"whenCompleteAsync[METHOD_REF]{whenCompleteAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenCompleteAsync, (arg0), " + relevance2 + "}\n" + 
+			"allOf[METHOD_REF]{allOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, allOf, (arg0), " + relevance1 + "}\n" +
+			"anyOf[METHOD_REF]{anyOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Object;>;, anyOf, (arg0), " + relevance1 + "}\n" +
+			"completedFuture[METHOD_REF]{completedFuture(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(TU;)Ljava.util.concurrent.CompletableFuture<TU;>;, completedFuture, (arg0), " + relevance1 + "}\n" +
+			"new[KEYWORD]{new, null, null, new, null, " + relevance1 + "}\n" +
+			"runAsync[METHOD_REF]{runAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAsync, (arg0), " + relevance1 + "}\n" +
+			"runAsync[METHOD_REF]{runAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAsync, (arg0, arg1), " + relevance1 + "}\n" +
+			"supplyAsync[METHOD_REF]{supplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Supplier<TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, supplyAsync, (arg0), " + relevance1 + "}\n" +
+			"supplyAsync[METHOD_REF]{supplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Supplier<TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, supplyAsync, (arg0, arg1), " + relevance1 + "}\n" +
+			"acceptEither[METHOD_REF]{acceptEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEither, (arg0, arg1), " + relevance2 + "}\n" +
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"applyToEither[METHOD_REF]{applyToEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEither, (arg0, arg1), " + relevance2 + "}\n" +
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"cancel[METHOD_REF]{cancel(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Z)Z, cancel, (arg0), " + relevance2 + "}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + relevance2 + "}\n" +
+			"complete[METHOD_REF]{complete(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)Z, complete, (arg0), " + relevance2 + "}\n" +
+			"completeExceptionally[METHOD_REF]{completeExceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Throwable;)Z, completeExceptionally, (arg0), " + relevance2 + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + relevance2 + "}\n" +
+			"exceptionally[METHOD_REF]{exceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Function<Ljava.lang.Throwable;+Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, exceptionally, (arg0), " + relevance2 + "}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + relevance2 + "}\n" +
+			"get[METHOD_REF]{get(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.Double;, get, null, " + relevance2 + "}\n" +
+			"get[METHOD_REF]{get(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (JLjava.util.concurrent.TimeUnit;)Ljava.lang.Double;, get, (arg0, arg1), " + relevance2 + "}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, " + relevance2 + "}\n" +
+			"getNow[METHOD_REF]{getNow(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)Ljava.lang.Double;, getNow, (arg0), " + relevance2 + "}\n" +
+			"getNumberOfDependents[METHOD_REF]{getNumberOfDependents(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()I, getNumberOfDependents, null, " + relevance2 + "}\n" +
+			"handle[METHOD_REF]{handle(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, handle, (arg0), " + relevance2 + "}\n" +
+			"handleAsync[METHOD_REF]{handleAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, handleAsync, (arg0), " + relevance2 + "}\n" +
+			"handleAsync[METHOD_REF]{handleAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, handleAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + relevance2 + "}\n" +
+			"isCancelled[METHOD_REF]{isCancelled(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isCancelled, null, " + relevance2 + "}\n" +
+			"isCompletedExceptionally[METHOD_REF]{isCompletedExceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isCompletedExceptionally, null, " + relevance2 + "}\n" +
+			"isDone[METHOD_REF]{isDone(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isDone, null, " + relevance2 + "}\n" +
+			"join[METHOD_REF]{join(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.Double;, join, null, " + relevance2 + "}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + relevance2 + "}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + relevance2 + "}\n" +
+			"obtrudeException[METHOD_REF]{obtrudeException(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Throwable;)V, obtrudeException, (arg0), " + relevance2 + "}\n" +
+			"obtrudeValue[METHOD_REF]{obtrudeValue(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)V, obtrudeValue, (arg0), " + relevance2 + "}\n" +
+			"runAfterBoth[METHOD_REF]{runAfterBoth(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBoth, (arg0, arg1), " + relevance2 + "}\n" +
+			"runAfterBothAsync[METHOD_REF]{runAfterBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBothAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"runAfterBothAsync[METHOD_REF]{runAfterBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBothAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"runAfterEither[METHOD_REF]{runAfterEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEither, (arg0, arg1), " + relevance2 + "}\n" +
+			"runAfterEitherAsync[METHOD_REF]{runAfterEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEitherAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"runAfterEitherAsync[METHOD_REF]{runAfterEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"thenAccept[METHOD_REF]{thenAccept(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAccept, (arg0), " + relevance2 + "}\n" +
+			"thenAcceptAsync[METHOD_REF]{thenAcceptAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptAsync, (arg0), " + relevance2 + "}\n" +
+			"thenAcceptAsync[METHOD_REF]{thenAcceptAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenAcceptBoth[METHOD_REF]{thenAcceptBoth(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBoth, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenAcceptBothAsync[METHOD_REF]{thenAcceptBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBothAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenAcceptBothAsync[METHOD_REF]{thenAcceptBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBothAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"thenApply[METHOD_REF]{thenApply(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApply, (arg0), " + relevance2 + "}\n" +
+			"thenApplyAsync[METHOD_REF]{thenApplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApplyAsync, (arg0), " + relevance2 + "}\n" +
+			"thenApplyAsync[METHOD_REF]{thenApplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApplyAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenCombine[METHOD_REF]{thenCombine(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombine, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenCombineAsync[METHOD_REF]{thenCombineAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombineAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenCombineAsync[METHOD_REF]{thenCombineAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombineAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"thenCompose[METHOD_REF]{thenCompose(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenCompose, (arg0), " + relevance2 + "}\n" +
+			"thenComposeAsync[METHOD_REF]{thenComposeAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenComposeAsync, (arg0), " + relevance2 + "}\n" +
+			"thenComposeAsync[METHOD_REF]{thenComposeAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenComposeAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"thenRun[METHOD_REF]{thenRun(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRun, (arg0), " + relevance2 + "}\n" +
+			"thenRunAsync[METHOD_REF]{thenRunAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRunAsync, (arg0), " + relevance2 + "}\n" +
+			"thenRunAsync[METHOD_REF]{thenRunAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRunAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"toCompletableFuture[METHOD_REF]{toCompletableFuture(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, toCompletableFuture, null, " + relevance2 + "}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.String;, toString, null, " + relevance2 + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + relevance2 + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + relevance2 + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + relevance2 + "}\n" +
+			"whenComplete[METHOD_REF]{whenComplete(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenComplete, (arg0), " + relevance2 + "}\n" +
+			"whenCompleteAsync[METHOD_REF]{whenCompleteAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenCompleteAsync, (arg0), " + relevance2 + "}\n" +
 			"whenCompleteAsync[METHOD_REF]{whenCompleteAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenCompleteAsync, (arg0, arg1), " + relevance2 + "}",
 			requestor.getResults());
 }
 public void testBug490096a() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/ShowSOEInEclipseMars2.java",
-			"import java.util.concurrent.CompletableFuture;\n" + 
-			"\n" + 
-			"public class ShowSOEInEclipseMars2 {\n" + 
-			" \n" + 
-			"public void crashWithStackOverflowError() {\n" + 
-			"   \n" + 
-			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" + 
-			"  try {\n" + 
-			"   CompletableFuture.supplyAsync(() -> { return 0D; }).a;\n" + 
-			"  } catch (Exception e) {\n" + 
-			"  }\n" + 
-			"  return 1D;\n" + 
-			" });\n" + 
-			" }\n" + 
+			"import java.util.concurrent.CompletableFuture;\n" +
+			"\n" +
+			"public class ShowSOEInEclipseMars2 {\n" +
+			" \n" +
+			"public void crashWithStackOverflowError() {\n" +
+			"   \n" +
+			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" +
+			"  try {\n" +
+			"   CompletableFuture.supplyAsync(() -> { return 0D; }).a;\n" +
+			"  } catch (Exception e) {\n" +
+			"  }\n" +
+			"  return 1D;\n" +
+			" });\n" +
+			" }\n" +
 			"}\n");
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
@@ -3674,13 +3674,13 @@ public void testBug490096a() throws JavaModelException {
 	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	int relevance2 = relevance1 + R_NON_STATIC;
 	assertResults(
-			"allOf[METHOD_REF]{allOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, allOf, (arg0), " + relevance1 + "}\n" + 
-			"anyOf[METHOD_REF]{anyOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Object;>;, anyOf, (arg0), " + relevance1 + "}\n" + 
-			"acceptEither[METHOD_REF]{acceptEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEither, (arg0, arg1), " + relevance2 + "}\n" + 
-			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
-			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
-			"applyToEither[METHOD_REF]{applyToEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEither, (arg0, arg1), " + relevance2 + "}\n" + 
-			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"allOf[METHOD_REF]{allOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, allOf, (arg0), " + relevance1 + "}\n" +
+			"anyOf[METHOD_REF]{anyOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Object;>;, anyOf, (arg0), " + relevance1 + "}\n" +
+			"acceptEither[METHOD_REF]{acceptEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEither, (arg0, arg1), " + relevance2 + "}\n" +
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1), " + relevance2 + "}\n" +
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" +
+			"applyToEither[METHOD_REF]{applyToEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEither, (arg0, arg1), " + relevance2 + "}\n" +
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" +
 			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}",
 			requestor.getResults());
 }

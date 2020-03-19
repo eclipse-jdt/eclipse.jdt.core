@@ -38,9 +38,9 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  * of DeclaredTypes.
  */
 public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
-	
+
 	private final ElementKind _elementKindHint;
-	
+
 	/* package */ DeclaredTypeImpl(BaseProcessingEnvImpl env, ReferenceBinding binding) {
 		super(env, binding);
 		_elementKindHint = null;

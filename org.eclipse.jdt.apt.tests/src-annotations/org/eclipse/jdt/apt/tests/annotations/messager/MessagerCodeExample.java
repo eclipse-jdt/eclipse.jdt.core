@@ -23,7 +23,7 @@ public class MessagerCodeExample {
 	public static final String CODE_PACKAGE = "messagertestpackage";
 	public static final String CODE_CLASS_NAME = "MessagerTestClass";
 	public static final String CODE_FULL_NAME = CODE_PACKAGE + "." + CODE_CLASS_NAME;
-	
+
 	// These offsets work for each code example, as long as the examples are cumulative
 	public static final int INFO_START = 219;
 	public static final int INFO_END = 222;
@@ -32,7 +32,7 @@ public class MessagerCodeExample {
 	public static final int ERROR_START = 417;
 	public static final int ERROR_END = 421;
 
-	private static final String HEADER_CHUNK = 
+	private static final String HEADER_CHUNK =
 		"package messagertestpackage;\n" +
 		"import org.eclipse.jdt.apt.tests.annotations.messager.MessagerAnnotation;" + "\n" +
 		"public class MessagerTestClass {" + "\n";
@@ -51,14 +51,14 @@ public class MessagerCodeExample {
 		"    @MessagerAnnotation(severity=MessagerAnnotation.Severity.ERROR)" + "\n" +
 		"    public void Quux() {" + "\n" +
 		"    }" + "\n";
-	
+
 	private static final String OK_CHUNK =
 		"    @MessagerAnnotation(severity=MessagerAnnotation.Severity.OK)" + "\n" +
 		"    public void Foo() {" + "\n" +
 		"    }" + "\n";
 
 	/** Code example with INFO, WARNING, and ERROR severities */
-	public static final String CODE1 = 
+	public static final String CODE1 =
 		HEADER_CHUNK +
 		INFO_CHUNK +
 		WARNING_CHUNK +
@@ -66,20 +66,20 @@ public class MessagerCodeExample {
 		"}";
 
 	/** Code example with INFO and WARNING severities */
-	public static final String CODE2 = 
+	public static final String CODE2 =
 		HEADER_CHUNK +
 		INFO_CHUNK +
 		WARNING_CHUNK +
 		"}";
-	
+
 	/** Code example with INFO severity only */
-	public static final String CODE3 = 
+	public static final String CODE3 =
 		HEADER_CHUNK +
 		INFO_CHUNK +
 		"}";
-	
+
 	/** Code example with INFO severity only */
-	public static final String CODE4 = 
+	public static final String CODE4 =
 		HEADER_CHUNK +
 		OK_CHUNK +
 		"}";

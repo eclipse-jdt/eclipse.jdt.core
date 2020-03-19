@@ -1283,13 +1283,13 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	public void testBug460491() {
 		final String[] testsSource = new String[] {
 				"C.java",
-				"public class C<E> {\n" + 
-				"  static class F { }\n" + 
-				"  interface G { }\n" + 
-				"  class H { }\n" + 
-				"  void m1(F f) {}\n" + 
-				"  void m2(G g) {}\n" + 
-				"  void m3(H h) {}\n" + 
+				"public class C<E> {\n" +
+				"  static class F { }\n" +
+				"  interface G { }\n" +
+				"  class H { }\n" +
+				"  void m1(F f) {}\n" +
+				"  void m2(G g) {}\n" +
+				"  void m3(H h) {}\n" +
 				"}\n"
 		};
 		this.runConformTest(

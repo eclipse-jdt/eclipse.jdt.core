@@ -29,7 +29,7 @@ import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnlyJava14Tests extends TestCase {
-	
+
 	public RunOnlyJava14Tests(String name) {
 		super(name);
 	}
@@ -38,10 +38,10 @@ public class RunOnlyJava14Tests extends TestCase {
 				JavaSearchBugs14Tests.class,JavaSearchBugs14SwitchExpressionTests.class, CompletionTests14.class
 		};
 	}
-	
+
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
-				
+
 		};
 	}
 	public static Test suite() {

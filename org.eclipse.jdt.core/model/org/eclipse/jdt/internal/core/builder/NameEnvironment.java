@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Terry Parker <tparker@google.com> 
+ *     Terry Parker <tparker@google.com>
  *           - Contribution for https://bugs.eclipse.org/bugs/show_bug.cgi?id=372418
  *           -  Another problem with inner classes referenced from jars or class folders: "The type ... cannot be resolved"
  *     Stephan Herrmann - Contribution for
@@ -177,9 +177,9 @@ private void computeClasspathLocations(
 					bLocation.patchModuleName = patchedModuleName;
 				} else {
 					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
-								(IContainer) target, 
+								(IContainer) target,
 								outputFolder,
-								entry.fullInclusionPatternChars(), 
+								entry.fullInclusionPatternChars(),
 								entry.fullExclusionPatternChars(),
 								entry.ignoreOptionalProblems());
 					if (patchedModule != null) {
@@ -378,7 +378,7 @@ private void computeClasspathLocations(
 		this.binaryLocations[index++] = (ClasspathLocation) outputFolders.get(i);
 	for (int i = 0, l = bLocations.size(); i < l; i++)
 		this.binaryLocations[index++] = (ClasspathLocation) bLocations.get(i);
-	
+
 	if (moduleEntries != null && !moduleEntries.isEmpty())
 		this.modulePathEntries = moduleEntries;
 }
@@ -482,7 +482,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		// if we answer X.java & it no longer defines Y then the binary type looking for Y will think the class path is wrong
 		// let the recompile loop fix up dependents when the secondary type Y has been deleted from X.java
 		// Only enclosing type names are present in the additional units table, so strip off inner class specifications
-		// when doing the lookup (https://bugs.eclipse.org/372418). 
+		// when doing the lookup (https://bugs.eclipse.org/372418).
 		// Also take care of $ in the name of the class (https://bugs.eclipse.org/377401)
 		// and prefer name with '$' if unit exists rather than failing to search for nested class (https://bugs.eclipse.org/392727)
 		SourceFile unit = (SourceFile) this.additionalUnits.get(qualifiedTypeName); // doesn't have file extension
@@ -545,7 +545,7 @@ public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) 
 	if (compoundName != null)
 		return findClass(
 			String.valueOf(CharOperation.concatWith(compoundName, '/')),
-			compoundName[compoundName.length - 1], 
+			compoundName[compoundName.length - 1],
 			LookupStrategy.get(moduleName),
 			LookupStrategy.getStringName(moduleName));
 	return null;

@@ -91,7 +91,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	JrtFileSystem jrtSystem;
 	public ResourceBundle bundle;
 	String releaseVersion;
-	
+
 	public EclipseFileManager(Locale locale, Charset charset) {
 		this.locale = locale == null ? Locale.getDefault() : locale;
 		this.charset = charset == null ? Charset.defaultCharset() : charset;
@@ -141,7 +141,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		this.classloaders.clear();
 	}
-	
+
 	private void collectAllMatchingFiles(Location location, File file, String normalizedPackageName, Set<Kind> kinds, boolean recurse, ArrayList<JavaFileObject> collector) {
 		if (file.equals(this.jrtHome)) {
 			if (location instanceof ModuleLocationWrapper) {
@@ -445,7 +445,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			throw new IllegalArgumentException("location is empty : " + location);//$NON-NLS-1$
 		}
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getJavaFileForInput(javax.tools.JavaFileManager.Location, java.lang.String, javax.tools.JavaFileObject.Kind)
 	 */
@@ -643,11 +643,11 @@ public class EclipseFileManager implements StandardJavaFileManager {
 								setLocation(StandardLocation.PLATFORM_CLASS_PATH, bootclasspaths);
 							} else if ((this.flags & EclipseFileManager.HAS_ENDORSED_DIRS) != 0) {
 								// endorseddirs have been processed first
-								setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+								setLocation(StandardLocation.PLATFORM_CLASS_PATH,
 										concatFiles(iterable, bootclasspaths));
 							} else {
 								// extdirs have been processed first
-								setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+								setLocation(StandardLocation.PLATFORM_CLASS_PATH,
 										prependFiles(iterable, bootclasspaths));
 							}
 						}
@@ -747,7 +747,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				case "--module-source-path": //$NON-NLS-1$
 					if (remaining.hasNext()) {
 						final Iterable<? extends File> sourcepaths = getPathsFrom(remaining.next());
-						if (sourcepaths != null && this.isOnJvm9) 
+						if (sourcepaths != null && this.isOnJvm9)
 							setLocation(StandardLocation.MODULE_SOURCE_PATH, sourcepaths);
 						return true;
 					} else {
@@ -759,7 +759,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					}
 					if (remaining.hasNext()) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+						setLocation(StandardLocation.PLATFORM_CLASS_PATH,
 								concatFiles(iterable, getExtdirsFrom(remaining.next())));
 						this.flags |= EclipseFileManager.HAS_EXT_DIRS;
 						return true;
@@ -769,7 +769,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				case "-endorseddirs": //$NON-NLS-1$
 					if (remaining.hasNext()) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-						setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
+						setLocation(StandardLocation.PLATFORM_CLASS_PATH,
 								prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
 						this.flags |= EclipseFileManager.HAS_ENDORSED_DIRS;
 						return true;
@@ -904,7 +904,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (allFilesInLocations == null) {
 			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
 		}
-		
+
 		ArrayList<JavaFileObject> collector = new ArrayList<>();
 		String normalizedPackageName = normalized(packageName);
 		for (File file : allFilesInLocations) {
@@ -962,7 +962,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		this.locationHandler.setLocation(location, "", getPaths(files)); //$NON-NLS-1$
 	}
-	
+
 	public void setLocale(Locale locale) {
 		this.locale = locale == null ? Locale.getDefault() : locale;
 		try {
@@ -1011,7 +1011,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		// '.*[.*'
 		final int bracketClosed = 11;
 		// '.*([.*])+'
-	
+
 		final int error = 99;
 		int state = start;
 		String token = null;
@@ -1219,7 +1219,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				customEncoding,
 				isSourceOnly,
 				accessRuleSet,
-				destPath, 
+				destPath,
 				null,
 				this.releaseVersion);
 		if (currentClasspath != null) {
@@ -1335,7 +1335,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public void setLocationFromPaths(Location location, Collection<? extends Path> paths) throws IOException {
 		setLocation(location, getFiles(paths));
-		if (location == StandardLocation.MODULE_PATH) { 
+		if (location == StandardLocation.MODULE_PATH) {
 			// FIXME: same for module source path?
 			Map<String, String> options = new HashMap<>();
 			// FIXME: Find a way to get the options from the EclipseCompiler and pass it to the parser.
@@ -1344,13 +1344,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 			CompilerOptions compilerOptions = new CompilerOptions(options);
-			ProblemReporter problemReporter = 
+			ProblemReporter problemReporter =
 					new ProblemReporter(
 						DefaultErrorHandlingPolicies.proceedWithAllProblems(),
 						compilerOptions,
 						new DefaultProblemFactory());
 			for (Path path : paths) {
-				List<Classpath> mp = ModuleFinder.findModules(path.toFile(), null, 
+				List<Classpath> mp = ModuleFinder.findModules(path.toFile(), null,
 						new Parser(problemReporter, true), null, true, this.releaseVersion);
 				for (Classpath cp : mp) {
 					Collection<String> moduleNames = cp.getModuleNames(null);

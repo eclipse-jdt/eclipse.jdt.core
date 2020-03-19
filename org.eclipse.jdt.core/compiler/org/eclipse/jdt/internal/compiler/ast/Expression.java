@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *								bug 292478 - Report potentially null across variable assignment
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
@@ -78,9 +78,9 @@ public abstract class Expression extends Statement {
 
 	public int implicitConversion;
 	public TypeBinding resolvedType;
-	
+
 	public static Expression [] NO_EXPRESSIONS = new Expression[0];
-	
+
 
 public static final boolean isConstantValueRepresentable(Constant constant, int constantTypeID, int targetTypeID) {
 	//true if there is no loss of precision while casting.
@@ -295,7 +295,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 				return true;
 
 			}
-		} else if (use17specifics && castType.isPrimitiveType() && expressionType instanceof ReferenceBinding && 
+		} else if (use17specifics && castType.isPrimitiveType() && expressionType instanceof ReferenceBinding &&
 				!expressionType.isBoxedPrimitiveType() && checkCastTypesCompatibility(scope, scope.boxing(castType), expressionType, expression)) {
 			// cast from any reference type (other than boxing types) to base type allowed from 1.7, see JLS $5.5
 			// by our own interpretation (in accordance with javac) we reject arays, though.
@@ -321,7 +321,7 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 		}
 		return true;
 	}
-	
+
 	switch(expressionType.kind()) {
 		case Binding.BASE_TYPE :
 			//-----------cast to something which is NOT a base type--------------------------
@@ -1136,7 +1136,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 			if (field.type.isRawType()) {
 				if (referenceContext instanceof AbstractMethodDeclaration) {
 					AbstractMethodDeclaration methodDecl = (AbstractMethodDeclaration) referenceContext;
-					ReferenceBinding declaringClass = methodDecl.binding != null 
+					ReferenceBinding declaringClass = methodDecl.binding != null
 							? methodDecl.binding.declaringClass
 							: methodDecl.scope.enclosingReceiverType();
 					if (TypeBinding.notEquals(field.declaringClass, declaringClass)) { // inherited raw field, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962
@@ -1234,9 +1234,9 @@ public boolean isExactMethodReference() {
 }
 
 /* Answer if the receiver is a poly expression in the prevailing context. Caveat emptor: Some constructs (notably method calls)
-   cannot answer this question until after resolution is over and may throw unsupported operation exception if queried ahead of 
+   cannot answer this question until after resolution is over and may throw unsupported operation exception if queried ahead of
    resolution. Default implementation here returns false which is true for vast majority of AST nodes. The ones that are poly
-   expressions under one or more contexts should override and return suitable value.  
+   expressions under one or more contexts should override and return suitable value.
  */
 public boolean isPolyExpression() throws UnsupportedOperationException {
 	return false;

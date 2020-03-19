@@ -22,7 +22,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>AST</code> supports the provided <code>nodeType</code>. This API checks for node
 	 * types supported from JLS 14 onwards and will return <code>true></code> for nodes added before JLS14.
-	 * 
+	 *
 	 * @param ast
 	 *            the AST to be evaluated
 	 * @param nodeType
@@ -40,7 +40,7 @@ public class DOMASTUtil {
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
 	 * <code>true></code> for nodes added before JLS14.
-	 * 
+	 *
 	 * @param apiLevel
 	 *            the level to be checked
 	 * @param previewEnabled
@@ -88,7 +88,7 @@ public class DOMASTUtil {
 	public static boolean isRecordDeclarationSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.RECORD_DECLARATION);
 	}
-	
+
 	public static boolean isInstanceofExpressionPatternSupported(AST ast) {
 		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
 	}
@@ -96,7 +96,7 @@ public class DOMASTUtil {
 	public static boolean isInstanceofExpressionPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.INSTANCEOF_EXPRESSION);
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public static void checkASTLevel(int level) {
 		switch (level) {
@@ -113,7 +113,7 @@ public class DOMASTUtil {
 	        	return;
 		}
 		throw new IllegalArgumentException();
-		
+
 	}
 
 }

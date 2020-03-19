@@ -51,16 +51,16 @@ public void test001() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object o = new X();\n" + 
-			"		String s = \"ESS\";\n" + 
-			"		 o += s;\n" + 
-			"		System.out.println(o);\n" + 
-			"	}\n" + 
-			"	public String toString() {\n" + 
-			"		return \"SUCC\";\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object o = new X();\n" +
+			"		String s = \"ESS\";\n" +
+			"		 o += s;\n" +
+			"		System.out.println(o);\n" +
+			"	}\n" +
+			"	public String toString() {\n" +
+			"		return \"SUCC\";\n" +
+			"	}\n" +
 			"}",
 		},
 		"SUCCESS");

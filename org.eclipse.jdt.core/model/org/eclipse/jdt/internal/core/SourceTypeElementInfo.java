@@ -34,7 +34,7 @@ public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceTyp
 	protected static final SourceType[] NO_TYPES = new SourceType[0];
 
 	protected IJavaElement[] children = JavaElement.NO_ELEMENTS;
-	
+
 	/**
 	 * The name of the superclass for this type. This name
 	 * is fully qualified for binary types and is NOT always

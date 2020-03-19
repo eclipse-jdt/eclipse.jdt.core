@@ -203,7 +203,7 @@ public class WrapExecutor {
 				this.isNextLineWrapped = true;
 				if (this.firstPotentialWrap < 0)
 					this.firstPotentialWrap = index + 1;
-				return false; 
+				return false;
 			}
 
 			boolean isLineEnd = getLineBreaksAfter() > 0 || getNext() == null || (getNext().isNextLineOnWrap()
@@ -465,7 +465,7 @@ public class WrapExecutor {
 				token.setWrapped(false);
 				this.wrapSearchStack.pop();
 				this.wrapSearchResults.put(item, wrapResult);
-				assert wrapResult.nextWrap == null || this.wrapSearchResults.get(wrapResult.nextWrap) != null; 
+				assert wrapResult.nextWrap == null || this.wrapSearchResults.get(wrapResult.nextWrap) != null;
 				if (item.wrapTokenIndex == startTokenIndex && item.indent == indent)
 					break;
 			} else {
@@ -483,7 +483,7 @@ public class WrapExecutor {
 
 	/**
 	 * The main algorithm that looks for optimal places to wrap.
-	 * Calls itself recursively to get results for wrapped sub-lines.  
+	 * Calls itself recursively to get results for wrapped sub-lines.
 	 */
 	private WrapResult findWraps(int wrapTokenIndex, int indent) {
 		final int lastIndex = this.lineAnalyzer.analyzeLine(wrapTokenIndex, indent);
@@ -521,7 +521,7 @@ public class WrapExecutor {
 			if (this.lineAnalyzer.minStructureDepth < currentDepth)
 				depthLimit = currentDepth;
 		}
-		// optimization: turns out there's no point checking multiple wraps with the same policy 
+		// optimization: turns out there's no point checking multiple wraps with the same policy
 		LinkedHashSet<WrapPolicy> policiesTried = new LinkedHashSet<>();
 
 		for (int i = lastIndex; firstPotentialWrap >= 0 && i >= firstPotentialWrap; i--) {

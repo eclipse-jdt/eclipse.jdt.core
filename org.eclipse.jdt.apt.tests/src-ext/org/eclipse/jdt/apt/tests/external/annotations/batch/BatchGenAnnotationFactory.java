@@ -26,13 +26,13 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class BatchGenAnnotationFactory implements AnnotationProcessorFactory {
-	
+
 	private static int ROUND = 0;
-	private static final List<String> SUPPORTED_TYPES = 
+	private static final List<String> SUPPORTED_TYPES =
 		Collections.singletonList(BatchGen.class.getName());
-	
+
 	public AnnotationProcessor getProcessorFor(
-			Set<AnnotationTypeDeclaration> decls, 
+			Set<AnnotationTypeDeclaration> decls,
 			AnnotationProcessorEnvironment env) {
 		if( ROUND == 0 ){
 			ROUND ++;
@@ -42,34 +42,34 @@ public class BatchGenAnnotationFactory implements AnnotationProcessorFactory {
 			ROUND ++;
 			if( !decls.isEmpty() )
 				env.getMessager().printError("Expecting empty set but got " + decls );
-				
+
 			return new BatchGen1AnnotationProcessor(env);
 		}
 		else if( ROUND == 2 ){ // NO-OP
 			env.getMessager().printError("Called the third time.");
-			return null; 
+			return null;
 		}
 		// This is to make sure we aren't bouncing the class loader without a full build.
 		else
 			env.getMessager().printError("Calling BatchGenAnnotionFactory too many times. Round=" + ROUND );
 		return null;
 	}
-	
+
 	public Collection<String> supportedAnnotationTypes() {
 		return SUPPORTED_TYPES;
 	}
 	public Collection<String> supportedOptions() {
 		return Collections.emptyList();
 	}
-	
+
 	static class BatchGen0AnnotationProcessor implements AnnotationProcessor {
-		
+
 		final AnnotationProcessorEnvironment _env;
 		BatchGen0AnnotationProcessor(AnnotationProcessorEnvironment env){
 			_env = env;
 		}
 		public void process() {
-			// a generated file will cause BatchGenAnnotationFactory to be 
+			// a generated file will cause BatchGenAnnotationFactory to be
 			// called again.
 			try{
 				final PrintWriter writer = _env.getFiler().createSourceFile("gen.Class0");
@@ -82,7 +82,7 @@ public class BatchGenAnnotationFactory implements AnnotationProcessorFactory {
 			}
 		}
 	}
-	
+
 	static class BatchGen1AnnotationProcessor implements AnnotationProcessor {
 		final AnnotationProcessorEnvironment _env;
 		BatchGen1AnnotationProcessor(AnnotationProcessorEnvironment env){

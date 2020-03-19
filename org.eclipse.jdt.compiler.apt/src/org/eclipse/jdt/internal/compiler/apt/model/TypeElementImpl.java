@@ -125,7 +125,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	}
 
 	private final ElementKind _kindHint;
-	
+
 	/**
 	 * In general, clients should call {@link Factory#newDeclaredType(ReferenceBinding)} or
 	 * {@link Factory#newElement(org.eclipse.jdt.internal.compiler.lookup.Binding)} to
@@ -135,7 +135,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		super(env, binding);
 		_kindHint = kindHint;
 	}
-	
+
 	@Override
 	public <R, P> R accept(ElementVisitor<R, P> v, P p)
 	{
@@ -218,7 +218,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 			return null;
 		return new String(name);
 	}
-	
+
 	@Override
 	public List<? extends TypeMirror> getInterfaces() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
@@ -334,7 +334,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		// superclass of a type must be a DeclaredType
 		return _env.getFactory().newTypeMirror(superBinding);
 	}
-	
+
 	@Override
 	public List<? extends TypeParameterElement> getTypeParameters() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
@@ -342,7 +342,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (variables.length == 0) {
 			return Collections.emptyList();
 		}
-		List<TypeParameterElement> params = new ArrayList<>(variables.length); 
+		List<TypeParameterElement> params = new ArrayList<>(variables.length);
 		for (TypeVariableBinding variable : variables) {
 			params.add(_env.getFactory().newTypeParameterElement(variable, this));
 		}
@@ -369,7 +369,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (!CharOperation.equals(hiddenBinding.sourceName, hiderBinding.sourceName)) {
 			return false;
 		}
-		return null != hiderBinding.enclosingType().findSuperTypeOriginatingFrom(hiddenBinding.enclosingType()); 
+		return null != hiderBinding.enclosingType().findSuperTypeOriginatingFrom(hiddenBinding.enclosingType());
 	}
 
 	@Override

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -35,11 +35,11 @@ public class RecoveredElement {
 	public int bracketBalance;
 	public boolean foundOpeningBrace;
 	protected Parser recoveringParser;
-	
+
 	// There is no RecoveredLambdaElement, we just keep track of entry and exit of lambdas via a counter. This allows to prevent certain incorrect mutations of current element.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667.
 	public int lambdaNestLevel;
-	
+
 public RecoveredElement(RecoveredElement parent, int bracketBalance){
 	this(parent, bracketBalance, null);
 }
@@ -131,7 +131,7 @@ public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 	if (this.parent == null) return this; // ignore
 	if (this instanceof RecoveredType) {
 		TypeDeclaration typeDeclaration = ((RecoveredType) this).typeDeclaration;
-		if (typeDeclaration != null && (typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) { 
+		if (typeDeclaration != null && (typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291040, new X(<SelectOnMessageSend:zoo()>) { ???
 			if (statement.sourceStart > typeDeclaration.sourceStart && statement.sourceEnd < typeDeclaration.sourceEnd) {
 				return this;

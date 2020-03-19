@@ -1313,7 +1313,7 @@ public void test0041() throws JavaModelException {
 		"  @TestAnnot(value=\"\")\n" +
 		"  public int field = 0;\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/TestAnnot.java",
 		"package test;\n" +
@@ -1348,7 +1348,7 @@ public void test0042() throws JavaModelException {
 		"  @TestAnnot(\"\")\n" +
 		"  public int field = 0;\n" +
 		"}");
-	
+
 	this.workingCopies[1] = getWorkingCopy(
 		"/Completion/src3/test/TestAnnot.java",
 		"package test;\n" +

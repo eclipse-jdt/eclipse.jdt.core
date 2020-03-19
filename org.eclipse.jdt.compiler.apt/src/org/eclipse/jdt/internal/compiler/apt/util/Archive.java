@@ -32,12 +32,12 @@ import java.util.zip.ZipFile;
 public class Archive {
 
 	public static final Archive UNKNOWN_ARCHIVE = new Archive();
-	
+
 	ZipFile zipFile;
 	File file;
 
 	protected Hashtable<String, ArrayList<String[]>> packagesCache;
-	
+
 	protected Archive() {
 		// used to construct UNKNOWN_ARCHIVE
 	}
@@ -73,22 +73,22 @@ public class Archive {
 			}
 		}
 	}
-	
+
 	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
 		return new ArchiveFileObject(this.file, fileName, charset);
 	}
-	
+
 	public boolean contains(String entryName) {
 		return this.zipFile.getEntry(entryName) != null;
 	}
-	
+
 	public Set<String> allPackages() {
 		if (this.packagesCache == null) {
 			this.initialize();
 		}
 		return this.packagesCache.keySet();
 	}
-	
+
 	public List<String[]> getTypes(String packageName) {
 		// package name is expected to ends with '/'
 		if (this.packagesCache == null) {
@@ -101,7 +101,7 @@ public class Archive {
 		}
 		return this.packagesCache.get(packageName);
 	}
-	
+
 	public void flush() {
 		this.packagesCache = null;
 	}
@@ -116,7 +116,7 @@ public class Archive {
 			// ignore
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Archive: " + (this.file == null ? "UNKNOWN_ARCHIVE" : this.file.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$

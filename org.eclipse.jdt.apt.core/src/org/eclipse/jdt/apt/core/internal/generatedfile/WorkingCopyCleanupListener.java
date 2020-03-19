@@ -27,20 +27,20 @@ import org.eclipse.jdt.core.IJavaProject;
 /**
  * Used by the GeneratedFileManager in order to clean up working copies after a build
  */
-public class WorkingCopyCleanupListener implements IElementChangedListener 
+public class WorkingCopyCleanupListener implements IElementChangedListener
 {
 	@Override
-	public void elementChanged(ElementChangedEvent event) 
+	public void elementChanged(ElementChangedEvent event)
 	{
 		Object o = event.getSource();
 		if ( o instanceof IJavaElementDelta )
-		{			
+		{
 			IJavaElementDelta delta = (IJavaElementDelta) o;
 			processElementDelta( delta );
 
 		}
 	}
-	
+
 	private void processElementDelta( IJavaElementDelta delta )
 	{
 		IJavaElementDelta[] deltas = delta.getAffectedChildren();
@@ -52,15 +52,15 @@ public class WorkingCopyCleanupListener implements IElementChangedListener
 		if ( delta.getElement() instanceof ICompilationUnit )
 		{
 			//
-			// handle case where a working copy is discarded (e.g., an editor is closed).  If an editor 
+			// handle case where a working copy is discarded (e.g., an editor is closed).  If an editor
 			// is not open, then the compilation unit's isWorkingCopy() will return false.
 			//
-			
-			ICompilationUnit cu = (ICompilationUnit) delta.getElement();	
 
-			boolean workingCopyDiscarded = 
+			ICompilationUnit cu = (ICompilationUnit) delta.getElement();
+
+			boolean workingCopyDiscarded =
 				cu.getOwner() == null ? !cu.isWorkingCopy() : !cu.exists();
-			
+
 			if ( workingCopyDiscarded )
 			{
 				IJavaProject jp = cu.getJavaProject();

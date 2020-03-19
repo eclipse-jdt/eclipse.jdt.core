@@ -91,7 +91,7 @@ public class FieldManyToOne<T extends INdStruct> extends BaseField implements ID
 	/**
 	 * Creates a many-to-one pointer which points to this object's owner. If the pointer is non-null when the owner is
 	 * deleted, this object will be deleted too.
-	 * 
+	 *
 	 * @param builder the struct to which the field will be added
 	 * @param forwardPointer the field which holds the pointer in the other direction
 	 * @return a newly constructed field
@@ -105,7 +105,7 @@ public class FieldManyToOne<T extends INdStruct> extends BaseField implements ID
 		if (!NdNode.class.isAssignableFrom(builder.getStructClass())) {
 			throw new IllegalArgumentException(FieldManyToOne.class.getSimpleName() + " can't be the owner of " //$NON-NLS-1$
 					+ builder.getStructClass().getSimpleName() + " because the latter isn't a subclass of " //$NON-NLS-1$
-					+ NdNode.class.getSimpleName()); 
+					+ NdNode.class.getSimpleName());
 		}
 
 		FieldManyToOne<T> result = new FieldManyToOne<T>(builder, forwardPointer, true);
@@ -117,7 +117,7 @@ public class FieldManyToOne<T extends INdStruct> extends BaseField implements ID
 
 	/**
 	 * Sets whether or not this field permits nulls to be assigned.
-	 * 
+	 *
 	 * @param permitted true iff the field permits nulls
 	 * @return this
 	 */
@@ -163,14 +163,14 @@ public class FieldManyToOne<T extends INdStruct> extends BaseField implements ID
 				throw new IllegalStateException(
 						getClass().getSimpleName() + " must be associated with a " + FieldOneToMany.class.getSimpleName()); //$NON-NLS-1$
 			}
-	
+
 			long oldTargetAddress = TARGET.get(nd, fieldStart);
 			if (oldTargetAddress == newTargetAddress) {
 				return;
 			}
-	
+
 			detachFromOldTarget(nd, address, oldTargetAddress);
-	
+
 			TARGET.put(nd, fieldStart, newTargetAddress);
 			if (newTargetAddress != 0) {
 				// Note that newValue is the address of the backpointer list and record (the address of the struct
@@ -197,7 +197,7 @@ public class FieldManyToOne<T extends INdStruct> extends BaseField implements ID
 				short targetTypeId = NdNode.NODE_TYPE.get(nd, oldTargetAddress);
 				ITypeFactory<? extends NdNode> typeFactory = nd.getTypeFactory(targetTypeId);
 
-				if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
+				if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED
 						&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
 					nd.scheduleDeletion(oldTargetAddress);
 				}

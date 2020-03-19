@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     mkaufman@bea.com - initial API and implementation
  *******************************************************************************/
@@ -25,13 +25,13 @@ import org.eclipse.jdt.core.JavaModelException;
  * Eclipse's underlying SearchEngine
  */
 public class PackageUtil {
-	
+
 	private PackageUtil() {}
-	
+
 	public static IPackageFragment[] getPackageFragments(
-			final String packageName, 
+			final String packageName,
 			final BaseProcessorEnv env) {
-		
+
 		List<IPackageFragment> packages = new ArrayList<>();
 		try {
 			// The environment caches our package fragment roots
@@ -45,7 +45,7 @@ public class PackageUtil {
 		catch (JavaModelException e) {
 			return new IPackageFragment[0];
 		}
-		
+
 		return packages.toArray(new IPackageFragment[packages.size()]);
 	}
 

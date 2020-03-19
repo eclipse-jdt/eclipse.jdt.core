@@ -226,7 +226,7 @@ public boolean visit(LambdaExpression lambdaExpression, BlockScope scope) {
 		if (lambdaExpression.resolvedType != null && lambdaExpression.resolvedType.isValidBinding() &&
 				!(lambdaExpression.descriptor instanceof ProblemMethodBinding))
 			this.locator.reportMatching(lambdaExpression, this.enclosingElement, level != null ? level.intValue() : -1, this.nodeSet, this.typeInHierarchy);
-		else 
+		else
 			return true;
 	} catch (CoreException e) {
 		throw new WrappedCoreException(e);

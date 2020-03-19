@@ -30,7 +30,7 @@ import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunOnlyJava13Tests extends TestCase {
-	
+
 	public RunOnlyJava13Tests(String name) {
 		super(name);
 	}
@@ -40,7 +40,7 @@ public class RunOnlyJava13Tests extends TestCase {
 			SwitchExpressionsYieldTest.class,
 		};
 	}
-	
+
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
 				ASTConverter14Test.class,

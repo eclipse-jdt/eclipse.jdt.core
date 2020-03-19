@@ -21,13 +21,13 @@ import java.util.function.Supplier;
 
 /**
  * Utility functions intended for use with the null annotations defined in this package.
- * 
+ *
  * <p>
  * For maximum generality, all type parameters of methods in this class are not constraint
  * to either non-null nor nullable. Users of these methods can freely choose these types.
  * </p>
  * <p>
- * Methods in this class come in three groups: Assertions, Requirements, as well as Queries, conversions and computations. 
+ * Methods in this class come in three groups: Assertions, Requirements, as well as Queries, conversions and computations.
  * </p>
  *
  * <h2>Assertions</h2>
@@ -39,7 +39,7 @@ import java.util.function.Supplier;
  * <li>If any value is <code>null</code>, an exception is thrown.</li>
  * <li>The method has no other effect (except for potential side effects in an Iterator).</li>
  * </ul>
- * 
+ *
  * <h2>Requirements</h2>
  * <p>
  * All methods in this group start with the prefix "require". They encode domain knowledge of the developer
@@ -66,7 +66,7 @@ import java.util.function.Supplier;
  * 	...
  * }
  * </pre>
- * 
+ *
  * <h2>Queries, conversions and computations</h2>
  * <p>
  * A commonality among methods in this group is the null-safety that can be verified by static null analysis,
@@ -85,7 +85,7 @@ import java.util.function.Supplier;
  * {@link #applyIfNonNullElse(Object, Function, Object)} and {@link #applyIfNonNullElseGet(Object, Function, Supplier)}
  * feed unsafe values into a given functional expression in a null-safe way.</dd>
  * </dl>
- * 
+ *
  * @since 2.1
  */
 public class Checks {
@@ -145,10 +145,10 @@ public class Checks {
 	/**
 	 * Answer the given value as a non-null value.
 	 * Throws {@link NullPointerException} if the given value was <code>null</code>.
-	 * 
+	 *
 	 * @param value an arbitrary value, maybe <code>null</code>.
 	 * @return the original passed value, guaranteed not to be <code>null</code>.
-	 * 
+	 *
 	 * @throws NullPointerException if the given value was <code>null</code>.
 	 */
 	public static <T> @NonNull T requireNonNull(@Nullable T value) {
@@ -156,15 +156,15 @@ public class Checks {
 			throw new NullPointerException();
 		return value;
 	}
-	
+
 	/**
 	 * Answer the given value as a non-null value.
 	 * Throws {@link NullPointerException} if the given value was <code>null</code>.
-	 * 
+	 *
 	 * @param value an arbitrary value, maybe <code>null</code>.
 	 * @param message explanatory message to be used when throwing {@link NullPointerException}.
 	 * @return the original passed value, guaranteed not to be <code>null</code>.
-	 * 
+	 *
 	 * @throws NullPointerException if the given value was <code>null</code>.
 	 */
 	public static <T> @NonNull T requireNonNull(@Nullable T value, @NonNull String message) {
@@ -176,11 +176,11 @@ public class Checks {
 	/**
 	 * Answer the given value, guaranteeing it to be neither <code>null</code> nor
 	 * an empty string.
-	 * 
+	 *
 	 * @param value value to be checked
 	 * @return the given value, guaranteed to be neither <code>null</code> nor
 	 * and empty string.
-	 * 
+	 *
 	 * @throws NullPointerException if the given value was <code>null</code>
 	 * @throws IllegalArgumentException if the given value was an empty string.
 	 */
@@ -195,12 +195,12 @@ public class Checks {
 	/**
 	 * Answer the given value, guaranteeing it to be neither <code>null</code> nor
 	 * an empty string.
-	 * 
+	 *
 	 * @param value value to be checked
 	 * @param message explanatory message to be used when throwing an exception.
 	 * @return the given value, guaranteed to be neither <code>null</code> nor
 	 * an empty string.
-	 * 
+	 *
 	 * @throws NullPointerException if the given value was <code>null</code>
 	 * @throws IllegalArgumentException if the given value was an empty string.
 	 */
@@ -216,11 +216,11 @@ public class Checks {
 	 * Answer the given value, guaranteeing it to be neither <code>null</code> nor
 	 * an empty collection. This method doesn't make any statement about whether
 	 * or not elements in the collection can possibly be <code>null</code>.
-	 * 
+	 *
 	 * @param value value to be checked
 	 * @return the given value, guaranteed to be neither <code>null</code> nor
 	 * an empty collection.
-	 * 
+	 *
 	 * @throws NullPointerException if the given value was <code>null</code>
 	 * @throws IllegalArgumentException if the given value was an empty collection.
 	 */
@@ -236,12 +236,12 @@ public class Checks {
 	 * Answer the given value, guaranteeing it to be neither <code>null</code> nor
 	 * an empty collection. This method doesn't make any statement about whether
 	 * or not elements in the collection can possibly be <code>null</code>.
-	 * 
+	 *
 	 * @param value value to be checked
 	 * @param message explanatory message to be used when throwing an exception.
 	 * @return the given value, guaranteed to be neither <code>null</code> nor
 	 * an empty collection.
-	 * 
+	 *
 	 * @throws NullPointerException if the given value was <code>null</code>
 	 * @throws IllegalArgumentException if the given value was an empty collection.
 	 */
@@ -314,10 +314,10 @@ public class Checks {
 	/**
 	 * Answer the given value as a non-null value.
 	 * If the value was actually <code>null</code> the alternative 'fallbackValue' is returned.
-	 * 
+	 *
 	 * @param value an arbitrary value, maybe <code>null</code>.
 	 * @param fallbackValue value to be returned when the value is <code>null</code>.
-	 * 
+	 *
 	 * @return the original passed value, guaranteed not to be <code>null</code>, or the fallback value.
 	 */
 	public static <T> @NonNull T nonNullElse(@Nullable T value, @NonNull T fallbackValue) {
@@ -330,10 +330,10 @@ public class Checks {
 	 * Answer the given value as a non-null value.
 	 * If the value was actually <code>null</code> an alternative is computed by
 	 * invoking the given 'fallbackSupplier'.
-	 * 
+	 *
 	 * @param value an arbitrary value, maybe <code>null</code>.
 	 * @param fallbackSupplier will compute the value to be returned when the 'value' is <code>null</code>.
-	 * 
+	 *
 	 * @return the original passed value, guaranteed not to be <code>null</code>,
 	 * 	or a fallback value provided by the 'fallbackSupplier'.
 	 */

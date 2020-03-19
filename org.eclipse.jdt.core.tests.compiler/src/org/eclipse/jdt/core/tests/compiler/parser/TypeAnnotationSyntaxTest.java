@@ -46,7 +46,7 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 
 	private static String  jsr308TestScratchArea = "c:\\Jsr308TestScratchArea";
 	private static String referenceCompiler = "C:\\jdk-7-ea-bin-b75-windows-i586-30_oct_2009\\jdk7\\bin\\javac.exe";
-	
+
 	static {
 //		TESTS_NAMES = new String [] { "test0137" };
 	}
@@ -59,7 +59,7 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 	}
-	
+
 	static final class LocationPrinterVisitor extends ASTVisitor {
 		TypeReference enclosingReference;
 		Map locations;
@@ -126,7 +126,7 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 				this.locations.put(key, null);
 				return;
 			}
-			
+
 			StringBuffer buffer = new StringBuffer("[");
 			for (int i = 0, max = tab.length; i < max; i += 2) {
 				if (i > 0) {
@@ -246,31 +246,31 @@ public void test0001() throws IOException {
 					"@Marker class D extends @Marker @SingleMember(0) @Normal(Value = 0) String {}\n" +
 					"@Marker class E extends String {}\n;";
 
-	String expectedUnitToString = 
-		"@Marker class A extends String {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"@Marker class B extends @Marker String {\n" + 
-		"  B() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"@Marker class C extends @Marker @SingleMember(0) String {\n" + 
-		"  C() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"@Marker class D extends @Marker @SingleMember(0) @Normal(Value = 0) String {\n" + 
-		"  D() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"@Marker class E extends String {\n" + 
-		"  E() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"@Marker class A extends String {\n" +
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"@Marker class B extends @Marker String {\n" +
+		"  B() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"@Marker class C extends @Marker @SingleMember(0) String {\n" +
+		"  C() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"@Marker class D extends @Marker @SingleMember(0) @Normal(Value = 0) String {\n" +
+		"  D() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"@Marker class E extends String {\n" +
+		"  E() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER , source.toCharArray(), null, "test0001", expectedUnitToString);
 }
@@ -280,32 +280,32 @@ public void test0002() throws IOException {
 					"class C extends @Marker @SingleMember(0) String {}\n" +
 					"class D extends @Marker @SingleMember(0) @Normal(Value = 0) String {}\n" +
 					"class E extends String {}\n;";
-    
-	String expectedUnitToString = 
-		"class A extends String {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class B extends @Marker String {\n" + 
-		"  B() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class C extends @Marker @SingleMember(0) String {\n" + 
-		"  C() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class D extends @Marker @SingleMember(0) @Normal(Value = 0) String {\n" + 
-		"  D() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class E extends String {\n" + 
-		"  E() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+
+	String expectedUnitToString =
+		"class A extends String {\n" +
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"class B extends @Marker String {\n" +
+		"  B() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"class C extends @Marker @SingleMember(0) String {\n" +
+		"  C() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"class D extends @Marker @SingleMember(0) @Normal(Value = 0) String {\n" +
+		"  D() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"}\n" +
+		"class E extends String {\n" +
+		"  E() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0002", expectedUnitToString);
 }
@@ -314,11 +314,11 @@ public void test0003() throws IOException {
 					"                   @Marker Serializable," +
 					"                   Cloneable {\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"@Marker class A implements Comparable, @Marker Serializable, Cloneable {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"@Marker class A implements Comparable, @Marker Serializable, Cloneable {\n" +
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0003", expectedUnitToString);
 }
@@ -327,11 +327,11 @@ public void test0004() throws IOException {
 					"                   @Marker @SingleMember(0) Serializable," +
 					"                   Cloneable {\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"@Marker class A implements Comparable, @Marker @SingleMember(0) Serializable, Cloneable {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"@Marker class A implements Comparable, @Marker @SingleMember(0) Serializable, Cloneable {\n" +
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0004", expectedUnitToString);
 }
@@ -340,11 +340,11 @@ public void test0005() throws IOException {
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
 					"                   Cloneable {\n" +
 					"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 		"@Marker class A implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0005", expectedUnitToString);
 }
@@ -353,11 +353,11 @@ public void test0006() throws IOException {
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
 					"                   @Marker Cloneable {\n" +
 					"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 		"@Marker class A implements @Marker Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, @Marker Cloneable {\n" +
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0006", expectedUnitToString);
 }
@@ -366,11 +366,11 @@ public void test007() throws IOException {
 					"                   @Marker @SingleMember(10) @Normal(Value=0) Serializable," +
 					"                   Cloneable {\n" +
 					"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 		"@Marker class A extends Object implements Comparable, @Marker @SingleMember(10) @Normal(Value = 0) Serializable, Cloneable {\n" +
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0007", expectedUnitToString);
 }
@@ -379,11 +379,11 @@ public void test0008() throws IOException {
 					"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
 					"                   Cloneable {\n" +
 					"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 		"@Marker class A extends @Marker Object implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0008", expectedUnitToString);
 }
@@ -392,11 +392,11 @@ public void test0009() throws IOException {
 	"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
 	"                   Cloneable {\n" +
 	"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 		"@Marker class A extends @Marker @SingleMember(0) Object implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0009", expectedUnitToString);
 }
@@ -405,11 +405,11 @@ public void test0010() throws IOException {
 	"                   @Marker @SingleMember(0) @Normal(Value=0) Serializable," +
 	"                   Cloneable {\n" +
 	"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 		"@Marker class A extends @Marker @SingleMember(0) @Normal(Value = 0) Object implements Comparable, @Marker @SingleMember(0) @Normal(Value = 0) Serializable, Cloneable {\n" +
-		"  A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"  A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0010", expectedUnitToString);
 }
@@ -419,14 +419,14 @@ public void test0011() throws IOException {
 					"    @Marker String[] @Marker[][] s[] @SingleMember(0)[][] @Normal(Value = 0)[][];\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker String[] @Marker [][][] @SingleMember(0) [][] @Normal(Value = 0) [][] s;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker String[] @Marker [][][] @SingleMember(0) [][] @Normal(Value = 0) [][] s;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0011", expectedUnitToString);
 }
@@ -440,18 +440,18 @@ public void test0012() throws IOException {
 					"    s = new @Readonly String @NonNull[5] @Nullable[];\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
-		"  int[][] f;\n" + 
-		"  @English String[] @NonNull [][] @Nullable [][] s;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
-		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+		"  int[][] f;\n" +
+		"  @English String[] @NonNull [][] @Nullable [][] s;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    @Readonly String @Nullable [] @NonNull [] s;\n" +
+		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0012", expectedUnitToString);
 }
@@ -465,18 +465,18 @@ public void test0013() throws IOException {
 					"	 s = new @Readonly String @NonNull[] @Nullable[] { {\"Hello\"}, {\"World\"}} [0][0];\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
-		"  int[][] f;\n" + 
-		"  @English String[] @NonNull [][] @Nullable [][] s;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    @Readonly String s;\n" + 
-		"    s = new @Readonly String @NonNull [] @Nullable []{{\"Hello\"}, {\"World\"}}[0][0];\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+		"  int[][] f;\n" +
+		"  @English String[] @NonNull [][] @Nullable [][] s;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    @Readonly String s;\n" +
+		"    s = new @Readonly String @NonNull [] @Nullable []{{\"Hello\"}, {\"World\"}}[0][0];\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0013", expectedUnitToString);
 }
@@ -490,18 +490,18 @@ public void test0014() throws IOException {
 					"    s = new @Readonly String @NonNull[5] @Nullable[];\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
-		"  int[][] f;\n" + 
-		"  @English String[] @NonNull [][] @Nullable [][] s;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+		"  int[][] f;\n" +
+		"  @English String[] @NonNull [][] @Nullable [][] s;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) {\n" +
-		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
-		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
-		"  }\n" + 
+		"    @Readonly String @Nullable [] @NonNull [] s;\n" +
+		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0014", expectedUnitToString);
 
@@ -517,18 +517,18 @@ public void test0015() throws IOException {
 					"}\n" +
 					"@Marker public A () {}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
-		"  int[][] f;\n" + 
-		"  @English String[] @NonNull [][] @Nullable [][] s;\n" + 
-		"  float[][] p;\n" + 
-		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) {\n" + 
-		"    @Readonly String @Nullable [] @NonNull [] s;\n" + 
-		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" + 
-		"  }\n" + 
-		"  public @Marker A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+		"  int[][] f;\n" +
+		"  @English String[] @NonNull [][] @Nullable [][] s;\n" +
+		"  float[][] p;\n" +
+		"  public static int[] @Marker [][] @Marker @SingleMember(0) @Normal(Value = 0) [][] main(String[] args) {\n" +
+		"    @Readonly String @Nullable [] @NonNull [] s;\n" +
+		"    s = new @Readonly String @NonNull [5] @Nullable [];\n" +
+		"  }\n" +
+		"  public @Marker A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0015", expectedUnitToString);
 }
@@ -538,13 +538,13 @@ public void test0016() throws IOException {
 					"@Marker public int[] @Marker[][] main(int[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0016", expectedUnitToString);
 }
@@ -553,13 +553,13 @@ public void test0017() throws IOException  {
 					"@Marker public int[] @Marker[][] main(String[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][][] @Normal(Value = 10) [][] args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0017", expectedUnitToString);
 }
@@ -568,13 +568,13 @@ public void test0018() throws IOException {
 					"@Marker public int[] @Marker[][] main(HashMap<String, Object>[] @SingleMember(10)[][] args[] @Normal(Value = 10)[][])[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @Normal(Value = 10) [][][] @SingleMember(10) [][] args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>[] @Normal(Value = 10) [][][] @SingleMember(10) [][] args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0018", expectedUnitToString);
 }
@@ -583,13 +583,13 @@ public void test0019() throws IOException {
 					"@Marker public int[] @Marker [][] main(HashMap<String, Object>.Iterator[] @SingleMember(10) [][] args[] @Normal(Value = 10) [][])[] @Marker [][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @Normal(Value = 10) [][][] @SingleMember(10) [][] args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<String, Object>.Iterator[] @Normal(Value = 10) [][][] @SingleMember(10) [][] args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0019", expectedUnitToString);
 }
@@ -599,13 +599,13 @@ public void test0020() throws IOException {
 					"@Marker public int[] @Marker[][] main(int[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][] @Marker ... args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(int[] @SingleMember(10) [][] @Marker ... args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0020", expectedUnitToString);
 }
@@ -614,13 +614,13 @@ public void test0021() throws IOException {
 					"@Marker public int[] @Marker[][] main(String[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][] @Marker ... args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(String[] @SingleMember(10) [][] @Marker ... args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0021", expectedUnitToString);
 }
@@ -629,13 +629,13 @@ public void test0022() throws IOException {
 					"@Marker public int[] @Marker[][] main(HashMap<Integer,String>[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>[] @SingleMember(10) [][] @Marker ... args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>[] @SingleMember(10) [][] @Marker ... args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0022", expectedUnitToString);
 }
@@ -644,13 +644,13 @@ public void test0023() throws IOException {
 					"@Marker public int[] @Marker[][] main(HashMap<Integer,String>.Iterator[] @SingleMember(10)[][] @Marker ... args )[] @Marker[][] {\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10) [][] @Marker ... args) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @Marker [][][] @Marker [][] main(HashMap<Integer, String>.Iterator[] @SingleMember(10) [][] @Marker ... args) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0023", expectedUnitToString);
 }
@@ -663,16 +663,16 @@ public void test0024() throws IOException {
 					"    float[] p[];\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    int[][] f;\n" + 
-		"    @English String[] @NonNull [][] @Nullable [][] s;\n" + 
-		"    float[][] p;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A implements @Readonly Comparable, @NonNull Serializable, Cloneable {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    int[][] f;\n" +
+		"    @English String[] @NonNull [][] @Nullable [][] s;\n" +
+		"    float[][] p;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0024", expectedUnitToString);
 }
@@ -682,13 +682,13 @@ public void test0025() throws IOException {
 					"public <Integer, @Positive Integer, @Negative Integer, Integer> void foo() {\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"class A {\n" + 
-		"  A() {\n" + 
-		"    super();\n" + 
+	String expectedUnitToString =
+		"class A {\n" +
+		"  A() {\n" +
+		"    super();\n" +
 		"  }\n" +
-		"  public <Integer, @Positive Integer, @Negative Integer, Integer>void foo() {\n" + 
-		"  }\n" + 
+		"  public <Integer, @Positive Integer, @Negative Integer, Integer>void foo() {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0025", expectedUnitToString);
 }
@@ -803,14 +803,14 @@ public void test0034() throws IOException {
 					"    @Marker int k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker int k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker int k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0034", expectedUnitToString);
 }
@@ -821,14 +821,14 @@ public void test0035() throws IOException {
 					"    @Marker String k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker String k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker String k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0035", expectedUnitToString);
 }
@@ -839,14 +839,14 @@ public void test0036() throws IOException {
 					"    @Marker HashMap<@Positive Integer, @Negative Integer> k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer> k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker HashMap<@Positive Integer, @Negative Integer> k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0036", expectedUnitToString);
 }
@@ -857,14 +857,14 @@ public void test0037() throws IOException {
 					"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0037", expectedUnitToString);
 }
@@ -875,14 +875,14 @@ public void test0038() throws IOException {
 					"    @Marker int[] @NonEmpty[][] k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker int[] @NonEmpty [][] k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker int[] @NonEmpty [][] k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0038", expectedUnitToString);
 }
@@ -893,14 +893,14 @@ public void test0039() throws IOException {
 					"    @Marker String[] @NonEmpty[][]k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker String[] @NonEmpty [][] k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker String[] @NonEmpty [][] k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0039", expectedUnitToString);
 }
@@ -911,14 +911,14 @@ public void test0040() throws IOException {
 					"    @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty[][] k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0040", expectedUnitToString);
 }
@@ -929,14 +929,14 @@ public void test0041() throws IOException {
 					"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] k;\n" +
 					"    float[] p[];\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  int[][] f;\n" + 
-		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] k;\n" + 
-		"  float[][] p;\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  int[][] f;\n" +
+		"  @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] k;\n" +
+		"  float[][] p;\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0041", expectedUnitToString);
 }
@@ -946,17 +946,17 @@ public void test0042() throws IOException {
 					"    public @Marker int foo() { return 0; }\n" +
 					"    public int bar() { return 0; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int foo() {\n" + 
-		"    return 0;\n" + 
-		"  }\n" + 
-		"  public int bar() {\n" + 
-		"    return 0;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int foo() {\n" +
+		"    return 0;\n" +
+		"  }\n" +
+		"  public int bar() {\n" +
+		"    return 0;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0042", expectedUnitToString);
 }
@@ -966,17 +966,17 @@ public void test0043() throws IOException {
 					"    public @Marker String foo() { return null; }\n" +
 					"    public String bar() { return null; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker String foo() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public String bar() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker String foo() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public String bar() {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0043", expectedUnitToString);
 }
@@ -986,17 +986,17 @@ public void test0044() throws IOException {
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer> foo() { return null; }\n" +
 					"    public HashMap<@Positive Integer, @Negative Integer>  bar() { return null; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer> foo() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer> bar() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer> foo() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public HashMap<@Positive Integer, @Negative Integer> bar() {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0044", expectedUnitToString);
 }
@@ -1006,17 +1006,17 @@ public void test0045() throws IOException {
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator foo() { return null; }\n" +
 					"    public HashMap<@Positive Integer, @Negative Integer>.Iterator  bar() { return null; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator foo() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator bar() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator foo() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator bar() {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0045", expectedUnitToString);
 }
@@ -1026,17 +1026,17 @@ public void test0046() throws IOException {
 					"    public @Marker int[] foo() @NonEmpty[][] { return 0; }\n" +
 					"    public int[] @NonEmpty[][] bar() { return 0; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker int[] @NonEmpty [][] foo() {\n" + 
-		"    return 0;\n" + 
-		"  }\n" + 
-		"  public int[] @NonEmpty [][] bar() {\n" + 
-		"    return 0;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker int[] @NonEmpty [][] foo() {\n" +
+		"    return 0;\n" +
+		"  }\n" +
+		"  public int[] @NonEmpty [][] bar() {\n" +
+		"    return 0;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0046", expectedUnitToString);
 }
@@ -1046,17 +1046,17 @@ public void test0047() throws IOException {
 					"    public @Marker String[]  foo() @NonEmpty[][] { return null; }\n" +
 					"    public String[] @NonEmpty[][] bar() { return null; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker String[] @NonEmpty [][] foo() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public String[] @NonEmpty [][] bar() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker String[] @NonEmpty [][] foo() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public String[] @NonEmpty [][] bar() {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0047", expectedUnitToString);
 }
@@ -1066,17 +1066,17 @@ public void test0048() throws IOException {
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>[] foo() @NonEmpty[][] { return null; }\n" +
 					"    public HashMap<@Positive Integer, @Negative Integer> [] @NonEmpty[][] bar() { return null; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] foo() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] bar() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] foo() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public HashMap<@Positive Integer, @Negative Integer>[] @NonEmpty [][] bar() {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0048", expectedUnitToString);
 }
@@ -1086,17 +1086,17 @@ public void test0049() throws IOException {
 					"    public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[]  foo() @NonEmpty[][] { return null; }\n" +
 					"    public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] bar() { return null; }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator @NonEmpty [][][] foo() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] bar() {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator @NonEmpty [][][] foo() {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][] bar() {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0049", expectedUnitToString);
 }
@@ -1105,18 +1105,18 @@ public void test0050() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker int p;\n" +
-					"        int q;\n" + 
+					"        int q;\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker int p;\n" + 
-		"    int q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker int p;\n" +
+		"    int q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0050", expectedUnitToString);
 }
@@ -1125,18 +1125,18 @@ public void test0051() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker String p;\n" +
-					"        String q;\n" + 
+					"        String q;\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker String p;\n" + 
-		"    String q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker String p;\n" +
+		"    String q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0051", expectedUnitToString);
 }
@@ -1145,18 +1145,18 @@ public void test0052() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker HashMap<@Positive Integer, @Negative Integer> p;\n" +
-					"        HashMap<@Positive Integer, @Negative Integer> q;\n" + 
+					"        HashMap<@Positive Integer, @Negative Integer> q;\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer> p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer> q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker HashMap<@Positive Integer, @Negative Integer> p;\n" +
+		"    HashMap<@Positive Integer, @Negative Integer> q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0052", expectedUnitToString);
 }
@@ -1165,18 +1165,18 @@ public void test0053() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator p;\n" +
-					"        HashMap<@Positive Integer, @Negative Integer>.Iterator q;\n" + 
+					"        HashMap<@Positive Integer, @Negative Integer>.Iterator q;\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>.Iterator q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator p;\n" +
+		"    HashMap<@Positive Integer, @Negative Integer>.Iterator q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0053", expectedUnitToString);
 }
@@ -1185,18 +1185,18 @@ public void test0054() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker int[] @NonNull[] p @NonEmpty[][];\n" +
-					"        int[] @NonNull[] q @NonEmpty[][];\n" + 
+					"        int[] @NonNull[] q @NonEmpty[][];\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker int[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    int[] @NonNull [] @NonEmpty [][] q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker int[] @NonNull [] @NonEmpty [][] p;\n" +
+		"    int[] @NonNull [] @NonEmpty [][] q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0054", expectedUnitToString);
 }
@@ -1205,18 +1205,18 @@ public void test0055() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker String[] @NonNull[] p @NonEmpty[][];\n" +
-					"        String[] @NonNull[] q @NonEmpty[][];\n" + 
+					"        String[] @NonNull[] q @NonEmpty[][];\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker String[] @NonNull [] @NonEmpty [][] p;\n" + 
-		"    String[] @NonNull [] @NonEmpty [][] q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker String[] @NonNull [] @NonEmpty [][] p;\n" +
+		"    String[] @NonNull [] @NonEmpty [][] q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0055", expectedUnitToString);
 }
@@ -1225,18 +1225,18 @@ public void test0056() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] p @NonEmpty[][];\n" +
-					"        HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] q @NonEmpty[][];\n" + 
+					"        HashMap<@Positive Integer, @Negative Integer>[] @NonNull[] q @NonEmpty[][];\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] @NonNull [] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] @NonNull [] q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] @NonNull [] p;\n" +
+		"    HashMap<@Positive Integer, @Negative Integer> @NonEmpty [][][] @NonNull [] q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0056", expectedUnitToString);
 }
@@ -1245,18 +1245,18 @@ public void test0057() throws IOException {
 	String source = "public class A {\n" +
 					"    public void foo() {\n" +
 					"        @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] p @NonEmpty[][];\n" +
-					"        HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] q;\n" + 
+					"        HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull[] @NonEmpty[][] q;\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator @NonEmpty [][][] @NonNull [] p;\n" + 
-		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] q;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    @Marker HashMap<@Positive Integer, @Negative Integer>.Iterator @NonEmpty [][][] @NonNull [] p;\n" +
+		"    HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonNull [] @NonEmpty [][] q;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0057", expectedUnitToString);
 }
@@ -1269,20 +1269,20 @@ public void test0058() throws IOException {
 					"    	 for (String @NonNull[] sii @Marker[] : s) {}\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    String @NonNull [] @Marker [] @Readonly [] s;\n" + 
-		"    for (@Readonly String @NonNull [] @Marker [] si : s) \n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"    for (String @NonNull [] @Marker [] sii : s) \n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    String @NonNull [] @Marker [] @Readonly [] s;\n" +
+		"    for (@Readonly String @NonNull [] @Marker [] si : s) \n" +
+		"      {\n" +
+		"      }\n" +
+		"    for (String @NonNull [] @Marker [] sii : s) \n" +
+		"      {\n" +
+		"      }\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0058", expectedUnitToString);
 }
@@ -1295,20 +1295,20 @@ public void test0059() throws IOException {
 					"    	 for (int @NonNull[] sii @Marker[] : s) {}\n" +
 					"    }\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class A {\n" + 
-		"  public A() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    int @NonNull [] @Marker [] @Readonly [] s;\n" + 
-		"    for (@Readonly int @NonNull [] @Marker [] si : s) \n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"    for (int @NonNull [] @Marker [] sii : s) \n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class A {\n" +
+		"  public A() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    int @NonNull [] @Marker [] @Readonly [] s;\n" +
+		"    for (@Readonly int @NonNull [] @Marker [] si : s) \n" +
+		"      {\n" +
+		"      }\n" +
+		"    for (int @NonNull [] @Marker [] sii : s) \n" +
+		"      {\n" +
+		"      }\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0059", expectedUnitToString);
 }
@@ -1344,15 +1344,15 @@ public void test0060() throws IOException {
 					"(@Readonly int) 10;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class Clazz {\n" + 
-		"  public Clazz() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    int x;\n" + 
-		"    x = (Integer) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class Clazz {\n" +
+		"  public Clazz() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    int x;\n" +
+		"    x = (Integer) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Normal(Value = 0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, @Negative Integer>[] @Marker [][]) (@Readonly Object) (@Readonly String[] @Normal(Value = 0) [][]) (@Readonly String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (@Readonly Object) (@Readonly int[] @Normal(Value = 0) [][]) (@Readonly int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) (@Readonly Object) (@Readonly HashMap<@Positive Integer, @Negative Integer>) (@Readonly Object) (@ReadOnly String) (@Readonly Object) (@Readonly int) 10;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0060", expectedUnitToString);
 }
@@ -1388,19 +1388,19 @@ public void test0061() throws IOException {
 					"(@Readonly int) 10;\n" +
 					"}\n" +
 					"}\n";
-	String expectedUnitToString = 
-		"public class Clazz {\n" + 
-		"  public Clazz() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    int x;\n" + 
-		"    x = (Integer) (Object) (@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) (@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) (@Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class Clazz {\n" +
+		"  public Clazz() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    int x;\n" +
+		"    x = (Integer) (Object) (@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Normal(Value = 0) [][]) (HashMap<@Positive Integer, Integer>.Iterator[] @SingleMember(0) [][]) (@Readonly HashMap<Integer, @Negative Integer>.Iterator[] @Marker [][]) (Object) (@Readonly HashMap<@Positive Integer, Integer>[] @Normal(Value = 0) [][]) (HashMap<Integer, @Negative Integer>[] @SingleMember(0) [][]) (@Readonly HashMap<@Positive Integer, Integer>[] @Marker [][]) (Object) (@Readonly String[] @Normal(Value = 0) [][]) (String[] @SingleMember(0) [][]) (@Readonly String[] @Marker [][]) (Object) (@Readonly int[] @Normal(Value = 0) [][]) (int[] @SingleMember(0) [][]) (@Readonly int[] @Marker [][]) (Object) (@Readonly HashMap<Integer, @Negative Integer>.Iterator) (Object) (@Readonly HashMap<@Positive Integer, Integer>) (Object) (@ReadOnly String) (Object) (@Readonly int) 10;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0061", expectedUnitToString);
 }
-// instanceof checks 
+// instanceof checks
 public void test0062() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void main(Object o) {\n" +
@@ -1408,58 +1408,58 @@ public void test0062() throws IOException {
 					"} else if (o instanceof @Readonly int[] @NonEmpty[][] ) {\n" +
 					"} else if (o instanceof @Readonly String[] @NonEmpty[][] ) {\n" +
 					"} else if (o instanceof @Readonly HashMap<?,?>[] @NonEmpty[][] ) {\n" +
-					"} else if (o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] ) {\n" +	
+					"} else if (o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty[][] ) {\n" +
 					"} else if (o instanceof @Readonly HashMap<?,?>) {\n" +
 					"} else if (o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator) {\n" +
 					"}\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class Clazz {\n" + 
-		"  public Clazz() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(Object o) {\n" + 
-		"    if ((o instanceof @Readonly String))\n" + 
-		"        {\n" + 
-		"        }\n" + 
-		"    else\n" + 
-		"        if ((o instanceof @Readonly int[] @NonEmpty [][]))\n" + 
-		"            {\n" + 
-		"            }\n" + 
-		"        else\n" + 
-		"            if ((o instanceof @Readonly String[] @NonEmpty [][]))\n" + 
-		"                {\n" + 
-		"                }\n" + 
-		"            else\n" + 
-		"                if ((o instanceof @Readonly HashMap<?, ?>[] @NonEmpty [][]))\n" + 
-		"                    {\n" + 
-		"                    }\n" + 
-		"                else\n" + 
-		"                    if ((o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][]))\n" + 
-		"                        {\n" + 
-		"                        }\n" + 
-		"                    else\n" + 
-		"                        if ((o instanceof @Readonly HashMap<?, ?>))\n" + 
-		"                            {\n" + 
-		"                            }\n" + 
-		"                        else\n" + 
-		"                            if ((o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator))\n" + 
-		"                                {\n" + 
-		"                                }\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class Clazz {\n" +
+		"  public Clazz() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(Object o) {\n" +
+		"    if ((o instanceof @Readonly String))\n" +
+		"        {\n" +
+		"        }\n" +
+		"    else\n" +
+		"        if ((o instanceof @Readonly int[] @NonEmpty [][]))\n" +
+		"            {\n" +
+		"            }\n" +
+		"        else\n" +
+		"            if ((o instanceof @Readonly String[] @NonEmpty [][]))\n" +
+		"                {\n" +
+		"                }\n" +
+		"            else\n" +
+		"                if ((o instanceof @Readonly HashMap<?, ?>[] @NonEmpty [][]))\n" +
+		"                    {\n" +
+		"                    }\n" +
+		"                else\n" +
+		"                    if ((o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator[] @NonEmpty [][]))\n" +
+		"                        {\n" +
+		"                        }\n" +
+		"                    else\n" +
+		"                        if ((o instanceof @Readonly HashMap<?, ?>))\n" +
+		"                            {\n" +
+		"                            }\n" +
+		"                        else\n" +
+		"                            if ((o instanceof @Readonly HashMap<@Positive Integer, @Negative Integer>.Iterator))\n" +
+		"                                {\n" +
+		"                                }\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0062", expectedUnitToString);
 }
-// assorted unclassified 
+// assorted unclassified
 public void test0063() throws IOException {
 	String source = "import java.util.HashMap;\n" +
-					"import java.util.Map; \n" +  
+					"import java.util.Map; \n" +
 					"\n" +
 					"public class Clazz <@A M extends @B String, @C N extends @D Comparable> extends\n" +
 					"								@E Object implements @F Comparable <@G Object> {\n" +
 					"	\n" +
-					"  Clazz(char[] ...args) { \n" +   
+					"  Clazz(char[] ...args) { \n" +
 					"   }\n" +
 					"   \n" +
 					"  int @I[] f @J[], g, h[], i@K[];\n" +
@@ -1501,68 +1501,68 @@ public void test0063() throws IOException {
 					"       return null;\n" +
 					"   }\n" +
 					"}\n";
-					
-					
-	String expectedUnitToString = "import java.util.HashMap;\n" + 
-								  "import java.util.Map;\n" + 
-								  "public class Clazz<@A M extends @B String, @C N extends @D Comparable> extends @E Object implements @F Comparable<@G Object> {\n" + 
-								  "  int @I [] @J [] f;\n" + 
-								  "  int @I [] g;\n" + 
-								  "  int @I [][] h;\n" + 
-								  "  int @I [] @K [] i;\n" + 
-								  "  int @L [][] @M [] f2;\n" + 
-								  "  Clazz(char[]... args) {\n" + 
-								  "    super();\n" + 
-								  "  }\n" + 
-								  "  Clazz(int @N [] @O ... a) {\n" + 
-								  "    super();\n" + 
-								  "  }\n" + 
-								  "  int @R [] @S [] aa() {\n" + 
-								  "  }\n" + 
-								  "  int @T [] @U [] @V [] @W [] @X [] @Y [] a() {\n" + 
-								  "    return null;\n" + 
-								  "  }\n" + 
-								  "  public void main(String @A [] @B ... args) throws @D Exception {\n" + 
-								  "    HashMap<@E String, @F String> b1;\n" + 
+
+
+	String expectedUnitToString = "import java.util.HashMap;\n" +
+								  "import java.util.Map;\n" +
+								  "public class Clazz<@A M extends @B String, @C N extends @D Comparable> extends @E Object implements @F Comparable<@G Object> {\n" +
+								  "  int @I [] @J [] f;\n" +
+								  "  int @I [] g;\n" +
+								  "  int @I [][] h;\n" +
+								  "  int @I [] @K [] i;\n" +
+								  "  int @L [][] @M [] f2;\n" +
+								  "  Clazz(char[]... args) {\n" +
+								  "    super();\n" +
+								  "  }\n" +
+								  "  Clazz(int @N [] @O ... a) {\n" +
+								  "    super();\n" +
+								  "  }\n" +
+								  "  int @R [] @S [] aa() {\n" +
+								  "  }\n" +
+								  "  int @T [] @U [] @V [] @W [] @X [] @Y [] a() {\n" +
+								  "    return null;\n" +
+								  "  }\n" +
+								  "  public void main(String @A [] @B ... args) throws @D Exception {\n" +
+								  "    HashMap<@E String, @F String> b1;\n" +
 								  "    int b;\n" +
-								  "    b = (@G int) 10;\n" + 
+								  "    b = (@G int) 10;\n" +
 								  "    char @H [] @I [] ch;\n" +
-								  "    ch = (@K char @L [] @M []) (@N char @O [] @P []) null;\n" + 
+								  "    ch = (@K char @L [] @M []) (@N char @O [] @P []) null;\n" +
 								  "    int[] i;\n" +
-								  "    i = new @Q int @R [10];\n" + 
+								  "    i = new @Q int @R [10];\n" +
 								  "    Integer w;\n" +
-								  "    w = new X<@S String, @T Integer>().get(new @U Integer(12));\n" + 
-								  "    throw new @V Exception(\"test\");\n" + 
+								  "    w = new X<@S String, @T Integer>().get(new @U Integer(12));\n" +
+								  "    throw new @V Exception(\"test\");\n" +
 								  "    boolean c;\n" +
-								  "    c = (null instanceof @W String);\n" + 
-								  "  }\n" + 
-								  "  public <@X X, @Y Y>void foo(X x, Y @Z ... y) {\n" + 
-								  "  }\n" + 
-								  "  void foo(Map<? super @A Object, ? extends @B String> m) {\n" + 
-								  "  }\n" + 
-								  "  public int compareTo(Object arg0) {\n" + 
-								  "    return 0;\n" + 
-								  "  }\n" + 
-								  "}\n" + 
-								  "class X<@C K, @D T extends @E Object & @F Comparable<? super @G T>> {\n" + 
-								  "  X() {\n" + 
-								  "    super();\n" + 
-								  "  }\n" + 
-								  "  public Integer get(Integer integer) {\n" + 
-								  "    return null;\n" + 
-								  "  }\n" + 
+								  "    c = (null instanceof @W String);\n" +
+								  "  }\n" +
+								  "  public <@X X, @Y Y>void foo(X x, Y @Z ... y) {\n" +
+								  "  }\n" +
+								  "  void foo(Map<? super @A Object, ? extends @B String> m) {\n" +
+								  "  }\n" +
+								  "  public int compareTo(Object arg0) {\n" +
+								  "    return 0;\n" +
+								  "  }\n" +
+								  "}\n" +
+								  "class X<@C K, @D T extends @E Object & @F Comparable<? super @G T>> {\n" +
+								  "  X() {\n" +
+								  "    super();\n" +
+								  "  }\n" +
+								  "  public Integer get(Integer integer) {\n" +
+								  "    return null;\n" +
+								  "  }\n" +
 								  "}\n";
 	// indexing parser avoids creating lots of nodes, so parse tree comes out incorrectly.
 	// this is not bug, but intended behavior - see IndexingParser.newSingleNameReference(char[], long)
 	checkParse(CHECK_ALL & ~CHECK_INDEXING_PARSER & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0063", expectedUnitToString);
 }
-//assorted unclassified 
+//assorted unclassified
 public void test0064() throws IOException {
 	String source = "class X<T extends @E Object & @F Comparable<? super T>> {}\n";
-	String expectedUnitToString = "class X<T extends @E Object & @F Comparable<? super T>> {\n" + 
-								  "  X() {\n" + 
-								  "    super();\n" + 
-								  "  }\n" + 
+	String expectedUnitToString = "class X<T extends @E Object & @F Comparable<? super T>> {\n" +
+								  "  X() {\n" +
+								  "    super();\n" +
+								  "  }\n" +
 								  "}\n";
 	// indexing parser avoids creating lots of nodes, so parse tree comes out incorrectly.
 	// this is not bug, but intended behavior - see IndexingParser.newSingleNameReference(char[], long)
@@ -1570,50 +1570,50 @@ public void test0064() throws IOException {
 }
 //type class literal expression
 public void test0066() throws IOException {
-	String source = "public class X {\n" + 
-			"	<T extends Y<@A String @C[][]@B[]> & Cloneable> void foo(T t) {}\n" + 
+	String source = "public class X {\n" +
+			"	<T extends Y<@A String @C[][]@B[]> & Cloneable> void foo(T t) {}\n" +
 			"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  <T extends Y<@A String @C [][] @B []> & Cloneable>void foo(T t) {\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  <T extends Y<@A String @C [][] @B []> & Cloneable>void foo(T t) {\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0066", expectedUnitToString);
 }
 //check locations
 public void test0067() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@H String @E[] @F[] @G[] field;\n" + 
-		"	@A Map<@B String, @C List<@D Object>> field2;\n" + 
-		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@H String @E[] @F[] @G[] field;\n" +
+		"	@A Map<@B String, @C List<@D Object>> field2;\n" +
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @H String @E [] @F [] @G [] field;\n" + 
-		"  @A Map<@B String, @C List<@D Object>> field2;\n" + 
-		"  @A Map<@B String, @H String @E [] @F [] @G []> field3;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @H String @E [] @F [] @G [] field;\n" +
+		"  @A Map<@B String, @C List<@D Object>> field2;\n" +
+		"  @A Map<@B String, @H String @E [] @F [] @G []> field3;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0067", expectedUnitToString);
 }
 //check locations
 public void test0068() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@H String @E[] @F[] @G[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@H String @E[] @F[] @G[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @H String @E [] @F [] @G [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @H String @E [] @F [] @G [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0068", expectedUnitToString, visitor);
@@ -1626,16 +1626,16 @@ public void test0068() throws IOException {
 }
 //check locations
 public void test0069() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B String, @H String> field3;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B String, @H String> field3;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B String, @H String> field3;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B String, @H String> field3;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0069", expectedUnitToString, visitor);
@@ -1647,16 +1647,16 @@ public void test0069() throws IOException {
 }
 //check locations
 public void test0070() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B String, @H String @E[] @F[] @G[]> field3;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B String, @H String @E [] @F [] @G []> field3;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B String, @H String @E [] @F [] @G []> field3;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0070", expectedUnitToString, visitor);
@@ -1671,16 +1671,16 @@ public void test0070() throws IOException {
 }
 //check locations
 public void test0071() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B String, @C List<@H String @E[][] @G[]>> field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B String, @C List<@H String @E[][] @G[]>> field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B String, @C List<@H String @E [][] @G []>> field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B String, @C List<@H String @E [][] @G []>> field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0071", expectedUnitToString, visitor);
@@ -1695,16 +1695,16 @@ public void test0071() throws IOException {
 }
 //check locations
 public void test0072() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B String, @C List<@H String @E[][] @G[]>>[] @I[] @J[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B String, @C List<@H String @E[][] @G[]>>[] @I[] @J[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B String, @C List<@H String @E [][] @G []>>[] @I [] @J [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B String, @C List<@H String @E [][] @G []>>[] @I [] @J [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0072", expectedUnitToString, visitor);
@@ -1721,16 +1721,16 @@ public void test0072() throws IOException {
 }
 //check locations
 public void test0073() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B String, @C List<@H String @E[][] @G[]>> @I[][] @J[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B String, @C List<@H String @E[][] @G[]>> @I[][] @J[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B String, @C List<@H String @E [][] @G []>> @I [][] @J [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B String, @C List<@H String @E [][] @G []>> @I [][] @J [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0073", expectedUnitToString, visitor);
@@ -1747,16 +1747,16 @@ public void test0073() throws IOException {
 }
 //check locations
 public void test0074() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@C List<@H String @E[][] @G[]>, String @B[] @D[]> @I[] @F[] @J[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@C List<@H String @E[][] @G[]>, String @B[] @D[]> @I[] @F[] @J[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@C List<@H String @E [][] @G []>, String @B [] @D []> @I [] @F [] @J [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@C List<@H String @E [][] @G []>, String @B [] @D []> @I [] @F [] @J [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0074", expectedUnitToString, visitor);
@@ -1775,16 +1775,16 @@ public void test0074() throws IOException {
 }
 //check locations
 public void test0075() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@C List<@H String @E[][] @G[]>, @B List<String [] @D[]>> [] @I[] @F[] @J[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@C List<@H String @E[][] @G[]>, @B List<String [] @D[]>> [] @I[] @F[] @J[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@C List<@H String @E [][] @G []>, @B List<String[] @D []>>[] @I [] @F [] @J [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@C List<@H String @E [][] @G []>, @B List<String[] @D []>>[] @I [] @F [] @J [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0075", expectedUnitToString, visitor);
@@ -1803,16 +1803,16 @@ public void test0075() throws IOException {
 }
 //check locations
 public void test0076() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B String, @C List<@D Object>> field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B String, @C List<@D Object>> field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B String, @C List<@D Object>> field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B String, @C List<@D Object>> field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0076", expectedUnitToString, visitor);
@@ -1825,16 +1825,16 @@ public void test0076() throws IOException {
 }
 //check locations
 public void test0077() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@H String @E[] @F[] @G[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@H String @E[] @F[] @G[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @H String @E [] @F [] @G [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @H String @E [] @F [] @G [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0077", expectedUnitToString, visitor);
@@ -1847,16 +1847,16 @@ public void test0077() throws IOException {
 }
 //check locations
 public void test0078() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B Comparable<@C Object @D[] @E[] @F[]>, @G List<@H Document>> field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B Comparable<@C Object @D[] @E[] @F[]>, @G List<@H Document>> field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B Comparable<@C Object @D [] @E [] @F []>, @G List<@H Document>> field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B Comparable<@C Object @D [] @E [] @F []>, @G List<@H Document>> field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0078", expectedUnitToString, visitor);
@@ -1873,16 +1873,16 @@ public void test0078() throws IOException {
 }
 //check locations
 public void test0079() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A java.util.Map<@B Comparable<@C Object @D[] @E[] @F[]>, @G List<@H Document>> field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A java.util.Map<@B Comparable<@C Object @D[] @E[] @F[]>, @G List<@H Document>> field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A java.util.Map<@B Comparable<@C Object @D [] @E [] @F []>, @G List<@H Document>> field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A java.util.Map<@B Comparable<@C Object @D [] @E [] @F []>, @G List<@H Document>> field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0079", expectedUnitToString, visitor);
@@ -1899,16 +1899,16 @@ public void test0079() throws IOException {
 }
 //check locations
 public void test0080() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@B Map<? extends Z, ? extends @A Z> field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@B Map<? extends Z, ? extends @A Z> field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @B Map<? extends Z, ? extends @A Z> field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @B Map<? extends Z, ? extends @A Z> field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0080", expectedUnitToString, visitor);
@@ -1919,16 +1919,16 @@ public void test0080() throws IOException {
 }
 //check locations
 public void test0081() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@H java.lang.String @E[] @F[] @G[] field;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@H java.lang.String @E[] @F[] @G[] field;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @H java.lang.String @E [] @F [] @G [] field;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @H java.lang.String @E [] @F [] @G [] field;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0081", expectedUnitToString, visitor);
@@ -1941,16 +1941,16 @@ public void test0081() throws IOException {
 }
 //check locations
 public void test0082() throws IOException {
-	String source = 
-		"public class X {\n" + 
-		"	@A Map<@B java.lang.String, @H java.lang.String @E[] @F[] @G[]> field3;\n" + 
+	String source =
+		"public class X {\n" +
+		"	@A Map<@B java.lang.String, @H java.lang.String @E[] @F[] @G[]> field3;\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  @A Map<@B java.lang.String, @H java.lang.String @E [] @F [] @G []> field3;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  @A Map<@B java.lang.String, @H java.lang.String @E [] @F [] @G []> field3;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	LocationPrinterVisitor visitor = new LocationPrinterVisitor();
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0082", expectedUnitToString, visitor);
@@ -3415,10 +3415,10 @@ public void test0125() throws IOException {
 	String source =
 		"public class X extends @A(\"Hello, World!\") Y<@B @C('(') String[] @D[]> {}";
 	String expectedUnitToString =
-		"public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String[] @D []> {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"public class X extends @A(\"Hello, World!\") Y<@B @C(\'(\') String[] @D []> {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0125", expectedUnitToString );
 }
@@ -3429,11 +3429,11 @@ public void test0126() throws IOException {
 		"	@A(\"Hello, World!\") @B @C('(') String@E[] @D[] f;\n" +
 		"}";
 	String expectedUnitToString =
-		"public class X {\n" + 
-		"  @A(\"Hello, World!\") @B @C(\'(\') String @E [] @D [] f;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"public class X {\n" +
+		"  @A(\"Hello, World!\") @B @C(\'(\') String @E [] @D [] f;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0126", expectedUnitToString );
 }
@@ -3444,52 +3444,52 @@ public void test0127() throws IOException {
 		"	@A(\"Hello, World!\") Y<@B @C('(') String[] @D[]> f;\n" +
 		"}";
 	String expectedUnitToString =
-		"public class X {\n" + 
-		"  @A(\"Hello, World!\") Y<@B @C(\'(\') String[] @D []> f;\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
+		"public class X {\n" +
+		"  @A(\"Hello, World!\") Y<@B @C(\'(\') String[] @D []> f;\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0127", expectedUnitToString );
 }
 //type class literal expression
 public void test0128() throws IOException {
-	String source = 
-	"public class X {\n" + 
-	"	public boolean foo(String s) {\n" + 
-	"		return (s instanceof @C('_') Object[]);\n" + 
-	"	}\n" + 
-	"	public Object foo1(String s) {\n" + 
-	"		return new @B(3) @A(\"new Object\") Object[] {};\n" + 
-	"	}\n" + 
-	"	public Class foo2(String s) {\n" + 
-	"		return null;\n" + 
-	"	}\n" + 
-	"	public Class foo3(String s) {\n" + 
-	"		return null;\n" + 
-	"	}\n" + 
+	String source =
+	"public class X {\n" +
+	"	public boolean foo(String s) {\n" +
+	"		return (s instanceof @C('_') Object[]);\n" +
+	"	}\n" +
+	"	public Object foo1(String s) {\n" +
+	"		return new @B(3) @A(\"new Object\") Object[] {};\n" +
+	"	}\n" +
+	"	public Class foo2(String s) {\n" +
+	"		return null;\n" +
+	"	}\n" +
+	"	public Class foo3(String s) {\n" +
+	"		return null;\n" +
+	"	}\n" +
 	"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public boolean foo(String s) {\n" + 
-		"    return (s instanceof @C(\'_\') Object[]);\n" + 
-		"  }\n" + 
-		"  public Object foo1(String s) {\n" + 
-		"    return new @B(3) @A(\"new Object\") Object[]{};\n" + 
-		"  }\n" + 
-		"  public Class foo2(String s) {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
-		"  public Class foo3(String s) {\n" + 
-		"    return null;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public boolean foo(String s) {\n" +
+		"    return (s instanceof @C(\'_\') Object[]);\n" +
+		"  }\n" +
+		"  public Object foo1(String s) {\n" +
+		"    return new @B(3) @A(\"new Object\") Object[]{};\n" +
+		"  }\n" +
+		"  public Class foo2(String s) {\n" +
+		"    return null;\n" +
+		"  }\n" +
+		"  public Class foo3(String s) {\n" +
+		"    return null;\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0128", expectedUnitToString );
 }
-//instanceof checks 
+//instanceof checks
 public void test0129() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void main(Object o) {\n" +
@@ -3497,92 +3497,92 @@ public void test0129() throws IOException {
 					"}\n" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class Clazz {\n" + 
-		"  public Clazz() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(Object o) {\n" + 
-		"    if ((o instanceof @Readonly String))\n" + 
-		"        {\n" + 
-		"        }\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class Clazz {\n" +
+		"  public Clazz() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(Object o) {\n" +
+		"    if ((o instanceof @Readonly String))\n" +
+		"        {\n" +
+		"        }\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0129", expectedUnitToString);
 }
-//instanceof checks 
+//instanceof checks
 public void test0130() throws IOException {
 	String source = "public class Clazz {\n" +
 					"public static void foo() {\n" +
 					"	if (o instanceof @Readonly String[]) {}" +
 					"}\n" +
 					"}";
-	String expectedUnitToString = 
-		"public class Clazz {\n" + 
-		"  public Clazz() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void foo() {\n" + 
-		"    if ((o instanceof @Readonly String[]))\n" + 
-		"        {\n" + 
-		"        }\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class Clazz {\n" +
+		"  public Clazz() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void foo() {\n" +
+		"    if ((o instanceof @Readonly String[]))\n" +
+		"        {\n" +
+		"        }\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_ALL & ~CHECK_JAVAC_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //cast
 public void test0131() throws IOException {
 	String source =
-		"public class X {\n" + 
-		"	public void foo(Object o) {\n" + 
+		"public class X {\n" +
+		"	public void foo(Object o) {\n" +
 		"		if (o instanceof String[][]) {\n" +
 		"			String[][] tab = (@C('_') @B(3) String[] @A[]) o;\n" +
 		"			System.out.println(tab.length);\n" +
-		"		}\n" + 
+		"		}\n" +
 		"		System.out.println(o);\n" +
-		"	}\n" + 
+		"	}\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo(Object o) {\n" + 
-		"    if ((o instanceof String[][]))\n" + 
-		"        {\n" + 
-		"          String[][] tab = (@C(\'_\') @B(3) String[] @A []) o;\n" + 
-		"          System.out.println(tab.length);\n" + 
-		"        }\n" + 
-		"    System.out.println(o);\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo(Object o) {\n" +
+		"    if ((o instanceof String[][]))\n" +
+		"        {\n" +
+		"          String[][] tab = (@C(\'_\') @B(3) String[] @A []) o;\n" +
+		"          System.out.println(tab.length);\n" +
+		"        }\n" +
+		"    System.out.println(o);\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 //cast
 public void test0132() throws IOException {
 	String source =
-		"public class X {\n" + 
-		"	public void foo(Object o) {\n" + 
+		"public class X {\n" +
+		"	public void foo(Object o) {\n" +
 		"		if (o instanceof String[][]) {\n" +
 		"			String[][] tab = (@C('_') @B(3) String@D[] @A[]) o;\n" +
 		"			System.out.println(tab.length);\n" +
-		"		}\n" + 
+		"		}\n" +
 		"		System.out.println(o);\n" +
-		"	}\n" + 
+		"	}\n" +
 		"}";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public void foo(Object o) {\n" + 
-		"    if ((o instanceof String[][]))\n" + 
-		"        {\n" + 
-		"          String[][] tab = (@C(\'_\') @B(3) String @D [] @A []) o;\n" + 
-		"          System.out.println(tab.length);\n" + 
-		"        }\n" + 
-		"    System.out.println(o);\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public void foo(Object o) {\n" +
+		"    if ((o instanceof String[][]))\n" +
+		"        {\n" +
+		"          String[][] tab = (@C(\'_\') @B(3) String @D [] @A []) o;\n" +
+		"          System.out.println(tab.length);\n" +
+		"        }\n" +
+		"    System.out.println(o);\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
@@ -3597,17 +3597,17 @@ public void test0133() throws IOException {
 		"		System.out.println(X.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" +
 		"	}\n" +
 		"}\n";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  static <T, U>T foo(T t, U u) {\n" + 
-		"    return t;\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    System.out.println(X.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  static <T, U>T foo(T t, U u) {\n" +
+		"    return t;\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    System.out.println(X.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
@@ -3624,18 +3624,18 @@ public void test0134() throws IOException {
 		"		System.out.println(x.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" +
 		"	}\n" +
 		"}\n";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  public X() {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  <T, U>T foo(T t, U u) {\n" + 
-		"    return t;\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  public X() {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  <T, U>T foo(T t, U u) {\n" +
+		"    return t;\n" +
+		"  }\n" +
 		"  public static void main(String[] args) {\n" +
 		"    X x = new X();\n" +
-		"    System.out.println(x.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" + 
-		"  }\n" + 
+		"    System.out.println(x.<@D() @A(value = \"hello\") String, @B X>foo(\"SUCCESS\", null));\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
@@ -3650,15 +3650,15 @@ public void test0135() throws IOException {
 		"		System.out.println(x);\n" +
 		"	}\n" +
 		"}\n";
-	String expectedUnitToString = 
-		"public class X {\n" + 
-		"  <T, U>X(T t, U u) {\n" + 
-		"    super();\n" + 
-		"  }\n" + 
-		"  public static void main(String[] args) {\n" + 
-		"    X x = new <@D() @A(value = \"hello\") String, @B X>X();\n" + 
-		"    System.out.println(x);\n" + 
-		"  }\n" + 
+	String expectedUnitToString =
+		"public class X {\n" +
+		"  <T, U>X(T t, U u) {\n" +
+		"    super();\n" +
+		"  }\n" +
+		"  public static void main(String[] args) {\n" +
+		"    X x = new <@D() @A(value = \"hello\") String, @B X>X();\n" +
+		"    System.out.println(x);\n" +
+		"  }\n" +
 		"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
@@ -3678,33 +3678,33 @@ public void test0136() throws IOException {
 			"    new X<String>().new Y<Integer>().new Z();\n" +
 			"  }\n" +
 			"}\n";
-	String expectedUnitToString = 
-			"public class X<T> {\n" + 
-			"  public class Y<K> {\n" + 
-			"    public class Z {\n" + 
-			"      Z(@D() @A(value = \"hello\") X<T>.Y<K> X.Y.this) {\n" + 
-			"        super();\n" + 
-			"      }\n" + 
-			"    }\n" + 
-			"    public Y() {\n" + 
-			"      super();\n" + 
-			"    }\n" + 
-			"    void foo(@Marker X<T> this) {\n" + 
-			"    }\n" + 
-			"  }\n" + 
-			"  public X() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"    new X<String>().new Y<Integer>().new Z();\n" + 
-			"  }\n" + 
+	String expectedUnitToString =
+			"public class X<T> {\n" +
+			"  public class Y<K> {\n" +
+			"    public class Z {\n" +
+			"      Z(@D() @A(value = \"hello\") X<T>.Y<K> X.Y.this) {\n" +
+			"        super();\n" +
+			"      }\n" +
+			"    }\n" +
+			"    public Y() {\n" +
+			"      super();\n" +
+			"    }\n" +
+			"    void foo(@Marker X<T> this) {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public X() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    new X<String>().new Y<Integer>().new Z();\n" +
+			"  }\n" +
 			"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0130", expectedUnitToString);
 }
 // Support type annotations for wildcard
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388085
 public void test0137() throws IOException {
-	String source = 
+	String source =
 			"class X {\n" +
 			"	public void main(Four<@Marker ? super String, @Marker ? extends Object> param) {\n" +
 			"		One<@Marker ? extends Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String,@Marker ? extends Object>>>> one = null;\n" +
@@ -3718,44 +3718,44 @@ public void test0137() throws IOException {
 			"class Three<T> {}\n" +
 			"class Four<U, V> {}\n" +
 			"@interface Marker {}";
-	String expectedUnitToString = 
-			"class X {\n" + 
-			"  X() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"  public void main(Four<@Marker ? super String, @Marker ? extends Object> param) {\n" + 
-			"    One<@Marker ? extends Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;\n" + 
-			"    Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>>> two = null;\n" + 
-			"    Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>> three = null;\n" + 
-			"    Four<@Marker ? super String, @Marker ? extends Object> four = param;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class One<R> {\n" + 
-			"  One() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Two<S> {\n" + 
-			"  Two() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Three<T> {\n" + 
-			"  Three() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Four<U, V> {\n" + 
-			"  Four() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"@interface Marker {\n" + 
+	String expectedUnitToString =
+			"class X {\n" +
+			"  X() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"  public void main(Four<@Marker ? super String, @Marker ? extends Object> param) {\n" +
+			"    One<@Marker ? extends Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;\n" +
+			"    Two<@Marker ? extends Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>>> two = null;\n" +
+			"    Three<@Marker ? extends Four<@Marker ? super String, @Marker ? extends Object>> three = null;\n" +
+			"    Four<@Marker ? super String, @Marker ? extends Object> four = param;\n" +
+			"  }\n" +
+			"}\n" +
+			"class One<R> {\n" +
+			"  One() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"}\n" +
+			"class Two<S> {\n" +
+			"  Two() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"}\n" +
+			"class Three<T> {\n" +
+			"  Three() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"}\n" +
+			"class Four<U, V> {\n" +
+			"  Four() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"}\n" +
+			"@interface Marker {\n" +
 			"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0137", expectedUnitToString);
 }
 public void test0138() throws IOException {
-	String source = 
+	String source =
 			"import java.lang.annotation.Target;\n" +
 			"import static java.lang.annotation.ElementType.*;\n" +
 			"public class X {\n" +
@@ -3767,41 +3767,41 @@ public void test0138() throws IOException {
 			"		return 2;\n" +
 			"	}\n" +
 			"	public static int bar2(int k) {\n" +
-			"		return k;\n" + 
+			"		return k;\n" +
 			"	}\n" +
 			"}\n" +
 			"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 			"@interface Marker {}\n" +
 			"@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 			"@interface Marker2 {}\n";
-	String expectedUnitToString = 
-			"import java.lang.annotation.Target;\n" + 
-			"import static java.lang.annotation.ElementType.*;\n" + 
-			"public class X {\n" + 
-			"  public X() {\n" + 
-			"    super();\n" + 
-			"  }\n" + 
-			"  public void foo() {\n" + 
-			"    int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [bar()] @Marker @Marker2 [];\n" + 
-			"    int @Marker [][][] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [X.bar2(2)] @Marker @Marker2 [];\n" + 
-			"  }\n" + 
-			"  public int bar() {\n" + 
-			"    return 2;\n" + 
-			"  }\n" + 
-			"  public static int bar2(int k) {\n" + 
-			"    return k;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"@Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {\n" + 
-			"}\n" + 
-			"@Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker2 {\n" + 
+	String expectedUnitToString =
+			"import java.lang.annotation.Target;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"public class X {\n" +
+			"  public X() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"  public void foo() {\n" +
+			"    int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [bar()] @Marker @Marker2 [];\n" +
+			"    int @Marker [][][] j = new @Marker2 int @Marker @Marker2 [2] @Marker @Marker2 [X.bar2(2)] @Marker @Marker2 [];\n" +
+			"  }\n" +
+			"  public int bar() {\n" +
+			"    return 2;\n" +
+			"  }\n" +
+			"  public static int bar2(int k) {\n" +
+			"    return k;\n" +
+			"  }\n" +
+			"}\n" +
+			"@Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker {\n" +
+			"}\n" +
+			"@Target(java.lang.annotation.ElementType.TYPE_USE) @interface Marker2 {\n" +
 			"}\n";
 	checkParse(CHECK_PARSER, source.toCharArray(), null, "test0137", expectedUnitToString);
 }
 // Support for annotations on ellipsis in lambda expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432574
 public void test0139() throws IOException {
-	String source = 
+	String source =
 			"import java.lang.annotation.ElementType;\n" +
 			"import java.lang.annotation.Target;\n" +
 			"public class X {\n" +
@@ -3813,7 +3813,7 @@ public void test0139() throws IOException {
 			"@Target(ElementType.TYPE_USE)\n" +
 			"@interface T1 {\n" +
 			"}\n";
-	String expectedUnitToString = 
+	String expectedUnitToString =
 			"import java.lang.annotation.ElementType;\n" +
 			"import java.lang.annotation.Target;\n" +
 			"public class X {\n" +

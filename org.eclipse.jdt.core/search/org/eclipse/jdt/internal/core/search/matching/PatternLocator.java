@@ -470,7 +470,7 @@ public int resolveLevel(ASTNode possibleMatchingNode) {
  * Set the flavors for which the locator has to be focused on.
  * If not set, the locator will accept all matches with or without flavors.
  * When set, the locator will only accept match having the corresponding flavors.
- * 
+ *
  * @param flavors Bits mask specifying the flavors to be accepted or
  * 	<code>0</code> to ignore the flavors while accepting matches.
  */
@@ -814,7 +814,7 @@ protected int resolveLevelForType(char[] qualifiedPattern, TypeBinding type) {
 		IntersectionTypeBinding18 i18 = (IntersectionTypeBinding18) type;
 		for (ReferenceBinding ref : i18.intersectingTypes) {
 			result = resolveLevelForType(qualifiedPattern, ref);
-			if (result == ACCURATE_MATCH) return result; 
+			if (result == ACCURATE_MATCH) return result;
 			if (result == IMPOSSIBLE_MATCH) continue;
 			if (prev == IMPOSSIBLE_MATCH) prev = result;
 		}

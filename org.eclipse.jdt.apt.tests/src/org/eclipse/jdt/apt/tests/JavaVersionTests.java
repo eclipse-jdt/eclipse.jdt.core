@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.tests.util.Util;
  * Test that processors do not get invoked on pre-1.5 projects
  */
 public class JavaVersionTests extends BuilderTests {
-	
+
 	public JavaVersionTests(final String name) {
 		super( name );
 	}
@@ -41,7 +41,7 @@ public class JavaVersionTests extends BuilderTests {
 
 	public void setUp() throws Exception {
 		super.setUp();
-		
+
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getProjectName(), "1.4" ); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
@@ -56,7 +56,7 @@ public class JavaVersionTests extends BuilderTests {
 		TestUtil.createAndAddAnnotationJar( env
 			.getJavaProject( projectPath ) );
 	}
-	
+
 	public static String getProjectName() {
 		return JavaVersionTests.class.getName() + "Project"; //$NON-NLS-1$
 	}
@@ -67,28 +67,28 @@ public class JavaVersionTests extends BuilderTests {
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
-	
+
 	/**
 	 * Runs the MirrorTestAnnotationProcessor, which contains
 	 * the actual tests
 	 */
 	public void testMirror() throws Exception {
 		ProcessorTestStatus.reset();
-		
+
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
-		
+
 		String code = CodeExample.CODE;
 
-		env.addClass( 
-				srcRoot, 
-				CodeExample.CODE_PACKAGE, 
+		env.addClass(
+				srcRoot,
+				CodeExample.CODE_PACKAGE,
 				CodeExample.CODE_CLASS_NAME,
 				code );
 
 		fullBuild( project.getFullPath() );
-		
+
 		assertFalse("Processor was run", ProcessorTestStatus.processorRan()); //$NON-NLS-1$
 	}
-	
+
 }

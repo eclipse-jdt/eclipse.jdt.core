@@ -33,7 +33,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	public ParticipantBuildTests(String name) {
 		super(name);
 	}

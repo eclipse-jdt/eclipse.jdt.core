@@ -488,7 +488,7 @@ class DocCommentParser extends AbstractCommentParser {
 						} else if (length == TAG_LITERAL_LENGTH && CharOperation.equals(TAG_LITERAL, tagName)) {
 							this.tagValue = TAG_LITERAL_VALUE;
 						}
-						
+
 						if (this.tagValue != NO_TAG_VALUE && this.tagValue != TAG_LITERAL_VALUE)  {
 							if (this.inlineTagStarted) {
 								valid = parseReference();

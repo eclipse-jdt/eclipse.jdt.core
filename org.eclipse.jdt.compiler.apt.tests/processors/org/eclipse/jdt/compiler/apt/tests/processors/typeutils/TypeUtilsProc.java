@@ -41,7 +41,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 import org.eclipse.jdt.internal.compiler.apt.model.DeclaredTypeImpl;
 
 /**
- * A processor that exercises the methods on the Elements utility.  To enable this processor, add 
+ * A processor that exercises the methods on the Elements utility.  To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.typeutils.TypeUtilsProc to the command line.
  * @since 3.3
  */
@@ -63,36 +63,36 @@ public class TypeUtilsProc extends BaseProcessor
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
+
 		try {
     		if (!examinePrimitives()) {
     			return false;
     		}
-    		
+
     		if (!examineNoType()) {
     			return false;
     		}
-    		
+
     		if (!examineGetDeclaredType()) {
     			return false;
     		}
-    		
+
     		if (!examineGetDeclaredTypeParameterized()) {
     			return false;
     		}
-    
+
     		if (!examineGetDeclaredTypeNested()) {
     			return false;
     		}
-    		
+
     		if (!examineGetArrayTypeParameterized()) {
     			return false;
     		}
-    		
+
     		if (!examineTypesAsMemberOf()) {
     			return false;
     		}
-    		
+
     		if (!examineTypesAsMemberOfSubclass()) {
     		    return false;
     		}
@@ -107,7 +107,7 @@ public class TypeUtilsProc extends BaseProcessor
 		reportSuccess();
 		return false;
 	}
-	
+
 	/**
 	 * Test the implementation of primitive types and the getPrimitiveType() method
 	 * @return true if tests passed
@@ -145,7 +145,7 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("isAssignable(float, int) should be false");
 			return false;
 		}
-		
+
 		// TYPE IDENTITY
 		if (_typeUtils.isSameType(intType, floatType)) {
 			reportError("Primitive type int is reported to be same as float");
@@ -155,7 +155,7 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("Primitive type float is reported to not be same as itself");
 			return false;
 		}
-		
+
 		// SUBTYPES
 		if (!_typeUtils.isSubtype(intType, intType)) {
 			reportError("Primitive type int is not a subtype of itself");
@@ -169,7 +169,7 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("Primitive type float is a subtype of int");
 			return false;
 		}
-		
+
 		// BOXING
 		if (!_typeUtils.isAssignable(intType, integerType)) {
 			reportError("isAssignable(int, java.lang.Integer) should be true");
@@ -194,7 +194,7 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test the implementation of NoType and the getNoType() method
 	 * @return true if tests passed
@@ -212,7 +212,7 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test the implementation of {@link javax.lang.model.util.Types#getDeclaredType()}
 	 * @return true if tests passed
@@ -265,7 +265,7 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test getDeclaredType() for parameterized types
 	 * @return true if tests passed
@@ -323,7 +323,7 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Test getArrayType() for a parameterized type
 	 * @return true if tests passed
@@ -332,19 +332,19 @@ public class TypeUtilsProc extends BaseProcessor
 		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
 		TypeElement listDecl = _elementUtils.getTypeElement(List.class.getName());
 		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
-		
+
 		// List<String>
 		DeclaredType decl = _typeUtils.getDeclaredType(listDecl, stringType);
-		
+
 		// List<String>[]
 		ArrayType listArray = _typeUtils.getArrayType(decl);
-		
+
 		TypeMirror leafType = listArray.getComponentType();
 		if (!_typeUtils.isSameType(leafType, decl)) {
 			reportError("Leaf type of List<String>[] should be List<String>, but was: " + leafType);
 			return false;
 		}
-		
+
 		return true;
 	}
 
@@ -361,7 +361,7 @@ public class TypeUtilsProc extends BaseProcessor
 	/**
 	 * Test {@link Types#asMemberOf()} where the elements are members of a superclass of the
 	 * declared container. See <a href="http://bugs.eclipse.org/382590">Bug 382590</a>. Note that
-	 * the asMemberOf() javadoc says the element is viewed "as a member of, or otherwise directly 
+	 * the asMemberOf() javadoc says the element is viewed "as a member of, or otherwise directly
 	 * contained by, a given type." It is not clear what "directly" means here, but javac 1.6
 	 * supports this case, so we will too.
 	 * @return true if tests passed
@@ -395,7 +395,7 @@ public class TypeUtilsProc extends BaseProcessor
 	            return false;
 	        }
 	        TypeMirror tm = _typeUtils.asMemberOf(declaredContainer, memberElement);
-	        
+
             if ("f".equals(m)) {
                 // Long field
                 if (!_typeUtils.isSameType(tm, longType)) {
@@ -416,18 +416,18 @@ public class TypeUtilsProc extends BaseProcessor
             } else if ("C".equals(m)) {
 	            // Not clear what to expect in the case of a static nested class. Outer parameterization doesn't
 	            // apply to the nested class; and the method spec doesn't say what to do when the contained
-	            // member is incompletely parameterized. 
+	            // member is incompletely parameterized.
 	            TypeElement c = _elementUtils.getTypeElement("targets.model.pc.AsMemberOf.C");
 	            TypeMirror tmExpected = c.asType();
-	            
+
 	            // In javac, we get A.C<T> whether C is directly contained or accessed via a subclass.
-	            // In Eclipse, when accessing through a subclass, the binding to C is lazily created 
+	            // In Eclipse, when accessing through a subclass, the binding to C is lazily created
 	            // within ParameterizedTypeBinding.memberTypes(), so it gets created as a PTB itself,
 	            // with no type arguments. Thus it is A<Long>.C instead of A.C<T>. This is probably a
 	            // compiler bug, but given that asMemberOf() is documented to apply only to "directly
 	            // contained" members it's probably not worth worrying about. So, we accept that case.
-	            if (!_typeUtils.isSameType(tm, tmExpected) && 
-	                    !(tm instanceof DeclaredTypeImpl && 
+	            if (!_typeUtils.isSameType(tm, tmExpected) &&
+	                    !(tm instanceof DeclaredTypeImpl &&
 	                            "targets.model.pc.AsMemberOf<java.lang.Long>.C".equals(tm.toString()))) {
 	                reportError(method + ": member C: Expected type " + tmExpected + " but found " + tm);
 	                return false;

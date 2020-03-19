@@ -31,16 +31,16 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 	public ASTBasedMirrorDeclarationProcessorFactory(){
 		super("test.DeclarationAnno");
 	}
-	
+
 	public AnnotationProcessor getProcessorFor(
-			Set<AnnotationTypeDeclaration> arg0, 
+			Set<AnnotationTypeDeclaration> arg0,
 			AnnotationProcessorEnvironment env) {
 		return new ASTBasedMirrorDeclarationProcessor(env);
 	}
-	
+
 	public static final class ASTBasedMirrorDeclarationProcessor
 		extends BaseProcessor{
-		
+
 		public ASTBasedMirrorDeclarationProcessor(AnnotationProcessorEnvironment env){
 			super(env);
 		}
@@ -63,11 +63,11 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 				examineClass(innerTypeDecl);
 			}
 		}
-	
+
 		private void examineClass(ClassDeclaration typeDecl ){
-			
+
 			assertNonNull(typeDecl, "missing type declaration");
-			if( typeDecl != null ){				
+			if( typeDecl != null ){
 				final String typename = typeDecl.getSimpleName();
 				if(typename.equals("Foo")){
 					final Collection<? extends MethodDeclaration> methods = typeDecl.getMethods();
@@ -88,8 +88,8 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 							assertEqual(null, method.toString(), "unexpected method");
 						}
 					}
-					
-					final Collection<ConstructorDeclaration> constructors = 
+
+					final Collection<ConstructorDeclaration> constructors =
 						typeDecl.getConstructors();
 					assertEqual(1, constructors.size(), "number of constructors do not match");
 					for( ConstructorDeclaration constructor : constructors ){
@@ -97,7 +97,7 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 						final String expectedString = "Foo(UnknownType type)";
 						assertEqual(expectedString, constructorString, "signature mismatch");
 					}
-					final Collection<FieldDeclaration> fields = 
+					final Collection<FieldDeclaration> fields =
 						typeDecl.getFields();
 					assertEqual(2, fields.size(), "number of fields do not match");
 					for( FieldDeclaration field : fields ){
@@ -109,11 +109,11 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 					}
 				}
 				else if(typename.equals("Inner")){
-					final Collection<? extends MethodDeclaration> methods = 
+					final Collection<? extends MethodDeclaration> methods =
 						typeDecl.getMethods();
 					assertEqual(0, methods.size(), "number of methods do not match ");
-					
-					final Collection<ConstructorDeclaration> constructors = 
+
+					final Collection<ConstructorDeclaration> constructors =
 						typeDecl.getConstructors();
 					assertEqual(1, constructors.size(), "number of constructors do not match");
 					for( ConstructorDeclaration constructor : constructors ){
@@ -121,7 +121,7 @@ public class ASTBasedMirrorDeclarationProcessorFactory
 						final String expectedString = "Inner()";
 						assertEqual(expectedString, constructorString, "signature mismatch");
 					}
-					final Collection<FieldDeclaration> fields = 
+					final Collection<FieldDeclaration> fields =
 						typeDecl.getFields();
 					assertEqual(0, fields.size(), "number of fields do not match");
 				}

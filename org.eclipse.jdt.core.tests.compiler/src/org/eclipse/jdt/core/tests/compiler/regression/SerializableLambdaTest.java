@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
@@ -48,7 +48,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_NAMES = new String[] { "testTypeVariable" };
 	}
-	
+
 	public static Class testClass() {
 		return SerializableLambdaTest.class;
 	}
@@ -67,14 +67,14 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 		return defaultOptions;
 	}
-	
-	public static final String RUNNER_CLASS = 
+
+	public static final String RUNNER_CLASS =
 		"public class Y {\n"+
 		"  public static void main(String[]args) {\n"+
 		"    com.foo.X.main(args);\n"+
 		"  }\n"+
 		"}";
-	
+
 	private static final String HELPER_CLASS =
 		"package util;\n"+
 		"import java.io.*;\n"+
@@ -108,7 +108,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	    "    }\n"+
 	    "    return null;\n"+
 	    "}\n"+
-		"}\n";	
+		"}\n";
 
 	/**
 	 * Verifies that after deserializing it is usable, also that the bootstrap methods attribute indicates use of altMetafactory
@@ -145,7 +145,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	/**
 	 * Sanity test, non serializable should have bootstrap methods attribute reference to metafactory.
 	 */
@@ -221,7 +221,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test004_lambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -261,7 +261,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "com"+File.separator+"foo"+File.separator+"X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test005_capturingVariableLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -344,7 +344,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "com"+File.separator+"foo"+File.separator+"X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// Fails the same way as javac right now... with NPE (b120)
 	public void xtest007_capturingFieldLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
@@ -389,7 +389,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "com"+File.separator+"foo"+File.separator+"X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test008_capturingTwoVariableLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -432,7 +432,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "com"+File.separator+"foo"+File.separator+"X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test009_capturingTwoSlotVariablesLambdaWithParameterInPackage() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -470,7 +470,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "com"+File.separator+"foo"+File.separator+"X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test010_VarargsLambdaExpression() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -508,7 +508,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "com"+File.separator+"foo"+File.separator+"X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// Fails same way as javac right now... with an NPE (b120)
 	public void xtest011_CapturingInstance() throws Exception {
 		this.runConformTest(
@@ -630,7 +630,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test014_intersectionCastAndNotSerializable() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -669,7 +669,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test015_serializableViaIntersectionCast() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -713,7 +713,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// SAM type not first in intersection cast
 	public void test016_bug424211() throws Exception {
 		this.runConformTest(
@@ -741,7 +741,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// Now SAM type first
 	public void test017_bug424211() throws Exception {
 		this.runConformTest(
@@ -769,7 +769,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// Not Serializable but a regular marker interface
 	public void test018_bug424211() throws Exception {
 		this.runConformTest(
@@ -800,7 +800,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// Now SAM type not first and serialization occurring
 	public void test019_bug424211() throws Exception {
 		this.runConformTest(
@@ -833,7 +833,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test020_lambdaNames() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -862,7 +862,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 			"  private static synthetic int lambda$1();\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	
+
 	public void test021_lambdaNamesVariants() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -919,7 +919,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 			assertEquals(expectedOutput,actualOutput);
 		}
 	}
-	
+
 	public void test022_nestedLambdas() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -957,7 +957,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test023_lambdasInOtherPlaces_Field() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -992,7 +992,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test024_lambdasInOtherPlaces_MethodParameter() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1026,7 +1026,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	public void test025_lambdasWithGenericInferencing() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1104,7 +1104,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		String data = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "X.class");
 		checkExpected(expectedOutput,data);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449467 - [1.8][compiler] Invalid lambda deserialization with anonymous class
 	public void test449467() throws Exception {
 		this.runConformTest(
@@ -1162,9 +1162,9 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					"HEY!",
 					null,
 					true,
-					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.		
+					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	public void test449467_2() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1221,9 +1221,9 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					"HEY!",
 					null,
 					true,
-					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.		
+					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428552,  [1.8][compiler][codegen] Serialization does not work for method references
 	public void test428552() throws Exception {
 		this.runConformTest(
@@ -1251,7 +1251,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					true,
 					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428642
 	public void test428642() throws Exception {
 		this.runConformTest(
@@ -1288,7 +1288,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	public void test428642_2() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1332,7 +1332,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429112, [1.8][compiler] Exception when compiling Serializable array constructor reference
 	public void test429112() throws Exception {
 		this.runConformTest(
@@ -1361,12 +1361,12 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}\n",
 				},
-				"class [Ljava.lang.String;\n" + 
+				"class [Ljava.lang.String;\n" +
 				"1234",
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=439889 - [1.8][compiler] [lambda] Deserializing lambda fails with IllegalArgumentException: "Invalid lambda deserialization"
 	public void test439889() throws Exception {
 		this.runConformTest(
@@ -1406,7 +1406,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					null,true,
 					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	public void test439889_2() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1445,7 +1445,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					null,true,
 					new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	public void testNestedLambdas_442416() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1494,7 +1494,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
 	public void testBindingThis_442418() throws Exception {
 		this.runConformTest(
 				new String[]{
@@ -1541,50 +1541,50 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"Testbed.java",
-				"import java.io.ObjectStreamClass;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import java.lang.invoke.SerializedLambda;\n" + 
-				"import java.lang.reflect.Method;\n" + 
-				"import java.util.function.IntFunction;\n" + 
-				"import java.util.stream.Stream;\n" + 
-				"public class Testbed {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(getMethod(Testbed::foo).equals(getMethod(Testbed::foo)));\n" + 
-				"	}\n" + 
-				"	private static void foo() { }\n" + 
-				"	static interface MethodRef extends Runnable, Serializable { }\n" + 
-				"	private static Method getMethod(MethodRef methodRef) {\n" + 
-				"		try {\n" + 
-				"			final Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" + 
-				"			invokeWriteReplaceMethod.setAccessible(true);\n" + 
-				"			final SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(\n" + 
-				"					ObjectStreamClass.lookupAny(methodRef.getClass()),\n" + 
-				"					methodRef\n" + 
-				"				);\n" + 
-				"			System.out.println(\"Looking for \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" + 
-				"			final Method[] methods = Stream.of(Class.forName(l.getImplClass()).getDeclaredMethods()).\n" + 
-				"				filter(m -> m.getName().equals(l.getImplMethodName())).\n" + 
-				"				toArray(Method[]::new);\n" + 
-				"			if(methods.length != 1) throw new AssertionError(\"TODO: check signature\");\n" + 
-				"			return methods[0];\n" + 
-				"		} catch(Exception e) {\n" + 
-				"			throw new RuntimeException(e);\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"import java.io.ObjectStreamClass;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.lang.invoke.SerializedLambda;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public class Testbed {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(getMethod(Testbed::foo).equals(getMethod(Testbed::foo)));\n" +
+				"	}\n" +
+				"	private static void foo() { }\n" +
+				"	static interface MethodRef extends Runnable, Serializable { }\n" +
+				"	private static Method getMethod(MethodRef methodRef) {\n" +
+				"		try {\n" +
+				"			final Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" +
+				"			invokeWriteReplaceMethod.setAccessible(true);\n" +
+				"			final SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(\n" +
+				"					ObjectStreamClass.lookupAny(methodRef.getClass()),\n" +
+				"					methodRef\n" +
+				"				);\n" +
+				"			System.out.println(\"Looking for \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" +
+				"			final Method[] methods = Stream.of(Class.forName(l.getImplClass()).getDeclaredMethods()).\n" +
+				"				filter(m -> m.getName().equals(l.getImplMethodName())).\n" +
+				"				toArray(Method[]::new);\n" +
+				"			if(methods.length != 1) throw new AssertionError(\"TODO: check signature\");\n" +
+				"			return methods[0];\n" +
+				"		} catch(Exception e) {\n" +
+				"			throw new RuntimeException(e);\n" +
+				"		}\n" +
+				"	}\n" +
 				"}\n"
 		},
 		"Looking for Testbed.foo\n" +
 		"Looking for Testbed.foo\n" +
 		"true",
 		null,true,
-		(isJRE9Plus 
-		? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
+		(isJRE9Plus
+		? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" }
 		: new String [] { "-Ddummy" })
 		);
 
-		
+
 		String bootstrapEntries = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "Testbed.class");
-		String expectedOutput = 
+		String expectedOutput =
 				"0: invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n"+
 				"  Method arguments:\n"+
 				"    ()V\n"+
@@ -1609,50 +1609,50 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"Testbed.java",
-				"import java.io.ObjectStreamClass;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import java.lang.invoke.SerializedLambda;\n" + 
-				"import java.lang.reflect.Constructor;\n" + 
-				"import java.lang.reflect.Executable;\n" + 
-				"import java.lang.reflect.Method;\n" + 
-				"import java.util.function.IntFunction;\n" + 
-				"import java.util.stream.Stream;\n" + 
-				"public class Testbed {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		System.out.println(getMethod(Testbed::foo).equals(getMethod(Testbed::foo)));\n" + 
-				"		System.out.println(getMethod(new Foo()::method).equals(getMethod(new Bar()::method)));\n" + 
-				"		System.out.println(getMethod(MethodRefImpl::new).equals(getMethod(MethodRefImpl::new)));\n" + 
-				"	}\n" + 
-				"	static class MethodRefImpl implements MethodRef {\n" + 
-				"		@Override\n" + 
-				"		public void run() {}\n" + 
-				"	}\n" + 
-				"	public static class Base {\n" + 
-				"        public void method () {}\n" + 
-				"    }\n" + 
-				"    public static class Foo extends Base {}\n" + 
-				"    public static class Bar extends Base {}\n" + 
-				"	private static void foo() { }\n" + 
-				"	static interface MethodRef extends Runnable, Serializable { }\n" + 
-				"	private static Executable getMethod(MethodRef methodRef) {\n" + 
-				"		try {\n" + 
-				"			final Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" + 
-				"			invokeWriteReplaceMethod.setAccessible(true);\n" + 
-				"			final SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(\n" + 
-				"					ObjectStreamClass.lookupAny(methodRef.getClass()),\n" + 
-				"					methodRef\n" + 
-				"				);\n" + 
-				"			System.out.println(\"Looking for \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" + 
-				"			boolean isConstructor = l.getImplMethodName().indexOf(\"<init>\") >= 0;\n" + 
-				"			final Executable[] methods = Stream.of(isConstructor ? Class.forName(l.getImplClass()).getDeclaredConstructors() : Class.forName(l.getImplClass()).getDeclaredMethods()).\n" + 
-				"				filter(m -> m.getName().equals(isConstructor ? l.getImplClass() : l.getImplMethodName())).\n" + 
-				"				toArray(isConstructor ? Constructor[]::new : Method[]::new);\n" + 
-				"			if(methods.length != 1) throw new AssertionError(\"TODO: check signature\");\n" + 
-				"			return methods[0];\n" + 
-				"		} catch(Exception e) {\n" + 
-				"			throw new RuntimeException(e);\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"import java.io.ObjectStreamClass;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.lang.invoke.SerializedLambda;\n" +
+				"import java.lang.reflect.Constructor;\n" +
+				"import java.lang.reflect.Executable;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"import java.util.function.IntFunction;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public class Testbed {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(getMethod(Testbed::foo).equals(getMethod(Testbed::foo)));\n" +
+				"		System.out.println(getMethod(new Foo()::method).equals(getMethod(new Bar()::method)));\n" +
+				"		System.out.println(getMethod(MethodRefImpl::new).equals(getMethod(MethodRefImpl::new)));\n" +
+				"	}\n" +
+				"	static class MethodRefImpl implements MethodRef {\n" +
+				"		@Override\n" +
+				"		public void run() {}\n" +
+				"	}\n" +
+				"	public static class Base {\n" +
+				"        public void method () {}\n" +
+				"    }\n" +
+				"    public static class Foo extends Base {}\n" +
+				"    public static class Bar extends Base {}\n" +
+				"	private static void foo() { }\n" +
+				"	static interface MethodRef extends Runnable, Serializable { }\n" +
+				"	private static Executable getMethod(MethodRef methodRef) {\n" +
+				"		try {\n" +
+				"			final Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" +
+				"			invokeWriteReplaceMethod.setAccessible(true);\n" +
+				"			final SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(\n" +
+				"					ObjectStreamClass.lookupAny(methodRef.getClass()),\n" +
+				"					methodRef\n" +
+				"				);\n" +
+				"			System.out.println(\"Looking for \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" +
+				"			boolean isConstructor = l.getImplMethodName().indexOf(\"<init>\") >= 0;\n" +
+				"			final Executable[] methods = Stream.of(isConstructor ? Class.forName(l.getImplClass()).getDeclaredConstructors() : Class.forName(l.getImplClass()).getDeclaredMethods()).\n" +
+				"				filter(m -> m.getName().equals(isConstructor ? l.getImplClass() : l.getImplMethodName())).\n" +
+				"				toArray(isConstructor ? Constructor[]::new : Method[]::new);\n" +
+				"			if(methods.length != 1) throw new AssertionError(\"TODO: check signature\");\n" +
+				"			return methods[0];\n" +
+				"		} catch(Exception e) {\n" +
+				"			throw new RuntimeException(e);\n" +
+				"		}\n" +
+				"	}\n" +
 				"}\n"
 		},
 		"Looking for Testbed.foo\n" +
@@ -1665,8 +1665,8 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		"Looking for Testbed$MethodRefImpl.<init>\n" +
 		"true",
 		null,true,
-		(isJRE9Plus 
-		? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
+		(isJRE9Plus
+		? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" }
 		: new String [] { "-Ddummy" })
 		);
 	}
@@ -1676,47 +1676,47 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"X.java",
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.IOException;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"public class X {\n" + 
-				"    public static interface Consumer<T> extends Serializable {\n" + 
-				"        void accept(T t);\n" + 
-				"    }\n" + 
-				"    public static class Foo {\n" + 
-				"    	public void method () {\n" + 
-				"        	System.out.println(\"Foo\");\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    public static class Bar {\n" + 
-				"    	public void method () {\n" + 
-				"        	System.out.println(\"Bar\");\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    public static void main (String[] args) throws IOException, ClassNotFoundException {\n" + 
-				"        Consumer<Foo> foo = Foo::method;\n" + 
-				"        Consumer<Bar> bar = Bar::method;\n" + 
-				"        Consumer<Foo> baz = (b) -> {b.method();};\n" + 
-				"        ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" + 
-				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug)) {\n" + 
-				"			oo.writeObject(bar);\n" + 
-				"		}\n" + 
-				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray()))) {\n" + 
-				"			Consumer<Bar> x = (Consumer)oi.readObject();\n" + 
-				"			x.accept(new Bar());\n" + 
-				"		}\n" + 
-				"		debug.reset();\n" + 
-				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug)) {\n" + 
-				"			oo.writeObject(foo);\n" + 
-				"		}\n" + 
-				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray()))) {\n" + 
-				"			Consumer<Foo> x = (Consumer)oi.readObject();\n" + 
-				"			x.accept(new Foo());\n" + 
-				"		}\n" + 
-				"    }\n" + 
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"public class X {\n" +
+				"    public static interface Consumer<T> extends Serializable {\n" +
+				"        void accept(T t);\n" +
+				"    }\n" +
+				"    public static class Foo {\n" +
+				"    	public void method () {\n" +
+				"        	System.out.println(\"Foo\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static class Bar {\n" +
+				"    	public void method () {\n" +
+				"        	System.out.println(\"Bar\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main (String[] args) throws IOException, ClassNotFoundException {\n" +
+				"        Consumer<Foo> foo = Foo::method;\n" +
+				"        Consumer<Bar> bar = Bar::method;\n" +
+				"        Consumer<Foo> baz = (b) -> {b.method();};\n" +
+				"        ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" +
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug)) {\n" +
+				"			oo.writeObject(bar);\n" +
+				"		}\n" +
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray()))) {\n" +
+				"			Consumer<Bar> x = (Consumer)oi.readObject();\n" +
+				"			x.accept(new Bar());\n" +
+				"		}\n" +
+				"		debug.reset();\n" +
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug)) {\n" +
+				"			oo.writeObject(foo);\n" +
+				"		}\n" +
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray()))) {\n" +
+				"			Consumer<Foo> x = (Consumer)oi.readObject();\n" +
+				"			x.accept(new Foo());\n" +
+				"		}\n" +
+				"    }\n" +
 				"}\n"
 		},
 		"Bar\n" +
@@ -1728,62 +1728,62 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"Testbed.java",
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.IOException;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"interface FI extends Serializable{\n" + 
-				"	void run(Testbed args);\n" + 
-				"}\n" + 
-				"interface IF extends Serializable{\n" + 
-				"	void run();\n" + 
-				"}\n" + 
-				"public class Testbed implements Serializable{\n" + 
-				"	String f;\n" + 
-				"	Testbed(String str) {\n" + 
-				"		f = str;\n" + 
-				"	}\n" + 
-				"	void test() throws IOException, ClassNotFoundException {\n" + 
-				"		accept(Testbed::foo);\n" + 
-				"		accept(this::foo);		\n" + 
-				"	}\n" + 
-				"	void foo() {\n" + 
-				"		System.out.println(this.f);\n" + 
-				"	}\n" + 
-				"	void accept(FI fi) {\n" + 
-				"		fi.run(this);\n" + 
-				"	}\n" + 
-				"	void accept(IF i) {\n" + 
-				"		i.run();\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) throws ClassNotFoundException, IOException {\n" + 
-				"		Testbed t = new Testbed(\"IF\");\n" + 
-				"		Testbed t2 = new Testbed(\"FI\");\n" + 
-				"		IF i = t::foo;\n" + 
-				"		FI f = Testbed::foo;\n" + 
-				"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" + 
-				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" + 
-				"		{\n" + 
-				"			oo.writeObject(i);\n" + 
-				"		}\n" + 
-				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" + 
-				"		{\n" + 
-				"			IF x = (IF)oi.readObject();\n" + 
-				"			t.accept(x);\n" + 
-				"		}\n" + 
-				"		debug=new ByteArrayOutputStream();\n" + 
-				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" + 
-				"		{\n" + 
-				"			oo.writeObject(f);\n" + 
-				"		}\n" + 
-				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" + 
-				"		{\n" + 
-				"			FI x = (FI)oi.readObject();\n" + 
-				"			t2.accept(x);\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"interface FI extends Serializable{\n" +
+				"	void run(Testbed args);\n" +
+				"}\n" +
+				"interface IF extends Serializable{\n" +
+				"	void run();\n" +
+				"}\n" +
+				"public class Testbed implements Serializable{\n" +
+				"	String f;\n" +
+				"	Testbed(String str) {\n" +
+				"		f = str;\n" +
+				"	}\n" +
+				"	void test() throws IOException, ClassNotFoundException {\n" +
+				"		accept(Testbed::foo);\n" +
+				"		accept(this::foo);		\n" +
+				"	}\n" +
+				"	void foo() {\n" +
+				"		System.out.println(this.f);\n" +
+				"	}\n" +
+				"	void accept(FI fi) {\n" +
+				"		fi.run(this);\n" +
+				"	}\n" +
+				"	void accept(IF i) {\n" +
+				"		i.run();\n" +
+				"	}\n" +
+				"	public static void main(String[] args) throws ClassNotFoundException, IOException {\n" +
+				"		Testbed t = new Testbed(\"IF\");\n" +
+				"		Testbed t2 = new Testbed(\"FI\");\n" +
+				"		IF i = t::foo;\n" +
+				"		FI f = Testbed::foo;\n" +
+				"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" +
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" +
+				"		{\n" +
+				"			oo.writeObject(i);\n" +
+				"		}\n" +
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" +
+				"		{\n" +
+				"			IF x = (IF)oi.readObject();\n" +
+				"			t.accept(x);\n" +
+				"		}\n" +
+				"		debug=new ByteArrayOutputStream();\n" +
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" +
+				"		{\n" +
+				"			oo.writeObject(f);\n" +
+				"		}\n" +
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" +
+				"		{\n" +
+				"			FI x = (FI)oi.readObject();\n" +
+				"			t2.accept(x);\n" +
+				"		}\n" +
+				"	}\n" +
 				"}"
 		},
 		"IF\n" +
@@ -1795,47 +1795,47 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"Test.java",
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"interface Func<T> extends Serializable {\n" + 
-				"  T get();\n" + 
-				"}\n" + 
-				"class Impl implements Serializable {\n" + 
-				"  int val = 0;\n" + 
-				"  public int next() {\n" + 
-				"    val += 1;\n" + 
-				"    return val;\n" + 
-				"  }\n" + 
-				"}\n" + 
-				"public class Test {\n" + 
-				"  final Impl impl = new Impl();\n" + 
-				"  final Func<Integer> func = (Func<Integer> & Cloneable)impl::next;\n" + 
-				"  public void test() throws Throwable {\n" + 
-				"    byte[] bytes = write(func);//25\n" + 
-				"    Func<Integer> func = read(bytes);\n" + 
-				"    System.out.println(func.get());\n" + 
-				"  }\n" + 
-				"  public static void main(String[] args) throws Throwable {\n" + 
-				"	new Test().test();\n" + 
-				"}\n" + 
-				"  @SuppressWarnings(\"unchecked\")\n" + 
-				"  private static Func<Integer> read(byte[] bytes) throws Exception {\n" + 
-				"    ByteArrayInputStream bis = new ByteArrayInputStream(bytes);\n" + 
-				"    try (ObjectInputStream ois = new ObjectInputStream(bis)) {\n" + 
-				"      return (Func<Integer>) ois.readObject();\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  private static byte[] write(Func<Integer> func) throws Exception {\n" + 
-				"    ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" + 
-				"    System.out.println(func.get());\n" + 
-				"    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {\n" + 
-				"      oos.writeObject(func);//42\n" + 
-				"    }\n" + 
-				"    return bos.toByteArray();\n" + 
-				"  }\n" + 
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"interface Func<T> extends Serializable {\n" +
+				"  T get();\n" +
+				"}\n" +
+				"class Impl implements Serializable {\n" +
+				"  int val = 0;\n" +
+				"  public int next() {\n" +
+				"    val += 1;\n" +
+				"    return val;\n" +
+				"  }\n" +
+				"}\n" +
+				"public class Test {\n" +
+				"  final Impl impl = new Impl();\n" +
+				"  final Func<Integer> func = (Func<Integer> & Cloneable)impl::next;\n" +
+				"  public void test() throws Throwable {\n" +
+				"    byte[] bytes = write(func);//25\n" +
+				"    Func<Integer> func = read(bytes);\n" +
+				"    System.out.println(func.get());\n" +
+				"  }\n" +
+				"  public static void main(String[] args) throws Throwable {\n" +
+				"	new Test().test();\n" +
+				"}\n" +
+				"  @SuppressWarnings(\"unchecked\")\n" +
+				"  private static Func<Integer> read(byte[] bytes) throws Exception {\n" +
+				"    ByteArrayInputStream bis = new ByteArrayInputStream(bytes);\n" +
+				"    try (ObjectInputStream ois = new ObjectInputStream(bis)) {\n" +
+				"      return (Func<Integer>) ois.readObject();\n" +
+				"    }\n" +
+				"  }\n" +
+				"  private static byte[] write(Func<Integer> func) throws Exception {\n" +
+				"    ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" +
+				"    System.out.println(func.get());\n" +
+				"    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {\n" +
+				"      oos.writeObject(func);//42\n" +
+				"    }\n" +
+				"    return bos.toByteArray();\n" +
+				"  }\n" +
 				"}"
 		},
 		"1\n" +
@@ -1849,175 +1849,175 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"Test.java",
-				"import java.io.IOException;\n" + 
-				"import java.io.Serializable;\n" + 
-				"public class Test {\n" + 
-				"  class AnException extends Exception {\n" + 
-				"  }\n" + 
-				"  class Asd {\n" + 
-				"    public Asd(String asd) { data = asd; }\n" + 
-				"    private final String data;\n" + 
-				"    @Override\n" + 
-				"    public String toString() {\n" + 
-				"      return data;\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  public interface Test1 extends Serializable {\n" + 
-				"    void test() throws IOException;\n" + 
-				"  }\n" + 
-				"  public interface Test2 {\n" + 
-				"    void test() throws AnException;\n" + 
-				"  }\n" + 
-				"  public void test1( Test1 test ) {\n" + 
-				"    try {\n" + 
-				"      test.test();\n" + 
-				"    } catch( IOException e ) {\n" + 
-				"      e.printStackTrace();\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  public void test2( Test2 test ) {\n" + 
-				"    try {\n" + 
-				"      test.test();\n" + 
-				"    } catch( AnException e ) {\n" + 
-				"      System.out.println( e );\n" + 
-				"    }\n" + 
-				"  }\n" + 
-				"  public void lambdas() {\n" + 
-				"    test1( () -> System.out.println( \"test a\" ) );\n" + 
-				"    test1( () -> System.out.println( \"test b\" ) );\n" + 
-				"    test2( () -> System.out.println( \"test c\" ) );\n" + 
-				"    test2( () -> System.out.println( \"test d\" ) );\n" + 
-				"  }\n" + 
-				"  public void print( CharSequence a, String b, long c ) {\n" + 
-				"    System.out.println( a );\n" + 
-				"    System.out.println( b );\n" + 
-				"    System.out.println( c );\n" + 
-				"  }\n" + 
-				"  public void filler() {\n" + 
-				"    System.out.println( \"Now we need to get this class file closer to 3000 bytes boundary\" );\n" + 
-				"    filler1();\n" + 
-				"    filler2();\n" + 
-				"    filler3();\n" + 
-				"    filler4();\n" + 
-				"    filler5();\n" + 
-				"    filler6();\n" + 
-				"    filler7();\n" + 
-				"    filler8();\n" + 
-				"    filler9();\n" + 
-				"    filler10();\n" + 
-				"    filler11();\n" + 
-				"    filler12();\n" + 
-				"    filler13();\n" + 
-				"    filler14();\n" + 
-				"    filler15();\n" + 
-				"    filler16();\n" + 
-				"    filler17();\n" + 
-				"    filler18();\n" + 
-				"    filler19();\n" + 
-				"    filler20();\n" + 
-				"    filler21();\n" + 
-				"    filler22();\n" + 
-				"    filler23();\n" + 
-				"    filler24();\n" + 
-				"    filler25();\n" + 
-				"    filler26();\n" + 
-				"    filler27();\n" + 
-				"    filler28();\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler28() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler27() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler26() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler25() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler24() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler23() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler22() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler21() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler20() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler19() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler18() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler17() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler16() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler15() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler14() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler13() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler12() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler11() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler10() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler9() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler8() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler7() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler6() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler5() {\n" + 
-				"    print( c.toString(), d.toString(), System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler4() {\n" + 
-				"    print( a.toString(), b.toString(), System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler3() {\n" + 
-				"    print( \"a\", System.getenv( \"asd\" ), System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler2() {\n" + 
-				"    print( \"a\", System.lineSeparator(), System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private void filler1() {\n" + 
-				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
-				"  }\n" + 
-				"  private final Asd a = new Asd(\"a\");\n" + 
-				"  private final Asd b = new Asd(\"b\");\n" + 
-				"  private final Asd c = new Asd(\"c\");\n" + 
-				"  private final Asd d = new Asd(\"d\");\n" + 
+				"import java.io.IOException;\n" +
+				"import java.io.Serializable;\n" +
+				"public class Test {\n" +
+				"  class AnException extends Exception {\n" +
+				"  }\n" +
+				"  class Asd {\n" +
+				"    public Asd(String asd) { data = asd; }\n" +
+				"    private final String data;\n" +
+				"    @Override\n" +
+				"    public String toString() {\n" +
+				"      return data;\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public interface Test1 extends Serializable {\n" +
+				"    void test() throws IOException;\n" +
+				"  }\n" +
+				"  public interface Test2 {\n" +
+				"    void test() throws AnException;\n" +
+				"  }\n" +
+				"  public void test1( Test1 test ) {\n" +
+				"    try {\n" +
+				"      test.test();\n" +
+				"    } catch( IOException e ) {\n" +
+				"      e.printStackTrace();\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public void test2( Test2 test ) {\n" +
+				"    try {\n" +
+				"      test.test();\n" +
+				"    } catch( AnException e ) {\n" +
+				"      System.out.println( e );\n" +
+				"    }\n" +
+				"  }\n" +
+				"  public void lambdas() {\n" +
+				"    test1( () -> System.out.println( \"test a\" ) );\n" +
+				"    test1( () -> System.out.println( \"test b\" ) );\n" +
+				"    test2( () -> System.out.println( \"test c\" ) );\n" +
+				"    test2( () -> System.out.println( \"test d\" ) );\n" +
+				"  }\n" +
+				"  public void print( CharSequence a, String b, long c ) {\n" +
+				"    System.out.println( a );\n" +
+				"    System.out.println( b );\n" +
+				"    System.out.println( c );\n" +
+				"  }\n" +
+				"  public void filler() {\n" +
+				"    System.out.println( \"Now we need to get this class file closer to 3000 bytes boundary\" );\n" +
+				"    filler1();\n" +
+				"    filler2();\n" +
+				"    filler3();\n" +
+				"    filler4();\n" +
+				"    filler5();\n" +
+				"    filler6();\n" +
+				"    filler7();\n" +
+				"    filler8();\n" +
+				"    filler9();\n" +
+				"    filler10();\n" +
+				"    filler11();\n" +
+				"    filler12();\n" +
+				"    filler13();\n" +
+				"    filler14();\n" +
+				"    filler15();\n" +
+				"    filler16();\n" +
+				"    filler17();\n" +
+				"    filler18();\n" +
+				"    filler19();\n" +
+				"    filler20();\n" +
+				"    filler21();\n" +
+				"    filler22();\n" +
+				"    filler23();\n" +
+				"    filler24();\n" +
+				"    filler25();\n" +
+				"    filler26();\n" +
+				"    filler27();\n" +
+				"    filler28();\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler28() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler27() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler26() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler25() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler24() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler23() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler22() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler21() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler20() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler19() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler18() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler17() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler16() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler15() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler14() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler13() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler12() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler11() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler10() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler9() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler8() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler7() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler6() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler5() {\n" +
+				"    print( c.toString(), d.toString(), System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler4() {\n" +
+				"    print( a.toString(), b.toString(), System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler3() {\n" +
+				"    print( \"a\", System.getenv( \"asd\" ), System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler2() {\n" +
+				"    print( \"a\", System.lineSeparator(), System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private void filler1() {\n" +
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" +
+				"  }\n" +
+				"  private final Asd a = new Asd(\"a\");\n" +
+				"  private final Asd b = new Asd(\"b\");\n" +
+				"  private final Asd c = new Asd(\"c\");\n" +
+				"  private final Asd d = new Asd(\"d\");\n" +
 				"}\n"
 		},
 		options);
@@ -2026,43 +2026,43 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"LambdaSerializationTest.java",
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.IOException;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import java.util.ArrayList;\n" + 
-				"import java.util.List;\n" + 
-				"import java.util.function.Supplier;\n" + 
-				"public class LambdaSerializationTest {\n" + 
-				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" + 
-				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
-				"        SerializableSupplier<List<?>> function = ArrayList::new; //Collections::emptyList;\n" + 
-				"        Object result = serializeDeserialize(function);\n" + 
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import java.util.function.Supplier;\n" +
+				"public class LambdaSerializationTest {\n" +
+				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" +
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" +
+				"        SerializableSupplier<List<?>> function = ArrayList::new; //Collections::emptyList;\n" +
+				"        Object result = serializeDeserialize(function);\n" +
 				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
 				"        for(int i = 0; i < infs.length; i++) {\n" +
 				"            System.out.println(infs[i]);\n" +
 				"        }\n" +
-				"    }\n" + 
-				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
-				"        try (\n" + 
-				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
-				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
-				"            output.writeObject(obj);\n" + 
-				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
-				"                return input.readObject();\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"		try {\n" + 
-				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
-				"		} catch (ClassNotFoundException | IOException e) {\n" + 
-				"			// TODO Auto-generated catch block\n" + 
-				"			e.printStackTrace();\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"    }\n" +
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" +
+				"        try (\n" +
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" +
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" +
+				"            output.writeObject(obj);\n" +
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" +
+				"                return input.readObject();\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"		try {\n" +
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" +
+				"		} catch (ClassNotFoundException | IOException e) {\n" +
+				"			// TODO Auto-generated catch block\n" +
+				"			e.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n" +
 				"}"
 		},
 		"interface LambdaSerializationTest$SerializableSupplier",
@@ -2073,46 +2073,46 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"LambdaSerializationTest.java",
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.IOException;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import java.util.ArrayList;\n" + 
-				"import java.util.List;\n" + 
-				"import java.util.function.Supplier;\n" + 
-				"public class LambdaSerializationTest {\n" + 
-				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" + 
-				"    static class Junk {\n" + 
-				"    	private Junk() {}\n" + 
-				"    }\n" + 
-				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
-				"        SerializableSupplier<Junk> function = Junk::new;\n" + 
-				"        Object result = serializeDeserialize(function);\n" + 
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import java.util.function.Supplier;\n" +
+				"public class LambdaSerializationTest {\n" +
+				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" +
+				"    static class Junk {\n" +
+				"    	private Junk() {}\n" +
+				"    }\n" +
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" +
+				"        SerializableSupplier<Junk> function = Junk::new;\n" +
+				"        Object result = serializeDeserialize(function);\n" +
 				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
 				"        for(int i = 0; i < infs.length; i++) {\n" +
 				"            System.out.println(infs[i]);\n" +
-				"        }\n" + 
-				"    }\n" + 
-				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
-				"        try (\n" + 
-				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
-				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
-				"            output.writeObject(obj);\n" + 
-				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
-				"                return input.readObject();\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"		try {\n" + 
-				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
-				"		} catch (ClassNotFoundException | IOException e) {\n" + 
-				"			// TODO Auto-generated catch block\n" + 
-				"			e.printStackTrace();\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"        }\n" +
+				"    }\n" +
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" +
+				"        try (\n" +
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" +
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" +
+				"            output.writeObject(obj);\n" +
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" +
+				"                return input.readObject();\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"		try {\n" +
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" +
+				"		} catch (ClassNotFoundException | IOException e) {\n" +
+				"			// TODO Auto-generated catch block\n" +
+				"			e.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n" +
 				"}"
 		},
 		"interface LambdaSerializationTest$SerializableSupplier",
@@ -2123,45 +2123,45 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"LambdaSerializationTest.java",
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.IOException;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import java.util.ArrayList;\n" + 
-				"import java.util.List;\n" + 
-				"import java.util.function.Supplier;\n" + 
-				"public class LambdaSerializationTest {\n" + 
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.IOException;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import java.util.function.Supplier;\n" +
+				"public class LambdaSerializationTest {\n" +
 				"    interface SerializableSupplier<T> extends Serializable {\n" +
 				"        T get(int count);\n" +
-				"    }\n" + 
-				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
-				"        SerializableSupplier<List[]> function = ArrayList[]::new;\n" + 
-				"        Object result = serializeDeserialize(function);\n" + 
+				"    }\n" +
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" +
+				"        SerializableSupplier<List[]> function = ArrayList[]::new;\n" +
+				"        Object result = serializeDeserialize(function);\n" +
 				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
 				"        for(int i = 0; i < infs.length; i++) {\n" +
 				"            System.out.println(infs[i]);\n" +
-				"        }\n" + 
-				"    }\n" + 
-				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
-				"        try (\n" + 
-				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
-				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
-				"            output.writeObject(obj);\n" + 
-				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
-				"                return input.readObject();\n" + 
-				"            }\n" + 
-				"        }\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"		try {\n" + 
-				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
-				"		} catch (ClassNotFoundException | IOException e) {\n" + 
-				"			// TODO Auto-generated catch block\n" + 
-				"			e.printStackTrace();\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"        }\n" +
+				"    }\n" +
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" +
+				"        try (\n" +
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" +
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" +
+				"            output.writeObject(obj);\n" +
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" +
+				"                return input.readObject();\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"    public static void main(String[] args) {\n" +
+				"		try {\n" +
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" +
+				"		} catch (ClassNotFoundException | IOException e) {\n" +
+				"			// TODO Auto-generated catch block\n" +
+				"			e.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n" +
 				"}"
 		},
 		"interface LambdaSerializationTest$SerializableSupplier",
@@ -2172,37 +2172,37 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"lambdabug/App.java",
-				"package lambdabug;\n" + 
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import java.util.function.Function;\n" + 
-				"public class App {\n" + 
-				"	public static interface SerialFunction<T, R> extends Function<T, R>, Serializable {\n" + 
-				"	}\n" + 
-				"	public static interface TestInterface extends Serializable {\n" + 
-				"		public Integer method(Integer i);\n" + 
-				"	}\n" + 
-				"	public static class TestClass implements TestInterface {\n" + 
-				"		private static final long serialVersionUID = 1L;\n" + 
-				"		@Override\n" + 
-				"		public Integer method(Integer i) {\n" + 
-				"			return i;\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) throws Exception {\n" + 
-				"		TestInterface testService = getService();\n" + 
-				"		SerialFunction<Integer, Integer> sf = testService::method;\n" + 
-				"		ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" + 
-				"		new ObjectOutputStream(bos).writeObject(sf);\n" + 
-				"		Object o = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();\n" + 
-				"		System.out.println(o.getClass().getInterfaces()[0]);\n" + 
-				"	}\n" + 
-				"	private static TestInterface getService() {\n" + 
-				"		return new TestClass();\n" + 
-				"	}\n" + 
+				"package lambdabug;\n" +
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.util.function.Function;\n" +
+				"public class App {\n" +
+				"	public static interface SerialFunction<T, R> extends Function<T, R>, Serializable {\n" +
+				"	}\n" +
+				"	public static interface TestInterface extends Serializable {\n" +
+				"		public Integer method(Integer i);\n" +
+				"	}\n" +
+				"	public static class TestClass implements TestInterface {\n" +
+				"		private static final long serialVersionUID = 1L;\n" +
+				"		@Override\n" +
+				"		public Integer method(Integer i) {\n" +
+				"			return i;\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		TestInterface testService = getService();\n" +
+				"		SerialFunction<Integer, Integer> sf = testService::method;\n" +
+				"		ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" +
+				"		new ObjectOutputStream(bos).writeObject(sf);\n" +
+				"		Object o = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();\n" +
+				"		System.out.println(o.getClass().getInterfaces()[0]);\n" +
+				"	}\n" +
+				"	private static TestInterface getService() {\n" +
+				"		return new TestClass();\n" +
+				"	}\n" +
 				"}\n"
 		},
 		"interface lambdabug.App$SerialFunction",
@@ -2213,23 +2213,23 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"VerifyErrorDerived.java",
-				"import java.io.Serializable;\n" + 
-				"import java.util.function.Function;\n" + 
-				"public class VerifyErrorDerived extends VerifyErrorBase {\n" + 
-				"	public static void main(String [] args) {\n" + 
-				"		System.out.println(\"hello world\");\n" + 
-				"	}\n" + 
-				"	public int derivedMethod(String param) {\n" + 
-				"		SerializableFunction<String, Integer> f = super::baseMethod;\n" + 
-				"		return f.apply(param);\n" + 
-				"	}\n" + 
-				"}\n" + 
+				"import java.io.Serializable;\n" +
+				"import java.util.function.Function;\n" +
+				"public class VerifyErrorDerived extends VerifyErrorBase {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		System.out.println(\"hello world\");\n" +
+				"	}\n" +
+				"	public int derivedMethod(String param) {\n" +
+				"		SerializableFunction<String, Integer> f = super::baseMethod;\n" +
+				"		return f.apply(param);\n" +
+				"	}\n" +
+				"}\n" +
 				"interface SerializableFunction<T, R> extends Function<T, R>, Serializable {}",
 				"VerifyErrorBase.java",
-				"public class VerifyErrorBase {\n" + 
-				"	public int baseMethod(String param) {\n" + 
-				"		return 7;\n" + 
-				"	}\n" + 
+				"public class VerifyErrorBase {\n" +
+				"	public int baseMethod(String param) {\n" +
+				"		return 7;\n" +
+				"	}\n" +
 				"}\n"
 		},
 		"hello world",
@@ -2240,34 +2240,34 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[]{
 				"compilertest/BaseType.java",
-				"package compilertest;\n" + 
-				"import java.io.ByteArrayInputStream;\n" + 
-				"import java.io.ByteArrayOutputStream;\n" + 
-				"import java.io.ObjectInputStream;\n" + 
-				"import java.io.ObjectOutputStream;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import compilertest.sub.SubType;\n" + 
-				"public class BaseType implements Serializable {\n" + 
-				"    protected void doSomething() {\n" + 
-				"    }\n" + 
-				"    public static void main(String[] args) throws Exception {\n" + 
-				"        SubType instance = new SubType();\n" + 
-				"        ByteArrayOutputStream bs = new ByteArrayOutputStream();\n" + 
-				"        ObjectOutputStream out = new ObjectOutputStream(bs);\n" + 
-				"        out.writeObject(instance);\n" + 
-				"        byte[] data = bs.toByteArray();\n" + 
-				"        ObjectInputStream in = new ObjectInputStream(\n" + 
-				"                new ByteArrayInputStream(data));\n" + 
-				"        in.readObject();\n" + 
-				"        System.out.println(\"Done\");\n" + 
-				"    }\n" + 
+				"package compilertest;\n" +
+				"import java.io.ByteArrayInputStream;\n" +
+				"import java.io.ByteArrayOutputStream;\n" +
+				"import java.io.ObjectInputStream;\n" +
+				"import java.io.ObjectOutputStream;\n" +
+				"import java.io.Serializable;\n" +
+				"import compilertest.sub.SubType;\n" +
+				"public class BaseType implements Serializable {\n" +
+				"    protected void doSomething() {\n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        SubType instance = new SubType();\n" +
+				"        ByteArrayOutputStream bs = new ByteArrayOutputStream();\n" +
+				"        ObjectOutputStream out = new ObjectOutputStream(bs);\n" +
+				"        out.writeObject(instance);\n" +
+				"        byte[] data = bs.toByteArray();\n" +
+				"        ObjectInputStream in = new ObjectInputStream(\n" +
+				"                new ByteArrayInputStream(data));\n" +
+				"        in.readObject();\n" +
+				"        System.out.println(\"Done\");\n" +
+				"    }\n" +
 				"}",
 				"compilertest/sub/SubType.java",
-				"package compilertest.sub;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import compilertest.BaseType;\n" + 
-				"public class SubType extends BaseType {\n" + 
-				"    Runnable task = (Runnable & Serializable) this::doSomething;\n" + 
+				"package compilertest.sub;\n" +
+				"import java.io.Serializable;\n" +
+				"import compilertest.BaseType;\n" +
+				"public class SubType extends BaseType {\n" +
+				"    Runnable task = (Runnable & Serializable) this::doSomething;\n" +
 				"}\n"
 		},
 		"Done",
@@ -2275,14 +2275,14 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		new String[]{"-Ddummy"});
 	}
 	// ---
-	
+
 	private void checkExpected(String expected, String actual) {
 		if (!expected.equals(actual)) {
 			printIt(actual);
 		}
 		assertEquals(expected,actual);
 	}
-	
+
 	/**
 	 * Print a piece of text with the necessary extra quotes and newlines so that it can be cut/pasted into
 	 * the test source file.
@@ -2295,7 +2295,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		}
 		System.out.println(quotedText);
 	}
-	
+
 	/**
 	 * Print the bootstrap methods attribute in a very similar fashion to javap for checking.
 	 * Unlike javap the constant pool indexes are not included, to make the test a little less
@@ -2320,9 +2320,9 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 			IBootstrapMethodsEntry entry = bootstrapMethodsAttribute.getBootstrapMethods()[i];
 			int mr = entry.getBootstrapMethodReference();
 			IConstantPoolEntry2 icpe = (IConstantPoolEntry2)cfr.getConstantPool().decodeEntry(mr);
-			
+
 			sb.append(i).append(": ").append(formatReferenceKind(icpe.getReferenceKind()));
-			sb.append(" ").append(format(cp,icpe.getReferenceIndex()));	
+			sb.append(" ").append(format(cp,icpe.getReferenceIndex()));
 			sb.append("\n");
 			int[] args = entry.getBootstrapArguments();
 			sb.append("  Method arguments:\n");
@@ -2332,14 +2332,14 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		}
 		return sb.toString();
 	}
-	
+
 	private String printLambdaMethods(String filepath) {
 		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(filepath, IClassFileReader.METHOD_INFOS);
 		IMethodInfo[] methodInfos = cfr.getMethodInfos();
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0, max = methodInfos.length; i < max; i++) {
 			IMethodInfo methodInfo = methodInfos[i];
-			if (!new String(methodInfo.getName()).startsWith("lambda")) 
+			if (!new String(methodInfo.getName()).startsWith("lambda"))
 				continue;
 			int accessFlags = methodInfo.getAccessFlags();
 			if (Modifier.isStatic(accessFlags)) {
@@ -2351,7 +2351,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		}
 		return buf.toString();
 	}
-	
+
 	String formatReferenceKind(int kind) {
 		switch (kind) {
 			case IConstantPoolConstant.METHOD_TYPE_REF_InvokeStatic:
@@ -2360,7 +2360,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				throw new IllegalStateException("nyi for "+kind);
 		}
 	}
-	
+
 	String format(IConstantPool cp, int entryNumber) {
 		IConstantPoolEntry entry = cp.decodeEntry(entryNumber);
 		if (entry == null) {
@@ -2384,6 +2384,6 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					throw new IllegalStateException("nyi for "+entry.getKind());
 		}
 	}
-	
+
 }
 

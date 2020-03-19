@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.dispatch;
@@ -29,11 +29,11 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.AptProblem;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseMessagerImpl;
 
 /**
- * 
+ *
  * @since 3.3
  */
 public class IdeMessagerImpl implements Messager {
-	
+
 	private final IdeAnnotationProcessorManager _manager;
 	private final IdeProcessingEnvImpl _env;
 

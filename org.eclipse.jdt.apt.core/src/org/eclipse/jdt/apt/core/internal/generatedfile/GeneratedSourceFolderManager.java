@@ -43,7 +43,7 @@ import org.eclipse.jdt.core.JavaModelException;
  * and deleting this folder as needed whenever APT settings are changed.
  * <p>
  * The job of the GeneratedSourceFolderManager is to keep the following data
- * in agreement: 
+ * in agreement:
  * <ul>
  * <li>whether APT is enabled</li>
  * <li>the name of the generated source folder</li>
@@ -53,7 +53,7 @@ import org.eclipse.jdt.core.JavaModelException;
  * </ul>
  * We attempt to change the classpath entry and the folder on disk whenever
  * the enabled/disabled state or the folder name change.  These changes are
- * discovered via the preferenceChanged() method. 
+ * discovered via the preferenceChanged() method.
  * <p>
  * We attempt to update the classpath with an entry for the generated source
  * folder if APT is enabled and there is no entry for this folder present
@@ -61,10 +61,10 @@ import org.eclipse.jdt.core.JavaModelException;
  * <p>
  * GeneratedSourceFolderManager is responsible only for the folder itself, not
  * its contents.  Contents are managed by @see GeneratedFileManager.
- *  
+ *
  */
 public class GeneratedSourceFolderManager {
-	
+
 	private final AptProject _aptProject;
 
 	/**
@@ -86,22 +86,22 @@ public class GeneratedSourceFolderManager {
 	 * able to obtain.
 	 */
 	private IFolder _generatedSourceFolder = null;
-	
+
 	private final boolean _isTestCode;
 
-	
+
 	/**
 	 * Should be constructed only by AptProject.  Other clients should call
 	 * @see AptProject#getGeneratedSourceFolderManager(boolean) to get this object.
 	 */
-	public GeneratedSourceFolderManager(AptProject aptProject, boolean isTestCode) 
+	public GeneratedSourceFolderManager(AptProject aptProject, boolean isTestCode)
 	{
 		_aptProject = aptProject;
 		_isTestCode = isTestCode;
 		final IJavaProject javaProject = aptProject.getJavaProject();
-		
+
 		// Set _generatedSourceFolder only if APT is enabled, the folder exists,
-		// and the folder is on the classpath.  
+		// and the folder is on the classpath.
 		// Otherwise leave it null, which will cause us to try to fix things later on.
 		if (AptConfig.isEnabled(javaProject)) {
 			final IFolder folder = getFolder();
@@ -112,11 +112,11 @@ public class GeneratedSourceFolderManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * Add the folder to the classpath, unless it's already there.
 	 * @param srcFolder the folder to add to the classpath.  Must not be null.
-	 * @param specificOutputLocation 
+	 * @param specificOutputLocation
 	 * @return true if, at the end of the routine, the folder is on the classpath.
 	 */
 	private boolean addToClasspath(IFolder srcFolder, IPath specificOutputLocation) {
@@ -127,28 +127,28 @@ public class GeneratedSourceFolderManager {
 				AptPlugin.trace("Ensured classpath has an entry for " + srcFolder); //$NON-NLS-1$
 			onClasspath = true;
 		}
-		catch (CoreException e) {						
+		catch (CoreException e) {
 			e.printStackTrace();
 			AptPlugin.log(e, "Failed to add classpath entry for generated source folder " + srcFolder.getName()); //$NON-NLS-1$
 		}
 		return onClasspath;
 	}
-	
+
 	/**
 	 * Call this to create the folder and add it to the classpath, when APT is enabled
 	 * (in which case the folder did not previously exist) or when the folder name is
-	 * changed (in which case the old stuff must also be removed).  
+	 * changed (in which case the old stuff must also be removed).
 	 * <p>
-	 * This method will take a resource lock if the generated source folder needs 
-	 * to be created on disk, and it will take a java model lock if the project's 
-	 * source paths need to be updated.  Care should be taken when calling this 
+	 * This method will take a resource lock if the generated source folder needs
+	 * to be created on disk, and it will take a java model lock if the project's
+	 * source paths need to be updated.  Care should be taken when calling this
 	 * method to ensure that locking behavior is correct.
 	 * <p>
  	 * This should only be called on an event thread, with no locks on the project
 	 * or classpath.
 	 */
 	private void configure() {
-		
+
 		assert(_generatedSourceFolder == null): "Should have already removed old folder by now"; //$NON-NLS-1$
 		IFolder srcFolder = getFolderPreference();
 		if (srcFolder == null) {
@@ -157,7 +157,7 @@ public class GeneratedSourceFolderManager {
 			AptPlugin.log(status);
 			return;
 		}
-		
+
 		ensureFolderExists(srcFolder);
 	}
 
@@ -189,12 +189,12 @@ public class GeneratedSourceFolderManager {
 			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Creates the generated source folder if necessary.  This should be called just
 	 * before doing a build.
-	 * 
+	 *
 	 * Classpath will be updated with an entry for the generated source folder
 	 * if it is not already added to the classpath. See bug 185601.
 	 */
@@ -203,10 +203,10 @@ public class GeneratedSourceFolderManager {
 		if (!AptConfig.isEnabled(_aptProject.getJavaProject())) {
 			return;
 		}
-		
+
 		// In principle we could bail out here, if (_generatedSourceFolder != null).
-		// However, this method is an opportunity to detect and fix problems such 
-		// as the folder getting deleted without generatedSourceFolderDeleted() 
+		// However, this method is an opportunity to detect and fix problems such
+		// as the folder getting deleted without generatedSourceFolderDeleted()
 		// getting called (e.g., without user having done a refresh).
 		IFolder srcFolder = getFolder();
 		if (srcFolder == null) {
@@ -238,7 +238,7 @@ public class GeneratedSourceFolderManager {
 			}
 			exists = true;
 		}
-		catch (CoreException e) {						
+		catch (CoreException e) {
 			e.printStackTrace();
 			AptPlugin.log(e, "Failed to ensure existence of generated source folder " + srcFolder.getName()); //$NON-NLS-1$
 		}
@@ -247,7 +247,7 @@ public class GeneratedSourceFolderManager {
 
 	/**
 	 * Call this method when the APT_ENABLED preference has changed.
-	 * 
+	 *
 	 * Configure the generated source folder according to whether APT is enabled
 	 * or disabled.  If enabled, the folder will be created and a classpath entry
 	 * will be added.  If disabled, the folder and classpath entry will be removed.
@@ -266,22 +266,22 @@ public class GeneratedSourceFolderManager {
 			// no change in state
 			return;
 		}
-		
+
 		if ( AptPlugin.DEBUG ) {
 			AptPlugin.trace("enabledChanged() changing state to " + enable +  //$NON-NLS-1$
 					" for " + _aptProject.getJavaProject().getElementName()); //$NON-NLS-1$
 		}
 		if( enable ) {
 			configure();
-		} 
+		}
 		else {
 			removeFolder();
 		}
 	}
 
 	/**
-	 * Respond to a change in the name of the generated source folder.  
-	 * If APT is enabled, remove the old folder and classpath entry and 
+	 * Respond to a change in the name of the generated source folder.
+	 * If APT is enabled, remove the old folder and classpath entry and
 	 * create new ones.
 	 * <p>
  	 * This should only be called on an event thread, with no locks on the project
@@ -294,7 +294,7 @@ public class GeneratedSourceFolderManager {
 		if (!aptEnabled) {
 			return;
 		}
-		
+
 		// if name didn't change, we don't need to do anything
 		if (_generatedSourceFolder != null && _generatedSourceFolder.equals(getFolderPreference())) {
 			if( AptPlugin.DEBUG ) {
@@ -303,23 +303,23 @@ public class GeneratedSourceFolderManager {
 			}
 			return;
 		}
-		
+
 		removeFolder();
 		configure();
 	}
-	
+
 	/**
-	 *  Invoked when the generated source folder has been deleted.  This will 
+	 *  Invoked when the generated source folder has been deleted.  This will
 	 *  flush any in-memory state tracking generated files, and cause the
 	 *  generated source folder to be recreated the next time we build.
-	 *  
+	 *
 	 *  Note: this should only be called within a resource change event to ensure that the classpath
 	 *  is correct during any build. Resource change event never occurs during a build.
 	 */
 	public void folderDeleted()
 	{
 		_aptProject.projectClean( false, !_isTestCode, _isTestCode);
-		
+
 		IFolder srcFolder;
 		synchronized(this){
 			srcFolder = _generatedSourceFolder;
@@ -328,22 +328,22 @@ public class GeneratedSourceFolderManager {
 		if(AptPlugin.DEBUG)
 			AptPlugin.trace("set _generatedSourceFolder to null; was " + srcFolder ); //$NON-NLS-1$
 	}
-	
+
 	/**
 	 * This method will return the binary output location for the generated source folder.
 	 * If the generated-source folder is not configured (i.e., not created or not added to
 	 * the project's source path, then this method will return the default binary output
-	 * location for the project. 
+	 * location for the project.
 	 *
 	 * @return the IPath corresponding to the binary output location for the
 	 * generated source folder. This is relative to the project.
-	 * 
+	 *
 	 * @throws JavaModelException
-	 * 
+	 *
 	 * @see #getFolder()
 	 */
 	public IPath getBinaryOutputLocation()
-		 throws JavaModelException 
+		 throws JavaModelException
 	{
 		IPath outputRootPath = null;
 		IFolder generatedSourceFolder = getFolder();
@@ -353,7 +353,7 @@ public class GeneratedSourceFolderManager {
 			if ( cpe != null )
 				outputRootPath = cpe.getOutputLocation();
 		}
-		
+
 		// no output root, so get project's default output location
 		if ( outputRootPath == null )
 			outputRootPath = _aptProject.getJavaProject().getOutputLocation();
@@ -361,10 +361,10 @@ public class GeneratedSourceFolderManager {
 		// output location is relative to the workspace, we want to make it relative to project
 		int segments = outputRootPath.matchingFirstSegments( _aptProject.getJavaProject().getPath() );
 		outputRootPath = outputRootPath.removeFirstSegments( segments );
-		
+
 		return outputRootPath;
 	}
-	
+
 	/**
 	 * Get the current generated source folder; or if it is null, return
 	 * an IFolder corresponding to the current generated source folder name.
@@ -373,12 +373,12 @@ public class GeneratedSourceFolderManager {
 	 * @throws IllegalArgumentException if the name is invalid (e.g., "..").
 	 */
 	public IFolder getFolder(){
-		
+
 		synchronized (this) {
 			if( _generatedSourceFolder != null )
 				return _generatedSourceFolder;
 		}
-		
+
 		return getFolderPreference();
 	}
 
@@ -401,14 +401,14 @@ public class GeneratedSourceFolderManager {
 		}
 		return folder;
 	}
-	
+
 	/**
 	 * returns true if the specified folder is the source folder used where
-	 * generated files are placed. 
-	 * 
+	 * generated files are placed.
+	 *
 	 * @param folder - the folder to determine if it is the generated source folder
-	 * @return true if it is the generated source folder, false otherwise.  
-	 * 
+	 * @return true if it is the generated source folder, false otherwise.
+	 *
 	 * @see #getFolder()
 	 */
 	public boolean isGeneratedSourceFolder( IFolder folder )
@@ -443,11 +443,11 @@ public class GeneratedSourceFolderManager {
 		if (srcFolder == null) {
 			return;
 		}
-		
+
 		// Clear out the generated file maps
 		_aptProject.projectClean(false, !_isTestCode, _isTestCode);
-		
-		// clean up the classpath first so that when we actually delete the 
+
+		// clean up the classpath first so that when we actually delete the
 		// generated source folder we won't cause a classpath error.
 		try {
 			if (srcFolder.isDerived()) {
@@ -456,15 +456,15 @@ public class GeneratedSourceFolderManager {
 		} catch (JavaModelException e) {
 			AptPlugin.log( e, "Failed to remove classpath entry for old generated src folder " + srcFolder.getName() ); //$NON-NLS-1$
 		}
-		
+
 		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 	        @Override
 			public void run(IProgressMonitor monitor)
-	        {		
+	        {
             	try {
             		IResource parent = srcFolder.getParent();
             		boolean deleted = FileSystemUtil.deleteDerivedResources(srcFolder);
-            		
+
             		// We also want to delete our parent folder(s) if they are derived and empty
             		if (deleted) {
             			while (parent.isDerived() && parent.getType() == IResource.FOLDER) {
@@ -478,7 +478,7 @@ public class GeneratedSourceFolderManager {
             				}
             			}
             		}
-            		
+
             	} catch(CoreException e) {
             		AptPlugin.log(e, "failed to delete old generated source folder " + srcFolder.getName() ); //$NON-NLS-1$
             	} catch(OperationCanceledException cancel) {
@@ -497,7 +497,7 @@ public class GeneratedSourceFolderManager {
 	/**
 	 * Check whether the proposed name is permitted.
 	 * @param folderName can be anything, including null.
-	 * @return true if attempting to set the generated source folder to 
+	 * @return true if attempting to set the generated source folder to
 	 * <code>dirString</code> is likely to succeed.
 	 */
 	public static boolean validate(final IJavaProject jproj, final String folderName) {

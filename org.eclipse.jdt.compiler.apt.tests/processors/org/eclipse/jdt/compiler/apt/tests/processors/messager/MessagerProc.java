@@ -42,7 +42,7 @@ import javax.tools.Diagnostic.Kind;
 
 /**
  * A processor that uses the Messager interface to report errors against various
- * elements in the targets.model resource hierarchy.  To enable this processor, add 
+ * elements in the targets.model resource hierarchy.  To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.messager.MessagerProc to the command line.
  * <p>
  * The idea of this processor is that it calls the Messager interface with various messages
@@ -51,18 +51,18 @@ import javax.tools.Diagnostic.Kind;
  * inspect.  Then, following processor execution, the calling test case will inspect all
  * the messages that were passed to Messager, to make sure that they all made it into the
  * compiler error output in the expected way.
- * 
+ *
  * @since 3.3
  */
 @SupportedAnnotationTypes("*")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions("org.eclipse.jdt.compiler.apt.tests.processors.messager.MessagerProc")
 public class MessagerProc extends AbstractProcessor {
-	
+
 	private static final String CLASSNAME = MessagerProc.class.getName();
-	
+
 	/**
-	 * Report an error to the test case code.  
+	 * Report an error to the test case code.
 	 * This is not the same as reporting via Messager!  Use this if some API fails.
 	 * @param value will be displayed in the test output, in the event of failure.
 	 * Can be anything except "succeeded".
@@ -72,7 +72,7 @@ public class MessagerProc extends AbstractProcessor {
 		// value = "succeeded";
 		System.setProperty(CLASSNAME, value);
 	}
-	
+
 	/**
 	 * Report success to the test case code
 	 */
@@ -86,10 +86,10 @@ public class MessagerProc extends AbstractProcessor {
 
 	// Initialized in collectElements()
 	private TypeElement _elementD;
-	
+
 	// Initialized in collectElements()
 //	private ExecutableElement _methodElement;
-	
+
 	// Initialized in collectElements()
 	private TypeElement _element2;
 
@@ -109,13 +109,13 @@ public class MessagerProc extends AbstractProcessor {
 
 	// Initialized in collectElements()
 	private VariableElement _variableElement;
-	
+
 	// Initialized in collectElements()
 	private TypeElement _elementF;
 
 	// Initialized in collectElements()
 	private VariableElement _parameterElement;
-	
+
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#init(javax.annotation.processing.ProcessingEnvironment)
 	 */
@@ -140,24 +140,24 @@ public class MessagerProc extends AbstractProcessor {
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
+
 		if (null == _messager) {
 			reportError("Env.getMessager() returned null");
 			return false;
 		}
-		
+
 		if (!collectElements()) {
 			return false;
 		}
-		
+
 		if (!printErrorsOnElements()) {
 			return false;
 		}
-		
+
 		MessagerProc.reportSuccess();
 		return false;
 	}
-	
+
 	/**
 	 * Collect some elements that will be reused in various tests
 	 * @return true if all tests passed
@@ -169,7 +169,7 @@ public class MessagerProc extends AbstractProcessor {
 			return false;
 		}
 //		printVariableElements(_elementD);
-		
+
 		for (ExecutableElement method : ElementFilter.methodsIn(_elementD.getEnclosedElements())) {
 			if ("methodDvoid".equals(method.getSimpleName().toString())) {
 				List<? extends VariableElement> params = method.getParameters();
@@ -180,21 +180,21 @@ public class MessagerProc extends AbstractProcessor {
 				_parameterElement = params.get(0);
 			}
 		}
-		
+
 		_elementE = _elementUtils.getTypeElement("targets.errors.pb.E");
 		if (null == _elementE || _elementE.getKind() != ElementKind.CLASS) {
 			reportError("Element E was not found or was not a class");
 			return false;
 		}
 //		printVariableElements(_elementE);
-		
+
 		_elementF = _elementUtils.getTypeElement("targets.errors.pb.F");
 		if (null == _elementF || _elementF.getKind() != ElementKind.CLASS) {
 			reportError("Element F was not found or was not a class");
 			return false;
 		}
 //		printVariableElements(_elementF);
-		
+
 		List<? extends Element> enclosedElements = _elementE.getEnclosedElements();
 		for (Element element : enclosedElements) {
 			switch(element.getKind()) {
@@ -223,7 +223,7 @@ public class MessagerProc extends AbstractProcessor {
 			reportError("Element for method foo could not be found");
 			return false;
 		}
-		
+
 		if (_variableElement == null) {
 			reportError("Element for field j could not be found");
 			return false;
@@ -258,7 +258,7 @@ public class MessagerProc extends AbstractProcessor {
 			reportError("Annotation value was not found");
 			return false;
 		}
-		
+
 		_element2 = _elementUtils.getTypeElement("java.lang.String");
 		if (_element2 == null) {
 			reportError("Element for java.lang.String could not be found");
@@ -268,7 +268,7 @@ public class MessagerProc extends AbstractProcessor {
 
 		return true;
 	}
-	
+
 	static void printVariableElements(final TypeElement typeElement) {
 		List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
 		for (Element element : enclosedElements) {

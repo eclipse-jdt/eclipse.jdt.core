@@ -65,7 +65,7 @@ public void testGetBaseName001() {
 			NamingConventions.VK_INSTANCE_FIELD,
 			"OneName", //$NON-NLS-1$
 			this.project);
-	
+
 	assertEquals(
 			"oneName", //$NON-NLS-1$
 			baseName);
@@ -78,7 +78,7 @@ public void testGetBaseName002() {
 			NamingConventions.VK_STATIC_FINAL_FIELD,
 			"ONE_NAME", //$NON-NLS-1$
 			this.project);
-	
+
 	assertEquals(
 			"oneName", //$NON-NLS-1$
 			baseName);
@@ -91,12 +91,12 @@ public void testGetBaseName003() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String baseName = NamingConventions.getBaseName(
 			NamingConventions.VK_INSTANCE_FIELD,
 			"preOneNamesuf", //$NON-NLS-1$
 			this.project);
-	
+
 	assertEquals(
 			"oneName", //$NON-NLS-1$
 			baseName);
@@ -109,12 +109,12 @@ public void testGetBaseName004() {
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String baseName = NamingConventions.getBaseName(
 			NamingConventions.VK_STATIC_FINAL_FIELD,
 			"preONE_NAMEsuf", //$NON-NLS-1$
 			this.project);
-	
+
 	assertEquals(
 			"oneName", //$NON-NLS-1$
 			baseName);
@@ -143,7 +143,7 @@ public void testSuggestFieldName002() {
 			0,
 			new String[]{},
 			true);
-	
+
 	assumeEquals(
 		"oneClass\n" + //$NON-NLS-1$
 		"class1", //$NON-NLS-1$
@@ -196,7 +196,7 @@ public void testSuggestFieldName005() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES,"fg"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String[] suggestions = NamingConventions.suggestVariableNames(
 			NamingConventions.VK_STATIC_FIELD,
 			NamingConventions.BK_TYPE_NAME,
@@ -290,7 +290,7 @@ public void testSuggestFieldName009() {
 			0,
 			new String[]{"preNamesuf"}, //$NON-NLS-1$
 			true);
-	
+
 	assumeEquals(
 		"preOneNamesuf\n" + //$NON-NLS-1$
 		"preName2suf\n" + //$NON-NLS-1$
@@ -307,7 +307,7 @@ public void testSuggestFieldName010() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String[] suggestions = NamingConventions.suggestVariableNames(
 			NamingConventions.VK_INSTANCE_FIELD,
 			NamingConventions.BK_TYPE_NAME,
@@ -329,7 +329,7 @@ public void testSuggestFieldName010() {
 		toString(suggestions));
 }
 public void testSuggestFieldName011() {
-	
+
 	String[] suggestions = NamingConventions.suggestVariableNames(
 			NamingConventions.VK_INSTANCE_FIELD,
 			NamingConventions.BK_TYPE_NAME,
@@ -510,7 +510,7 @@ public void testSuggestFieldName022() {
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String[] suggestions = NamingConventions.suggestVariableNames(
 			NamingConventions.VK_STATIC_FINAL_FIELD,
 			NamingConventions.BK_TYPE_NAME,
@@ -556,7 +556,7 @@ public void testSuggestFieldName024() {
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String[] suggestions = NamingConventions.suggestVariableNames(
 			NamingConventions.VK_INSTANCE_FIELD,
 			NamingConventions.BK_NAME,
@@ -732,8 +732,8 @@ public void testSuggestFieldName033() {
 			true);
 
 	assumeEquals(
-			"my_First_Type\n" + 
-			"first_Type\n" + 
+			"my_First_Type\n" +
+			"first_Type\n" +
 			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -751,8 +751,8 @@ public void testSuggestFieldName034() {
 			true);
 
 	assumeEquals(
-			"my_FIRST_Type\n" + 
-			"first_Type\n" + 
+			"my_FIRST_Type\n" +
+			"first_Type\n" +
 			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -770,8 +770,8 @@ public void testSuggestFieldName035() {
 			true);
 
 	assumeEquals(
-			"my_first_Type\n" + 
-			"first_Type\n" + 
+			"my_first_Type\n" +
+			"first_Type\n" +
 			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -789,8 +789,8 @@ public void testSuggestFieldName036() {
 			true);
 
 	assumeEquals(
-			"myFirst_9_Type\n" + 
-			"first_9_Type\n" + 
+			"myFirst_9_Type\n" +
+			"first_9_Type\n" +
 			"type", //$NON-NLS-1$
 		toString(suggestions));
 }
@@ -842,7 +842,7 @@ public void testSuggestFieldName039() {
 			0,
 			new String[]{},
 			true);
-	
+
 	assumeEquals(
 		"A", //$NON-NLS-1$
 		toString(suggestions));
@@ -859,7 +859,7 @@ public void testSuggestFieldName040() {
 			0,
 			new String[]{},
 			true);
-	
+
 	assumeEquals(
 		"INT", //$NON-NLS-1$
 		toString(suggestions));
@@ -876,7 +876,7 @@ public void testSuggestFieldName041() {
 			1,
 			new String[]{},
 			true);
-	
+
 	assumeEquals(
 		"keys", //$NON-NLS-1$
 		toString(suggestions));
@@ -893,7 +893,7 @@ public void testSuggestFieldName042() {
 			1,
 			new String[]{},
 			true);
-	
+
 	assumeEquals(
 		"KEYS", //$NON-NLS-1$
 		toString(suggestions));
@@ -1369,7 +1369,7 @@ public void testSuggestConstantFieldName001() {
 		0,
 		new String[]{},
 		true);
-	
+
 	assumeEquals(
 		"__", //$NON-NLS-1$
 		toString(suggestions));
@@ -1382,7 +1382,7 @@ public void testSuggestConstantFieldName002() {
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"SUF"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
-	
+
 	String[] suggestions = NamingConventions.suggestVariableNames(
 		NamingConventions.VK_STATIC_FINAL_FIELD,
 		NamingConventions.BK_NAME,
@@ -1401,7 +1401,7 @@ public void testSuggestConstantFieldName002() {
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=283539
- * Test that suggestions for parameters include the underscores as supplied 
+ * Test that suggestions for parameters include the underscores as supplied
  */
 public void testSuggestParamWithUnderscore() {
 	Map options = this.project.getOptions(true);
@@ -1419,10 +1419,10 @@ public void testSuggestParamWithUnderscore() {
 			true);
 
 		assumeEquals(
-				"lMin___Trigger__Period_usec\n" + 
-				"min___Trigger__Period_usec\n" + 
-				"trigger__Period_usec\n" + 
-				"period_usec\n" + 
+				"lMin___Trigger__Period_usec\n" +
+				"min___Trigger__Period_usec\n" +
+				"trigger__Period_usec\n" +
+				"period_usec\n" +
 				"usec", //$NON-NLS-1$
 			toString(suggestions));
 	} finally {

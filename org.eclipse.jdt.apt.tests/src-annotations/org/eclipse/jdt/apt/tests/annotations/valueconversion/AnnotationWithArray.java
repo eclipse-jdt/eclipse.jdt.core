@@ -11,9 +11,9 @@
 package org.eclipse.jdt.apt.tests.annotations.valueconversion;
 
 public @interface AnnotationWithArray {
-	boolean[] booleans(); 
+	boolean[] booleans();
 	byte[] bytes();
-	short[] shorts(); 
+	short[] shorts();
 	int[] ints();
 	long[] longs();
 	float[] floats();

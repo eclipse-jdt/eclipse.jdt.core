@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - Fix for bug 341494
@@ -64,7 +64,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 /**
  * Utilities for working with java8 and earlier language elements.
  * There is one of these for every ProcessingEnvironment.
- * 
+ *
  * @see ElementsImpl9
  */
 public class ElementsImpl implements Elements {
@@ -504,7 +504,7 @@ public class ElementsImpl implements Elements {
 						}
 				}
 			}
-			
+
 			// append a newline at the end of each line except the last, even if we skipped the last entirely
 			int end = lines.length - 1;
 			if (line < end) {
@@ -518,7 +518,7 @@ public class ElementsImpl implements Elements {
 
 	/**
 	 * Returns the index of the last leading stars on this line, -1 if none.
-	 * 
+	 *
 	 * @param line the given line
 	 * @return the computed index
 	 */

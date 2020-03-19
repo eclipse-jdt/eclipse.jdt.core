@@ -46,9 +46,9 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-	
+
 		IJavaProject project = setUpJavaProject("Resolve", "10", true);
-	
+
 		String bootModPath = System.getProperty("java.home") + File.separator +"jrt-fs.jar";
 		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
 		IClasspathEntry[] old = project.getRawClasspath();
@@ -56,20 +56,20 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 		System.arraycopy(old, 0, newPath, 0, old.length);
 		newPath[old.length] = jrtEntry;
 		project.setRawClasspath(newPath, null);
-	
+
 		waitUntilIndexesReady();
 	}
-	
+
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.wcOwner = new WorkingCopyOwner(){};
 	}
 	public void tearDownSuite() throws Exception {
 		deleteProject("Resolve");
-	
+
 		super.tearDownSuite();
 	}
-	
+
 	protected void tearDown() throws Exception {
 		if (this.wc != null) {
 			this.wc.discardWorkingCopy();
@@ -83,37 +83,37 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 				"\n" +
 				"abstract class AbstractSet<S> {}\n" +
 				"\n" +
-				"class TreeSet<E> extends AbstractSet<E>\n" + 
-				"    implements Cloneable, java.io.Serializable\n" + 
+				"class TreeSet<E> extends AbstractSet<E>\n" +
+				"    implements Cloneable, java.io.Serializable\n" +
 				"{}\n" +
 				"\n" +
-				"class HashSet<E>\n" + 
-				"    extends AbstractSet<E>\n" + 
-				"    implements Cloneable, java.io.Serializable\n" + 
-				"{}\n" + 
-				"\n" + 
-				"public class Hey {\n" + 
-				"    public static void main(String[] args) {\n" + 
-				"        var x = args.length > 0 ? new TreeSet<>() : new HashSet<>();\n" + 
-				"        x.add(1);\n" + 
-				"    }\n" + 
+				"class HashSet<E>\n" +
+				"    extends AbstractSet<E>\n" +
+				"    implements Cloneable, java.io.Serializable\n" +
+				"{}\n" +
+				"\n" +
+				"public class Hey {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        var x = args.length > 0 ? new TreeSet<>() : new HashSet<>();\n" +
+				"        x.add(1);\n" +
+				"    }\n" +
 				"}\n");
-	
+
 		String str = this.wc.getSource();
 		String selection = "x";
 		int start = str.lastIndexOf(selection);
 		int length = selection.length();
-	
+
 		IJavaElement[] elements = this.wc.codeSelect(start, length);
 		assertElementsEqual(
 			"Unexpected elements",
 			"x [in main(String[]) [in Hey [in [Working copy] Hey.java [in <default> [in src [in Resolve]]]]]]",
 			elements
 		);
-		
+
 		String typeSignature = ((LocalVariable)elements[0]).getTypeSignature();
 		assertEquals("type signature", "&LAbstractSet<Ljava.lang.Object;>;:LCloneable;:Ljava.io.Serializable;", typeSignature);
-		
+
 		assertStringsEqual(
 				"Unexpected intersection type bounds",
 				"LAbstractSet<Ljava.lang.Object;>;\n" +

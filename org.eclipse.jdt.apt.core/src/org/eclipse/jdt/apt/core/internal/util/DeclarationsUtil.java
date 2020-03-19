@@ -34,22 +34,22 @@ public class DeclarationsUtil implements Declarations
 {
     @Override
 	public boolean hides(MemberDeclaration sub, MemberDeclaration sup) {
-		
+
 		// A declaration cannot hide itself
 		if (sub == sup || sub.equals(sup))
 			return false;
-		
-		if( ! ((EclipseDeclarationImpl)sub).isBindingBased() ||  
+
+		if( ! ((EclipseDeclarationImpl)sub).isBindingBased() ||
 			! ((EclipseDeclarationImpl)sup).isBindingBased() )
 			return false;
-		
+
 		MemberDeclarationImpl subImpl = (MemberDeclarationImpl)sub;
 		MemberDeclarationImpl supImpl = (MemberDeclarationImpl)sup;
-		
+
 		IBinding subBinding = subImpl.getDeclarationBinding();
 		IBinding supBinding = supImpl.getDeclarationBinding();
-		
-		
+
+
 		// Hiding can only take place between declarations of the same kind and name,
 		// and types, variables and methods
 		int subKind = subBinding.getKind();
@@ -58,7 +58,7 @@ public class DeclarationsUtil implements Declarations
 			return false;
 		if (!subBinding.getName().equals(supBinding.getName()))
 			return false;
-		
+
 		// Methods must be both static and the sub a subsignature of the sup
 		if (subKind == IBinding.METHOD) {
 			boolean allowed = false;
@@ -72,7 +72,7 @@ public class DeclarationsUtil implements Declarations
 			if (!allowed)
 				return false;
 		}
-		
+
 		// sub's enclosing class must be a subclass of sup's
 		ITypeBinding subClass = getDeclaringClass(subBinding);
 		ITypeBinding supClass = getDeclaringClass(supBinding);
@@ -80,27 +80,27 @@ public class DeclarationsUtil implements Declarations
 			return false;
 		if (!subClass.isSubTypeCompatible(supClass))
 			return false;
-		
+
 		// sup must be visible from sub
 		if (!isVisibleForHiding(supClass, supClass, supBinding.getModifiers()))
 			return false;
-		
+
 		return true;
     }
-	
+
 	/**
 	 * Is a method, field, type visible from the viewer?
 	 * That is, do accessibility rules allow it? (public, protected, etc.)<P>
-	 * 
+	 *
 	 * Note that we make an assumption about protected here since
 	 * its use in hides() already determines that the declaringTarget
 	 * must be a subclass of the declaringViewer.
 	 */
 	private static boolean isVisibleForHiding(
-			final ITypeBinding declaringTarget, 
-			final ITypeBinding declaringViewer, 
+			final ITypeBinding declaringTarget,
+			final ITypeBinding declaringViewer,
 			final int modifiers) {
-		
+
 		// Public is always visible
 		if ((modifiers & Modifier.PUBLIC) == Modifier.PUBLIC)
 			return true;
@@ -143,7 +143,7 @@ public class DeclarationsUtil implements Declarations
         throw new NonEclipseImplementationException("only applicable to eclipse type system objects." + //$NON-NLS-1$
                                                     " Found " + memberDecl.getClass().getName()); //$NON-NLS-1$
     }
-	
+
 	private static ITypeBinding getDeclaringClass(IBinding binding) {
 		int kind = binding.getKind();
 		if (kind == IBinding.TYPE)
@@ -152,7 +152,7 @@ public class DeclarationsUtil implements Declarations
 			return ((IMethodBinding)binding).getDeclaringClass();
 		if (kind == IBinding.VARIABLE)
 			return ((IVariableBinding)binding).getDeclaringClass();
-		
+
 		// Package binding -- no declaring class
 		return null;
 	}

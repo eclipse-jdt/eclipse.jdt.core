@@ -455,15 +455,15 @@ public void test013() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in p1\\A.java (at line 9)\n" + 
-		"	public class aClass implements B, B.C {			\n" + 
-		"	             ^^^^^^\n" + 
-		"The type A.aClass must implement the inherited abstract method A.B.C.anotherMethod(int)\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\A.java (at line 11)\n" + 
-		"	public void anotherMethod(int A) {};	\n" + 
-		"	       ^^^^\n" + 
-		"Syntax error on token \"void\", record expected\n" + 
+		"1. ERROR in p1\\A.java (at line 9)\n" +
+		"	public class aClass implements B, B.C {			\n" +
+		"	             ^^^^^^\n" +
+		"The type A.aClass must implement the inherited abstract method A.B.C.anotherMethod(int)\n" +
+		"----------\n" +
+		"2. ERROR in p1\\A.java (at line 11)\n" +
+		"	public void anotherMethod(int A) {};	\n" +
+		"	       ^^^^\n" +
+		"Syntax error on token \"void\", record expected\n" +
 		"----------\n"
 	);
 }
@@ -2910,19 +2910,19 @@ public void _test087() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
-				"import java.util.*;\n" + 
-				"/**\n" + 
-				" * @see Private - Private is not visible here\n" + 
-				" */\n" + 
-				"public abstract class X implements X.Private, Secondary.SecondaryPrivate {\n" + 
-				"	/**\n" + 
-				" * @see Private - Private is visible here\n" + 
-				"	 */\n" + 
-				"	private static interface Private {}\n" + 
-				"	Private field;\n" + 
-				"}\n" + 
-				"class Secondary {\n" + 
-				"	private static interface SecondaryPrivate {}\n" + 
+				"import java.util.*;\n" +
+				"/**\n" +
+				" * @see Private - Private is not visible here\n" +
+				" */\n" +
+				"public abstract class X implements X.Private, Secondary.SecondaryPrivate {\n" +
+				"	/**\n" +
+				" * @see Private - Private is visible here\n" +
+				"	 */\n" +
+				"	private static interface Private {}\n" +
+				"	Private field;\n" +
+				"}\n" +
+				"class Secondary {\n" +
+				"	private static interface SecondaryPrivate {}\n" +
 				"}\n", // =================
 			},
 			"done");
@@ -2931,18 +2931,18 @@ public void test088() {
 	this.runNegativeTest(
 		new String[] {
 			"java/lang/Object.java",	//===================
-			"package java.lang;\n" + 
-			"public class Object {\n" + 
-			"	public Object() {\n" + 
-			"		super();\n" + 
-			"	}\n" + 
+			"package java.lang;\n" +
+			"public class Object {\n" +
+			"	public Object() {\n" +
+			"		super();\n" +
+			"	}\n" +
 			"}\n", 		// =================
 		},
-		"----------\n" + 
-		"1. ERROR in java\\lang\\Object.java (at line 4)\n" + 
-		"	super();\n" + 
-		"	^^^^^^^^\n" + 
-		"super cannot be used in java.lang.Object\n" + 
+		"----------\n" +
+		"1. ERROR in java\\lang\\Object.java (at line 4)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"super cannot be used in java.lang.Object\n" +
 		"----------\n");
 }
 
@@ -2950,19 +2950,19 @@ public void test089() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",	//===================
-			"public class X {\n" + 
-			"	static class Member implements X {\n" + 
-			"		Member () {\n" + 
-			"			super();\n" + 
-			"		}\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	static class Member implements X {\n" +
+			"		Member () {\n" +
+			"			super();\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n", 		// =================
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	static class Member implements X {\n" + 
-		"	                               ^\n" + 
-		"The type X cannot be a superinterface of Member; a superinterface must be an interface\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	static class Member implements X {\n" +
+		"	                               ^\n" +
+		"The type X cannot be a superinterface of Member; a superinterface must be an interface\n" +
 		"----------\n");
 }
 
@@ -2971,27 +2971,27 @@ public void test090() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public synchronized int f;\n" + 
-			"	public synchronized X() {}\n" + 
-			"	public volatile void foo() {}\n" + 
+			"public class X {\n" +
+			"	public synchronized int f;\n" +
+			"	public synchronized X() {}\n" +
+			"	public volatile void foo() {}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public synchronized int f;\n" + 
-		"	                        ^\n" + 
-		"Illegal modifier for the field f; only public, protected, private, static, final, transient & volatile are permitted\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	public synchronized X() {}\n" + 
-		"	                    ^^^\n" + 
-		"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 4)\n" + 
-		"	public volatile void foo() {}\n" + 
-		"	                     ^^^^^\n" + 
-		"Illegal modifier for the method foo; only public, protected, private, abstract, static, final, synchronized, native & strictfp are permitted\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	public synchronized int f;\n" +
+		"	                        ^\n" +
+		"Illegal modifier for the field f; only public, protected, private, static, final, transient & volatile are permitted\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	public synchronized X() {}\n" +
+		"	                    ^^^\n" +
+		"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	public volatile void foo() {}\n" +
+		"	                     ^^^^^\n" +
+		"Illegal modifier for the method foo; only public, protected, private, abstract, static, final, synchronized, native & strictfp are permitted\n" +
 		"----------\n"
 	);
 }
@@ -3000,24 +3000,24 @@ public void test091() {
 	this.runNegativeTest(
 		new String[] {
 			"foo/Test.java",//------------------------------
-			"package foo;\n" + 
-			"public class Test {\n" + 
+			"package foo;\n" +
+			"public class Test {\n" +
 			"        public class M1 {\n" +
 			"              public class M2 {}\n" +
 			"        }\n" +
 			"}\n",
 			"bar/Test2.java",//------------------------------
-			"package bar;\n" + 
-			"import foo.Test;\n" + 
-			"import Test.M1.M2;\n" + 
-			"public class Test2 {\n" + 
+			"package bar;\n" +
+			"import foo.Test;\n" +
+			"import Test.M1.M2;\n" +
+			"public class Test2 {\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in bar\\Test2.java (at line 3)\n" + 
-		"	import Test.M1.M2;\n" + 
-		"	       ^^^^\n" + 
-		"The import Test cannot be resolved\n" + 
+		"----------\n" +
+		"1. ERROR in bar\\Test2.java (at line 3)\n" +
+		"	import Test.M1.M2;\n" +
+		"	       ^^^^\n" +
+		"The import Test cannot be resolved\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
@@ -3025,24 +3025,24 @@ public void test092() {
 	this.runNegativeTest(
 		new String[] {
 			"foo/Test.java",//------------------------------
-			"package foo;\n" + 
-			"public class Test {\n" + 
+			"package foo;\n" +
+			"public class Test {\n" +
 			"        public class M1 {\n" +
 			"              public class M2 {}\n" +
 			"        }\n" +
 			"}\n",
 			"bar/Test2.java",//------------------------------
-			"package bar;\n" + 
-			"import foo.*;\n" + 
-			"import Test.M1.M2;\n" + 
-			"public class Test2 {\n" + 
+			"package bar;\n" +
+			"import foo.*;\n" +
+			"import Test.M1.M2;\n" +
+			"public class Test2 {\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in bar\\Test2.java (at line 3)\n" + 
-		"	import Test.M1.M2;\n" + 
-		"	       ^^^^\n" + 
-		"The import Test cannot be resolved\n" + 
+		"----------\n" +
+		"1. ERROR in bar\\Test2.java (at line 3)\n" +
+		"	import Test.M1.M2;\n" +
+		"	       ^^^^\n" +
+		"The import Test cannot be resolved\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
@@ -3050,66 +3050,66 @@ public void test093() {
 	this.runNegativeTest(
 		new String[] {
 			"foo/Test.java",//------------------------------
-			"package foo;\n" + 
-			"public class Test {\n" + 
+			"package foo;\n" +
+			"public class Test {\n" +
 			"        public class M1 {\n" +
 			"              public class foo {}\n" +
 			"        }\n" +
 			"}\n",
 			"bar/Test2.java",//------------------------------
-			"package bar;\n" + 
-			"import foo.Test;\n" + 
-			"import Test.M1.foo;\n" + 
-			"public class Test2 {\n" + 
+			"package bar;\n" +
+			"import foo.Test;\n" +
+			"import Test.M1.foo;\n" +
+			"public class Test2 {\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in bar\\Test2.java (at line 3)\n" + 
-		"	import Test.M1.foo;\n" + 
-		"	       ^^^^\n" + 
-		"The import Test cannot be resolved\n" + 
+		"----------\n" +
+		"1. ERROR in bar\\Test2.java (at line 3)\n" +
+		"	import Test.M1.foo;\n" +
+		"	       ^^^^\n" +
+		"The import Test cannot be resolved\n" +
 		"----------\n");
-}	
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250211 - variation
 public void test094() {
 	this.runConformTest(
 		new String[] {
 			"foo/Test.java",//------------------------------
-			"package foo;\n" + 
-			"public class Test {\n" + 
+			"package foo;\n" +
+			"public class Test {\n" +
 			"        public class M1 {\n" +
 			"              public class foo {}\n" +
 			"        }\n" +
 			"}\n",
 			"bar/Test2.java",//------------------------------
-			"package bar;\n" + 
-			"import foo.Test.M1.foo;\n" + 
-			"public class Test2 {\n" + 
+			"package bar;\n" +
+			"import foo.Test.M1.foo;\n" +
+			"public class Test2 {\n" +
 			"}\n",
 		},
 		"");
-}	
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277965
 public void test095() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/B.java",
-			"package p1;\n" + 
+			"package p1;\n" +
 			"protected class B1 {}",
 			"X.java", // =================
 			"public class X extends p1.B1 {}",
 	},
-	"----------\n" + 
-	"1. ERROR in p1\\B.java (at line 2)\n" + 
-	"	protected class B1 {}\n" + 
-	"	                ^^\n" + 
-	"Illegal modifier for the class B1; only public, abstract & final are permitted\n" + 
-	"----------\n" + 
-	"----------\n" + 
-	"1. ERROR in X.java (at line 1)\n" + 
-	"	public class X extends p1.B1 {}\n" + 
-	"	                       ^^^^^\n" + 
-	"The type p1.B1 is not visible\n" + 
+	"----------\n" +
+	"1. ERROR in p1\\B.java (at line 2)\n" +
+	"	protected class B1 {}\n" +
+	"	                ^^\n" +
+	"Illegal modifier for the class B1; only public, abstract & final are permitted\n" +
+	"----------\n" +
+	"----------\n" +
+	"1. ERROR in X.java (at line 1)\n" +
+	"	public class X extends p1.B1 {}\n" +
+	"	                       ^^^^^\n" +
+	"The type p1.B1 is not visible\n" +
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
@@ -3137,53 +3137,53 @@ public void test096() {
 			"    }\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\C.java (at line 5)\n" + 
-		"	B.m().new M();\n" + 
-		"	^^^^^\n" + 
-		"The type p0.A is not visible\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\C.java (at line 5)\n" +
+		"	B.m().new M();\n" +
+		"	^^^^^\n" +
+		"The type p0.A is not visible\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
 public void test097() {
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" + 
-			"1. WARNING in B.java (at line 6)\n" + 
-			"	public class M {\n" + 
-			"	             ^\n" + 
-			"The type B.A.M is never used locally\n" + 
-			"----------\n" + 
-			"2. WARNING in B.java (at line 7)\n" + 
-			"	public M() {}\n" + 
-			"	       ^^^\n" + 
-			"The constructor B.A.M() is never used locally\n" + 
-			"----------\n" + 
-			"3. ERROR in B.java (at line 13)\n" + 
-			"	B.m().new M();\n" + 
-			"	^^^^^\n" + 
-			"The type B$A is not visible\n" + 
+			"----------\n" +
+			"1. WARNING in B.java (at line 6)\n" +
+			"	public class M {\n" +
+			"	             ^\n" +
+			"The type B.A.M is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in B.java (at line 7)\n" +
+			"	public M() {}\n" +
+			"	       ^^^\n" +
+			"The constructor B.A.M() is never used locally\n" +
+			"----------\n" +
+			"3. ERROR in B.java (at line 13)\n" +
+			"	B.m().new M();\n" +
+			"	^^^^^\n" +
+			"The type B$A is not visible\n" +
 			"----------\n"
 			:
-			"----------\n" + 
-			"1. WARNING in B.java (at line 3)\n" + 
-			"	return new B().new A();\n" + 
-			"	       ^^^^^^^^^^^^^^^\n" + 
-			"Access to enclosing constructor B.A() is emulated by a synthetic accessor method\n" + 
-			"----------\n" + 
-			"2. WARNING in B.java (at line 6)\n" + 
-			"	public class M {\n" + 
-			"	             ^\n" + 
-			"The type B.A.M is never used locally\n" + 
-			"----------\n" + 
-			"3. WARNING in B.java (at line 7)\n" + 
-			"	public M() {}\n" + 
-			"	       ^^^\n" + 
-			"The constructor B.A.M() is never used locally\n" + 
-			"----------\n" + 
-			"4. ERROR in B.java (at line 13)\n" + 
-			"	B.m().new M();\n" + 
-			"	^^^^^\n" + 
-			"The type B$A is not visible\n" + 
+			"----------\n" +
+			"1. WARNING in B.java (at line 3)\n" +
+			"	return new B().new A();\n" +
+			"	       ^^^^^^^^^^^^^^^\n" +
+			"Access to enclosing constructor B.A() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. WARNING in B.java (at line 6)\n" +
+			"	public class M {\n" +
+			"	             ^\n" +
+			"The type B.A.M is never used locally\n" +
+			"----------\n" +
+			"3. WARNING in B.java (at line 7)\n" +
+			"	public M() {}\n" +
+			"	       ^^^\n" +
+			"The constructor B.A.M() is never used locally\n" +
+			"----------\n" +
+			"4. ERROR in B.java (at line 13)\n" +
+			"	B.m().new M();\n" +
+			"	^^^^^\n" +
+			"The type B$A is not visible\n" +
 			"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -3215,12 +3215,12 @@ public void test098() {
 			"    public final static class B {\n" +
 			"        public final static String length = \"very long\";\n" +
 			"    }\n" +
-			"    private  int [] B = new int[5];\n" +    
+			"    private  int [] B = new int[5];\n" +
 			"}\n" +
 			"public class B {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(A.B.length);\n" +
-			"    }\n" +   
+			"    }\n" +
 			"}\n",
 		},
 		"very long");
@@ -3234,19 +3234,19 @@ public void test099() {
 			"    public final static class B {\n" +
 			"        public final static String length = \"very long\";\n" +
 			"    }\n" +
-			"    public int [] B = new int[5];\n" +    
+			"    public int [] B = new int[5];\n" +
 			"}\n" +
 			"public class B {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(A.B.length);\n" +
-			"    }\n" +   
+			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in B.java (at line 9)\n" + 
-		"	System.out.println(A.B.length);\n" + 
-		"	                   ^^^^^^^^^^\n" + 
-		"Cannot make a static reference to the non-static field A.B\n" + 
+		"----------\n" +
+		"1. ERROR in B.java (at line 9)\n" +
+		"	System.out.println(A.B.length);\n" +
+		"	                   ^^^^^^^^^^\n" +
+		"Cannot make a static reference to the non-static field A.B\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
@@ -3258,12 +3258,12 @@ public void test100() {
 			"    public final class B {\n" +
 			"        public final String length = \"very long\";\n" +
 			"    }\n" +
-			"    public static int [] B = new int[5];\n" +    
+			"    public static int [] B = new int[5];\n" +
 			"}\n" +
 			"public class B {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(A.B.length);\n" +
-			"    }\n" +   
+			"    }\n" +
 			"}\n",
 		},
 		"5");
@@ -3277,34 +3277,34 @@ public void test101() {
 			"    private final class B {\n" +
 			"        public final String length = \"very long\";\n" +
 			"    }\n" +
-			"    private int [] B = new int[5];\n" +    
+			"    private int [] B = new int[5];\n" +
 			"}\n" +
 			"public class B {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(A.B.length);\n" +
-			"    }\n" +   
+			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in B.java (at line 2)\n" + 
-		"	private final class B {\n" + 
-		"	                    ^\n" + 
-		"The type A.B is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in B.java (at line 3)\n" + 
-		"	public final String length = \"very long\";\n" + 
-		"	                    ^^^^^^\n" + 
-		"The value of the field A.B.length is not used\n" + 
-		"----------\n" + 
-		"3. WARNING in B.java (at line 5)\n" + 
-		"	private int [] B = new int[5];\n" + 
-		"	               ^\n" + 
-		"The value of the field A.B is not used\n" + 
-		"----------\n" + 
-		"4. ERROR in B.java (at line 9)\n" + 
-		"	System.out.println(A.B.length);\n" + 
-		"	                     ^\n" + 
-		"The field A.B is not visible\n" + 
+		"----------\n" +
+		"1. WARNING in B.java (at line 2)\n" +
+		"	private final class B {\n" +
+		"	                    ^\n" +
+		"The type A.B is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in B.java (at line 3)\n" +
+		"	public final String length = \"very long\";\n" +
+		"	                    ^^^^^^\n" +
+		"The value of the field A.B.length is not used\n" +
+		"----------\n" +
+		"3. WARNING in B.java (at line 5)\n" +
+		"	private int [] B = new int[5];\n" +
+		"	               ^\n" +
+		"The value of the field A.B is not used\n" +
+		"----------\n" +
+		"4. ERROR in B.java (at line 9)\n" +
+		"	System.out.println(A.B.length);\n" +
+		"	                     ^\n" +
+		"The field A.B is not visible\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317858
@@ -3316,29 +3316,29 @@ public void test102() {
 			"    public final class B {\n" +
 			"        private final String length = \"very long\";\n" +
 			"    }\n" +
-			"    private int [] B = new int[5];\n" +    
+			"    private int [] B = new int[5];\n" +
 			"}\n" +
 			"public class B {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(A.B.length);\n" +
-			"    }\n" +   
+			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in B.java (at line 3)\n" + 
-		"	private final String length = \"very long\";\n" + 
-		"	                     ^^^^^^\n" + 
-		"The value of the field A.B.length is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in B.java (at line 5)\n" + 
-		"	private int [] B = new int[5];\n" + 
-		"	               ^\n" + 
-		"The value of the field A.B is not used\n" + 
-		"----------\n" + 
-		"3. ERROR in B.java (at line 9)\n" + 
-		"	System.out.println(A.B.length);\n" + 
-		"	                       ^^^^^^\n" + 
-		"The field A.B.length is not visible\n" + 
+		"----------\n" +
+		"1. WARNING in B.java (at line 3)\n" +
+		"	private final String length = \"very long\";\n" +
+		"	                     ^^^^^^\n" +
+		"The value of the field A.B.length is not used\n" +
+		"----------\n" +
+		"2. WARNING in B.java (at line 5)\n" +
+		"	private int [] B = new int[5];\n" +
+		"	               ^\n" +
+		"The value of the field A.B is not used\n" +
+		"----------\n" +
+		"3. ERROR in B.java (at line 9)\n" +
+		"	System.out.println(A.B.length);\n" +
+		"	                       ^^^^^^\n" +
+		"The field A.B.length is not visible\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
@@ -3347,63 +3347,63 @@ public void test103() {
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" + 
-			"1. WARNING in A.java (at line 2)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.x is not used\n" + 
-			"----------\n" + 
-			"2. WARNING in A.java (at line 4)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.B.x is not used\n" + 
-			"----------\n" + 
-			"3. WARNING in A.java (at line 5)\n" + 
-			"	private C c = new C() {\n" + 
-			"	          ^\n" + 
-			"The value of the field A.B.c is not used\n" + 
-			"----------\n" + 
-			"4. WARNING in A.java (at line 6)\n" + 
-			"	void foo() {\n" + 
-			"	     ^^^^^\n" + 
-			"The method foo() from the type new A.C(){} is never used locally\n" + 
-			"----------\n" + 
-			"5. WARNING in A.java (at line 12)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.C.x is not used\n" + 
+			"----------\n" +
+			"1. WARNING in A.java (at line 2)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.x is not used\n" +
+			"----------\n" +
+			"2. WARNING in A.java (at line 4)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.B.x is not used\n" +
+			"----------\n" +
+			"3. WARNING in A.java (at line 5)\n" +
+			"	private C c = new C() {\n" +
+			"	          ^\n" +
+			"The value of the field A.B.c is not used\n" +
+			"----------\n" +
+			"4. WARNING in A.java (at line 6)\n" +
+			"	void foo() {\n" +
+			"	     ^^^^^\n" +
+			"The method foo() from the type new A.C(){} is never used locally\n" +
+			"----------\n" +
+			"5. WARNING in A.java (at line 12)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.C.x is not used\n" +
 			"----------\n"
 			:
-			"----------\n" + 
-			"1. WARNING in A.java (at line 2)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.x is not used\n" + 
-			"----------\n" + 
-			"2. WARNING in A.java (at line 4)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.B.x is not used\n" + 
-			"----------\n" + 
-			"3. WARNING in A.java (at line 5)\n" + 
-			"	private C c = new C() {\n" + 
-			"	          ^\n" + 
-			"The value of the field A.B.c is not used\n" + 
-			"----------\n" + 
-			"4. WARNING in A.java (at line 6)\n" + 
-			"	void foo() {\n" + 
-			"	     ^^^^^\n" + 
-			"The method foo() from the type new A.C(){} is never used locally\n" + 
-			"----------\n" + 
-			"5. WARNING in A.java (at line 7)\n" + 
-			"	x = 3;\n" + 
-			"	^\n" + 
-			"Write access to enclosing field A.B.x is emulated by a synthetic accessor method\n" + 
-			"----------\n" + 
-			"6. WARNING in A.java (at line 12)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.C.x is not used\n" + 
+			"----------\n" +
+			"1. WARNING in A.java (at line 2)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.x is not used\n" +
+			"----------\n" +
+			"2. WARNING in A.java (at line 4)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.B.x is not used\n" +
+			"----------\n" +
+			"3. WARNING in A.java (at line 5)\n" +
+			"	private C c = new C() {\n" +
+			"	          ^\n" +
+			"The value of the field A.B.c is not used\n" +
+			"----------\n" +
+			"4. WARNING in A.java (at line 6)\n" +
+			"	void foo() {\n" +
+			"	     ^^^^^\n" +
+			"The method foo() from the type new A.C(){} is never used locally\n" +
+			"----------\n" +
+			"5. WARNING in A.java (at line 7)\n" +
+			"	x = 3;\n" +
+			"	^\n" +
+			"Write access to enclosing field A.B.x is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"6. WARNING in A.java (at line 12)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.C.x is not used\n" +
 			"----------\n";
 	this.runNegativeTest(
 		new String[] {
@@ -3450,26 +3450,26 @@ public void test104() {
 			"	}\n",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. WARNING in A.java (at line 2)\n" + 
-		"	private int x;\n" + 
-		"	            ^\n" + 
-		"The value of the field A.x is not used\n" + 
-		"----------\n" + 
-		"2. WARNING in A.java (at line 4)\n" + 
-		"	private int x;\n" + 
-		"	            ^\n" + 
-		"The value of the field A.B.x is not used\n" + 
-		"----------\n" + 
-		"3. WARNING in A.java (at line 5)\n" + 
-		"	private C c = new C() {\n" + 
-		"	          ^\n" + 
-		"The value of the field A.B.c is not used\n" + 
-		"----------\n" + 
-		"4. WARNING in A.java (at line 6)\n" + 
-		"	void foo() {\n" + 
-		"	     ^^^^^\n" + 
-		"The method foo() from the type new A.C(){} is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in A.java (at line 2)\n" +
+		"	private int x;\n" +
+		"	            ^\n" +
+		"The value of the field A.x is not used\n" +
+		"----------\n" +
+		"2. WARNING in A.java (at line 4)\n" +
+		"	private int x;\n" +
+		"	            ^\n" +
+		"The value of the field A.B.x is not used\n" +
+		"----------\n" +
+		"3. WARNING in A.java (at line 5)\n" +
+		"	private C c = new C() {\n" +
+		"	          ^\n" +
+		"The value of the field A.B.c is not used\n" +
+		"----------\n" +
+		"4. WARNING in A.java (at line 6)\n" +
+		"	void foo() {\n" +
+		"	     ^^^^^\n" +
+		"The method foo() from the type new A.C(){} is never used locally\n" +
 		"----------\n";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
@@ -3480,55 +3480,55 @@ public void test105() {
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
 	String errMessage =	isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" + 
-			"1. WARNING in A.java (at line 2)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.x is not used\n" + 
-			"----------\n" + 
-			"2. WARNING in A.java (at line 3)\n" + 
-			"	private C c = new C() {\n" + 
-			"	          ^\n" + 
-			"The value of the field A.c is not used\n" + 
-			"----------\n" + 
-			"3. WARNING in A.java (at line 4)\n" + 
-			"	void foo() {\n" + 
-			"	     ^^^^^\n" + 
-			"The method foo() from the type new A.C(){} is never used locally\n" + 
-			"----------\n" + 
-			"4. WARNING in A.java (at line 9)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.C.x is not used\n" + 
+			"----------\n" +
+			"1. WARNING in A.java (at line 2)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.x is not used\n" +
+			"----------\n" +
+			"2. WARNING in A.java (at line 3)\n" +
+			"	private C c = new C() {\n" +
+			"	          ^\n" +
+			"The value of the field A.c is not used\n" +
+			"----------\n" +
+			"3. WARNING in A.java (at line 4)\n" +
+			"	void foo() {\n" +
+			"	     ^^^^^\n" +
+			"The method foo() from the type new A.C(){} is never used locally\n" +
+			"----------\n" +
+			"4. WARNING in A.java (at line 9)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.C.x is not used\n" +
 			"----------\n"
 			:
 			"----------\n" +
-			"1. WARNING in A.java (at line 2)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.x is not used\n" + 
-			"----------\n" + 
-			"2. WARNING in A.java (at line 3)\n" + 
-			"	private C c = new C() {\n" + 
-			"	          ^\n" + 
-			"The value of the field A.c is not used\n" + 
-			"----------\n" + 
-			"3. WARNING in A.java (at line 4)\n" + 
-			"	void foo() {\n" + 
-			"	     ^^^^^\n" + 
-			"The method foo() from the type new A.C(){} is never used locally\n" + 
-			"----------\n" + 
-			"4. WARNING in A.java (at line 5)\n" + 
-			"	x = 3;\n" + 
-			"	^\n" + 
-			"Write access to enclosing field A.x is emulated by a synthetic accessor method\n" + 
-			"----------\n" + 
-			"5. WARNING in A.java (at line 9)\n" + 
-			"	private int x;\n" + 
-			"	            ^\n" + 
-			"The value of the field A.C.x is not used\n" + 
+			"1. WARNING in A.java (at line 2)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.x is not used\n" +
+			"----------\n" +
+			"2. WARNING in A.java (at line 3)\n" +
+			"	private C c = new C() {\n" +
+			"	          ^\n" +
+			"The value of the field A.c is not used\n" +
+			"----------\n" +
+			"3. WARNING in A.java (at line 4)\n" +
+			"	void foo() {\n" +
+			"	     ^^^^^\n" +
+			"The method foo() from the type new A.C(){} is never used locally\n" +
+			"----------\n" +
+			"4. WARNING in A.java (at line 5)\n" +
+			"	x = 3;\n" +
+			"	^\n" +
+			"Write access to enclosing field A.x is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"5. WARNING in A.java (at line 9)\n" +
+			"	private int x;\n" +
+			"	            ^\n" +
+			"The value of the field A.C.x is not used\n" +
 			"----------\n";
-			
+
 	this.runNegativeTest(
 		new String[] {
 			"A.java",//------------------------------
@@ -3566,16 +3566,16 @@ public void test106() {
 			"}\n",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. WARNING in X.java (at line 4)\n" + 
-		"	private static List<Object> foo1(Set<Object> set) {\n" + 
-		"	                            ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The method foo1(Set<Object>) from the type X is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	private static <T> List<T> foo3(Set<T> set) {\n" + 
-		"	                           ^^^^^^^^^^^^^^^^\n" + 
-		"The method foo3(Set<T>) from the type X is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 4)\n" +
+		"	private static List<Object> foo1(Set<Object> set) {\n" +
+		"	                            ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method foo1(Set<Object>) from the type X is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	private static <T> List<T> foo3(Set<T> set) {\n" +
+		"	                           ^^^^^^^^^^^^^^^^\n" +
+		"The method foo3(Set<T>) from the type X is never used locally\n" +
 		"----------\n";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
@@ -3588,27 +3588,27 @@ public void testBug537828() {
 	this.runConformTest(
 		new String[] {
 			"FieldBug.java",//------------------------------
-			"class A {\n" + 
-			"	Object obj = \"A.obj\";\n" + 
-			"}\n" + 
-			"\n" + 
-			"class B {\n" + 
-			"	private Object obj = \"B.obj\";\n" + 
-			"	public Object getObj() {return obj;}\n" + 
-			"}\n" + 
-			"\n" + 
-			"public class FieldBug {\n" + 
-			"	Object obj = \"FieldBug.obj\";\n" + 
-			"\n" + 
-			"	static class AA extends A {\n" + 
-			"		class BB extends B {\n" + 
-			"			Object n = obj;\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(new AA().new BB().n);\n" + 
-			"	}\n" + 
+			"class A {\n" +
+			"	Object obj = \"A.obj\";\n" +
+			"}\n" +
+			"\n" +
+			"class B {\n" +
+			"	private Object obj = \"B.obj\";\n" +
+			"	public Object getObj() {return obj;}\n" +
+			"}\n" +
+			"\n" +
+			"public class FieldBug {\n" +
+			"	Object obj = \"FieldBug.obj\";\n" +
+			"\n" +
+			"	static class AA extends A {\n" +
+			"		class BB extends B {\n" +
+			"			Object n = obj;\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(new AA().new BB().n);\n" +
+			"	}\n" +
 			"}",
 		},
 		"A.obj");

@@ -45,11 +45,11 @@ import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
 public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirrorObject
-{	
+{
     final BaseProcessorEnv _env;
 
     EclipseDeclarationImpl(final BaseProcessorEnv env)
-    {   
+    {
         assert env != null : "missing environment"; //$NON-NLS-1$
         _env = env;
     }
@@ -57,23 +57,23 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
     @Override
 	public void accept(DeclarationVisitor visitor)
     {
-        visitor.visitDeclaration(this);     
-    }        
+        visitor.visitDeclaration(this);
+    }
 
 	@SuppressWarnings("unchecked")
 	<A extends Annotation> A _getAnnotation(Class<A> annotationClass,
                                             IAnnotationBinding[] annoInstances)
     {
-    	if( annoInstances == null || annoInstances.length == 0 || annotationClass == null ) 
+    	if( annoInstances == null || annoInstances.length == 0 || annotationClass == null )
     		return null;
-    	
+
         String annoTypeName = annotationClass.getName();
 		if( annoTypeName == null ) return null;
         annoTypeName = annoTypeName.replace('$', '.');
 		for( IAnnotationBinding annoInstance :  annoInstances){
         	if (annoInstance == null)
         		continue;
-            final ITypeBinding binding = annoInstance.getAnnotationType();            
+            final ITypeBinding binding = annoInstance.getAnnotationType();
             if( binding != null && binding.isAnnotation() ){
                 final String curTypeName = binding.getQualifiedName();
                 if( annoTypeName.equals(curTypeName) ){
@@ -85,12 +85,12 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
                 }
             }
         }
-        return null; 
+        return null;
     }
 
     Collection<AnnotationMirror> _getAnnotationMirrors(IAnnotationBinding[] annoInstances)
     {
-        if( annoInstances == null || annoInstances.length == 0 ) 
+        if( annoInstances == null || annoInstances.length == 0 )
         	return Collections.emptyList();
         final List<AnnotationMirror> result = new ArrayList<>(annoInstances.length);
         for(IAnnotationBinding annoInstance : annoInstances){
@@ -101,8 +101,8 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
          	}
         }
         return result;
-    }  
-	
+    }
+
 	Collection<AnnotationMirror> _getAnnotationMirrors(List<org.eclipse.jdt.core.dom.Annotation> annoInstances)
 	{
 		if( annoInstances == null || annoInstances.size() == 0 ) return Collections.emptyList();
@@ -115,8 +115,8 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 			}
 		}
 		return result;
-	}  
-	
+	}
+
 	/**
      * @return the ast node that corresponding to this declaration,
      * or null if this declaration came from binary.
@@ -130,26 +130,26 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
      * @see #isFromSource()
      */
     abstract CompilationUnit getCompilationUnit();
-	
+
 	/**
 	 * @return the resource of this declaration if the declaration is from source.
 	 */
 	abstract public IFile getResource();
-    
+
     /**
      * @return true iff this declaration came from a source file.
      *         Return false otherwise.
      */
     public abstract boolean isFromSource();
-    
-    public abstract boolean isBindingBased(); 
-	
+
+    public abstract boolean isBindingBased();
+
 	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
-	
+
 	/**
 	 * @return the ast node that holds the range of this member declaration in source.
-	 *         The default is to find the name of the node and if that fails, return the 
+	 *         The default is to find the name of the node and if that fails, return the
 	 *         node with the smallest range that contains the declaration.
 	 */
 	protected ASTNode getRangeNode()
@@ -169,7 +169,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 			break;
 		case ASTNode.METHOD_DECLARATION:
 			name = ((MethodDeclaration)node).getName();
-			break;		
+			break;
 		case ASTNode.SINGLE_VARIABLE_DECLARATION:
 			name = ((SingleVariableDeclaration)node).getName();
 			break;
@@ -181,7 +181,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 				 if( declName.equals(frag.getName().toString()) ){
 					 name = frag.getName();
 					 break;
-				 }	 
+				 }
 			}
 			break;
 		case ASTNode.ENUM_CONSTANT_DECLARATION:
@@ -193,11 +193,11 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 		if( name == null ) return node;
 		return name;
 	}
-	
+
 	protected String getDocComment(final BodyDeclaration decl)
     {
     	final Javadoc javaDoc = decl.getJavadoc();
         if( javaDoc == null ) return ""; //$NON-NLS-1$
         return javaDoc.toString();
     }
-} 
+}

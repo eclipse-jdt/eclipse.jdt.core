@@ -28,5 +28,5 @@ public class TestDirectiveVisitor<R, P> implements DirectiveVisitor<Object, Obje
 	public Object visitUses(UsesDirective arg0, Object arg1) {
 		return arg0;
 	}
-	
+
 }

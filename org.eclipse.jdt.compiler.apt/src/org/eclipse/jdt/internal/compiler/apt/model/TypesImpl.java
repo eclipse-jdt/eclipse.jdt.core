@@ -122,7 +122,7 @@ public class TypesImpl implements Types {
 							if (typeVariables.length == typeArguments.length) {
 								for(int i = 0; i < typeVariables.length; i++) {
 									if (typeVariables[i] == memberBinding) {
-										return TypesImpl.this._env.getFactory().newTypeMirror(typeArguments[i]); 
+										return TypesImpl.this._env.getFactory().newTypeMirror(typeArguments[i]);
 									}
 								}
 							}
@@ -336,7 +336,7 @@ public class TypesImpl implements Types {
         int typeVariablesLength = typeVariables.length;
         if (typeArgsLength == 0) {
             if (elementBinding.isGenericType()) {
-                // per javadoc, 
+                // per javadoc,
                 return (DeclaredType) _env.getFactory().newTypeMirror(this._env.getLookupEnvironment().createRawType(elementBinding, null));
             }
             return (DeclaredType)typeElem.asType();
@@ -363,7 +363,7 @@ public class TypesImpl implements Types {
     }
 
     /* (non-Javadoc)
-     * Create a specific type from a member element. The containing type can be parameterized, 
+     * Create a specific type from a member element. The containing type can be parameterized,
      * e.g. Outer<String>.Inner, but it cannot be generic, i.e., Outer<T>.Inner. It only makes
      * sense to use this method when the member element is parameterized by its container; so,
      * for example, it makes sense for an inner class but not for a static member class.

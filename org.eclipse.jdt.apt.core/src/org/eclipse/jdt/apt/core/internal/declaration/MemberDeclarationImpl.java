@@ -11,7 +11,7 @@
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.apt.core.internal.declaration; 
+package org.eclipse.jdt.apt.core.internal.declaration;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -31,13 +31,13 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     {
         super(binding, env);
     }
-    
+
     @Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitMemberDeclaration(this);
     }
-    
+
     @Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
@@ -49,9 +49,9 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IAnnotationBinding[] instances = getAnnotationInstances();
-		return _getAnnotationMirrors(instances);		
+		return _getAnnotationMirrors(instances);
     }
-	
+
 	private IAnnotationBinding[] getAnnotationInstances()
 	{
 		final IBinding binding = getDeclarationBinding();
@@ -70,7 +70,7 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 		case IBinding.PACKAGE:
 			// TODO: support package annotation
 			return null;
-		default:			
+		default:
 			throw new IllegalStateException();
 		}
 		return instances;
@@ -80,10 +80,10 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 	public String getDocComment()
     {
         if( isFromSource()){
-        	final ASTNode node = getAstNode();        	
+        	final ASTNode node = getAstNode();
         	if(node != null){
         		if( node instanceof BodyDeclaration )
-        			
+
         			return getDocComment((BodyDeclaration)node);
 
         		else if( node.getNodeType() == ASTNode.VARIABLE_DECLARATION_FRAGMENT ){
@@ -91,18 +91,18 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
         			// a field declaration
         			if( parent instanceof BodyDeclaration )
         				return getDocComment((BodyDeclaration)parent);
-        			
+
         		}
         		return ""; //$NON-NLS-1$
-        	}  
+        	}
         }
         return null;
-    }    
+    }
 
 	/**
-	 * @return the source position of this declaration. 
-	 *         Return null if this declaration did not come from source or 
-	 *         if the declaration is (or is part of) a secondary type that is defined 
+	 * @return the source position of this declaration.
+	 *         Return null if this declaration did not come from source or
+	 *         if the declaration is (or is part of) a secondary type that is defined
 	 *         outside of the file associated with the environment.
 	 */
     @Override
@@ -110,9 +110,9 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
     {
         if( isFromSource() ){
 			final ASTNode node = getRangeNode();
-			if( node == null ) return null;			       
+			if( node == null ) return null;
             final CompilationUnit unit = getCompilationUnit();
-            final int start = node.getStartPosition();    		
+            final int start = node.getStartPosition();
             return new SourcePositionImpl(start,
 					node.getLength(),
 					unit.getLineNumber(start),
@@ -120,5 +120,5 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 					this);
         }
         return null;
-    }   
-} 
+    }
+}

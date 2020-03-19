@@ -28,7 +28,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug552764" };
 	}
-	
+
 	public static Class<?> testClass() {
 		return SwitchExpressionsYieldTest.class;
 	}
@@ -52,7 +52,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	protected void runConformTestWithJavac(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, _getCompilerOptions(), new String[] {"--enable-preview"}, new JavacTestOptions("-source 14 --enable-preview"));
 	}
-	
+
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions());
@@ -182,17 +182,17 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"		};\n" + 
-			"	         ^^^^^^^^^^^^^^^^\n" + 
-			"A switch expression should have a non-empty switch block\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"	                 ^\n" + 
-			"A switch expression should have a default case\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	int tw = switch (i) {\n" +
+			"		};\n" +
+			"	         ^^^^^^^^^^^^^^^^\n" +
+			"A switch expression should have a non-empty switch block\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	int tw = switch (i) {\n" +
+			"	                 ^\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testBug544073_004() {
@@ -217,11 +217,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 12)\n" + 
-			"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" + 
-			"	     ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from String to int\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
+			"	     ^^^^^^^\n" +
+			"Type mismatch: cannot convert from String to int\n" +
 			"----------\n");
 	}
 	public void testBug544073_005() {
@@ -245,16 +245,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"	                 ^\n" + 
-			"A switch expression should have a default case\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	int tw = switch (i) {\n" +
+			"	                 ^\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	/**
 	 * Add a test case for enum
-	 * If the type of the selector expression is an enum type, 
+	 * If the type of the selector expression is an enum type,
 	 * then the set of all the case constants associated with the switch block
 	 *  must contain all the enum constants of that enum type
 	 *  Add a missing enum test case
@@ -285,16 +285,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"	      ^^^^^\n" + 
-			" The switch expression should have a default case\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	int tw = switch (i) {\n" +
+			"	      ^^^^^\n" +
+			" The switch expression should have a default case\n" +
 			"----------\n");
 	}
 	/*
 	 * should compile - test for adding additional nesting in variables
-	 * dev note: ref consumeToken().case Switch 
+	 * dev note: ref consumeToken().case Switch
 	 */
 	public void testBug544073_007() {
 		runConformTest(
@@ -344,30 +344,30 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	int tw = switch (i) {\n" + 
-				"			case 0 -> i * 0;\n" + 
-				"			case 1 -> 2;\n" + 
-				"			default -> 3;\n" + 
-				"		};\n" + 
-				"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Switch Expressions is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	case 0 -> i * 0;\n" + 
-				"	^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 5)\n" + 
-				"	case 1 -> 2;\n" + 
-				"	^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
-				"----------\n" + 
-				"4. ERROR in X.java (at line 6)\n" + 
-				"	default -> 3;\n" + 
-				"	^^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	int tw = switch (i) {\n" +
+				"			case 0 -> i * 0;\n" +
+				"			case 1 -> 2;\n" +
+				"			default -> 3;\n" +
+				"		};\n" +
+				"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Switch Expressions is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case 0 -> i * 0;\n" +
+				"	^^^^^^\n" +
+				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	case 1 -> 2;\n" +
+				"	^^^^^^\n" +
+				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 6)\n" +
+				"	default -> 3;\n" +
+				"	^^^^^^^\n" +
+				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 				"----------\n";
 
 		this.runNegativeTest(
@@ -417,21 +417,21 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	case 0 -> i * 0;\n" + 
-				"	          ^^^^^\n" + 
-				"Invalid expression as statement\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	case 1 -> 2;\n" + 
-				"	          ^\n" + 
-				"Invalid expression as statement\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
-				"	default -> 3;\n" + 
-				"	           ^\n" + 
-				"Invalid expression as statement\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case 0 -> i * 0;\n" +
+				"	          ^^^^^\n" +
+				"Invalid expression as statement\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case 1 -> 2;\n" +
+				"	          ^\n" +
+				"Invalid expression as statement\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 6)\n" +
+				"	default -> 3;\n" +
+				"	           ^\n" +
+				"Invalid expression as statement\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -460,11 +460,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	default -> 3;\n" + 
-				"	           ^\n" + 
-				"Invalid expression as statement\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	default -> 3;\n" +
+				"	           ^\n" +
+				"Invalid expression as statement\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -491,11 +491,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	default -> 3;\n" + 
-				"	           ^\n" + 
-				"Invalid expression as statement\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	default -> 3;\n" +
+				"	           ^\n" +
+				"Invalid expression as statement\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -524,11 +524,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			};
 
 			String expectedProblemLog =
-					"----------\n" + 
-					"1. ERROR in X.java (at line 0)\n" + 
-					"	public class X {\n" + 
-					"	^\n" + 
-					"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_11+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 0)\n" +
+					"	public class X {\n" +
+					"	^\n" +
+					"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_11+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -565,11 +565,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			};
 
 			String expectedProblemLog =
-					"----------\n" + 
-					"1. ERROR in X.java (at line 8)\n" + 
-					"	default :v = 2;\n" + 
-					"	         ^^^^^\n" + 
-					"A switch labeled block in a switch expression should not complete normally\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 8)\n" +
+					"	default :v = 2;\n" +
+					"	         ^^^^^\n" +
+					"A switch labeled block in a switch expression should not complete normally\n" +
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -594,11 +594,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"}\n"
 		};
 		runner.expectedCompilerLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	}.toLowerCase());\n" + 
-				"	 ^\n" + 
-				"Syntax error on token \".\", , expected\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	}.toLowerCase());\n" +
+				"	 ^\n" +
+				"Syntax error on token \".\", , expected\n" +
 				"----------\n";
 		runner.runNegativeTest();
 	}
@@ -634,14 +634,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"public static void bar(Day day) {\n" + 
-						"		switch (day) {\n" + 
-						"		case SATURDAY, SUNDAY: \n" + 
-						"			System.out.println(Day.SUNDAY);\n" + 
-						"			break;\n" + 
-						"		case MONDAY : System.out.println(Day.MONDAY);\n" + 
-						"					break;\n" + 
-						"		}\n" + 
+						"public static void bar(Day day) {\n" +
+						"		switch (day) {\n" +
+						"		case SATURDAY, SUNDAY: \n" +
+						"			System.out.println(Day.SUNDAY);\n" +
+						"			break;\n" +
+						"		case MONDAY : System.out.println(Day.MONDAY);\n" +
+						"					break;\n" +
+						"		}\n" +
 						"	}" +
 						"	public static void main(String[] args) {\n" +
 						"		bar(Day.SATURDAY);\n" +
@@ -663,27 +663,27 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"public static void bar(Day day) {\n" + 
-						"		switch (day) {\n" + 
-						"		case SATURDAY, SUNDAY: \n" + 
-						"			System.out.println(Day.SUNDAY);\n" + 
-						"			break;\n" + 
-						"		case MONDAY : System.out.println(Day.MONDAY);\n" + 
-						"					break;\n" + 
-						"		}\n" + 
+						"	public static void main(String[] args) {\n" +
+						"	}\n" +
+						"public static void bar(Day day) {\n" +
+						"		switch (day) {\n" +
+						"		case SATURDAY, SUNDAY: \n" +
+						"			System.out.println(Day.SUNDAY);\n" +
+						"			break;\n" +
+						"		case MONDAY : System.out.println(Day.MONDAY);\n" +
+						"					break;\n" +
+						"		}\n" +
 						"	}" +
 						"}\n" +
 						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
 		};
 
 		String expectedProblemLog =
-						"----------\n" + 
-						"1. WARNING in X.java (at line 5)\n" + 
-						"	switch (day) {\n" + 
-						"	        ^^^\n" + 
-						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" + 
+						"----------\n" +
+						"1. WARNING in X.java (at line 5)\n" +
+						"	switch (day) {\n" +
+						"	        ^^^\n" +
+						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" +
 						"----------\n";
 		this.runWarningTest(
 				testFiles,
@@ -696,14 +696,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"public static void bar(Day day) {\n" + 
-						"		switch (day) {\n" + 
-						"		case SATURDAY, SUNDAY: \n" + 
-						"			System.out.println(Day.SUNDAY);\n" + 
-						"			break;\n" + 
-						"		case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
-						"					break;\n" + 
-						"		}\n" + 
+						"public static void bar(Day day) {\n" +
+						"		switch (day) {\n" +
+						"		case SATURDAY, SUNDAY: \n" +
+						"			System.out.println(Day.SUNDAY);\n" +
+						"			break;\n" +
+						"		case SUNDAY : System.out.println(Day.SUNDAY);\n" +
+						"					break;\n" +
+						"		}\n" +
 						"	}" +
 						"	public static void main(String[] args) {\n" +
 						"		bar(Day.SATURDAY);\n" +
@@ -713,16 +713,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-						"1. ERROR in X.java (at line 4)\n" + 
-						"	case SATURDAY, SUNDAY: \n" + 
-						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-						"Duplicate case\n" + 
-						"----------\n" + 
-						"2. ERROR in X.java (at line 7)\n" + 
-						"	case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
-						"	^^^^^^^^^^^\n" + 
-						"Duplicate case\n" + 
+				"----------\n" +
+						"1. ERROR in X.java (at line 4)\n" +
+						"	case SATURDAY, SUNDAY: \n" +
+						"	^^^^^^^^^^^^^^^^^^^^^\n" +
+						"Duplicate case\n" +
+						"----------\n" +
+						"2. ERROR in X.java (at line 7)\n" +
+						"	case SUNDAY : System.out.println(Day.SUNDAY);\n" +
+						"	^^^^^^^^^^^\n" +
+						"Duplicate case\n" +
 						"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -735,61 +735,61 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"public static void bar(Day day) {\n" + 
-						"		switch (day) {\n" + 
-						"		case SATURDAY, SUNDAY: \n" + 
-						"			System.out.println(Day.SUNDAY);\n" + 
-						"			break;\n" + 
+						"public static void bar(Day day) {\n" +
+						"		switch (day) {\n" +
+						"		case SATURDAY, SUNDAY: \n" +
+						"			System.out.println(Day.SUNDAY);\n" +
+						"			break;\n" +
 						"		case SUNDAY, SATURDAY : \n" +
-						"			System.out.println(Day.SUNDAY);\n" + 
-						"			break;\n" + 
-						"		}\n" + 
+						"			System.out.println(Day.SUNDAY);\n" +
+						"			break;\n" +
+						"		}\n" +
 						"	}" +
 						"}\n" +
 						"enum Day { SATURDAY, SUNDAY, MONDAY;}",
 		};
 
 		String expectedProblemLog =
-						"----------\n" + 
-						"1. WARNING in X.java (at line 3)\n" + 
-						"	switch (day) {\n" + 
-						"	        ^^^\n" + 
-						"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" + 
-						"----------\n" + 
-						"2. ERROR in X.java (at line 4)\n" + 
-						"	case SATURDAY, SUNDAY: \n" + 
+						"----------\n" +
+						"1. WARNING in X.java (at line 3)\n" +
+						"	switch (day) {\n" +
+						"	        ^^^\n" +
+						"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" +
+						"----------\n" +
+						"2. ERROR in X.java (at line 4)\n" +
+						"	case SATURDAY, SUNDAY: \n" +
 						"	^^^^^^^^^^^^^^^^^^^^^\n" +
-						"Duplicate case\n" + 
-						"----------\n" + 
-						"3. ERROR in X.java (at line 7)\n" + 
-						"	case SUNDAY, SATURDAY : \n" + 
-						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-						"Duplicate case\n" + 
-						"----------\n" + 
-						"4. ERROR in X.java (at line 7)\n" + 
-						"	case SUNDAY, SATURDAY : \n" + 
-						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-						"Duplicate case\n" + 
+						"Duplicate case\n" +
+						"----------\n" +
+						"3. ERROR in X.java (at line 7)\n" +
+						"	case SUNDAY, SATURDAY : \n" +
+						"	^^^^^^^^^^^^^^^^^^^^^\n" +
+						"Duplicate case\n" +
+						"----------\n" +
+						"4. ERROR in X.java (at line 7)\n" +
+						"	case SUNDAY, SATURDAY : \n" +
+						"	^^^^^^^^^^^^^^^^^^^^^\n" +
+						"Duplicate case\n" +
 						"----------\n";
 		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog);
 	}
 	/*
-	 * 
+	 *
 	 */
 	public void testBug544073_021() {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"public static void bar(Day day) {\n" + 
-						"		switch (day) {\n" + 
-						"		case SATURDAY, SUNDAY: \n" + 
-						"			System.out.println(Day.SUNDAY);\n" + 
-						"			break;\n" + 
-						"		case TUESDAY : System.out.println(Day.SUNDAY);\n" + 
-						"					break;\n" + 
-						"		}\n" + 
+						"public static void bar(Day day) {\n" +
+						"		switch (day) {\n" +
+						"		case SATURDAY, SUNDAY: \n" +
+						"			System.out.println(Day.SUNDAY);\n" +
+						"			break;\n" +
+						"		case TUESDAY : System.out.println(Day.SUNDAY);\n" +
+						"					break;\n" +
+						"		}\n" +
 						"	}" +
 						"	public static void main(String[] args) {\n" +
 						"		bar(Day.SATURDAY);\n" +
@@ -799,11 +799,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
-				"	switch (day) {\n" + 
-				"	        ^^^\n" + 
-				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	switch (day) {\n" +
+				"	        ^^^\n" +
+				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" +
 				"----------\n";
 		this.runWarningTest(
 				testFiles,
@@ -813,14 +813,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"public static void bar(Day day) {\n" + 
-						"		switch (day) {\n" + 
-						"		case SATURDAY, SUNDAY: \n" + 
-						"			System.out.println(day);\n" + 
-						"			break;\n" + 
-						"		case MONDAY : System.out.println(0);\n" + 
-						"					break;\n" + 
-						"		}\n" + 
+						"public static void bar(Day day) {\n" +
+						"		switch (day) {\n" +
+						"		case SATURDAY, SUNDAY: \n" +
+						"			System.out.println(day);\n" +
+						"			break;\n" +
+						"		case MONDAY : System.out.println(0);\n" +
+						"					break;\n" +
+						"		}\n" +
 						"	}" +
 						"	public static void main(String[] args) {\n" +
 						"		bar(Day.SATURDAY);\n" +
@@ -832,8 +832,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"SATURDAY\n" + 
-				"0\n" + 
+				"SATURDAY\n" +
+				"0\n" +
 				"SUNDAY";
 		this.runConformTest(
 				testFiles,
@@ -848,32 +848,32 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"		bar(\"a\");\n" + 
-						"		bar(\"b\");\n" + 
-						"		bar(\"c\");\n" + 
-						"		bar(\"d\");\n" + 
-						"	}\n" + 
-						"	public static void bar(String s) {\n" + 
-						"		switch(s) {\n" + 
-						"		case \"a\":\n" + 
-						"		case \"b\":\n" + 
-						"			System.out.println(\"A/B\");\n" + 
-						"			break;\n" + 
-						"		case \"c\":\n" + 
-						"			System.out.println(\"C\");\n" + 
-						"			break;\n" + 
-						"		default:\n" + 
-						"			System.out.println(\"NA\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(\"a\");\n" +
+						"		bar(\"b\");\n" +
+						"		bar(\"c\");\n" +
+						"		bar(\"d\");\n" +
+						"	}\n" +
+						"	public static void bar(String s) {\n" +
+						"		switch(s) {\n" +
+						"		case \"a\":\n" +
+						"		case \"b\":\n" +
+						"			System.out.println(\"A/B\");\n" +
+						"			break;\n" +
+						"		case \"c\":\n" +
+						"			System.out.println(\"C\");\n" +
+						"			break;\n" +
+						"		default:\n" +
+						"			System.out.println(\"NA\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"A/B\n" + 
-				"A/B\n" + 
-				"C\n" + 
+				"A/B\n" +
+				"A/B\n" +
+				"C\n" +
 				"NA";
 		this.runConformTest(
 				testFiles,
@@ -882,31 +882,31 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	public void testBug544073_024() {
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"		bar(\"a\");\n" + 
-						"		bar(\"b\");\n" + 
-						"		bar(\"c\");\n" + 
-						"		bar(\"d\");\n" + 
-						"	}\n" + 
-						"	public static void bar(String s) {\n" + 
-						"		switch(s) {\n" + 
-						"		case \"a\", \"b\":\n" + 
-						"			System.out.println(\"A/B\");\n" + 
-						"			break;\n" + 
-						"		case \"c\":\n" + 
-						"			System.out.println(\"C\");\n" + 
-						"			break;\n" + 
-						"		default:\n" + 
-						"			System.out.println(\"NA\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(\"a\");\n" +
+						"		bar(\"b\");\n" +
+						"		bar(\"c\");\n" +
+						"		bar(\"d\");\n" +
+						"	}\n" +
+						"	public static void bar(String s) {\n" +
+						"		switch(s) {\n" +
+						"		case \"a\", \"b\":\n" +
+						"			System.out.println(\"A/B\");\n" +
+						"			break;\n" +
+						"		case \"c\":\n" +
+						"			System.out.println(\"C\");\n" +
+						"			break;\n" +
+						"		default:\n" +
+						"			System.out.println(\"NA\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"A/B\n" + 
-				"A/B\n" + 
-				"C\n" + 
+				"A/B\n" +
+				"A/B\n" +
+				"C\n" +
 				"NA";
 		this.runConformTest(
 				testFiles,
@@ -919,31 +919,31 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	public void testBug544073_025() {
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"		bar(\"FB\");\n" + 
-						"		bar(\"Ea\");\n" + 
-						"		bar(\"c\");\n" + 
-						"		bar(\"D\");\n" + 
-						"	}\n" + 
-						"	public static void bar(String s) {\n" + 
-						"		switch(s) {\n" + 
-						"		case \"FB\", \"c\":\n" + 
-						"			System.out.println(\"A\");\n" + 
-						"			break;\n" + 
-						"		case \"Ea\":\n" + 
-						"			System.out.println(\"B\");\n" + 
-						"			break;\n" + 
-						"		default:\n" + 
-						"			System.out.println(\"NA\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(\"FB\");\n" +
+						"		bar(\"Ea\");\n" +
+						"		bar(\"c\");\n" +
+						"		bar(\"D\");\n" +
+						"	}\n" +
+						"	public static void bar(String s) {\n" +
+						"		switch(s) {\n" +
+						"		case \"FB\", \"c\":\n" +
+						"			System.out.println(\"A\");\n" +
+						"			break;\n" +
+						"		case \"Ea\":\n" +
+						"			System.out.println(\"B\");\n" +
+						"			break;\n" +
+						"		default:\n" +
+						"			System.out.println(\"NA\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"A\n" + 
-				"B\n" + 
-				"A\n" + 
+				"A\n" +
+				"B\n" +
+				"A\n" +
 				"NA";
 		this.runConformTest(
 				testFiles,
@@ -958,33 +958,33 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"		bar(1);\n" + 
-						"		bar(2);\n" + 
-						"		bar(3);\n" + 
-						"		bar(4);\n" + 
-						"		bar(5);\n" + 
-						"	}\n" + 
-						"	public static void bar(int i) {\n" + 
-						"		switch (i) {\n" + 
-						"		case 1, 3: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"			break;\n" + 
-						"		case 2, 4: \n" + 
-						"			System.out.println(\"Even\");\n" + 
-						"			break;\n" + 
-						"		default:\n" + 
-						"			System.out.println(\"Out of range\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(1);\n" +
+						"		bar(2);\n" +
+						"		bar(3);\n" +
+						"		bar(4);\n" +
+						"		bar(5);\n" +
+						"	}\n" +
+						"	public static void bar(int i) {\n" +
+						"		switch (i) {\n" +
+						"		case 1, 3: \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"			break;\n" +
+						"		case 2, 4: \n" +
+						"			System.out.println(\"Even\");\n" +
+						"			break;\n" +
+						"		default:\n" +
+						"			System.out.println(\"Out of range\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"Odd\n" + 
-				"Even\n" + 
-				"Odd\n" + 
-				"Even\n" + 
+				"Odd\n" +
+				"Even\n" +
+				"Odd\n" +
+				"Even\n" +
 				"Out of range";
 		this.runConformTest(
 				testFiles,
@@ -999,29 +999,29 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"	public static void bar(int i) {\n" + 
-						"		switch (i) {\n" + 
-						"		case 1, 3: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"			break;\n" + 
-						"		case \"2\": \n" + 
-						"			System.out.println(\"Even\");\n" + 
-						"			break;\n" + 
-						"		default:\n" + 
-						"				System.out.println(\"Out of range\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"	}\n" +
+						"	public static void bar(int i) {\n" +
+						"		switch (i) {\n" +
+						"		case 1, 3: \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"			break;\n" +
+						"		case \"2\": \n" +
+						"			System.out.println(\"Even\");\n" +
+						"			break;\n" +
+						"		default:\n" +
+						"				System.out.println(\"Out of range\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 9)\n" + 
-				"	case \"2\": \n" + 
-				"	     ^^^\n" + 
-				"Type mismatch: cannot convert from String to int\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	case \"2\": \n" +
+				"	     ^^^\n" +
+				"Type mismatch: cannot convert from String to int\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1040,28 +1040,28 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"	}\n" + 
-				"	public static void bar(int i) {\n" + 
-				"		switch (i) {\n" + 
-				"		case 1, 3: \n" + 
-				"			System.out.println(\"Odd\");\n" + 
-				"		case 2, 4: \n" + 
-				"			System.out.println(\"Even\");\n" + 
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"	public static void bar(int i) {\n" +
+				"		switch (i) {\n" +
+				"		case 1, 3: \n" +
+				"			System.out.println(\"Odd\");\n" +
+				"		case 2, 4: \n" +
+				"			System.out.println(\"Even\");\n" +
 				"			break;\n" +
-				"		default:\n" + 
-				"				System.out.println(\"Out of range\");\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"		default:\n" +
+				"				System.out.println(\"Out of range\");\n" +
+				"		}\n" +
+				"	}\n" +
 				"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. WARNING in X.java (at line 8)\n" + 
-				"	case 2, 4: \n" + 
-				"	^^^^^^^^^\n" + 
-				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 8)\n" +
+				"	case 2, 4: \n" +
+				"	^^^^^^^^^\n" +
+				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
 				"----------\n";
 		this.runWarningTest(
 				testFiles,
@@ -1079,25 +1079,25 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"	}\n" + 
-				"	public static void bar(int i) {\n" + 
-				"		switch (i) {\n" + 
-				"		case 1, 3: \n" + 
-				"			System.out.println(\"Odd\");\n" + 
-				"		case 2, 4: \n" + 
-				"			System.out.println(\"Even\");\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"	public static void bar(int i) {\n" +
+				"		switch (i) {\n" +
+				"		case 1, 3: \n" +
+				"			System.out.println(\"Odd\");\n" +
+				"		case 2, 4: \n" +
+				"			System.out.println(\"Even\");\n" +
+				"		}\n" +
+				"	}\n" +
 				"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	switch (i) {\n" + 
-				"	        ^\n" + 
-				"The switch statement should have a default case\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	switch (i) {\n" +
+				"	        ^\n" +
+				"The switch statement should have a default case\n" +
 				"----------\n";
 		this.runWarningTest(
 				testFiles,
@@ -1113,30 +1113,30 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"	public static void bar(int i) {\n" + 
-						"		switch (i) {\n" + 
-						"		case 1, 3: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		case 3, 4: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"	}\n" +
+						"	public static void bar(int i) {\n" +
+						"		switch (i) {\n" +
+						"		case 1, 3: \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"		case 3, 4: \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	case 1, 3: \n" + 
-				"	^^^^^^^^^\n" + 
-				"Duplicate case\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
-				"	case 3, 4: \n" + 
-				"	^^^^^^^^^\n" + 
-				"Duplicate case\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case 1, 3: \n" +
+				"	^^^^^^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case 3, 4: \n" +
+				"	^^^^^^^^^\n" +
+				"Duplicate case\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1154,30 +1154,30 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"	public static void bar(String s) {\n" + 
-						"		switch (s) {\n" + 
-						"		case \"a\", \"b\": \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		case \"b\", \"c\": \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"	}\n" +
+						"	public static void bar(String s) {\n" +
+						"		switch (s) {\n" +
+						"		case \"a\", \"b\": \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"		case \"b\", \"c\": \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	case \"a\", \"b\": \n" + 
-				"	^^^^^^^^^^^^^\n" + 
-				"Duplicate case\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
-				"	case \"b\", \"c\": \n" + 
-				"	^^^^^^^^^^^^^\n" + 
-				"Duplicate case\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case \"a\", \"b\": \n" +
+				"	^^^^^^^^^^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case \"b\", \"c\": \n" +
+				"	^^^^^^^^^^^^^\n" +
+				"Duplicate case\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1195,24 +1195,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"	public static void bar(Num s) {\n" + 
-						"		switch (s) {\n" + 
-						"		case ONE, Num.TWO: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"	}\n" +
+						"	public static void bar(Num s) {\n" +
+						"		switch (s) {\n" +
+						"		case ONE, Num.TWO: \n" +
+						"			System.out.println(\"Odd\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}\n" +
 						"enum Num { ONE, TWO}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	case ONE, Num.TWO: \n" + 
-				"	          ^^^^^^^\n" + 
-				"The qualified case label Num.TWO must be replaced with the unqualified enum constant TWO\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ONE, Num.TWO: \n" +
+				"	          ^^^^^^^\n" +
+				"The qualified case label Num.TWO must be replaced with the unqualified enum constant TWO\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1227,21 +1227,21 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public void bar(int s) {\n" + 
-				"		int j = switch (s) {\n" + 
+				"public class X {\n" +
+				"	public void bar(int s) {\n" +
+				"		int j = switch (s) {\n" +
 				"			case 1, 2, 3 -> (s+1);\n" +
-				"			default -> j;\n" + 
-				"		};\n" + 
-				"	}\n" + 
+				"			default -> j;\n" +
+				"		};\n" +
+				"	}\n" +
 				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	default -> j;\n" + 
-				"	           ^\n" + 
-				"The local variable j may not have been initialized\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	default -> j;\n" +
+				"	           ^\n" +
+				"The local variable j may not have been initialized\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1253,16 +1253,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	public void testBug544073_034() {
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
 				"	public void bar(int s) {\n" +
-				"		int j = 0;" + 
-				"		j = switch (s) {\n" + 
+				"		int j = 0;" +
+				"		j = switch (s) {\n" +
 				"			case 1, 2, 3 -> (s+1);\n" +
-				"			default -> j;\n" + 
-				"		};\n" + 
-				"	}\n" + 
+				"			default -> j;\n" +
+				"		};\n" +
+				"	}\n" +
 				"}\n",
 		};
 		this.runConformTest(
@@ -1303,11 +1303,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	break;\n" + 
-			"	^^^^^^\n" + 
-			"break out of switch expression not allowed\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	break;\n" +
+			"	^^^^^^\n" +
+			"break out of switch expression not allowed\n" +
 			"----------\n");
 	}
 	public void testBug544073_036() {
@@ -1316,23 +1316,23 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	@SuppressWarnings(\"preview\")\n" + 
-				"	public static void bar(int  i) {\n" + 
-				"		i = switch (i+0) {\n" + 
-				"			default: System.out.println(0);\n" + 
-				"		}; " + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	@SuppressWarnings(\"preview\")\n" +
+				"	public static void bar(int  i) {\n" +
+				"		i = switch (i+0) {\n" +
+				"			default: System.out.println(0);\n" +
+				"		}; " +
+				"	}\n" +
 				"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	i = switch (i+0) {\n" + 
-				"			default: System.out.println(0);\n" + 
-				"		}; 	}\n" + 
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"A switch expression should have at least one result expression\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	i = switch (i+0) {\n" +
+				"			default: System.out.println(0);\n" +
+				"		}; 	}\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"A switch expression should have at least one result expression\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1348,18 +1348,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	void test(int i) {\n" + 
-			"		need(switch (i) {\n" + 
-			"			case 1 -> \"\";\n" + 
-			"			default -> i == 3 ? null : \"\";\n" + 
-			"		}); \n" + 
-			"	}\n" + 
-			"	void need(String s) {\n" + 
-			"		System.out.println(s.toLowerCase());\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		new X().need(\"Hello World\");\n" + 
-			"	}\n" + 
+			"	void test(int i) {\n" +
+			"		need(switch (i) {\n" +
+			"			case 1 -> \"\";\n" +
+			"			default -> i == 3 ? null : \"\";\n" +
+			"		}); \n" +
+			"	}\n" +
+			"	void need(String s) {\n" +
+			"		System.out.println(s.toLowerCase());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().need(\"Hello World\");\n" +
+			"	}\n" +
 			"}\n"
 		};
 		String expectedOutput = "hello world";
@@ -1372,18 +1372,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	void test(int i) {\n" + 
-			"		need(switch (i) {\n" + 
-			"			case 1: yield \"\";\n" + 
-			"			default: yield i == 3 ? null : \"\";\n" + 
-			"		}); \n" + 
-			"	}\n" + 
-			"	void need(String s) {\n" + 
-			"		System.out.println(s.toLowerCase());\n" + 
+			"	void test(int i) {\n" +
+			"		need(switch (i) {\n" +
+			"			case 1: yield \"\";\n" +
+			"			default: yield i == 3 ? null : \"\";\n" +
+			"		}); \n" +
 			"	}\n" +
-			"	public static void main(String[] args) {\n" + 
-			"		new X().need(\"Hello World\");\n" + 
-			"	}\n" + 
+			"	void need(String s) {\n" +
+			"		System.out.println(s.toLowerCase());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().need(\"Hello World\");\n" +
+			"	}\n" +
 			"}\n"
 		};
 		String expectedOutput = "hello world";
@@ -1395,26 +1395,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 			"X.java",
-			"interface I0 { void i(); }\n" + 
-			"interface I1 extends I0 {}\n" + 
+			"interface I0 { void i(); }\n" +
+			"interface I1 extends I0 {}\n" +
 			"interface I2 extends I0 {}\n" +
 			"public class X {\n" +
-			"	I1 n1() { return null; }\n" + 
-			"	<I extends I2> I n2() { return null; }\n" + 
-			"	<M> M m(M m) { return m; }\n" + 
-			"	void test(int i, boolean b) {\n" + 
-			"		m(switch (i) {\n" + 
-			"			case 1 -> n1();\n" + 
-			"			default -> b ? n1() : n2();\n" + 
-			"		}).i(); \n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
+			"	I1 n1() { return null; }\n" +
+			"	<I extends I2> I n2() { return null; }\n" +
+			"	<M> M m(M m) { return m; }\n" +
+			"	void test(int i, boolean b) {\n" +
+			"		m(switch (i) {\n" +
+			"			case 1 -> n1();\n" +
+			"			default -> b ? n1() : n2();\n" +
+			"		}).i(); \n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
 			"		try {\n" +
 			"			new X().test(1, true);\n" +
 			"		} catch (NullPointerException e) {\n" +
 			"			System.out.println(\"NPE as expected\");\n" +
 			"		}\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n"
 		};
 		String expectedOutput = "NPE as expected";
@@ -1427,26 +1427,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 			"X.java",
 			"import java.util.function.Supplier;\n" +
-			"interface I0 { void i(); }\n" + 
-			"interface I1 extends I0 {}\n" + 
+			"interface I0 { void i(); }\n" +
+			"interface I1 extends I0 {}\n" +
 			"interface I2 extends I0 {}\n" +
 			"public class X {\n" +
-			"	I1 n1() { return null; }\n" + 
-			"	<I extends I2> I n2() { return null; }\n" + 
-			"	<M> M m(Supplier<M> m) { return m.get(); }\n" + 
-			"	void test(int i, boolean b) {\n" + 
-			"		m(switch (i) {\n" + 
-			"			case 1 -> this::n1;\n" + 
-			"			default -> this::n2;\n" + 
-			"		}).i(); \n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
+			"	I1 n1() { return null; }\n" +
+			"	<I extends I2> I n2() { return null; }\n" +
+			"	<M> M m(Supplier<M> m) { return m.get(); }\n" +
+			"	void test(int i, boolean b) {\n" +
+			"		m(switch (i) {\n" +
+			"			case 1 -> this::n1;\n" +
+			"			default -> this::n2;\n" +
+			"		}).i(); \n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
 			"		try {\n" +
 			"			new X().test(1, true);\n" +
 			"		} catch (NullPointerException e) {\n" +
 			"			System.out.println(\"NPE as expected\");\n" +
 			"		}\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n"
 		};
 		String expectedOutput = "NPE as expected";
@@ -1460,18 +1460,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 			"X.java",
 			"public class X {\n" +
-			"		void test(int i) {\n" + 
-			"		need(switch (i) {\n" + 
-			"			case 1 -> 1.0f;\n" + 
-			"			default -> i == 3 ? 3 : 5.0d;\n" + 
-			"		}); \n" + 
-			"	}\n" + 
-			"	<N extends Number> void need(N s) {\n" + 
-			"		System.out.println(s.toString());\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
+			"		void test(int i) {\n" +
+			"		need(switch (i) {\n" +
+			"			case 1 -> 1.0f;\n" +
+			"			default -> i == 3 ? 3 : 5.0d;\n" +
+			"		}); \n" +
+			"	}\n" +
+			"	<N extends Number> void need(N s) {\n" +
+			"		System.out.println(s.toString());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
 			"		new X().need(3);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n"
 		};
 		String expectedOutput = "3";
@@ -1481,28 +1481,28 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	static int twice(int i) throws Exception {\n" + 
-					"		switch (i) {\n" + 
-					"			case 0 -> System.out.println(\"hellow\");\n" + 
-					"			case 1 -> foo();\n" + 
-					"			default -> throw new Exception();\n" + 
-					"		};\n" + 
-					"		return 0;\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	static int foo() {\n" + 
-					"		System.out.println(\"inside foo\");\n" + 
-					"		return 1;\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		try {\n" + 
-					"			System.out.print(twice(1));\n" + 
-					"		} catch (Exception e) {\n" + 
-					"			System.out.print(\"Got Exception\");\n" + 
-					"		}\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	static int twice(int i) throws Exception {\n" +
+					"		switch (i) {\n" +
+					"			case 0 -> System.out.println(\"hellow\");\n" +
+					"			case 1 -> foo();\n" +
+					"			default -> throw new Exception();\n" +
+					"		};\n" +
+					"		return 0;\n" +
+					"	}\n" +
+					"\n" +
+					"	static int foo() {\n" +
+					"		System.out.println(\"inside foo\");\n" +
+					"		return 1;\n" +
+					"	}\n" +
+					"\n" +
+					"	public static void main(String[] args) {\n" +
+					"		try {\n" +
+					"			System.out.print(twice(1));\n" +
+					"		} catch (Exception e) {\n" +
+					"			System.out.print(\"Got Exception\");\n" +
+					"		}\n" +
+					"	}\n" +
 					"}"
 			},
 			"inside foo\n"
@@ -1512,24 +1512,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"enum SomeDays {\n" + 
-					"	Mon, Wed, Fri\n" + 
-					"}\n" + 
-					"\n" + 
-					"public class X {\n" + 
-					"	int testEnum(boolean b) {\n" + 
-					"		SomeDays day = b ? SomeDays.Mon : null;\n" + 
-					"		return switch(day) {\n" + 
-					"			case Mon -> 1;\n" + 
-					"			case Wed -> 2;\n" + 
-					"			case Fri -> 3;\n" + 
-					"		};\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		System.out.println(new X().testEnum(true));\n" + 
-					"	}\n" + 
-					"}\n" + 
+					"enum SomeDays {\n" +
+					"	Mon, Wed, Fri\n" +
+					"}\n" +
+					"\n" +
+					"public class X {\n" +
+					"	int testEnum(boolean b) {\n" +
+					"		SomeDays day = b ? SomeDays.Mon : null;\n" +
+					"		return switch(day) {\n" +
+					"			case Mon -> 1;\n" +
+					"			case Wed -> 2;\n" +
+					"			case Fri -> 3;\n" +
+					"		};\n" +
+					"	}\n" +
+					"\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(new X().testEnum(true));\n" +
+					"	}\n" +
+					"}\n" +
 					""
 			},
 			"1");
@@ -1553,11 +1553,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	default -> 3; // should flag an error\n" + 
-				"	           ^\n" + 
-				"Invalid expression as statement\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	default -> 3; // should flag an error\n" +
+				"	           ^\n" +
+				"Invalid expression as statement\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1571,18 +1571,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public void foo(int i) {\n" + 
-					"		int j = switch (i) {\n" + 
-					"			case 1 -> i;\n" + 
-					"			default -> i;\n" + 
-					"		};\n" + 
-					"		System.out.println(j);\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new X().foo(1);\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public void foo(int i) {\n" +
+					"		int j = switch (i) {\n" +
+					"			case 1 -> i;\n" +
+					"			default -> i;\n" +
+					"		};\n" +
+					"		System.out.println(j);\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().foo(1);\n" +
+					"	}\n" +
 					"}"
 			},
 			"1");
@@ -1591,18 +1591,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public void foo(int i) {\n" + 
-					"		long j = switch (i) {\n" + 
-					"			case 1 -> 10L;\n" + 
-					"			default -> 20L;\n" + 
-					"		};\n" + 
-					"		System.out.println(j);\n" + 
-					"	}\n" + 
-					"	\n" + 
-					"	public static void main(String[] args) {\n" + 
-					"		new X().foo(1);\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public void foo(int i) {\n" +
+					"		long j = switch (i) {\n" +
+					"			case 1 -> 10L;\n" +
+					"			default -> 20L;\n" +
+					"		};\n" +
+					"		System.out.println(j);\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static void main(String[] args) {\n" +
+					"		new X().foo(1);\n" +
+					"	}\n" +
 					"}"
 			},
 			"10");
@@ -1611,22 +1611,22 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public int foo(String s) throws Exception {\n" + 
-					"		int i = switch (s) {\n" + 
-					"			case \"hello\" -> 1;\n" + 
-					"			default -> throw new Exception();\n" + 
-					"		};\n" + 
-					"		return i;\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public static void main(String[] argv) {\n" + 
-					"		try {\n" + 
-					"			System.out.print(new X().foo(\"hello\"));\n" + 
-					"		} catch (Exception e) {\n" + 
-					"			//\n" + 
-					"		}\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public int foo(String s) throws Exception {\n" +
+					"		int i = switch (s) {\n" +
+					"			case \"hello\" -> 1;\n" +
+					"			default -> throw new Exception();\n" +
+					"		};\n" +
+					"		return i;\n" +
+					"	}\n" +
+					"\n" +
+					"	public static void main(String[] argv) {\n" +
+					"		try {\n" +
+					"			System.out.print(new X().foo(\"hello\"));\n" +
+					"		} catch (Exception e) {\n" +
+					"			//\n" +
+					"		}\n" +
+					"	}\n" +
 					"}"
 			},
 			"1");
@@ -1662,28 +1662,28 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	SATURDAY\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	today =  switch (day) {\n" + 
-			"	                 ^^^\n" + 
-			"A Switch expression should cover all possible values\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	today =  switch (day) {\n" +
+			"	                 ^^^\n" +
+			"A Switch expression should cover all possible values\n" +
 			"----------\n");
 	}
 	public void testBug544073_049() {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"    public void foo(int i ) {\n" + 
-					"        boolean b = switch (i) {\n" + 
-					"            case 0 -> i == 1;\n" + 
-					"            default -> true;\n" + 
-					"        };\n" + 
-					"        System.out.println( b ? \" true\" : \"false\");\n" + 
-					"    }\n" + 
-					"    public static void main(String[] argv) {\n" + 
-					"    	new X().foo(0);\n" + 
-					"    }\n" + 
+					"public class X {\n" +
+					"    public void foo(int i ) {\n" +
+					"        boolean b = switch (i) {\n" +
+					"            case 0 -> i == 1;\n" +
+					"            default -> true;\n" +
+					"        };\n" +
+					"        System.out.println( b ? \" true\" : \"false\");\n" +
+					"    }\n" +
+					"    public static void main(String[] argv) {\n" +
+					"    	new X().foo(0);\n" +
+					"    }\n" +
 					"}"
 			},
 			"false");
@@ -1692,20 +1692,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"    public void foo(String s) {\n" + 
-					"        try {\n" + 
-					"            int i = switch (s) {\n" + 
-					"                case \"hello\" -> 0;\n" + 
-					"                default -> 2;\n" + 
-					"            };\n" + 
-					"        } finally {\n" + 
-					"        	System.out.println(s);\n" + 
-					"        }\n" + 
-					"    }\n" + 
-					"    public static void main(String argv[]) {\n" + 
-					"    	new X().foo(\"hello\");\n" + 
-					"    }\n" + 
+					"public class X {\n" +
+					"    public void foo(String s) {\n" +
+					"        try {\n" +
+					"            int i = switch (s) {\n" +
+					"                case \"hello\" -> 0;\n" +
+					"                default -> 2;\n" +
+					"            };\n" +
+					"        } finally {\n" +
+					"        	System.out.println(s);\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	new X().foo(\"hello\");\n" +
+					"    }\n" +
 					"}"
 			},
 			"hello");
@@ -1716,20 +1716,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"    public void foo(String s) {\n" + 
-					"        try {\n" + 
-					"            int i = switch (s) {\n" + 
-					"                case \"hello\" -> 0;\n" + 
-					"                default -> 2;\n" + 
-					"            };\n" + 
-					"        } finally {\n" + 
-					"        	System.out.println(s);\n" + 
-					"        }\n" + 
-					"    }\n" + 
-					"    public static void main(String argv[]) {\n" + 
-					"    	new X().foo(\"hello\");\n" + 
-					"    }\n" + 
+					"public class X {\n" +
+					"    public void foo(String s) {\n" +
+					"        try {\n" +
+					"            int i = switch (s) {\n" +
+					"                case \"hello\" -> 0;\n" +
+					"                default -> 2;\n" +
+					"            };\n" +
+					"        } finally {\n" +
+					"        	System.out.println(s);\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	new X().foo(\"hello\");\n" +
+					"    }\n" +
 					"}"
 			},
 			"hello");
@@ -1740,20 +1740,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"    public void foo(String s) {\n" + 
-					"        try {\n" + 
-					"            long l = switch (s) {\n" + 
-					"                case \"hello\" -> 0;\n" + 
-					"                default -> 2;\n" + 
-					"            };\n" + 
-					"        } finally {\n" + 
-					"        	System.out.println(s);\n" + 
-					"        }\n" + 
-					"    }\n" + 
-					"    public static void main(String argv[]) {\n" + 
-					"    	new X().foo(\"hello\");\n" + 
-					"    }\n" + 
+					"public class X {\n" +
+					"    public void foo(String s) {\n" +
+					"        try {\n" +
+					"            long l = switch (s) {\n" +
+					"                case \"hello\" -> 0;\n" +
+					"                default -> 2;\n" +
+					"            };\n" +
+					"        } finally {\n" +
+					"        	System.out.println(s);\n" +
+					"        }\n" +
+					"    }\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	new X().foo(\"hello\");\n" +
+					"    }\n" +
 					"}"
 			},
 			"hello");
@@ -1784,21 +1784,21 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	enum MyEnum {\n" + 
-					"		FIRST;\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public void foo(MyEnum myEnum) {\n" + 
-					"		int i = switch (myEnum) {\n" + 
-					"			case FIRST ->  1;\n" + 
-					"		};\n" + 
-					"			System.out.println( \"i:\" + i);\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public static void main(String argv[]) {\n" + 
-					"		new X().foo(MyEnum.FIRST);\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	enum MyEnum {\n" +
+					"		FIRST;\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo(MyEnum myEnum) {\n" +
+					"		int i = switch (myEnum) {\n" +
+					"			case FIRST ->  1;\n" +
+					"		};\n" +
+					"			System.out.println( \"i:\" + i);\n" +
+					"	}\n" +
+					"\n" +
+					"	public static void main(String argv[]) {\n" +
+					"		new X().foo(MyEnum.FIRST);\n" +
+					"	}\n" +
 					"}"
 			},
 			"i:1");
@@ -1807,22 +1807,22 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	enum MyEnum {\n" + 
-					"		FIRST;\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public void foo(MyEnum myEnum) {\n" + 
-					"		int i = switch (myEnum) {\n" + 
-					"			case FIRST ->  1;\n" + 
-					"			default ->  0;\n" + 
-					"		};\n" + 
-					"			System.out.println( \"i:\" + i);\n" + 
-					"	}\n" + 
-					"\n" + 
-					"	public static void main(String argv[]) {\n" + 
-					"		new X().foo(MyEnum.FIRST);\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	enum MyEnum {\n" +
+					"		FIRST;\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo(MyEnum myEnum) {\n" +
+					"		int i = switch (myEnum) {\n" +
+					"			case FIRST ->  1;\n" +
+					"			default ->  0;\n" +
+					"		};\n" +
+					"			System.out.println( \"i:\" + i);\n" +
+					"	}\n" +
+					"\n" +
+					"	public static void main(String argv[]) {\n" +
+					"		new X().foo(MyEnum.FIRST);\n" +
+					"	}\n" +
 					"}"
 			},
 			"i:1");
@@ -1847,11 +1847,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	case 0 -> x;\n" + 
-				"	          ^\n" + 
-				"x cannot be resolved to a variable\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case 0 -> x;\n" +
+				"	          ^\n" +
+				"x cannot be resolved to a variable\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1910,17 +1910,17 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public static int foo(int i) {\n" + 
-					"		boolean v = switch (i) {\n" + 
-					"			case 1: i = 10; yield true;\n" + 
-					"			default: yield false;\n" + 
-					"		};\n" + 
-					"		return v ? 0 : 1;\n" + 
-					"	}\n" + 
-					"	public static void main(String[] argv) {\n" + 
-					"		System.out.println(X.foo(0));\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public static int foo(int i) {\n" +
+					"		boolean v = switch (i) {\n" +
+					"			case 1: i = 10; yield true;\n" +
+					"			default: yield false;\n" +
+					"		};\n" +
+					"		return v ? 0 : 1;\n" +
+					"	}\n" +
+					"	public static void main(String[] argv) {\n" +
+					"		System.out.println(X.foo(0));\n" +
+					"	}\n" +
 					"}"
 			},
 			"1");
@@ -1929,17 +1929,17 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public static int foo(int i) {\n" + 
-					"		boolean v = switch (i) {\n" + 
-					"			case 1: i++; yield true;\n" + 
-					"			default: yield false;\n" + 
-					"		};\n" + 
-					"		return v ? 0 : 1;\n" + 
-					"	}\n" + 
-					"	public static void main(String[] argv) {\n" + 
-					"		System.out.println(X.foo(1));\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public static int foo(int i) {\n" +
+					"		boolean v = switch (i) {\n" +
+					"			case 1: i++; yield true;\n" +
+					"			default: yield false;\n" +
+					"		};\n" +
+					"		return v ? 0 : 1;\n" +
+					"	}\n" +
+					"	public static void main(String[] argv) {\n" +
+					"		System.out.println(X.foo(1));\n" +
+					"	}\n" +
 					"}"
 			},
 			"0");
@@ -1948,17 +1948,17 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public static int foo(int i) {\n" + 
-					"		boolean v = switch (i) {\n" + 
-					"			case 1: i+= 10; yield true;\n" + 
-					"			default: yield false;\n" + 
-					"		};\n" + 
-					"		return v ? 0 : 1;\n" + 
-					"	}\n" + 
-					"	public static void main(String[] argv) {\n" + 
-					"		System.out.println(X.foo(1));\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public static int foo(int i) {\n" +
+					"		boolean v = switch (i) {\n" +
+					"			case 1: i+= 10; yield true;\n" +
+					"			default: yield false;\n" +
+					"		};\n" +
+					"		return v ? 0 : 1;\n" +
+					"	}\n" +
+					"	public static void main(String[] argv) {\n" +
+					"		System.out.println(X.foo(1));\n" +
+					"	}\n" +
 					"}"
 			},
 			"0");
@@ -1967,17 +1967,17 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public static int foo(int i) {\n" + 
-					"		boolean v = switch (i) {\n" + 
-					"			case 1: switch(i) {case 4: break;}; yield true;\n" + 
-					"			default: yield false;\n" + 
-					"		};\n" + 
-					"		return v ? 0 : 1;\n" + 
-					"	}\n" + 
-					"	public static void main(String[] argv) {\n" + 
-					"		System.out.println(X.foo(1));\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public static int foo(int i) {\n" +
+					"		boolean v = switch (i) {\n" +
+					"			case 1: switch(i) {case 4: break;}; yield true;\n" +
+					"			default: yield false;\n" +
+					"		};\n" +
+					"		return v ? 0 : 1;\n" +
+					"	}\n" +
+					"	public static void main(String[] argv) {\n" +
+					"		System.out.println(X.foo(1));\n" +
+					"	}\n" +
 					"}"
 			},
 			"0");
@@ -1986,17 +1986,17 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 					"X.java",
-					"public class X {\n" + 
-					"	public static int foo(int i) {\n" + 
-					"		boolean v = switch (i) {\n" + 
-					"			case 1: foo(5); yield true;\n" + 
-					"			default: yield false;\n" + 
-					"		};\n" + 
-					"		return v ? 0 : 1;\n" + 
-					"	}\n" + 
-					"	public static void main(String[] argv) {\n" + 
-					"		System.out.println(X.foo(1));\n" + 
-					"	}\n" + 
+					"public class X {\n" +
+					"	public static int foo(int i) {\n" +
+					"		boolean v = switch (i) {\n" +
+					"			case 1: foo(5); yield true;\n" +
+					"			default: yield false;\n" +
+					"		};\n" +
+					"		return v ? 0 : 1;\n" +
+					"	}\n" +
+					"	public static void main(String[] argv) {\n" +
+					"		System.out.println(X.foo(1));\n" +
+					"	}\n" +
 					"}"
 			},
 			"0");
@@ -2034,22 +2034,22 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	public int foo(int i) {\n" + 
-				"		@SuppressWarnings(\"preview\")\n" + 
-				"		int v =\n" + 
-				"			switch(switch(i) {\n" + 
-				"					case 0 -> { yield 2; }\n" + 
-				"					default -> { yield 3; }\n" + 
-				"				}) {\n" + 
-				"			case 0 -> { yield 0; }\n" + 
-				"			default -> { yield 1; }\n" + 
-				"		};\n" + 
-				"	return v == 1 ? v : 0;\n" + 
-				"	}\n" + 
-				"	public static void main(String[] argv) {\n" + 
-				"		System.out.println(new X().foo(0));\n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	public int foo(int i) {\n" +
+				"		@SuppressWarnings(\"preview\")\n" +
+				"		int v =\n" +
+				"			switch(switch(i) {\n" +
+				"					case 0 -> { yield 2; }\n" +
+				"					default -> { yield 3; }\n" +
+				"				}) {\n" +
+				"			case 0 -> { yield 0; }\n" +
+				"			default -> { yield 1; }\n" +
+				"		};\n" +
+				"	return v == 1 ? v : 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] argv) {\n" +
+				"		System.out.println(new X().foo(0));\n" +
+				"	}\n" +
 				"}"
 		},
 		"1");
@@ -2124,7 +2124,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		},
 		"0");
 	}
-	// see comment 12 in the bug 
+	// see comment 12 in the bug
 	public void testBug513766_01() {
 		Runner runner = new Runner();
 		runner.testFiles = new String[] {
@@ -2141,16 +2141,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}\n",
 			};
 		runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	if (switch(i) { default -> magic(); })\n" + 
-			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to boolean\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	if (magic())\n" + 
-			"	    ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Object to boolean\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	if (switch(i) { default -> magic(); })\n" +
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from Object to boolean\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	if (magic())\n" +
+			"	    ^^^^^^^\n" +
+			"Type mismatch: cannot convert from Object to boolean\n" +
 			"----------\n";
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions = JavacHasABug.JavacBug8179483_switchExpression;
@@ -2180,13 +2180,13 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	private static final long serialVersionUID = 3461899582505930473L;	\n"+
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	int v = switch (i) {\n" + 
-			"    		default -> throw new MyException();\n" + 
-			"    	};\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"A switch expression should have at least one result expression\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	int v = switch (i) {\n" +
+			"    		default -> throw new MyException();\n" +
+			"    	};\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"A switch expression should have at least one result expression\n" +
 			"----------\n");
 	}
 	public void testBug544073_071() {
@@ -2195,46 +2195,46 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		String message = 
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	                     ^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
+		String message =
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	                     ^^^^^^^^^^^^\n" +
+				"Dead code\n" +
 				"----------\n";
-		
+
 		this.runWarningTest(new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String [] args) {\n" +
 				"  	 String arg = \"ABD\";\n" +
-				"    switch(arg) {\n" + 
+				"    switch(arg) {\n" +
 				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
 				"	 }\n" +
 				"  }\n" +
 				"}\n"
 			},
-			message, 
+			message,
 			options,
 			"-Xlint:preview");
 	}
 	public void testBug544073_072() {
 		if (this.complianceLevel < ClassFileConstants.JDK12)
 			return;
-		String message = 
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	                     ^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
+		String message =
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	                     ^^^^^^^^^^^^\n" +
+				"Dead code\n" +
 				"----------\n";
-		
+
 		this.runWarningTest(new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String [] args) {\n" +
 				"  	 String arg = \"ABD\";\n" +
-				"    switch(arg) {\n" + 
+				"    switch(arg) {\n" +
 				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
 				"	 }\n" +
 				"  }\n" +
@@ -2249,20 +2249,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		String message = 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Multi constant case is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+		String message =
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Multi constant case is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 				"----------\n";
-		
+
 		this.runNegativeTest(new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String [] args) {\n" +
 				"  	 String arg = \"ABD\";\n" +
-				"    switch(arg) {\n" + 
+				"    switch(arg) {\n" +
 				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
 				"	 }\n" +
 				"  }\n" +
@@ -2341,11 +2341,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	continue;\n" + 
-			"	^^^^^^^^^\n" + 
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	continue;\n" +
+			"	^^^^^^^^^\n" +
+			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_077() {
@@ -2373,75 +2373,75 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	return 2;\n" + 
-			"	^^^^^^^^^\n" + 
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	return 2;\n" +
+			"	^^^^^^^^^\n" +
+			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_078() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	void foo(Day day) {\n" + 
-				"		switch (day) {\n" + 
-				"		case SATURDAY, SUNDAY, SUNDAY:\n" + 
-				"			System.out.println(\"Weekend\");\n" + 
-				"		case MONDAY:\n" + 
+				"public class X {\n" +
+				"	void foo(Day day) {\n" +
+				"		switch (day) {\n" +
+				"		case SATURDAY, SUNDAY, SUNDAY:\n" +
+				"			System.out.println(\"Weekend\");\n" +
+				"		case MONDAY:\n" +
 				"			System.out.println(\"Weekday\");\n" +
-				"		default: \n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"enum Day {\n" + 
-				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" + 
+				"		default: \n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"enum Day {\n" +
+				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	case SATURDAY, SUNDAY, SUNDAY:\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case SATURDAY, SUNDAY, SUNDAY:\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
 			"----------\n");
 	}
 	public void testBug544073_079() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	void foo(Day day) {\n" + 
-				"		switch (day) {\n" + 
-				"		case SATURDAY, SUNDAY, MONDAY:\n" + 
-				"			System.out.println(\"Weekend\");\n" + 
-				"		case MONDAY, SUNDAY:\n" + 
+				"public class X {\n" +
+				"	void foo(Day day) {\n" +
+				"		switch (day) {\n" +
+				"		case SATURDAY, SUNDAY, MONDAY:\n" +
+				"			System.out.println(\"Weekend\");\n" +
+				"		case MONDAY, SUNDAY:\n" +
 				"			System.out.println(\"Weekday\");\n" +
-				"		default: \n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"enum Day {\n" + 
-				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" + 
+				"		default: \n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"enum Day {\n" +
+				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	case SATURDAY, SUNDAY, MONDAY:\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	case MONDAY, SUNDAY:\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
-			"	case MONDAY, SUNDAY:\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case SATURDAY, SUNDAY, MONDAY:\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	case MONDAY, SUNDAY:\n" +
+			"	^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	case MONDAY, SUNDAY:\n" +
+			"	^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
 			"----------\n");
 	}
 	public void testBug544073_80() {
@@ -2488,18 +2488,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	public static void main(String[] args) {\n"+
 					"		System.out.println(X.foo(1));\n"+
 					"	}\n"+
-					"}\n", 
+					"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	case 1 : { break 1; }\n" + 
-				"	                 ^\n" + 
-				"Syntax error on token \"1\", delete this token\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
-				"	default : { break 2; }\n" + 
-				"	                  ^\n" + 
-				"Syntax error on token \"2\", delete this token\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case 1 : { break 1; }\n" +
+				"	                 ^\n" +
+				"Syntax error on token \"1\", delete this token\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	default : { break 2; }\n" +
+				"	                  ^\n" +
+				"Syntax error on token \"2\", delete this token\n" +
 				"----------\n");
 	}
 	public void testBug547891_01() {
@@ -2512,13 +2512,13 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"		yield();\n"+
 					"		X.yield();\n"+
 					"	}\n"+
-					"}\n", 
+					"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	yield();\n" + 
-				"	^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	yield();\n" +
+				"	^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
 				"----------\n");
 	}
 	public void testBug547891_02() {
@@ -2534,19 +2534,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	public static void bar() {\n"+
 				"		Zork();\n"+
 				"	}\n"+
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	yield();\n" + 
-				"	^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
-				"	Zork();\n" + 
-				"	^^^^\n" + 
-				"The method Zork() is undefined for the type X\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	yield();\n" +
+				"	^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2566,18 +2566,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield 1;\n" + 
-				"	^^^^^\n" + 
-				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield 1;\n" +
+				"	^^^^^\n" +
+				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n");
 	}
 	public void testBug547891_04() {
@@ -2592,19 +2592,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield 1;\n" + 
-				"	^^^^^\n" + 
-				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 7)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield 1;\n" +
+				"	^^^^^\n" +
+				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2624,18 +2624,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield y;\n" + 
-				"	^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield y;\n" +
+				"	^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n");
 	}
 	public void testBug547891_06() {
@@ -2650,24 +2650,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield y;\n" + 
-				"	^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	Zork();\n" + 
-				"	^^^^\n" + 
-				"The method Zork() is undefined for the type X\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield y;\n" +
+				"	^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2687,18 +2687,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield y = null;\n" + 
-				"	^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield y = null;\n" +
+				"	^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n");
 	}
 	public void testBug547891_08() {
@@ -2713,24 +2713,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield y = null;\n" + 
-				"	^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	Zork();\n" + 
-				"	^^^^\n" + 
-				"The method Zork() is undefined for the type X\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield y = null;\n" +
+				"	^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2748,13 +2748,13 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n");
 	}
 	public void testBug547891_10() {
@@ -2768,19 +2768,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	Zork();\n" + 
-				"	^^^^\n" + 
-				"The method Zork() is undefined for the type X\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2800,18 +2800,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	new yield();\n" + 
-				"	    ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	new yield();\n" +
+				"	    ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n");
 	}
 	public void testBug547891_12() {
@@ -2826,24 +2826,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	new yield();\n" + 
-				"	    ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	Zork();\n" + 
-				"	^^^^\n" + 
-				"The method Zork() is undefined for the type X\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	new yield();\n" +
+				"	    ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2863,18 +2863,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield[] y;\n" + 
-				"	^^^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 6)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield[] y;\n" +
+				"	^^^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n");
 	}
 	public void testBug547891_14() {
@@ -2889,24 +2889,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
-				"}\n", 
+				"}\n",
 		};
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield[] y;\n" + 
-				"	^^^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	Zork();\n" + 
-				"	^^^^\n" + 
-				"The method Zork() is undefined for the type X\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 7)\n" + 
-				"	class yield {\n" + 
-				"	      ^^^^^\n" + 
-				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	yield[] y;\n" +
+				"	^^^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	class yield {\n" +
+				"	      ^^^^^\n" +
+				"yield is a restricted identifier and cannot be used as type name\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2922,24 +2922,24 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		String message = 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	case 1 -> yield();\n" + 
-				"	          ^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
-				"	case 3 -> {yield yield();}\n" + 
-				"	                 ^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 10)\n" + 
-				"	default -> { yield yield();}\n" + 
-				"	                   ^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+		String message =
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case 1 -> yield();\n" +
+				"	          ^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case 3 -> {yield yield();}\n" +
+				"	                 ^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 10)\n" +
+				"	default -> { yield yield();}\n" +
+				"	                   ^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
 				"----------\n";
-		
+
 		this.runNegativeTest(new String[] {
 				"X.java",
 				"public class X {\n"+
@@ -2975,19 +2975,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		String message = 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 9)\n" + 
-				"	case 3 -> {yield yield();}\n" + 
-				"	                 ^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 11)\n" + 
-				"	default -> { yield yield();}\n" + 
-				"	                   ^^^^^^^\n" + 
-				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+		String message =
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	case 3 -> {yield yield();}\n" +
+				"	                 ^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 11)\n" +
+				"	default -> { yield yield();}\n" +
+				"	                   ^^^^^^^\n" +
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" +
 				"----------\n";
-		
+
 		this.runNegativeTest(new String[] {
 				"X.java",
 				"public class X {\n"+
@@ -3125,14 +3125,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		String message = 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 7)\n" + 
-				"	default -> yield - 1;\n" + 
-				"	           ^^^^^\n" + 
-				"Cannot make a static reference to the non-static field yield\n" + 
+		String message =
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	default -> yield - 1;\n" +
+				"	           ^^^^^\n" +
+				"Cannot make a static reference to the non-static field yield\n" +
 				"----------\n";
-		
+
 		this.runNegativeTest(new String[] {
 				"X.java",
 				"public class X {\n"+
@@ -3432,81 +3432,81 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	@SuppressWarnings(\"nls\")\n" + 
-				"	static final String MONDAY = \"MONDAY\";\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		int num = switch (day) {\n" + 
-				"		case MONDAY: \n" + 
-				"			// Nothing\n" + 
-				"		default:\n" + 
-				"			yield \";     \n" + 
-				"		}; \n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	@SuppressWarnings(\"nls\")\n" +
+				"	static final String MONDAY = \"MONDAY\";\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int num = switch (day) {\n" +
+				"		case MONDAY: \n" +
+				"			// Nothing\n" +
+				"		default:\n" +
+				"			yield \";     \n" +
+				"		}; \n" +
+				"	}\n" +
 				"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	yield \";     \n" + 
-			"	      ^^^^^^^\n" + 
-			"String literal is not properly closed by a double-quote\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	yield \";     \n" +
+			"	      ^^^^^^^\n" +
+			"String literal is not properly closed by a double-quote\n" +
 			"----------\n");
 	}
 	public void testBug551030b() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	@SuppressWarnings(\"nls\")\n" + 
-				"	static final String MONDAY = \"MONDAY\";\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		int num = switch (day) {\n" + 
-				"		case MONDAY: \n" + 
-				"			// Nothing\n" + 
-				"		default:\n" + 
-				"			yield \"\"\";     \n" + 
-				"		}; \n" + 
-				"	}\n" + 
+				"public class X {\n" +
+				"	@SuppressWarnings(\"nls\")\n" +
+				"	static final String MONDAY = \"MONDAY\";\n" +
+				"	public static void main(String[] args) {\n" +
+				"		int num = switch (day) {\n" +
+				"		case MONDAY: \n" +
+				"			// Nothing\n" +
+				"		default:\n" +
+				"			yield \"\"\";     \n" +
+				"		}; \n" +
+				"	}\n" +
 				"}",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	yield \"\"\";     \n" + 
-			"	        ^^^^^^^\n" + 
-			"String literal is not properly closed by a double-quote\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	yield \"\"\";     \n" +
+			"	        ^^^^^^^\n" +
+			"String literal is not properly closed by a double-quote\n" +
 			"----------\n");
 	}
 	public void testBug544943() {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	@SuppressWarnings(\"preview\")\n" + 
-				"	public static int foo(int i) throws MyException {\n" + 
-				"		int v = -1;\n" + 
-				"		try {\n" + 
-				"			v = switch (i) {\n" + 
-				"				case 0 -> switch(i) {\n" + 
-				"							case 0 -> 1;\n" + 
-				"							default -> throw new MyException();\n" + 
-				"						  };\n" + 
-				"				default -> 1;\n" + 
-				"			};\n" + 
-				"		} finally {\n" + 
-				"			// do nothing\n" + 
-				"		}\n" + 
-				"		return v;\n" + 
-				"	} \n" + 
-				"	public static void main(String argv[]) {\n" + 
-				"		try {\n" + 
-				"			System.out.println(X.foo(0));\n" + 
-				"		} catch (MyException e) {\n" + 
-				"			e.printStackTrace();\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"class MyException extends Exception {\n" + 
-				"	private static final long serialVersionUID = 3461899582505930473L;	\n" + 
+				"public class X {\n" +
+				"	@SuppressWarnings(\"preview\")\n" +
+				"	public static int foo(int i) throws MyException {\n" +
+				"		int v = -1;\n" +
+				"		try {\n" +
+				"			v = switch (i) {\n" +
+				"				case 0 -> switch(i) {\n" +
+				"							case 0 -> 1;\n" +
+				"							default -> throw new MyException();\n" +
+				"						  };\n" +
+				"				default -> 1;\n" +
+				"			};\n" +
+				"		} finally {\n" +
+				"			// do nothing\n" +
+				"		}\n" +
+				"		return v;\n" +
+				"	} \n" +
+				"	public static void main(String argv[]) {\n" +
+				"		try {\n" +
+				"			System.out.println(X.foo(0));\n" +
+				"		} catch (MyException e) {\n" +
+				"			e.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"class MyException extends Exception {\n" +
+				"	private static final long serialVersionUID = 3461899582505930473L;	\n" +
 				"}"
 			},
 			"1");
@@ -3515,22 +3515,22 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"public class X {\n" + 
-				"	@SuppressWarnings({ \"preview\" })\n" + 
-				"	public static int foo(int i) throws Exception {\n" + 
-				"		int v = switch (i) {\n" + 
-				"			case 0 -> switch (i) {\n" + 
-				"				case 0 -> 0;\n" + 
-				"				default-> throw new Exception();\n" + 
-				"				case 3 -> 3;\n" + 
-				"				case 2 -> throw new Exception();\n" + 
-				"				};\n" + 
-				"			default -> 0;\n" + 
-				"		};\n" + 
-				"		return v;\n" + 
-				"	}\n" + 
-				"	public static void main(String argv[]) throws Exception {\n" + 
-				"		System.out.println(X.foo(1));\n" + 
+				"public class X {\n" +
+				"	@SuppressWarnings({ \"preview\" })\n" +
+				"	public static int foo(int i) throws Exception {\n" +
+				"		int v = switch (i) {\n" +
+				"			case 0 -> switch (i) {\n" +
+				"				case 0 -> 0;\n" +
+				"				default-> throw new Exception();\n" +
+				"				case 3 -> 3;\n" +
+				"				case 2 -> throw new Exception();\n" +
+				"				};\n" +
+				"			default -> 0;\n" +
+				"		};\n" +
+				"		return v;\n" +
+				"	}\n" +
+				"	public static void main(String argv[]) throws Exception {\n" +
+				"		System.out.println(X.foo(1));\n" +
 				"	}\n" +
 				"}"
 			},
@@ -3555,11 +3555,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	default -> 3;\n" + 
-				"	^^^^^^^\n" + 
-				"Arrow in case statement supported from Java 14 onwards only\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	default -> 3;\n" +
+				"	^^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -3586,18 +3586,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	return switch (i) {\n" + 
-				"			default -> 3;\n" + 
-				"		};\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Switch Expressions are supported from Java 14 onwards only\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	default -> 3;\n" + 
-				"	^^^^^^^\n" + 
-				"Arrow in case statement supported from Java 14 onwards only\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	return switch (i) {\n" +
+				"			default -> 3;\n" +
+				"		};\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Switch Expressions are supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	default -> 3;\n" +
+				"	^^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -3626,11 +3626,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	case 1, 2 : break;\n" + 
-				"	^^^^^^^^^\n" + 
-				"Multi-constant case labels supported from Java 14 onwards only\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case 1, 2 : break;\n" +
+				"	^^^^^^^^^\n" +
+				"Multi-constant case labels supported from Java 14 onwards only\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -3662,11 +3662,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	break LABEL; // NO error flagged\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"Breaking out of switch expressions not permitted\n" + 
+			},	"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	break LABEL; // NO error flagged\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Breaking out of switch expressions not permitted\n" +
 			"----------\n");
 	}
 	public void testBug558067_002() {
@@ -3698,16 +3698,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"} \n"
-			},	"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	break LABEL;\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"Breaking out of switch expressions not permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 17)\n" + 
-			"	case 2: for(;;) break TOP;\n" + 
-			"	                ^^^^^^^^^^\n" + 
-			"Breaking out of switch expressions not permitted\n" + 
+			},	"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	break LABEL;\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Breaking out of switch expressions not permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 17)\n" +
+			"	case 2: for(;;) break TOP;\n" +
+			"	                ^^^^^^^^^^\n" +
+			"Breaking out of switch expressions not permitted\n" +
 			"----------\n");
 	}
 	public void testBug558067_003() {
@@ -3733,11 +3733,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	continue LABEL;\n" + 
-			"	^^^^^^^^^^^^^^^\n" + 
-			"Continue out of switch expressions not permitted\n" + 
+			},	"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	continue LABEL;\n" +
+			"	^^^^^^^^^^^^^^^\n" +
+			"Continue out of switch expressions not permitted\n" +
 			"----------\n");
 	}
 	public void testBug558067_004() {
@@ -3765,11 +3765,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	break LABEL;\n" + 
-			"	^^^^^^^^^^^^\n" + 
-			"Breaking out of switch expressions not permitted\n" + 
+			},	"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	break LABEL;\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Breaking out of switch expressions not permitted\n" +
 			"----------\n");
 	}
 	public void testBug558067_005() {
@@ -3797,11 +3797,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	continue LABEL;\n" + 
-			"	^^^^^^^^^^^^^^^\n" + 
-			"Continue out of switch expressions not permitted\n" + 
+			},	"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	continue LABEL;\n" +
+			"	^^^^^^^^^^^^^^^\n" +
+			"Continue out of switch expressions not permitted\n" +
 			"----------\n");
 	}
 		public void testConversion1() {
@@ -3810,26 +3810,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	 public static int i = 0;\n" +
-						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
-						"    private static String typeName(char arg){ return \"char\"; }\n" + 
-						"    private static String typeName(short arg){ return \"short\"; }\n" + 
-						"    private static String typeName(int arg){ return \"int\"; }\n" + 
-						"    private static String typeName(float arg){ return \"float\"; }\n" + 
-						"    private static String typeName(long arg){ return \"long\"; }\n" + 
-						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" +
+						"    private static String typeName(char arg){ return \"char\"; }\n" +
+						"    private static String typeName(short arg){ return \"short\"; }\n" +
+						"    private static String typeName(int arg){ return \"int\"; }\n" +
+						"    private static String typeName(float arg){ return \"float\"; }\n" +
+						"    private static String typeName(long arg){ return \"long\"; }\n" +
+						"    private static String typeName(double arg){ return \"double\"; }\n" +
 						"    private static String typeName(String arg){ return \"String\"; }\n" +
 						"		public static void main(String[] args) {\n" +
-						"		 byte v1 = (byte)0;\n" + 
-						"        char v2 = ' ';\n" + 
-						"        var v = switch(i+1){\n" + 
-						"                    case 1 -> v2;\n" + 
-						"                    case 5 -> v1;\n" + 
-						"                    default -> v2;\n" + 
-						"        };\n" + 
+						"		 byte v1 = (byte)0;\n" +
+						"        char v2 = ' ';\n" +
+						"        var v = switch(i+1){\n" +
+						"                    case 1 -> v2;\n" +
+						"                    case 5 -> v1;\n" +
+						"                    default -> v2;\n" +
+						"        };\n" +
 						"        System.out.print(typeName(v));\n" +
 						"	}\n" +
 						"}\n"
-				}, 
+				},
 				"int");
 	}
 	public void testConversion2() {
@@ -3838,26 +3838,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	 public static int i = 0;\n" +
-						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
-						"    private static String typeName(char arg){ return \"char\"; }\n" + 
-						"    private static String typeName(short arg){ return \"short\"; }\n" + 
-						"    private static String typeName(int arg){ return \"int\"; }\n" + 
-						"    private static String typeName(float arg){ return \"float\"; }\n" + 
-						"    private static String typeName(long arg){ return \"long\"; }\n" + 
-						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" +
+						"    private static String typeName(char arg){ return \"char\"; }\n" +
+						"    private static String typeName(short arg){ return \"short\"; }\n" +
+						"    private static String typeName(int arg){ return \"int\"; }\n" +
+						"    private static String typeName(float arg){ return \"float\"; }\n" +
+						"    private static String typeName(long arg){ return \"long\"; }\n" +
+						"    private static String typeName(double arg){ return \"double\"; }\n" +
 						"    private static String typeName(String arg){ return \"String\"; }\n" +
 						"		public static void main(String[] args) {\n" +
-						"		 long v1 = 0L;\n" + 
-						"        double v2 = 0.;\n" + 
-						"        var v = switch(i+1){\n" + 
-						"                    case 1 -> v2;\n" + 
-						"                    case 5 -> v1;\n" + 
-						"                    default -> v2;\n" + 
-						"        };\n" + 
+						"		 long v1 = 0L;\n" +
+						"        double v2 = 0.;\n" +
+						"        var v = switch(i+1){\n" +
+						"                    case 1 -> v2;\n" +
+						"                    case 5 -> v1;\n" +
+						"                    default -> v2;\n" +
+						"        };\n" +
 						"        System.out.print(typeName(v));\n" +
 						"	}\n" +
 						"}\n"
-				}, 
+				},
 				"double");
 	}
 	public void testConversion3() {
@@ -3866,26 +3866,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	 public static int i = 0;\n" +
-						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
-						"    private static String typeName(char arg){ return \"char\"; }\n" + 
-						"    private static String typeName(short arg){ return \"short\"; }\n" + 
-						"    private static String typeName(int arg){ return \"int\"; }\n" + 
-						"    private static String typeName(float arg){ return \"float\"; }\n" + 
-						"    private static String typeName(long arg){ return \"long\"; }\n" + 
-						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" +
+						"    private static String typeName(char arg){ return \"char\"; }\n" +
+						"    private static String typeName(short arg){ return \"short\"; }\n" +
+						"    private static String typeName(int arg){ return \"int\"; }\n" +
+						"    private static String typeName(float arg){ return \"float\"; }\n" +
+						"    private static String typeName(long arg){ return \"long\"; }\n" +
+						"    private static String typeName(double arg){ return \"double\"; }\n" +
 						"    private static String typeName(String arg){ return \"String\"; }\n" +
 						"		public static void main(String[] args) {\n" +
-						"		 long v1 = 0L;\n" + 
-						"        float v2 = 0.f;\n" + 
-						"        var v = switch(i+1){\n" + 
-						"                    case 1 -> v2;\n" + 
-						"                    case 5 -> v1;\n" + 
-						"                    default -> v2;\n" + 
-						"        };\n" + 
+						"		 long v1 = 0L;\n" +
+						"        float v2 = 0.f;\n" +
+						"        var v = switch(i+1){\n" +
+						"                    case 1 -> v2;\n" +
+						"                    case 5 -> v1;\n" +
+						"                    default -> v2;\n" +
+						"        };\n" +
 						"        System.out.print(typeName(v));\n" +
 						"	}\n" +
 						"}\n"
-				}, 
+				},
 				"float");
 	}
 	public void testConversion4() {
@@ -3894,26 +3894,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	 public static int i = 0;\n" +
-						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
-						"    private static String typeName(char arg){ return \"char\"; }\n" + 
-						"    private static String typeName(short arg){ return \"short\"; }\n" + 
-						"    private static String typeName(int arg){ return \"int\"; }\n" + 
-						"    private static String typeName(float arg){ return \"float\"; }\n" + 
-						"    private static String typeName(long arg){ return \"long\"; }\n" + 
-						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" +
+						"    private static String typeName(char arg){ return \"char\"; }\n" +
+						"    private static String typeName(short arg){ return \"short\"; }\n" +
+						"    private static String typeName(int arg){ return \"int\"; }\n" +
+						"    private static String typeName(float arg){ return \"float\"; }\n" +
+						"    private static String typeName(long arg){ return \"long\"; }\n" +
+						"    private static String typeName(double arg){ return \"double\"; }\n" +
 						"    private static String typeName(String arg){ return \"String\"; }\n" +
 						"		public static void main(String[] args) {\n" +
-						"		 short v1 = 0;\n" + 
-						"        char v2 = ' ';\n" + 
-						"        var v = switch(i+1){\n" + 
-						"                    case 1 -> v2;\n" + 
-						"                    case 5 -> v1;\n" + 
-						"                    default -> v2;\n" + 
-						"        };\n" + 
+						"		 short v1 = 0;\n" +
+						"        char v2 = ' ';\n" +
+						"        var v = switch(i+1){\n" +
+						"                    case 1 -> v2;\n" +
+						"                    case 5 -> v1;\n" +
+						"                    default -> v2;\n" +
+						"        };\n" +
 						"        System.out.print(typeName(v));\n" +
 						"	}\n" +
 						"}\n"
-				}, 
+				},
 				"int");
 	}
 	public void testConversion5() {
@@ -3922,23 +3922,23 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	 public static int i = 0;\n" +
-						"    private static String typeName(char arg){ return \"char\"; }\n" + 
-						"    private static String typeName(int arg){ return \"int\"; }\n" + 
-						"    private static String typeName(float arg){ return \"float\"; }\n" + 
-						"    private static String typeName(long arg){ return \"long\"; }\n" + 
-						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"    private static String typeName(char arg){ return \"char\"; }\n" +
+						"    private static String typeName(int arg){ return \"int\"; }\n" +
+						"    private static String typeName(float arg){ return \"float\"; }\n" +
+						"    private static String typeName(long arg){ return \"long\"; }\n" +
+						"    private static String typeName(double arg){ return \"double\"; }\n" +
 						"    private static String typeName(String arg){ return \"String\"; }\n" +
 						"		public static void main(String[] args) {\n" +
-						"		 char v1 = 'a';\n" + 
-						"        var v = switch(i+1){\n" + 
-						"                    case 1 -> 200;\n" + 
-						"                    case 5 -> v1;\n" + 
-						"                    default -> v1;\n" + 
-						"        };\n" + 
+						"		 char v1 = 'a';\n" +
+						"        var v = switch(i+1){\n" +
+						"                    case 1 -> 200;\n" +
+						"                    case 5 -> v1;\n" +
+						"                    default -> v1;\n" +
+						"        };\n" +
 						"        System.out.print(typeName(v));\n" +
 						"	}\n" +
 						"}\n"
-				}, 
+				},
 				"char");
 	}
 }

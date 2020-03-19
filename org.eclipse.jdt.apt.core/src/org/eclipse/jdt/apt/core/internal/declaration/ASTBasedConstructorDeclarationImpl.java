@@ -19,24 +19,24 @@ import com.sun.mirror.declaration.ConstructorDeclaration;
 
 import com.sun.mirror.util.DeclarationVisitor;
 
-public class ASTBasedConstructorDeclarationImpl 
-	extends ASTBasedExecutableDeclarationImpl 
+public class ASTBasedConstructorDeclarationImpl
+	extends ASTBasedExecutableDeclarationImpl
 	implements ConstructorDeclaration{
-	
+
 	public ASTBasedConstructorDeclarationImpl(
-			final org.eclipse.jdt.core.dom.BodyDeclaration astNode, 
+			final org.eclipse.jdt.core.dom.BodyDeclaration astNode,
 			final IFile file,
 			final BaseProcessorEnv env)
 	{
 		super(astNode, file, env);
 	}
-	
+
 	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitConstructorDeclaration(this);
     }
-    
+
     @Override
 	public MirrorKind kind(){ return MirrorKind.CONSTRUCTOR; }
 }

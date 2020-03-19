@@ -59,7 +59,7 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 	// Mapping of external local variables
 	char[][] localVarNames;
 	char[][] localVarTypeNames;
-	
+
 	long complianceVersion;
 
 /**

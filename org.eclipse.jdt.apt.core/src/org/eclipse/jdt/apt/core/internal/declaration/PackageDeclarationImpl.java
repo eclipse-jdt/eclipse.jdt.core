@@ -44,40 +44,40 @@ import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
 
 public class PackageDeclarationImpl extends DeclarationImpl implements PackageDeclaration
-{   
+{
 	// If this package came from directly requesting it via the environment,
 	// need to hide the source position, as this is an artifact of our implementation
 	private final boolean _hideSourcePosition;
-	
+
 	/** The back-pointer to the type declaration that created this package declaration
 	 * @see TypeDeclarationImpl#getPackage()
 	 */
 	private final TypeDeclarationImpl _typeDecl;
-	
+
 	// Lazily initialized unless specified in constructor.
 	private IPackageFragment[] _pkgFragments = null;
-	
+
     public PackageDeclarationImpl(
-			final IPackageBinding binding, 
-			final TypeDeclarationImpl typeDecl, 
+			final IPackageBinding binding,
+			final TypeDeclarationImpl typeDecl,
 			final BaseProcessorEnv env,
 			final boolean hideSourcePosition)
     {
-        this(binding, 
-        	 typeDecl, 
-        	 env, 
-        	 hideSourcePosition, 
+        this(binding,
+        	 typeDecl,
+        	 env,
+        	 hideSourcePosition,
         	 null);
     }
-    
+
     public PackageDeclarationImpl(
-			final IPackageBinding binding, 
-			final TypeDeclarationImpl typeDecl, 
+			final IPackageBinding binding,
+			final TypeDeclarationImpl typeDecl,
 			final BaseProcessorEnv env,
 			final boolean hideSourcePosition,
 			final IPackageFragment[] pkgFragments)
     {
-        super(binding, env);   
+        super(binding, env);
 		_typeDecl = typeDecl;
 		_hideSourcePosition = hideSourcePosition;
 		_pkgFragments = pkgFragments;
@@ -90,7 +90,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     {
         visitor.visitPackageDeclaration(this);
     }
-    
+
     @Override
 	public <A extends Annotation> A getAnnotation(Class<A> anno)
     {
@@ -99,7 +99,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 
     @Override
 	public Collection<AnnotationMirror> getAnnotationMirrors()
-    {	
+    {
 		return _getAnnotationMirrors(getPackageBinding().getAnnotations());
     }
 
@@ -107,7 +107,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	public Collection<AnnotationTypeDeclaration> getAnnotationTypes()
     {
 		// jdt currently have no support for package declaration.
-		return Collections.emptyList();	
+		return Collections.emptyList();
     }
 
     @Override
@@ -120,14 +120,14 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 				// isClass() will return true if TypeDeclaration is an InterfaceDeclaration
 				if (type.isClass()) {
 					TypeDeclaration td = _env.getTypeDeclaration( type );
-					if ( td instanceof ClassDeclaration ) {				
+					if ( td instanceof ClassDeclaration ) {
 						classes.add((ClassDeclaration)td);
 					}
 				}
 			}
 			catch (JavaModelException ex) {} // No longer exists, don't return it
 		}
-		
+
 		return classes;
     }
 
@@ -144,7 +144,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			}
 			catch (JavaModelException ex) {} // No longer exists, don't return it
 		}
-		
+
 		return enums;
     }
 
@@ -161,7 +161,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			}
 			catch (JavaModelException ex) {} // No longer exists, don't return it
 		}
-		
+
 		return interfaces;
     }
 
@@ -187,22 +187,22 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			final CompilationUnit unit = _typeDecl.getCompilationUnit();
 			final ASTNode node = unit.findDeclaringNode(getDeclarationBinding());
 			if( node == null ) return null;
-			final int start = node.getStartPosition();			
+			final int start = node.getStartPosition();
 	        return new SourcePositionImpl(start,
 										  node.getLength(),
 	                                      unit.getLineNumber(start),
 	                                      unit.getColumnNumber(start),
-	                                      this);			
+	                                      this);
 		}
 		return null;
-        
+
     }
 
     @Override
 	public String getQualifiedName()
     {
 		return getPackageBinding().getName();
-    }   
+    }
 
     @Override
 	public String getSimpleName()
@@ -218,13 +218,13 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 
     @Override
 	public String toString(){ return getQualifiedName(); }
-	
+
 	@Override
 	public IPackageBinding getDeclarationBinding(){ return (IPackageBinding)_binding; }
 
 	@Override
 	public boolean isFromSource(){ return _typeDecl != null && _typeDecl.isFromSource(); }
-	
+
 	/**
 	 * Make sure to call this before attempting to access _pkgFragments.
 	 * We initialize this field lazily, because it is very expensive to compute and
@@ -236,7 +236,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 			_pkgFragments = PackageUtil.getPackageFragments(_binding.getName(), _env);
 		}
 	}
-	
+
 	private static List<IType> getTypesInPackage(final IPackageFragment[] fragments) {
 		List<IType> types = new ArrayList<>();
 		try {
@@ -262,5 +262,5 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		}
 		return types;
 	}
-   
+
 }

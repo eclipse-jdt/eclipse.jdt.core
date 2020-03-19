@@ -73,7 +73,7 @@ public interface IComponentInfo {
 	 * Returns an empty collection if none
 	 */
 	IClassFileAttribute[] getAttributes();
-	
+
 	/**
 	 * Answer back the total size
 	 * @return the size of the component info

@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 public class InMemoryNameEnvironment9 extends InMemoryNameEnvironment implements IModuleAwareNameEnvironment {
-	
+
 	Map<String, IModule> moduleMap = new HashMap<>();
 
 	public InMemoryNameEnvironment9(String[] compilationUnits, Map<String, IModule> moduleMap, INameEnvironment[] classLibs) {
@@ -44,13 +44,13 @@ public class InMemoryNameEnvironment9 extends InMemoryNameEnvironment implements
 		}
 		return null;
 	}
-	
+
 	protected <T> T[] collect(Function<IModuleAwareNameEnvironment, T[]> function, Function<Integer,T[]> arraySupplier) {
 		Set<T> mods = new HashSet<>();
 		for (int i = 0; i < this.classLibs.length; i++) {
 			INameEnvironment env = this.classLibs[i];
 			if (env instanceof IModuleAwareNameEnvironment) {
-				T[] someMods = function.apply((IModuleAwareNameEnvironment) env); 
+				T[] someMods = function.apply((IModuleAwareNameEnvironment) env);
 				if (someMods != null) {
 					for (int j = 0; j < someMods.length; j++)
 						mods.add(someMods[j]);

@@ -368,11 +368,11 @@ public void testRenameCU2() throws CoreException {
 
 	assertDeltas(
 		"Unexpected deltas",
-		"P[*]: {CHILDREN}\n" + 
-				"	src[*]: {CHILDREN}\n" + 
-				"		<default>[*]: {CHILDREN}\n" + 
-				"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" + 
-				"			Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+		"P[*]: {CHILDREN}\n" +
+				"	src[*]: {CHILDREN}\n" +
+				"		<default>[*]: {CHILDREN}\n" +
+				"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" +
+				"			Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}\n" +
 				"				Y[+]: {MOVED_FROM(X [in X.java [in <default> [in src [in P]]]])}"
 	);
 }

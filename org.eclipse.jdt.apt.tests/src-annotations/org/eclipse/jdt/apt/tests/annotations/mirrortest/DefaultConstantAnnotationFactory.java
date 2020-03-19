@@ -22,7 +22,7 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class DefaultConstantAnnotationFactory extends BaseFactory{
-	
+
 	public DefaultConstantAnnotationFactory(){
 		super("test.Trigger");
 	}

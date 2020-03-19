@@ -145,7 +145,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * </p>
  * <p>Note: An empty signature is considered to be syntactically incorrect. So most methods will throw
  * an IllegalArgumentException if an empty signature is provided.</p>
- * 
+ *
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -407,7 +407,7 @@ public final class Signature {
 	 * Value is <code>"Z"</code>.
 	 */
 	public static final String SIG_BOOLEAN 		= "Z"; //$NON-NLS-1$
-	
+
 	/**
 	 * String constant for the signature of the primitive type byte.
 	 * Value is <code>"B"</code>.
@@ -1102,7 +1102,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 
 /**
  * Creates a new intersection type signature from the given type signatures.
- * 
+ *
  * <p>The encoded type signature is dot-based.</p>
  *
  * @param typeSignatures the given type signatures
@@ -1122,7 +1122,7 @@ public static String createIntersectionTypeSignature(char[][] typeSignatures) {
 }
 /**
  * Creates a new union type signature from the given type signatures.
- * 
+ *
  * <p>The encoded type signature is dot-based.</p>
  *
  * @param typeSignatures the given type signatures
@@ -1143,7 +1143,7 @@ private static String createUnionTypeSignature(char[][] typeSignatures) {
 
 /**
  * Creates a new intersection type signature from the given type signatures.
- * 
+ *
  * <p>The encoded type signature is dot-based.</p>
  *
  * @param typeSignatures the given type signatures
@@ -1160,7 +1160,7 @@ public static String createIntersectionTypeSignature(String[] typeSignatures) {
 }
 /**
  * Creates a new union type signature from the given type signatures.
- * 
+ *
  * <p>The encoded type signature is dot-based.</p>
  *
  * @param typeSignatures the given type signatures

@@ -46,7 +46,7 @@ public class ModelTests extends TestBase
 	public static Test suite() {
 		return new TestSuite(ModelTests.class);
 	}
-	
+
 	/**
 	 * Call ModelTesterProc.testFieldType(), which checks the type of a field
 	 */
@@ -56,14 +56,14 @@ public class ModelTests extends TestBase
 		disableJava5Factories(jproj);
 		IProject proj = jproj.getProject();
 		IPath projPath = proj.getFullPath();
-		
-		env.addClass(projPath.append("src"), 
+
+		env.addClass(projPath.append("src"),
 				ModelTesterProc.TEST_FIELD_TYPE_PKG,
 				ModelTesterProc.TEST_FIELD_TYPE_CLASS,
 				ModelTesterProc.TEST_FIELD_TYPE_SOURCE);
-		
+
 		AptConfig.setEnabled(jproj, true);
-		
+
 		fullBuild();
 		expectingNoProblems();
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
@@ -79,22 +79,22 @@ public class ModelTests extends TestBase
 		disableJava5Factories(jproj);
 		IProject proj = jproj.getProject();
 		IPath projPath = proj.getFullPath();
-		
-		env.addClass(projPath.append("src"), 
+
+		env.addClass(projPath.append("src"),
 				ModelTesterProc.TEST_METHOD_TYPE_PKG,
 				ModelTesterProc.TEST_METHOD_TYPE_CLASS,
 				ModelTesterProc.TEST_METHOD_TYPE_SOURCE);
-		
+
 		AptConfig.setEnabled(jproj, true);
-		
+
 		fullBuild();
 		expectingNoProblems();
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
-	}	
+	}
 	/**
 	 * Test whether problems with severity Info are flagged accordingly.
-	 * 
+	 *
 	 * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83548
 	 */
 	public void testInfoProblems() throws Throwable {

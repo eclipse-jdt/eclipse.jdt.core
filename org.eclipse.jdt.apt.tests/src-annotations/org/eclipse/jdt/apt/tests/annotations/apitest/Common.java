@@ -7,14 +7,14 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.apitest;
 
-/** 
- * This annotation will trigger the {@link APIAnnotationProcessorFactory}  
+/**
+ * This annotation will trigger the {@link APIAnnotationProcessorFactory}
  */
 public @interface Common {
 

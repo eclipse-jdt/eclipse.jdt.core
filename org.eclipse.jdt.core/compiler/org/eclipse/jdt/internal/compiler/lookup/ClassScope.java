@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *     						Bug 328281 - visibility leaks not detected when analyzing unused field in private class
  *     						Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
  *     						Bug 354536 - compiling package-info.java still depends on the order of compilation units
@@ -397,7 +397,7 @@ public class ClassScope extends Scope {
 			}
 			FieldBinding[] fields = sourceType.unResolvedFields(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=301683
 			for (int i = 0; i < fields.length; i++) {
-				fields[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;	
+				fields[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 			}
 		}
 		if (isEnum && compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
@@ -431,13 +431,13 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		sourceType.module = module();
 		environment().setAccessRestriction(sourceType, accessRestriction);
-		
+
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
 		sourceType.typeVariables = typeParameters == null || typeParameters.length == 0 ? Binding.NO_TYPE_VARIABLES : null;
 		sourceType.fPackage.addType(sourceType);
 		checkAndSetModifiers();
 		buildTypeVariables();
-		
+
 		buildMemberTypes(accessRestriction);
 		return sourceType;
 	}
@@ -513,7 +513,7 @@ public class ClassScope extends Scope {
 				switch (scope.kind) {
 					case METHOD_SCOPE :
 						MethodScope methodScope = (MethodScope) scope;
-						if (methodScope.isLambdaScope()) 
+						if (methodScope.isLambdaScope())
 							methodScope = methodScope.namedMethodScope();
 						if (methodScope.isInsideInitializer()) {
 							SourceTypeBinding type = ((TypeDeclaration) methodScope.referenceContext).binding;
@@ -676,19 +676,19 @@ public class ClassScope extends Scope {
 					problemReporter().illegalModifierForRecord(sourceType);
 			}
 			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
-			
+
 			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
 			 * It is a compile-time error if a record declaration has the modifier abstract.
-			 * 
+			 *
 			 * A record declaration is implicitly final. It is permitted for the declaration of a record type
 			 * to redundantly specify the final modifier.
-			 * 
+			 *
 			 * A nested record type is implicitly static. It is permitted for the declaration of a nested record
 			 * type to redundantly specify the static modifier.
-			 * 
+			 *
 			 * This implies that it is impossible to declare a record type in the body of an inner class (8.1.3),
 			 * because an inner class cannot have static members except for constant variables.
-			 * 
+			 *
 			 * It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration,
 			 * or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
 			 */
@@ -793,7 +793,7 @@ public class ClassScope extends Scope {
 			// set the modifiers
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=267670. Force all enumerators to be marked
 			// as used locally. We are unable to track the usage of these reliably as they could be used
-			// in non obvious ways via the synthesized methods values() and valueOf(String) or by using 
+			// in non obvious ways via the synthesized methods values() and valueOf(String) or by using
 			// Enum.valueOf(Class<T>, String).
 			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum | ExtraCompilerModifiers.AccLocallyUsed;
 			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
@@ -1267,7 +1267,7 @@ public class ClassScope extends Scope {
 			return detectHierarchyCycle(this.referenceContext.binding, (ReferenceBinding) superType, reference);
 		}
 		// Reinstate the code deleted by the fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=205235
-		// For details, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057. 
+		// For details, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=294057.
 		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0 && superType instanceof SourceTypeBinding)
 			// ensure if this is a source superclass that it has already been checked
 			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
@@ -1303,7 +1303,7 @@ public class ClassScope extends Scope {
 			// force its superclass & superinterfaces to be found... 2 possibilities exist - the source type is included in the hierarchy of:
 			//		- a binary type... this case MUST be caught & reported here
 			//		- another source type... this case is reported against the other source type
-			if (superType.problemId() != ProblemReasons.NotFound && (superType.tagBits & TagBits.HierarchyHasProblems) != 0) { 
+			if (superType.problemId() != ProblemReasons.NotFound && (superType.tagBits & TagBits.HierarchyHasProblems) != 0) {
 				sourceType.tagBits |= TagBits.HierarchyHasProblems;
 				problemReporter().hierarchyHasProblems(sourceType);
 				return true;
@@ -1366,7 +1366,7 @@ public class ClassScope extends Scope {
 			if (ref != null && ref.resolvedType == null) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885 Don't cry foul prematurely.
 				// Check the edges traversed to see if there really is a cycle.
-				char [] referredName = ref.getLastToken(); 
+				char [] referredName = ref.getLastToken();
 				for (Iterator iter = environment().typesBeingConnected.iterator(); iter.hasNext();) {
 					SourceTypeBinding type = (SourceTypeBinding) iter.next();
 					if (CharOperation.equals(referredName, type.sourceName())) {
@@ -1464,7 +1464,7 @@ public class ClassScope extends Scope {
 		}
 		return this.parent.checkRedundantDefaultNullness(nullBits, sourceStart);
 	}
-	
+
 	@Override
 	public String toString() {
 		if (this.referenceContext != null)

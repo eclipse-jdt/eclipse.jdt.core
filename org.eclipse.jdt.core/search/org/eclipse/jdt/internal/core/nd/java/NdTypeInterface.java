@@ -36,7 +36,7 @@ public class NdTypeInterface extends NdNode {
 		IMPLEMENTS = FieldManyToOne.create(type, NdTypeSignature.IMPLEMENTATIONS);
 		type.done();
 	}
-	
+
 	public NdTypeInterface(Nd nd, long address) {
 		super(nd, address);
 	}

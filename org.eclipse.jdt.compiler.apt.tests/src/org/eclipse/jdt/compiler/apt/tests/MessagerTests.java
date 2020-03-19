@@ -34,7 +34,7 @@ import junit.framework.TestCase;
  * @since 3.3
  */
 public class MessagerTests extends TestCase {
-	
+
 	public final class DiagnosticReport<S> implements DiagnosticListener<S> {
 		public int count;
 		public StringBuffer buffer;
@@ -69,7 +69,7 @@ public class MessagerTests extends TestCase {
 
 	/**
 	 * Validate the testMessager test against the javac compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testMessagerWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -86,7 +86,7 @@ public class MessagerTests extends TestCase {
 
 	/**
 	 * Attempt to report errors on various elements, using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testMessagerWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -118,7 +118,7 @@ public class MessagerTests extends TestCase {
 
 		// Invoke processing by compiling the targets.errors resources
 		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener);
-		
+
 		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
 
 		// If it succeeded, the processor will have set this property to "succeeded";
@@ -136,5 +136,5 @@ public class MessagerTests extends TestCase {
 		System.clearProperty(MESSAGERPROCNAME);
 		super.tearDown();
 	}
-	
+
 }

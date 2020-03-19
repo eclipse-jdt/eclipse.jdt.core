@@ -78,7 +78,7 @@ public class JavaModelCache {
 	 * Cache of open children of openable Java Model Java elements
 	 */
 	protected Map<IJavaElement, Object> childrenCache;
-	
+
 	/**
 	 * Cache of access rules
 	 */

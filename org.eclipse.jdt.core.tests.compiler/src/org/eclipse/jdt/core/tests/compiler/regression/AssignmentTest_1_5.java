@@ -48,19 +48,19 @@ public void test1() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		double test = 47d;\n" + 
-			"		value += test;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		double test = 47d;\n" +
+			"		value += test;\n" +
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	value += test;\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The operator += is undefined for the argument type(s) Integer, double\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	value += test;\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The operator += is undefined for the argument type(s) Integer, double\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
@@ -68,19 +68,19 @@ public void test2() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		float test = 47f;\n" + 
-			"		value += test;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		float test = 47f;\n" +
+			"		value += test;\n" +
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	value += test;\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The operator += is undefined for the argument type(s) Integer, float\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	value += test;\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The operator += is undefined for the argument type(s) Integer, float\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
@@ -88,13 +88,13 @@ public void test3() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		byte test = 47;\n" + 
-			"		value += test;\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		byte test = 47;\n" +
+			"		value += test;\n" +
 			"		System.out.println(value);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		},
 		"4758");
@@ -104,13 +104,13 @@ public void test4() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		char test = 'a';\n" + 
-			"		value += test;\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		char test = 'a';\n" +
+			"		value += test;\n" +
 			"		System.out.println(value);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		},
 		"4808");
@@ -120,20 +120,20 @@ public void test5() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		long test = 100L;\n" + 
-			"		value += test;\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		long test = 100L;\n" +
+			"		value += test;\n" +
 			"		System.out.println(value);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	value += test;\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The operator += is undefined for the argument type(s) Integer, long\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	value += test;\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The operator += is undefined for the argument type(s) Integer, long\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
@@ -141,20 +141,20 @@ public void test6() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		boolean test = true;\n" + 
-			"		value += test;\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		boolean test = true;\n" +
+			"		value += test;\n" +
 			"		System.out.println(value);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	value += test;\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The operator += is undefined for the argument type(s) int, boolean\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	value += test;\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The operator += is undefined for the argument type(s) int, boolean\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
@@ -162,13 +162,13 @@ public void test7() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		short test = 32767;\n" + 
-			"		value += test;\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		short test = 32767;\n" +
+			"		value += test;\n" +
 			"		System.out.println(value);\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		},
 		"37478");
@@ -178,12 +178,12 @@ public void test8() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		int x = -8;\n" + 
-			"		x += 7.8f;\n" + 
-			"		System.out.println(x == 0 ? \"SUCCESS\" : \"FAILED\");\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int x = -8;\n" +
+			"		x += 7.8f;\n" +
+			"		System.out.println(x == 0 ? \"SUCCESS\" : \"FAILED\");\n" +
+			"	}\n" +
 			"}",
 		},
 		"SUCCESS");
@@ -231,22 +231,22 @@ public void test11() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String args[]) { \n" + 
-			"		Long _long = new Long(44);\n" + 
-			"		byte b = (byte) 1;\n" + 
-			"		char c = (char) 2;\n" + 
-			"		short s = (short) 32767;\n" + 
-			"		int i = 10;\n" + 
-			"		long l = 80L;\n" + 
-			"		_long >>>= b;\n" + 
-			"		_long <<= c;\n" + 
-			"		_long >>= s;\n" + 
-			"		_long >>>= i;\n" + 
-			"		_long = 77l;\n" + 
-			"		_long <<= l;\n" + 
-			"		System.out.println(_long);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String args[]) { \n" +
+			"		Long _long = new Long(44);\n" +
+			"		byte b = (byte) 1;\n" +
+			"		char c = (char) 2;\n" +
+			"		short s = (short) 32767;\n" +
+			"		int i = 10;\n" +
+			"		long l = 80L;\n" +
+			"		_long >>>= b;\n" +
+			"		_long <<= c;\n" +
+			"		_long >>= s;\n" +
+			"		_long >>>= i;\n" +
+			"		_long = 77l;\n" +
+			"		_long <<= l;\n" +
+			"		System.out.println(_long);\n" +
+			"	}\n" +
 			"}",
 		},
 		"5046272"
@@ -273,19 +273,19 @@ public void test13() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		long test = 47L;\n" + 
-			"		value &= test;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		long test = 47L;\n" +
+			"		value &= test;\n" +
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	value &= test;\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The operator &= is undefined for the argument type(s) Integer, long\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	value &= test;\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The operator &= is undefined for the argument type(s) Integer, long\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
@@ -293,19 +293,19 @@ public void test14() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Integer value = 4711;\n" + 
-			"		long test = 47L;\n" + 
-			"		value |= test;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Integer value = 4711;\n" +
+			"		long test = 47L;\n" +
+			"		value |= test;\n" +
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	value |= test;\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The operator |= is undefined for the argument type(s) Integer, long\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	value |= test;\n" +
+		"	^^^^^^^^^^^^^\n" +
+		"The operator |= is undefined for the argument type(s) Integer, long\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=277450
@@ -313,12 +313,12 @@ public void test15() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Byte value = (byte) 1;\n" + 
-			"		value++;\n" + 
-			"		System.out.println(value);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Byte value = (byte) 1;\n" +
+			"		value++;\n" +
+			"		System.out.println(value);\n" +
+			"	}\n" +
 			"}",
 		},
 		"2");

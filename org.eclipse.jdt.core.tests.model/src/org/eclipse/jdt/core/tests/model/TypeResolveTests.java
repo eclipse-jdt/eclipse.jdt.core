@@ -352,15 +352,15 @@ public void testParamAnnotations() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		IJavaElement[] variable = ((ICodeAssist) unit).codeSelect(source.indexOf("processor"), "processor".length());
 
 		assertEquals(1, variable.length);
 		String annotationString = "@Default [in processor [in Test(String) [in X [in X.java [in p [in src [in P]]]]]]]";
 		assertEquals(annotationString, ((LocalVariable)variable[0]).getAnnotations()[0].toString());
 		IType type = unit.getType("X");
-		
+
 		IMethod method = type.getMethods()[0];
 		assertEquals(annotationString, method.getParameters()[0].getAnnotations()[0].toString());
 	} finally {
@@ -385,12 +385,12 @@ public void testParamAnnotations2() throws CoreException, IOException {
 				"@interface Default{\n" +
 				"}"};
 		addLibrary(project, "lib334783.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
-		
+
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783.jar"));
 		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString = "@p.Default [in processor [in Test(java.lang.String) [in X [in X.class [in p [in lib334783.jar [in P]]]]]]]";
-		
+
 		IMethod method = type.getMethods()[1];
 		assertEquals(annotationString, method.getParameters()[0].getAnnotations()[0].toString());
 	} finally {
@@ -422,8 +422,8 @@ public void testParamAnnotations3() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		IJavaElement[] variable = ((ICodeAssist) unit).codeSelect(source.indexOf("processor"), "processor".length());
 
 		assertEquals(1, variable.length);
@@ -431,7 +431,7 @@ public void testParamAnnotations3() throws CoreException {
 		String annotationString2 = "@Marker [in processor [in Test(int, String, int) [in X [in X.java [in p [in src [in P]]]]]]]";
 		assertEquals(annotationString1, ((LocalVariable)variable[0]).getAnnotations()[0].toString());
 		IType type = unit.getType("X");
-		
+
 		IMethod method = type.getMethods()[0];
 		IAnnotation[] parameterAnnotations = method.getParameters()[1].getAnnotations();
 		assertEquals("Wrong length", 2, parameterAnnotations.length);
@@ -480,7 +480,7 @@ public void testParamAnnotations4() throws CoreException, IOException {
 				"public @interface Default{\n" +
 				"}"};
 		addLibrary(project, "lib334783_2.jar", "lib334783_2src.zip", pathAndContents, JavaCore.VERSION_1_5);
-		
+
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783_2.jar"));
 		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
@@ -555,7 +555,7 @@ public void testParamAnnotations5() throws CoreException, IOException {
 		Map options = new HashMap();
 		options.put(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.DO_NOT_GENERATE);
 		addLibrary(project, "lib334783_3.jar", "lib334783_3src.zip", pathAndContents, JavaCore.VERSION_1_5, options);
-		
+
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783_3.jar"));
 		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
@@ -609,8 +609,8 @@ public void testParamAnnotations6() throws CoreException {
 			source
 		);
 		waitForAutoBuild();
-		
-		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java"); 
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		IType type = unit.getType("X");
 		IMethod method = type.getMethods()[0];
 		ILocalVariable[] localVariables = method.getParameters();
@@ -634,11 +634,11 @@ public void testParamAnnotations7() throws CoreException, IOException {
 				"}"
 		};
 		addLibrary(project, "lib334783.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
-		
+
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783.jar"));
 		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
-		
+
 		IMethod method = type.getMethods()[1];
 		ILocalVariable[] localVariables = method.getParameters();
 		assertNotNull(localVariables);
@@ -676,7 +676,7 @@ public void testParamAnnotations8() throws CoreException, IOException {
 		Map options = new HashMap();
 		options.put(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.DO_NOT_GENERATE);
 		addLibrary(project, "lib334783_3.jar", "lib334783_3src.zip", pathAndContents, JavaCore.VERSION_1_5, options);
-		
+
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783_3.jar"));
 		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
@@ -714,7 +714,7 @@ public void testParamAnnotations8() throws CoreException, IOException {
 	}
 }
 /**
- * @throws IOException 
+ * @throws IOException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=375568"
  */
 public void testParamAnnotations9() throws CoreException, IOException {
@@ -730,12 +730,12 @@ public void testParamAnnotations9() throws CoreException, IOException {
 				"@interface Default{\n" +
 				"}"};
 		addLibrary(project, "lib334783.jar", "libsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
-		
+
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783.jar"));
 		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString = "@p.Default [in processor [in Test(java.lang.String) [in X [in X.class [in p [in lib334783.jar [in P]]]]]]]";
-		
+
 		IMethod method = type.getMethods()[1];
 		assertEquals(1, method.getParameters()[0].getAnnotations().length);
 		assertEquals(annotationString, method.getParameters()[0].getAnnotations()[0].toString());
@@ -1225,7 +1225,7 @@ public void test531046a() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var s1 = args[0];\n"
 				+ "    System.out.println(s1);\n"
@@ -1251,7 +1251,7 @@ public void test531046b() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var s1 = args[0];\n"
 				+ "    System.out.println(s1);\n"
@@ -1277,7 +1277,7 @@ public void test531046c() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var s1 = args;\n"
 				+ "    System.out.println(s1);\n"
@@ -1303,7 +1303,7 @@ public void test531046d() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
 				+ "  }\n"
@@ -1328,7 +1328,7 @@ public void test531046e() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
 				+ "  }\n"
@@ -1352,7 +1352,7 @@ public void test531046f() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var e = (CharSequence & Comparable<String>) \"x\";\n"
 				+ "  }\n"
@@ -1378,7 +1378,7 @@ public void test531046g() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var v_v = (CharSequence & Comparable<String>) \"x\";\n"
 				+ "  }\n"
@@ -1402,7 +1402,7 @@ public void test531046h() throws CoreException, IOException {
 	try {
 		createJava10Project("P", new String[] {"src"});
 		String source =   "package p;\n"
-				+ "public class X {\n" 
+				+ "public class X {\n"
 				+ "  public static void main(java.lang.String[] args) {\n"
 				+ "    var v_v = (CharSequence & Comparable<String>) \"x\";\n"
 				+ "		System.out.println(v_v);\n"
@@ -1429,11 +1429,11 @@ public void testBug533884a() throws Exception {
 		String source =   "package p;\n" +
 				"public class X {\n" +
 				"	void bar() {\n" +
-				"		String[] x = {\"a\", \"b\"};\n" + 
+				"		String[] x = {\"a\", \"b\"};\n" +
 				"		for (var y : x) { \n" +  // <= select this occurrence of 'y'
-				"			System.err.println(y.toUpperCase());\n" + 
-				"		}\n" + 
-				"	}\n" + 
+				"			System.err.println(y.toUpperCase());\n" +
+				"		}\n" +
+				"	}\n" +
 				"\n"
 				+ "}\n";
 		createFolder("/P/src/p");
@@ -1457,11 +1457,11 @@ public void testBug533884b() throws Exception {
 		String source =   "package p;\n" +
 				"public class X {\n" +
 				"	void bar() {\n" +
-				"		String[] x = {\"a\", \"b\"};\n" + 
-				"		for (var y : x) { \n" + 
+				"		String[] x = {\"a\", \"b\"};\n" +
+				"		for (var y : x) { \n" +
 				"			System.err.println(y.toUpperCase());\n" + // <= select this occurrence of 'y'
-				"		}\n" + 
-				"	}\n" + 
+				"		}\n" +
+				"	}\n" +
 				"\n"
 				+ "}\n";
 		createFolder("/P/src/p");
@@ -1485,10 +1485,10 @@ public void testBug533884b_blockless() throws Exception {
 		String source =   "package p;\n" +
 				"public class X {\n" +
 				"	void bar() {\n" +
-				"		String[] x = {\"a\", \"b\"};\n" + 
-				"		for (var y : x) \n" + 
+				"		String[] x = {\"a\", \"b\"};\n" +
+				"		for (var y : x) \n" +
 				"			System.err.println(y.toUpperCase());\n" + // <= select this occurrence of 'y'
-				"	}\n" + 
+				"	}\n" +
 				"\n"
 				+ "}\n";
 		createFolder("/P/src/p");
@@ -1512,10 +1512,10 @@ public void testBug533884c() throws Exception {
 				"import java.io.*;\n" +
 				"public class X {\n" +
 				"	void bar(File file) {\n" +
-				"		try (var rc = new FileInputStream(file)) { \n" + 
+				"		try (var rc = new FileInputStream(file)) { \n" +
 				"			System.err.println(rc.read());\n" + // <= select this occurrence of 'rc'
-				"		}\n" + 
-				"	}\n" + 
+				"		}\n" +
+				"	}\n" +
 				"\n"
 				+ "}\n";
 		createFolder("/P/src/p");
@@ -1542,9 +1542,9 @@ public void testBug533884c_blockless() throws Exception {
 				"import java.io.*;\n" +
 				"public class X {\n" +
 				"	void bar(File file) {\n" +
-				"		try (var rc = new FileInputStream(file))\n" + 
+				"		try (var rc = new FileInputStream(file))\n" +
 				"			System.err.println(rc.read());\n" + // <= select this occurrence of 'rc'
-				"	}\n" + 
+				"	}\n" +
 				"\n"
 				+ "}\n";
 		createFolder("/P/src/p");
@@ -1576,10 +1576,10 @@ public void testBug536387() throws Exception {
 				"	}\n\n"+
 				"	public interface Finder {\n" +
 				"		public int find(NewType one, int two);\n" +
-				"	}\n\n"+ 
+				"	}\n\n"+
 				" 	public static void main(String[] args) {\n" +
-				" 		final Finder finder = (var s1,var s2) -> s1.indexOf(s2);\n"+					 
-				"	}\n" + 
+				" 		final Finder finder = (var s1,var s2) -> s1.indexOf(s2);\n"+
+				"	}\n" +
 				"\n"
 				+ "}\n";
 		createFolder("/P/src/p");

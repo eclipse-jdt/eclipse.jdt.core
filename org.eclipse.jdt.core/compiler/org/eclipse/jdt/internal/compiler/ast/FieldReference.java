@@ -94,9 +94,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 		this.receiver
 			.analyseCode(currentScope, flowContext, flowInfo, !this.binding.isStatic())
 			.unconditionalInits();
-	
+
 	this.receiver.checkNPE(currentScope, flowContext, flowInfo);
-	
+
 	if (assignment.expression != null) {
 		flowInfo =
 			assignment
@@ -135,7 +135,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			&& TypeBinding.equalsEquals(this.receiver.resolvedType, this.binding.declaringClass) // inherited fields are not tracked here
 			&& ((this.receiver.bits & ASTNode.ParenthesizedMASK) == 0)) { // (this).x is forbidden
 			flowInfo.markAsDefinitelyAssigned(this.binding);
-		}		
+		}
 	}
 	return flowInfo;
 }
@@ -269,7 +269,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		this.receiver.generateCode(currentScope, codeStream, !isStatic);
 		if ((this.bits & NeedReceiverGenericCast) != 0) {
 			codeStream.checkcast(this.actualReceiverType);
-		}		
+		}
 		pc = codeStream.position;
 		if (codegenBinding.declaringClass == null) { // array length
 			codeStream.arraylength();
@@ -420,7 +420,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		operandType = this.genericCast;
 	} else {
 		operandType = codegenBinding.type;
-	}	
+	}
 	if (valueRequired) {
 		if (isStatic) {
 			switch (operandType.id) {
@@ -431,7 +431,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				default :
 					codeStream.dup();
 					break;
-			}			
+			}
 		} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
 			switch (operandType.id) {
 				case TypeIds.T_long :
@@ -441,10 +441,10 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				default :
 					codeStream.dup_x1();
 					break;
-			}			
+			}
 		}
 	}
-	codeStream.generateImplicitConversion(this.implicitConversion);		
+	codeStream.generateImplicitConversion(this.implicitConversion);
 	codeStream.generateConstant(
 		postIncrement.expression.constant,
 		this.implicitConversion);
@@ -480,7 +480,7 @@ public boolean isEquivalent(Reference reference) {
 			FieldReference fr = (FieldReference) reference;
 			if (fr.receiver.isThis() && !(fr.receiver instanceof QualifiedThisReference)) {
 				otherToken = fr.token;
-			}		
+			}
 		}
 		return otherToken != null && CharOperation.equals(this.token, otherToken);
 	} else {
@@ -544,7 +544,7 @@ public FieldBinding lastFieldBinding() {
  */
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo, boolean isReadAccess) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)	return;
-	
+
 	// if field from parameterized type got found, use the original field at codegen time
 	FieldBinding codegenBinding = this.binding.original();
 	if (this.binding.isPrivate()) {
@@ -677,7 +677,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			return null;
 		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=245007 avoid secondary errors in case of
-		// missing super type for anonymous classes ... 
+		// missing super type for anonymous classes ...
 		ReferenceBinding declaringClass = fieldBinding.declaringClass;
 		boolean avoidSecondary = declaringClass != null &&
 								 declaringClass.isAnonymousType() &&

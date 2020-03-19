@@ -31,7 +31,7 @@ public class CompletionOnMessageSendName extends MessageSend {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
-		
+
 		if (this.receiver.isImplicitThis())
 			throw new CompletionNodeFound();
 

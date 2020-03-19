@@ -14,7 +14,7 @@
  *								bug 365662 - [compiler][null] warn on contradictory and redundant null annotations
  *								bug 401030 - [1.8][null] Null analysis support for lambda methods.
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
- *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations 
+ *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -99,7 +99,7 @@ public ReferenceBinding anonymousOriginalSuperType() {
 		return ((LocalTypeBinding) this.prototype).anonymousOriginalSuperType();
 	if (this.superclass == null && this.scope != null)
 		return this.scope.getJavaLangObject();
-	
+
 	if (this.superInterfaces != Binding.NO_SUPERINTERFACES) {
 		return this.superInterfaces[0];
 	}
@@ -119,7 +119,7 @@ public ReferenceBinding anonymousOriginalSuperType() {
 public char[] computeUniqueKey(boolean isLeaf) {
 	if (!isPrototype())
 		return this.prototype.computeUniqueKey(isLeaf);
-	
+
 	char[] outerKey = outermostEnclosingType().computeUniqueKey(isLeaf);
 	int semicolon = CharOperation.lastIndexOf(';', outerKey);
 
@@ -156,7 +156,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 		// cases where the left hand does not know what the right is doing.
 		this.constantPoolName = this.scope.compilationUnitScope().computeConstantPoolName(this);
 	}
-	return this.constantPoolName;	
+	return this.constantPoolName;
 }
 
 @Override
@@ -177,10 +177,10 @@ public int hashCode() {
  */
 @Override
 public char[] genericTypeSignature() {
-	
+
 	if (!isPrototype())
 		return this.prototype.genericTypeSignature();
-	
+
 	if (this.genericReferenceTypeSignature == null && this.constantPoolName == null) {
 		if (isAnonymousType())
 			setConstantPoolName(superclass().sourceName());
@@ -278,10 +278,10 @@ public void transferConstantPoolNameTo(TypeBinding substType) {
  */
 @Override
 public char[] signature() {
-	
+
 	if (!isPrototype())
 		return this.prototype.signature();
-	
+
 	if (this.signature == null && this.constantPoolName == null) {
 		if (isAnonymousType())
 			setConstantPoolName(superclass().sourceName());
@@ -303,7 +303,7 @@ public char[] sourceName() {
 public String toString() {
 	if (this.hasTypeAnnotations())
 		return annotatedDebugName() + " (local)"; //$NON-NLS-1$
-    
+
 	if (isAnonymousType())
 		return "Anonymous type : " + super.toString(); //$NON-NLS-1$
 	if (isMemberType())

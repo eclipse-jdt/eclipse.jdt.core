@@ -27,51 +27,51 @@ import org.eclipse.jdt.core.IJavaProject;
  * attempting to load annotation processors, and then handles
  * reporting those errors to the user as markers in the problems pane.
  * <p>
- * This class is necessary due to deadlock possibilities in 
+ * This class is necessary due to deadlock possibilities in
  * {@link AnnotationProcessorFactoryLoader}. We need to gather up
  * the errors while holding a lock in that class,
  * and then later report them outside the lock, via the
  * reportFailureMarkers() method.
  */
 public class LoadFailureHandler {
-	
+
 	private final IProject _project;
 	private final List<String> _missingLibraries = new ArrayList<>();
 	private final List<String> _failedFactories = new ArrayList<>();
-	
+
 	public LoadFailureHandler(IJavaProject proj) {
 		_project = proj.getProject();
 	}
-	
+
 	public void addMissingLibrary(String lib) {
 		_missingLibraries.add(lib);
 	}
-	
+
 	public void addFailedFactory(String factory) {
 		_failedFactories.add(factory);
 	}
-	
+
 	public void reportFailureMarkers() {
 		reportFailureToLoadFactories();
 		reportMissingLibraries();
 	}
-	
-	/** 
-	 * Enter problem markers for factory containers that could not be found on 
+
+	/**
+	 * Enter problem markers for factory containers that could not be found on
 	 * disk.  This routine does not check whether markers already exist.
-	 * See {@link AnnotationProcessorFactoryLoader} for information about 
+	 * See {@link AnnotationProcessorFactoryLoader} for information about
 	 * the lifecycle of these markers.
 	 */
 	private void reportMissingLibraries() {
 		for (String fc : _missingLibraries) {
 			try {
 				String message = Messages.bind(
-						Messages.AnnotationProcessorFactoryLoader_factorypath_missingLibrary, 
+						Messages.AnnotationProcessorFactoryLoader_factorypath_missingLibrary,
 						new String[] {fc, _project.getName()});
 				IMarker marker = _project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
 				marker.setAttributes(
 						new String[] {
-							IMarker.MESSAGE, 
+							IMarker.MESSAGE,
 							IMarker.SEVERITY,
 							IMarker.LOCATION,
 							IMarker.SOURCE_ID
@@ -88,26 +88,26 @@ public class LoadFailureHandler {
 			}
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Enter a marker for a factory class that could not be loaded.
 	 * Note that if a jar is missing, we won't be able to load its factory
 	 * names, and thus we won't even try loading its factory classes; but
 	 * we can still fail to load a factory class if, for instance, the
-	 * jar is corrupted or the factory constructor throws an exception.  
-	 * See {@link AnnotationProcessorFactoryLoader} for information about 
+	 * jar is corrupted or the factory constructor throws an exception.
+	 * See {@link AnnotationProcessorFactoryLoader} for information about
 	 * the lifecycle of these markers.
 	 */
 	private void reportFailureToLoadFactories() {
 		for (String factoryName : _failedFactories) {
 			try {
 				String message = Messages.bind(
-						Messages.AnnotationProcessorFactoryLoader_unableToLoadFactoryClass, 
+						Messages.AnnotationProcessorFactoryLoader_unableToLoadFactoryClass,
 						new String[] {factoryName, _project.getName()});
 				IMarker marker = _project.createMarker(AptPlugin.APT_LOADER_PROBLEM_MARKER);
 				marker.setAttributes(
 						new String[] {
-							IMarker.MESSAGE, 
+							IMarker.MESSAGE,
 							IMarker.SEVERITY,
 							IMarker.LOCATION,
 							IMarker.SOURCE_ID
@@ -124,12 +124,12 @@ public class LoadFailureHandler {
 			}
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return _project.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof LoadFailureHandler)) return false;

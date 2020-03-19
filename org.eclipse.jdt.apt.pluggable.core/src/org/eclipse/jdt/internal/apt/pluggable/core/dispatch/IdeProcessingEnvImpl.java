@@ -51,14 +51,14 @@ import org.eclipse.jdt.internal.compiler.apt.model.IElementInfo;
  * @see org.eclipse.jdt.internal.compiler.apt.dispatch.BatchProcessingEnvImpl
  */
 public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
-	
+
 	private final IdeAnnotationProcessorManager _dispatchManager;
 	private final IJavaProject _javaProject;
 	protected final AptProject _aptProject;
 	private final boolean _isTestCode;
 
 	public IdeProcessingEnvImpl(IdeAnnotationProcessorManager dispatchManager,
-			IJavaProject jproject, Compiler compiler, boolean isTestCode) 
+			IJavaProject jproject, Compiler compiler, boolean isTestCode)
 	{
 		_dispatchManager = dispatchManager;
 		_javaProject = jproject;
@@ -68,7 +68,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		_filer = new IdeFilerImpl(_dispatchManager, this);
 		_messager = new IdeMessagerImpl(_dispatchManager, this);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.ProcessingEnvironment#getLocale()
 	 */
@@ -113,15 +113,15 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 			return optionValue;
 		};
 	}
-	
+
 	public AptProject getAptProject() {
 		return _aptProject;
 	}
-	
+
 	public IJavaProject getJavaProject() {
 		return _javaProject;
 	}
-	
+
 	public IProject getProject() {
 		return _javaProject.getProject();
 	}
@@ -162,7 +162,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		AptCompilationParticipant.getInstance().addJava6GeneratedFile(result.getFile());
 		addNewUnit(_dispatchManager.findCompilationUnit(result.getFile()));
 	}
-	
+
 	/**
 	 * Inform the environment that a new non-Java file has been generated.
 	 * This file will not be submitted to a subsequent round of processing in

@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    eclipse@cafewalter.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests.annotations;

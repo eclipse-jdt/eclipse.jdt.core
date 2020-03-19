@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
  */
 class NameEnvironmentWithProgress extends FileSystem implements INameEnvironmentWithProgress {
 	IProgressMonitor monitor;
-	
+
 	public NameEnvironmentWithProgress(Classpath[] paths, String[] initialFileNames, IProgressMonitor monitor) {
 		super(paths, initialFileNames, false);
 		setMonitor(monitor);
@@ -90,7 +90,7 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 		checkCanceled();
 		return super.isPackage(compoundName, packageName);
 	}
-	
+
 	@Override
 	public void setMonitor(IProgressMonitor monitor) {
 		this.monitor = monitor;

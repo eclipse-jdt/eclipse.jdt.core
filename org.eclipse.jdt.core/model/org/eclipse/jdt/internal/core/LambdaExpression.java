@@ -38,24 +38,24 @@ public class LambdaExpression extends SourceType {
 
 	SourceTypeElementInfo elementInfo;
 	LambdaMethod lambdaMethod;
-	
-	// These fields could be materialized from elementInfo, but for ease of use stashed here 
+
+	// These fields could be materialized from elementInfo, but for ease of use stashed here
 	protected int sourceStart;
 	protected int sourceEnd;
 	protected int arrowPosition;
 	protected String interphase;
-	
-	
+
+
 	// Construction from AST node
 	LambdaExpression(JavaElement parent, org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
 		super(parent, new String(CharOperation.NO_CHAR));
 		this.sourceStart = lambdaExpression.sourceStart;
 		this.sourceEnd = lambdaExpression.sourceEnd;
 		this.arrowPosition = lambdaExpression.arrowPosition;
-		
+
 		TypeBinding supertype = findLambdaSuperType(lambdaExpression);
 		this.interphase = new String(CharOperation.replaceOnCopy(supertype.genericTypeSignature(), '/', '.'));
-		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition); 
+		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition);
 		this.lambdaMethod = LambdaFactory.createLambdaMethod(this, lambdaExpression);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
 	}
@@ -96,7 +96,7 @@ public class LambdaExpression extends SourceType {
 		}
 		return original;
 	}
-	
+
 	// Construction from memento
 	LambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
 		super(parent, new String(CharOperation.NO_CHAR));
@@ -107,7 +107,7 @@ public class LambdaExpression extends SourceType {
 		this.elementInfo = makeTypeElementInfo(this, interphase, this.sourceStart = sourceStart, sourceEnd, arrowPosition);
 		// Method is in the process of being fabricated, will be attached shortly.
 	}
-	
+
 	// Construction from subtypes.
 	LambdaExpression(JavaElement parent, String interphase, int sourceStart, int sourceEnd, int arrowPosition, LambdaMethod lambdaMethod) {
 		super(parent, new String(CharOperation.NO_CHAR));
@@ -118,33 +118,33 @@ public class LambdaExpression extends SourceType {
 		this.elementInfo = makeTypeElementInfo(this, interphase, this.sourceStart = sourceStart, sourceEnd, arrowPosition);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod = lambdaMethod };
 	}
-	
+
 	// Lambda expression is not backed by model, fabricate element information structure and stash it.
 	static private SourceTypeElementInfo makeTypeElementInfo (LambdaExpression handle, String interphase, int sourceStart, int sourceEnd, int arrowPosition) {
-		
+
 		SourceTypeElementInfo elementInfo = new SourceTypeElementInfo();
-		
+
 		elementInfo.setFlags(0);
 		elementInfo.setHandle(handle);
 		elementInfo.setSourceRangeStart(sourceStart);
 		elementInfo.setSourceRangeEnd(sourceEnd);
-		
+
 		elementInfo.setNameSourceStart(sourceStart);
 		elementInfo.setNameSourceEnd(arrowPosition);
 		elementInfo.setSuperclassName(null);
 		elementInfo.addCategories(handle, null);
-		
+
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		char[][] superinterfaces = new char [][] { manager.intern(Signature.toString(interphase).toCharArray()) }; // drops marker interfaces - to fix.
 		elementInfo.setSuperInterfaceNames(superinterfaces);
 		return elementInfo;
 	}
-	
+
 	@Override
 	protected void closing(Object info) throws JavaModelException {
 		// nothing to do, not backed by model ATM.
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
@@ -163,12 +163,12 @@ public class LambdaExpression extends SourceType {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Util.combineHashCodes(super.hashCode(), this.sourceStart);
 	}
-	
+
 	@Override
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.elementInfo;
@@ -178,16 +178,16 @@ public class LambdaExpression extends SourceType {
 	protected char getHandleMementoDelimiter() {
 		return JavaElement.JEM_LAMBDA_EXPRESSION;
 	}
-	
+
 	@Override
 	protected void getHandleMemento(StringBuffer buff) {
 		getHandleMemento(buff, true, true);
 		// lambda method and lambda expression cannot share the same memento - add a trailing discriminator.
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 	}
-	
+
 	protected void getHandleMemento(StringBuffer buff, boolean serializeParent, boolean serializeChild) {
-		if (serializeParent) 
+		if (serializeParent)
 			((JavaElement)getParent()).getHandleMemento(buff);
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 		appendEscapedDelimiter(buff, JEM_STRING);
@@ -201,13 +201,13 @@ public class LambdaExpression extends SourceType {
 		if (serializeChild)
 			this.lambdaMethod.getHandleMemento(buff, false);
 	}
-	
+
 	@Override
 	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 
 		if (token.charAt(0) != JEM_LAMBDA_METHOD)
 			return null;
-		
+
 		// ----
 		if (!memento.hasMoreTokens()) return this;
 		String selector = memento.nextToken();
@@ -242,7 +242,7 @@ public class LambdaExpression extends SourceType {
 				return this.lambdaMethod.getHandleFromMemento(memento, workingCopyOwner);
 			case JEM_LAMBDA_EXPRESSION:
 			default:
-				return this;	
+				return this;
 		}
 	}
 
@@ -255,7 +255,7 @@ public class LambdaExpression extends SourceType {
 	public boolean isLocal() {
 		return true;
 	}
-	
+
 	@Override
 	public JavaElement resolved(Binding binding) {
 		ResolvedLambdaExpression resolvedHandle = new ResolvedLambdaExpression(this.parent, this, new String(binding.computeUniqueKey()));
@@ -265,7 +265,7 @@ public class LambdaExpression extends SourceType {
 	public IMethod getMethod() {
 		return this.lambdaMethod;
 	}
-	
+
 	@Override
 	public boolean isLambda() {
 		return true;

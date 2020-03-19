@@ -7,10 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -277,13 +277,13 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 			}
 		}
 		this.binding.setUses(allTypes.toArray(new TypeBinding[allTypes.size()]));
-		
+
 		Set<TypeBinding> interfaces = new HashSet<>();
 		for(int i = 0; i < this.servicesCount; i++) {
 			this.services[i].resolve(this.scope);
 			TypeBinding infBinding = this.services[i].serviceInterface.resolvedType;
 			if (infBinding != null && infBinding.isValidBinding()) {
-				if (!interfaces.add(this.services[i].serviceInterface.resolvedType)) { 
+				if (!interfaces.add(this.services[i].serviceInterface.resolvedType)) {
 					cuScope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
 							this.services[i].serviceInterface);
 				}
@@ -297,7 +297,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 		analyseModuleGraph(skope);
 		analyseReferencedPackages(skope);
 	}
-	
+
 	private void analyseReferencedPackages(CompilationUnitScope skope) {
 		if (this.exports != null) {
 			analyseSomeReferencedPackages(this.exports, skope);

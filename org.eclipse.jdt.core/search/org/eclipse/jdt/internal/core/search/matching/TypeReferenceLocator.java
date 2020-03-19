@@ -656,7 +656,7 @@ protected int resolveLevel(NameReference nameRef) {
 			return resolveLevelForType((ReferenceBinding) binding);
 		if (((SingleNameReference) nameRef).isLabel)
 			return IMPOSSIBLE_MATCH;
-		
+
 		return binding == null || binding instanceof ProblemBinding ? INACCURATE_MATCH : IMPOSSIBLE_MATCH;
 	}
 

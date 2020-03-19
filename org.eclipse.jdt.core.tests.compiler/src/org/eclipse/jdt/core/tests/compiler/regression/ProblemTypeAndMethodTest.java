@@ -3370,10 +3370,10 @@ public void test073() {
 			"The type Foo.Private is not visible\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 12)\n" +
-			"	private class Private {\n" + 
-			"	              ^^^^^^^\n" + 
-			"The type Foo.Private is never used locally\n" + 
-			"----------\n" + 
+			"	private class Private {\n" +
+			"	              ^^^^^^^\n" +
+			"The type Foo.Private is never used locally\n" +
+			"----------\n" +
 			"4. WARNING in X.java (at line 13)\n" +
 			"	private void foo(){}\n" +
 			"	             ^^^^^\n" +
@@ -3389,11 +3389,11 @@ public void test074() {
 				"	^^^^\n" +
 				"The method bar1() from the type X refers to the missing type Zork\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	bar2();\n" + 
-				"	^^^^\n" + 
-				"The method bar2() from the type X refers to the missing type Zork\n" + 
-				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" +
+				"	bar2();\n" +
+				"	^^^^\n" +
+				"The method bar2() from the type X refers to the missing type Zork\n" +
+				"----------\n" +
 				"3. ERROR in X.java (at line 6)\n" +
 				"	bar3(null);\n" +
 				"	^^^^\n" +
@@ -3820,93 +3820,93 @@ public void test081() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(	CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);	
+	runner.customOptions.put(	CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 	runner.customOptions.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
 	runner.testFiles =
 			new String[] {
 				"com/ost/util/report/Matrix.java", // =================
-				"package com.ost.util.report;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import com.ost.util.report.exceptions.InvalidRowSizeException;\n" + 
-				"public class Matrix<T> implements Serializable {\n" + 
-				"	/**\n" + 
-				"	 * @see exceptions.InvalidRowSizeException2\n" + 
-				"	 */\n" + 
-				"	public synchronized final void addRow(Object[] row){\n" + 
-				"			throw new InvalidRowSizeException();\n" + 
-				"	}\n" + 
+				"package com.ost.util.report;\n" +
+				"import java.io.Serializable;\n" +
+				"import com.ost.util.report.exceptions.InvalidRowSizeException;\n" +
+				"public class Matrix<T> implements Serializable {\n" +
+				"	/**\n" +
+				"	 * @see exceptions.InvalidRowSizeException2\n" +
+				"	 */\n" +
+				"	public synchronized final void addRow(Object[] row){\n" +
+				"			throw new InvalidRowSizeException();\n" +
+				"	}\n" +
 				"}\n",
 				"com/ost/util/report/FilterConstraintSpecification.java", // =================
-				"package com.ost.util.report;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import com.ost.util.report.exceptions.MalformedFilterConstraintSpecification;\n" + 
-				"public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" + 
-				"	private final void makeConstraint(){\n" + 
-				"		throw new MalformedFilterConstraintSpecification();\n" + 
-				"	}\n" + 
+				"package com.ost.util.report;\n" +
+				"import java.io.Serializable;\n" +
+				"import com.ost.util.report.exceptions.MalformedFilterConstraintSpecification;\n" +
+				"public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" +
+				"	private final void makeConstraint(){\n" +
+				"		throw new MalformedFilterConstraintSpecification();\n" +
+				"	}\n" +
 				"}\n",
 				"com/ost/util/report/exceptions/MalformedFilterConstraintSpecification.java", // =================
-				"package com.ost.util.report.exceptions;\n" + 
-				"public class MalformedFilterConstraintSpecification extends RuntimeException {\n" + 
-				"	/** Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
-				"	public MalformedFilterConstraintSpecification() {\n" + 
-				"		super();\n" + 
-				"	}\n" + 
-				"	/* Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
-				"	public MalformedFilterConstraintSpecification(String message) {\n" + 
-				"		super(message);\n" + 
-				"	}\n" + 
+				"package com.ost.util.report.exceptions;\n" +
+				"public class MalformedFilterConstraintSpecification extends RuntimeException {\n" +
+				"	/** Creates a new instance of MalformedFilterConstraintSpecification */\n" +
+				"	public MalformedFilterConstraintSpecification() {\n" +
+				"		super();\n" +
+				"	}\n" +
+				"	/* Creates a new instance of MalformedFilterConstraintSpecification */\n" +
+				"	public MalformedFilterConstraintSpecification(String message) {\n" +
+				"		super(message);\n" +
+				"	}\n" +
 				"}\n",
 				"com/ost/util/report/exceptions/InvalidRowSizeException.java", // =================
-				"package com.ost.util.report.exceptions;\n" + 
-				"public class InvalidRowSizeException extends RuntimeException {\n" + 
-				"	/** Creates a new instance of InvalidRowSizeException */\n" + 
-				"	public InvalidRowSizeException() {\n" + 
-				"		super();\n" + 
-				"	}\n" + 
-				"	/* Creates a new instance of InvalidRowSizeException */\n" + 
-				"	public InvalidRowSizeException(String message) {\n" + 
-				"		super(message);\n" + 
-				"	}\n" + 
+				"package com.ost.util.report.exceptions;\n" +
+				"public class InvalidRowSizeException extends RuntimeException {\n" +
+				"	/** Creates a new instance of InvalidRowSizeException */\n" +
+				"	public InvalidRowSizeException() {\n" +
+				"		super();\n" +
+				"	}\n" +
+				"	/* Creates a new instance of InvalidRowSizeException */\n" +
+				"	public InvalidRowSizeException(String message) {\n" +
+				"		super(message);\n" +
+				"	}\n" +
 				"}\n"
 			};
 	runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. WARNING in com\\ost\\util\\report\\Matrix.java (at line 4)\n" + 
-			"	public class Matrix<T> implements Serializable {\n" + 
-			"	             ^^^^^^\n" + 
-			"The serializable class Matrix does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. ERROR in com\\ost\\util\\report\\Matrix.java (at line 6)\n" + 
-			"	* @see exceptions.InvalidRowSizeException2\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: exceptions cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in com\\ost\\util\\report\\FilterConstraintSpecification.java (at line 4)\n" + 
-			"	public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The serializable class FilterConstraintSpecification does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"2. WARNING in com\\ost\\util\\report\\FilterConstraintSpecification.java (at line 5)\n" + 
-			"	private final void makeConstraint(){\n" + 
-			"	                   ^^^^^^^^^^^^^^^^\n" + 
-			"The method makeConstraint() from the type FilterConstraintSpecification is never used locally\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in com\\ost\\util\\report\\exceptions\\MalformedFilterConstraintSpecification.java (at line 2)\n" + 
-			"	public class MalformedFilterConstraintSpecification extends RuntimeException {\n" + 
-			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The serializable class MalformedFilterConstraintSpecification does not declare a static final serialVersionUID field of type long\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in com\\ost\\util\\report\\exceptions\\InvalidRowSizeException.java (at line 2)\n" + 
-			"	public class InvalidRowSizeException extends RuntimeException {\n" + 
-			"	             ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The serializable class InvalidRowSizeException does not declare a static final serialVersionUID field of type long\n" + 
+			"----------\n" +
+			"1. WARNING in com\\ost\\util\\report\\Matrix.java (at line 4)\n" +
+			"	public class Matrix<T> implements Serializable {\n" +
+			"	             ^^^^^^\n" +
+			"The serializable class Matrix does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"2. ERROR in com\\ost\\util\\report\\Matrix.java (at line 6)\n" +
+			"	* @see exceptions.InvalidRowSizeException2\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: exceptions cannot be resolved to a type\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in com\\ost\\util\\report\\FilterConstraintSpecification.java (at line 4)\n" +
+			"	public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" +
+			"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The serializable class FilterConstraintSpecification does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"2. WARNING in com\\ost\\util\\report\\FilterConstraintSpecification.java (at line 5)\n" +
+			"	private final void makeConstraint(){\n" +
+			"	                   ^^^^^^^^^^^^^^^^\n" +
+			"The method makeConstraint() from the type FilterConstraintSpecification is never used locally\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in com\\ost\\util\\report\\exceptions\\MalformedFilterConstraintSpecification.java (at line 2)\n" +
+			"	public class MalformedFilterConstraintSpecification extends RuntimeException {\n" +
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The serializable class MalformedFilterConstraintSpecification does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in com\\ost\\util\\report\\exceptions\\InvalidRowSizeException.java (at line 2)\n" +
+			"	public class InvalidRowSizeException extends RuntimeException {\n" +
+			"	             ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The serializable class InvalidRowSizeException does not declare a static final serialVersionUID field of type long\n" +
 			"----------\n";
-	runner.javacTestOptions =	
+	runner.javacTestOptions =
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
@@ -3916,50 +3916,50 @@ public void test082() {
 	this.runConformTest(
 			new String[] {
 				"com/ost/util/report/Matrix.java", // =================
-				"package com.ost.util.report;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import com.ost.util.report.exceptions.InvalidRowSizeException;\n" + 
-				"public class Matrix<T> implements Serializable {\n" + 
-				"	/**\n" + 
-				"	 * @see exceptions.InvalidRowSizeException2\n" + 
-				"	 */\n" + 
-				"	public synchronized final void addRow(Object[] row){\n" + 
-				"			throw new InvalidRowSizeException();\n" + 
-				"	}\n" + 
+				"package com.ost.util.report;\n" +
+				"import java.io.Serializable;\n" +
+				"import com.ost.util.report.exceptions.InvalidRowSizeException;\n" +
+				"public class Matrix<T> implements Serializable {\n" +
+				"	/**\n" +
+				"	 * @see exceptions.InvalidRowSizeException2\n" +
+				"	 */\n" +
+				"	public synchronized final void addRow(Object[] row){\n" +
+				"			throw new InvalidRowSizeException();\n" +
+				"	}\n" +
 				"}\n",
 				"com/ost/util/report/FilterConstraintSpecification.java", // =================
-				"package com.ost.util.report;\n" + 
-				"import java.io.Serializable;\n" + 
-				"import com.ost.util.report.exceptions.MalformedFilterConstraintSpecification;\n" + 
-				"public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" + 
-				"	private final void makeConstraint(){\n" + 
-				"		throw new MalformedFilterConstraintSpecification();\n" + 
-				"	}\n" + 
+				"package com.ost.util.report;\n" +
+				"import java.io.Serializable;\n" +
+				"import com.ost.util.report.exceptions.MalformedFilterConstraintSpecification;\n" +
+				"public final class FilterConstraintSpecification implements Serializable, Cloneable {\n" +
+				"	private final void makeConstraint(){\n" +
+				"		throw new MalformedFilterConstraintSpecification();\n" +
+				"	}\n" +
 				"}\n",
 				"com/ost/util/report/exceptions/MalformedFilterConstraintSpecification.java", // =================
-				"package com.ost.util.report.exceptions;\n" + 
-				"public class MalformedFilterConstraintSpecification extends RuntimeException {\n" + 
-				"	/** Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
-				"	public MalformedFilterConstraintSpecification() {\n" + 
-				"		super();\n" + 
-				"	}\n" + 
-				"	/* Creates a new instance of MalformedFilterConstraintSpecification */\n" + 
-				"	public MalformedFilterConstraintSpecification(String message) {\n" + 
-				"		super(message);\n" + 
-				"	}\n" + 
+				"package com.ost.util.report.exceptions;\n" +
+				"public class MalformedFilterConstraintSpecification extends RuntimeException {\n" +
+				"	/** Creates a new instance of MalformedFilterConstraintSpecification */\n" +
+				"	public MalformedFilterConstraintSpecification() {\n" +
+				"		super();\n" +
+				"	}\n" +
+				"	/* Creates a new instance of MalformedFilterConstraintSpecification */\n" +
+				"	public MalformedFilterConstraintSpecification(String message) {\n" +
+				"		super(message);\n" +
+				"	}\n" +
 				"}\n",
 				"com/ost/util/report/exceptions/InvalidRowSizeException.java", // =================
-				"package com.ost.util.report.exceptions;\n" + 
-				"public class InvalidRowSizeException extends RuntimeException {\n" + 
-				"	/** Creates a new instance of InvalidRowSizeException */\n" + 
-				"	public InvalidRowSizeException() {\n" + 
-				"		super();\n" + 
-				"	}\n" + 
-				"	/* Creates a new instance of InvalidRowSizeException */\n" + 
-				"	public InvalidRowSizeException(String message) {\n" + 
-				"		super(message);\n" + 
-				"	}\n" + 
-				"}\n"				
+				"package com.ost.util.report.exceptions;\n" +
+				"public class InvalidRowSizeException extends RuntimeException {\n" +
+				"	/** Creates a new instance of InvalidRowSizeException */\n" +
+				"	public InvalidRowSizeException() {\n" +
+				"		super();\n" +
+				"	}\n" +
+				"	/* Creates a new instance of InvalidRowSizeException */\n" +
+				"	public InvalidRowSizeException(String message) {\n" +
+				"		super(message);\n" +
+				"	}\n" +
+				"}\n"
 			},
 			"");
 }
@@ -3968,16 +3968,16 @@ public void test083() {
 	this.runConformTest(
 			new String[] {
 				"foo/X.java", // =================
-				"package foo;\n" + 
-				"import foo.exceptions.*;\n" + 
-				"public class X {\n" + 
-				"  class exceptions {}\n" + 
-				"  exceptions E;\n" + 
+				"package foo;\n" +
+				"import foo.exceptions.*;\n" +
+				"public class X {\n" +
+				"  class exceptions {}\n" +
+				"  exceptions E;\n" +
 				"}\n",
 				"foo/exceptions/Z.java", // =================
-				"package foo.exceptions;\n" + 
-				"public class Z {\n" + 
-				"}\n"			
+				"package foo.exceptions;\n" +
+				"public class Z {\n" +
+				"}\n"
 			},
 			"");
 }
@@ -3986,28 +3986,28 @@ public void test084() {
 	this.runNegativeTest(
 			new String[] {
 				"foo/X.java", // =================
-				"package foo;\n" + 
-				"import foo.exceptions.*;\n" + 
-				"public class X {\n" + 
-				"  exceptions E;\n" + 
+				"package foo;\n" +
+				"import foo.exceptions.*;\n" +
+				"public class X {\n" +
+				"  exceptions E;\n" +
 				"}\n" +
 				"class exceptions {}\n",
 				"foo/exceptions/Z.java", // =================
-				"package foo.exceptions;\n" + 
-				"public class Z {\n" + 
-				"}\n"			
+				"package foo.exceptions;\n" +
+				"public class Z {\n" +
+				"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in foo\\X.java (at line 2)\n" + 
-			"	import foo.exceptions.*;\n" + 
-			"	       ^^^^^^^^^^^^^^\n" + 
-			"The import foo.exceptions is never used\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. ERROR in foo\\exceptions\\Z.java (at line 1)\n" + 
-			"	package foo.exceptions;\n" + 
-			"	        ^^^^^^^^^^^^^^\n" + 
-			"The package foo.exceptions collides with a type\n" + 
+			"----------\n" +
+			"1. WARNING in foo\\X.java (at line 2)\n" +
+			"	import foo.exceptions.*;\n" +
+			"	       ^^^^^^^^^^^^^^\n" +
+			"The import foo.exceptions is never used\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in foo\\exceptions\\Z.java (at line 1)\n" +
+			"	package foo.exceptions;\n" +
+			"	        ^^^^^^^^^^^^^^\n" +
+			"The package foo.exceptions collides with a type\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
@@ -4015,30 +4015,30 @@ public void test085() {
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java", // =================
-				"package p;\n" + 
-				"public class X extends zork.Z {\n" + 
+				"package p;\n" +
+				"public class X extends zork.Z {\n" +
 				"}\n",
 				"p/Y.java", // =================
-				"package p;\n" + 
-				"import p.zork.Z;\n" + 
-				"public class Y {\n" + 
+				"package p;\n" +
+				"import p.zork.Z;\n" +
+				"public class Y {\n" +
 				"}\n",
 				"p/zork/Z.java", // =================
-				"package p.zork;\n" + 
-				"public class Z {\n" + 
+				"package p.zork;\n" +
+				"public class Z {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 2)\n" + 
-			"	public class X extends zork.Z {\n" + 
-			"	                       ^^^^\n" + 
-			"zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in p\\Y.java (at line 2)\n" + 
-			"	import p.zork.Z;\n" + 
-			"	       ^^^^^^^^\n" + 
-			"The import p.zork.Z is never used\n" + 
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 2)\n" +
+			"	public class X extends zork.Z {\n" +
+			"	                       ^^^^\n" +
+			"zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in p\\Y.java (at line 2)\n" +
+			"	import p.zork.Z;\n" +
+			"	       ^^^^^^^^\n" +
+			"The import p.zork.Z is never used\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
@@ -4046,30 +4046,30 @@ public void test086() {
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java", // =================
-				"package p;\n" + 
-				"public class X extends zork.Z {\n" + 
+				"package p;\n" +
+				"public class X extends zork.Z {\n" +
 				"}\n",
 				"p/Y.java", // =================
-				"package p;\n" + 
-				"import p.zork.*;\n" + 
-				"public class Y {\n" + 
+				"package p;\n" +
+				"import p.zork.*;\n" +
+				"public class Y {\n" +
 				"}\n",
 				"p/zork/Z.java", // =================
-				"package p.zork;\n" + 
-				"public class Z {\n" + 
+				"package p.zork;\n" +
+				"public class Z {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 2)\n" + 
-			"	public class X extends zork.Z {\n" + 
-			"	                       ^^^^\n" + 
-			"zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in p\\Y.java (at line 2)\n" + 
-			"	import p.zork.*;\n" + 
-			"	       ^^^^^^\n" + 
-			"The import p.zork is never used\n" + 
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 2)\n" +
+			"	public class X extends zork.Z {\n" +
+			"	                       ^^^^\n" +
+			"zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in p\\Y.java (at line 2)\n" +
+			"	import p.zork.*;\n" +
+			"	       ^^^^^^\n" +
+			"The import p.zork is never used\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
@@ -4078,31 +4078,31 @@ public void test087() {
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java", // =================
-				"package p;\n" + 
-				"public class X extends zork.Z {\n" + 
+				"package p;\n" +
+				"public class X extends zork.Z {\n" +
 				"}\n",
 				"p/Y.java", // =================
-				"package p;\n" + 
-				"import static p.zork.Z.M;\n" + 
-				"public class Y {\n" + 
+				"package p;\n" +
+				"import static p.zork.Z.M;\n" +
+				"public class Y {\n" +
 				"}\n",
 				"p/zork/Z.java", // =================
-				"package p.zork;\n" + 
-				"public class Z {\n" + 
+				"package p.zork;\n" +
+				"public class Z {\n" +
 				"	public static class M {}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 2)\n" + 
-			"	public class X extends zork.Z {\n" + 
-			"	                       ^^^^\n" + 
-			"zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in p\\Y.java (at line 2)\n" + 
-			"	import static p.zork.Z.M;\n" + 
-			"	              ^^^^^^^^^^\n" + 
-			"The import p.zork.Z.M is never used\n" + 
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 2)\n" +
+			"	public class X extends zork.Z {\n" +
+			"	                       ^^^^\n" +
+			"zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in p\\Y.java (at line 2)\n" +
+			"	import static p.zork.Z.M;\n" +
+			"	              ^^^^^^^^^^\n" +
+			"The import p.zork.Z.M is never used\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239758 - variation
@@ -4111,31 +4111,31 @@ public void test088() {
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java", // =================
-				"package p;\n" + 
-				"public class X extends zork.Z {\n" + 
+				"package p;\n" +
+				"public class X extends zork.Z {\n" +
 				"}\n",
 				"p/Y.java", // =================
-				"package p;\n" + 
-				"import static p.zork.Z.*;\n" + 
-				"public class Y {\n" + 
+				"package p;\n" +
+				"import static p.zork.Z.*;\n" +
+				"public class Y {\n" +
 				"}\n",
 				"p/zork/Z.java", // =================
-				"package p.zork;\n" + 
-				"public class Z {\n" + 
+				"package p.zork;\n" +
+				"public class Z {\n" +
 				"	static class M {}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in p\\X.java (at line 2)\n" + 
-			"	public class X extends zork.Z {\n" + 
-			"	                       ^^^^\n" + 
-			"zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"----------\n" + 
-			"1. WARNING in p\\Y.java (at line 2)\n" + 
-			"	import static p.zork.Z.*;\n" + 
-			"	              ^^^^^^^^\n" + 
-			"The import p.zork.Z is never used\n" + 
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 2)\n" +
+			"	public class X extends zork.Z {\n" +
+			"	                       ^^^^\n" +
+			"zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in p\\Y.java (at line 2)\n" +
+			"	import static p.zork.Z.*;\n" +
+			"	              ^^^^^^^^\n" +
+			"The import p.zork.Z is never used\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=245304
@@ -4146,24 +4146,24 @@ public void test089() {
 	this.runConformTest(
 			new String[] {
 					"com/foo/bar/baz/reporting/dom/ReportExceptionBase.java", // ================
-					"package com.foo.bar.baz.reporting.dom;\n" + 
-					"public class ReportExceptionBase extends Exception  {\n" + 
-					"}\n",			
+					"package com.foo.bar.baz.reporting.dom;\n" +
+					"public class ReportExceptionBase extends Exception  {\n" +
+					"}\n",
 					"com/foo/bar/baz/reporting/Report.java", // ================
-					"package com.foo.bar.baz.reporting;\n" + 
-					"import com.foo.bar.baz.reporting.dom.ReportExceptionBase;\n" + 
-					"/**\n" + 
-					" * {@link dom.ReportDefs.ReportType.foo foo}\n" + 
-					" */\n" + 
-					"public abstract class Report {\n" + 
+					"package com.foo.bar.baz.reporting;\n" +
+					"import com.foo.bar.baz.reporting.dom.ReportExceptionBase;\n" +
+					"/**\n" +
+					" * {@link dom.ReportDefs.ReportType.foo foo}\n" +
+					" */\n" +
+					"public abstract class Report {\n" +
 					"}\n",
 					"com/foo/bar/baz/reporting/Derived.java", // ================
-					"package com.foo.bar.baz.reporting;\n" + 
-					"import com.foo.bar.baz.reporting.dom.ReportExceptionBase;\n" + 
-					"public class Derived {\n" + 
-					"  public Derived() throws ReportExceptionBase {\n" + 
-					"    throw new ReportExceptionBase();\n" + 
-					"  }\n" + 
+					"package com.foo.bar.baz.reporting;\n" +
+					"import com.foo.bar.baz.reporting.dom.ReportExceptionBase;\n" +
+					"public class Derived {\n" +
+					"  public Derived() throws ReportExceptionBase {\n" +
+					"    throw new ReportExceptionBase();\n" +
+					"  }\n" +
 					"}\n",
 			},
 			"",
@@ -4179,23 +4179,23 @@ public void test090() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
-				"public class X {\n" + 
-				"<U,V extends Runnable> void foo(Zork z) {}	\n" + 
-				"	void bar() {\n" + 
-				"		foo(null);\n" + 
-				"	} \n" + 
+				"public class X {\n" +
+				"<U,V extends Runnable> void foo(Zork z) {}	\n" +
+				"	void bar() {\n" +
+				"		foo(null);\n" +
+				"	} \n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	<U,V extends Runnable> void foo(Zork z) {}	\n" + 
-			"	                                ^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	foo(null);\n" + 
-			"	^^^\n" + 
-			"The method foo(Zork) from the type X refers to the missing type Zork\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<U,V extends Runnable> void foo(Zork z) {}	\n" +
+			"	                                ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	foo(null);\n" +
+			"	^^^\n" +
+			"The method foo(Zork) from the type X refers to the missing type Zork\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=252288
@@ -4204,598 +4204,598 @@ public void test091()  throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"TypeUtils.java",
-			"import java.util.Collection;\n" + 
-			"import java.util.Iterator;\n" + 
-			"\n" + 
-			"public final class TypeUtils {\n" + 
-			"\n" + 
-			"	// personal\n" + 
-			"\n" + 
-			"	private TypeUtils() {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	// class\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if a target type is exactly any one in a group of types.\n" + 
-			"	 * @param target Target type. Never null.\n" + 
-			"	 * @param types Group of types. If empty, returns false. Never null.\n" + 
-			"	 * @return True if the target is a valid type.\n" + 
-			"	 */\n" + 
-			"	public static boolean isIdenticalToAny(Class<?> target, Collection<Class<?>> types) {\n" + 
-			"		if (target == null) throw new IllegalArgumentException(\n" + 
-			"		\"Target is null.\");\n" + 
-			"\n" + 
-			"		if (types.contains(target)) return true;\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if a target type is the same or a subtype of (assignable to)\n" + 
-			"	 * a reference type. Convenience method for completeness. Forwards to\n" + 
-			"	 * Class.isAssignableFrom().\n" + 
-			"	 * @param target Target type. Never null.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean isAssignableTo(Class<?> target, Class<?> type) {\n" + 
-			"		return type.isAssignableFrom(target);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if a target type is the same or a subtype of (assignable to)\n" + 
-			"	 * any one reference type.\n" + 
-			"	 * @param target Target type. Never null.\n" + 
-			"	 * @param types Reference types (Class). Never null. If empty returns false.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean isAssignableToAny(Class<?> target,\n" + 
-			"	Collection<Class<?>> types) {\n" + 
-			"		if (types.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Class<?> type : types) {\n" + 
-			"			if (type.isAssignableFrom(target)) return true;\n" + 
-			"		}\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if any one target type is the same or a subtype of\n" + 
-			"	 * (assignable to) a reference type.\n" + 
-			"	 * @param targets Target types (Class). Never null. If empty returns false.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean areAnyAssignableTo(Collection<Class<?>> targets,\n" + 
-			"	Class<?> type) {\n" + 
-			"		if (targets.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Class<?> target : targets) {\n" + 
-			"			if (type.isAssignableFrom(target)) return true;\n" + 
-			"		}\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if any one target type is the same or a subtype of\n" + 
-			"	 * (assignable to) any one reference type.\n" + 
-			"	 * @param targets Target types (Class). Never null. If empty returns false.\n" + 
-			"	 * @param types Reference types (Class). Never null. If empty returns false.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean areAnyAssignableToAny(Collection<Class<?>> targets,\n" + 
-			"	Collection<Class<?>> types) {\n" + 
-			"		if (targets.isEmpty()) return false;\n" + 
-			"		if (types.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Class<?> target : targets) {\n" + 
-			"			if (isAssignableToAny(target, types)) return true;\n" + 
-			"		}\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if a target object\'s type is the same or a subtype of\n" + 
-			"	 * (assignable to) a reference type. Convenience method for completeness.\n" + 
-			"	 * Forwards to Class.isInstance().\n" + 
-			"	 * @param target Target object. Never null.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean isInstanceOf(Object target, Class<?> type) {\n" + 
-			"		return type.isInstance(target);\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if a target object\'s type is the same or a subtype of\n" + 
-			"	 * (assignable to) any one type.\n" + 
-			"	 * @param target Target object. Never null.\n" + 
-			"	 * @param types Reference types. Never null. If empty returns false.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean isInstanceOfAny(Object target,\n" + 
-			"	Collection<Class<?>> types) {\n" + 
-			"		if (types.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for (Class<?> type : types) {\n" + 
-			"			if (type.isInstance(target)) return true;\n" + 
-			"		}\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if any one target object\'s type is the same or a subtype of\n" + 
-			"	 * (assignable to) a reference type.\n" + 
-			"	 * @param targets Target objects. Never null. If empty returns false.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean areAnyInstanceOf(Collection<Object> targets,\n" + 
-			"	Class<?> type) {\n" + 
-			"		if (targets.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Object target : targets) {\n" + 
-			"			if (type.isInstance(target)) return true;\n" + 
-			"		}\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if all target object types are the same or a subtype of\n" + 
-			"	 * (assignable to) a reference type.\n" + 
-			"	 * @param targets Target objects. Never null. If empty returns\n" + 
-			"	 * false.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean areAllInstanceOf(Collection<Object> targets,\n" + 
-			"	Class<?> type) {\n" + 
-			"		if (targets.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Object target : targets) {\n" + 
-			"			if (!type.isInstance(target)) return false;\n" + 
-			"		}\n" + 
-			"		return true;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if no target object types are the same or a subtype of\n" + 
-			"	 * (assignable to) a reference type.\n" + 
-			"	 * @param targets Target objects. Never null. If empty returns\n" + 
-			"	 * false.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean areNoneInstanceOf(Collection<Object> targets,\n" + 
-			"	Class<?> type) {\n" + 
-			"		if (targets.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Object target : targets) {\n" + 
-			"			if (type.isInstance(target)) return false;\n" + 
-			"		}\n" + 
-			"		return true;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns true if any one target object\'s type is the same or a subtype of\n" + 
-			"	 * (assignable to) any one reference type.\n" + 
-			"	 * @param targets Target objects. Never null. If empty returns\n" + 
-			"	 * false.\n" + 
-			"	 * @param types Reference types. Never null. If empty returns false.\n" + 
-			"	 * @return True if condition is met.\n" + 
-			"	 */\n" + 
-			"	public static boolean areAnyInstanceOfAny(Collection<Object> targets,\n" + 
-			"	Collection<Class<?>> types) {\n" + 
-			"		if (targets.isEmpty()) return false;\n" + 
-			"		if (types.isEmpty()) return false;\n" + 
-			"\n" + 
-			"		for(Object target : targets) {\n" + 
-			"			if (isInstanceOfAny(target, types)) return true;\n" + 
-			"		}\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is identical to the included\n" + 
-			"	 * reference type.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param type Included reference type. Never null.\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Can be {@code targets}. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> includeIdenticalTo(Collection<Object> targets,\n" + 
-			"	Class<?> type, Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<?> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (!type.equals(object.getClass())) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is exactly one of the\n" + 
-			"	 * included reference types.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param types Group of included reference types. If empty, returns empty.\n" + 
-			"	 * If null, all types are included (all targets are returned).\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Can be {@code targets}. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> includeIdenticalToAny(\n" + 
-			"	Collection<Object> targets,\n" + 
-			"	Collection<Class<?>> types, Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		if (types == null) return retVal;\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (!isIdenticalToAny(object.getClass(), types)) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is NOT identical to the\n" + 
-			"	 * excluded reference type.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param type The excluded reference type. Never null.\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Can be {@code targets}. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> excludeIdenticalTo(\n" + 
-			"	Collection<Object> targets, Class<?> type,\n" + 
-			"	Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (type.equals(object.getClass())) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is NOT exactly one of the\n" + 
-			"	 * excluded reference types.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param types Group of excluded reference types. If empty, returns empty.\n" + 
-			"	 * If null, no types are excluded (all targets are returned).\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Can be targets. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> excludeIdenticalToAny(\n" + 
-			"	Collection<Object> targets, Collection<Class<?>> types,\n" + 
-			"	Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		if (types == null) return retVal;\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (isIdenticalToAny(object.getClass(), types)) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is assignable to (an\n" + 
-			"	 * instance of) the included reference type.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param type Included reference type. Never null.\n" + 
-			"	 * @param retVal Return value object. The collection of valid target objects\n" + 
-			"	 * (Object). Can be targets. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> includeAssignableTo(\n" + 
-			"	Collection<Object> targets, Class<?> type, Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (!type.isInstance(object)) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is assignable to (an\n" + 
-			"	 * instance of) any one of the included reference types.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param types Group of included reference types. If empty, returns empty.\n" + 
-			"	 * If null, all types are included (all targets are returned).\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Can be targets. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> includeAssignableToAny(\n" + 
-			"	Collection<Object> targets, Collection<Class<?>> types,\n" + 
-			"	Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		if (types == null) return retVal;\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (!isInstanceOfAny(object, types)) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is NOT assignable to (an\n" + 
-			"	 * instance of) the excluded reference type.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param type The excluded reference type. Never null.\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> excludeAssignableTo(\n" + 
-			"	Collection<Object> targets, Class<?> type, Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (type.isInstance(object)) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns only those target objects whose type is NOT assignable to (an\n" + 
-			"	 * instance of) any one of the excluded reference types.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @param types Group of excluded reference types. If empty, returns empty.\n" + 
-			"	 * If null, no types are excluded (all targets are returned).\n" + 
-			"	 * @param retVal Return value object. The collection of valid target\n" + 
-			"	 * objects. Never null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static Collection<Object> excludeAssignableToAny(\n" + 
-			"	Collection<Object> targets, Collection<Class<?>> types,\n" + 
-			"	Collection<Object> retVal) {\n" + 
-			"		// save targets in retVal\n" + 
-			"		if (targets != retVal) {\n" + 
-			"			retVal.clear();\n" + 
-			"			retVal.addAll(targets);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		if (types == null) return retVal;\n" + 
-			"\n" + 
-			"		// remove unwanted targets, by target\n" + 
-			"		Iterator<Object> objectI = retVal.iterator();\n" + 
-			"		while (objectI.hasNext()) {\n" + 
-			"			Object object = objectI.next();\n" + 
-			"			if (isInstanceOfAny(object, types)) objectI.remove();\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns the first target object whose type is assignable to (an instance\n" + 
-			"	 * of) the reference type.\n" + 
-			"	 * @param targets Group of target objects. If empty, returns null.\n" + 
-			"	 * Never null.\n" + 
-			"	 * @param type Reference type. Never null.\n" + 
-			"	 * @return The result (Object, assignable instance of type). Null if none.\n" + 
-			"	 */\n" + 
-			"	public static <T extends Class<?>> T getFirstAssignableTo(\n" + 
-			"	Collection<Object> targets, T type) {\n" + 
-			"		for(Object target : targets) {\n" + 
-			"			if (type.isInstance(target)) return target;\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Returns the first target object whose type is exactly the specified type.\n" + 
-			"	 * @param targets Group of target objects (Object). If empty, returns null.\n" + 
-			"	 * Never null.\n" + 
-			"	 * @param type The type. Never null. objects (Object). Can be targets. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @return The result (Object, exact instance of type). Null if none.\n" + 
-			"	 */\n" + 
-			"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" + 
-			"		Iterator targetI = targets.iterator();\n" + 
-			"		while (targetI.hasNext()) {\n" + 
-			"			Object target = targetI.next();\n" + 
-			"			if (type.equals(target.getClass())) return target;\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Gets a target object T from a source object S in a group of objects, and\n" + 
-			"	 * returns the target objects in result group R. A group object is ignored\n" + 
-			"	 * if it is not a source type or, if it is a source type, its target object\n" + 
-			"	 * is not a target type.\n" + 
-			"	 * @param group Temp input group of shared exposed objects. If null, returns\n" + 
-			"	 * empty.\n" + 
-			"	 * @param sourceType Desired source object type. Never null.\n" + 
-			"	 * @param getter Gets a target object from a source object. Never null.\n" + 
-			"	 * @param targetType Desired target object type. Never null.\n" + 
-			"	 * @param retVal Temp output group of shared exposed target objects. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static <S,T,TT extends T,R extends Collection<? super TT>> R getAll(\n" + 
-			"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
-			"	Class<TT> targetType, R retVal) {\n" + 
-			"		if (sourceType == null) throw new IllegalArgumentException(\n" + 
-			"		\"Source type is null.\");\n" + 
-			"		if (getter == null) throw new IllegalArgumentException(\n" + 
-			"		\"Getter is null.\");\n" + 
-			"		if (targetType == null) throw new IllegalArgumentException(\n" + 
-			"		\"Target type is null.\");\n" + 
-			"		if (retVal == null) throw new IllegalArgumentException(\n" + 
-			"		\"Return value is null.\");\n" + 
-			"		retVal.clear();\n" + 
-			"\n" + 
-			"		if (group == null) return retVal;\n" + 
-			"\n" + 
-			"		for (Object obj : group) {\n" + 
-			"			if (!sourceType.isInstance(obj)) continue; // ignore\n" + 
-			"			S source = (S) obj;\n" + 
-			"			T target = getter.getFrom(source);\n" + 
-			"			if (!targetType.isInstance(target)) continue; // ignore\n" + 
-			"			retVal.add((TT) target);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	/**\n" + 
-			"	 * Similar to getAll(Collection, Class, Getter, Class, Collection), but all\n" + 
-			"	 * target objects are returned, regardless of type, including nulls.\n" + 
-			"	 * @param group Temp input group of shared exposed objects. If null, returns\n" + 
-			"	 * empty.\n" + 
-			"	 * @param sourceType Desired source object type. Never null.\n" + 
-			"	 * @param getter Gets a target object from a source object. Never null.\n" + 
-			"	 * @param retVal Temp output group of shared exposed target objects. Never\n" + 
-			"	 * null.\n" + 
-			"	 * @return Reference to retVal. Never null.\n" + 
-			"	 */\n" + 
-			"	public static <S,T,R extends Collection<? super T>> R getAll(\n" + 
-			"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
-			"	R retVal) {\n" + 
-			"		if (sourceType == null) throw new IllegalArgumentException(\n" + 
-			"		\"Source type is null.\");\n" + 
-			"		if (getter == null) throw new IllegalArgumentException(\n" + 
-			"		\"Getter is null.\");\n" + 
-			"		if (retVal == null) throw new IllegalArgumentException(\n" + 
-			"		\"Return value is null.\");\n" + 
-			"		retVal.clear();\n" + 
-			"\n" + 
-			"		if (group == null) return retVal;\n" + 
-			"\n" + 
-			"		for (Object obj : group) {\n" + 
-			"			if (!sourceType.isInstance(obj)) continue; // ignore\n" + 
-			"			S source = (S) obj;\n" + 
-			"			T target = getter.getFrom(source);\n" + 
-			"			retVal.add(target);\n" + 
-			"		}\n" + 
-			"\n" + 
-			"		return retVal;\n" + 
-			"	}\n" + 
+			"import java.util.Collection;\n" +
+			"import java.util.Iterator;\n" +
+			"\n" +
+			"public final class TypeUtils {\n" +
+			"\n" +
+			"	// personal\n" +
+			"\n" +
+			"	private TypeUtils() {\n" +
+			"	}\n" +
+			"\n" +
+			"	// class\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if a target type is exactly any one in a group of types.\n" +
+			"	 * @param target Target type. Never null.\n" +
+			"	 * @param types Group of types. If empty, returns false. Never null.\n" +
+			"	 * @return True if the target is a valid type.\n" +
+			"	 */\n" +
+			"	public static boolean isIdenticalToAny(Class<?> target, Collection<Class<?>> types) {\n" +
+			"		if (target == null) throw new IllegalArgumentException(\n" +
+			"		\"Target is null.\");\n" +
+			"\n" +
+			"		if (types.contains(target)) return true;\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if a target type is the same or a subtype of (assignable to)\n" +
+			"	 * a reference type. Convenience method for completeness. Forwards to\n" +
+			"	 * Class.isAssignableFrom().\n" +
+			"	 * @param target Target type. Never null.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean isAssignableTo(Class<?> target, Class<?> type) {\n" +
+			"		return type.isAssignableFrom(target);\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if a target type is the same or a subtype of (assignable to)\n" +
+			"	 * any one reference type.\n" +
+			"	 * @param target Target type. Never null.\n" +
+			"	 * @param types Reference types (Class). Never null. If empty returns false.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean isAssignableToAny(Class<?> target,\n" +
+			"	Collection<Class<?>> types) {\n" +
+			"		if (types.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Class<?> type : types) {\n" +
+			"			if (type.isAssignableFrom(target)) return true;\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if any one target type is the same or a subtype of\n" +
+			"	 * (assignable to) a reference type.\n" +
+			"	 * @param targets Target types (Class). Never null. If empty returns false.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean areAnyAssignableTo(Collection<Class<?>> targets,\n" +
+			"	Class<?> type) {\n" +
+			"		if (targets.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Class<?> target : targets) {\n" +
+			"			if (type.isAssignableFrom(target)) return true;\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if any one target type is the same or a subtype of\n" +
+			"	 * (assignable to) any one reference type.\n" +
+			"	 * @param targets Target types (Class). Never null. If empty returns false.\n" +
+			"	 * @param types Reference types (Class). Never null. If empty returns false.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean areAnyAssignableToAny(Collection<Class<?>> targets,\n" +
+			"	Collection<Class<?>> types) {\n" +
+			"		if (targets.isEmpty()) return false;\n" +
+			"		if (types.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Class<?> target : targets) {\n" +
+			"			if (isAssignableToAny(target, types)) return true;\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if a target object\'s type is the same or a subtype of\n" +
+			"	 * (assignable to) a reference type. Convenience method for completeness.\n" +
+			"	 * Forwards to Class.isInstance().\n" +
+			"	 * @param target Target object. Never null.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean isInstanceOf(Object target, Class<?> type) {\n" +
+			"		return type.isInstance(target);\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if a target object\'s type is the same or a subtype of\n" +
+			"	 * (assignable to) any one type.\n" +
+			"	 * @param target Target object. Never null.\n" +
+			"	 * @param types Reference types. Never null. If empty returns false.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean isInstanceOfAny(Object target,\n" +
+			"	Collection<Class<?>> types) {\n" +
+			"		if (types.isEmpty()) return false;\n" +
+			"\n" +
+			"		for (Class<?> type : types) {\n" +
+			"			if (type.isInstance(target)) return true;\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if any one target object\'s type is the same or a subtype of\n" +
+			"	 * (assignable to) a reference type.\n" +
+			"	 * @param targets Target objects. Never null. If empty returns false.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean areAnyInstanceOf(Collection<Object> targets,\n" +
+			"	Class<?> type) {\n" +
+			"		if (targets.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Object target : targets) {\n" +
+			"			if (type.isInstance(target)) return true;\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if all target object types are the same or a subtype of\n" +
+			"	 * (assignable to) a reference type.\n" +
+			"	 * @param targets Target objects. Never null. If empty returns\n" +
+			"	 * false.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean areAllInstanceOf(Collection<Object> targets,\n" +
+			"	Class<?> type) {\n" +
+			"		if (targets.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Object target : targets) {\n" +
+			"			if (!type.isInstance(target)) return false;\n" +
+			"		}\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if no target object types are the same or a subtype of\n" +
+			"	 * (assignable to) a reference type.\n" +
+			"	 * @param targets Target objects. Never null. If empty returns\n" +
+			"	 * false.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean areNoneInstanceOf(Collection<Object> targets,\n" +
+			"	Class<?> type) {\n" +
+			"		if (targets.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Object target : targets) {\n" +
+			"			if (type.isInstance(target)) return false;\n" +
+			"		}\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns true if any one target object\'s type is the same or a subtype of\n" +
+			"	 * (assignable to) any one reference type.\n" +
+			"	 * @param targets Target objects. Never null. If empty returns\n" +
+			"	 * false.\n" +
+			"	 * @param types Reference types. Never null. If empty returns false.\n" +
+			"	 * @return True if condition is met.\n" +
+			"	 */\n" +
+			"	public static boolean areAnyInstanceOfAny(Collection<Object> targets,\n" +
+			"	Collection<Class<?>> types) {\n" +
+			"		if (targets.isEmpty()) return false;\n" +
+			"		if (types.isEmpty()) return false;\n" +
+			"\n" +
+			"		for(Object target : targets) {\n" +
+			"			if (isInstanceOfAny(target, types)) return true;\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is identical to the included\n" +
+			"	 * reference type.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param type Included reference type. Never null.\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Can be {@code targets}. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> includeIdenticalTo(Collection<Object> targets,\n" +
+			"	Class<?> type, Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<?> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (!type.equals(object.getClass())) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is exactly one of the\n" +
+			"	 * included reference types.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param types Group of included reference types. If empty, returns empty.\n" +
+			"	 * If null, all types are included (all targets are returned).\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Can be {@code targets}. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> includeIdenticalToAny(\n" +
+			"	Collection<Object> targets,\n" +
+			"	Collection<Class<?>> types, Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		if (types == null) return retVal;\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (!isIdenticalToAny(object.getClass(), types)) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is NOT identical to the\n" +
+			"	 * excluded reference type.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param type The excluded reference type. Never null.\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Can be {@code targets}. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> excludeIdenticalTo(\n" +
+			"	Collection<Object> targets, Class<?> type,\n" +
+			"	Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (type.equals(object.getClass())) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is NOT exactly one of the\n" +
+			"	 * excluded reference types.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param types Group of excluded reference types. If empty, returns empty.\n" +
+			"	 * If null, no types are excluded (all targets are returned).\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Can be targets. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> excludeIdenticalToAny(\n" +
+			"	Collection<Object> targets, Collection<Class<?>> types,\n" +
+			"	Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		if (types == null) return retVal;\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (isIdenticalToAny(object.getClass(), types)) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is assignable to (an\n" +
+			"	 * instance of) the included reference type.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param type Included reference type. Never null.\n" +
+			"	 * @param retVal Return value object. The collection of valid target objects\n" +
+			"	 * (Object). Can be targets. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> includeAssignableTo(\n" +
+			"	Collection<Object> targets, Class<?> type, Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (!type.isInstance(object)) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is assignable to (an\n" +
+			"	 * instance of) any one of the included reference types.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param types Group of included reference types. If empty, returns empty.\n" +
+			"	 * If null, all types are included (all targets are returned).\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Can be targets. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> includeAssignableToAny(\n" +
+			"	Collection<Object> targets, Collection<Class<?>> types,\n" +
+			"	Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		if (types == null) return retVal;\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (!isInstanceOfAny(object, types)) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is NOT assignable to (an\n" +
+			"	 * instance of) the excluded reference type.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param type The excluded reference type. Never null.\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> excludeAssignableTo(\n" +
+			"	Collection<Object> targets, Class<?> type, Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (type.isInstance(object)) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns only those target objects whose type is NOT assignable to (an\n" +
+			"	 * instance of) any one of the excluded reference types.\n" +
+			"	 * @param targets Group of target objects. If empty, returns empty. Never\n" +
+			"	 * null.\n" +
+			"	 * @param types Group of excluded reference types. If empty, returns empty.\n" +
+			"	 * If null, no types are excluded (all targets are returned).\n" +
+			"	 * @param retVal Return value object. The collection of valid target\n" +
+			"	 * objects. Never null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static Collection<Object> excludeAssignableToAny(\n" +
+			"	Collection<Object> targets, Collection<Class<?>> types,\n" +
+			"	Collection<Object> retVal) {\n" +
+			"		// save targets in retVal\n" +
+			"		if (targets != retVal) {\n" +
+			"			retVal.clear();\n" +
+			"			retVal.addAll(targets);\n" +
+			"		}\n" +
+			"\n" +
+			"		if (types == null) return retVal;\n" +
+			"\n" +
+			"		// remove unwanted targets, by target\n" +
+			"		Iterator<Object> objectI = retVal.iterator();\n" +
+			"		while (objectI.hasNext()) {\n" +
+			"			Object object = objectI.next();\n" +
+			"			if (isInstanceOfAny(object, types)) objectI.remove();\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns the first target object whose type is assignable to (an instance\n" +
+			"	 * of) the reference type.\n" +
+			"	 * @param targets Group of target objects. If empty, returns null.\n" +
+			"	 * Never null.\n" +
+			"	 * @param type Reference type. Never null.\n" +
+			"	 * @return The result (Object, assignable instance of type). Null if none.\n" +
+			"	 */\n" +
+			"	public static <T extends Class<?>> T getFirstAssignableTo(\n" +
+			"	Collection<Object> targets, T type) {\n" +
+			"		for(Object target : targets) {\n" +
+			"			if (type.isInstance(target)) return target;\n" +
+			"		}\n" +
+			"\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Returns the first target object whose type is exactly the specified type.\n" +
+			"	 * @param targets Group of target objects (Object). If empty, returns null.\n" +
+			"	 * Never null.\n" +
+			"	 * @param type The type. Never null. objects (Object). Can be targets. Never\n" +
+			"	 * null.\n" +
+			"	 * @return The result (Object, exact instance of type). Null if none.\n" +
+			"	 */\n" +
+			"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" +
+			"		Iterator targetI = targets.iterator();\n" +
+			"		while (targetI.hasNext()) {\n" +
+			"			Object target = targetI.next();\n" +
+			"			if (type.equals(target.getClass())) return target;\n" +
+			"		}\n" +
+			"\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Gets a target object T from a source object S in a group of objects, and\n" +
+			"	 * returns the target objects in result group R. A group object is ignored\n" +
+			"	 * if it is not a source type or, if it is a source type, its target object\n" +
+			"	 * is not a target type.\n" +
+			"	 * @param group Temp input group of shared exposed objects. If null, returns\n" +
+			"	 * empty.\n" +
+			"	 * @param sourceType Desired source object type. Never null.\n" +
+			"	 * @param getter Gets a target object from a source object. Never null.\n" +
+			"	 * @param targetType Desired target object type. Never null.\n" +
+			"	 * @param retVal Temp output group of shared exposed target objects. Never\n" +
+			"	 * null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static <S,T,TT extends T,R extends Collection<? super TT>> R getAll(\n" +
+			"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" +
+			"	Class<TT> targetType, R retVal) {\n" +
+			"		if (sourceType == null) throw new IllegalArgumentException(\n" +
+			"		\"Source type is null.\");\n" +
+			"		if (getter == null) throw new IllegalArgumentException(\n" +
+			"		\"Getter is null.\");\n" +
+			"		if (targetType == null) throw new IllegalArgumentException(\n" +
+			"		\"Target type is null.\");\n" +
+			"		if (retVal == null) throw new IllegalArgumentException(\n" +
+			"		\"Return value is null.\");\n" +
+			"		retVal.clear();\n" +
+			"\n" +
+			"		if (group == null) return retVal;\n" +
+			"\n" +
+			"		for (Object obj : group) {\n" +
+			"			if (!sourceType.isInstance(obj)) continue; // ignore\n" +
+			"			S source = (S) obj;\n" +
+			"			T target = getter.getFrom(source);\n" +
+			"			if (!targetType.isInstance(target)) continue; // ignore\n" +
+			"			retVal.add((TT) target);\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
+			"\n" +
+			"	/**\n" +
+			"	 * Similar to getAll(Collection, Class, Getter, Class, Collection), but all\n" +
+			"	 * target objects are returned, regardless of type, including nulls.\n" +
+			"	 * @param group Temp input group of shared exposed objects. If null, returns\n" +
+			"	 * empty.\n" +
+			"	 * @param sourceType Desired source object type. Never null.\n" +
+			"	 * @param getter Gets a target object from a source object. Never null.\n" +
+			"	 * @param retVal Temp output group of shared exposed target objects. Never\n" +
+			"	 * null.\n" +
+			"	 * @return Reference to retVal. Never null.\n" +
+			"	 */\n" +
+			"	public static <S,T,R extends Collection<? super T>> R getAll(\n" +
+			"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" +
+			"	R retVal) {\n" +
+			"		if (sourceType == null) throw new IllegalArgumentException(\n" +
+			"		\"Source type is null.\");\n" +
+			"		if (getter == null) throw new IllegalArgumentException(\n" +
+			"		\"Getter is null.\");\n" +
+			"		if (retVal == null) throw new IllegalArgumentException(\n" +
+			"		\"Return value is null.\");\n" +
+			"		retVal.clear();\n" +
+			"\n" +
+			"		if (group == null) return retVal;\n" +
+			"\n" +
+			"		for (Object obj : group) {\n" +
+			"			if (!sourceType.isInstance(obj)) continue; // ignore\n" +
+			"			S source = (S) obj;\n" +
+			"			T target = getter.getFrom(source);\n" +
+			"			retVal.add(target);\n" +
+			"		}\n" +
+			"\n" +
+			"		return retVal;\n" +
+			"	}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in TypeUtils.java (at line 441)\n" + 
-		"	public static <T extends Class<?>> T getFirstAssignableTo(\n" + 
-		"	                         ^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Class<?>. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"2. ERROR in TypeUtils.java (at line 444)\n" + 
-		"	if (type.isInstance(target)) return target;\n" + 
-		"	                                    ^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object to T\n" + 
-		"----------\n" + 
-		"3. WARNING in TypeUtils.java (at line 458)\n" + 
-		"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" + 
-		"	                                         ^^^^^^^^^^\n" + 
-		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" + 
-		"----------\n" + 
-		"4. WARNING in TypeUtils.java (at line 458)\n" + 
-		"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" + 
-		"	                                                             ^^^^^\n" + 
-		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-		"----------\n" + 
-		"5. WARNING in TypeUtils.java (at line 459)\n" + 
-		"	Iterator targetI = targets.iterator();\n" + 
-		"	^^^^^^^^\n" + 
-		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" + 
-		"----------\n" + 
-		"6. ERROR in TypeUtils.java (at line 483)\n" + 
-		"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
-		"	                                                    ^^^^^^\n" + 
-		"Getter cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"7. WARNING in TypeUtils.java (at line 499)\n" + 
-		"	S source = (S) obj;\n" + 
-		"	           ^^^^^^^\n" + 
-		"Type safety: Unchecked cast from Object to S\n" + 
-		"----------\n" + 
-		"8. WARNING in TypeUtils.java (at line 502)\n" + 
-		"	retVal.add((TT) target);\n" + 
-		"	           ^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked cast from T to TT\n" + 
-		"----------\n" + 
-		"9. ERROR in TypeUtils.java (at line 520)\n" + 
-		"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" + 
-		"	                                                    ^^^^^^\n" + 
-		"Getter cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"10. WARNING in TypeUtils.java (at line 534)\n" + 
-		"	S source = (S) obj;\n" + 
-		"	           ^^^^^^^\n" + 
-		"Type safety: Unchecked cast from Object to S\n" + 
+		"----------\n" +
+		"1. WARNING in TypeUtils.java (at line 441)\n" +
+		"	public static <T extends Class<?>> T getFirstAssignableTo(\n" +
+		"	                         ^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Class<?>. Final types cannot be further extended\n" +
+		"----------\n" +
+		"2. ERROR in TypeUtils.java (at line 444)\n" +
+		"	if (type.isInstance(target)) return target;\n" +
+		"	                                    ^^^^^^\n" +
+		"Type mismatch: cannot convert from Object to T\n" +
+		"----------\n" +
+		"3. WARNING in TypeUtils.java (at line 458)\n" +
+		"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" +
+		"	                                         ^^^^^^^^^^\n" +
+		"Collection is a raw type. References to generic type Collection<E> should be parameterized\n" +
+		"----------\n" +
+		"4. WARNING in TypeUtils.java (at line 458)\n" +
+		"	public static Object getFirstIdenticalTo(Collection targets, Class type) {\n" +
+		"	                                                             ^^^^^\n" +
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+		"----------\n" +
+		"5. WARNING in TypeUtils.java (at line 459)\n" +
+		"	Iterator targetI = targets.iterator();\n" +
+		"	^^^^^^^^\n" +
+		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" +
+		"----------\n" +
+		"6. ERROR in TypeUtils.java (at line 483)\n" +
+		"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" +
+		"	                                                    ^^^^^^\n" +
+		"Getter cannot be resolved to a type\n" +
+		"----------\n" +
+		"7. WARNING in TypeUtils.java (at line 499)\n" +
+		"	S source = (S) obj;\n" +
+		"	           ^^^^^^^\n" +
+		"Type safety: Unchecked cast from Object to S\n" +
+		"----------\n" +
+		"8. WARNING in TypeUtils.java (at line 502)\n" +
+		"	retVal.add((TT) target);\n" +
+		"	           ^^^^^^^^^^^\n" +
+		"Type safety: Unchecked cast from T to TT\n" +
+		"----------\n" +
+		"9. ERROR in TypeUtils.java (at line 520)\n" +
+		"	Collection<?> group, Class<? extends S> sourceType, Getter<S,T> getter,\n" +
+		"	                                                    ^^^^^^\n" +
+		"Getter cannot be resolved to a type\n" +
+		"----------\n" +
+		"10. WARNING in TypeUtils.java (at line 534)\n" +
+		"	S source = (S) obj;\n" +
+		"	           ^^^^^^^\n" +
+		"Type safety: Unchecked cast from Object to S\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297
@@ -4803,16 +4803,16 @@ public void test092() {
 	this.runNegativeTest(
 		new String[] {
 			"p1/p2/X.java", // =================
-			"package p1.p2;\n" + 
-			"public class X {\n" + 
-			"	public p2.p3.Z z() {return null;}\n" + 
+			"package p1.p2;\n" +
+			"public class X {\n" +
+			"	public p2.p3.Z z() {return null;}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\p2\\X.java (at line 3)\n" + 
-		"	public p2.p3.Z z() {return null;}\n" + 
-		"	       ^^\n" + 
-		"p2 cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\p2\\X.java (at line 3)\n" +
+		"	public p2.p3.Z z() {return null;}\n" +
+		"	       ^^\n" +
+		"p2 cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		false,
@@ -4826,14 +4826,14 @@ public void test092() {
 	runner.testFiles =
 		new String[] {
 			"a/b/A.java", // =================
-			"package a.b;\n" + 
-			"public class A {\n" + 
-			"	p1.p2.X x;\n" + 
-			"	void test() { x.z(); }\n" + 
-			"	void foo(p2.p3.Z z) {}\n" + 
+			"package a.b;\n" +
+			"public class A {\n" +
+			"	p1.p2.X x;\n" +
+			"	void test() { x.z(); }\n" +
+			"	void foo(p2.p3.Z z) {}\n" +
 			"}\n",
 			"p2/p3/Z.java", // =================
-			"package p2.p3;\n" + 
+			"package p2.p3;\n" +
 			"public class Z {}\n"
 		};
 	runner.shouldFlushOutputDirectory = false;
@@ -4841,11 +4841,11 @@ public void test092() {
 	runner.testFiles =
 		new String[] {
 			"a/b/A.java", // =================
-			"package a.b;\n" + 
-			"public class A {\n" + 
-			"	p1.p2.X x;\n" + 
-			"	void test() { x.z(); }\n" + 
-			"	void foo(p2.p3.Z z) {}\n" + 
+			"package a.b;\n" +
+			"public class A {\n" +
+			"	p1.p2.X x;\n" +
+			"	void test() { x.z(); }\n" +
+			"	void foo(p2.p3.Z z) {}\n" +
 			"}\n"
 		};
 	runner.runConformTest();
@@ -4856,21 +4856,21 @@ public void test093() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
-				"import java.util.List;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void foo() {\n" + 
-				"		List<? extends Zork> zlist = null;\n" + 
-				"		bar(zlist.get(0));\n" + 
-				"	}\n" + 
-				"	<T> T bar(T t) { return t; }\n" + 
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		List<? extends Zork> zlist = null;\n" +
+				"		bar(zlist.get(0));\n" +
+				"	}\n" +
+				"	<T> T bar(T t) { return t; }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	List<? extends Zork> zlist = null;\n" + 
-			"	               ^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	List<? extends Zork> zlist = null;\n" +
+			"	               ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
@@ -4879,25 +4879,25 @@ public void test094() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
-				"import java.util.List;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void foo(boolean b, Runnable r) {\n" + 
-				"		bar(r);\n" + 
-				"	}\n" + 
-				"	<T> T bar(Zork z) { return z; }\n" + 
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void foo(boolean b, Runnable r) {\n" +
+				"		bar(r);\n" +
+				"	}\n" +
+				"	<T> T bar(Zork z) { return z; }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	bar(r);\n" + 
-			"	^^^\n" + 
-			"The method bar(Zork) from the type X refers to the missing type Zork\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	<T> T bar(Zork z) { return z; }\n" + 
-			"	          ^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	bar(r);\n" +
+			"	^^^\n" +
+			"The method bar(Zork) from the type X refers to the missing type Zork\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	<T> T bar(Zork z) { return z; }\n" +
+			"	          ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
@@ -4906,30 +4906,30 @@ public void test095() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java", // =================
-				"import java.util.List;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	void foo(boolean b, Runnable r) {\n" + 
-				"		bar(r);\n" + 
-				"	}\n" + 
-				"	<T> bar(Zork z) { return z; }\n" + 
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	void foo(boolean b, Runnable r) {\n" +
+				"		bar(r);\n" +
+				"	}\n" +
+				"	<T> bar(Zork z) { return z; }\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	bar(r);\n" + 
-			"	^^^\n" + 
-			"The method bar(Runnable) is undefined for the type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	<T> bar(Zork z) { return z; }\n" + 
-			"	    ^^^^^^^^^^^\n" + 
-			"Return type for the method is missing\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 7)\n" + 
-			"	<T> bar(Zork z) { return z; }\n" + 
-			"	        ^^^^\n" + 
-			"Zork cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	bar(r);\n" +
+			"	^^^\n" +
+			"The method bar(Runnable) is undefined for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	<T> bar(Zork z) { return z; }\n" +
+			"	    ^^^^^^^^^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	<T> bar(Zork z) { return z; }\n" +
+			"	        ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=257384
@@ -4937,42 +4937,42 @@ public void test096() {
 	this.runNegativeTest(
 		new String[] {
 			"p2/B.java", // =================
-			"package p2;\n" + 
-			"import p1.A;\n" + 
-			"public abstract class B {\n" + 
-			"	public static A foo() {}\n" + 
+			"package p2;\n" +
+			"import p1.A;\n" +
+			"public abstract class B {\n" +
+			"	public static A foo() {}\n" +
 			"}\n",
 			"p3/C.java", // =================
-			"package p3;\n" + 
-			"import p1.A;\n" + 
-			"public abstract class C extends p2.B {\n" + 
-			"	public static A foo() {}\n" + 
+			"package p3;\n" +
+			"import p1.A;\n" +
+			"public abstract class C extends p2.B {\n" +
+			"	public static A foo() {}\n" +
 			"}\n",
 			"p/D.java", // =================
-			"package p;\n" + 
+			"package p;\n" +
 			"public class D extends p3.C {}"
 		},
-		"----------\n" + 
-		"1. ERROR in p2\\B.java (at line 2)\n" + 
-		"	import p1.A;\n" + 
-		"	       ^^\n" + 
-		"The import p1 cannot be resolved\n" + 
-		"----------\n" + 
-		"2. ERROR in p2\\B.java (at line 4)\n" + 
-		"	public static A foo() {}\n" + 
-		"	              ^\n" + 
-		"A cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. ERROR in p3\\C.java (at line 2)\n" + 
-		"	import p1.A;\n" + 
-		"	       ^^\n" + 
-		"The import p1 cannot be resolved\n" + 
-		"----------\n" + 
-		"2. ERROR in p3\\C.java (at line 4)\n" + 
-		"	public static A foo() {}\n" + 
-		"	              ^\n" + 
-		"A cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in p2\\B.java (at line 2)\n" +
+		"	import p1.A;\n" +
+		"	       ^^\n" +
+		"The import p1 cannot be resolved\n" +
+		"----------\n" +
+		"2. ERROR in p2\\B.java (at line 4)\n" +
+		"	public static A foo() {}\n" +
+		"	              ^\n" +
+		"A cannot be resolved to a type\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. ERROR in p3\\C.java (at line 2)\n" +
+		"	import p1.A;\n" +
+		"	       ^^\n" +
+		"The import p1 cannot be resolved\n" +
+		"----------\n" +
+		"2. ERROR in p3\\C.java (at line 4)\n" +
+		"	public static A foo() {}\n" +
+		"	              ^\n" +
+		"A cannot be resolved to a type\n" +
 		"----------\n"
 	);
 }
@@ -4982,22 +4982,22 @@ public void test097() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
-			"public class X {\n" + 
-			"\n" + 
-			"	public static interface InnerInterface<TheTypeMirror, TheDeclaredType extends TheTypeMirror, TheClassType extends TheDeclaredType, TheInterfaceType extends TheDeclaredType, ThePrimitiveType extends TheTypeMirror, TheArrayType extends TheTypeMirror, TheTypeVariable extends TheTypeMirror, TheWildcardType extends TheTypeMirror, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration extends TheTypeDeclaration> {\n" + 
-			"	}\n" + 
-			"	protected <TheTypeMirror, TheDeclaredType extends TheTypeMirror, TheClassType extends TheDeclaredType, TheInterfaceType extends TheDeclaredType, ThePrimitiveType extends TheTypeMirror, TheArrayType extends TheTypeMirror, TheTypeVariable extends TheTypeMirror, TheWildcardType extends TheTypeMirror, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration extends TheTypeDeclaration, Env extends InnerInterface<TheTypeMirror, TheDeclaredType, TheClassType, TheInterfaceType, ThePrimitiveType, TheArrayType, TheTypeVariable, TheWildcardType, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration>, ParamType extends TheTypeMirror> void testMethod(\n" + 
-			"			TheFieldDeclaratation fieldDeclaratation, Env\n" + 
-			"			environment) {\n" + 
-			"\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"\n" +
+			"	public static interface InnerInterface<TheTypeMirror, TheDeclaredType extends TheTypeMirror, TheClassType extends TheDeclaredType, TheInterfaceType extends TheDeclaredType, ThePrimitiveType extends TheTypeMirror, TheArrayType extends TheTypeMirror, TheTypeVariable extends TheTypeMirror, TheWildcardType extends TheTypeMirror, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration extends TheTypeDeclaration> {\n" +
+			"	}\n" +
+			"	protected <TheTypeMirror, TheDeclaredType extends TheTypeMirror, TheClassType extends TheDeclaredType, TheInterfaceType extends TheDeclaredType, ThePrimitiveType extends TheTypeMirror, TheArrayType extends TheTypeMirror, TheTypeVariable extends TheTypeMirror, TheWildcardType extends TheTypeMirror, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration extends TheTypeDeclaration, Env extends InnerInterface<TheTypeMirror, TheDeclaredType, TheClassType, TheInterfaceType, ThePrimitiveType, TheArrayType, TheTypeVariable, TheWildcardType, TheFieldDeclaration, TheTypeParameterDeclaration, TheTypeDeclaration, TheClassDeclaration>, ParamType extends TheTypeMirror> void testMethod(\n" +
+			"			TheFieldDeclaratation fieldDeclaratation, Env\n" +
+			"			environment) {\n" +
+			"\n" +
+			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	TheFieldDeclaratation fieldDeclaratation, Env\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"TheFieldDeclaratation cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	TheFieldDeclaratation fieldDeclaratation, Env\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^\n" +
+		"TheFieldDeclaratation cannot be resolved to a type\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=296660
@@ -5009,112 +5009,112 @@ public void test098() {
 			"public class X {\n" +
 			"    private class A {\n" +
 			"    	public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"    	}\n" +
 			"	    public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" + 
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(boolean a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"      	public void foo(Integer a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
-			"   }\n" + 
+			"   }\n" +
 			"   private class B extends A {\n" +
 			"		public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"		public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(double a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(char a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   }\n" +
 			"}\n"
 		};
 	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo(int a) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	public void foo(float a) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method foo(float) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
-		"	public void foo(boolean a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(boolean) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\n" + 
-		"	public void foo(Integer a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(Integer) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 16)\n" + 
-		"	private class B extends A {\n" + 
-		"	              ^\n" + 
-		"The type X.B is never used locally\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 23)\n" + 
-		"	public void foo(double a) {\n" + 
-		"	            ^^^^^^^^^^^^^\n" + 
-		"The method foo(double) from the type X.B is never used locally\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 26)\n" + 
-		"	public void foo(char a) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method foo(char) from the type X.B is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo(int a) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	public void foo(float a) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method foo(float) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 9)\n" +
+		"	public void foo(boolean a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(boolean) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 12)\n" +
+		"	public void foo(Integer a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(Integer) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 16)\n" +
+		"	private class B extends A {\n" +
+		"	              ^\n" +
+		"The type X.B is never used locally\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 23)\n" +
+		"	public void foo(double a) {\n" +
+		"	            ^^^^^^^^^^^^^\n" +
+		"The method foo(double) from the type X.B is never used locally\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 26)\n" +
+		"	public void foo(char a) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method foo(char) from the type X.B is never used locally\n" +
 		"----------\n"
 		:
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo(int a) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	public void foo(float a) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method foo(float) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
-		"	public void foo(boolean a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(boolean) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 12)\n" + 
-		"	public void foo(Integer a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(Integer) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 16)\n" + 
-		"	private class B extends A {\n" + 
-		"	              ^\n" + 
-		"The type X.B is never used locally\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 16)\n" + 
-		"	private class B extends A {\n" + 
-		"	              ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 23)\n" + 
-		"	public void foo(double a) {\n" + 
-		"	            ^^^^^^^^^^^^^\n" + 
-		"The method foo(double) from the type X.B is never used locally\n" + 
-		"----------\n" + 
-		"8. WARNING in X.java (at line 26)\n" + 
-		"	public void foo(char a) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method foo(char) from the type X.B is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo(int a) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	public void foo(float a) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method foo(float) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 9)\n" +
+		"	public void foo(boolean a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(boolean) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 12)\n" +
+		"	public void foo(Integer a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(Integer) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 16)\n" +
+		"	private class B extends A {\n" +
+		"	              ^\n" +
+		"The type X.B is never used locally\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 16)\n" +
+		"	private class B extends A {\n" +
+		"	              ^\n" +
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 23)\n" +
+		"	public void foo(double a) {\n" +
+		"	            ^^^^^^^^^^^^^\n" +
+		"The method foo(double) from the type X.B is never used locally\n" +
+		"----------\n" +
+		"8. WARNING in X.java (at line 26)\n" +
+		"	public void foo(char a) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method foo(char) from the type X.B is never used locally\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -5129,101 +5129,101 @@ public void test099() {
 			"public class X {\n" +
 			"    private class A {\n" +
 			"    	public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"    	}\n" +
 			"	    public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" + 
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(boolean a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"      	public void foo(Integer a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
-			"   }\n" + 
+			"   }\n" +
 			"   private class B extends A {\n" +
 			"		public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"		public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(double a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(char a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   }\n" +
 			"   public class C extends B {\n" +
 		    "		public void foo(int a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 		    "		public void foo(double a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 			"		public void foo(boolean a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 			"		public void foo(byte a) {\n" +
-			"			System.out.println(\"Hello\");\n" +     
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 		    "   }\n" +
 			"}\n"
 		};
 	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo(int a) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	public void foo(float a) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method foo(float) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
-		"	public void foo(boolean a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(boolean) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 23)\n" + 
-		"	public void foo(double a) {\n" + 
-		"	            ^^^^^^^^^^^^^\n" + 
-		"The method foo(double) from the type X.B is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo(int a) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	public void foo(float a) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method foo(float) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 9)\n" +
+		"	public void foo(boolean a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(boolean) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 23)\n" +
+		"	public void foo(double a) {\n" +
+		"	            ^^^^^^^^^^^^^\n" +
+		"The method foo(double) from the type X.B is never used locally\n" +
 		"----------\n"
 		:
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo(int a) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	public void foo(float a) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method foo(float) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 9)\n" + 
-		"	public void foo(boolean a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(boolean) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 16)\n" + 
-		"	private class B extends A {\n" + 
-		"	              ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 23)\n" + 
-		"	public void foo(double a) {\n" + 
-		"	            ^^^^^^^^^^^^^\n" + 
-		"The method foo(double) from the type X.B is never used locally\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 30)\n" + 
-		"	public class C extends B {\n" + 
-		"	             ^\n" + 
-		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo(int a) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	public void foo(float a) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method foo(float) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 9)\n" +
+		"	public void foo(boolean a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(boolean) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 16)\n" +
+		"	private class B extends A {\n" +
+		"	              ^\n" +
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 23)\n" +
+		"	public void foo(double a) {\n" +
+		"	            ^^^^^^^^^^^^^\n" +
+		"The method foo(double) from the type X.B is never used locally\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 30)\n" +
+		"	public class C extends B {\n" +
+		"	             ^\n" +
+		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -5239,101 +5239,101 @@ public void test099a() {
 			"public class X {\n" +
 			"   public class C extends B {\n" +
 		    "		public void foo(int a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 		    "		public void foo(double a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 			"		public void foo(boolean a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 			"		public void foo(byte a) {\n" +
-			"			System.out.println(\"Hello\");\n" +     
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 		    "   }\n" +
 			"   private class B extends A {\n" +
 			"		public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"		public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(double a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(char a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   }\n" +
 			"   private class A {\n" +
 			"    	public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"    	}\n" +
 			"	    public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" + 
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(boolean a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"      	public void foo(Integer a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
-			"   }\n" + 
+			"   }\n" +
 			"}\n"
 		};
 	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
-		"----------\n" + 
-		"1. WARNING in X.java (at line 23)\n" + 
-		"	public void foo(double a) {\n" + 
-		"	            ^^^^^^^^^^^^^\n" + 
-		"The method foo(double) from the type X.B is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 31)\n" + 
-		"	public void foo(int a) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 34)\n" + 
-		"	public void foo(float a) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method foo(float) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 37)\n" + 
-		"	public void foo(boolean a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(boolean) from the type X.A is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 23)\n" +
+		"	public void foo(double a) {\n" +
+		"	            ^^^^^^^^^^^^^\n" +
+		"The method foo(double) from the type X.B is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 31)\n" +
+		"	public void foo(int a) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 34)\n" +
+		"	public void foo(float a) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method foo(float) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 37)\n" +
+		"	public void foo(boolean a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(boolean) from the type X.A is never used locally\n" +
 		"----------\n"
 		:
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public class C extends B {\n" + 
-		"	             ^\n" + 
-		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 16)\n" + 
-		"	private class B extends A {\n" + 
-		"	              ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 23)\n" + 
-		"	public void foo(double a) {\n" + 
-		"	            ^^^^^^^^^^^^^\n" + 
-		"The method foo(double) from the type X.B is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 31)\n" + 
-		"	public void foo(int a) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 34)\n" + 
-		"	public void foo(float a) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method foo(float) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 37)\n" + 
-		"	public void foo(boolean a) {\n" + 
-		"	            ^^^^^^^^^^^^^^\n" + 
-		"The method foo(boolean) from the type X.A is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public class C extends B {\n" +
+		"	             ^\n" +
+		"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 16)\n" +
+		"	private class B extends A {\n" +
+		"	              ^\n" +
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 23)\n" +
+		"	public void foo(double a) {\n" +
+		"	            ^^^^^^^^^^^^^\n" +
+		"The method foo(double) from the type X.B is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 31)\n" +
+		"	public void foo(int a) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 34)\n" +
+		"	public void foo(float a) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method foo(float) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 37)\n" +
+		"	public void foo(boolean a) {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The method foo(boolean) from the type X.A is never used locally\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -5349,44 +5349,44 @@ public void test099b() {
 			"public class X {\n" +
 			"    private class A {\n" +
 			"    	public void foo(int a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"    	}\n" +
 			"	    public void foo(float a) {\n" +
-			"   		System.out.println(\"Hello\");\n" + 
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(boolean a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"      	public void foo(Integer a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
-			"   }\n" + 
+			"   }\n" +
 			"   private class B extends A {\n" +
 			"		public void foo(int a) {\n" +
-			"   		super.foo(a);\n" +    
+			"   		super.foo(a);\n" +
 			"   	}\n" +
 			"		public void foo(float a) {\n" +
-			"   		super.foo(a);\n" +    
+			"   		super.foo(a);\n" +
 			"   	}\n" +
 			"   	public void foo(double a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   	public void foo(char a) {\n" +
-			"   		System.out.println(\"Hello\");\n" +    
+			"   		System.out.println(\"Hello\");\n" +
 			"   	}\n" +
 			"   }\n" +
 			"   public class C extends B {\n" +
 		    "		public void foo(int a) {\n" +
-			"			System.out.println(\"Hello\");\n" +    
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 		    "		public void foo(double a) {\n" +
-			"			super.foo(a);\n" +    
+			"			super.foo(a);\n" +
 			"		}\n" +
 			"		public void foo(boolean a) {\n" +
-			"			super.foo(a);\n" +    
+			"			super.foo(a);\n" +
 			"		}\n" +
 			"		public void foo(byte a) {\n" +
-			"			System.out.println(\"Hello\");\n" +     
+			"			System.out.println(\"Hello\");\n" +
 			"		}\n" +
 		    "   }\n" +
 			"}\n"
@@ -5394,16 +5394,16 @@ public void test099b() {
 	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 		runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. WARNING in X.java (at line 16)\n" + 
-			"	private class B extends A {\n" + 
-			"	              ^\n" + 
-			"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 30)\n" + 
-			"	public class C extends B {\n" + 
-			"	             ^\n" + 
-			"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" + 
+			"----------\n" +
+			"1. WARNING in X.java (at line 16)\n" +
+			"	private class B extends A {\n" +
+			"	              ^\n" +
+			"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 30)\n" +
+			"	public class C extends B {\n" +
+			"	             ^\n" +
+			"Access to enclosing constructor X.B() is emulated by a synthetic accessor method\n" +
 			"----------\n";
 		runner.runWarningTest();
 	} else {
@@ -5424,13 +5424,13 @@ public void test100() {
 			"}"
 		};
 	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
-		
+
 		runner.expectedCompilerLog =
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	public class B extends A {}\n" + 
-				"	             ^\n" + 
-				"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	public class B extends A {}\n" +
+				"	             ^\n" +
+				"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
 				"----------\n";
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 		runner.runWarningTest();
@@ -5455,10 +5455,10 @@ public void test101() {
 	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
 		runner.expectedCompilerLog =
 				"----------\n" +
-				"1. WARNING in X.java (at line 6)\n" + 
-				"	public class B extends A {}\n" + 
-				"	             ^\n" + 
-				"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+				"1. WARNING in X.java (at line 6)\n" +
+				"	public class B extends A {}\n" +
+				"	             ^\n" +
+				"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
 				"----------\n";
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 		runner.runWarningTest();
@@ -5481,33 +5481,33 @@ public void test102() {
 			"}"
 		};
 	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	private void foo() {}\n" + 
-		"	             ^^^^^\n" + 
-		"The method foo() from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	private void foo(int a) {}\n" + 
-		"	             ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	private void foo() {}\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	private void foo(int a) {}\n" +
+		"	             ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
 		"----------\n"
 		:
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	private void foo() {}\n" + 
-		"	             ^^^^^\n" + 
-		"The method foo() from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	private void foo(int a) {}\n" + 
-		"	             ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 6)\n" + 
-		"	public class B extends A {}\n" + 
-		"	             ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	private void foo() {}\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	private void foo(int a) {}\n" +
+		"	             ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" +
+		"	public class B extends A {}\n" +
+		"	             ^\n" +
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -5528,43 +5528,43 @@ public void test103() {
 			"}"
 		};
 	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() {}\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	public void foo(int a) {}\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 6)\n" + 
-		"	private class B extends A {}\n" + 
-		"	              ^\n" + 
-		"The type X.B is never used locally\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo() {}\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	public void foo(int a) {}\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" +
+		"	private class B extends A {}\n" +
+		"	              ^\n" +
+		"The type X.B is never used locally\n" +
 		"----------\n"
 		:
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	public void foo() {}\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	public void foo(int a) {}\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method foo(int) from the type X.A is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 6)\n" + 
-		"	private class B extends A {}\n" + 
-		"	              ^\n" + 
-		"The type X.B is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 6)\n" + 
-		"	private class B extends A {}\n" + 
-		"	              ^\n" + 
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	public void foo() {}\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X.A is never used locally\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	public void foo(int a) {}\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method foo(int) from the type X.A is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" +
+		"	private class B extends A {}\n" +
+		"	              ^\n" +
+		"The type X.B is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 6)\n" +
+		"	private class B extends A {}\n" +
+		"	              ^\n" +
+		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
@@ -5576,15 +5576,15 @@ public void test104() {
 			"p/Bar.java", //-----------------------------------------------------------------------
 			"package p;\n" +
 			"import q.Zork;\n" +
-			"public abstract class Bar {\n" + 
-			"	protected abstract boolean isBaz();\n" + 
+			"public abstract class Bar {\n" +
+			"	protected abstract boolean isBaz();\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in p\\Bar.java (at line 2)\n" + 
-		"	import q.Zork;\n" + 
-		"	       ^\n" + 
-		"The import q cannot be resolved\n" + 
+		"----------\n" +
+		"1. ERROR in p\\Bar.java (at line 2)\n" +
+		"	import q.Zork;\n" +
+		"	       ^\n" +
+		"The import q cannot be resolved\n" +
 		"----------\n",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -5601,10 +5601,10 @@ public void test104() {
 		new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"import p.Bar;\n" +
-			"public class X extends Bar {\n" + 
-			"	protected boolean isBaz() {\n" + 
-			"		return false;\n" + 
-			"	}\n" + 
+			"public class X extends Bar {\n" +
+			"	protected boolean isBaz() {\n" +
+			"		return false;\n" +
+			"	}\n" +
 			"}",
 		};
 	runner.expectedOutputString =
@@ -5649,16 +5649,16 @@ public void test106() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	new Listener() {\n" + 
-		"	    ^^^^^^^^\n" + 
-		"Listener cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	new Listener() {\n" + 
-		"	    ^^^^^^^^\n" + 
-		"Listener cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	new Listener() {\n" +
+		"	    ^^^^^^^^\n" +
+		"Listener cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	new Listener() {\n" +
+		"	    ^^^^^^^^\n" +
+		"Listener cannot be resolved to a type\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=319425
@@ -5667,17 +5667,17 @@ public void test107() {
 		new String[] {
 			"p/OuterBogus.java", //-----------------------------------------------------------------------
 			"package p;\n" +
-			"abstract final class OuterBogus {\n" + 
-			"	public static void call() {\n" + 
-			"		System.out.println(\"Hi. I'm outer bogus.\");\n" + 
-			"	}\n" + 
+			"abstract final class OuterBogus {\n" +
+			"	public static void call() {\n" +
+			"		System.out.println(\"Hi. I'm outer bogus.\");\n" +
+			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in p\\OuterBogus.java (at line 2)\n" + 
-		"	abstract final class OuterBogus {\n" + 
-		"	                     ^^^^^^^^^^\n" + 
-		"The class OuterBogus can be either abstract or final, not both\n" + 
+		"----------\n" +
+		"1. ERROR in p\\OuterBogus.java (at line 2)\n" +
+		"	abstract final class OuterBogus {\n" +
+		"	                     ^^^^^^^^^^\n" +
+		"The class OuterBogus can be either abstract or final, not both\n" +
 		"----------\n",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -5692,17 +5692,17 @@ public void test107() {
 		new String[] {
 			"p/Bogus.java", //-----------------------------------------------------------------------
 			"package p;\n" +
-			"\n" + 
-			"public class Bogus {\n" + 
-			"	public static void main(String[] args) {\n" + 
+			"\n" +
+			"public class Bogus {\n" +
+			"	public static void main(String[] args) {\n" +
 			"		try {\n" +
-			"			OuterBogus.call();\n" + 
+			"			OuterBogus.call();\n" +
 			"		} catch(ClassFormatError e) {\n" +
-			"			System.out.println(\"Wrong error found\");\n" + 
+			"			System.out.println(\"Wrong error found\");\n" +
 			"		} catch(Error e) {\n" +
-			"			System.out.println(\"Compilation error found\");\n" + 
+			"			System.out.println(\"Compilation error found\");\n" +
 			"		}\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		};
 	runner.expectedOutputString =
@@ -5717,447 +5717,447 @@ public void test107() {
 public void test108() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" + 
+			"----------\n" +
 			"1. WARNING in SyntheticConstructorTooManyArgs.java (at line 23)\n" +
 			"	@SuppressWarnings(\"synthetic-access\")\n" +
-			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^\n" +
 			"Unnecessary @SuppressWarnings(\"synthetic-access\")\n" +
 			"----------\n"
 			:
-			"----------\n" + 
-			"1. ERROR in SyntheticConstructorTooManyArgs.java (at line 4)\n" + 
-			"	private A(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" + 
-			"			) {}\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The synthetic method created to access A(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int) of type SyntheticConstructorTooManyArgs.A has too many parameters\n" + 
+			"----------\n" +
+			"1. ERROR in SyntheticConstructorTooManyArgs.java (at line 4)\n" +
+			"	private A(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" +
+			"			) {}\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The synthetic method created to access A(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int) of type SyntheticConstructorTooManyArgs.A has too many parameters\n" +
 			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
-			"public class SyntheticConstructorTooManyArgs {\n" + 
-			"\n" + 
-			"	static class A {\n" + 
-			"		private A(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" + 
-			"			) {}\n" + 
-			"	}\n" + 
-			"	@SuppressWarnings(\"synthetic-access\")\n" + 
-			"	A a = new A(\n" + 
-			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
-			"		);\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		StringBuilder params = new StringBuilder();\n" + 
-			"		params.append(\"/*this,*/\");\n" + 
-			"		for (int p = 1; p < 255; p++) {\n" + 
-			"			if (p > 1) {\n" + 
-			"				params.append(\", \");\n" + 
-			"				if (p % 16 == 0)\n" + 
-			"					params.append('\\n');\n" + 
-			"			}\n" + 
-			"			params.append(\"int p\"\n" + 
-			"					+ Character.forDigit(p / 16, 16)\n" + 
-			"					+ Character.forDigit(p % 16, 16)\n" + 
-			"					);\n" + 
-			"		}\n" + 
-			"		System.out.println(params);\n" + 
-			"		A.class.getName(); // ClassFormatError\n" + 
-			"	}\n" + 
+			"public class SyntheticConstructorTooManyArgs {\n" +
+			"\n" +
+			"	static class A {\n" +
+			"		private A(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" +
+			"			) {}\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"synthetic-access\")\n" +
+			"	A a = new A(\n" +
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" +
+			"		);\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StringBuilder params = new StringBuilder();\n" +
+			"		params.append(\"/*this,*/\");\n" +
+			"		for (int p = 1; p < 255; p++) {\n" +
+			"			if (p > 1) {\n" +
+			"				params.append(\", \");\n" +
+			"				if (p % 16 == 0)\n" +
+			"					params.append('\\n');\n" +
+			"			}\n" +
+			"			params.append(\"int p\"\n" +
+			"					+ Character.forDigit(p / 16, 16)\n" +
+			"					+ Character.forDigit(p % 16, 16)\n" +
+			"					);\n" +
+			"		}\n" +
+			"		System.out.println(params);\n" +
+			"		A.class.getName(); // ClassFormatError\n" +
+			"	}\n" +
 			"}",
 		},
 		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
 public void test109() {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return; 
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	this.runConformTest(
 		new String[] {
 			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
-			"public class SyntheticConstructorTooManyArgs {\n" + 
-			"\n" + 
-			"	static class A {\n" + 
-			"		private A foo(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" + 
-			"			) { return new A();}\n" + 
-			"	}\n" + 
-			"	@SuppressWarnings(\"synthetic-access\")\n" + 
-			"	A a = new A().foo(\n" + 
-			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
-			"		);\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		StringBuilder params = new StringBuilder();\n" + 
-			"		params.append(\"/*this,*/\");\n" + 
-			"		for (int p = 1; p < 255; p++) {\n" + 
-			"			if (p > 1) {\n" + 
-			"				params.append(\", \");\n" + 
-			"				if (p % 16 == 0)\n" + 
-			"					params.append('\\n');\n" + 
-			"			}\n" + 
-			"			params.append(\"int p\"\n" + 
-			"					+ Character.forDigit(p / 16, 16)\n" + 
-			"					+ Character.forDigit(p % 16, 16)\n" + 
-			"					);\n" + 
-			"		}\n" + 
-			"		System.out.println(params);\n" + 
-			"		A.class.getName(); // ClassFormatError\n" + 
-			"	}\n" + 
+			"public class SyntheticConstructorTooManyArgs {\n" +
+			"\n" +
+			"	static class A {\n" +
+			"		private A foo(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" +
+			"			) { return new A();}\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"synthetic-access\")\n" +
+			"	A a = new A().foo(\n" +
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" +
+			"		);\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StringBuilder params = new StringBuilder();\n" +
+			"		params.append(\"/*this,*/\");\n" +
+			"		for (int p = 1; p < 255; p++) {\n" +
+			"			if (p > 1) {\n" +
+			"				params.append(\", \");\n" +
+			"				if (p % 16 == 0)\n" +
+			"					params.append('\\n');\n" +
+			"			}\n" +
+			"			params.append(\"int p\"\n" +
+			"					+ Character.forDigit(p / 16, 16)\n" +
+			"					+ Character.forDigit(p % 16, 16)\n" +
+			"					);\n" +
+			"		}\n" +
+			"		System.out.println(params);\n" +
+			"		A.class.getName(); // ClassFormatError\n" +
+			"	}\n" +
 			"}",
 		},
-		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
 public void test110() {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return; 
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	this.runConformTest(
 		new String[] {
 			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
-			"public class SyntheticConstructorTooManyArgs {\n" + 
-			"\n" + 
-			"	static class A {\n" + 
-			"		private static A foo(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" + 
-			"			) { return new A();}\n" + 
-			"	}\n" + 
-			"	@SuppressWarnings(\"synthetic-access\")\n" + 
-			"	A a = A.foo(\n" + 
-			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
-			"		);\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		StringBuilder params = new StringBuilder();\n" + 
-			"		params.append(\"/*this,*/\");\n" + 
-			"		for (int p = 1; p < 255; p++) {\n" + 
-			"			if (p > 1) {\n" + 
-			"				params.append(\", \");\n" + 
-			"				if (p % 16 == 0)\n" + 
-			"					params.append('\\n');\n" + 
-			"			}\n" + 
-			"			params.append(\"int p\"\n" + 
-			"					+ Character.forDigit(p / 16, 16)\n" + 
-			"					+ Character.forDigit(p % 16, 16)\n" + 
-			"					);\n" + 
-			"		}\n" + 
-			"		System.out.println(params);\n" + 
-			"		A.class.getName(); // ClassFormatError\n" + 
-			"	}\n" + 
+			"public class SyntheticConstructorTooManyArgs {\n" +
+			"\n" +
+			"	static class A {\n" +
+			"		private static A foo(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe\n" +
+			"			) { return new A();}\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"synthetic-access\")\n" +
+			"	A a = A.foo(\n" +
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" +
+			"		);\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StringBuilder params = new StringBuilder();\n" +
+			"		params.append(\"/*this,*/\");\n" +
+			"		for (int p = 1; p < 255; p++) {\n" +
+			"			if (p > 1) {\n" +
+			"				params.append(\", \");\n" +
+			"				if (p % 16 == 0)\n" +
+			"					params.append('\\n');\n" +
+			"			}\n" +
+			"			params.append(\"int p\"\n" +
+			"					+ Character.forDigit(p / 16, 16)\n" +
+			"					+ Character.forDigit(p % 16, 16)\n" +
+			"					);\n" +
+			"		}\n" +
+			"		System.out.println(params);\n" +
+			"		A.class.getName(); // ClassFormatError\n" +
+			"	}\n" +
 			"}",
 		},
-		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd, int pfe");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
 public void test111() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
-			"----------\n" + 
+			"----------\n" +
 			"1. WARNING in SyntheticConstructorTooManyArgs.java (at line 23)\n" +
 			"	@SuppressWarnings(\"synthetic-access\")\n" +
-			"	                  ^^^^^^^^^^^^^^^^^^\n" + 
+			"	                  ^^^^^^^^^^^^^^^^^^\n" +
 			"Unnecessary @SuppressWarnings(\"synthetic-access\")\n" +
 			"----------\n"
 			:
-			"----------\n" + 
-			"1. ERROR in SyntheticConstructorTooManyArgs.java (at line 4)\n" + 
-			"	private A(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd\n" + 
-			"			) {}\n" + 
-			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The synthetic method created to access A(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int) of type SyntheticConstructorTooManyArgs.A has too many parameters\n" + 
+			"----------\n" +
+			"1. ERROR in SyntheticConstructorTooManyArgs.java (at line 4)\n" +
+			"	private A(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd\n" +
+			"			) {}\n" +
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The synthetic method created to access A(int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int) of type SyntheticConstructorTooManyArgs.A has too many parameters\n" +
 			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
-			"public class SyntheticConstructorTooManyArgs {\n" + 
-			"\n" + 
-			"	class A {\n" + 
-			"		private A(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd\n" + 
-			"			) {}\n" + 
-			"	}\n" + 
-			"	@SuppressWarnings(\"synthetic-access\")\n" + 
-			"	A a = new A(\n" + 
-			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
-			"		);\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		StringBuilder params = new StringBuilder();\n" + 
-			"		params.append(\"/*this,*/\");\n" + 
-			"		for (int p = 1; p < 255; p++) {\n" + 
-			"			if (p > 1) {\n" + 
-			"				params.append(\", \");\n" + 
-			"				if (p % 16 == 0)\n" + 
-			"					params.append('\\n');\n" + 
-			"			}\n" + 
-			"			params.append(\"int p\"\n" + 
-			"					+ Character.forDigit(p / 16, 16)\n" + 
-			"					+ Character.forDigit(p % 16, 16)\n" + 
-			"					);\n" + 
-			"		}\n" + 
-			"		System.out.println(params);\n" + 
-			"		A.class.getName(); // ClassFormatError\n" + 
-			"	}\n" + 
+			"public class SyntheticConstructorTooManyArgs {\n" +
+			"\n" +
+			"	class A {\n" +
+			"		private A(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc, int pfd\n" +
+			"			) {}\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"synthetic-access\")\n" +
+			"	A a = new A(\n" +
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0\n" +
+			"		);\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StringBuilder params = new StringBuilder();\n" +
+			"		params.append(\"/*this,*/\");\n" +
+			"		for (int p = 1; p < 255; p++) {\n" +
+			"			if (p > 1) {\n" +
+			"				params.append(\", \");\n" +
+			"				if (p % 16 == 0)\n" +
+			"					params.append('\\n');\n" +
+			"			}\n" +
+			"			params.append(\"int p\"\n" +
+			"					+ Character.forDigit(p / 16, 16)\n" +
+			"					+ Character.forDigit(p % 16, 16)\n" +
+			"					);\n" +
+			"		}\n" +
+			"		System.out.println(params);\n" +
+			"		A.class.getName(); // ClassFormatError\n" +
+			"	}\n" +
 			"}",
 		},
 		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
 public void test112() {
-	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return; 
+	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	this.runConformTest(
 		new String[] {
 			"SyntheticConstructorTooManyArgs.java", //-----------------------------------------------------------------------
-			"public class SyntheticConstructorTooManyArgs {\n" + 
-			"\n" + 
-			"	class A {\n" + 
-			"		private A(\n" + 
-			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
-			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc\n" + 
-			"			) {}\n" + 
-			"	}\n" + 
-			"	@SuppressWarnings(\"synthetic-access\")\n" + 
-			"	A a = new A(\n" + 
-			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" + 
-			"		0,0,0,0,0,0,0,0,0,0,0,0,0\n" + 
-			"		);\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		StringBuilder params = new StringBuilder();\n" + 
-			"		params.append(\"/*this,*/\");\n" + 
-			"		for (int p = 1; p < 253; p++) {\n" + 
-			"			if (p > 1) {\n" + 
-			"				params.append(\", \");\n" + 
-			"				if (p % 16 == 0)\n" + 
-			"					params.append('\\n');\n" + 
-			"			}\n" + 
-			"			params.append(\"int p\"\n" + 
-			"					+ Character.forDigit(p / 16, 16)\n" + 
-			"					+ Character.forDigit(p % 16, 16)\n" + 
-			"					);\n" + 
-			"		}\n" + 
-			"		System.out.println(params);\n" + 
-			"		A.class.getName(); // ClassFormatError\n" + 
-			"	}\n" + 
+			"public class SyntheticConstructorTooManyArgs {\n" +
+			"\n" +
+			"	class A {\n" +
+			"		private A(\n" +
+			"			/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+			"			int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+			"			int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+			"			int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+			"			int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+			"			int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+			"			int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+			"			int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+			"			int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+			"			int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+			"			int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+			"			int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+			"			int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+			"			int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+			"			int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
+			"			int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc\n" +
+			"			) {}\n" +
+			"	}\n" +
+			"	@SuppressWarnings(\"synthetic-access\")\n" +
+			"	A a = new A(\n" +
+			"		  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\n" +
+			"		0,0,0,0,0,0,0,0,0,0,0,0,0\n" +
+			"		);\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StringBuilder params = new StringBuilder();\n" +
+			"		params.append(\"/*this,*/\");\n" +
+			"		for (int p = 1; p < 253; p++) {\n" +
+			"			if (p > 1) {\n" +
+			"				params.append(\", \");\n" +
+			"				if (p % 16 == 0)\n" +
+			"					params.append('\\n');\n" +
+			"			}\n" +
+			"			params.append(\"int p\"\n" +
+			"					+ Character.forDigit(p / 16, 16)\n" +
+			"					+ Character.forDigit(p % 16, 16)\n" +
+			"					);\n" +
+			"		}\n" +
+			"		System.out.println(params);\n" +
+			"		A.class.getName(); // ClassFormatError\n" +
+			"	}\n" +
 			"}",
 		},
-		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" + 
-		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" + 
-		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" + 
-		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" + 
-		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" + 
-		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" + 
-		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" + 
-		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" + 
-		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" + 
-		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" + 
-		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" + 
-		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" + 
-		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" + 
-		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" + 
-		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" + 
+		"/*this,*/int p01, int p02, int p03, int p04, int p05, int p06, int p07, int p08, int p09, int p0a, int p0b, int p0c, int p0d, int p0e, int p0f, \n" +
+		"int p10, int p11, int p12, int p13, int p14, int p15, int p16, int p17, int p18, int p19, int p1a, int p1b, int p1c, int p1d, int p1e, int p1f, \n" +
+		"int p20, int p21, int p22, int p23, int p24, int p25, int p26, int p27, int p28, int p29, int p2a, int p2b, int p2c, int p2d, int p2e, int p2f, \n" +
+		"int p30, int p31, int p32, int p33, int p34, int p35, int p36, int p37, int p38, int p39, int p3a, int p3b, int p3c, int p3d, int p3e, int p3f, \n" +
+		"int p40, int p41, int p42, int p43, int p44, int p45, int p46, int p47, int p48, int p49, int p4a, int p4b, int p4c, int p4d, int p4e, int p4f, \n" +
+		"int p50, int p51, int p52, int p53, int p54, int p55, int p56, int p57, int p58, int p59, int p5a, int p5b, int p5c, int p5d, int p5e, int p5f, \n" +
+		"int p60, int p61, int p62, int p63, int p64, int p65, int p66, int p67, int p68, int p69, int p6a, int p6b, int p6c, int p6d, int p6e, int p6f, \n" +
+		"int p70, int p71, int p72, int p73, int p74, int p75, int p76, int p77, int p78, int p79, int p7a, int p7b, int p7c, int p7d, int p7e, int p7f, \n" +
+		"int p80, int p81, int p82, int p83, int p84, int p85, int p86, int p87, int p88, int p89, int p8a, int p8b, int p8c, int p8d, int p8e, int p8f, \n" +
+		"int p90, int p91, int p92, int p93, int p94, int p95, int p96, int p97, int p98, int p99, int p9a, int p9b, int p9c, int p9d, int p9e, int p9f, \n" +
+		"int pa0, int pa1, int pa2, int pa3, int pa4, int pa5, int pa6, int pa7, int pa8, int pa9, int paa, int pab, int pac, int pad, int pae, int paf, \n" +
+		"int pb0, int pb1, int pb2, int pb3, int pb4, int pb5, int pb6, int pb7, int pb8, int pb9, int pba, int pbb, int pbc, int pbd, int pbe, int pbf, \n" +
+		"int pc0, int pc1, int pc2, int pc3, int pc4, int pc5, int pc6, int pc7, int pc8, int pc9, int pca, int pcb, int pcc, int pcd, int pce, int pcf, \n" +
+		"int pd0, int pd1, int pd2, int pd3, int pd4, int pd5, int pd6, int pd7, int pd8, int pd9, int pda, int pdb, int pdc, int pdd, int pde, int pdf, \n" +
+		"int pe0, int pe1, int pe2, int pe3, int pe4, int pe5, int pe6, int pe7, int pe8, int pe9, int pea, int peb, int pec, int ped, int pee, int pef, \n" +
 		"int pf0, int pf1, int pf2, int pf3, int pf4, int pf5, int pf6, int pf7, int pf8, int pf9, int pfa, int pfb, int pfc");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=325567
@@ -6166,45 +6166,45 @@ public void test113() {
 	runner.testFiles =
 		new String[] {
 			"X.java",
-			"import java.io.IOException;\n" + 
-			"public class X {\n" + 
-			"	public static void bar(int i) {\n" + 
-			"		final String before;\n" + 
-			"		try {\n" + 
-			"			before = foo();\n" + 
-			"		} catch (IOException e) {\n" + 
-			"			// ignore\n" + 
-			"		}\n" + 
-			"		B b = new B(new I() {\n" + 
-			"			public String bar() {\n" + 
-			"				return new String(before);\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"		try {\n" + 
-			"			b.toString();\n" + 
-			"		} catch(Exception e) {\n" + 
-			"			// ignore\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	private static String foo() throws IOException {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
-			"	static class B {\n" + 
-			"		B(I i) {\n" + 
-			"			//ignore\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	static interface I {\n" + 
-			"		String bar();\n" + 
-			"	}\n" + 
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static void bar(int i) {\n" +
+			"		final String before;\n" +
+			"		try {\n" +
+			"			before = foo();\n" +
+			"		} catch (IOException e) {\n" +
+			"			// ignore\n" +
+			"		}\n" +
+			"		B b = new B(new I() {\n" +
+			"			public String bar() {\n" +
+			"				return new String(before);\n" +
+			"			}\n" +
+			"		});\n" +
+			"		try {\n" +
+			"			b.toString();\n" +
+			"		} catch(Exception e) {\n" +
+			"			// ignore\n" +
+			"		}\n" +
+			"	}\n" +
+			"	private static String foo() throws IOException {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	static class B {\n" +
+			"		B(I i) {\n" +
+			"			//ignore\n" +
+			"		}\n" +
+			"	}\n" +
+			"	static interface I {\n" +
+			"		String bar();\n" +
+			"	}\n" +
 			"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	return new String(before);\n" + 
-		"	                  ^^^^^^\n" + 
-		"The local variable before may not have been initialized\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	return new String(before);\n" +
+		"	                  ^^^^^^\n" +
+		"The local variable before may not have been initialized\n" +
 		"----------\n";
 	runner.generateOutput =
 		true;
@@ -6214,14 +6214,14 @@ public void test113() {
 	runner.testFiles =
 		new String[] {
 			"Y.java", //-----------------------------------------------------------------------
-			"public class Y {\n" + 
-			"	public static void main(String[] args) {\n" + 
+			"public class Y {\n" +
+			"	public static void main(String[] args) {\n" +
 			"		try {\n" +
-			"			X.bar(3);\n" + 
+			"			X.bar(3);\n" +
 			"		} catch(VerifyError e) {\n" +
 			"			System.out.println(\"FAILED\");\n" +
 			"		}\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}",
 		};
 	runner.expectedOutputString =
@@ -6243,57 +6243,57 @@ public void test114() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	runner.testFiles =
 		new String[] {
-			"X.java", 
+			"X.java",
 			"public class X {\n" +
 			"	public static int field1;\n" +
-			"	public static int field2;\n" + 
-			"	public void bar(int i) {\n" + 
-			"		System.out.println(foo());\n" +
-			"		foo();" +
-			"		System.out.println(X.field1);\n" +
-			"		System.out.println(field2);\n" +
-			"		field2 = 1;\n" +
-			"	}\n" + 
-			"	public final void bar2(int i) {\n" + 
+			"	public static int field2;\n" +
+			"	public void bar(int i) {\n" +
 			"		System.out.println(foo());\n" +
 			"		foo();" +
 			"		System.out.println(X.field1);\n" +
 			"		System.out.println(field2);\n" +
 			"		field2 = 1;\n" +
 			"	}\n" +
-			"	private void bar3(int i) {\n" + 
+			"	public final void bar2(int i) {\n" +
 			"		System.out.println(foo());\n" +
 			"		foo();" +
 			"		System.out.println(X.field1);\n" +
 			"		System.out.println(field2);\n" +
 			"		field2 = 1;\n" +
 			"	}\n" +
-			"	private static String foo() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"	private void bar3(int i) {\n" +
+			"		System.out.println(foo());\n" +
+			"		foo();" +
+			"		System.out.println(X.field1);\n" +
+			"		System.out.println(field2);\n" +
+			"		field2 = 1;\n" +
+			"	}\n" +
+			"	private static String foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void bar(int i) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method bar(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	public final void bar2(int i) {\n" + 
-		"	                  ^^^^^^^^^^^\n" + 
-		"The method bar2(int) from the type X can be declared as static\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 16)\n" + 
-		"	private void bar3(int i) {\n" + 
-		"	             ^^^^^^^^^^^\n" + 
-		"The method bar3(int) from the type X is never used locally\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 16)\n" + 
-		"	private void bar3(int i) {\n" + 
-		"	             ^^^^^^^^^^^\n" + 
-		"The method bar3(int) from the type X can be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void bar(int i) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method bar(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	public final void bar2(int i) {\n" +
+		"	                  ^^^^^^^^^^^\n" +
+		"The method bar2(int) from the type X can be declared as static\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 16)\n" +
+		"	private void bar3(int i) {\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"The method bar3(int) from the type X is never used locally\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 16)\n" +
+		"	private void bar3(int i) {\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"The method bar3(int) from the type X can be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6314,16 +6314,16 @@ public void test115() {
 			"public class X extends B{\n" +
 			"	public static int field1;\n" +
 			"	public static int field2;\n" +
-			"	public void bar(int i) {\n" + 
+			"	public void bar(int i) {\n" +
 			"		System.out.println(foo());\n" +
 			"		X.field2 = 2;\n" +
 			"		System.out.println(field1);\n" +
 			"		A a = new A();\n" +
 			"		a.a1();\n" +
-			"	}\n" + 
-			"	private static String foo() {\n" + 
-			"		return null;\n" + 
-			"	}\n" + 
+			"	}\n" +
+			"	private static String foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
 			"}\n" +
 			"class A{\n" +
 			"	public void a1() {\n" +
@@ -6335,11 +6335,11 @@ public void test115() {
 			"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void bar(int i) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method bar(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void bar(int i) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method bar(int) from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6360,36 +6360,36 @@ public void test116a() {
 			"public class X extends B{\n" +
 			"	public static int field1;\n" +
 			"	public X xfield;\n" +
-			"	public void bar1(int i) {\n" + 
+			"	public void bar1(int i) {\n" +
 			"		baz();\n" +
 			"	}\n" +
-			"	public void bar2(int i) {\n" + 
+			"	public void bar2(int i) {\n" +
 			"		this.baz();\n" +
 			"	}\n" +
-			"	public void bar3(int i) {\n" + 
+			"	public void bar3(int i) {\n" +
 			"		this.xfield.baz();\n" +
 			"	}\n" +
-			"	public void bar4(int i) {\n" + 
+			"	public void bar4(int i) {\n" +
 			"		xfield.baz();\n" +
 			"	}\n" +
-			"	public void bar5(int i) {\n" + 
+			"	public void bar5(int i) {\n" +
 			"		X x = new X();\n" +
 			"		x.baz();\n" +
 			"	}\n" +
-			"	public void bar6(int i) {\n" + 
+			"	public void bar6(int i) {\n" +
 			"		A.xA.baz();\n" +
 			"	}\n" +
-			"	public void bar7(int i) {\n" + 
+			"	public void bar7(int i) {\n" +
 			"		b1();\n" +
 			"	}\n" +
-			"	public void bar8(int i) {\n" + 
+			"	public void bar8(int i) {\n" +
 			"		this.b1();\n" +
 			"	}\n" +
-			"	public void bar9(int i) {\n" + 
+			"	public void bar9(int i) {\n" +
 			"		new X().b1();\n" +
 			"	}\n" +
 			"	public void baz() {\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n" +
 			"class A{\n" +
 			"	public static X xA;\n" +
@@ -6400,21 +6400,21 @@ public void test116a() {
 			"}",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 16)\n" + 
-		"	public void bar5(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar5(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 20)\n" + 
-		"	public void bar6(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar6(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 29)\n" + 
-		"	public void bar9(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar9(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 16)\n" +
+		"	public void bar5(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar5(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 20)\n" +
+		"	public void bar6(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar6(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 29)\n" +
+		"	public void bar9(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar9(int) from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6435,36 +6435,36 @@ public void test116b() {
 			"public class X extends B{\n" +
 			"	public static int field1;\n" +
 			"	public static X xfield;\n" +
-			"	public void bar1(int i) {\n" + 
+			"	public void bar1(int i) {\n" +
 			"		baz();\n" +
 			"	}\n" +
-			"	public void bar2(int i) {\n" + 
+			"	public void bar2(int i) {\n" +
 			"		this.baz();\n" +
 			"	}\n" +
-			"	public void bar3(int i) {\n" + 
+			"	public void bar3(int i) {\n" +
 			"		this.xfield.baz();\n" +
 			"	}\n" +
-			"	public void bar4(int i) {\n" + 
+			"	public void bar4(int i) {\n" +
 			"		xfield.baz();\n" +
 			"	}\n" +
-			"	public void bar5(int i) {\n" + 
+			"	public void bar5(int i) {\n" +
 			"		X x = new X();\n" +
 			"		x.baz();\n" +
 			"	}\n" +
-			"	public void bar6(int i) {\n" + 
+			"	public void bar6(int i) {\n" +
 			"		A.xA.baz();\n" +
 			"	}\n" +
-			"	public void bar7(int i) {\n" + 
+			"	public void bar7(int i) {\n" +
 			"		b1();\n" +
 			"	}\n" +
-			"	public void bar8(int i) {\n" + 
+			"	public void bar8(int i) {\n" +
 			"		this.b1();\n" +
 			"	}\n" +
-			"	public void bar9(int i) {\n" + 
+			"	public void bar9(int i) {\n" +
 			"		new X().b1();\n" +
 			"	}\n" +
 			"	public static void baz() {\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n" +
 			"class A{\n" +
 			"	public static X xA;\n" +
@@ -6475,36 +6475,36 @@ public void test116b() {
 			"}",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void bar1(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar1(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
-		"	public void bar4(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar4(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 16)\n" + 
-		"	public void bar5(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar5(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 20)\n" + 
-		"	public void bar6(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar6(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 23)\n" + 
-		"	public void bar7(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar7(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 29)\n" + 
-		"	public void bar9(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar9(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void bar1(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar1(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 13)\n" +
+		"	public void bar4(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar4(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 16)\n" +
+		"	public void bar5(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar5(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 20)\n" +
+		"	public void bar6(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar6(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 23)\n" +
+		"	public void bar7(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar7(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 29)\n" +
+		"	public void bar9(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar9(int) from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6525,57 +6525,57 @@ public void test117a() {
 			"public class X extends B{\n" +
 			"	public int field1;\n" +
 			"	public X xfield;\n" +
-			"	public void bar1(int i) {\n" + 
+			"	public void bar1(int i) {\n" +
 			"		field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar2(int i) {\n" + 
+			"	public void bar2(int i) {\n" +
 			"		this.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar3(int i) {\n" + 
+			"	public void bar3(int i) {\n" +
 			"		System.out.println(field1);\n" +
 			"	}\n" +
-			"	public void bar4(int i) {\n" + 
+			"	public void bar4(int i) {\n" +
 			"		System.out.println(this.field1);\n" +
 			"	}\n" +
-			"	public void bar5(int i) {\n" + 
+			"	public void bar5(int i) {\n" +
 			"		X x = new X();\n" +
 			"		x.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar6(int i) {\n" + 
+			"	public void bar6(int i) {\n" +
 			"		A.xA.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar7(int i) {\n" + 
+			"	public void bar7(int i) {\n" +
 			"		b1 = 1;\n" +
 			"	}\n" +
-			"	public void bar8(int i) {\n" + 
+			"	public void bar8(int i) {\n" +
 			"		this.b1 = 1;\n" +
 			"	}\n" +
-			"	public void bar9(int i) {\n" + 
+			"	public void bar9(int i) {\n" +
 			"		new X().b1 = 1;\n" +
 			"	}\n" +
-			"	public void bar10(int i) {\n" + 
+			"	public void bar10(int i) {\n" +
 			"		this.xfield.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar11(int i) {\n" + 
+			"	public void bar11(int i) {\n" +
 			"		System.out.println(this.xfield.field1);\n" +
 			"	}\n" +
-			"	public void bar12(int i) {\n" + 
+			"	public void bar12(int i) {\n" +
 			"		System.out.println(new X().b1);\n" +
 			"	}\n" +
-			"	public void bar13(int i) {\n" + 
+			"	public void bar13(int i) {\n" +
 			"		System.out.println(b1);\n" +
 			"	}\n" +
-			"	public void bar14(int i) {\n" + 
+			"	public void bar14(int i) {\n" +
 			"		System.out.println(this.b1);\n" +
 			"	}\n" +
-			"	public void bar15(int i) {\n" + 
+			"	public void bar15(int i) {\n" +
 			"		xfield.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar16(int i) {\n" + 
+			"	public void bar16(int i) {\n" +
 			"		System.out.println(xfield.field1);\n" +
 			"	}\n" +
 			"	public void baz() {\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n" +
 			"class A{\n" +
 			"	public static X xA;\n" +
@@ -6585,26 +6585,26 @@ public void test117a() {
 			"}",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 16)\n" + 
-		"	public void bar5(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar5(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 20)\n" + 
-		"	public void bar6(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar6(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 29)\n" + 
-		"	public void bar9(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar9(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 38)\n" + 
-		"	public void bar12(int i) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method bar12(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 16)\n" +
+		"	public void bar5(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar5(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 20)\n" +
+		"	public void bar6(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar6(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 29)\n" +
+		"	public void bar9(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar9(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 38)\n" +
+		"	public void bar12(int i) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method bar12(int) from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6625,57 +6625,57 @@ public void test117b() {
 			"public class X extends B{\n" +
 			"	public static int field1;\n" +
 			"	public static X xfield;\n" +
-			"	public void bar1(int i) {\n" + 
+			"	public void bar1(int i) {\n" +
 			"		field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar2(int i) {\n" + 
+			"	public void bar2(int i) {\n" +
 			"		this.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar3(int i) {\n" + 
+			"	public void bar3(int i) {\n" +
 			"		System.out.println(field1);\n" +
 			"	}\n" +
-			"	public void bar4(int i) {\n" + 
+			"	public void bar4(int i) {\n" +
 			"		System.out.println(this.field1);\n" +
 			"	}\n" +
-			"	public void bar5(int i) {\n" + 
+			"	public void bar5(int i) {\n" +
 			"		X x = new X();\n" +
 			"		x.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar6(int i) {\n" + 
+			"	public void bar6(int i) {\n" +
 			"		A.xA.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar7(int i) {\n" + 
+			"	public void bar7(int i) {\n" +
 			"		b1 = 1;\n" +
 			"	}\n" +
-			"	public void bar8(int i) {\n" + 
+			"	public void bar8(int i) {\n" +
 			"		this.b1 = 1;\n" +
 			"	}\n" +
-			"	public void bar9(int i) {\n" + 
+			"	public void bar9(int i) {\n" +
 			"		new X().b1 = 1;\n" +
 			"	}\n" +
-			"	public void bar10(int i) {\n" + 
+			"	public void bar10(int i) {\n" +
 			"		this.xfield.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar11(int i) {\n" + 
+			"	public void bar11(int i) {\n" +
 			"		System.out.println(this.xfield.field1);\n" +
 			"	}\n" +
-			"	public void bar12(int i) {\n" + 
+			"	public void bar12(int i) {\n" +
 			"		System.out.println(new X().b1);\n" +
 			"	}\n" +
-			"	public void bar13(int i) {\n" + 
+			"	public void bar13(int i) {\n" +
 			"		System.out.println(b1);\n" +
 			"	}\n" +
-			"	public void bar14(int i) {\n" + 
+			"	public void bar14(int i) {\n" +
 			"		System.out.println(this.b1);\n" +
 			"	}\n" +
-			"	public void bar15(int i) {\n" + 
+			"	public void bar15(int i) {\n" +
 			"		xfield.field1 = 1;\n" +
 			"	}\n" +
-			"	public void bar16(int i) {\n" + 
+			"	public void bar16(int i) {\n" +
 			"		System.out.println(xfield.field1);\n" +
 			"	}\n" +
 			"	public void baz() {\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n" +
 			"class A{\n" +
 			"	public static X xA;\n" +
@@ -6685,56 +6685,56 @@ public void test117b() {
 			"}",
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void bar1(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar1(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	public void bar3(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar3(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 16)\n" + 
-		"	public void bar5(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar5(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 20)\n" + 
-		"	public void bar6(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar6(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 23)\n" + 
-		"	public void bar7(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar7(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 29)\n" + 
-		"	public void bar9(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar9(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 38)\n" + 
-		"	public void bar12(int i) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method bar12(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 41)\n" + 
-		"	public void bar13(int i) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method bar13(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 47)\n" + 
-		"	public void bar15(int i) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method bar15(int) from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"10. ERROR in X.java (at line 50)\n" + 
-		"	public void bar16(int i) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The method bar16(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void bar1(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar1(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	public void bar3(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar3(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 16)\n" +
+		"	public void bar5(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar5(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 20)\n" +
+		"	public void bar6(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar6(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 23)\n" +
+		"	public void bar7(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar7(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 29)\n" +
+		"	public void bar9(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar9(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 38)\n" +
+		"	public void bar12(int i) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method bar12(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 41)\n" +
+		"	public void bar13(int i) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method bar13(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 47)\n" +
+		"	public void bar15(int i) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method bar15(int) from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 50)\n" +
+		"	public void bar16(int i) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The method bar16(int) from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6750,26 +6750,26 @@ public void test118() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"final public class X {\n" +
 				"	public static int field1;\n" +
-				"	public static int field2;\n" + 
-				"	public void bar(int i) {\n" + 
+				"	public static int field2;\n" +
+				"	public void bar(int i) {\n" +
 				"		System.out.println(foo());\n" +
 				"		foo();" +
 				"		System.out.println(X.field1);\n" +
 				"		System.out.println(field2);\n" +
 				"		field2 = 1;\n" +
 				"	}\n" +
-				"	public static int foo(){ return 1;}\n" + 
+				"	public static int foo(){ return 1;}\n" +
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void bar(int i) {\n" + 
-		"	            ^^^^^^^^^^\n" + 
-		"The method bar(int) from the type X can be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void bar(int i) {\n" +
+		"	            ^^^^^^^^^^\n" +
+		"The method bar(int) from the type X can be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6786,10 +6786,10 @@ public void test119() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 					"	public static int field1;\n" +
-					"	public int field2;\n" + 
+					"	public int field2;\n" +
 					"	public void bar(int i) {\n" + 	// don't warn
 					"		(new Object() {\n" +
 					"			public boolean foo1() {\n" +	// don't warn for foo1
@@ -6797,7 +6797,7 @@ public void test119() {
 					"			}\n" +
 					"		}).foo1();\n" +
 					"	System.out.println(X.field1);\n" +
-					"	}\n" + 
+					"	}\n" +
 					"	public void bar2(int i) {\n" + 	// warn
 					"		(new Object() {\n" +
 					"			public boolean foo1() {\n" +	// don't warn for foo1
@@ -6806,15 +6806,15 @@ public void test119() {
 					"			}\n" +
 					"		}).foo1();\n" +
 					"	System.out.println(X.field1);\n" +
-					"	}\n" + 
+					"	}\n" +
 					"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	public void bar2(int i) {\n" + 
-		"	            ^^^^^^^^^^^\n" + 
-		"The method bar2(int) from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	public void bar2(int i) {\n" +
+		"	            ^^^^^^^^^^^\n" +
+		"The method bar2(int) from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6832,14 +6832,14 @@ public void test120() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"	public static int field1;\n" +
-				"	public int field2;\n" + 
+				"	public int field2;\n" +
 				"	public void bar(T t) {\n" + 	// don't warn
 				"		X.field1 = 1;\n" +
 				"		System.out.println(t);\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	public <E> void bar2(E e) {\n" + 	// warn
 				"		X.field1 = 1;\n" +
 				"		System.out.println(e);\n" +
@@ -6847,24 +6847,24 @@ public void test120() {
 				"	public <E> void bar3() {\n" + 	// don't warn
 				"		T a;\n" +
 				"		System.out.println();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	public <E,Y> void bar4() {\n" + 	// warn
 				"		Y a;\n" +
 				"		System.out.println();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	public <E> void bar2(E e) {\n" + 
-		"	                ^^^^^^^^^\n" + 
-		"The method bar2(E) from the type X<T> can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 16)\n" + 
-		"	public <E,Y> void bar4() {\n" + 
-		"	                  ^^^^^^\n" + 
-		"The method bar4() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	public <E> void bar2(E e) {\n" +
+		"	                ^^^^^^^^^\n" +
+		"The method bar2(E) from the type X<T> can potentially be declared as static\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 16)\n" +
+		"	public <E,Y> void bar4() {\n" +
+		"	                  ^^^^^^\n" +
+		"The method bar4() from the type X<T> can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6881,13 +6881,13 @@ public void test121() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X extends A{\n" +
 				"	public static int field1;\n" +
-				"	public int field2;\n" + 
+				"	public int field2;\n" +
 				"	public void methodA() {\n" + 	// don't warn
 				"		super.methodA();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	public void bar() {\n" + 	// don't warn
 				"		super.fieldA = 1;\n" +
 				"	}\n" +
@@ -6905,11 +6905,11 @@ public void test121() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 13)\n" + 
-		"	public void bar3() {\n" + 
-		"	            ^^^^^^\n" + 
-		"The method bar3() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 13)\n" +
+		"	public void bar3() {\n" +
+		"	            ^^^^^^\n" +
+		"The method bar3() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6926,7 +6926,7 @@ public void test122() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	class A{\n" +
 				"   	void methodA() {\n" +	// don't warn
@@ -6941,11 +6941,11 @@ public void test122() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	void methodB() {\n" + 
-		"	     ^^^^^^^^^\n" + 
-		"The method methodB() from the type X.B can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	void methodB() {\n" +
+		"	     ^^^^^^^^^\n" +
+		"The method methodB() from the type X.B can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6964,22 +6964,22 @@ public void test123() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"	<E,Y> T method1() {\n" + 	// don't warn
 				"		return null;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	<E,Y> E method2() {\n" + 	// warn
 				"		return null;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	<E,Y> E method2() {\n" + 
-		"	        ^^^^^^^^^\n" + 
-		"The method method2() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	<E,Y> E method2() {\n" +
+		"	        ^^^^^^^^^\n" +
+		"The method method2() from the type X<T> can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -6999,14 +6999,14 @@ public void testBug335845a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
 				"		int a = 1;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	private void foo() {\n" + 	// don't warn
 				"		new Bar();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -7029,14 +7029,14 @@ public void testBug335845b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
 				"		int a = 1;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	private void foo() {\n" + 	// don't warn
 				"		int x = new Bar().a;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -7060,23 +7060,23 @@ public void testBug335845c() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	private static class Bar {\n" +
 				"		int a = 1;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	private void foo() {\n" + 	// warn since Bar is static
 				"		new Bar();\n" +
 				"		int x = new Bar().a;" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	private void foo() {\n" + 
-		"	             ^^^^^\n" + 
-		"The method foo() from the type X can be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	private void foo() {\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type X can be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7096,14 +7096,14 @@ public void testBug335845d() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
 				"		class Bar2{}\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	private void foo() {\n" + 	// don't warn
 				"		new Bar().new Bar2();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -7127,22 +7127,22 @@ public void testBug335845e() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
 				"		int a = 1;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	private void foo() {\n" + 	// warn since Bar is allocated via Test object
 				"		new X().new Bar();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	private void foo() {\n" + 
-		"	             ^^^^^\n" + 
-		"The method foo() from the type X can be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	private void foo() {\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type X can be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7163,23 +7163,23 @@ public void testBug335845f() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
 				"		int a = 1;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	private void foo() {\n" + 	// warn since Bar is allocated via Test object
 				"		X x = new X();" +
 				"		x.new Bar().a = 2;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	private void foo() {\n" + 
-		"	             ^^^^^\n" + 
-		"The method foo() from the type X can be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	private void foo() {\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type X can be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7199,7 +7199,7 @@ public void testBug335845g() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
 	this.runConformTest(
 		new String[] {
-				"p/X.java", 
+				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"	class Bar {\n" +
@@ -7214,7 +7214,7 @@ public void testBug335845g() {
 				"public class Y extends X {\n" +
 				"	private void foo() {\n" + 	// warn since Bar is allocated via Test object
 				"		new Bar();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}"
 		},
 		"",
@@ -7235,15 +7235,15 @@ public void test124a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	public void method1() {\n" + 	// don't warn
 				"		Foo.m(this);\n" +
 				"	}\n" +
-				"static class Foo{\n" + 
-				"	static void m(X bug) {\n" + 
+				"static class Foo{\n" +
+				"	static void m(X bug) {\n" +
 				"		\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}\n" +
 				"}"
 		},
@@ -7264,24 +7264,24 @@ public void test124b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   public static X xField;" +
 				"	public void method1() {\n" + 	// don't warn
 				"		Foo.m(this.xField);\n" +
 				"	}\n" +
-				"static class Foo{\n" + 
-				"	static void m(X bug) {\n" + 
+				"static class Foo{\n" +
+				"	static void m(X bug) {\n" +
 				"		\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}\n" +
 				"}"
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	Foo.m(this.xField);\n" + 
-		"	           ^^^^^^\n" + 
-		"The static field X.xField should be accessed in a static way\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	Foo.m(this.xField);\n" +
+		"	           ^^^^^^\n" +
+		"The static field X.xField should be accessed in a static way\n" +
 		"----------\n",
 		null /* no extra class libraries */,
 		true /* flush output directory */,
@@ -7302,7 +7302,7 @@ public void test354502() {
 	runner.testFiles =
 
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   public abstract class Abstract{}\n" +
 				"   public static abstract class Abstract2{}\n" +
@@ -7315,11 +7315,11 @@ public void test354502() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	private void method2() {\n" + 
-		"	             ^^^^^^^^^\n" + 
-		"The method method2() from the type X can be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	private void method2() {\n" +
+		"	             ^^^^^^^^^\n" +
+		"The method method2() from the type X can be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7330,29 +7330,29 @@ public void test360164() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	this.runConformTest(
 			new String[] {
-					"p/B.java", 
+					"p/B.java",
 					"package p;\n" +
 					"\n" +
 					"public abstract class B<K,V> {\n" +
 					"	 protected abstract V foo(K element);\n" +
 					"}\n",
-					"p/C.java", 
+					"p/C.java",
 					"package p;\n" +
 					"public class C {\n" +
 					"}\n",
-					"p/D.java", 
+					"p/D.java",
 					"package p;\n" +
 					"public class D extends E {\n" +
 					"}\n",
-					"p/E.java", 
+					"p/E.java",
 					"package p;\n" +
 					"public abstract class E implements I {\n" +
 					"}\n",
-					"p/I.java", 
+					"p/I.java",
 					"package p;\n" +
 					"public interface I {\n" +
 					"}\n",
-					"p/X.java", 
+					"p/X.java",
 					"package p;\n" +
 					"public class X {\n" +
 					"	private final class A extends B<C,D>{\n" +
@@ -7372,7 +7372,7 @@ public void test360164() {
 		// test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
-				"p/X.java", 
+				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"	private final class A extends B<C,D>{\n" +
@@ -7387,17 +7387,17 @@ public void test360164() {
 		// compiler options
 		null /* no class libraries */,
 		null /* no custom options */,
-		// compiler results 
-		"----------\n" + 
-		"1. WARNING in p\\X.java (at line 3)\n" + 
-		"	private final class A extends B<C,D>{\n" + 
-		"	                    ^\n" + 
-		"The type X.A is never used locally\n" + 
-		"----------\n" + 
-		"2. ERROR in p\\X.java (at line 6)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		// compiler results
+		"----------\n" +
+		"1. WARNING in p\\X.java (at line 3)\n" +
+		"	private final class A extends B<C,D>{\n" +
+		"	                    ^\n" +
+		"The type X.A is never used locally\n" +
+		"----------\n" +
+		"2. ERROR in p\\X.java (at line 6)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.SKIP_UNTIL_FRAMEWORK_FIX /* javac test options */);
@@ -7414,7 +7414,7 @@ public void test376550_1a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	int i = 1;\n" +
 				"   public void upper1(){}\n" +
@@ -7447,7 +7447,7 @@ public void test376550_1b() {
 	  this.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	  this.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	int i = 1;\n" +
 				"   public void upper1(){}\n" +
@@ -7462,11 +7462,11 @@ public void test376550_1b() {
 				"}"
 		};
 	  this.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	  this.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7485,7 +7485,7 @@ public void test376550_2a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"   public void upper1(){}\n" +
 				"   public void foo(){\n" + // can be static
@@ -7498,11 +7498,11 @@ public void test376550_2a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X<T> can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7520,7 +7520,7 @@ public void test376550_2b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"   public void upper1(){}\n" +
 				"   public void foo(){\n" + // can't be static
@@ -7550,7 +7550,7 @@ public void test376550_3a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"   public void upper1(){}\n" +
 				"   public void foo(){\n" + // can't be static
@@ -7582,7 +7582,7 @@ public void test376550_3b() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"   public void upper1(){}\n" +
 				"   public void foo(){\n" + // can be static
@@ -7596,11 +7596,11 @@ public void test376550_3b() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X<T> can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7619,7 +7619,7 @@ public void test376550_4a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"   int i1 = 1;\n" +
 				"   public void foo(){\n" + // can be static
@@ -7634,11 +7634,11 @@ public void test376550_4a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X<T> can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X<T> can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7656,7 +7656,7 @@ public void test376550_4b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<T> {\n" +
 				"   int i1 = 1;\n" +
 				"   public void foo(){\n" + // can't be static
@@ -7689,7 +7689,7 @@ public void test376550_5a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   int i1 = 1;\n" +
 				"   public void foo(){\n" + // can be static
@@ -7703,11 +7703,11 @@ public void test376550_5a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7727,7 +7727,7 @@ public void test376550_5aa() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"	int i1 = 1;\n" +
 				"	public void foo(){\n" +
@@ -7765,7 +7765,7 @@ public void test376550_5b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   int i1 = 1;\n" +
 				"   public void foo(){\n" + // can't be static
@@ -7797,7 +7797,7 @@ public void test376550_6a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   int i1 = 1;\n" +
 				"   public void foo(){\n" + // can be static
@@ -7811,11 +7811,11 @@ public void test376550_6a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7833,7 +7833,7 @@ public void test376550_6b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   int i1 = 1;\n" +
 				"   public void foo(){\n" + // can't be static
@@ -7866,7 +7866,7 @@ public void test376550_7a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   abstract class AbsUp{}\n" +
 				"   public void foo(){\n" + // can be static
@@ -7880,11 +7880,11 @@ public void test376550_7a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7903,7 +7903,7 @@ public void test376550_7b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   abstract class AbsUp{}\n" +
 				"   public void foo(){\n" + // can't be static
@@ -7935,7 +7935,7 @@ public void test376550_8a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   class AbsUp{ int a;}\n" +
 				"   public void foo(){\n" + // can be static
@@ -7949,11 +7949,11 @@ public void test376550_8a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -7971,7 +7971,7 @@ public void test376550_8b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   class AbsUp{ int a;}\n" +
 				"   public void foo(){\n" + // can't be static
@@ -8003,7 +8003,7 @@ public void test376550_9a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   X xup;\n" +
 				"	int i = 1;\n" +
@@ -8019,11 +8019,11 @@ public void test376550_9a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -8041,7 +8041,7 @@ public void test376550_9b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   X xup;\n" +
 				"	int i = 1;\n" +
@@ -8075,7 +8075,7 @@ public void test376550_10a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   X xup;\n" +
 				"	int i = 1;\n" +
@@ -8091,11 +8091,11 @@ public void test376550_10a() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	public void foo(){\n" + 
-		"	            ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public void foo(){\n" +
+		"	            ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -8113,7 +8113,7 @@ public void test376550_10b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runNegativeTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X {\n" +
 				"   X xup;\n" +
 				"	int i = 1;\n" +
@@ -8147,7 +8147,7 @@ public void test376550_11() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.Collection;\n" +
 				"public class X {\n" +
@@ -8160,23 +8160,23 @@ public void test376550_11() {
 				"}"
 		};
 	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	return new ArrayList<Object>() {\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The serializable class  does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	return new ArrayList<Object>() {\n" +
+		"	           ^^^^^^^^^^^^^^^^^^^\n" +
+		"The serializable class  does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n"
 		:
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	return new ArrayList<Object>() {\n" + 
-		"	           ^^^^^^^^^^^^^^^^^^^\n" + 
-		"The serializable class  does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 7)\n" + 
-		"	{ add(o);}\n" + 
-		"	      ^\n" + 
-		"Read access to enclosing field X.o is emulated by a synthetic accessor method\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	return new ArrayList<Object>() {\n" +
+		"	           ^^^^^^^^^^^^^^^^^^^\n" +
+		"The serializable class  does not declare a static final serialVersionUID field of type long\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	{ add(o);}\n" +
+		"	      ^\n" +
+		"Read access to enclosing field X.o is emulated by a synthetic accessor method\n" +
 		"----------\n";
 	runner.runWarningTest();
 }
@@ -8194,7 +8194,7 @@ public void test376550_11a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.Collection;\n" +
 				"public class X {\n" +
@@ -8234,7 +8234,7 @@ public void test376550_12() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	runner.testFiles =
 		new String[] {
-				"X.java", 
+				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.Collection;\n" +
 				"public class X<E> {\n" +
@@ -8247,16 +8247,16 @@ public void test376550_12() {
 				"}"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	public final <E1> Collection<E1> go() {\n" + 
-		"	                                 ^^^^\n" + 
-		"The method go() from the type X<E> can be declared as static\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 6)\n" + 
-		"	return new ArrayList<E1>() {\n" + 
-		"	           ^^^^^^^^^^^^^^^\n" + 
-		"The serializable class  does not declare a static final serialVersionUID field of type long\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	public final <E1> Collection<E1> go() {\n" +
+		"	                                 ^^^^\n" +
+		"The method go() from the type X<E> can be declared as static\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 6)\n" +
+		"	return new ArrayList<E1>() {\n" +
+		"	           ^^^^^^^^^^^^^^^\n" +
+		"The serializable class  does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -8274,19 +8274,19 @@ public void test376550_13() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runConformTest(
 		new String[] {
-				"QualifiedSuper.java", 
-				"public class QualifiedSuper {\n" + 
-				"	class InnerS {\n" + 
-				"		void flub() {}\n" + 
-				"	}\n" + 
-				"	static class InnerT extends InnerS {\n" + 
-				"		InnerT(QualifiedSuper qs) {\n" + 
-				"			qs.super();\n" + 
-				"		}\n" + 
-				"		final void schlumpf() {\n" + 
-				"			InnerT.super.flub();\n" + 
-				"		}\n" + 
-				"	}	\n" + 
+				"QualifiedSuper.java",
+				"public class QualifiedSuper {\n" +
+				"	class InnerS {\n" +
+				"		void flub() {}\n" +
+				"	}\n" +
+				"	static class InnerT extends InnerS {\n" +
+				"		InnerT(QualifiedSuper qs) {\n" +
+				"			qs.super();\n" +
+				"		}\n" +
+				"		final void schlumpf() {\n" +
+				"			InnerT.super.flub();\n" +
+				"		}\n" +
+				"	}	\n" +
 				"}\n"
 		},
 		"",
@@ -8308,7 +8308,7 @@ public void test379530() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	this.runConformTest(
 		new String[] {
-				"X.java", 
+				"X.java",
 				"public class X<S> {\n" +
 				"   S s;\n" +
 				"	{\n" +
@@ -8333,7 +8333,7 @@ public void test393781() {
 	try {
 		this.runNegativeTest(
 				new String[] {
-						"p/X.java", 
+						"p/X.java",
 						"public class X {\n" +
 						"   public void foo(Map map, String str) {}\n" +
 						"	public void foo1() {}\n" +
@@ -8346,26 +8346,26 @@ public void test393781() {
 						"}\n" +
 						"class Map {}\n"
 				},
-				"----------\n" + 
-				"1. ERROR in p\\X.java (at line 5)\n" + 
-				"	foo(map, \"\");\n" + 
-				"	^^^\n" + 
-				"The method foo(Map, java.lang.String) in the type X is not applicable for the arguments (java.util.Map, java.lang.String)\n" + 
-				"----------\n" + 
-				"2. ERROR in p\\X.java (at line 6)\n" + 
-				"	foo(map);\n" + 
-				"	^^^\n" + 
-				"The method foo(Map, String) in the type X is not applicable for the arguments (Map)\n" + 
-				"----------\n" + 
-				"3. ERROR in p\\X.java (at line 7)\n" + 
-				"	foo();\n" + 
-				"	^^^\n" + 
-				"The method foo(Map, String) in the type X is not applicable for the arguments ()\n" + 
-				"----------\n" + 
-				"4. ERROR in p\\X.java (at line 8)\n" + 
-				"	foo1(map, \"\");\n" + 
-				"	^^^^\n" + 
-				"The method foo1() in the type X is not applicable for the arguments (Map, String)\n" + 
+				"----------\n" +
+				"1. ERROR in p\\X.java (at line 5)\n" +
+				"	foo(map, \"\");\n" +
+				"	^^^\n" +
+				"The method foo(Map, java.lang.String) in the type X is not applicable for the arguments (java.util.Map, java.lang.String)\n" +
+				"----------\n" +
+				"2. ERROR in p\\X.java (at line 6)\n" +
+				"	foo(map);\n" +
+				"	^^^\n" +
+				"The method foo(Map, String) in the type X is not applicable for the arguments (Map)\n" +
+				"----------\n" +
+				"3. ERROR in p\\X.java (at line 7)\n" +
+				"	foo();\n" +
+				"	^^^\n" +
+				"The method foo(Map, String) in the type X is not applicable for the arguments ()\n" +
+				"----------\n" +
+				"4. ERROR in p\\X.java (at line 8)\n" +
+				"	foo1(map, \"\");\n" +
+				"	^^^^\n" +
+				"The method foo1() in the type X is not applicable for the arguments (Map, String)\n" +
 				"----------\n",
 				null,
 				true,
@@ -8383,7 +8383,7 @@ private void runStaticWarningConformTest(String fileName, String body) {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	this.runConformTest(
 		new String[] {
-			fileName, 
+			fileName,
 			body
 		},
 		compilerOptions /* custom options */
@@ -8393,36 +8393,36 @@ private void runStaticWarningConformTest(String fileName, String body) {
 //Can be static warning shown in the wrong places, i.e. if the type parameter is used in the signature
 public void test378674_comment0() {
 	runStaticWarningConformTest(
-		"Test.java", 
-		"public class Test<T> {\n" + 
-		"\n" + 
-		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        new Test().method(null);\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private static class SubClass<A> {\n" + 
-		"\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private void method(SubClass<T> s) {\n" + 
-		"        System.out.println(s);\n" + 
-		"    }\n" + 
-		"\n" + 
-		"}\n" + 
+		"Test.java",
+		"public class Test<T> {\n" +
+		"\n" +
+		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" +
+		"    public static void main(String[] args) {\n" +
+		"        new Test().method(null);\n" +
+		"    }\n" +
+		"\n" +
+		"    private static class SubClass<A> {\n" +
+		"\n" +
+		"    }\n" +
+		"\n" +
+		"    private void method(SubClass<T> s) {\n" +
+		"        System.out.println(s);\n" +
+		"    }\n" +
+		"\n" +
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment1b() {
 	runStaticWarningConformTest(
-		"X.java", 
+		"X.java",
 		"import java.util.Collection;\n" +
-		"class X<E>{\n" + 
-		"   public final <E1> Collection<E> go() {  // cannot be static\n" + 
-		"		return null; \n" + 
-		"   }\n" + 
-		"}\n" + 
+		"class X<E>{\n" +
+		"   public final <E1> Collection<E> go() {  // cannot be static\n" +
+		"		return null; \n" +
+		"   }\n" +
+		"}\n" +
 		""
 	);
 }
@@ -8430,14 +8430,14 @@ public void test378674_comment1b() {
 //Can be static warning shown in the wrong places
 public void test378674_comment1c() {
 	runStaticWarningConformTest(
-		"X.java", 
+		"X.java",
 		"import java.util.Collection;\n" +
 		"import java.util.ArrayList;\n" +
-		"	class X<E>{\n" + 
-		"   public final <E1> Collection<?> go() {  // cannot be static\n" + 
-		"		return new ArrayList<E>(); \n" + 
-		"   }\n" + 
-		"}\n" + 
+		"	class X<E>{\n" +
+		"   public final <E1> Collection<?> go() {  // cannot be static\n" +
+		"		return new ArrayList<E>(); \n" +
+		"   }\n" +
+		"}\n" +
 		""
 	);
 }
@@ -8445,29 +8445,29 @@ public void test378674_comment1c() {
 //Can be static warning shown in the wrong places
 public void test378674_comment2() {
 	runStaticWarningConformTest(
-		"X.java", 
-		"public class X<T> {\n" + 
-		"	public final void foo() {\n" + 
-		"		java.util.List<T> k;\n" + 
-		"	}\n" + 
-		"}\n" + 
+		"X.java",
+		"public class X<T> {\n" +
+		"	public final void foo() {\n" +
+		"		java.util.List<T> k;\n" +
+		"	}\n" +
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment3() {
 	runStaticWarningConformTest(
-		"Test.java", 
-		"public class Test {\n" + 
-		"	//false positive of method can be declared static\n" + 
-		"	void bar() {\n" + 
-		"		foo(Test.this);\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	private static void foo(Test test) {\n" + 
-		"		System.out.println(test.getClass().getName());\n" + 
-		"	}\n" + 
-		"}\n" + 
+		"Test.java",
+		"public class Test {\n" +
+		"	//false positive of method can be declared static\n" +
+		"	void bar() {\n" +
+		"		foo(Test.this);\n" +
+		"	}\n" +
+		"\n" +
+		"	private static void foo(Test test) {\n" +
+		"		System.out.println(test.getClass().getName());\n" +
+		"	}\n" +
+		"}\n" +
 		""
 	);
 }
@@ -8475,101 +8475,101 @@ public void test378674_comment3() {
 //Can be static warning shown in the wrong places
 public void test378674_comment5a() {
 	runStaticWarningConformTest(
-		"Test.java", 
-		"public class Test<T> {\n" + 
-		"\n" + 
-		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        new Test().method2(null);\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private static class SubClass<A> {\n" + 
-		"\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private void method2(SubClass<java.util.List<T>> s) {\n" + 
-		"        System.out.println(s);\n" + 
-		"    }\n" + 
-		"\n" + 
-		"}\n" + 
+		"Test.java",
+		"public class Test<T> {\n" +
+		"\n" +
+		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" +
+		"    public static void main(String[] args) {\n" +
+		"        new Test().method2(null);\n" +
+		"    }\n" +
+		"\n" +
+		"    private static class SubClass<A> {\n" +
+		"\n" +
+		"    }\n" +
+		"\n" +
+		"    private void method2(SubClass<java.util.List<T>> s) {\n" +
+		"        System.out.println(s);\n" +
+		"    }\n" +
+		"\n" +
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment5b() {
 	runStaticWarningConformTest(
-		"Test.java", 
-		"public class Test<T> {\n" + 
-		"\n" + 
-		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        new Test().method();\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private java.util.Collection<T> method() {\n" + 
-		"        return null;\n" + 
-		"    }\n" + 
-		"\n" + 
-		"}\n" + 
+		"Test.java",
+		"public class Test<T> {\n" +
+		"\n" +
+		"    @SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" +
+		"    public static void main(String[] args) {\n" +
+		"        new Test().method();\n" +
+		"    }\n" +
+		"\n" +
+		"    private java.util.Collection<T> method() {\n" +
+		"        return null;\n" +
+		"    }\n" +
+		"\n" +
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment9() {
 	runStaticWarningConformTest(
-		"Test.java", 
-		"public class Test<T> {\n" + 
-		"\n" + 
-		"    @SuppressWarnings({ \"rawtypes\" })\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        new Test().method();\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private java.util.Collection<? extends T> method() {\n" + 
-		"        return null;\n" + 
-		"    }\n" + 
-		"}\n" + 
+		"Test.java",
+		"public class Test<T> {\n" +
+		"\n" +
+		"    @SuppressWarnings({ \"rawtypes\" })\n" +
+		"    public static void main(String[] args) {\n" +
+		"        new Test().method();\n" +
+		"    }\n" +
+		"\n" +
+		"    private java.util.Collection<? extends T> method() {\n" +
+		"        return null;\n" +
+		"    }\n" +
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment11() {
 	runStaticWarningConformTest(
-		"Test.java", 
-		"public class Test<T> {\n" + 
-		"\n" + 
-		"    @SuppressWarnings({ \"rawtypes\" })\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        new Test().method1();\n" + 
-		"        new Test().method2();\n" + 
-		"    }\n" + 
-		"\n" + 
-		"   private <TT extends T> TT method1() { \n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"\n" + 
-		"   private <TT extends Object & Comparable<? super T>> TT method2() { \n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"}\n" + 
+		"Test.java",
+		"public class Test<T> {\n" +
+		"\n" +
+		"    @SuppressWarnings({ \"rawtypes\" })\n" +
+		"    public static void main(String[] args) {\n" +
+		"        new Test().method1();\n" +
+		"        new Test().method2();\n" +
+		"    }\n" +
+		"\n" +
+		"   private <TT extends T> TT method1() { \n" +
+		"		return null;\n" +
+		"	}\n" +
+		"\n" +
+		"   private <TT extends Object & Comparable<? super T>> TT method2() { \n" +
+		"		return null;\n" +
+		"	}\n" +
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment21a() {
 	runStaticWarningConformTest(
-		"X.java", 
+		"X.java",
 		"public class X<P extends Exception> {\n" +
 		"	final <T> void foo(T x) throws P {\n" +
 		"	}\n" +
-		"}\n" + 
+		"}\n" +
 		""
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment21b() {
 	runStaticWarningConformTest(
-		"X.java", 
+		"X.java",
 		"public class X<P extends Exception> {\n" +
 		"	final <T> void foo(T x) {\n" +
 		"		Object o = (P) null;\n" +
@@ -8579,7 +8579,7 @@ public void test378674_comment21b() {
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment21c() {
 	runStaticWarningConformTest(
-		"X.java", 
+		"X.java",
 		"public class X<P extends Exception> {\n" +
 		"	final <T> void foo(T x) {\n" +
 		"		new Outer().new Inner<P>();\n" +
@@ -8592,7 +8592,7 @@ public void test378674_comment21c() {
 }//https://bugs.eclipse.org/bugs/show_bug.cgi?id=378674
 public void test378674_comment21d() {
 	runStaticWarningConformTest(
-		"X.java", 
+		"X.java",
 		"public class X<P extends Exception> {\n" +
 		"	final <T> void foo(T x) {\n" +
 		"		class Local {\n" +
@@ -8602,7 +8602,7 @@ public void test378674_comment21d() {
 		"}\n"
 	);
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases... 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases...
 public void test406396() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -8610,7 +8610,7 @@ public void test406396() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	runner.testFiles =
 		new String[] {
-			"X.java", 
+			"X.java",
 			"public class X  {\n" +
 			"	int f;\n" +
 			"	void foo() {\n" +
@@ -8626,37 +8626,37 @@ public void test406396() {
 			"}\n"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	void foo() {\n" + 
-		"	     ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	class Y {\n" + 
-		"	      ^\n" + 
-		"The type Y is never used locally\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 7)\n" + 
-		"	class Z {\n" + 
-		"	      ^\n" + 
-		"The type Z is never used locally\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 8)\n" + 
-		"	int f = p;\n" + 
-		"	    ^\n" + 
-		"The field Z.f is hiding a field from type X\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 8)\n" + 
-		"	int f = p;\n" + 
-		"	    ^\n" + 
-		"The value of the field Z.f is not used\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	void foo() {\n" +
+		"	     ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	class Y {\n" +
+		"	      ^\n" +
+		"The type Y is never used locally\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 7)\n" +
+		"	class Z {\n" +
+		"	      ^\n" +
+		"The type Z is never used locally\n" +
+		"----------\n" +
+		"4. WARNING in X.java (at line 8)\n" +
+		"	int f = p;\n" +
+		"	    ^\n" +
+		"The field Z.f is hiding a field from type X\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 8)\n" +
+		"	int f = p;\n" +
+		"	    ^\n" +
+		"The value of the field Z.f is not used\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases... 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406396, Method can be static analysis misses a bunch of cases...
 public void test406396a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
@@ -8664,7 +8664,7 @@ public void test406396a() {
 	runner.customOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	runner.testFiles =
 		new String[] {
-			"X.java", 
+			"X.java",
 			"public class X  {\n" +
 			"	int f;\n" +
 			"	int foo() {\n" +
@@ -8677,21 +8677,21 @@ public void test406396a() {
 			"}\n"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	int foo() {\n" + 
-		"	    ^^^^^\n" + 
-		"The method foo() from the type X can potentially be declared as static\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 4)\n" + 
-		"	int f = 0;\n" + 
-		"	    ^\n" + 
-		"The local variable f is hiding a field from type X\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
-		"	int goo() {\n" + 
-		"	    ^^^^^\n" + 
-		"The method goo() from the type X can potentially be declared as static\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	int foo() {\n" +
+		"	    ^^^^^\n" +
+		"The method foo() from the type X can potentially be declared as static\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	int f = 0;\n" +
+		"	    ^\n" +
+		"The local variable f is hiding a field from type X\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	int goo() {\n" +
+		"	    ^^^^^\n" +
+		"The method goo() from the type X can potentially be declared as static\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -8699,7 +8699,7 @@ public void test406396a() {
 }
 public void testBug542829() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-	
+
 	// m.Issing is a type that comes and goes:
 	String nameMissing = "m/Issing.java";
 	String contentMissing =
@@ -8734,7 +8734,7 @@ public void testBug542829() {
 	// now we break it:
 	Util.delete(new File(OUTPUT_DIR + File.separator + "m" + File.separator + "Issing.class"));
 	runner.shouldFlushOutputDirectory = false;
-	
+
 	// in this class file a MissingTypes attribute ("m/Issing") is generated:
 	runner.testFiles = new String[] {
 		"b/Roken.java",
@@ -8747,11 +8747,11 @@ public void testBug542829() {
 		"}\n"
 	};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. ERROR in b\\Roken.java (at line 3)\n" + 
-		"	Ood getGood(m.Issing provider) {\n" + 
-		"	            ^^^^^^^^\n" + 
-		"m.Issing cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in b\\Roken.java (at line 3)\n" +
+		"	Ood getGood(m.Issing provider) {\n" +
+		"	            ^^^^^^^^\n" +
+		"m.Issing cannot be resolved to a type\n" +
 		"----------\n";
 	runner.runNegativeTest();
 

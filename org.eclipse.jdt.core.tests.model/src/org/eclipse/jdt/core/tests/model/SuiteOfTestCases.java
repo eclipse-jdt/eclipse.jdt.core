@@ -167,7 +167,7 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 				field.setAccessible(true);
 				Set set = (Set) field.get(null);
 				set.clear();
-				
+
 				suiteOfTestCases.setUpSuite();
 			}
 

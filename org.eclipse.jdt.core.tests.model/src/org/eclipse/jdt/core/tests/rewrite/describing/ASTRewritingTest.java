@@ -46,7 +46,7 @@ import junit.framework.TestSuite;
 /**
  * Tests for ASTRewrite. Subclasses must have 2 constructors that forward to
  * constructors with the same signature as this class's constructors.
- * 
+ *
  * Test methods can end with:
  * <ul>
  * <li>"_since_<i>n</i>", where <i>n</i> is an AST.JLS* constant value:
@@ -82,7 +82,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 	/** @deprecated using deprecated code */
 	private final static int JLS10_INTERNAL = AST.JLS10;
-	
+
 	private final static int JLS14_INTERNAL = AST.JLS14;
 
 	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL, JLS10_INTERNAL, JLS14_INTERNAL };
@@ -109,7 +109,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * Creates an instance of a test at a particular AST level. All sub tests of ASTRewritingTest must have a constructor 
+	 * Creates an instance of a test at a particular AST level. All sub tests of ASTRewritingTest must have a constructor
 	 * with the specified parameters.
 	 *
 	 * @param name name of the test method
@@ -122,15 +122,15 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 	public static Test suite() {
 		TestSuite suite= new TestSuite(ASTRewritingTest.class.getName());
-		
-		
+
+
 		  suite.addTest(ASTRewritingExpressionsTest.suite());
 		  suite.addTest(ASTRewritingInsertBoundTest.suite());
 		  suite.addTest(ASTRewritingMethodDeclTest.suite());
 		  suite.addTest(ASTRewritingMoveCodeTest.suite());
 		  suite.addTest(ASTRewritingStatementsTest.suite());
 		  suite.addTest(ASTRewritingSwitchExpressionsTest.suite());
-		
+
 		  suite.addTest(ASTRewritingTrackingTest.suite());
 		  suite.addTest(ASTRewritingJavadocTest.suite());
 		  suite.addTest(ASTRewritingTypeAnnotationsTest.suite());
@@ -146,13 +146,13 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		  suite.addTest(SourceModifierTest.suite());
 		  suite.addTest(ImportRewriteTest.suite());
 		  suite.addTest(ImportRewrite18Test.suite());
-		 
+
 		return suite;
 	}
 
 	/**
 	 * Creates a test suite according to the rules in {@link ASTRewritingTest}.
-	 * 
+	 *
 	 * @param testClass subclass of ASTRewritingTest
 	 * @return test suite that runs all tests with all supported AST levels
 	 */
@@ -162,7 +162,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 	/**
 	 * Creates a test suite according to the rules in {@link ASTRewritingTest}.
-	 * 
+	 *
 	 * @param testClass subclass of ASTRewritingTest
 	 * @param classSince smallest supported AST level for this test class, or -1 to support all levels
 	 * @return test suite that runs all tests with all supported AST levels
@@ -175,7 +175,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 			for (int i = 0, max = methods.length; i < max; i++) {
 				String name = methods[i].getName();
 				if (name.startsWith("test")) { //$NON-NLS-1$
-					
+
 					int index = name.indexOf(ONLY_AST_STRING);
 					if (index != -1) {
 						String suffix = name.substring(index + ONLY_AST_STRING.length() + 1);
@@ -183,7 +183,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 						for (int l= 0; l < levels.length; l++) {
 							suite.addTest((Test) cons.newInstance(new Object[]{name,  Integer.valueOf(levels[l])}));
 						}
-					
+
 					} else {
 						int since = -1;
 						index = name.indexOf(SINCE_AST_STRING);

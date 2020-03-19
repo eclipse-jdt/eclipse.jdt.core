@@ -324,7 +324,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 			if (Class.class.equals(expectedType.getComponentType())) {
 				// package Class[]-valued return as a MirroredTypesException
 				if (actualType.isArrayType() && ((ArrayBinding)actualType).leafComponentType.erasure().id == TypeIds.T_JavaLangClass) {
-					
+
 					Object[] bindings;
 					if(actualValue instanceof Object[]) {
 						bindings = (Object[]) actualValue;
@@ -334,7 +334,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 					} else {
 						bindings = null;
 					}
-					
+
 					if(bindings != null) {
 						List<TypeMirror> mirrors = new ArrayList<>(bindings.length);
 						for (int i = 0; i < bindings.length; ++i) {

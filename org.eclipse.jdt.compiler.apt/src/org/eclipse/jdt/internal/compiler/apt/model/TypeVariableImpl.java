@@ -29,7 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
  * Implementation of TypeVariable
  */
 public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
-	
+
 	TypeVariableImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding) {
 		super(env, binding);
 	}
@@ -76,11 +76,11 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 	public <R, P> R accept(TypeVisitor<R, P> v, P p) {
 		return v.visitTypeVariable(this, p);
 	}
-	
+
 	@Override
 	public TypeKind getKind() {
 		return TypeKind.TYPEVAR;
 	}
-	
-	
+
+
 }

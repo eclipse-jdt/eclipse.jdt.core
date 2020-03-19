@@ -160,12 +160,12 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Toggle controlling whether DOM bindings should be created when missing internal compiler bindings..
 	 */
 	boolean isRecoveringBindings;
-	
+
 	/**
 	 * Set to <code>true</code> if initialized from a java project
 	 */
 	boolean fromJavaProject;
-	
+
 	/**
 	 * Constructor for DefaultBindingResolver.
 	 */
@@ -339,7 +339,7 @@ class DefaultBindingResolver extends BindingResolver {
 		TypeReference[][] typeArguments = typeReference.typeArguments;
 		int value = 0;
 		org.eclipse.jdt.internal.compiler.ast.Annotation[][] typeAnnotations = typeReference.annotations;
-		int length = typeReference.tokens.length;	
+		int length = typeReference.tokens.length;
 		for (int i = 0; i < length; ++i) {
 			if (value != 0 || (typeArguments != null && typeArguments[i] != null) ||
 				(typeAnnotations != null && typeAnnotations[i] != null )) {
@@ -1474,7 +1474,7 @@ class DefaultBindingResolver extends BindingResolver {
 			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
 			return this.getTypeBinding(qualifiedSuperReference.qualification.resolvedType);
 		} else if (node instanceof LocalDeclaration) {
-			return name.getAST().apiLevel() >= AST.JLS10_INTERNAL && name instanceof SimpleName && ((SimpleName) name).isVar()  ? 
+			return name.getAST().apiLevel() >= AST.JLS10_INTERNAL && name instanceof SimpleName && ((SimpleName) name).isVar()  ?
 					resolveTypeBindingForName(name) :
 					this.getVariableBinding(((LocalDeclaration)node).binding);
 		} else if (node instanceof JavadocFieldReference) {
@@ -1585,7 +1585,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	/**
 	 * @see BindingResolver#resolveModule(ModuleDeclaration)
-	 * @since 3.14	
+	 * @since 3.14
 	 */
 	@Override
 	IModuleBinding resolveModule(ModuleDeclaration module) {
@@ -1676,7 +1676,7 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
-	
+
 	@Override
 	ITypeBinding resolveType(RecordDeclaration type) {
 		final Object node = this.newAstToOldAst.get(type);
@@ -1695,8 +1695,8 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
-	
-	
+
+
 
 	@Override
 	synchronized ITypeBinding resolveType(Type type) {
@@ -2010,7 +2010,7 @@ class DefaultBindingResolver extends BindingResolver {
 			actualDimensions += typeBinding.getDimensions();
 		}
 		if (!(leafComponentType instanceof TypeBinding)) return null;
-		org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafTypeBinding = 
+		org.eclipse.jdt.internal.compiler.lookup.TypeBinding leafTypeBinding =
 											((TypeBinding) leafComponentType).binding;
 		if (leafTypeBinding instanceof VoidTypeBinding) {
 			throw new IllegalArgumentException();
@@ -2026,7 +2026,7 @@ class DefaultBindingResolver extends BindingResolver {
 											actualDimensions));
 		}
 	}
-	
+
 	private org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] insertAnnotations(
 							org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] annots, int dimensions) {
 		if (dimensions == 0 || annots == null || annots.length == 0) {
@@ -2042,7 +2042,7 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 			if (dimensions < 0) dimensions = 0; // Just means there were no annotations
 		}
-		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newAnnots = 
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] newAnnots =
 				new org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[annots.length - index + dimensions];
 
 		System.arraycopy(annots, index, newAnnots, dimensions, annots.length - index);

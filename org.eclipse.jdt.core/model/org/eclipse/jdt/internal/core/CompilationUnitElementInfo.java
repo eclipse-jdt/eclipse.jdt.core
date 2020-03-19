@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.SourceRange;
 
 public class CompilationUnitElementInfo extends OpenableElementInfo {
-	
+
 	/**
 	 * Count that will be used by SourceTypeConverter to decide whether or not to diet parse.
 	 */

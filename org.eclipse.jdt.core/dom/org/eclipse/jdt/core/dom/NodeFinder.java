@@ -111,7 +111,7 @@ public final class NodeFinder {
 	/**
 	 * Maps a selection to an ASTNode, where the selection is defined using a source range.
 	 * Calls <code>perform(root, range.getOffset(), range.getLength())</code>.
-	 * 
+	 *
 	 * @param root the root node from which the search starts
 	 * @param range the selection range
 	 * @return the innermost node that exactly matches the selection, or the first node that contains the selection

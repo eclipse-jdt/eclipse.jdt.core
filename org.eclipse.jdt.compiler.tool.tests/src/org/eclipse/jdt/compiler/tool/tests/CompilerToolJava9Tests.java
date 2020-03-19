@@ -73,7 +73,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	private static File _tmpBinDir;
 	public static String _tmpGenFolderName;
 	private static File _tmpGenDir;
-	
+
 	private static String modules_directory;
 	public CompilerToolJava9Tests(String name) {
 		super(name);
@@ -128,7 +128,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		assertTrue("couldn't mkdirs " + _tmpSrcFolderName, _tmpSrcDir.exists());
 
 		modules_directory = getPluginDirectoryPath() + File.separator + "resources" + File.separator + "module_locations";
-		
+
 		Path moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.one", "module-info.java");
 		assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
 		moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.two", "module-info.java");
@@ -164,7 +164,7 @@ public class CompilerToolJava9Tests extends TestCase {
 						sourceVersion.compareTo(SourceVersion.RELEASE_3) <= 0) {
 					continue;
 				}
-					
+
 				assertTrue("source version " + sourceVersion + " should be supported"
 						+ "by compiler " + compiler.getClass().getName(), sourceVersions.contains(sourceVersion));
 			}
@@ -536,7 +536,7 @@ public class CompilerToolJava9Tests extends TestCase {
 				}
 				assertEquals("incorrect no of output locations", 1, count);
 				assertTrue("output location for module.two not found", found);
-				
+
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
@@ -566,17 +566,17 @@ public class CompilerToolJava9Tests extends TestCase {
 	public void testAsPath() {
 		if (this.isJREBelow9) return;
 	}
-	
+
 	/*-- Code for testing bug 533830 --*/
-	
+
 	public void testBug533830_1() throws IOException {
 		if (this.isJREBelow9) return;
-		
+
 		File src = createClassSource(
 			"package p;\n"
-		+	"public class X {}"	
+		+	"public class X {}"
 		);
-		
+
 		CompilerBuilder b = new CompilerBuilder()
 			.option("--release", "8")
 			.option("-source", "7")
@@ -588,25 +588,25 @@ public class CompilerToolJava9Tests extends TestCase {
 		} catch(IllegalArgumentException iae) {
 			assertEquals("option -source is not supported when --release is used", iae.getMessage());
 		}
-		
+
 		//-- We must now also have a diagnostic
 		assertTrue("The diagnostic listener did not receive an error for the illegal option", b.listener().hasDiagnostic("option -source is not supported when --release is used"));
 	}
-	
+
 	/**
 	 * Helps with building a compiler invocation, handling the common parts of testing.
 	 */
 	private final class CompilerBuilder {
 		private final JavaCompiler compiler;
-		
+
 		private final List<String> options = new ArrayList<>();
-		
+
 		private final List<File> files = new ArrayList<>();
-		
+
 		private final StringWriter errorWriter = new StringWriter();
-		
-		private DiagListener listener; 
-		
+
+		private DiagListener listener;
+
 		CompilerBuilder() {
 			compiler = compilers[1];
 		}
@@ -621,30 +621,30 @@ public class CompilerToolJava9Tests extends TestCase {
 			if(! options.contains("-d")) {
 				option("-d", tmpFolder);
 			}
-			
+
 			listener = new DiagListener(errWriter);
-			
+
 			ForwardingJavaFileManager<StandardJavaFileManager> forwardingManager = createFileManager(manager);
 			compiler.getTask(errWriter, forwardingManager, listener, options, null, units);
 		}
-		
+
 		public CompilerBuilder option(String... s) {
 			for(int i = 0; i < s.length; i++)
 				options.add(s[i]);
 			return this;
 		}
-		
+
 		public CompilerBuilder file(File f) {
 			files.add(f);
 			return this;
 		}
-		
+
 		public DiagListener listener() {
 			if(null == listener)
 				throw new IllegalStateException("Call compile() before using the listener");
 			return listener;
 		}
-		
+
 		public ForwardingJavaFileManager<StandardJavaFileManager> createFileManager(StandardJavaFileManager manager) {
 			ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
 				@Override
@@ -682,20 +682,20 @@ public class CompilerToolJava9Tests extends TestCase {
 			return forwardingJavaFileManager;
 		}
 	}
-	
+
 	static private final class DiagListener extends CompilerInvocationDiagnosticListener {
 		private List<Diagnostic<? extends JavaFileObject>> errorList = new ArrayList<>();
 
 		DiagListener(PrintWriter err) {
 			super(err);
 		}
-		
+
 		@Override
 		public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 			errorList.add(diagnostic);
 			super.report(diagnostic);
 		}
-		
+
 		public boolean hasDiagnostic(String match) {
 			for(Diagnostic<? extends JavaFileObject> d: errorList) {
 				String msg = d.getMessage(Locale.US).toLowerCase();
@@ -705,7 +705,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			return false;
 		}
 	}
-	
+
 	private File createClassSource(String source) throws IOException {
 		String tmpFolder = _tmpFolder;
 		File inputFile = new File(tmpFolder, "X.java");
@@ -714,15 +714,15 @@ public class CompilerToolJava9Tests extends TestCase {
 			return inputFile;
 		}
 	}
-	
+
 	/*-- end code for bug 533830 --*/
-	
+
 	/**
 	 * Recursively delete the contents of a directory, including any subdirectories.
 	 * This is not optimized to handle very large or deep directory trees efficiently.
 	 * @param f is either a normal file (which will be deleted) or a directory
 	 * (which will be emptied and then deleted).
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void deleteTree(File f) throws IOException
 	{

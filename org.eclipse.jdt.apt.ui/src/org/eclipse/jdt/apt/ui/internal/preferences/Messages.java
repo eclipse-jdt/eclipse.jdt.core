@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 BEA Systems, Inc and others. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,7 @@
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
  *    Fabian Steeg <steeg@hbz-nrw.de> - Update APT options documentation - https://bugs.eclipse.org/515329
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.ui.internal.preferences;
 

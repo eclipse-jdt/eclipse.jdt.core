@@ -12,7 +12,7 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.declaration; 
+package org.eclipse.jdt.apt.core.internal.declaration;
 
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
@@ -25,7 +25,7 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implements AnnotationTypeDeclaration, AnnotationType
-{    
+{
     public AnnotationDeclarationImpl(final ITypeBinding binding, final BaseProcessorEnv env)
     {
         super(binding, env);

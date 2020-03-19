@@ -742,7 +742,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(SwitchCase node) {
 		return visitNode(node);
 	}
-	
+
 	@Override
 	public boolean visit(SwitchExpression node) {
 		return visitNode(node);
@@ -767,7 +767,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(TextBlock node) {
 		return visitNode(node);
 	}
-	
+
 	@Override
 	public boolean visit(TextElement node) {
 		return visitNode(node);
@@ -817,7 +817,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(UnionType node) {
 		return visitNode(node);
 	}
-	
+
 	@Override
 	public boolean visit(VariableDeclarationExpression node) {
 		return visitNode(node);
@@ -842,7 +842,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(WildcardType node) {
 		return visitNode(node);
 	}
-	
+
 	@Override
 	public boolean visit(YieldStatement node) {
 		return visitNode(node);

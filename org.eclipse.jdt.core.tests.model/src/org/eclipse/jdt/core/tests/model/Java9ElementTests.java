@@ -106,7 +106,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  
+				String fileContent =
 						"module my.mod{\n" +
 						 "	exports p.q.r;" +
 						 "	exports a.b.c;\n" +
@@ -115,15 +115,15 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 
 				createFolder("/Java9Elements/src/p/q/r");
 				createFolder("/Java9Elements/src/a/b/c");
-				createFile(	"/Java9Elements/src/p/q/package-info.java",	
+				createFile(	"/Java9Elements/src/p/q/package-info.java",
 						"/** Javadoc for package p.q */"
 						+ "package p.q;");
-				createFile(	"/Java9Elements/src/a/b/c/package-info.java",	
+				createFile(	"/Java9Elements/src/a/b/c/package-info.java",
 						"/** Javadoc for package a.b.c */"
 						+ "package a.b.c;");
 
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
-				
+
 				int start = fileContent.indexOf("p.q");
 				IJavaElement[] elements = unit.codeSelect(start, 3);
 				assertEquals("Incorrect no of elements", 1, elements.length);
@@ -144,7 +144,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  
+				String fileContent =
 						"module my.mod{\n" +
 						 "	provides com.socket.spi.NetworkSocketProvider\n" +
 						 "      with org.fastsocket.FastNetworkSocketProvider;\n" +
@@ -163,7 +163,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-				String fileContent =  
+				String fileContent =
 						"module my.mod{\n" +
 						 "	uses com.socket.spi.NetworkSocketProvider;\n" +
 						 "}";
@@ -181,7 +181,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			String fileContent =  
+			String fileContent =
 					"module my.mod{\n" +
 					"	exports p.q.r;" +
 					"	exports a.b.c;\n" +
@@ -214,7 +214,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			String fileContent =  
+			String fileContent =
 					"module my.mod{\n" +
 					"	exports p.q.r;" +
 					"	exports a.b.c;\n" +
@@ -223,7 +223,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 
 			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
-			fileContent =  
+			fileContent =
 					"module your.mod{\n" +
 					"	requires my.mod;\n" +
 					"}";
@@ -239,7 +239,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 			deleteProject("Java9Elements2");
-		}	
+		}
 	}
 	public void test008() throws Exception {
 		try {
@@ -269,7 +269,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 			deleteProject("Java9Elements2");
-		}	
+		}
 	}
 	public void test009() throws Exception {
 		try {
@@ -293,7 +293,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		}
 		finally {
 			deleteProject("Java9Elements");
-		}	
+		}
 	}
 	public void test010() throws Exception {
 		try {
@@ -321,15 +321,15 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{" +
-									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" + 
+									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" +
 									"	opens a.b;" +
 									"}\n";
 				createFolder("/Java9Elements/src/a/b");
 				createFile("/Java9Elements/src/a/b/C.java",
-						"package a.b;\n" + 
+						"package a.b;\n" +
 						"public interface C {}");
 				createFile("/Java9Elements/src/a/b/CImpl.java",
-						"package a.b;\n" + 
+						"package a.b;\n" +
 						"public class CImpl implements C {}");
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
@@ -346,14 +346,14 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{" +
-									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" + 
+									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" +
 									"}\n";
 				createFolder("/Java9Elements/src/a/b");
 				createFile("/Java9Elements/src/a/b/C.java",
-						"package a.b;\n" + 
+						"package a.b;\n" +
 						"public interface C {}");
 				createFile("/Java9Elements/src/a/b/CImpl.java",
-						"package a.b;\n" + 
+						"package a.b;\n" +
 						"public class CImpl implements C {}");
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
@@ -916,7 +916,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject libPrj= createJavaProject("Java9Lib", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			createFile("Java9Lib/src/module-info.java", "module java9.lib {}\n");
 			libPrj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			
+
 			IJavaProject project = createJavaProject("Java9Elements",
 					new String[] {"src"},
 					new String[] {"JCL19_LIB", "/Java9Lib/bin"},
@@ -962,7 +962,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				"	exports test1;\n" +
 				"}\n");
 
-			String modOneSrc = 
+			String modOneSrc =
 				"\n" +
 				"/** The no. one module. */\n" +
 				"module mod.one {\n" +
@@ -1048,14 +1048,14 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				content);
 
 			ICompilationUnit unit = getCompilationUnit("/Test/src/module-info.java");
-			
+
 			int start = content.indexOf("ABCD");
 			IJavaElement[] elements = unit.codeSelect(start, 4);
 			assertEquals("Incorrect no of elements", 1, elements.length);
 			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
-			assertElementEquals("Incorrect Java element", 
+			assertElementEquals("Incorrect Java element",
 					"ABCD [in module-info.java [in <default> [in src [in mod.zero]]]]", elements[0]);
-	
+
 		} finally {
 			deleteProject("Test");
 			deleteProject("mod.zero");
@@ -1091,14 +1091,14 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 							"}\n");
 
 			ICompilationUnit unit = getCompilationUnit("/mod.zero/src/module-info.java");
-			
+
 			int start = content.indexOf("PQRS");
 			IJavaElement[] elements = unit.codeSelect(start, 4);
 			assertEquals("Incorrect no of elements", 1, elements.length);
 			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
-			assertElementEquals("Incorrect Java element", 
+			assertElementEquals("Incorrect Java element",
 					"PQRS [in module-info.java [in <default> [in src [in Test]]]]", elements[0]);
-	
+
 		} finally {
 			deleteProject("Test");
 			deleteProject("mod.zero");
@@ -1316,7 +1316,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IJavaProject project1 = createJavaProject("my_mod", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project1.open(null);
 			createFolder("/my_mod/src/p/q");
-			createFile("/my_mod/src/p/q/R.java", 
+			createFile("/my_mod/src/p/q/R.java",
 					"package p.q;\n" +
 					"public class R {\n" +
 					"}");
@@ -1363,7 +1363,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("my_mod");
 			deleteProject("your.mod");
-		}	
+		}
 	}
 	public void testSystemModule() throws Exception {
 		try {
@@ -1379,18 +1379,18 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			mod = project1.getModuleDescription();
 			assertFalse("should not be a system module", mod.isSystemModule());
 
-			addModularLibrary(project1, "mod.two.jar", "mod.two-sources.zip", 
+			addModularLibrary(project1, "mod.two.jar", "mod.two-sources.zip",
 					new String[] {
 						"module-info.java",
 						"module mod.two {}\n"
 					}, JavaCore.VERSION_9);
-			
+
 			mod = project1.findModule("mod.two", this.wcOwner);
 			assertFalse("should not be a system module", mod.isSystemModule());
-			
+
 		} finally {
 			deleteProject("my_mod");
-		}	
+		}
 	}
 	public void test526761a() throws Exception {
 		try {
@@ -1457,7 +1457,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProjectWithBaseSql();
 			project.open(null);
-				String fileContent = 
+				String fileContent =
 						"import java.sql.Driver;\n" +
 						"import p.q.Main;\n" +
 						"module my.mod{\n"  +
@@ -1490,13 +1490,13 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
 				assertEquals("Incorrect no of elements", 1, elements.length);
 				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
-				assertElementEquals("Incorrect Java element", 
+				assertElementEquals("Incorrect Java element",
 						"Driver [in Driver.class [in java.sql [in <module:java.sql>]]]", elements[0]);
 				start = fileContent.lastIndexOf("Main");
 				elements = unit.codeSelect(start, "Main".length());
 				assertEquals("Incorrect no of elements", 1, elements.length);
 				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
-				assertElementEquals("Incorrect Java element", 
+				assertElementEquals("Incorrect Java element",
 						"Main [in Main.java [in p.q [in src [in Java9Elements]]]]", elements[0]);
 		}
 		finally {
@@ -1507,7 +1507,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProjectWithBaseSql();
 			project.open(null);
-				String fileContent = 
+				String fileContent =
 						"import java.sql.Driver;\n" +
 						"import p.q.Main;\n" +
 						"module my.mod{\n"  +
@@ -1540,13 +1540,13 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
 				assertEquals("Incorrect no of elements", 1, elements.length);
 				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
-				assertElementEquals("Incorrect Java element", 
+				assertElementEquals("Incorrect Java element",
 						"Driver [in Driver.class [in java.sql [in <module:java.sql>]]]", elements[0]);
 				start = fileContent.lastIndexOf("Main");
 				elements = unit.codeSelect(start, "Main".length());
 				assertEquals("Incorrect no of elements", 1, elements.length);
 				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
-				assertElementEquals("Incorrect Java element", 
+				assertElementEquals("Incorrect Java element",
 						"Main [in Main.java [in p.q [in src [in Java9Elements]]]]", elements[0]);
 		}
 		finally {
@@ -1557,7 +1557,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProjectWithBaseSql();
 			project.open(null);
-				String fileContent = 
+				String fileContent =
 						"module my.mod{\n"  +
 						 "	exports p.q;" +
 						 "	requires java.sql;\n" +
@@ -1588,13 +1588,13 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
 				assertEquals("Incorrect no of elements", 1, elements.length);
 				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
-				assertElementEquals("Incorrect Java element", 
+				assertElementEquals("Incorrect Java element",
 						"Driver [in Driver.class [in java.sql [in <module:java.sql>]]]", elements[0]);
 				start = fileContent.lastIndexOf("Main");
 				elements = unit.codeSelect(start, "Main".length());
 				assertEquals("Incorrect no of elements", 1, elements.length);
 				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
-				assertElementEquals("Incorrect Java element", 
+				assertElementEquals("Incorrect Java element",
 						"Main [in Main.java [in p.q [in src [in Java9Elements]]]]", elements[0]);
 		}
 		finally {
@@ -1725,7 +1725,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertNotNull("Should find module M", mod);
 			categories = mod.getCategories();
 			assertEquals("Expect category", "[library]", Arrays.toString(categories));
-			
+
 			// source module with categories:
 			mod = project.getModuleDescription();
 			categories = mod.getCategories();

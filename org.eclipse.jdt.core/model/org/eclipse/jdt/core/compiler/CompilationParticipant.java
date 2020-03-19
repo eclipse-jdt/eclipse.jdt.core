@@ -125,7 +125,7 @@ public boolean isActive(IJavaProject project) {
  * <p>
  * Default is to return <code>false</code>.
  * </p>
- * 
+ *
  * @return whether this participant is interested in Annotations
  */
 public boolean isAnnotationProcessor() {

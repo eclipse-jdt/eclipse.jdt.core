@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *    Igor Fedorenko - extracted from ElementsImpl
  *******************************************************************************/
@@ -100,7 +100,7 @@ public class ElementsImpl9 extends ElementsImpl {
 		return new TypeElementImpl(_env, binding, null);
 	}
 
-	
+
 	@Override
 	public Origin getOrigin(Element e) {
 		return Origin.EXPLICIT;

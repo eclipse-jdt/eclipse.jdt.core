@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
  *******************************************************************************/
@@ -39,27 +39,27 @@ import com.sun.mirror.util.Types;
 
 
 public class APIAnnotationProcessorFactory extends BaseFactory {
-	
+
 	public APIAnnotationProcessorFactory(){
 		super(Common.class.getName(), SubtypeOf.class.getName(), AssignableTo.class.getName());
 	}
-	
+
 	public AnnotationProcessor getProcessorFor(
-			Set<AnnotationTypeDeclaration> decls, 
+			Set<AnnotationTypeDeclaration> decls,
 			AnnotationProcessorEnvironment env) {
 		return new APIAnnotationProcessor(env);
 	}
-	
+
 	public static class APIAnnotationProcessor extends BaseProcessor{
-		
+
 		private Messager _msgr;
 		private Types _types;
-		
+
 		public APIAnnotationProcessor(AnnotationProcessorEnvironment env){
 			super(env);
 		}
-		
-		public void process() {	
+
+		public void process() {
 			_msgr = _env.getMessager();
 			_types = _env.getTypeUtils();
 			checkCommon();
@@ -72,9 +72,9 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 		 */
 		private void checkCommon()
 		{
-			final AnnotationTypeDeclaration commonAnnoType = 
+			final AnnotationTypeDeclaration commonAnnoType =
 				(AnnotationTypeDeclaration)_env.getTypeDeclaration(Common.class.getName());
-			final Collection<Declaration> decls = 
+			final Collection<Declaration> decls =
 				_env.getDeclarationsAnnotatedWith(commonAnnoType);
 			for( Declaration decl : decls ){
 				if(decl instanceof FieldDeclaration ){
@@ -86,8 +86,8 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 						final Collection<TypeMirror> typeVars =
 							((DeclaredType)type).getActualTypeArguments();
 						if(typeVars.size() == 1 ){
-							TypeMirror typeVar = typeVars.iterator().next(); 
-							boolean assignable = _env.getTypeUtils().isAssignable(typeVar, collectionType);							
+							TypeMirror typeVar = typeVars.iterator().next();
+							boolean assignable = _env.getTypeUtils().isAssignable(typeVar, collectionType);
 							if( assignable )
 								_msgr.printError(typeVar + " is assignable to " + collectionType );
 							else
@@ -97,7 +97,7 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 				}else if(decl instanceof TypeDeclaration){
 					final TypeDeclaration typeDecl = (TypeDeclaration)decl;
 					final Collection<TypeParameterDeclaration> typeParams =
-						typeDecl.getFormalTypeParameters();					
+						typeDecl.getFormalTypeParameters();
 					for(TypeParameterDeclaration typeParam : typeParams){
 						Declaration owner = typeParam.getOwner();
 						_msgr.printError("Type parameter '" + typeParam + "' belongs to " + owner.getClass().getName() + " " + owner.getSimpleName() );
@@ -106,7 +106,7 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 				else if( decl instanceof MethodDeclaration ){
 					final MethodDeclaration methodDecl = (MethodDeclaration)decl;
 					final Collection<TypeParameterDeclaration> typeParams =
-						methodDecl.getFormalTypeParameters();					
+						methodDecl.getFormalTypeParameters();
 					for(TypeParameterDeclaration typeParam : typeParams){
 						Declaration owner = typeParam.getOwner();
 						_msgr.printError("Type parameter '" + typeParam + "' belongs to " + owner.getClass().getName() + " " + owner.getSimpleName() );
@@ -114,16 +114,16 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 				}
 			}
 		}
-		
+
 		/**
 		 * Validate all the fields annotated with @SubtypeOf, in order to test
 		 * the Types.subtypeOf() method.
 		 * We ignore anything but fields, out of laziness.
 		 */
 		private void checkSubtypeOf() {
-			final AnnotationTypeDeclaration annoType = 
+			final AnnotationTypeDeclaration annoType =
 				(AnnotationTypeDeclaration)_env.getTypeDeclaration(SubtypeOf.class.getName());
-			final Collection<Declaration> decls = 
+			final Collection<Declaration> decls =
 				_env.getDeclarationsAnnotatedWith(annoType);
 			for( Declaration decl : decls ){
 				if(decl instanceof FieldDeclaration ) {
@@ -142,15 +142,15 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 				}
 			}
 		}
-		
+
 		/**
 		 * Validate all the fields annotated with @AssignableTo.
 		 * We ignore anything but fields, out of laziness.
 		 */
 		private void checkAssignableTo() {
-			final AnnotationTypeDeclaration annoType = 
+			final AnnotationTypeDeclaration annoType =
 				(AnnotationTypeDeclaration)_env.getTypeDeclaration(AssignableTo.class.getName());
-			final Collection<Declaration> decls = 
+			final Collection<Declaration> decls =
 				_env.getDeclarationsAnnotatedWith(annoType);
 			for( Declaration decl : decls ){
 				if(decl instanceof FieldDeclaration ) {
@@ -169,7 +169,7 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 				}
 			}
 		}
-		
+
 		/**
 		 * @return a mirror for the instance of the specified annotation on the specified
 		 * declaration, or null if one is not present.
@@ -182,7 +182,7 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 			}
 			return null;
 		}
-		
+
 		/**
 		 * @return the value() of an annotation instance <code>mirror</code>, if it is a
 		 * class value, or null if not.

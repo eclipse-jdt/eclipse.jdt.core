@@ -1694,36 +1694,36 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	public void foo() {}\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in pack\\package-info.java (at line 4)\n" + 
-			"	* @see Unknown\n" + 
-			"	       ^^^^^^^\n" + 
-			"Javadoc: Unknown cannot be resolved to a type\n" + 
-			"----------\n" + 
-			"2. ERROR in pack\\package-info.java (at line 6)\n" + 
-			"	* @see pack.Test#unknown()\n" + 
-			"	                 ^^^^^^^\n" + 
-			"Javadoc: The method unknown() is undefined for the type Test\n" + 
-			"----------\n" + 
-			"3. ERROR in pack\\package-info.java (at line 8)\n" + 
-			"	* @see pack.Test#unknown\n" + 
-			"	                 ^^^^^^^\n" + 
-			"Javadoc: unknown cannot be resolved or is not a field\n" + 
-			"----------\n" + 
-			"4. ERROR in pack\\package-info.java (at line 9)\n" + 
-			"	* @param unexpected\n" + 
-			"	   ^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"5. ERROR in pack\\package-info.java (at line 10)\n" + 
-			"	* @throws unexpected\n" + 
-			"	   ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"6. ERROR in pack\\package-info.java (at line 11)\n" + 
-			"	* @return unexpected \n" + 
-			"	   ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
+			"----------\n" +
+			"1. ERROR in pack\\package-info.java (at line 4)\n" +
+			"	* @see Unknown\n" +
+			"	       ^^^^^^^\n" +
+			"Javadoc: Unknown cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. ERROR in pack\\package-info.java (at line 6)\n" +
+			"	* @see pack.Test#unknown()\n" +
+			"	                 ^^^^^^^\n" +
+			"Javadoc: The method unknown() is undefined for the type Test\n" +
+			"----------\n" +
+			"3. ERROR in pack\\package-info.java (at line 8)\n" +
+			"	* @see pack.Test#unknown\n" +
+			"	                 ^^^^^^^\n" +
+			"Javadoc: unknown cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"4. ERROR in pack\\package-info.java (at line 9)\n" +
+			"	* @param unexpected\n" +
+			"	   ^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"5. ERROR in pack\\package-info.java (at line 10)\n" +
+			"	* @throws unexpected\n" +
+			"	   ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"6. ERROR in pack\\package-info.java (at line 11)\n" +
+			"	* @return unexpected \n" +
+			"	   ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -2019,12 +2019,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner}\n" +
 			"	                  ^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" + 
 			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" + 
-			"	* @see Test.Inner\n" + 
-			"	       ^^^^^^^^^^\n" + 
-			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" +
+			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" +
+			"	* @see Test.Inner\n" +
+			"	       ^^^^^^^^^^\n" +
+			"Javadoc: Invalid member type qualification\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -2333,12 +2333,12 @@ public class JavadocTest_1_5 extends JavadocTest {
 			"	* See also {@link Inner}\n" +
 			"	                  ^^^^^\n" +
 			"Javadoc: Invalid member type qualification\n" +
-			"----------\n" + 
 			"----------\n" +
-			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" + 
-			"	* @see Test.Inner\n" + 
-			"	       ^^^^^^^^^^\n" + 
-			"Javadoc: Invalid member type qualification\n" + 
+			"----------\n" +
+			"1. ERROR in comment6a\\test\\Invalid2.java (at line 4)\n" +
+			"	* @see Test.Inner\n" +
+			"	       ^^^^^^^^^^\n" +
+			"Javadoc: Invalid member type qualification\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -3892,25 +3892,25 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" */\n" +
 				"package pack;\n"
 			},
-			"----------\n" + 
-			"1. ERROR in pack\\package-info.java (at line 2)\n" + 
-			"	* {@inheritDoc}\n" + 
-			"	    ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"2. ERROR in pack\\package-info.java (at line 3)\n" + 
-			"	* @since {@inheritDoc}\n" + 
-			"	           ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"3. ERROR in pack\\package-info.java (at line 4)\n" + 
-			"	* @blah {@inheritDoc}\n" + 
-			"	          ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
+			"----------\n" +
+			"1. ERROR in pack\\package-info.java (at line 2)\n" +
+			"	* {@inheritDoc}\n" +
+			"	    ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"2. ERROR in pack\\package-info.java (at line 3)\n" +
+			"	* @since {@inheritDoc}\n" +
+			"	           ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"3. ERROR in pack\\package-info.java (at line 4)\n" +
+			"	* @blah {@inheritDoc}\n" +
+			"	          ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
 			"----------\n"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=247037, verify that we complain about @inheritDoc
 	// being used in package level javadoc (variation)
 	public void testBug247037b() {
@@ -3923,26 +3923,26 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" */\n" +
 				"package pack;\n"
 			},
-			"----------\n" + 
-			"1. ERROR in pack\\package-info.java (at line 2)\n" + 
-			"	* @return {@inheritDoc}\n" + 
-			"	   ^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"2. ERROR in pack\\package-info.java (at line 2)\n" + 
-			"	* @return {@inheritDoc}\n" + 
-			"	            ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"3. ERROR in pack\\package-info.java (at line 3)\n" + 
-			"	* @param blah {@inheritDoc}\n" + 
-			"	   ^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
-			"----------\n" + 
-			"4. ERROR in pack\\package-info.java (at line 3)\n" + 
-			"	* @param blah {@inheritDoc}\n" + 
-			"	                ^^^^^^^^^^\n" + 
-			"Javadoc: Unexpected tag\n" + 
+			"----------\n" +
+			"1. ERROR in pack\\package-info.java (at line 2)\n" +
+			"	* @return {@inheritDoc}\n" +
+			"	   ^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"2. ERROR in pack\\package-info.java (at line 2)\n" +
+			"	* @return {@inheritDoc}\n" +
+			"	            ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"3. ERROR in pack\\package-info.java (at line 3)\n" +
+			"	* @param blah {@inheritDoc}\n" +
+			"	   ^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
+			"----------\n" +
+			"4. ERROR in pack\\package-info.java (at line 3)\n" +
+			"	* @param blah {@inheritDoc}\n" +
+			"	                ^^^^^^^^^^\n" +
+			"Javadoc: Unexpected tag\n" +
 			"----------\n"
 		);
 	}
@@ -3991,48 +3991,48 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" * @see goo.bar\n" +
 				" * @see foo.bar.goo\n" +
 				" */\n" +
-				"package foo.bar;\n"	
+				"package foo.bar;\n"
 		},
-		"----------\n" + 
-		"1. ERROR in foo\\bar\\package-info.java (at line 2)\n" + 
-		"	* @see ClassInSamePackage#SOME_FIELD\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"2. ERROR in foo\\bar\\package-info.java (at line 4)\n" + 
-		"	* @see ClassInSamePackage#SOME_FIELD\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: Invalid reference\n" + 
-		"----------\n" + 
-		"3. ERROR in foo\\bar\\package-info.java (at line 5)\n" + 
-		"	* @see ClassInSubPackage#foo\n" + 
-		"	       ^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"4. ERROR in foo\\bar\\package-info.java (at line 7)\n" + 
-		"	* @see ClassInSubPackage#foo\n" + 
-		"	       ^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"5. ERROR in foo\\bar\\package-info.java (at line 8)\n" + 
-		"	* @see ClassInEnclosingPackage\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"6. ERROR in foo\\bar\\package-info.java (at line 10)\n" + 
-		"	* @see ClassInEnclosingPackage\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in foo\\bar\\package-info.java (at line 2)\n" +
+		"	* @see ClassInSamePackage#SOME_FIELD\n" +
+		"	       ^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Invalid reference\n" +
+		"----------\n" +
+		"2. ERROR in foo\\bar\\package-info.java (at line 4)\n" +
+		"	* @see ClassInSamePackage#SOME_FIELD\n" +
+		"	       ^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: Invalid reference\n" +
+		"----------\n" +
+		"3. ERROR in foo\\bar\\package-info.java (at line 5)\n" +
+		"	* @see ClassInSubPackage#foo\n" +
+		"	       ^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in foo\\bar\\package-info.java (at line 7)\n" +
+		"	* @see ClassInSubPackage#foo\n" +
+		"	       ^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in foo\\bar\\package-info.java (at line 8)\n" +
+		"	* @see ClassInEnclosingPackage\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
+		"----------\n" +
+		"6. ERROR in foo\\bar\\package-info.java (at line 10)\n" +
+		"	* @see ClassInEnclosingPackage\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
 		"----------\n");
-	}	
+	}
 
 	/**
-	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918" 
+	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918"
 	 * @test that in a non package-info.java file
 	 * 				2. References without qualified names to valid Java elements in the same package are ACCEPTED
 	 * 	 			2. References without qualified names to valid Java elements in other packages are REPORTED
 	 * 				3. References with qualified names to valid Java elements are accepted
-	 */	
+	 */
 	public void testBug284333a() {
 		runNegativeTest(new String[]{
 				"goo/bar/package-info.java",
@@ -4077,36 +4077,36 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" 	public static void foo() {\n" +
 				"	}\n" +
 				"	" +
-				" }\n"	
+				" }\n"
 		},
-		"----------\n" + 
-		"1. ERROR in foo\\bar\\NotAPackageInfo.java (at line 9)\n" + 
-		"	* @see ClassInSubPackage#foo\n" + 
-		"	       ^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"2. ERROR in foo\\bar\\NotAPackageInfo.java (at line 11)\n" + 
-		"	* @see ClassInSubPackage#foo\n" + 
-		"	       ^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"3. ERROR in foo\\bar\\NotAPackageInfo.java (at line 15)\n" + 
-		"	* @see ClassInEnclosingPackage\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
-		"----------\n" + 
-		"4. ERROR in foo\\bar\\NotAPackageInfo.java (at line 17)\n" + 
-		"	* @see ClassInEnclosingPackage\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in foo\\bar\\NotAPackageInfo.java (at line 9)\n" +
+		"	* @see ClassInSubPackage#foo\n" +
+		"	       ^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in foo\\bar\\NotAPackageInfo.java (at line 11)\n" +
+		"	* @see ClassInSubPackage#foo\n" +
+		"	       ^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInSubPackage cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in foo\\bar\\NotAPackageInfo.java (at line 15)\n" +
+		"	* @see ClassInEnclosingPackage\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in foo\\bar\\NotAPackageInfo.java (at line 17)\n" +
+		"	* @see ClassInEnclosingPackage\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Javadoc: ClassInEnclosingPackage cannot be resolved to a type\n" +
 		"----------\n");
 	}
 	/**
-	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284333" 
+	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284333"
 	 * @test that in a non package-info.java file
 	 * 	 			2. References without qualified names to imported Java elements in other packages are ACCEPTED
 	 * 				3. References with qualified names to valid Java elements are ACCEPTED
-	 */	
+	 */
 	public void testBug284333b() {
 		runConformTest(new String[] {
 				"goo/bar/package-info.java",
@@ -4156,7 +4156,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				" 	public static void foo() {\n" +
 				"	}\n" +
 				"	" +
-				" }\n"	
+				" }\n"
 		});
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=322581
@@ -4178,15 +4178,15 @@ public class JavadocTest_1_5 extends JavadocTest {
 			null,
 			options,
 			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-			"	                              ^^^\n" + 
-			"Javadoc: Missing tag for parameter val\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	public <T, U, V> void foo(int val, Object obj) {}\n" + 
-			"	                                          ^^^\n" + 
-			"Javadoc: Missing tag for parameter obj\n" + 
+			"1. ERROR in X.java (at line 5)\n" +
+			"	public <T, U, V> void foo(int val, Object obj) {}\n" +
+			"	                              ^^^\n" +
+			"Javadoc: Missing tag for parameter val\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	public <T, U, V> void foo(int val, Object obj) {}\n" +
+			"	                                          ^^^\n" +
+			"Javadoc: Missing tag for parameter obj\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -4212,7 +4212,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	 * Returns a {@link ListCallable} that wraps the result from calling <code>callable</code>.\n" +
 				"    * @param callable the {@link Callable} to wrap\n" +
 				"	 * @return the wrapper\n" +
-				"    */\n" + 
+				"    */\n" +
 				"	public static <T> ListCallable<T> from(final Callable<T> callable) { // don't warn\n" +
 				"		return new ListCallable<T>() {\n" +
 				"			@Override\n" +
@@ -4226,10 +4226,10 @@ public class JavadocTest_1_5 extends JavadocTest {
 			null,
 			options,
 			"----------\n" +
-			"1. ERROR in ListCallable.java (at line 7)\n" + 
-			"	public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" + 
-			"	                                   ^\n" + 
-			"Javadoc: Missing tag for parameter V\n" + 
+			"1. ERROR in ListCallable.java (at line 7)\n" +
+			"	public abstract class ListCallable<V> implements Callable<List<V>> { // good warning\n" +
+			"	                                   ^\n" +
+			"Javadoc: Missing tag for parameter V\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -4249,18 +4249,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	/**\n" +
 				"	 * @param o the given object\n" +
 				"	 * @see #foo(p.O[])\n" +
-				"	 */\n" + 
+				"	 */\n" +
 				"	public void foo(Object o) {\n" +
 				"	}\n" +
 				"}"
 			},
 			null,
 			options,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	* @see #foo(p.O[])\n" + 
-			"	            ^^^\n" + 
-			"Illegal qualified access from the type parameter p\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	* @see #foo(p.O[])\n" +
+			"	            ^^^\n" +
+			"Illegal qualified access from the type parameter p\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -4280,18 +4280,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	/**\n" +
 				"	 * @param o the given object\n" +
 				"	 * @see #foo(O[])\n" +
-				"	 */\n" + 
+				"	 */\n" +
 				"	public void foo(Object o) {\n" +
 				"	}\n" +
 				"}"
 			},
 			null,
 			options,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	* @see #foo(O[])\n" + 
-			"	            ^\n" + 
-			"Javadoc: O[] cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	* @see #foo(O[])\n" +
+			"	            ^\n" +
+			"Javadoc: O[] cannot be resolved to a type\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -4311,18 +4311,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	/**\n" +
 				"	 * @param o the given object\n" +
 				"	 * @see #foo(test.O[])\n" +
-				"	 */\n" + 
+				"	 */\n" +
 				"	public void foo(Object o) {\n" +
 				"	}\n" +
 				"}"
 			},
 			null,
 			options,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	* @see #foo(test.O[])\n" + 
-			"	            ^^^^^^\n" + 
-			"Javadoc: test[] cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	* @see #foo(test.O[])\n" +
+			"	            ^^^^^^\n" +
+			"Javadoc: test[] cannot be resolved to a type\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);
@@ -4342,18 +4342,18 @@ public class JavadocTest_1_5 extends JavadocTest {
 				"	/**\n" +
 				"	 * @param o the given object\n" +
 				"	 * @see #foo(test.O)\n" +
-				"	 */\n" + 
+				"	 */\n" +
 				"	public void foo(Object o) {\n" +
 				"	}\n" +
 				"}"
 			},
 			null,
 			options,
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	* @see #foo(test.O)\n" + 
-			"	            ^^^^^^\n" + 
-			"Javadoc: test cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	* @see #foo(test.O)\n" +
+			"	            ^^^^^^\n" +
+			"Javadoc: test cannot be resolved to a type\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError
 		);

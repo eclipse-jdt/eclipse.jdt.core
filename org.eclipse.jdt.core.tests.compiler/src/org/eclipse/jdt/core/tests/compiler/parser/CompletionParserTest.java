@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -8658,28 +8658,28 @@ public void testBug310423(){
 	String testName = "";
 	String completeBehind = "In";
 	String expectedCompletionNodeToString = "<CompleteOnInterface:In>";
-	String expectedParentNodeToString = 
-		"public class Test implements <CompleteOnInterface:In> {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
+	String expectedParentNodeToString =
+		"public class Test implements <CompleteOnInterface:In> {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
 		"}";
 	String completionIdentifier = "In";
 	String expectedReplacedSource = "In";
 	int cursorLocation = str.lastIndexOf("In") + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
-		"import java.lang.annotation.Annotation;\n" + 
-		"interface In {\n" + 
-		"}\n" + 
-		"interface Inn {\n" + 
-		"  interface Inn2 {\n" + 
-		"  }\n" + 
-		"  @interface InAnnot {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"@interface InnAnnot {\n" + 
-		"}\n" + 
-		"public class Test implements <CompleteOnInterface:In> {\n" + 
-		"  public Test() {\n" + 
+		"import java.lang.annotation.Annotation;\n" +
+		"interface In {\n" +
+		"}\n" +
+		"interface Inn {\n" +
+		"  interface Inn2 {\n" +
+		"  }\n" +
+		"  @interface InAnnot {\n" +
+		"  }\n" +
+		"}\n" +
+		"@interface InnAnnot {\n" +
+		"}\n" +
+		"public class Test implements <CompleteOnInterface:In> {\n" +
+		"  public Test() {\n" +
 		"  }\n" +
 		"}\n";
 
@@ -8723,32 +8723,32 @@ public void testBug338789(){
 	String completionIdentifier = "IZZ";
 	String expectedReplacedSource = "IZZ";
 	String expectedUnitDisplayString =
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void throwing() throws IZZBException, IZZException {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    try\n" + 
-		"      {\n" + 
-		"        throwing();\n" + 
-		"      }\n" + 
-		"    catch (IZZException | <CompleteOnException:IZZ>  )\n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class IZZAException extends Exception {\n" + 
-		"  IZZAException() {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class IZZBException extends Exception {\n" + 
-		"  IZZBException() {\n" + 
-		"  }\n" + 
-		"}\n" + 
-		"class IZZException extends Exception {\n" + 
-		"  IZZException() {\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void throwing() throws IZZBException, IZZException {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    try\n" +
+		"      {\n" +
+		"        throwing();\n" +
+		"      }\n" +
+		"    catch (IZZException | <CompleteOnException:IZZ>  )\n" +
+		"      {\n" +
+		"      }\n" +
+		"  }\n" +
+		"}\n" +
+		"class IZZAException extends Exception {\n" +
+		"  IZZAException() {\n" +
+		"  }\n" +
+		"}\n" +
+		"class IZZBException extends Exception {\n" +
+		"  IZZBException() {\n" +
+		"  }\n" +
+		"}\n" +
+		"class IZZException extends Exception {\n" +
+		"  IZZException() {\n" +
+		"  }\n" +
 		"}\n";
 
 	int cursorLocation = str.indexOf("IZZException | IZZ") + completeBehind.length() - 1;
@@ -8786,20 +8786,20 @@ public void testBug338789b(){
 	String completionIdentifier = "I";
 	String expectedReplacedSource = "java.lang.I";
 	String expectedUnitDisplayString =
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    try\n" + 
-		"      {\n" + 
-		"        throwing();\n" + 
-		"      }\n" + 
-		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"  }\n" + 
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    try\n" +
+		"      {\n" +
+		"        throwing();\n" +
+		"      }\n" +
+		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" +
+		"      {\n" +
+		"      }\n" +
+		"  }\n" +
 		"}\n";
 
 	int cursorLocation = str.indexOf("java.lang.IllegalArgumentException | java.lang.I") + completeBehind.length() - 1;
@@ -8837,24 +8837,24 @@ public void testBug343637(){
 	String expectedCompletionNodeToString = "<CompleteOnException:java.lang.I>";
 	String completionIdentifier = "I";
 	String expectedReplacedSource = "java.lang.I";
-	String expectedUnitDisplayString =			
-		"public class Test {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    try\n" + 
-		"      {\n" + 
-		"        throwing();\n" + 
-		"      }\n" + 
-		"    catch (java.lang.IOException e)\n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" + 
-		"      {\n" + 
-		"      }\n" + 
-		"  }\n" + 
+	String expectedUnitDisplayString =
+		"public class Test {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    try\n" +
+		"      {\n" +
+		"        throwing();\n" +
+		"      }\n" +
+		"    catch (java.lang.IOException e)\n" +
+		"      {\n" +
+		"      }\n" +
+		"    catch (java.lang.IllegalArgumentException | <CompleteOnException:java.lang.I>  )\n" +
+		"      {\n" +
+		"      }\n" +
+		"  }\n" +
 		"}\n";
 
 	int cursorLocation = str.indexOf("java.lang.IllegalArgumentException | java.lang.I") + completeBehind.length() - 1;
@@ -8884,13 +8884,13 @@ public void testBug346454(){
 	String expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new Test<>()>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
-	String expectedUnitDisplayString =			
-		"public class Test<T> {\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    Test<String> t = <CompleteOnAllocationExpression:new Test<>()>;\n" + 
-		"  }\n" + 
+	String expectedUnitDisplayString =
+		"public class Test<T> {\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    Test<String> t = <CompleteOnAllocationExpression:new Test<>()>;\n" +
+		"  }\n" +
 		"}\n";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
@@ -8920,17 +8920,17 @@ public void testBug346454b(){
 	String expectedCompletionNodeToString = "<CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
-	String expectedUnitDisplayString =			
-		"public class Test<T> {\n" + 
-		"  public class T2<Z> {\n" + 
-		"    public T2() {\n" + 
-		"    }\n" + 
-		"  }\n" + 
-		"  public Test() {\n" + 
-		"  }\n" + 
-		"  public void foo() {\n" + 
-		"    Test<String>.T2<String> t = <CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>;\n" + 
-		"  }\n" + 
+	String expectedUnitDisplayString =
+		"public class Test<T> {\n" +
+		"  public class T2<Z> {\n" +
+		"    public T2() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void foo() {\n" +
+		"    Test<String>.T2<String> t = <CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>;\n" +
+		"  }\n" +
 		"}\n";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
@@ -8967,27 +8967,27 @@ public void testBug346415(){
 	String expectedCompletionNodeToString = "<CompleteOnException:>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
-	String expectedUnitDisplayString =			
-			"public class Test {\n" + 
-			"  public Test() {\n" + 
-			"  }\n" + 
-			"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" + 
-			"  }\n" + 
-			"  public void foo() {\n" + 
-			"    try\n" + 
-			"      {\n" + 
-			"        throwing();\n" + 
-			"      }\n" + 
-			"    catch (java.lang.IOException e)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"    catch (java.lang.IllegalArgumentException e)\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"    catch (<CompleteOnException:>  )\n" + 
-			"      {\n" + 
-			"      }\n" + 
-			"  }\n" + 
+	String expectedUnitDisplayString =
+			"public class Test {\n" +
+			"  public Test() {\n" +
+			"  }\n" +
+			"  public void throwing() throws java.lang.IllegalArgumentException, java.lang.IndexOutOfBoundsException, java.lang.IOException {\n" +
+			"  }\n" +
+			"  public void foo() {\n" +
+			"    try\n" +
+			"      {\n" +
+			"        throwing();\n" +
+			"      }\n" +
+			"    catch (java.lang.IOException e)\n" +
+			"      {\n" +
+			"      }\n" +
+			"    catch (java.lang.IllegalArgumentException e)\n" +
+			"      {\n" +
+			"      }\n" +
+			"    catch (<CompleteOnException:>  )\n" +
+			"      {\n" +
+			"      }\n" +
+			"  }\n" +
 			"}\n";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
@@ -9026,26 +9026,26 @@ public void testBug292087a(){
 	String testName = "";
 	String completeBehind = "/*Complete here*/";
 	String expectedCompletionNodeToString = "<CompleteOnName:>";
-	String expectedParentNodeToString = 
+	String expectedParentNodeToString =
 		"public MyClass[] member = {<CompleteOnName:>};";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
 	int cursorLocation = str.lastIndexOf("/*Complete here*/") + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
-			"package test;\n" + 
-			"class MyClass {\n" + 
-			"  MyClass() {\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"public class Try extends Thread {\n" + 
-			"  public static MyClass MyClassField;\n" + 
-			"  public MyClass[] member = {<CompleteOnName:>};\n" + 
-			"  public Try() {\n" + 
-			"  }\n" + 
-			"  <clinit>() {\n" + 
-			"  }\n" + 
-			"  public static MyClass MyClassMethod() {\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"class MyClass {\n" +
+			"  MyClass() {\n" +
+			"  }\n" +
+			"}\n" +
+			"public class Try extends Thread {\n" +
+			"  public static MyClass MyClassField;\n" +
+			"  public MyClass[] member = {<CompleteOnName:>};\n" +
+			"  public Try() {\n" +
+			"  }\n" +
+			"  <clinit>() {\n" +
+			"  }\n" +
+			"  public static MyClass MyClassMethod() {\n" +
+			"  }\n" +
 			"}\n";
 
 	checkDietParse(
@@ -9084,26 +9084,26 @@ public void testBug292087b(){
 	String testName = "";
 	String completeBehind = "/*Complete here*/";
 	String expectedCompletionNodeToString = "<CompleteOnName:>";
-	String expectedParentNodeToString = 
+	String expectedParentNodeToString =
 		"public MyClass[] member = {<CompleteOnName:>};";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
 	int cursorLocation = str.lastIndexOf("/*Complete here*/") + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
-			"package test;\n" + 
-			"class MyClass {\n" + 
-			"  MyClass() {\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"public class Try extends Thread {\n" + 
-			"  public static MyClass MyClassField;\n" + 
-			"  public MyClass[] member = {<CompleteOnName:>};\n" + 
-			"  public Try() {\n" + 
-			"  }\n" + 
-			"  <clinit>() {\n" + 
-			"  }\n" + 
-			"  public static MyClass MyClassMethod() {\n" + 
-			"  }\n" + 
+			"package test;\n" +
+			"class MyClass {\n" +
+			"  MyClass() {\n" +
+			"  }\n" +
+			"}\n" +
+			"public class Try extends Thread {\n" +
+			"  public static MyClass MyClassField;\n" +
+			"  public MyClass[] member = {<CompleteOnName:>};\n" +
+			"  public Try() {\n" +
+			"  }\n" +
+			"  <clinit>() {\n" +
+			"  }\n" +
+			"  public static MyClass MyClassMethod() {\n" +
+			"  }\n" +
 			"}\n";
 
 	checkDietParse(

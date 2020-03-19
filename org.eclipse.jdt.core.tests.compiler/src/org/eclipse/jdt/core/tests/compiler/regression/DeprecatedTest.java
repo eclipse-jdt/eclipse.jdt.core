@@ -397,10 +397,10 @@ public void test008a() throws IOException {
 	runner.classLibraries = libs;
 	runner.expectedCompilerLog =
 		"----------\n" +
-		"1. WARNING in Y.java (at line 3)\n" + 
-		"	p008.X x;\n" + 
-		"	     ^\n" + 
-		"The type X is deprecated\n" + 
+		"1. WARNING in Y.java (at line 3)\n" +
+		"	p008.X x;\n" +
+		"	     ^\n" +
+		"The type X is deprecated\n" +
 		"----------\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		// simulate we were running on a JRE without java.lang.Deprecated
@@ -933,35 +933,35 @@ public void test020() {
 		customOptions /* custom options */,
 		// compiler results
 		"----------\n" + /* expected compiler log */
-		"1. ERROR in a.b.c.d.e\\T.java (at line 5)\n" + 
-		"	a.b.c.d.Deprecated.Inner.Inn g;\n" + 
-		"	                   ^^^^^\n" + 
-		"The type Deprecated.Inner is deprecated\n" + 
-		"----------\n" + 
-		"2. ERROR in a.b.c.d.e\\T.java (at line 5)\n" + 
-		"	a.b.c.d.Deprecated.Inner.Inn g;\n" + 
-		"	                         ^^^\n" + 
-		"The type Deprecated.Inner.Inn is deprecated\n" + 
-		"----------\n" + 
-		"3. ERROR in a.b.c.d.e\\T.java (at line 6)\n" + 
-		"	Deprecated.Inner i;\n" + 
-		"	           ^^^^^\n" + 
-		"The type Deprecated.Inner is deprecated\n" + 
-		"----------\n" + 
-		"4. ERROR in a.b.c.d.e\\T.java (at line 8)\n" + 
-		"	f.foo().goo();\n" + 
-		"	  ^^^^^\n" + 
-		"The method foo() from the type Deprecated is deprecated\n" + 
-		"----------\n" + 
-		"5. ERROR in a.b.c.d.e\\T.java (at line 8)\n" + 
-		"	f.foo().goo();\n" + 
-		"	        ^^^^^\n" + 
-		"The method goo() from the type Deprecated is deprecated\n" + 
-		"----------\n" + 
-		"6. ERROR in a.b.c.d.e\\T.java (at line 9)\n" + 
-		"	a.b.c.d.Deprecated.bar();\n" + 
-		"	                   ^^^^^\n" + 
-		"The method bar() from the type Deprecated is deprecated\n" + 
+		"1. ERROR in a.b.c.d.e\\T.java (at line 5)\n" +
+		"	a.b.c.d.Deprecated.Inner.Inn g;\n" +
+		"	                   ^^^^^\n" +
+		"The type Deprecated.Inner is deprecated\n" +
+		"----------\n" +
+		"2. ERROR in a.b.c.d.e\\T.java (at line 5)\n" +
+		"	a.b.c.d.Deprecated.Inner.Inn g;\n" +
+		"	                         ^^^\n" +
+		"The type Deprecated.Inner.Inn is deprecated\n" +
+		"----------\n" +
+		"3. ERROR in a.b.c.d.e\\T.java (at line 6)\n" +
+		"	Deprecated.Inner i;\n" +
+		"	           ^^^^^\n" +
+		"The type Deprecated.Inner is deprecated\n" +
+		"----------\n" +
+		"4. ERROR in a.b.c.d.e\\T.java (at line 8)\n" +
+		"	f.foo().goo();\n" +
+		"	  ^^^^^\n" +
+		"The method foo() from the type Deprecated is deprecated\n" +
+		"----------\n" +
+		"5. ERROR in a.b.c.d.e\\T.java (at line 8)\n" +
+		"	f.foo().goo();\n" +
+		"	        ^^^^^\n" +
+		"The method goo() from the type Deprecated is deprecated\n" +
+		"----------\n" +
+		"6. ERROR in a.b.c.d.e\\T.java (at line 9)\n" +
+		"	a.b.c.d.Deprecated.bar();\n" +
+		"	                   ^^^^^\n" +
+		"The method bar() from the type Deprecated is deprecated\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);

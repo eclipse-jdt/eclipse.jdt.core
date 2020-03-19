@@ -24,9 +24,9 @@ import com.sun.mirror.declaration.MemberDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class ASTBasedMemberDeclarationImpl 
+public abstract class ASTBasedMemberDeclarationImpl
 	extends ASTBasedDeclarationImpl implements MemberDeclaration{
-	
+
 	public ASTBasedMemberDeclarationImpl(
 			ASTNode astNode,
 			IFile file,
@@ -34,31 +34,31 @@ public abstract class ASTBasedMemberDeclarationImpl
 	{
 		super(astNode, file, env);
 	}
-	
+
 	@Override
 	public void accept(DeclarationVisitor visitor) {
         visitor.visitMemberDeclaration(this);
 	}
-    
+
     @Override
 	public TypeDeclaration getDeclaringType()
     {
 	    final AbstractTypeDeclaration parentType = getContainingTypeAstNode();
 	    // most likely a mal-formed text.
-	    if( parentType == null ) 
+	    if( parentType == null )
 	    	return null;
-	    
+
 	    final ITypeBinding parentTypeBinding = parentType.resolveBinding();
 	    if( parentTypeBinding == null )
 	    	throw new UnsupportedOperationException("Type declaration that doesn't have binding"); //$NON-NLS-1$
 	    return Factory.createReferenceType(parentTypeBinding, _env);
     }
-    
+
     @Override
 	public String getDocComment()
-    {   
-    	final ASTNode node = getAstNode();        	
-    	
+    {
+    	final ASTNode node = getAstNode();
+
 		if( node instanceof BodyDeclaration )
 			return getDocComment((BodyDeclaration)node);
 
@@ -67,12 +67,12 @@ public abstract class ASTBasedMemberDeclarationImpl
 			// a field declaration
 			if( parent instanceof BodyDeclaration )
 				return getDocComment((BodyDeclaration)parent);
-			
+
 		}
 		return EMPTY_STRING;
     }
-    
-    /**     
+
+    /**
      * @return the closest ancestor to the ast node in this instance that
      * is a type declaration node or <code>null</code> if none is found.
      */

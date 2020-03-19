@@ -1056,7 +1056,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 			});
 		assertTrue("Y#foo() should be a subsignature of X#foo()", bindings[1].isSubsignature(bindings[0]));
 	}
-	
+
 	/*
 	 * Ensures that the byte base type is assignment compatible with the int base type
 	 */

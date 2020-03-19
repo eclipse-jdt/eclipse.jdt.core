@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *     							bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *     							bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
@@ -63,7 +63,7 @@ public class WhileStatement extends Statement {
 		this.preCondInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);
 		LoopingFlowContext condLoopContext;
 		FlowInfo condInfo =	flowInfo.nullInfoLessUnconditionalCopy();
-		
+
 		// we need to collect the contribution to nulls of the coming paths through the
 		// loop, be they falling through normally or branched to break, continue labels
 		// or catch blocks
@@ -312,7 +312,7 @@ public class WhileStatement extends Statement {
 		boolean isConditionOptimizedTrue = cst == null ? true : cst != Constant.NotAConstant && cst.booleanValue() == true;
 		return (isConditionTrue || isConditionOptimizedTrue) && (this.action == null || !this.action.breaksOut(null));
 	}
-	
+
 	@Override
 	public boolean completesByContinue() {
 		return this.action.continuesAtOuterLabel();

@@ -213,7 +213,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 			/*
 			 * Macro for building a class descriptor object... using or not a field cache to store it into... this
 			 * sequence is responsible for building the actual class descriptor.
-			 * 
+			 *
 			 * If the fieldCache is set, then it is supposed to be the body of a synthetic access method factoring the
 			 * actual descriptor creation out of the invocation site (saving space). If the fieldCache is nil, then we
 			 * are dumping the bytecode on the invocation site, since we have no way to get a hand on the field cache to

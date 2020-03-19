@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     daolaf@gmail.com - Contribution for bug 3292227
@@ -636,7 +636,7 @@ public class Util implements SuffixConstants {
 	public static String getExceptionSummary(Throwable exception) {
 		StringWriter stringWriter = new StringWriter();
 		exception.printStackTrace(new PrintWriter(stringWriter));
-		StringBuffer buffer = stringWriter.getBuffer();		
+		StringBuffer buffer = stringWriter.getBuffer();
 		StringBuffer exceptionBuffer = new StringBuffer(50);
 		exceptionBuffer.append(exception.toString());
 		// only keep leading frame portion of the trace (i.e. line no. 2 from the stacktrace)
@@ -647,7 +647,7 @@ public class Util implements SuffixConstants {
 					if (line2Start > 0) {
 						exceptionBuffer.append(' ').append(buffer.substring(line2Start, i));
 						break lookupLine2;
-					}						
+					}
 					lineSep++;
 					break;
 				case ' ' :
@@ -663,7 +663,7 @@ public class Util implements SuffixConstants {
 		}
 		return exceptionBuffer.toString();
 	}
-	
+
 	public static int getLineNumber(int position, int[] lineEnds, int g, int d) {
 		if (lineEnds == null)
 			return 1;
@@ -751,10 +751,10 @@ public class Util implements SuffixConstants {
 		}
 		return true; // it is neither a ".java" file nor a ".class" file, so this is a potential archive name
 	}
-	
+
 	public static final int ZIP_FILE = 0;
 	public static final int JMOD_FILE = 1;
-	
+
 	/**
 	 * Returns the kind of archive this file is. The format is one of
 	 * #ZIP_FILE or {@link #JMOD_FILE}
@@ -767,7 +767,7 @@ public class Util implements SuffixConstants {
 			return -1; // dot was before the last file separator, it cannot be a zip archive name
 		int length = name.length();
 		int extensionLength = length - lastDot - 1;
-		
+
 		if (extensionLength == EXTENSION_java.length()) {
 			for (int i = extensionLength-1; i >=0; i--) {
 				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_java.charAt(i)) {
@@ -1382,7 +1382,7 @@ public class Util implements SuffixConstants {
 		if (c != C_ARRAY) {
 			throw newIllegalArgumentException(string, start);
 		}
-	
+
 		c = string[++start];
 		while(c == C_ARRAY) {
 			// need a minimum 2 char
@@ -1671,7 +1671,7 @@ public class Util implements SuffixConstants {
 		}
 		return true;
 	}
-	
+
 	public static void appendEscapedChar(StringBuffer buffer, char c, boolean stringLiteral) {
 		switch (c) {
 			case '\b' :

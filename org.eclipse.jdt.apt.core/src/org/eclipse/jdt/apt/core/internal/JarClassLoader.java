@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal;
 
@@ -36,20 +36,20 @@ import java.util.zip.ZipEntry;
  * This classloader allows us to close out underlying jars,
  * so that projects can be deleted even if they contain
  * factory jars that are in use.<P>
- * 
+ *
  * This classloader caches open jars while it is in use,
  * and once closed it will close those jars. It can still be used
  * after that point, but it will open and close on each classloader
  * operation.
  */
 public class JarClassLoader extends ClassLoader {
-	
+
 	// This is nulled out when the classloader is closed
 	private List<JarFile> _jars;
 	private final LinkedHashSet<File> _files;
 	private List<JarCLInputStream> _openStreams = new LinkedList<>();
 	private boolean _open = true;
-	
+
 	public JarClassLoader(List<File> jarFiles, final ClassLoader parent) {
 		super(parent);
 		// Handle manifest classpath entries
@@ -59,7 +59,7 @@ public class JarClassLoader extends ClassLoader {
 		}
 		open();
 	}
-	
+
 	private void open() {
 		// Create all jar files
 		_jars = new ArrayList<>(_files.size());
@@ -73,11 +73,11 @@ public class JarClassLoader extends ClassLoader {
 			}
 		}
 	}
-	
+
 	public synchronized void close() {
 		if (! _open) return;
 		_open = false;
-		
+
 		for (JarCLInputStream st : _openStreams) {
 			try {
 				st.close();
@@ -97,19 +97,19 @@ public class JarClassLoader extends ClassLoader {
 			}
 		}
 		_jars = null;
-	}	
-	
+	}
+
 	private InputStream openInputStream(InputStream in) {
 		JarCLInputStream result = new JarCLInputStream(in);
 		_openStreams.add(result);
 		return in;
 	}
-	
+
 	private synchronized void closeInputStream(JarCLInputStream in) {
 		if (_open)
 			_openStreams.remove(in);
 	}
-	
+
 	@Override
 	protected synchronized Class<?> findClass(String name) throws ClassNotFoundException {
 		if (!_open)
@@ -130,7 +130,7 @@ public class JarClassLoader extends ClassLoader {
 		}
 		return clazz;
 	}
-	
+
 	private String getPackageName(String fullyQualifiedName) {
 		int index = fullyQualifiedName.lastIndexOf('.');
 		if (index != -1) {
@@ -138,7 +138,7 @@ public class JarClassLoader extends ClassLoader {
 		}
 		return null;
 	}
-	
+
 	// returns null if no class found
 	private byte[] loadClassData(String name) {
 		name = name.replace('.','/');
@@ -160,18 +160,18 @@ public class JarClassLoader extends ClassLoader {
 		}
 		finally {
 			try {input.close();} catch (IOException ioe) {}
-		}		
+		}
 	}
-	
+
 	@Override
 	public synchronized InputStream getResourceAsStream(String name) {
 		InputStream input = getParent().getResourceAsStream(name);
 		if (input != null)
 			return input;
-		
-		if (!_open) 
+
+		if (!_open)
 			return null;
-	
+
 		for (JarFile j : _jars) {
 			try {
 				ZipEntry entry = j.getEntry(name);
@@ -186,11 +186,11 @@ public class JarClassLoader extends ClassLoader {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * This is difficult to implement and close out resources underneath.
 	 * Delaying until someone actually requests this.
-	 * 
+	 *
 	 * If we actually contain the entry throw UnsupportedOperationException,
 	 * else return null in case another classloader can handle this.
 	 */
@@ -213,13 +213,13 @@ public class JarClassLoader extends ClassLoader {
 	public Enumeration<URL> getResources(String name) throws IOException {
 		throw new UnsupportedOperationException("getResources() not implemented"); //$NON-NLS-1$
 	}
-	
+
 	private class JarCLInputStream extends InputStream {
-		
+
 		private boolean _closed = false;
-		
+
 		private final InputStream _input;
-		
+
 		public JarCLInputStream(InputStream origInput) {
 			_input = origInput;
 		}
@@ -280,7 +280,7 @@ public class JarClassLoader extends ClassLoader {
 			return _input.skip(n);
 		}
 	}
-	
+
 	/**
 	 * Scan manifest classpath entries of a jar, adding all found jar files
 	 * to the set of manifest jars.

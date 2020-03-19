@@ -2481,21 +2481,21 @@ public void _test56() {
 
 	String completionIdentifier = "zoo";
 	String expectedUnitDisplayString =
-			"class X {\n" + 
-			"  void foo() {\n" + 
-			"    new X(null) {\n" + 
-			"      void goo() {\n" + 
-			"        new X(<SelectOnMessageSend:zoo()>) {\n" + 
-			"          void voo() {\n" + 
-			"          }\n" + 
-			"        };\n" + 
-			"      }\n" + 
-			"      Object zoo() {\n" + 
-			"      }\n" + 
-			"    };\n" + 
-			"  }\n" + 
-			"  X(Object k) {\n" + 
-			"  }\n" + 
+			"class X {\n" +
+			"  void foo() {\n" +
+			"    new X(null) {\n" +
+			"      void goo() {\n" +
+			"        new X(<SelectOnMessageSend:zoo()>) {\n" +
+			"          void voo() {\n" +
+			"          }\n" +
+			"        };\n" +
+			"      }\n" +
+			"      Object zoo() {\n" +
+			"      }\n" +
+			"    };\n" +
+			"  }\n" +
+			"  X(Object k) {\n" +
+			"  }\n" +
 			"}\n";
 	String expectedReplacedSource = "zoo()";
 	String testName = "<select>";

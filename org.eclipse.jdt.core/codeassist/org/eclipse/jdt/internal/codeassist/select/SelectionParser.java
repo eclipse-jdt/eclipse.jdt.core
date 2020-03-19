@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:	
+ *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:
  *         Bug 531046: [10] ICodeAssist#codeSelect support for 'var'
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
@@ -567,7 +567,7 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 			0,
 			argumentLength);
 	}
-	
+
 	if (qualified) {
 		this.expressionLengthPtr--;
 		alloc.enclosingInstance = this.expressionStack[this.expressionPtr--];
@@ -588,7 +588,7 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 		this.lastIgnoredToken = -1;
 		if (isIndirectlyInsideLambdaExpression())
 			this.ignoreNextOpeningBrace = true;
-		else 
+		else
 			this.currentToken = 0; // opening brace already taken into account.
 		this.hasReportedError = true;
 	}
@@ -601,7 +601,7 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 		this.currentElement = this.currentElement.add(anonymousType, 0);
 		if (isIndirectlyInsideLambdaExpression())
 			this.ignoreNextOpeningBrace = true;
-		else 
+		else
 			this.currentToken = 0; // opening brace already taken into account.
 		this.lastIgnoredToken = -1;
 	}
@@ -708,15 +708,15 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 					varArgsAnnotations = new Annotation[length],
 					0,
 					length);
-			} 
+			}
 		}
 		int firstDimensions = this.intStack[this.intPtr--];
 		TypeReference type = getTypeReference(firstDimensions);
 
 		if (isVarArgs || extendedDimensions != 0) {
 			if (isVarArgs) {
-				type = augmentTypeWithAdditionalDimensions(type, 1, varArgsAnnotations != null ? new Annotation[][] { varArgsAnnotations } : null, true);	
-			} 
+				type = augmentTypeWithAdditionalDimensions(type, 1, varArgsAnnotations != null ? new Annotation[][] { varArgsAnnotations } : null, true);
+			}
 			if (extendedDimensions != 0) { // combination illegal.
 				type = augmentTypeWithAdditionalDimensions(type, extendedDimensions, annotationsOnExtendedDimensions, false);
 			}
@@ -1679,7 +1679,7 @@ protected Argument typeElidedArgument() {
 	char[] selector = this.identifierStack[this.identifierPtr];
 	if (selector != assistIdentifier()){
 		return super.typeElidedArgument();
-	}	
+	}
 	this.identifierLengthPtr--;
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];

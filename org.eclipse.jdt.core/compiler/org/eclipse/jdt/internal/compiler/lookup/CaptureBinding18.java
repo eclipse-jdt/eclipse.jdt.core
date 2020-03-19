@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
  * Capture-like type variable introduced during 1.8 type inference.
  */
 public class CaptureBinding18 extends CaptureBinding {
-	
+
 	TypeBinding[] upperBounds;
 	private char[] originalName;
 	private CaptureBinding18 prototype;
@@ -30,13 +30,13 @@ public class CaptureBinding18 extends CaptureBinding {
 		this.originalName = originalName;
 		this.prototype = this;
 	}
-	
+
 	private CaptureBinding18(CaptureBinding18 prototype) {
 		super(prototype);
 		this.sourceName = CharOperation.append(prototype.sourceName, '\'');
 		this.originalName = prototype.originalName;
 		this.upperBounds = prototype.upperBounds;
-		this.prototype = prototype.prototype;		
+		this.prototype = prototype.prototype;
 	}
 
 	public boolean setUpperBounds(TypeBinding[] upperBounds, ReferenceBinding javaLangObject) {
@@ -141,7 +141,7 @@ public class CaptureBinding18 extends CaptureBinding {
 			return true;
 		if (this.inRecursiveFunction)
 			return true;
-		this.inRecursiveFunction = true; 
+		this.inRecursiveFunction = true;
 		try {
 			if (this.upperBounds != null) {
 				int length = this.upperBounds.length;
@@ -187,7 +187,7 @@ public class CaptureBinding18 extends CaptureBinding {
 				if (candidate != null)
 					return candidate;
 				// TODO: maybe we should double check about multiple candidates here,
-				// but upper bounds should be consistent so hopefully the first non-null candidate is good enough. 
+				// but upper bounds should be consistent so hopefully the first non-null candidate is good enough.
 			}
 		}
 		return super.findSuperTypeOriginatingFrom(otherType);
@@ -277,7 +277,7 @@ public class CaptureBinding18 extends CaptureBinding {
 
 	@Override
 	public boolean isProperType(boolean admitCapture18) {
-		if (!admitCapture18) 
+		if (!admitCapture18)
 			return false;
 		if (this.inRecursiveFunction)
 			return true;
@@ -352,7 +352,7 @@ public class CaptureBinding18 extends CaptureBinding {
 		}
 		return super.shortReadableName();
 	}
-	
+
 	@Override
 	public TypeBinding uncapture(Scope scope) {
 		return this;

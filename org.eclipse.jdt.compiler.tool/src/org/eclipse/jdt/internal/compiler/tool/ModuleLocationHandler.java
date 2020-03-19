@@ -72,7 +72,7 @@ public class ModuleLocationHandler {
 		return this.containers.get(location);
 	}
 	private LocationContainer createNewContainer(Location loc) {
-		LocationContainer container = (loc == StandardLocation.CLASS_OUTPUT) ? 
+		LocationContainer container = (loc == StandardLocation.CLASS_OUTPUT) ?
 				new OutputLocationContainer(loc) : new LocationContainer(loc);
 		this.containers.put(loc, container);
 		return container;

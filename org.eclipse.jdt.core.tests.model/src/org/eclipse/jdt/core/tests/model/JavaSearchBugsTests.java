@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -248,19 +248,19 @@ public void testBug6930_AllConstructorDeclarations01() throws Exception {
 		"  public AllConstructorDeclarations01(Object o, String s) {}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p6930/AllConstructorDeclarations01b.java",
 		"package p6930;\n" +
 		"public class AllConstructorDeclarations01b {\n" +
 		"}\n"
 	);
-	
+
 	ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
 	searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
 	assertSearchResults(
-		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01()\n" + 
-		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01(Object o)\n" + 
-		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01(Object o,String s)\n" + 
+		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01()\n" +
+		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01(Object o)\n" +
+		"p6930.AllConstructorDeclarations01#AllConstructorDeclarations01(Object o,String s)\n" +
 		"p6930.AllConstructorDeclarations01b#AllConstructorDeclarations01b()*",
 		requestor
 	);
@@ -269,7 +269,7 @@ public void testBug6930_AllConstructorDeclarations01() throws Exception {
 public void testBug6930_AllConstructorDeclarations02() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib6930.jar"}, "");
-		
+
 		createJar(new String[] {
 			"p6930/AllConstructorDeclarations02.java",
 			"package p6930;\n" +
@@ -284,13 +284,13 @@ public void testBug6930_AllConstructorDeclarations02() throws Exception {
 			"}"
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 		refresh(p);
-		
+
 		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
 		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
 		assertSearchResults(
-			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02()\n" + 
-			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02(java.lang.Object o)\n" + 
-			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02(java.lang.Object o,java.lang.String s)\n" + 
+			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02()\n" +
+			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02(java.lang.Object o)\n" +
+			"p6930.AllConstructorDeclarations02#AllConstructorDeclarations02(java.lang.Object o,java.lang.String s)\n" +
 			"p6930.AllConstructorDeclarations02b#AllConstructorDeclarations02b()",
 			requestor
 		);
@@ -302,9 +302,9 @@ public void testBug6930_AllConstructorDeclarations02() throws Exception {
 public void testBug6930_AllConstructorDeclarations03() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {}, "bin");
-		
+
 		createFolder("/P/src/p6930");
-		
+
 		createFile(
 				"/P/src/p6930/AllConstructorDeclarations03.java",
 				"package p6930;\n" +
@@ -313,20 +313,20 @@ public void testBug6930_AllConstructorDeclarations03() throws Exception {
 				"  public AllConstructorDeclarations03(Object o) {}\n" +
 				"  public AllConstructorDeclarations03(Object o, String s) {}\n" +
 				"}");
-		
+
 		createFile(
 				"/P/src/p6930/AllConstructorDeclarations03b.java",
 				"package p6930;\n" +
 				"public class AllConstructorDeclarations03b {\n" +
 				"}");
 		refresh(p);
-		
+
 		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
 		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
 		assertSearchResults(
-			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03()\n" + 
-			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03(Object o)\n" + 
-			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03(Object o,String s)\n" + 
+			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03()\n" +
+			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03(Object o)\n" +
+			"p6930.AllConstructorDeclarations03#AllConstructorDeclarations03(Object o,String s)\n" +
 			"p6930.AllConstructorDeclarations03b#AllConstructorDeclarations03b()*",
 			requestor
 		);
@@ -338,7 +338,7 @@ public void testBug6930_AllConstructorDeclarations03() throws Exception {
 public void testBug6930_AllConstructorDeclarations04() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib6930.jar"}, "","1.5");
-		
+
 		createJar(
 			new String[] {
 				"p6930/AllConstructorDeclarations04.java",
@@ -351,7 +351,7 @@ public void testBug6930_AllConstructorDeclarations04() throws Exception {
 			new String[]{getExternalJCLPathString("1.5")},
 			"1.5");
 		refresh(p);
-		
+
 		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
 		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
 		assertSearchResults(
@@ -366,7 +366,7 @@ public void testBug6930_AllConstructorDeclarations04() throws Exception {
 public void testBug6930_AllConstructorDeclarations05() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] {"/P/lib6930.jar"}, "");
-		
+
 		createJar(new String[] {
 			"p6930/AllConstructorDeclarations05.java",
 			"package p6930;\n" +
@@ -377,7 +377,7 @@ public void testBug6930_AllConstructorDeclarations05() throws Exception {
 			"}"
 		}, p.getProject().getLocation().append("lib6930.jar").toOSString());
 		refresh(p);
-		
+
 		ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
 		searchAllConstructorDeclarations("AllConstructorDeclarations", SearchPattern.R_PREFIX_MATCH, requestor);
 		assertSearchResults(
@@ -5982,11 +5982,11 @@ public void testBug110336a() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[TP]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[clazz]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar1]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar1]\n" + 
-		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar2]\n" + 
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[TP]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[clazz]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar1]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar1]\n" +
+		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar2]\n" +
 		"src/b110336/Test.java void b110336.Test.method(Class<Test>) [Test]+[localVar2]",
 		collector
 	);
@@ -6010,12 +6010,12 @@ public void testBug110336b() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" + 
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[TP]\n" + 
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[o]\n" + 
-		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[o]\n" + 
-		"src/b110336/Test.java void b110336.Test.method1(Test) [Test]+[methodParam]\n" + 
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1 [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.method1(Test):<anonymous>#1.c [Test]\n" +
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[TP]\n" +
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[o]\n" +
+		"src/b110336/Test.java void void b110336.Test.method1(Test):<anonymous>#1.foo() [Test]+[o]\n" +
+		"src/b110336/Test.java void b110336.Test.method1(Test) [Test]+[methodParam]\n" +
 		"src/b110336/Test.java void b110336.Test.method1(Test) [Test]+[localVar1]",
 		collector
 	);
@@ -6034,7 +6034,7 @@ public void testBug110336c() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test [X]+[TP]\n" + 
+		"src/b110336/Test.java b110336.Test [X]+[TP]\n" +
 		"src/b110336/Test.java b110336.Test.x [X]",
 		collector
 	);
@@ -6078,11 +6078,11 @@ public void testBug110336e() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv1]+[lv2,lv3]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv2]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv4]+[lv5,lv6]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv4]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv7]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv1]+[lv2,lv3]\n" +
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv2]\n" +
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv4]+[lv5,lv6]\n" +
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv4]\n" +
+		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv7]+[lv8,lv9]\n" +
 		"src/b110336/Test.java void b110336.Test.foo() [Test]+[lv9]",
 		collector
 	);
@@ -6108,10 +6108,10 @@ public void testBug110336f() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test1]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test2]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" + 
-		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test4]\n" + 
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test1]\n" +
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test2]\n" +
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]\n" +
+		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test4]\n" +
 		"src/b110336/Test.java void b110336.Test.foo(Test) [Test]+[test3]",
 		collector
 	);
@@ -6132,11 +6132,11 @@ public void testBug110336g() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.{} [Test]+[lv1]+[lv2,lv3]\n" + 
-		"src/b110336/Test.java b110336.Test.{} [Test]+[lv2]\n" + 
-		"src/b110336/Test.java b110336.Test.{} [Test]+[lv4]+[lv5,lv6]\n" + 
-		"src/b110336/Test.java b110336.Test.{} [Test]+[lv4]\n" + 
-		"src/b110336/Test.java b110336.Test.{} [Test]+[lv7]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv1]+[lv2,lv3]\n" +
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv2]\n" +
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv4]+[lv5,lv6]\n" +
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv4]\n" +
+		"src/b110336/Test.java b110336.Test.{} [Test]+[lv7]+[lv8,lv9]\n" +
 		"src/b110336/Test.java b110336.Test.{} [Test]+[lv9]",
 		collector
 	);
@@ -6157,11 +6157,11 @@ public void testBug110336h() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv1]+[lv2,lv3]\n" + 
-		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv2]\n" + 
-		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv4]+[lv5,lv6]\n" + 
-		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv4]\n" + 
-		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv7]+[lv8,lv9]\n" + 
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv1]+[lv2,lv3]\n" +
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv2]\n" +
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv4]+[lv5,lv6]\n" +
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv4]\n" +
+		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv7]+[lv8,lv9]\n" +
 		"src/b110336/Test.java b110336.Test.static {} [Test]+[lv9]",
 		collector
 	);
@@ -7908,7 +7908,7 @@ public void testBug156491() throws CoreException {
 	assertSearchResults(
 		"src/pack/Test.java void pack.Test.validMatches(X) [toString()] EXACT_MATCH\n" +
 		"src/pack/Test.java void pack.Test.superInvocationMatches(Object) [toString()] EXACT_MATCH SUPER INVOCATION\n" +
-		"src/pack/Test.java void pack.Test.subtypeMatches(Sub) [toString()] EXACT_MATCH\n" + 
+		"src/pack/Test.java void pack.Test.subtypeMatches(Sub) [toString()] EXACT_MATCH\n" +
 		"lib/b125178.jar java.lang.String pack.age.Test.foo(int) EXACT_MATCH SUPER INVOCATION"
 	);
 }
@@ -9430,27 +9430,27 @@ public void testBug204652() throws CoreException {
 public void testBug207657() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/Relationship.java",
-		"package test;\n" + 
-		"public class Relationship {\n" + 
+		"package test;\n" +
+		"public class Relationship {\n" +
 		"    static public class End extends ConnectionEnd<Visitor> {\n" +
-		"        public void accept(Visitor visitor) {\n" + 
-		"            visitor.visitRelationshipEnd(this);\n" + 
-		"        }\n" + 
-		"    }\n" + 
+		"        public void accept(Visitor visitor) {\n" +
+		"            visitor.visitRelationshipEnd(this);\n" +
+		"        }\n" +
+		"    }\n" +
 		"}\n" +
-		"interface Visitor {\n" + 
-		"    boolean visitRelationshipEnd(Relationship.End end);\n" + 
-		"    boolean visitAssociationEnd(Association.End end);\n" + 
+		"interface Visitor {\n" +
+		"    boolean visitRelationshipEnd(Relationship.End end);\n" +
+		"    boolean visitAssociationEnd(Association.End end);\n" +
 		"}\n" +
-		"abstract class ConnectionEnd<V extends Visitor> {\n" + 
-		"    public abstract void accept( V visitor );\n" + 
+		"abstract class ConnectionEnd<V extends Visitor> {\n" +
+		"    public abstract void accept( V visitor );\n" +
 		"}\n" +
-		"class Association extends Relationship {\n" + 
-		"    static public class RelEnd extends Relationship.End {\n" + 
-		"        public void accept(Visitor visitor) {\n" + 
-		"            visitor.visitAssociationEnd(this);\n" + 
-		"        }\n" + 
-		"    }\n" + 
+		"class Association extends Relationship {\n" +
+		"    static public class RelEnd extends Relationship.End {\n" +
+		"        public void accept(Visitor visitor) {\n" +
+		"            visitor.visitAssociationEnd(this);\n" +
+		"        }\n" +
+		"    }\n" +
 		"}\n"
 	);
 	IType type = this.workingCopies[0].getType("Relationship").getType("End");
@@ -9510,7 +9510,7 @@ public void testBug209778() throws CoreException {
 	TypeReferenceCollector collector = new TypeReferenceCollector();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/xy/Try.java xy.Try.fTryA [Try]+[@Constants on fTryA]+[@Constants on fTryB]\n" + 
+		"src/xy/Try.java xy.Try.fTryA [Try]+[@Constants on fTryA]+[@Constants on fTryB]\n" +
 		"src/xy/Try.java void xy.Try.tryB(int) [Try]+[@Constants on tryCopy]+[@Constants on tryCopy2]",
 		collector
 	);
@@ -9581,10 +9581,10 @@ public void testBug209996_c5() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment5/Ref.java void comment5.Ref.doA(Ref) [    void doA(!|Ref|! ref) {}]+[ref]\n" + 
-		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>) [    void doB(List<!|Ref|!> ref) {}]+[ref]\n" + 
-		"src/comment5/Ref.java void comment5.Ref.doC(Ref) [    void doC(@Tag(!|Ref|!.class) Ref ref) {}]+[@Tag on ref]\n" + 
-		"src/comment5/Ref.java void comment5.Ref.doC(Ref) [    void doC(@Tag(Ref.class) !|Ref|! ref) {}]+[ref]\n" + 
+		"src/comment5/Ref.java void comment5.Ref.doA(Ref) [    void doA(!|Ref|! ref) {}]+[ref]\n" +
+		"src/comment5/Ref.java void comment5.Ref.doB(List<Ref>) [    void doB(List<!|Ref|!> ref) {}]+[ref]\n" +
+		"src/comment5/Ref.java void comment5.Ref.doC(Ref) [    void doC(@Tag(!|Ref|!.class) Ref ref) {}]+[@Tag on ref]\n" +
+		"src/comment5/Ref.java void comment5.Ref.doC(Ref) [    void doC(@Tag(Ref.class) !|Ref|! ref) {}]+[ref]\n" +
 		"src/comment5/Ref.java void comment5.Ref.dontD(Object) [    void dontD(@Tag(!|Ref|!.class) Object ref) {}]+[@Tag on ref]",
 		collector
 	);
@@ -9626,8 +9626,8 @@ public void testBug209996_c22_3() throws CoreException {
 	collector.showSelection();
 	search(type, REFERENCES, EXACT_RULE, getJavaSearchScope(), collector);
 	assertSearchResults(
-		"src/comment22/Test.java comment22.Test.test1 [    @!|Tag|! Test test1, test2, test3;]+[@Tag on test1]+[@Tag on test2,@Tag on test3]\n" + 
-		"src/comment22/Test.java void comment22.Test.method() [        @!|Tag|! Test local= null;]+[@Tag on local]\n" + 
+		"src/comment22/Test.java comment22.Test.test1 [    @!|Tag|! Test test1, test2, test3;]+[@Tag on test1]+[@Tag on test2,@Tag on test3]\n" +
+		"src/comment22/Test.java void comment22.Test.method() [        @!|Tag|! Test local= null;]+[@Tag on local]\n" +
 		"src/comment22/Test.java void comment22.Test.method() [        @!|Tag|! Test local1, local2, local3;]+[@Tag on local1]+[@Tag on local2,@Tag on local3]",
 		collector
 	);
@@ -10507,14 +10507,14 @@ public void testBug231622() throws Exception {
 public void testBug236520() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack1/I.java",
-		"package pack1;\n" + 
-		"public interface I<V> {\n" + 
+		"package pack1;\n" +
+		"public interface I<V> {\n" +
 		"}\n"
 	);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/pack2/X.java",
-		"package pack2;\n" + 
-		"public class X {\n" + 
-		"    public I<A> foo() {}\n" + 
+		"package pack2;\n" +
+		"public class X {\n" +
+		"    public I<A> foo() {}\n" +
 		"}\n"
 	);
 	this.resultCollector.showRule();
@@ -10545,7 +10545,7 @@ public void testBug250083() throws Exception {
 		waitUntilIndexesReady();
 		deleteExternalFile(libPath);
 		deleteProject("P");
-		
+
 		Util.createJar(
 			new String[] {
 				"p250083/X250083.java",
@@ -10600,7 +10600,7 @@ public void testBug251827a() throws CoreException {
 	this.resultCollector.showSelection();
 	search("B251827*", TYPE, REFERENCES);
 	assertSearchResults(
-		"src/b251827/X.java [import static b251827.!|B251827|!.VAL;] EXACT_MATCH\n" + 
+		"src/b251827/X.java [import static b251827.!|B251827|!.VAL;] EXACT_MATCH\n" +
 		"src/b251827/X.java [import static b251827.!|B251827|!.foo;] EXACT_MATCH"
 	);
 }
@@ -10721,12 +10721,12 @@ public void testBug261722() throws Exception {
 			Thread.sleep(10);
 		}
 		deleteProject(javaProject);
-		
+
 		// Wait until search thread is finished
 		while (thread.isAlive()) {
 			Thread.sleep(100);
 		}
-		
+
 		// Verify search results
 		assertEquals("Unexpected matches count", MAX+1, requestor.count);
 	} finally {
@@ -10745,26 +10745,26 @@ public void testBug261722() throws Exception {
 public void testBug265065() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/MyClass.java",
-		"public class MyClass {\n" + 
-		"    class MyPrivateClass {\n" + 
-		"            public String type = TYPE_A;\n" + 
-		"            public Object value = null;\n" + 
-		"            public MyPrivateClass(String type, Object value) {\n" + 
-		"                    this.type = type;\n" + 
-		"                    this.value = value;\n" + 
-		"            }\n" + 
-		"    }\n" + 
-		"\n" + 
-		"    private static final String TYPE_A = \"A\";\n" + 
-		"    private static final String TYPE_B = \"B\";\n" + 
-		"    private static final String TYPE_C = \"C\";\n" + 
-		"\n" + 
-		"    void foo (Object value) {\n" + 
-		"		MyPrivateClass mpc = new MyPrivateClass(TYPE_B, value);\n" + 
-		"		if (mpc.value == null) {\n" + 
-		"			mpc.type = TYPE_C;\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class MyClass {\n" +
+		"    class MyPrivateClass {\n" +
+		"            public String type = TYPE_A;\n" +
+		"            public Object value = null;\n" +
+		"            public MyPrivateClass(String type, Object value) {\n" +
+		"                    this.type = type;\n" +
+		"                    this.value = value;\n" +
+		"            }\n" +
+		"    }\n" +
+		"\n" +
+		"    private static final String TYPE_A = \"A\";\n" +
+		"    private static final String TYPE_B = \"B\";\n" +
+		"    private static final String TYPE_C = \"C\";\n" +
+		"\n" +
+		"    void foo (Object value) {\n" +
+		"		MyPrivateClass mpc = new MyPrivateClass(TYPE_B, value);\n" +
+		"		if (mpc.value == null) {\n" +
+		"			mpc.type = TYPE_C;\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 	this.resultCollector.showRule();
@@ -10778,11 +10778,11 @@ public void testBug265065() throws CoreException {
 		this.resultCollector,
 		null);
 	assertSearchResults(
-		"src/MyClass.java void MyClass.foo(Object) [value] EXACT_MATCH READ ACCESS\n" + 
-		"src/MyClass.java void MyClass.foo(Object) [type] EXACT_MATCH READ ACCESS\n" + 
-		"src/MyClass.java MyClass$MyPrivateClass.type [type] EXACT_MATCH\n" + 
-		"src/MyClass.java MyClass$MyPrivateClass.value [value] EXACT_MATCH\n" + 
-		"src/MyClass.java MyClass$MyPrivateClass(String, Object) [type] EXACT_MATCH WRITE ACCESS\n" + 
+		"src/MyClass.java void MyClass.foo(Object) [value] EXACT_MATCH READ ACCESS\n" +
+		"src/MyClass.java void MyClass.foo(Object) [type] EXACT_MATCH READ ACCESS\n" +
+		"src/MyClass.java MyClass$MyPrivateClass.type [type] EXACT_MATCH\n" +
+		"src/MyClass.java MyClass$MyPrivateClass.value [value] EXACT_MATCH\n" +
+		"src/MyClass.java MyClass$MyPrivateClass(String, Object) [type] EXACT_MATCH WRITE ACCESS\n" +
 		"src/MyClass.java MyClass$MyPrivateClass(String, Object) [value] EXACT_MATCH WRITE ACCESS"
 	);
 }
@@ -10817,17 +10817,17 @@ public void testBug265065b() throws CoreException {
 		this.resultCollector,
 		null);
 	assertSearchResults(
-		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH WRITE ACCESS\n" + 
-		"src/test/X.java void test.X.foo(Test, Test) [t2] EXACT_MATCH READ ACCESS\n" + 
-		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS\n" + 
-		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS\n" + 
-		"src/test/X.java void test.X.foo(Test, Test) [t2] EXACT_MATCH READ ACCESS\n" + 
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH WRITE ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [t2] EXACT_MATCH READ ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS\n" +
+		"src/test/X.java void test.X.foo(Test, Test) [t2] EXACT_MATCH READ ACCESS\n" +
 		"src/test/X.java void test.X.foo(Test, Test) [t1] EXACT_MATCH READ ACCESS"
 	);
 }
 
 /**
- * @bug 266582: [search] NPE finding references 
+ * @bug 266582: [search] NPE finding references
  * @test Ensure that no NPE occurs when searching for type references
  * 	in a project which has the same jar twice on its classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=266582"
@@ -10837,15 +10837,15 @@ public void testBug266582() throws Exception {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b266582b.jar", false);
 	try {
 		createFile("/JavaSearchBugs/src/A.java",
-			"import foo.JohnsonException;\n" + 
-			"class A {\n" + 
-			"	void foo() throws JohnsonException {}\n" + 
+			"import foo.JohnsonException;\n" +
+			"class A {\n" +
+			"	void foo() throws JohnsonException {}\n" +
 			"}"
 		);
 		IType type = getClassFile("JavaSearchBugs", "/JavaSearchBugs/lib/b266582a.jar", "foo", "JohnsonException.class").getType();
 		search(type, REFERENCES);
 		assertSearchResults(
-			"src/A.java [foo.JohnsonException] EXACT_MATCH\n" + 
+			"src/A.java [foo.JohnsonException] EXACT_MATCH\n" +
 			"src/A.java void A.foo() [JohnsonException] EXACT_MATCH"
 		);
 	}
@@ -10863,8 +10863,8 @@ public void testBug266582() throws Exception {
 public void testBug266837() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"	private static final java.lang.String f266837 = \"myString\";\n" + 
+		"public class Test {\n" +
+		"	private static final java.lang.String f266837 = \"myString\";\n" +
 		"}\n"
 	);
 	SearchRequestor requestor = new SearchRequestor() {
@@ -10888,7 +10888,7 @@ public void testBug286379a() throws CoreException {
 		assertNotNull("We should have got a Java Source content type!", javaContentType);
 		javaContentType.addFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
 		createJavaProject("P");
-		createFolder("/P/p");			
+		createFolder("/P/p");
 		createFile(
 			"/P/p/Xtorem.torem",
 			"package p;\n" +
@@ -10899,7 +10899,7 @@ public void testBug286379a() throws CoreException {
 		cu = getCompilationUnit("/P/p/Xtorem.torem");
 		cu.becomeWorkingCopy(null);
 		IType type = cu.getType("Xtorem");
-		
+
 		// Ensure that the Xtorem class is really found
 		TestCollector collector = new TestCollector();
 		new SearchEngine().search(
@@ -10910,10 +10910,10 @@ public void testBug286379a() throws CoreException {
 				null
 			);
 		assertSearchResults("p/Xtorem.torem p.Xtorem", collector);
-		
+
 		// Ensure that removal of the content type doesn't cause any further exception
 		// during the search and also ensure that the search doesn't return any result
-		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);		
+		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
 		collector = new TestCollector();
 		new SearchEngine().search(
 				SearchPattern.createPattern(type, IJavaSearchConstants.DECLARATIONS),
@@ -10933,7 +10933,7 @@ public void testBug286379a() throws CoreException {
 }
 
 /**
- * This is similar to testBug286379a, except that it ensures that IAE doesn't occur 
+ * This is similar to testBug286379a, except that it ensures that IAE doesn't occur
  * at a different place
  */
 public void testBug286379b() throws CoreException {
@@ -10942,14 +10942,14 @@ public void testBug286379b() throws CoreException {
 		assertNotNull("We should have got a Java Source a content type!", javaContentType);
 		javaContentType.addFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
 		createJavaProject("P");
-		createFolder("/P/p");			
+		createFolder("/P/p");
 		createFile(
 			"/P/p/Xtorem.torem",
 			"package p;\n" +
 			"public class Xtorem {\n" +
 			"}"
-		);	
-		
+		);
+
 		// Ensure that the class Xtorem is really found
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -10960,7 +10960,7 @@ public void testBug286379b() throws CoreException {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
 		assertSearchResults("Xtorem (not open) [in Xtorem.torem [in p [in <project root> [in P]]]]", collector);
-		
+
 		// Ensure that removal of the content type doesn't cause any further exception
 		// during the search and also ensure that the search doesn't return any result
 		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
@@ -10981,8 +10981,8 @@ public void testBug286379b() throws CoreException {
 }
 
 /**
- * If any javaLikeNames are added, this ensures that such files can get searched 
- * at least on the restart of the workspace. 
+ * If any javaLikeNames are added, this ensures that such files can get searched
+ * at least on the restart of the workspace.
  * If any javaLikeNames are deleted, this ensures that the index file is regenerated.
  */
 public void testBug286379c() throws CoreException {
@@ -11012,13 +11012,13 @@ public void testBug286379c() throws CoreException {
 	        return false;
         }
 	}
-	
+
 	IContentType javaContentType = Platform.getContentTypeManager().getContentType(JavaCore.JAVA_SOURCE_CONTENT_TYPE);
 	TestResourceChangeListener changeListener = new TestResourceChangeListener();
 	try {
 		// Create resource
 		createJavaProject("P");
-		createFolder("/P/p");			
+		createFolder("/P/p");
 		createFile(
 			"/P/p/Xtorem.torem",
 			"package p;\n" +
@@ -11035,7 +11035,7 @@ public void testBug286379c() throws CoreException {
 		// Change the file extension
 		assertNotNull("We should have got a Java Source a content type!", javaContentType);
 		javaContentType.addFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
-		
+
 		// Wait for all the resource event before continuing
 		// Note that if we are not waiting for this event occurring then the search may
 		// fail as we don't get any specific event from the platform to refresh the indexes.
@@ -11072,7 +11072,7 @@ public void testBug286379c() throws CoreException {
 				"Xtorem (not open) [in Xtorem.torem [in p [in <project root> [in P]]]]",
 				collector,
 				false /*only assume*/);
-		
+
 		// Delete the file specification
 		changeListener.toRemPresent = true;
 		javaContentType.removeFileSpec("torem", IContentType.FILE_EXTENSION_SPEC);
@@ -11087,7 +11087,7 @@ public void testBug286379c() throws CoreException {
 			assertTrue("We should have got a resource event within a 10s delay!", counter++ < 100);
 		}
 		waitUntilIndexesReady();
-		
+
 		// Restarting should update the index file to remove the references of any .torem files
 		simulateExit();
 		simulateRestart();
@@ -11113,23 +11113,23 @@ public void testBug286379c() throws CoreException {
 
 /**
  * @bug 295894: Search shows focus type implementation for nested types even though the scope is restricted to subtypes.
- * @test using the hierarchy with the old API includes the focus type. 
+ * @test using the hierarchy with the old API includes the focus type.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295894"
  */
 public void testBug295894() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"    void test() {\n" + 
-		"        Test t = new Test();\n" + 
-		"        t.foo();\n" + 
-		"    }\n" + 
-		"    public void foo() {\n" + 
-		"    }\n" + 
-		"    public class Sub extends Test {\n" + 
-		"        public void foo() {}\n" + 
-		"    }\n" + 
-		"}\n" + 
+		"public class Test {\n" +
+		"    void test() {\n" +
+		"        Test t = new Test();\n" +
+		"        t.foo();\n" +
+		"    }\n" +
+		"    public void foo() {\n" +
+		"    }\n" +
+		"    public class Sub extends Test {\n" +
+		"        public void foo() {}\n" +
+		"    }\n" +
+		"}\n" +
 		""
 	);
 	search(
@@ -11139,7 +11139,7 @@ public void testBug295894() throws Exception {
 		SearchEngine.createHierarchyScope(this.workingCopies[0].findPrimaryType()),
 		this.resultCollector);
 	assertSearchResults(
-		"src/Test.java void Test.foo() [foo] EXACT_MATCH\n" + 
+		"src/Test.java void Test.foo() [foo] EXACT_MATCH\n" +
 		"src/Test.java void Test$Sub.foo() [foo] EXACT_MATCH"
 	);
 }
@@ -11151,17 +11151,17 @@ public void testBug295894() throws Exception {
 public void testBug295894a() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"    void test() {\n" + 
-		"        Test t = new Test();\n" + 
-		"        t.foo();\n" + 
-		"    }\n" + 
-		"    public void foo() {\n" + 
-		"    }\n" + 
-		"    public class Sub extends Test {\n" + 
-		"        public void foo() {}\n" + 
-		"    }\n" + 
-		"}\n" + 
+		"public class Test {\n" +
+		"    void test() {\n" +
+		"        Test t = new Test();\n" +
+		"        t.foo();\n" +
+		"    }\n" +
+		"    public void foo() {\n" +
+		"    }\n" +
+		"    public class Sub extends Test {\n" +
+		"        public void foo() {}\n" +
+		"    }\n" +
+		"}\n" +
 		""
 	);
 	search(
@@ -11183,17 +11183,17 @@ public void testBug295894a() throws Exception {
 public void testBug295894b() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Test.java",
-		"public class Test {\n" + 
-		"    void test() {\n" + 
-		"        Test t = new Test();\n" + 
-		"        t.foo();\n" + 
-		"    }\n" + 
-		"    public void foo() {\n" + 
-		"    }\n" + 
-		"    public class Sub extends Test {\n" + 
-		"        public void foo() {}\n" + 
-		"    }\n" + 
-		"}\n" + 
+		"public class Test {\n" +
+		"    void test() {\n" +
+		"        Test t = new Test();\n" +
+		"        t.foo();\n" +
+		"    }\n" +
+		"    public void foo() {\n" +
+		"    }\n" +
+		"    public class Sub extends Test {\n" +
+		"        public void foo() {}\n" +
+		"    }\n" +
+		"}\n" +
 		""
 	);
 	search(
@@ -11204,7 +11204,7 @@ public void testBug295894b() throws Exception {
 		this.resultCollector);
 	// Same results as with the old API
 	assertSearchResults(
-		"src/Test.java void Test.foo() [foo] EXACT_MATCH\n" + 
+		"src/Test.java void Test.foo() [foo] EXACT_MATCH\n" +
 		"src/Test.java void Test$Sub.foo() [foo] EXACT_MATCH"
 	);
 }
@@ -11217,16 +11217,16 @@ public void testBug295894b() throws Exception {
 public void testBug295894c() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/A.java",
-		"public class A {\n" + 
-		"    void test() {\n" + 
-		"        A a= new A();\n" + 
-		"        a.toString();\n" + 
-		"    }\n" + 
+		"public class A {\n" +
+		"    void test() {\n" +
+		"        A a= new A();\n" +
+		"        a.toString();\n" +
+		"    }\n" +
 		"    @Override\n" +
 		"    public String toString() {\n" +
-		"        return \"\";\n" + 
-		"    }\n" + 
-		"}\n" + 
+		"        return \"\";\n" +
+		"    }\n" +
+		"}\n" +
 		""
 	);
 	search(
@@ -11245,15 +11245,15 @@ public void testBug295894c2() throws Exception {
 		createJavaProject("P");
 		createFile(
 			"/P/A.java",
-			"public class A {\n" + 
-			"    void test() {\n" + 
-			"        A a= new A();\n" + 
-			"        a.toString();\n" + 
-			"    }\n" + 
+			"public class A {\n" +
+			"    void test() {\n" +
+			"        A a= new A();\n" +
+			"        a.toString();\n" +
+			"    }\n" +
 			"    @Override\n" +
 			"    public String toString() {\n" +
-			"        return \"\";\n" + 
-			"    }\n" + 
+			"        return \"\";\n" +
+			"    }\n" +
 			"}\n"
 		);
 		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
@@ -11276,17 +11276,17 @@ public void testBug295894c3() throws Exception {
 		createJavaProject("P");
 		createFile(
 			"/P/A.java",
-			"public class A {\n" + 
-			"    void test() {\n" + 
-			"        A a= new A();\n" + 
-			"        a.toString();\n" + 
-			"    }\n" + 
+			"public class A {\n" +
+			"    void test() {\n" +
+			"        A a= new A();\n" +
+			"        a.toString();\n" +
+			"    }\n" +
 			"    @Override\n" +
 			"    public String toString() {\n" +
-			"        return \"\";\n" + 
-			"    }\n" + 
-			"}\n" + 
-			"class B extends A {\n" + 
+			"        return \"\";\n" +
+			"    }\n" +
+			"}\n" +
+			"class B extends A {\n" +
 			"}\n"
 		);
 		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
@@ -11309,15 +11309,15 @@ public void testBug295894c4() throws Exception {
 		createJavaProject("P");
 		createFile(
 			"/P/A.java",
-			"public class A {\n" + 
-			"    void test() {\n" + 
-			"        A a= new A();\n" + 
-			"        a.toString();\n" + 
-			"    }\n" + 
+			"public class A {\n" +
+			"    void test() {\n" +
+			"        A a= new A();\n" +
+			"        a.toString();\n" +
+			"    }\n" +
 			"    @Override\n" +
 			"    public String toString() {\n" +
-			"        return \"\";\n" + 
-			"    }\n" + 
+			"        return \"\";\n" +
+			"    }\n" +
 			"}\n"
 		);
 		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
@@ -11340,20 +11340,20 @@ public void testBug295894c5() throws Exception {
 		createJavaProject("P");
 		createFile(
 			"/P/A.java",
-			"public class A {\n" + 
-			"    void test() {\n" + 
-			"        A a= new A();\n" + 
-			"        a.toString();\n" + 
-			"    }\n" + 
+			"public class A {\n" +
+			"    void test() {\n" +
+			"        A a= new A();\n" +
+			"        a.toString();\n" +
+			"    }\n" +
 			"    @Override\n" +
 			"    public String toString() {\n" +
-			"        return \"\";\n" + 
-			"    }\n" + 
+			"        return \"\";\n" +
+			"    }\n" +
 			"}"
 		);
 		createFile(
 			"/P/B.java",
-			"class B extends A {\n" + 
+			"class B extends A {\n" +
 			"}\n"
 		);
 		final ICompilationUnit cu = getCompilationUnit("/P/A.java");
@@ -11384,19 +11384,19 @@ public void testBug288174() throws Exception {
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { root });
 		search("*", TYPE, REFERENCES, scope);
 		assertSearchResults(
-			"lib/b288174.jar pack.<anonymous> EXACT_MATCH\n" + 
-			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
-			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
-			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
-			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
-			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" + 
-			"lib/b288174.jar void pack.Test.foo1() EXACT_MATCH\n" + 
-			"lib/b288174.jar pack.<anonymous> EXACT_MATCH\n" + 
-			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
-			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
-			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
-			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
-			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" + 
+			"lib/b288174.jar pack.<anonymous> EXACT_MATCH\n" +
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" +
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" +
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" +
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" +
+			"lib/b288174.jar E[] pack.<anonymous>.bar1(java.lang.Class<E>) EXACT_MATCH\n" +
+			"lib/b288174.jar void pack.Test.foo1() EXACT_MATCH\n" +
+			"lib/b288174.jar pack.<anonymous> EXACT_MATCH\n" +
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" +
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" +
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" +
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" +
+			"lib/b288174.jar F[] pack.<anonymous>.bar2(java.lang.Class<F>) EXACT_MATCH\n" +
 			"lib/b288174.jar void pack.Test.foo2() EXACT_MATCH"
 		);
 	}
@@ -11410,13 +11410,13 @@ public void testBug288174() throws Exception {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293861"
  */
 public void testBug293861a() throws CoreException {
-	try 
+	try
 	{
 		IJavaProject project = createJavaProject("P");
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b293861.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
-				
+
 		search("b293861TestFunc", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope);
 		assertSearchResults("No search results expected", "", this.resultCollector);
 	} finally {
@@ -11434,7 +11434,7 @@ public void testBug293861b() throws CoreException {
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b293861.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
-		
+
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
 				null,
@@ -11443,7 +11443,7 @@ public void testBug293861b() throws CoreException {
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-		assertSearchResults("No search results expected", "", collector);		
+		assertSearchResults("No search results expected", "", collector);
 	} finally {
 		deleteProject("P");
 	}
@@ -11459,7 +11459,7 @@ public void testBug293861c() throws CoreException {
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b293861.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
-		
+
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
 				null,
@@ -11468,7 +11468,7 @@ public void testBug293861c() throws CoreException {
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-		assertSearchResults("Unexpected search results!", "InEnumPackage (not open) [in InEnumPackage.class [in enum [in /JavaSearchBugs/lib/b293861.jar [in P]]]]", collector);		
+		assertSearchResults("Unexpected search results!", "InEnumPackage (not open) [in InEnumPackage.class [in enum [in /JavaSearchBugs/lib/b293861.jar [in P]]]]", collector);
 	} finally {
 		deleteProject("P");
 	}
@@ -11492,7 +11492,7 @@ public void testBug296343() throws Exception {
 		// set the thread context class loader
 		Thread.currentThread().setContextClassLoader(tcl);
 		simulateRestart();
-		
+
 		// get the indexing thread
 		class TestIndexRequest extends IndexRequest {
 			public Thread indexingThread = null;
@@ -11523,7 +11523,7 @@ public void testBug296343() throws Exception {
 		assertFalse(tir.indexingThread.getContextClassLoader() == tcl);
 	} finally {
 		Thread.currentThread().setContextClassLoader(cl);
-	}	
+	}
 }
 
 /**
@@ -11538,27 +11538,27 @@ public void testBug304841() throws Exception {
 		// ensure that the workspace auto-build is ON
 		preferences.setAutoBuilding(true);
 		getWorkspace().setDescription(preferences);
-		
+
 		// create test case
 		IJavaProject project = createJavaProject("P");
 		createFolder("/P/p");
 		createFile(
 			"/P/p/Hello.java",
-			"package p;\n" + 
-			"class One {\n" + 
-			"}\n" + 
-			"class Two {\n" + 
+			"package p;\n" +
+			"class One {\n" +
+			"}\n" +
+			"class Two {\n" +
 			"}\n"
 		);
 		createFile(
 			"/P/p/Ref.java",
-			"package p;\n" + 
-			"class Three {\n" + 
-			"	Two two;\n" + 
+			"package p;\n" +
+			"class Three {\n" +
+			"	Two two;\n" +
 			"}\n"
 		);
 		waitUntilIndexesReady();
-		
+
 		// perform search
 		final ICompilationUnit cu = getCompilationUnit("/P/p/Hello.java");
 		IType type = cu.getType("Two");
@@ -11587,7 +11587,7 @@ public void testBug304841b() throws Exception {
 		// ensure that the workspace auto-build is ON
 		preferences.setAutoBuilding(true);
 		getWorkspace().setDescription(preferences);
-		
+
 		// perform search
 		IType type = getClassFile("/JavaSearchBugs/lib/Bug148380.class").getType();
 		SearchPattern pattern = SearchPattern.createPattern(type, REFERENCES);
@@ -11641,24 +11641,24 @@ public void testBug306196() throws Exception {
 
 /**
  * @bug 306223:  [search] Searching for annotation references report all type references
- * @test Ensures the following - 
+ * @test Ensures the following -
  * 		 1. Search for annotation references does not report type references
  * 		 2. Search for annotation references even report a non-annotation references to an annotation type
- *		
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=306223"
  */
 public void testBug306223a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"import b306223.MyAnnot;\n"+
-			"@MyAnnot\n" + 
+			"@MyAnnot\n" +
 			"public class TestAnnot {\n" +
 				"MyAnnot annon;\n" +
 			    "String test;\n" +
 			    "void foo(String str) {\n" +
 			        "this.test = str;\n" +
 			    "}\n" +
-			"}\n"		
+			"}\n"
 		);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b306223/MyAnnot.java",
 			"@interface MyAnnot {}\n");
@@ -11673,27 +11673,27 @@ public void testBug306223a() throws CoreException {
 	this.resultCollector,
 	null);
 	assertSearchResults(
-			"src/b306223/Test.java [b306223.MyAnnot] EXACT_MATCH\n" + 
-			"src/b306223/Test.java b306223.TestAnnot [MyAnnot] EXACT_MATCH\n" + 
+			"src/b306223/Test.java [b306223.MyAnnot] EXACT_MATCH\n" +
+			"src/b306223/Test.java b306223.TestAnnot [MyAnnot] EXACT_MATCH\n" +
 			"src/b306223/Test.java b306223.TestAnnot.annon [MyAnnot] EXACT_MATCH"
 	);
 }
 /**
- * This ensures that using ANNOTATION_TYPE_REFERENCE as fine grain constant reports only 
+ * This ensures that using ANNOTATION_TYPE_REFERENCE as fine grain constant reports only
  * annotations and not any other references to an annotation type
  */
 public void testBug306223b() throws CoreException {
 	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"import b306223.MyAnnot;\n"+
-			"@MyAnnot\n" + 
+			"@MyAnnot\n" +
 			"public class TestAnnot {\n" +
 				"MyAnnot annon;\n" +
 			    "String test;\n" +
 			    "void foo(String str) {\n" +
 			        "this.test = str;\n" +
 			    "}\n" +
-			"}\n"		
+			"}\n"
 		);
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b306223/MyAnnot.java",
 			"@interface MyAnnot {}\n");
@@ -11753,13 +11753,13 @@ public void testBug306223c() throws CoreException {
 /**
  * This test ensures that a reference search of ANNOTATION_TYPE should report POTENTIAL_MATCH
  * for unknown references types.
- */ 
+ */
 public void testBug306223d() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"public class TestAnnot {\n" +
 				"Zork annon;\n" +
-			"}\n"		
+			"}\n"
 		);
 	SearchPattern pattern = SearchPattern.createPattern(
 			"*",
@@ -11772,7 +11772,7 @@ public void testBug306223d() throws CoreException {
 	this.resultCollector,
 	null);
 	assertSearchResults(
-			"src/b306223/Test.java b306223.TestAnnot.annon [Zork] POTENTIAL_MATCH" 
+			"src/b306223/Test.java b306223.TestAnnot.annon [Zork] POTENTIAL_MATCH"
 	);
 }
 /**
@@ -11784,7 +11784,7 @@ public void testBug306223e() throws CoreException {
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"public class Test {\n" +
 			"	Zork x;\n" +
-			"}\n"		
+			"}\n"
 		);
 	SearchPattern pattern = SearchPattern.createPattern(
 			"abc",
@@ -11807,7 +11807,7 @@ public void testBug306223f() throws CoreException {
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"public class Test {\n" +
 			"	Zork x;\n" +
-			"}\n"		
+			"}\n"
 		);
 	SearchPattern pattern = SearchPattern.createPattern(
 			"*",
@@ -11832,7 +11832,7 @@ public void testBug306223g() throws CoreException {
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b306223/Test.java",
 			"public class Test {\n" +
 			"	Zork x;\n" +
-			"}\n"		
+			"}\n"
 		);
 	SearchPattern pattern = SearchPattern.createPattern(
 			"abc",
@@ -11859,7 +11859,7 @@ public void testBug310213() throws CoreException {
 		// ensure that the workspace auto-build is ON
 		preferences.setAutoBuilding(true);
 		getWorkspace().setDescription(preferences);
-		
+
 		// create files
 		createFolder("/JavaSearchBugs/src/java/lang");
 		createFile("/JavaSearchBugs/src/java/lang/Throwable.java",
@@ -11873,14 +11873,14 @@ public void testBug310213() throws CoreException {
 			"}"
 		);
 		waitUntilIndexesReady();
-		
+
 		// search
 		IType type = getCompilationUnit("/JavaSearchBugs/src/java/lang/Throwable.java").getType("Throwable");
 		search(type, REFERENCES);
 		assertSearchResults(
-			"src/b310213/test/Test.java b310213.test.Test [Throwable] EXACT_MATCH\n" + 
-			""+ getExternalJCLPathString("1.5") + " java.lang.Error EXACT_MATCH\n" + 
-			""+ getExternalJCLPathString("1.5") + " java.lang.Exception EXACT_MATCH\n" + 
+			"src/b310213/test/Test.java b310213.test.Test [Throwable] EXACT_MATCH\n" +
+			""+ getExternalJCLPathString("1.5") + " java.lang.Error EXACT_MATCH\n" +
+			""+ getExternalJCLPathString("1.5") + " java.lang.Exception EXACT_MATCH\n" +
 			""+ getExternalJCLPathString("1.5") + " void java.lang.Object.finalize() EXACT_MATCH"
 		);
 	}
@@ -11908,11 +11908,11 @@ public void testBug313668() throws CoreException {
 		// ensure that the workspace auto-build is ON
 		preferences.setAutoBuilding(true);
 		getWorkspace().setDescription(preferences);
-		
+
 		// create the common project and create an interface
-		commonProject = createJavaProject("common");	
+		commonProject = createJavaProject("common");
 		createFolder("/common/com/db");
-		createFile("/common/com/db/Repo.java", 
+		createFile("/common/com/db/Repo.java",
 				"package com.db;\n" +
 				"public interface Repo {\n"+
 				"public void find();\n}");
@@ -11922,27 +11922,27 @@ public void testBug313668() throws CoreException {
 		IClasspathEntry entry =  JavaCore.newProjectEntry(new Path("/common"));
 		addClasspathEntry(clientProject, entry);
 		createFolder("/client/com/db");
-		createFile("/client/com/db/ClientRepo.java", 
+		createFile("/client/com/db/ClientRepo.java",
 				"package com.db;\n" +
 				"public class ClientRepo implements Repo {\n"+
 				"public void find(){};\n}");
-		createFile("/client/com/db/CallerClient.java", 
+		createFile("/client/com/db/CallerClient.java",
 				"package com.db;\n" +
 				"public class CallerClient{\n"+
 				"public static void main(String[] args) {\n"+
 				"Repo r = null;\n"+
 				"r.find();}}\n");
-	
+
 		// create the server project, create the class and the reference
 		serverProject = createJavaProject("server");
 		entry =  JavaCore.newProjectEntry(new Path("/common"));
 		addClasspathEntry(serverProject, entry);
 		createFolder("/server/com/db");
-		createFile("/server/com/db/ServerRepo.java", 
+		createFile("/server/com/db/ServerRepo.java",
 				"package com.db;\n" +
 				"public class ServerRepo implements Repo{\n"+
 				"public void find(){};\n");
-		createFile("/server/com/db/CallerServer.java", 
+		createFile("/server/com/db/CallerServer.java",
 				"package com.db;\n" +
 				"public class CallerServer {\n"+
 				"public static void main(String[] args) {\n"+
@@ -11950,7 +11950,7 @@ public void testBug313668() throws CoreException {
 				"r.find();}}\n");
 
 		waitUntilIndexesReady();
-				
+
 		// search
 		IType type = getCompilationUnit("/server/com/db/ServerRepo.java").getType("ServerRepo");
 		IMethod method = type.getMethod("find", new String[]{});
@@ -11983,7 +11983,7 @@ public void testBug317264a() throws CoreException {
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
-		
+
 		waitUntilIndexesReady();
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -11996,7 +11996,7 @@ public void testBug317264a() throws CoreException {
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-		assertSearchResults("Unexpected search results!", "", collector);		
+		assertSearchResults("Unexpected search results!", "", collector);
 	} finally {
 		deleteProject(project);
 	}
@@ -12010,7 +12010,7 @@ public void testBug317264b() throws CoreException {
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
-		
+
 		waitUntilIndexesReady();
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -12025,7 +12025,7 @@ public void testBug317264b() throws CoreException {
 				null);
 		assertSearchResults("Unexpected search results!",
 				"Enum (not open) [in Enum.class [in org.apache.commons.lang.enum [in /JavaSearchBugs/lib/b317264/org.apache.commons.lang_2.modified.jar [in P]]]]",
-				collector);		
+				collector);
 	} finally {
 		deleteProject(project);
 	}
@@ -12040,7 +12040,7 @@ public void testBug317264c() throws CoreException {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("org.apache.commons.lang.enum*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "", this.resultCollector);		
+		assertSearchResults("Unexpected search results!", "", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12055,9 +12055,9 @@ public void testBug317264d() throws CoreException {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("org.apache.commons.lang.enum.*", IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", 
+		assertSearchResults("Unexpected search results!",
 				"lib/b317264/org.apache.commons.lang_2.modified.jar org.apache.commons.lang.enum.Enum EXACT_MATCH",
-				this.resultCollector);		
+				this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12072,7 +12072,7 @@ public void testBug317264e() throws CoreException {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("org.apache.commons.lang.enum*", IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!",  "", this.resultCollector);		
+		assertSearchResults("Unexpected search results!",  "", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12087,9 +12087,9 @@ public void testBug317264f() throws CoreException {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("org.apache.commons.lang.enum*", IJavaSearchConstants.PACKAGE, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", 
+		assertSearchResults("Unexpected search results!",
 				"lib/b317264/org.apache.commons.lang_2.modified.jar org.apache.commons.lang.enum [No source] EXACT_MATCH",
-				this.resultCollector);		
+				this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12104,7 +12104,7 @@ public void testBug322979a() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
+		createFile("/P/Test.java",
 			"public class Test extends Object implements Comparable<Object>{\n"+
 		    "public int compareTo(Object o) {\n"+
 		        "return 0;\n"+
@@ -12128,7 +12128,7 @@ public void testBug322979b() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
+		createFile("/P/Test.java",
 			"public class Test extends java.lang.Object implements Comparable<Object>{\n"+
 		    "public int compareTo(Object o) {\n"+
 		        "return 0;\n"+
@@ -12153,11 +12153,11 @@ public void testBug322979c() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
-			"public class Test extends Object implements I01a<Object>, I01b<String>, I01c<Object> {\n" + 
-			"}\n" + 
-			"interface I01a<T> {}\n" + 
-			"interface I01b<T> {}\n" + 
+		createFile("/P/Test.java",
+			"public class Test extends Object implements I01a<Object>, I01b<String>, I01c<Object> {\n" +
+			"}\n" +
+			"interface I01a<T> {}\n" +
+			"interface I01b<T> {}\n" +
 			"interface I01c<T> {}\n"
 		);
 		waitUntilIndexesReady();
@@ -12177,17 +12177,17 @@ public void testBug322979d() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
-			"public class Test extends Object implements I01<\n" + 
-			"	I02<\n" + 
-			"		I03<Object,\n" + 
-			"			I02<Object, I01<Object>>,\n" + 
-			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" + 
-			"			>,\n" + 
-			"		I01<Object>>> {\n" + 
-			"}\n" + 
-			"interface I01<T> {}\n" + 
-			"interface I02<T, U> {}\n" + 
+		createFile("/P/Test.java",
+			"public class Test extends Object implements I01<\n" +
+			"	I02<\n" +
+			"		I03<Object,\n" +
+			"			I02<Object, I01<Object>>,\n" +
+			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" +
+			"			>,\n" +
+			"		I01<Object>>> {\n" +
+			"}\n" +
+			"interface I01<T> {}\n" +
+			"interface I02<T, U> {}\n" +
 			"interface I03<T, U, V> {}\n"
 		);
 		waitUntilIndexesReady();
@@ -12207,17 +12207,17 @@ public void testBug322979e() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
-			"public class Test extends Object implements I01<\n" + 
-			"	I02<\n" + 
-			"		I03<Object,\n" + 
-			"			I02<Object, I01<Object>>,\n" + 
-			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" + 
-			"			>,\n" + 
-			"		I01<Object>>> {\n" + 
-			"}\n" + 
-			"interface I01<T> {}\n" + 
-			"interface I02<T, U> {}\n" + 
+		createFile("/P/Test.java",
+			"public class Test extends Object implements I01<\n" +
+			"	I02<\n" +
+			"		I03<Object,\n" +
+			"			I02<Object, I01<Object>>,\n" +
+			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" +
+			"			>,\n" +
+			"		I01<Object>>> {\n" +
+			"}\n" +
+			"interface I01<T> {}\n" +
+			"interface I02<T, U> {}\n" +
 			"interface I03<T, U, V> {}\n"
 		);
 		waitUntilIndexesReady();
@@ -12226,17 +12226,17 @@ public void testBug322979e() throws CoreException {
 		this.resultCollector.showSelection();
 		search("Object", TYPE, REFERENCES, scope);
 		assertSearchResults(
-			"Test.java Test [public class Test extends !|Object|! implements I01<] EXACT_MATCH\n" + 
-			"Test.java Test [		I03<!|Object|!,] EXACT_MATCH\n" + 
-			"Test.java Test [			I02<!|Object|!, I01<Object>>,] EXACT_MATCH\n" + 
-			"Test.java Test [			I02<Object, I01<!|Object|!>>,] EXACT_MATCH\n" + 
-			"Test.java Test [			I03<!|Object|!, I01<Object>, I02<Object, I01<Object>>>] EXACT_MATCH\n" + 
-			"Test.java Test [			I03<Object, I01<!|Object|!>, I02<Object, I01<Object>>>] EXACT_MATCH\n" + 
-			"Test.java Test [			I03<Object, I01<Object>, I02<!|Object|!, I01<Object>>>] EXACT_MATCH\n" + 
-			"Test.java Test [			I03<Object, I01<Object>, I02<Object, I01<!|Object|!>>>] EXACT_MATCH\n" + 
-			"Test.java Test [		I01<!|Object|!>>> {] EXACT_MATCH\n" + 
-			""+ getExternalJCLPathString("1.5") + " java.lang.Object java.lang.Object.clone() EXACT_MATCH\n" + 
-			""+ getExternalJCLPathString("1.5") + " boolean java.lang.Object.equals(java.lang.Object) EXACT_MATCH\n" + 
+			"Test.java Test [public class Test extends !|Object|! implements I01<] EXACT_MATCH\n" +
+			"Test.java Test [		I03<!|Object|!,] EXACT_MATCH\n" +
+			"Test.java Test [			I02<!|Object|!, I01<Object>>,] EXACT_MATCH\n" +
+			"Test.java Test [			I02<Object, I01<!|Object|!>>,] EXACT_MATCH\n" +
+			"Test.java Test [			I03<!|Object|!, I01<Object>, I02<Object, I01<Object>>>] EXACT_MATCH\n" +
+			"Test.java Test [			I03<Object, I01<!|Object|!>, I02<Object, I01<Object>>>] EXACT_MATCH\n" +
+			"Test.java Test [			I03<Object, I01<Object>, I02<!|Object|!, I01<Object>>>] EXACT_MATCH\n" +
+			"Test.java Test [			I03<Object, I01<Object>, I02<Object, I01<!|Object|!>>>] EXACT_MATCH\n" +
+			"Test.java Test [		I01<!|Object|!>>> {] EXACT_MATCH\n" +
+			""+ getExternalJCLPathString("1.5") + " java.lang.Object java.lang.Object.clone() EXACT_MATCH\n" +
+			""+ getExternalJCLPathString("1.5") + " boolean java.lang.Object.equals(java.lang.Object) EXACT_MATCH\n" +
 			""+ getExternalJCLPathString("1.5") + " java.lang.Class<? extends java.lang.Object> java.lang.Object.getClass() EXACT_MATCH"
 		);
 	} finally {
@@ -12248,17 +12248,17 @@ public void testBug322979f() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
-			"public class Test extends Object implements I01<\n" + 
-			"	I02<\n" + 
-			"		I03<Object,\n" + 
-			"			I02<Object, I01<Object>>,\n" + 
-			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" + 
-			"			>,\n" + 
-			"		I01<Object>>> {\n" + 
-			"}\n" + 
-			"interface I01<T> {}\n" + 
-			"interface I02<T, U> {}\n" + 
+		createFile("/P/Test.java",
+			"public class Test extends Object implements I01<\n" +
+			"	I02<\n" +
+			"		I03<Object,\n" +
+			"			I02<Object, I01<Object>>,\n" +
+			"			I03<Object, I01<Object>, I02<Object, I01<Object>>>\n" +
+			"			>,\n" +
+			"		I01<Object>>> {\n" +
+			"}\n" +
+			"interface I01<T> {}\n" +
+			"interface I02<T, U> {}\n" +
 			"interface I03<T, U, V> {}\n"
 		);
 		waitUntilIndexesReady();
@@ -12278,15 +12278,15 @@ public void testBug322979g() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
-			"public class Test extends Object implements I<A<Object>.B<I<Object>>.C<I<A<Object>.B<Object>.C<Object>>>> {\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"}\n" + 
-			"class A<T> {\n" + 
-			"	class B<U> {\n" + 
-			"		class C<V> {}\n" + 
-			"	}\n" + 
+		createFile("/P/Test.java",
+			"public class Test extends Object implements I<A<Object>.B<I<Object>>.C<I<A<Object>.B<Object>.C<Object>>>> {\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"}\n" +
+			"class A<T> {\n" +
+			"	class B<U> {\n" +
+			"		class C<V> {}\n" +
+			"	}\n" +
 			"}\n"
 		);
 		waitUntilIndexesReady();
@@ -12305,7 +12305,7 @@ public void testBug322979h() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
-		createFile("/P/Test.java", 
+		createFile("/P/Test.java",
 			"public class Test extends Object implements I1<String>, I2<Object>{\n"+
 		    "}\n"+
 		    "Interface I1<T> {}\n"+
@@ -12327,7 +12327,7 @@ public void testBug322979h() throws CoreException {
 				EXACT_RULE);
 		search(SearchPattern.createOrPattern(leftPattern, rightPattern), scope, this.resultCollector);
 		assertSearchResults(
-			"Test.java Test [public class Test extends !|Object|! implements I1<String>, I2<Object>{] EXACT_MATCH\n" + 
+			"Test.java Test [public class Test extends !|Object|! implements I1<String>, I2<Object>{] EXACT_MATCH\n" +
 			"Test.java Test [public class Test extends Object implements I1<!|String|!>, I2<Object>{] EXACT_MATCH"
 		);
 	} finally {
@@ -12355,12 +12355,12 @@ public void testBug323514() throws Exception {
 			libPath);
 		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
 		waitUntilIndexesReady();
-		
+
 		// Close the project
 		IProject project = javaProject.getProject();
 		project.close(null);
 		assertNotNull("External jar file index should not have been removed!!!", JavaModelManager.getIndexManager().getIndex(new Path(libPath), false, false));
-		
+
 		// Reopen the project
 		project.open(null);
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
@@ -12398,7 +12398,7 @@ public void testBug323514a() throws Exception {
 			libPath);
 		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
 		waitUntilIndexesReady();
-		
+
 		// Close project and delete external jar file
 		IProject project = javaProject.getProject();
 		waitUntilIndexesReady();
@@ -12420,7 +12420,7 @@ public void testBug323514a() throws Exception {
 		// in the workspace to see external files changes.
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		waitUntilIndexesReady();
-		
+
 		// Search
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -12455,7 +12455,7 @@ public void testBug323514b() throws Exception {
 			libPath);
 		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
 		waitUntilIndexesReady();
-		
+
 		// Close project
 		IProject project = javaProject.getProject();
 		project.close(null);
@@ -12476,7 +12476,7 @@ public void testBug323514b() throws Exception {
 		// in the workspace to see external files changes.
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		waitUntilIndexesReady();
-		
+
 		// Search
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -12516,8 +12516,8 @@ public void testBug324109() throws CoreException {
 /**
  * @bug 329727 Invalid check in the isConstructor() method of the IMethod implementation.
  * @test check that in a binary type, method's name doesn't contain the enclosing type name and
- * that IMethod#isContructor returns correct value 
- * 
+ * that IMethod#isContructor returns correct value
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329727"
  * @throws CoreException
  * @throws IOException
@@ -12555,7 +12555,7 @@ public void testBug329727() throws CoreException, IOException {
 						throws CoreException {
 					assertTrue("Incorrect Element", match.getElement() instanceof IMethod);
 					assertTrue("Must be a constructor", ((IMethod) match.getElement()).isConstructor());
-					assertEquals("Incorrect Constructor name", "InnerClass", ((IMethod)match.getElement()).getElementName()); 
+					assertEquals("Incorrect Constructor name", "InnerClass", ((IMethod)match.getElement()).getElementName());
 				}
 			};
 
@@ -12582,7 +12582,7 @@ public void testBug327654() throws CoreException {
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/JavaSearchBugs/lib/b327654/commons-lang.jar"), null, null));
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES | IJavaSearchScope.REFERENCED_PROJECTS;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
-		
+
 		waitUntilIndexesReady();
 		TypeNameMatchCollector collector = new TypeNameMatchCollector();
 		new SearchEngine().searchAllTypeNames(
@@ -12595,14 +12595,14 @@ public void testBug327654() throws CoreException {
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-		assertSearchResults("Unexpected search results!", "", collector);		
+		assertSearchResults("Unexpected search results!", "", collector);
 	} finally {
 		deleteProject(project);
 	}
 }
 /**
  * @bug 325418: [search] Search for method declarations returns spurious potential matches for anonymous classes
- * @test search of method declarations of binary anonymous classes using 
+ * @test search of method declarations of binary anonymous classes using
  * 		 enclosing method's type variables should yield correct results.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=325418"
  */
@@ -12613,13 +12613,13 @@ public void testBug325418a() throws Exception {
 		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 				"p325418/Test.java",
 				"package p325418;\n" +
-				"public class Test{\n"+	
-				"	public <T> T foo() {\n"+	
-				"		return new Inner<T>() {T  run() {  return null;  }}.run();\n"+		 
-				"	}\n"+	
-				"}\n"+	
-				"abstract class Inner <T> {\n"+	
-				"	 abstract T run();\n"+	
+				"public class Test{\n"+
+				"	public <T> T foo() {\n"+
+				"		return new Inner<T>() {T  run() {  return null;  }}.run();\n"+
+				"	}\n"+
+				"}\n"+
+				"abstract class Inner <T> {\n"+
+				"	 abstract T run();\n"+
 				"}\n"
 			}, p.getProject().getLocation().append("lib325418.jar").toOSString(), "1.5");
 			refresh(p);
@@ -12627,10 +12627,10 @@ public void testBug325418a() throws Exception {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
 		search("Inner.run()", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", 
-				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" + 
+		assertSearchResults("Unexpected search results!",
+				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" +
 				"lib325418.jar T p325418.<anonymous>.run() [No source] EXACT_MATCH",
-				this.resultCollector);		
+				this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12643,12 +12643,12 @@ public void testBug325418b() throws Exception {
 		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 				"p325418/Test.java",
 				"package p325418;\n" +
-				"public class Test {\n" +	
+				"public class Test {\n" +
 				"	public <T> T foo() {\n" +
 				"		class ExtendsInner extends Inner<T> {\n" +
 				"			T run() { return null; } \n" +
 				"		} \n" +
-				"		return null; \n" +	 
+				"		return null; \n" +
 				"	} \n" +
 				"} \n" +
 				"abstract class Inner <T> {\n" +
@@ -12660,10 +12660,10 @@ public void testBug325418b() throws Exception {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
 		search("Inner.run", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", 
-				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" + 
+		assertSearchResults("Unexpected search results!",
+				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" +
 				"lib325418.jar T p325418.ExtendsInner.run() [No source] EXACT_MATCH",
-				this.resultCollector);		
+				this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12676,13 +12676,13 @@ public void testBug325418c() throws Exception {
 		org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 				"p325418/Test.java",
 				"package p325418;\n" +
-				"public class Test {\n" +	
+				"public class Test {\n" +
 				"	public <T> T foo() {\n" +
 				"		class ExtendsInner<U> extends Inner<T, U> {\n" +
 				"			T run() { return null; } \n" +
 				"			T run(U obj) { return null; } \n" +
 				"		} \n" +
-				"		return null; \n" +	 
+				"		return null; \n" +
 				"	} \n" +
 				"} \n" +
 				"abstract class Inner <T, U> {\n" +
@@ -12695,12 +12695,12 @@ public void testBug325418c() throws Exception {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
 		search("Inner.run", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", 
-				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" + 
-				"lib325418.jar T p325418.Inner.run(U) [No source] EXACT_MATCH\n" + 
-				"lib325418.jar T p325418.ExtendsInner.run() [No source] EXACT_MATCH\n" + 
+		assertSearchResults("Unexpected search results!",
+				"lib325418.jar T p325418.Inner.run() [No source] EXACT_MATCH\n" +
+				"lib325418.jar T p325418.Inner.run(U) [No source] EXACT_MATCH\n" +
+				"lib325418.jar T p325418.ExtendsInner.run() [No source] EXACT_MATCH\n" +
 				"lib325418.jar T p325418.ExtendsInner.run(U) [No source] EXACT_MATCH",
-				this.resultCollector);		
+				this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12732,10 +12732,10 @@ public void testBug325418d() throws Exception {
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
 		search("TwoLevelInner.run", IJavaSearchConstants.METHOD, IJavaSearchConstants.DECLARATIONS, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", 
-				"lib325418.jar T p325418.<anonymous>.run() [No source] EXACT_MATCH\n" + 
+		assertSearchResults("Unexpected search results!",
+				"lib325418.jar T p325418.<anonymous>.run() [No source] EXACT_MATCH\n" +
 				"lib325418.jar T p325418.TwoLevelInner.run() [No source] EXACT_MATCH",
-				this.resultCollector);		
+				this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12752,7 +12752,7 @@ public void testBug324189a() throws CoreException {
 		"package b324189;\n" +
 		"public class TestWorker{\n" +
 		" public void run() {}\n" +
-		"class AWorker {\n" + 
+		"class AWorker {\n" +
 		" public void run() {}\n" +
 		"}\n"+
 		"}\n"
@@ -12814,7 +12814,7 @@ public void testBug324189d() throws CoreException, IOException {
 		this.resultCollector.showSelection();
 		search("Worker.run()", METHOD, DECLARATIONS, scope);
 		assertSearchResults(
-				getExternalPath() + "lib324189.jar void b324189.TestWorker$Worker.run() EXACT_MATCH\n" + 
+				getExternalPath() + "lib324189.jar void b324189.TestWorker$Worker.run() EXACT_MATCH\n" +
 				getExternalPath() + "lib324189.jar void b324189.Worker.run() EXACT_MATCH"
 		);
 	} finally {
@@ -12846,11 +12846,11 @@ public void testBug336322a() throws CoreException{
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
-		createFile("/P/Test.java", 
+		createFile("/P/Test.java",
 				"public class Test {\n"+
 				"public void foo(Object o) {\n"+
 				"  try {\n"+
-				"   }\n"+ 
+				"   }\n"+
 				" catch(Exception|RuntimeException exc) {\n" +
 				"   }\n"+
 				"}\n"+
@@ -12858,21 +12858,21 @@ public void testBug336322a() throws CoreException{
 		int mask = IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("RuntimeException", IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
 }
-// search for type in multiple catch parameters in catch clauses 
+// search for type in multiple catch parameters in catch clauses
 public void testBug336322b() throws CoreException{
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
-		createFile("/P/Test.java", 
+		createFile("/P/Test.java",
 				"public class Test {\n"+
 				"public void foo(Object o) {\n"+
 				"  try {\n"+
-				"   }\n"+ 
+				"   }\n"+
 				" catch(Exception|RuntimeException exc) {\n" +
 				"   }\n"+
 				"}\n"+
@@ -12880,21 +12880,21 @@ public void testBug336322b() throws CoreException{
 		int mask = IJavaSearchScope.SOURCES ;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		search("RuntimeException", IJavaSearchConstants.TYPE, CATCH_TYPE_REFERENCE, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);		
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [RuntimeException] EXACT_MATCH", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
 }
-// search for the multi-catch variable should return the variable 
+// search for the multi-catch variable should return the variable
 public void testBug336322c() throws CoreException{
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
-		createFile("/P/Test.java", 
+		createFile("/P/Test.java",
 				"public class Test {\n"+
 				"public void foo(Object o) {\n"+
 				"  try {\n"+
-				"   }\n"+ 
+				"   }\n"+
 				" catch(Exception|RuntimeException exc) {\n" +
 				"       exc.printStackTrace();\n"+
 				"   }\n"+
@@ -12905,7 +12905,7 @@ public void testBug336322c() throws CoreException{
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, mask);
 		ILocalVariable variable = selectLocalVariable(type.getCompilationUnit(), "exc");
 		search(variable, READ_ACCESSES, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [exc] EXACT_MATCH", this.resultCollector);		
+		assertSearchResults("Unexpected search results!", "Test.java void Test.foo(Object) [exc] EXACT_MATCH", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12942,7 +12942,7 @@ public void testBug341462() throws CoreException {
 	try
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.7");
-		createFile("/P/X.java", 
+		createFile("/P/X.java",
 				"public class X<T> {\n" +
 				"        T field1;\n" +
 				"        public X(T param) {\n" +
@@ -12967,7 +12967,7 @@ public void testBug341462() throws CoreException {
 		IMethod method = type.getMethod("testFunction", new String[] { "QString;" });
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[]{project}, IJavaSearchScope.SOURCES);
 		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [testFunction(new X<>(\"hello\").getField())] EXACT_MATCH", this.resultCollector);		
+		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [testFunction(new X<>(\"hello\").getField())] EXACT_MATCH", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -12980,7 +12980,7 @@ public void testBug350885() throws CoreException {
 		// ensure that the workspace auto-build is ON
 		preferences.setAutoBuilding(true);
 		getWorkspace().setDescription(preferences);
-		
+
 		IJavaProject project = createJavaProject("P");
 		createFile("/P/X.java",
 			"class Parent {" +
@@ -12991,7 +12991,7 @@ public void testBug350885() throws CoreException {
 			"}\n"+
 			"}\n");
 		waitUntilIndexesReady();
-		
+
 		// search
 		IType type = getCompilationUnit("/P/X.java").getType("Child");
 		IMethod method = type.getMethods()[0];
@@ -13003,7 +13003,7 @@ public void testBug350885() throws CoreException {
 		// put back initial setup
 		preferences.setAutoBuilding(autoBuild);
 		getWorkspace().setDescription(preferences);
-		
+
 		// delete the created project
 		deleteProject("P");
 	}
@@ -13015,22 +13015,22 @@ public void testBug349683() throws CoreException {
 	{
 		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "", "1.7");
 		createFile("/P/X.java",
-				"import java.lang.invoke.MethodHandle;\n" + 
-				"import java.lang.invoke.MethodHandles;\n" + 
-				"import java.lang.invoke.MethodType;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	public static void main(String[] args) throws Throwable {\n" + 
-				"		Object x;\n" + 
-				"		String s;\n" + 
-				"		int i;\n" + 
-				"		MethodType mt;\n" + 
-				"		MethodHandle mh;\n" + 
-				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" + 
-				"		// mt is (char,char)String\n" + 
-				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" + 
-				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" + 
-				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" + 
+				"import java.lang.invoke.MethodHandle;\n" +
+				"import java.lang.invoke.MethodHandles;\n" +
+				"import java.lang.invoke.MethodType;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) throws Throwable {\n" +
+				"		Object x;\n" +
+				"		String s;\n" +
+				"		int i;\n" +
+				"		MethodType mt;\n" +
+				"		MethodHandle mh;\n" +
+				"		MethodHandles.Lookup lookup = MethodHandles.lookup();\n" +
+				"		// mt is (char,char)String\n" +
+				"		mt = MethodType.methodType(String.class, char.class, char.class);\n" +
+				"		mh = lookup.findVirtual(String.class, \"replace\", mt);\n" +
+				"		s = (String) mh.invokeExact(\"daddy\", 'd', 'n');\n" +
 				"     }\n" +
 				"}\n");
 		waitUntilIndexesReady();
@@ -13040,7 +13040,7 @@ public void testBug349683() throws CoreException {
 		this.resultCollector = new TestCollector();
 		this.resultCollector.showAccuracy(true);
 		search(method, REFERENCES, ERASURE_RULE, scope, this.resultCollector);
-		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [invokeExact(\"daddy\", \'d\', \'n\')] EXACT_MATCH", this.resultCollector);		
+		assertSearchResults("Unexpected search results!", "X.java void X.main(String[]) [invokeExact(\"daddy\", \'d\', \'n\')] EXACT_MATCH", this.resultCollector);
 	} finally {
 		deleteProject("P");
 	}
@@ -13050,7 +13050,7 @@ public void testBug349683() throws CoreException {
 public void testBug345807() throws CoreException {
 	try {
 		// Create a project depending on the jar
-		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P1/01b345807.jar"}, "");		
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P1/01b345807.jar"}, "");
 		createJar(new String[] {
 			"inlib/P345807Test.java",
 			"package inlib;\n" +
@@ -13058,13 +13058,13 @@ public void testBug345807() throws CoreException {
 			"}"
 		}, p1.getProject().getLocation().append("01b345807.jar").toOSString());
 		refresh(p1);
-		
+
 		// Create another project with the same class name
 		createJavaProject("Project2", new String[] {""}, new String[] {}, "");
 		createFile("/Project2/P345807Test.java",
-				"public class P345807Test {\n" + 
+				"public class P345807Test {\n" +
 				"}\n");
-		
+
 		waitUntilIndexesReady();
 		SearchTests.SearchTypeNameRequestor requestor =  new SearchTests.SearchTypeNameRequestor();
 		new SearchEngine().searchAllTypeNames(
@@ -13091,26 +13091,26 @@ public void testBug355605() throws CoreException {
 	try {
 	createJavaProject("P");
 
-		String fileContent = 				
-			"public class X { \n" 
+		String fileContent =
+			"public class X { \n"
 			+ "class R {\n"
-			+ "   class S {\n" 
+			+ "   class S {\n"
 			+ "   	void setInfo(String x) {\n"
-			+ "   	}\n" 
+			+ "   	}\n"
 			+ "   }\n"
 			+ "   class T {\n"
 			+ "   }\n"
-			+ "	T t = new T()  {\n" 
+			+ "	T t = new T()  {\n"
 			+ "		S s = new S() {\n"
 			+ "           void myMethod() {\n"
-			+ "               setInfo(\"a\");\n" 
+			+ "               setInfo(\"a\");\n"
 			+ "           }\n"
 			+ "      };// S ends\n"
-			+ "   };\n" 
-			+ "}\n" 
+			+ "   };\n"
+			+ "}\n"
 			+ "}\n" ;
 		createFile("/P/X.java", fileContent);
-		
+
 		waitUntilIndexesReady();
 		this.resultCollector = new TestCollector();
 		this.resultCollector.showAccuracy(true);
@@ -13119,7 +13119,7 @@ public void testBug355605() throws CoreException {
 		IJavaSearchScope hierarchyScope = SearchEngine.createHierarchyScope((IType)method.getParent());
 		search(method, IMPLEMENTORS, EXACT_RULE, hierarchyScope, this.resultCollector);
 		assertSearchResults("Unexpected search results!", "X.java void X$R.t:<anonymous>#1.s:<anonymous>#1.myMethod() [myMethod] EXACT_MATCH", this.resultCollector);
-		
+
 	} finally {
 		deleteProject("P");
 	}
@@ -13147,14 +13147,14 @@ public void testBug241834() throws CoreException {
 		assertSearchResults("");
 	} finally {
 		deleteProject("P");
-		
+
 	}
 }
 	/**
 	 * @bug 402902:  [1.8][search] Search engine fails to annotation matches in extends/implements clauses
-	 * @test Ensures that the search for type use annotation finds matches 
-	 * in extends and implements clauses. 
-	 *		
+	 * @test Ensures that the search for type use annotation finds matches
+	 * in extends and implements clauses.
+	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=402902"
 	 */
 public void testBug400902a() throws CoreException {
@@ -13168,9 +13168,9 @@ public void testBug400902a() throws CoreException {
 			"	int x = (@Marker int) 0;\n" +
 			" 	@Marker public class Y {}\n" +
 			"}\n" +
-			"@Target(ElementType.TYPE_USE)\n" +	
+			"@Target(ElementType.TYPE_USE)\n" +
 			"@interface Marker {}\n" +
-			"@Target(ElementType.TYPE)\n" +	
+			"@Target(ElementType.TYPE)\n" +
 			"@interface Marker1 {}"
 		);
 	SearchPattern pattern = SearchPattern.createPattern(
@@ -13188,14 +13188,14 @@ public void testBug400902a() throws CoreException {
 			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
 			"src/b400902/X.java b400902.X [Marker] EXACT_MATCH\n" +
 			"src/b400902/X.java b400902.X.x [Marker] EXACT_MATCH\n" +
-			"src/b400902/X.java b400902.X$Y [Marker] EXACT_MATCH" 
-	);	
+			"src/b400902/X.java b400902.X$Y [Marker] EXACT_MATCH"
+	);
 }
 
 /**
  * @bug 400919:  [1.8][search] Search engine fails to annotation matches in type variable bounds
  * @test Ensures that the search for type use annotation finds matches in type variable bounds
- *		
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400919"
  */
 public void testBug400919a() throws CoreException {
@@ -13266,20 +13266,20 @@ public void testBug400919a() throws CoreException {
 	this.resultCollector,
 	null);
 	assertSearchResults(
-			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X$Test [Existing] EXACT_MATCH\n" + 
+			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X$Test [Existing] EXACT_MATCH\n" +
 			"src/b400919/X.java b400919.XY [Existing] EXACT_MATCH"
-	);	
+	);
 }
 /**
  * @bug 400919:  [1.8][search] Search engine fails to annotation matches in type variable bounds
  * @test Ensures that the search for type use annotation finds matches in type variable bounds with TYPE
- *		
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400919"
  */
 public void testBug400919b() throws CoreException {
@@ -13350,20 +13350,20 @@ public void testBug400919b() throws CoreException {
 	this.resultCollector,
 	null);
 	assertSearchResults(
-			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" + 
-			"src/b400919/X.java b400919.X$Test [Existing] EXACT_MATCH\n" + 
+			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X.s [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java int b400919.X.x(T) [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X$Folder [Existing] EXACT_MATCH\n" +
+			"src/b400919/X.java b400919.X$Test [Existing] EXACT_MATCH\n" +
 			"src/b400919/X.java b400919.XY [Existing] EXACT_MATCH"
-	);	
+	);
 }
 /**
  * @bug 400919:  [1.8][search] Search engine fails to annotation matches in type variable bounds
  * @test Ensures that the search for type use annotation finds matches in type variable bounds
- *		
+ *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400919"
  */
 public void testBug400919c() throws CoreException {
@@ -13441,8 +13441,8 @@ public void testBug400919c() throws CoreException {
 			"src/b400919/X.java b400919.X2 [Marker] EXACT_MATCH\n" +
 			"src/b400919/X.java b400919.X2 [Marker] EXACT_MATCH\n" +
 			"src/b400919/X.java b400919.X2 [Marker] EXACT_MATCH\n" +
-			"src/b400919/X.java b400919.X2 [Marker] EXACT_MATCH" 
-	);	
+			"src/b400919/X.java b400919.X2 [Marker] EXACT_MATCH"
+	);
 }
 /** @bug 431357
  * [search] Search API got wrong result, when searching for method references, where the parameter is a member type of another type.
@@ -13587,7 +13587,7 @@ public void testBug431357_003() throws CoreException {
 			getJavaSearchWorkingCopiesScope(),
 			this.resultCollector,
 			null);
-	assertSearchResults("src/X.java void I.query(Bar.InnerKey) [query] EXACT_MATCH\n" + 
+	assertSearchResults("src/X.java void I.query(Bar.InnerKey) [query] EXACT_MATCH\n" +
 			"src/X.java void X.bar(I, Bar.InnerKey) [query(key)] EXACT_MATCH"
 	);
 }
@@ -13644,7 +13644,7 @@ public void testBug431357_004() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-			"src/X.java void I.query(Foo.Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void I.query(Foo.Key) [query] EXACT_MATCH\n" +
 			"src/X.java void Foo.foo(I, Key) [query(key)] EXACT_MATCH"
 	);
 }
@@ -13701,7 +13701,7 @@ public void testBug431357_005() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-			"src/X.java void I.query(Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void I.query(Key) [query] EXACT_MATCH\n" +
 			"src/X.java void Bar.bar(I, Key) [query(key)] EXACT_MATCH"
 	);
 }
@@ -13764,7 +13764,7 @@ public void testBug431357_006() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-			"src/X.java void I.query(Foo.Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void I.query(Foo.Key) [query] EXACT_MATCH\n" +
 			"src/X.java void Foo.foo(I, Key) [query(key)] EXACT_MATCH"
 	);
 }
@@ -13827,7 +13827,7 @@ public void testBug431357_007() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-			"src/X.java void I.query(Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void I.query(Key) [query] EXACT_MATCH\n" +
 			"src/X.java void X.bar(I, Key) [query(key)] EXACT_MATCH"
 	);
 }
@@ -13891,7 +13891,7 @@ public void testBug431357_008() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-			"src/X.java void I.query(Bar.Key) [query] EXACT_MATCH\n" + 
+			"src/X.java void I.query(Bar.Key) [query] EXACT_MATCH\n" +
 			"src/X.java void Bar.bar(I, Key) [query(key)] EXACT_MATCH"
 	);
 }
@@ -13921,7 +13921,7 @@ public void testBug431357_009() throws CoreException {
 		"        i.query(fk, bk, \"\");\n" +
 		"    }\n" +
 		"}\n" +
-		"public class X {}\n" 
+		"public class X {}\n"
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -14004,7 +14004,7 @@ public void testBug431357_011() throws CoreException {
 		"		i.query(\"\", fk);\n" +
 		"    }\n" +
 		"}\n" +
-		"public class X {}\n" 
+		"public class X {}\n"
 	);
 
 	String nonExistentPattern = "MyIF.query(String, Bar.InnerKey)";
@@ -14044,7 +14044,7 @@ public void testBug431357_012() throws CoreException {
 		"		i.query(fk, bk, \"\");\n" +
 		"    }\n" +
 		"}\n" +
-		"public class X {}\n" 
+		"public class X {}\n"
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -14060,7 +14060,7 @@ public void testBug431357_012() throws CoreException {
 			getJavaSearchWorkingCopiesScope(),
 			this.resultCollector,
 			null);
-	assertSearchResults("src/X.java void MyIF.query(Foo.InnerKey, Bar.InnerKey, String) [query] EXACT_MATCH\n" + 
+	assertSearchResults("src/X.java void MyIF.query(Foo.InnerKey, Bar.InnerKey, String) [query] EXACT_MATCH\n" +
 			"src/X.java void Bar.bar(MyIF, Foo.InnerKey, Bar.InnerKey) [query(fk, bk, \"\")] EXACT_MATCH"
 	);
 }
@@ -14086,7 +14086,7 @@ public void testBug431357_013() throws CoreException {
 		"class Bar {\n" +
 		"	static class InnerKey{}\n" +
 		"}\n" +
-		"public class X {}\n" 
+		"public class X {}\n"
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -14127,7 +14127,7 @@ public void testBug431357_014() throws CoreException {
 		"class Bar {\n" +
 		"	static class InnerKey{}\n" +
 		"}\n" +
-		"public class X {}\n" 
+		"public class X {}\n"
 	);
 
 	String str = this.workingCopies[0].getSource();
@@ -14175,7 +14175,7 @@ public void testBug431357_015() throws CoreException {
 		createFolder(folder);
 		createFile(filename, contents);
 		waitUntilIndexesReady();
-		
+
 		// search
 		IType[] types = getCompilationUnit(filename).getTypes();
 		IMethod method = types[0].getMethods()[0];
@@ -14232,7 +14232,7 @@ public void _testBug431357_016() throws CoreException {
 		createFolder(folder);
 		createFile(filename, contents);
 		waitUntilIndexesReady();
-		
+
 		// search
 		IType[] types = getCompilationUnit(filename).getTypes();
 		IMethod method = types[0].getMethods()[1];
@@ -14276,7 +14276,7 @@ public void testBug460465_since_5() throws CoreException {
 			"}\n");
 
 
-	IType type = this.workingCopies[0].getTypes()[0]; 	
+	IType type = this.workingCopies[0].getTypes()[0];
 	TypeReferencePattern pattern = (TypeReferencePattern) SearchPattern.createPattern(type, REFERENCES, EXACT_RULE | ERASURE_RULE);
 
 	new SearchEngine(this.workingCopies).search(pattern,
@@ -14284,10 +14284,10 @@ public void testBug460465_since_5() throws CoreException {
 			getJavaSearchWorkingCopiesScope(),
 			this.resultCollector,
 			null);
-	assertSearchResults(		
-			"src/test/ClassWithStaticImports.java [test.TestE] EXACT_MATCH\n" + 
-			"src/test/ClassWithStaticImports.java [test.TestE] EXACT_MATCH\n" + 
-			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH\n" + 
+	assertSearchResults(
+			"src/test/ClassWithStaticImports.java [test.TestE] EXACT_MATCH\n" +
+			"src/test/ClassWithStaticImports.java [test.TestE] EXACT_MATCH\n" +
+			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH\n" +
 			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH");
 }
 public void testBug469320_0001() throws CoreException {
@@ -14299,7 +14299,7 @@ public void testBug469320_0001() throws CoreException {
 		this.createFile("/ProjectA/common.jar", f.getContents());
 		this.addLibraryEntry(ProjectA, "/ProjectA/common.jar", false);
 		createFolder("/ProjectA/test");
-		createFile("/ProjectA/test/Validation.java", 
+		createFile("/ProjectA/test/Validation.java",
 				"package test;\n"+
 				"public final class Validation {\n"+
 				"    public static boolean validate(String traceTypeName, String fileName) {\n"+
@@ -14308,18 +14308,18 @@ public void testBug469320_0001() throws CoreException {
 				"        return true;\n"+
 				"    }\n"+
 				"}\n");
-		createFile("/ProjectA/test/ValidationHelper.java", 
+		createFile("/ProjectA/test/ValidationHelper.java",
 				"package test;\n"+
 				"public class ValidationHelper {\n"+
 				"	public String validate(String path) {\n" +
-				"		return null;\n" +	
+				"		return null;\n" +
 				"	}\n" +
 				"}\n");
 		ProjectB = createJavaProject("ProjectB", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
 		//this.createFile("/ProjectB/common.jar", f.getContents());
 		this.addLibraryEntry(ProjectB, "/ProjectA/common.jar", false);
 		createFolder("/ProjectB/testReferences");
-		createFile("/ProjectB/testReferences/Main.java", 
+		createFile("/ProjectB/testReferences/Main.java",
 				"package testReferences;\n" +
 				"import validator.*;\n" +
 				"public class Main {\n" +
@@ -14444,7 +14444,7 @@ public void testBug476738_002() throws CoreException {
 			this.resultCollector,
 			null);
 	assertSearchResults(
-			"src/X.java void X.foo(I, Foo.InnerKey) [query(key)] EXACT_MATCH\n" + 
+			"src/X.java void X.foo(I, Foo.InnerKey) [query(key)] EXACT_MATCH\n" +
 			"src/X.java void X.bar(I, Bar.InnerKey) [query(key)] EXACT_MATCH"
 	);
 }
@@ -14468,9 +14468,9 @@ public void testBug478042_wScope_0001() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			requestor
 	);
@@ -14495,9 +14495,9 @@ public void testBug478042_wScope_0002() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames("foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			requestor
 	);
@@ -14522,9 +14522,9 @@ public void testBug478042_wScope_003() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames("AllMethod", SearchPattern.R_PREFIX_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, requestor);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			requestor
 	);
@@ -14539,7 +14539,7 @@ public void testBug478042_wScope_004() throws Exception {
 		"  public char foo03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14552,12 +14552,12 @@ public void testBug478042_wScope_004() throws Exception {
 			"p478042", SearchPattern.R_EXACT_MATCH, //package
 			null, SearchPattern.R_EXACT_MATCH,  // declaring Qualification
 			"AllMethod", SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"foo", SearchPattern.R_PREFIX_MATCH, 
+			"foo", SearchPattern.R_PREFIX_MATCH,
 			scope, requestor);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			requestor
 	);
@@ -14572,7 +14572,7 @@ public void testBug478042_wScope_005() throws Exception {
 		"  public char foo03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14590,12 +14590,12 @@ public void testBug478042_wScope_005() throws Exception {
 			"p478042", SearchPattern.R_EXACT_MATCH, //package
 			null, SearchPattern.R_EXACT_MATCH,  // declaring Qualification
 			"AllMethod", SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"foo", SearchPattern.R_PREFIX_MATCH, 
+			"foo", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			collector
 	);
@@ -14610,7 +14610,7 @@ public void testBug478042_wScope_006() throws Exception {
 		"  public char fooCamel03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14628,11 +14628,11 @@ public void testBug478042_wScope_006() throws Exception {
 			"p478042", SearchPattern.R_EXACT_MATCH, //package
 			null, SearchPattern.R_EXACT_MATCH,  // declaring Qualification
 			"AllMethod", SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"fooCC", SearchPattern.R_CAMELCASE_MATCH, 
+			"fooCC", SearchPattern.R_CAMELCASE_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.fooCamelCase01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.fooCamelCase01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooCamelCaseInt()",
 			collector
 	);
@@ -14649,7 +14649,7 @@ public void testBug478042_wScope_007() throws Exception {
 		"  public char fooCamel03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14667,11 +14667,11 @@ public void testBug478042_wScope_007() throws Exception {
 			"p478042", SearchPattern.R_EXACT_MATCH, //package
 			null, SearchPattern.R_EXACT_MATCH,  // declaring Qualification
 			"AllMethod", SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"fooCC", SearchPattern.R_CAMELCASE_MATCH, 
+			"fooCC", SearchPattern.R_CAMELCASE_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.fooCamelCase01(Y t)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.fooCamelCase01(Y t)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooCamelCaseInt()",
 			collector
 	);
@@ -14690,7 +14690,7 @@ public void testBug478042_wScope_008() throws Exception {
 			"}\n" +
 			"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14708,12 +14708,12 @@ public void testBug478042_wScope_008() throws Exception {
 			"p478042", SearchPattern.R_EXACT_MATCH, //package
 			"AllMethod", SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
 			"Inn", SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"foo", SearchPattern.R_PREFIX_MATCH, 
+			"foo", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)", 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)",
 			collector
 	);
 }
@@ -14726,7 +14726,7 @@ public void testBug483303_001() throws Exception {
 			"  }\n" +
 			"}\n"
 	);
-	
+
 	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
 		@Override
 		public String toString() {
@@ -14738,10 +14738,10 @@ public void testBug483303_001() throws Exception {
 			null, SearchPattern.R_PREFIX_MATCH, //package
 			null, SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
 			null, SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"m1", SearchPattern.R_PREFIX_MATCH, 
+			"m1", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/com/test/C1.java void com.test.C1.m1(int i)", 
+			"/JavaSearchBugs/src/com/test/C1.java void com.test.C1.m1(int i)",
 			collector
 	);
 }
@@ -14754,12 +14754,12 @@ public void testBug483303_002() throws Exception {
 			"  }\n" +
 			"}\n"
 	);
-	
+
 	class Collector extends MethodNameMatchRequestor {
 		List<MethodNameMatch> matches = new ArrayList<>();
 		@Override
 		public void acceptMethodNameMatch(MethodNameMatch match) {
-			this.matches.add(match);					
+			this.matches.add(match);
 		}
 	}
 	Collector collector = new Collector();
@@ -14768,7 +14768,7 @@ public void testBug483303_002() throws Exception {
 			null, SearchPattern.R_PREFIX_MATCH, //package
 			null, SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
 			null, SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
-			"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+			"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH,
 			scope, collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 	assertTrue(collector.matches.size() == 1);
@@ -14804,9 +14804,9 @@ public void testBug483650_wScope_0001() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames("p478042*.AllMethodDeclarations0*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			collector
 	);
@@ -14836,9 +14836,9 @@ public void testBug483650_wScope_0002() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames("p478042*.AllMethodDeclarations0*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			collector
 	);
@@ -14868,9 +14868,9 @@ public void testBug483650_wScope_003() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames("*AllMethod*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			collector
 	);
@@ -14885,7 +14885,7 @@ public void testBug483650_wScope_004() throws Exception {
 		"  public char foo03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14901,12 +14901,12 @@ public void testBug483650_wScope_004() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames(
 			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH, //qualifier
-			"foo", SearchPattern.R_PREFIX_MATCH, 
+			"foo", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			collector
 	);
@@ -14921,7 +14921,7 @@ public void testBug483650_wScope_005() throws Exception {
 		"  public char foo03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14937,12 +14937,12 @@ public void testBug483650_wScope_005() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames(
 			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH,
-			"foo", SearchPattern.R_PREFIX_MATCH, 
+			"foo", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
 			collector
 	);
@@ -14957,7 +14957,7 @@ public void testBug483650_wScope_006() throws Exception {
 		"  public char fooCamel03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -14972,12 +14972,12 @@ public void testBug483650_wScope_006() throws Exception {
 	};
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames(
-			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH, 
-			"fooCC", SearchPattern.R_CAMELCASE_MATCH, 
+			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH,
+			"fooCC", SearchPattern.R_CAMELCASE_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.fooCamelCase01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.fooCamelCase01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooCamelCaseInt()",
 			collector
 	);
@@ -14994,7 +14994,7 @@ public void testBug483650_wScope_007() throws Exception {
 		"  public char fooCamel03(Object o, String s) {return null;}\n" +
 		"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -15010,11 +15010,11 @@ public void testBug483650_wScope_007() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames(
 			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH,
-			"fooCC", SearchPattern.R_CAMELCASE_MATCH, 
+			"fooCC", SearchPattern.R_CAMELCASE_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.fooCamelCase01(Y t)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.fooCamelCase01(Y t)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" +
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooCamelCaseInt()",
 			collector
 	);
@@ -15033,7 +15033,7 @@ public void testBug483650_wScope_008() throws Exception {
 			"}\n" +
 			"}\n"
 	);
-	
+
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
 		"package p478042;\n" +
 		"public class AllMethodDeclarations01b {\n" +
@@ -15049,12 +15049,12 @@ public void testBug483650_wScope_008() throws Exception {
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames(
 			"p478042.AllMethod*.Inn*", SearchPattern.R_PATTERN_MATCH,
-			"foo", SearchPattern.R_PREFIX_MATCH, 
+			"foo", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" + 
-			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)", 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" +
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)",
 			collector
 	);
 }
@@ -15067,7 +15067,7 @@ public void testBug483650_009() throws Exception {
 			"  }\n" +
 			"}\n"
 	);
-	
+
 	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
 		@Override
 		public String toString() {
@@ -15076,11 +15076,11 @@ public void testBug483650_009() throws Exception {
 	};
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	searchAllMethodNames(
-			null, SearchPattern.R_PREFIX_MATCH, 
-			"m1", SearchPattern.R_PREFIX_MATCH, 
+			null, SearchPattern.R_PREFIX_MATCH,
+			"m1", SearchPattern.R_PREFIX_MATCH,
 			scope, collector);
 	assertSearchResults(
-			"/JavaSearchBugs/src/com/test/C1.java void com.test.C1.m1(int i)", 
+			"/JavaSearchBugs/src/com/test/C1.java void com.test.C1.m1(int i)",
 			collector
 	);
 }
@@ -15093,19 +15093,19 @@ public void testBug483650_010() throws Exception {
 			"  }\n" +
 			"}\n"
 	);
-	
+
 	class Collector extends MethodNameMatchRequestor {
 		List<MethodNameMatch> matches = new ArrayList<>();
 		@Override
 		public void acceptMethodNameMatch(MethodNameMatch match) {
-			this.matches.add(match);					
+			this.matches.add(match);
 		}
 	}
 	Collector collector = new Collector();
 	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
 	new SearchEngine(this.workingCopies).searchAllMethodNames(
 			null, SearchPattern.R_PREFIX_MATCH,
-			"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+			"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH,
 			scope, collector,
 			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
 	assertTrue(collector.matches.size() == 1);

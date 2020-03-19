@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. and others 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - derived base class from BatchMessagerImpl
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
@@ -50,13 +50,13 @@ public class BaseMessagerImpl {
 
 	/**
 	 * Create a CategorizedProblem that can be reported to an ICompilerRequestor, etc.
-	 * 
+	 *
 	 * @param e the element against which to report the message.  If the element is not
 	 * in the set of elements being compiled in the current round, the reference context
 	 * and filename will be set to null.
 	 * @return
 	 */
-	public static AptProblem createProblem(Kind kind, CharSequence msg, Element e, 
+	public static AptProblem createProblem(Kind kind, CharSequence msg, Element e,
 			AnnotationMirror a, AnnotationValue v) {
 		ReferenceContext referenceContext = null;
 		Annotation[] elementAnnotations = null;

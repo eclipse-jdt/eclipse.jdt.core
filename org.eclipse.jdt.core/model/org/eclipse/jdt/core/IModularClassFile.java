@@ -24,7 +24,7 @@ public interface IModularClassFile extends IClassFile {
 	 * Returns the module description contained in this type root.
 	 * An error-free {@link IModularClassFile} should always have a module.
 	 *
-	 * @throws JavaModelException 
+	 * @throws JavaModelException
 	 * @return the module description contained in the type root.
 	 */
 	@Override

@@ -61,7 +61,7 @@ abstract public class TypeBinding extends Binding {
 	public long tagBits = 0; // See values in the interface TagBits below
 
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
-	
+
 	// jsr 308
 	public static final ReferenceBinding TYPE_USE_BINDING = new ReferenceBinding() { /* used for type annotation resolution. */
 		{ this.id = TypeIds.T_undefined; }
@@ -70,7 +70,7 @@ abstract public class TypeBinding extends Binding {
 		@Override
 		public boolean hasTypeBit(int bit) { return false; }
 	};
-	
+
 	/** Base type definitions */
 	public final static BaseTypeBinding INT = new BaseTypeBinding(
 			TypeIds.T_int, TypeConstants.INT, new char[] { 'I' });
@@ -104,7 +104,7 @@ abstract public class TypeBinding extends Binding {
 public TypeBinding() {
 	super();
 }
-	
+
 public TypeBinding(TypeBinding prototype) {  // faithfully copy most instance state - clone operation should specialize/override suitably.
 	this.id = prototype.id;
 	this.tagBits = prototype.tagBits & ~TagBits.AnnotationNullMASK;
@@ -232,7 +232,7 @@ public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceCon
 /** Virtual copy constructor: a copy is made of the receiver's entire instance state and then suitably
     parameterized by the arguments to the clone operation as seen fit by each type. Parameters may not
     make sense for every type in the hierarchy, in which case they are silently ignored. A type may
-    choose to retain a copy of the prototype for reference. 
+    choose to retain a copy of the prototype for reference.
 */
 public TypeBinding clone(TypeBinding enclosingType) {
 	throw new IllegalStateException("TypeBinding#clone() should have been overridden"); //$NON-NLS-1$
@@ -281,7 +281,7 @@ public TypeBinding erasure() {
  * Perform an upwards type projection as per JLS 4.10.5
  * @param scope Relevant scope for evaluating type projection
  * @param mentionedTypeVariables Filter for mentioned type variabled
- * @returns Upwards type projection of 'this', or null if downwards projection is undefined 
+ * @returns Upwards type projection of 'this', or null if downwards projection is undefined
 */
 public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 	return this;
@@ -291,7 +291,7 @@ public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVar
  * Perform a downwards type projection as per JLS 4.10.5
  * @param scope Relevant scope for evaluating type projection
  * @param mentionedTypeVariables Filter for mentioned type variabled
- * @returns Downwards type projection of 'this', or null if downwards projection is undefined 
+ * @returns Downwards type projection of 'this', or null if downwards projection is undefined
 */
 public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 	return this;
@@ -485,11 +485,11 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
  * Returns the type to use for generic cast, or null if none required
  */
 public TypeBinding genericCast(TypeBinding targetType) {
-	if (TypeBinding.equalsEquals(this, targetType)) 
+	if (TypeBinding.equalsEquals(this, targetType))
 		return null;
 	TypeBinding targetErasure = targetType.erasure();
 	// type var get replaced by upper bound
-	if (erasure().findSuperTypeOriginatingFrom(targetErasure) != null) 
+	if (erasure().findSuperTypeOriginatingFrom(targetErasure) != null)
 		return null;
 	return targetErasure;
 }
@@ -605,7 +605,7 @@ public final boolean isPrimitiveOrBoxedPrimitiveType() {
 		case TypeIds.T_JavaLangInteger :
 		case TypeIds.T_JavaLangLong :
 			return true;
-		default: 
+		default:
 			return false;
 	}
 }
@@ -623,7 +623,7 @@ public boolean isBoxedPrimitiveType() {
 		case TypeIds.T_JavaLangInteger :
 		case TypeIds.T_JavaLangLong :
 			return true;
-		default: 
+		default:
 			return false;
 	}
 }
@@ -665,16 +665,16 @@ public boolean isPotentiallyCompatibleWith(TypeBinding right, /*@Nullable*/ Scop
 /* Answer true if the receiver type can be assigned to the argument type (right) with boxing/unboxing applied.
  */
 public boolean isBoxingCompatibleWith(TypeBinding right, /*@NonNull */ Scope scope) {
-	
+
 	if (right == null)
 		return false;
 
 	if (TypeBinding.equalsEquals(this, right))
 		return true;
-	
+
 	if (this.isCompatibleWith(right, scope))
 		return true;
-	
+
 	if (this.isBaseType() != right.isBaseType()) {
 		TypeBinding convertedType = scope.environment().computeBoxingType(this);
 		if (TypeBinding.equalsEquals(convertedType, right) || convertedType.isCompatibleWith(right, scope))
@@ -758,7 +758,7 @@ public final boolean isNumericType() {
 
 /**
  * Returns true if the type is parameterized, e.g. List<String>.
- * Note that some instances of ParameterizedTypeBinding have no arguments, like for non-generic members 
+ * Note that some instances of ParameterizedTypeBinding have no arguments, like for non-generic members
  * of a parameterized type. Use {@link #isParameterizedTypeWithActualArguments()} instead to find out.
  */
 public boolean isParameterizedType() {
@@ -791,7 +791,7 @@ public boolean isIntersectionType18() {
  * i.e. {@link #isParameterizedType()} is not equivalent to testing <code>type.kind() == Binding.PARAMETERIZED_TYPE</code>
  */
 public final boolean isParameterizedTypeWithActualArguments() {
-	return (kind() == Binding.PARAMETERIZED_TYPE) 
+	return (kind() == Binding.PARAMETERIZED_TYPE)
 					&& ((ParameterizedTypeBinding) this).arguments != null;
 }
 
@@ -874,15 +874,15 @@ private boolean isProvableDistinctSubType(TypeBinding otherType) {
 public boolean isProvablyDistinct(TypeBinding otherType) {
 
 	/* With the hybrid 1.4/1.5+ projects modes, while establishing type equivalence, we need to
-	   be prepared for a type such as Map appearing in one of three forms: As (a) a ParameterizedTypeBinding 
-	   e.g Map<String, String>, (b) as RawTypeBinding Map#RAW and finally (c) as a BinaryTypeBinding 
+	   be prepared for a type such as Map appearing in one of three forms: As (a) a ParameterizedTypeBinding
+	   e.g Map<String, String>, (b) as RawTypeBinding Map#RAW and finally (c) as a BinaryTypeBinding
 	   When the usage of a type lacks type parameters, whether we land up with the raw form or not depends
 	   on whether the underlying type was "seen to be" a generic type in the particular build environment or
 	   not. See:
 	    https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565
-        https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827 
+        https://bugs.eclipse.org/bugs/show_bug.cgi?id=328827
         https://bugs.eclipse.org/bugs/show_bug.cgi?id=329588
-	 */ 
+	 */
 
 	if (equalsEquals(this, otherType))
 	    return false;
@@ -1228,7 +1228,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				if (cb18.firstBound != null) {
 					if (cb18.lowerBound != null)
 						return false; // type containment is not defined for variables with both upper and lower bound
-					TypeBinding[] otherBounds = null; 
+					TypeBinding[] otherBounds = null;
 					int len = cb18.upperBounds.length; // by construction non-null if firstBound is set
 					if (len > 1)
 						System.arraycopy(cb18.upperBounds, 1, otherBounds = new TypeBinding[len-1], 0, len-1);
@@ -1514,7 +1514,7 @@ public TypeBinding original() {
 	}
 }
 
-/** 
+/**
  * Return this type minus its type annotations
  */
 public TypeBinding unannotated() {
@@ -1523,7 +1523,7 @@ public TypeBinding unannotated() {
 
 /**
  * Return this type minus its toplevel null annotations. Any annotations on type arguments or
- * bounds are retained. 
+ * bounds are retained.
  */
 public TypeBinding withoutToplevelNullAnnotation() {
 	return this;
@@ -1615,8 +1615,8 @@ public TypeVariableBinding[] typeVariables() {
  * In particular {@code null} is answered if the receiver is not a reference type, or is a problem type.
  * @param scope scope
  * @param replaceWildcards Should wildcards be replaced following JLS 9.8? Say false for lambdas with explicit argument types which should apply 18.5.3
- *  
- * @return The single abstract method of a functional interface, or one of {@code null} or {@link ReferenceBinding#samProblemBinding}, if the receiver is not a functional interface. 
+ *
+ * @return The single abstract method of a functional interface, or one of {@code null} or {@link ReferenceBinding#samProblemBinding}, if the receiver is not a functional interface.
  */
 public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
 	return null;

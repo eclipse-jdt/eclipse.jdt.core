@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +32,7 @@ public class Java8FilerTests extends TestCase {
 
 	/**
 	 * Validate the testElement test against the javac compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testFilerWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -45,7 +45,7 @@ public class Java8FilerTests extends TestCase {
 
 	/**
 	 * Attempt to read various elements of the Element hierarchy.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testFilerWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();

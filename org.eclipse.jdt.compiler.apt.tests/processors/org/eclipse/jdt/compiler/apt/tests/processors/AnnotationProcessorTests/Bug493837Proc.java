@@ -18,7 +18,7 @@ public class Bug493837Proc extends BaseProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if(roundEnv.processingOver()) return false;
-		
+
 		for(TypeElement ann: annotations) {
 			for(Element type: roundEnv.getElementsAnnotatedWith(ann)) {
 				Bug493837Anno anno = type.getAnnotation(Bug493837Anno.class);
@@ -29,7 +29,7 @@ public class Bug493837Proc extends BaseProcessor {
 				}
 			}
 		}
-		
+
 		return false;
 	}
 

@@ -1,5 +1,5 @@
-package question;  
+package question;
 
-   public @interface RTInvisibleAnno{  
-   	String value(); 
+   public @interface RTInvisibleAnno{
+   	String value();
    }

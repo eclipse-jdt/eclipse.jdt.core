@@ -44,7 +44,7 @@ public class SearchKeyTests extends BaseTestCase {
 
 		private final long address;
 		private Nd nd;
-		
+
 		public TestSearchIndex(Nd dom, long address) {
 			this.address = address;
 			this.nd = dom;
@@ -64,7 +64,7 @@ public class SearchKeyTests extends BaseTestCase {
 					FieldSearchIndex.SearchCriteria.create(searchString.toCharArray()));
 		}
 	}
-	
+
 	public static class Element extends NdNode {
 		public static final FieldSearchKey<TestSearchIndex> NAME;
 		public static final FieldSearchKey<TestSearchIndex> NICKNAME;
@@ -113,7 +113,7 @@ public class SearchKeyTests extends BaseTestCase {
 
 		this.elementA = new Element(this.nd);
 		this.elementB = new Element(this.nd);
-		
+
 		this.index = TestSearchIndex.getIndex(this.nd);
 	}
 

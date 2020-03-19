@@ -51,7 +51,7 @@ public class EclipseBatchRequestor implements ICompilerRequestor {
 		this.compiler.logger.startLoggingSource(compilationResult);
 		if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
 			this.compiler.logger.logProblems(
-											compilationResult.getAllProblems(),					
+											compilationResult.getAllProblems(),
 											compilationResult.compilationUnit.getContents(),
 											this.compiler);
 			reportProblems(compilationResult);

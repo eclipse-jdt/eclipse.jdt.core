@@ -68,13 +68,13 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 
 	/**
 	 * Creates a new hierarchy scope for the given type with the given configuration options.
-	 * @param project      constrain the search result to this project, 
-	 *                     or <code>null</code> if search should consider all types in the workspace 
+	 * @param project      constrain the search result to this project,
+	 *                     or <code>null</code> if search should consider all types in the workspace
 	 * @param type         the focus type of the hierarchy
-	 * @param owner 	   the owner of working copies that take precedence over original compilation units, 
+	 * @param owner 	   the owner of working copies that take precedence over original compilation units,
 	 *                     or <code>null</code> if the primary working copy owner should be used
 	 * @param onlySubtypes if true search only subtypes of 'type'
-	 * @param noMembersOrEnclosingTypes if true the hierarchy is strict, 
+	 * @param noMembersOrEnclosingTypes if true the hierarchy is strict,
 	 * 					   i.e., no additional member types or enclosing types of types spanning the hierarchy are included,
 	 * 					   otherwise all member and enclosing types of types in the hierarchy are included.
 	 * @param includeFocusType if true the focus type <code>type</code> is included in the resulting scope, otherwise it is excluded
@@ -326,15 +326,15 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		}
 		return false;
 	}
-	/** 
+	/**
 	 * Optionally perform additional checks after element has already passed matching based on index/documents.
-	 * 
+	 *
 	 * @param element the given element
-	 * @return <code>true</code> if the element is enclosed or if no fine grained checking 
+	 * @return <code>true</code> if the element is enclosed or if no fine grained checking
 	 *         (regarding subtypes and members) is requested
 	 */
 	public boolean enclosesFineGrained(IJavaElement element) {
-		if ((this.subTypes == null) && this.allowMemberAndEnclosingTypes) 
+		if ((this.subTypes == null) && this.allowMemberAndEnclosingTypes)
 			return true; // no fine grained checking requested
 		return encloses(element, null);
 	}

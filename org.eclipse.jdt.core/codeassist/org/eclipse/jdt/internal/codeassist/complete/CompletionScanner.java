@@ -758,7 +758,7 @@ protected int getNextToken0() throws InvalidInputException {
 												pushLineSeparator();
 											}
 										}
-									}									
+									}
 									switch (this.currentCharacter) {
 										case '*':
 											star = true;

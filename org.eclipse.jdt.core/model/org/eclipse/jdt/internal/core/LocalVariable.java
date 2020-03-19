@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public static final ILocalVariable[] NO_LOCAL_VARIABLES = new ILocalVariable[0];
-	
+
 	String name;
 	public int declarationSourceStart, declarationSourceEnd;
 	public int nameStart, nameEnd;
@@ -86,7 +86,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 			int flags,
 			boolean isParameter,
 		org.eclipse.jdt.internal.compiler.ast.Annotation[][] astAnnotationsOnDimensions) {
-		
+
 		this(parent, name, declarationSourceStart, declarationSourceEnd, nameStart,
 				nameEnd, typeSignature, astAnnotations, flags, isParameter);
 
@@ -281,9 +281,9 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	protected void getHandleMemento(StringBuffer buff) {
 		getHandleMemento(buff, true);
 	}
-	
+
 	protected void getHandleMemento(StringBuffer buff, boolean memoizeParent) {
-		if (memoizeParent) 
+		if (memoizeParent)
 			((JavaElement)getParent()).getHandleMemento(buff);
 		buff.append(getHandleMementoDelimiter());
 		buff.append(this.name);
@@ -316,7 +316,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public IResource getCorrespondingResource() {
 		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @since 3.7
@@ -477,7 +477,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	public int hashCode() {
 		return Util.combineHashCodes(this.parent.hashCode(), this.nameStart);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * @since 3.7

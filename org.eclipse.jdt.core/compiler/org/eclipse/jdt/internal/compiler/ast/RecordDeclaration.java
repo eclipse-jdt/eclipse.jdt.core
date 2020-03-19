@@ -107,7 +107,7 @@ public class RecordDeclaration extends TypeDeclaration {
 			}
 		}
 		/* At this point we can only say that there is high possibility that there is a constructor
-		 * If it is a CCD, then definitely it is there (except for empty one); else we need to check 
+		 * If it is a CCD, then definitely it is there (except for empty one); else we need to check
 		 * the bindings to say that there is a canonical constructor. To take care at binding resolution time.
 		 */
 		return null;

@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 /**
  * TextBolck  AST node type.
  *
- * These are block of String literal nodes. 
+ * These are block of String literal nodes.
  *
  * @since 3.20
  * @noinstantiate This class is not intended to be instantiated by clients.
@@ -116,7 +116,7 @@ public class TextBlock extends Expression {
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
-	
+
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
 		return propertyDescriptors(apiLevel, previewEnabled);
@@ -246,7 +246,7 @@ public class TextBlock extends Expression {
 		if (len < 7) {
 			throw new IllegalArgumentException();
 		}
-		
+
 		int start = -1;
 		loop: for (int i = 3; i < len; i++) {
 			char c = escaped[i];

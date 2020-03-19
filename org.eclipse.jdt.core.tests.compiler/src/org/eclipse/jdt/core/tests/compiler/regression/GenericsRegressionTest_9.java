@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -95,16 +95,16 @@ public void testBug488663_002() {
 			"	}\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Y<String> y = new Y<>() {\n" + 
-		"	                  ^^^^^\n" + 
-		"The type new Y<String>(){} must implement the inherited abstract method Y<String>.foo(String)\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	public void foo(T t) {\n" + 
-		"	                ^\n" + 
-		"T cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	Y<String> y = new Y<>() {\n" +
+		"	                  ^^^^^\n" +
+		"The type new Y<String>(){} must implement the inherited abstract method Y<String>.foo(String)\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	public void foo(T t) {\n" +
+		"	                ^\n" +
+		"T cannot be resolved to a type\n" +
 		"----------\n");
 }
 
@@ -163,12 +163,12 @@ public void testBug488663_005() {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	Y<?> y = new Y<>() {};\n" + 
-			"	             ^\n" + 
-			"Type Y<I & J> inferred for Y<>, is not valid for an anonymous class with '<>'\n" + 
+			"1. ERROR in X.java (at line 7)\n" +
+			"	Y<?> y = new Y<>() {};\n" +
+			"	             ^\n" +
+			"Type Y<I & J> inferred for Y<>, is not valid for an anonymous class with '<>'\n" +
 			"----------\n");
-	
+
 }
 
 //compiler error for non-denotable anonymous type with diamond operator - negative test
@@ -188,38 +188,38 @@ public void testBug488663_006() {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	Y<?> f = new Y<>(fi){};\n" + 
-			"	             ^\n" + 
-			"Type Y<Y<capture#1-of ? extends Integer>> inferred for Y<>, is not valid for an anonymous class with '<>'\n" + 
+			"1. ERROR in X.java (at line 8)\n" +
+			"	Y<?> f = new Y<>(fi){};\n" +
+			"	             ^\n" +
+			"Type Y<Y<capture#1-of ? extends Integer>> inferred for Y<>, is not valid for an anonymous class with '<>'\n" +
 			"----------\n");
-	
+
 }
-// instantiate an interface using the anonymous diamond 
+// instantiate an interface using the anonymous diamond
 public void testBug488663_007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X(\"Success\");\n" + 
-			"		I<X> i = new I<>() {\n" + 
-			"			public String toString(X x1) {\n" + 
-			"				return x1.name();\n" + 
-			"			}\n" + 
-			"		};\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X(\"Success\");\n" +
+			"		I<X> i = new I<>() {\n" +
+			"			public String toString(X x1) {\n" +
+			"				return x1.name();\n" +
+			"			}\n" +
+			"		};\n" +
 			"		System.out.println(i.toString(x));\n" +
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String toString(T t);\n" + 
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String toString(T t);\n" +
 			"}"
 		},
 		"Success");
@@ -229,28 +229,28 @@ public void testBug488663_008() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	<T> void print(T o, I<T> converter) {\n" + 
-			"		System.out.println(converter.toString(o));\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X(\"Success\");\n" + 
-			"		x.print(x, new I<>() {\n" + 
-			"			public String toString(X x1) {\n" + 
-			"				return x1.name();\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String toString(T t);\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	<T> void print(T o, I<T> converter) {\n" +
+			"		System.out.println(converter.toString(o));\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X(\"Success\");\n" +
+			"		x.print(x, new I<>() {\n" +
+			"			public String toString(X x1) {\n" +
+			"				return x1.name();\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String toString(T t);\n" +
 			"}"
 		},
 		"Success");
@@ -260,29 +260,29 @@ public void testBug488663_009() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	<T> void print(T o, I<T> converter) {\n" + 
-			"		System.out.println(converter.toString(o));\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X(\"Success\");\n" + 
-			"		x.print(x, new Z<>() {\n" + 
-			"			public String toString(X x1) {\n" + 
-			"				return x1.name();\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String toString(T t);\n" + 
-			"}\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	<T> void print(T o, I<T> converter) {\n" +
+			"		System.out.println(converter.toString(o));\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X(\"Success\");\n" +
+			"		x.print(x, new Z<>() {\n" +
+			"			public String toString(X x1) {\n" +
+			"				return x1.name();\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String toString(T t);\n" +
+			"}\n" +
 			"abstract class Z<T> implements I<T> {}\n"
 		},
 		"Success");
@@ -292,23 +292,23 @@ public void testBug488663_010() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Y<String> y = new Y<>(() -> System.out.println(\"Done\")) {\n" + 
-			"		};\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface J {\n" + 
-			"	void doSomething();\n" + 
-			"}\n" + 
-			"class Y<T> {\n" + 
-			"	public Y(J j) {\n" + 
-			"		j.doSomething();\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Y<String> y = new Y<>(() -> System.out.println(\"Done\")) {\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void doSomething();\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"	public Y(J j) {\n" +
+			"		j.doSomething();\n" +
+			"	}\n" +
 			"}",
 		},
 		"Done");
@@ -318,25 +318,25 @@ public void testBug488663_011() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Y<String> y = new Y<>(Y::foo) {\n" + 
-			"		};\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface J {\n" + 
-			"	void doSomething();\n" + 
-			"}\n" + 
-			"class Y<T> {\n" + 
-			"	public Y(J j) {\n" + 
-			"		j.doSomething();\n" + 
-			"	}\n" + 
-			"	static void foo() {\n" + 
-			"		System.out.println(\"Done\");\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Y<String> y = new Y<>(Y::foo) {\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"interface J {\n" +
+			"	void doSomething();\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"	public Y(J j) {\n" +
+			"		j.doSomething();\n" +
+			"	}\n" +
+			"	static void foo() {\n" +
+			"		System.out.println(\"Done\");\n" +
 			"	}\n" +
 			"}",
 		},
@@ -347,30 +347,30 @@ public void testBug488663_012() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Y<String> y = new Y<>(\"Done\", new I<>() {\n" + 
-			"				public void doSomething(String s) {\n" + 
-			"					System.out.println(s);\n" + 
-			"				}\n" + 
-			"			}){\n" + 
-			"		};\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	void doSomething(T t);\n" + 
-			"}\n" + 
-			"class Y<T> {\n" + 
-			"	public Y(T t, I<T> i) {\n" + 
-			"		i.doSomething(t);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Y<String> y = new Y<>(\"Done\", new I<>() {\n" +
+			"				public void doSomething(String s) {\n" +
+			"					System.out.println(s);\n" +
+			"				}\n" +
+			"			}){\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	void doSomething(T t);\n" +
+			"}\n" +
+			"class Y<T> {\n" +
+			"	public Y(T t, I<T> i) {\n" +
+			"		i.doSomething(t);\n" +
+			"	}\n" +
 			"}",
 		},
 		"Done");
@@ -382,34 +382,34 @@ public void testBug488663_013() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X(\"Success\");\n" + 
-			"		I<X> i = new I<X>() {\n" + 
-			"			public String toString(X x1) {\n" + 
-			"				return x1.name();\n" + 
-			"			}\n" + 
-			"		};\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X(\"Success\");\n" +
+			"		I<X> i = new I<X>() {\n" +
+			"			public String toString(X x1) {\n" +
+			"				return x1.name();\n" +
+			"			}\n" +
+			"		};\n" +
 			"		System.out.println(i.toString(x));\n" +
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String toString(T t);\n" + 
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String toString(T t);\n" +
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" + 
-		"	I<X> i = new I<X>() {\n" + 
-		"	             ^\n" + 
-		"Redundant specification of type arguments <X>\n" + 
-		"----------\n", 
+		"1. ERROR in X.java (at line 11)\n" +
+		"	I<X> i = new I<X>() {\n" +
+		"	             ^\n" +
+		"Redundant specification of type arguments <X>\n" +
+		"----------\n",
 		null, true, options);
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
@@ -417,40 +417,40 @@ public void testBug488663_014() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	<T> void print(T o, I<T> converter) {\n" + 
-			"		System.out.println(converter.toString(o));\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X(\"asdasfd\");\n" + 
-			"		x.print(x, new Z<>() {\n" + 
-			"			public String toString(String s) {\n" + 
-			"				return s;\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	<T> void print(T o, I<T> converter) {\n" +
+			"		System.out.println(converter.toString(o));\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X(\"asdasfd\");\n" +
+			"		x.print(x, new Z<>() {\n" +
+			"			public String toString(String s) {\n" +
+			"				return s;\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
 			"	String toString(T t);\n" +
-			"}\n" + 
+			"}\n" +
 			"class Z<T> implements I<T> {\n" +
-			"	public String toString(T t) {\n" + 
-			"		return \"\";\n" + 
-			"	}\n" + 
+			"	public String toString(T t) {\n" +
+			"		return \"\";\n" +
+			"	}\n" +
 			"}",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	public String toString(String s) {\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^\n" + 
-		"The method toString(String) of type new Z<X>(){} must override or implement a supertype method\n" + 
+		"1. ERROR in X.java (at line 15)\n" +
+		"	public String toString(String s) {\n" +
+		"	              ^^^^^^^^^^^^^^^^^^\n" +
+		"The method toString(String) of type new Z<X>(){} must override or implement a supertype method\n" +
 		"----------\n");
 }
 // Inaccessible type inferred for anonymous diamond is an error
@@ -458,40 +458,40 @@ public void testBug488663_015() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
-			"public class Test<T> {\n" + 
+			"public class Test<T> {\n" +
 			"	private static class Inner {" +
-			"		public Inner(){}\n" +	
-			"	}\n" + 
-			"	<R> void print(I<R> i) {}\n" + 
-			"	public Inner get() {\n" + 
-			"		return new Inner();\n" + 
-			"	}\n" + 
+			"		public Inner(){}\n" +
+			"	}\n" +
+			"	<R> void print(I<R> i) {}\n" +
+			"	public Inner get() {\n" +
+			"		return new Inner();\n" +
+			"	}\n" +
 			"}\n",
 			"Z.java",
-			"class Z<T> implements I<T> {\n" + 
-			"	public Z(T t1) {}\n" + 
-			"	public String toString (T t) {\n" + 
-			"		return t.toString();\n" + 
-			"	}\n" + 
+			"class Z<T> implements I<T> {\n" +
+			"	public Z(T t1) {}\n" +
+			"	public String toString (T t) {\n" +
+			"		return t.toString();\n" +
+			"	}\n" +
 			"}",
 			"X.java",
-			"public class X {\n" +  
-			"	public static void main(String[] args) {\n" + 
-			"		Test<String> t = new Test<>();\n" + 
-			"		t.print(new Z<>(t.get()) {\n" + 
-			"			\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String toString();\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Test<String> t = new Test<>();\n" +
+			"		t.print(new Z<>(t.get()) {\n" +
+			"			\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String toString();\n" +
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	t.print(new Z<>(t.get()) {\n" + 
-		"	            ^^^^^^^^^^^^\n" + 
-		"The type Test$Inner is not visible\n" + 
+		"1. ERROR in X.java (at line 4)\n" +
+		"	t.print(new Z<>(t.get()) {\n" +
+		"	            ^^^^^^^^^^^^\n" +
+		"The type Test$Inner is not visible\n" +
 		"----------\n");
 }
 // Inaccessible type inferred for anonymous diamond is an error - interface case
@@ -499,35 +499,35 @@ public void testBug488663_016() {
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
-			"public class Test<T> {\n" + 
+			"public class Test<T> {\n" +
 			"	private static class Inner {" +
-			"		public Inner(){}\n" +	
-			"	}\n" + 
-			"	<R extends Inner> void print(I<R> i) {}\n" + 
-			"	public Inner get() {\n" + 
-			"		return new Inner();\n" + 
-			"	}\n" + 
+			"		public Inner(){}\n" +
+			"	}\n" +
+			"	<R extends Inner> void print(I<R> i) {}\n" +
+			"	public Inner get() {\n" +
+			"		return new Inner();\n" +
+			"	}\n" +
 			"}\n",
 			"X.java",
-			"public class X {\n" +  
-			"	public static void main(String[] args) {\n" + 
-			"		Test<String> t = new Test<>();\n" + 
-			"		t.print(new I<>() {\n" + 
-			"			public String toString() {\n" + 
-			"				return \"\";\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
-			"	String toString();\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Test<String> t = new Test<>();\n" +
+			"		t.print(new I<>() {\n" +
+			"			public String toString() {\n" +
+			"				return \"\";\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
+			"	String toString();\n" +
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	t.print(new I<>() {\n" + 
-		"	            ^^^^^\n" + 
-		"The type Test$Inner is not visible\n" + 
+		"1. ERROR in X.java (at line 4)\n" +
+		"	t.print(new I<>() {\n" +
+		"	            ^^^^^\n" +
+		"The type Test$Inner is not visible\n" +
 		"----------\n");
 }
 // All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
@@ -535,38 +535,38 @@ public void testBug517926() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	String name;\n" + 
-			"	public X(String name) {\n" + 
-			"		this.name = name;\n" + 
-			"	}\n" + 
-			"	<T> void print(T o, I<T> converter) {\n" + 
-			"		System.out.println(converter.toString(o));\n" + 
-			"	}\n" + 
-			"	String name() {\n" + 
-			"		return this.name;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X(\"asdasfd\");\n" + 
-			"		x.print(x, new I<>() {\n" + 
+			"public class X {\n" +
+			"	String name;\n" +
+			"	public X(String name) {\n" +
+			"		this.name = name;\n" +
+			"	}\n" +
+			"	<T> void print(T o, I<T> converter) {\n" +
+			"		System.out.println(converter.toString(o));\n" +
+			"	}\n" +
+			"	String name() {\n" +
+			"		return this.name;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X(\"asdasfd\");\n" +
+			"		x.print(x, new I<>() {\n" +
 			"			public String name() {return null;}\n" +
-			"			public String toString(X xx) {\n" + 
-			"				return xx.toString();\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"	}\n" + 
-			"}\n" + 
-			"interface I<T> {\n" + 
+			"			public String toString(X xx) {\n" +
+			"				return xx.toString();\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n" +
+			"interface I<T> {\n" +
 			"private String name() {return null;}" +
 			"	String toString(T t);\n" +
 			"default String getName() {return name();}" +
 			"}",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" + 
-		"	public String name() {return null;}\n" + 
-		"	              ^^^^^^\n" + 
-		"The method name() of type new I<X>(){} must override or implement a supertype method\n" + 
+		"1. ERROR in X.java (at line 15)\n" +
+		"	public String name() {return null;}\n" +
+		"	              ^^^^^^\n" +
+		"The method name() of type new I<X>(){} must override or implement a supertype method\n" +
 		"----------\n");
 }
 public void testBug521815a() {
@@ -588,11 +588,11 @@ public void testBug521815a() {
 					"	Inner t;\n" +
 					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in a\\Y.java (at line 4)\n" + 
-			"	Inner t;\n" + 
-			"	^^^^^\n" + 
-			"The type Inner is ambiguous\n" + 
+			"----------\n" +
+			"1. ERROR in a\\Y.java (at line 4)\n" +
+			"	Inner t;\n" +
+			"	^^^^^\n" +
+			"The type Inner is ambiguous\n" +
 			"----------\n");
 }
 public void testBug521815b() {
@@ -616,56 +616,56 @@ public void testBug521815b() {
 					"public class Y {;\n" +
 					"}\n"
 			},
-			"----------\n" + 
-			"1. WARNING in a\\Y.java (at line 2)\n" + 
-			"	import static a.b.X.Inner;\n" + 
-			"	              ^^^^^^^^^^^\n" + 
-			"The import a.b.X.Inner is never used\n" + 
+			"----------\n" +
+			"1. WARNING in a\\Y.java (at line 2)\n" +
+			"	import static a.b.X.Inner;\n" +
+			"	              ^^^^^^^^^^^\n" +
+			"The import a.b.X.Inner is never used\n" +
 			"----------\n");
 }
 public void testBug533644() {
 	runConformTest(
 		new String[] {
 			"q/JobDetail.java",
-			"package q;\n" + 
-			"import java.io.Serializable;\n" + 
+			"package q;\n" +
+			"import java.io.Serializable;\n" +
 			"public interface JobDetail extends Serializable, Cloneable { }\n",
 			"q/Scheduler.java",
-			"package q;\n" + 
-			"import java.util.Map;\n" + 
-			"import java.util.Set;\n" + 
-			"public interface Scheduler {\n" + 
-			"    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException;\n" + 
+			"package q;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.Set;\n" +
+			"public interface Scheduler {\n" +
+			"    void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace) throws SchedulerException;\n" +
 			"}\n",
 			"q/SchedulerException.java",
-			"package q;\n" + 
-			"public class SchedulerException extends Exception {\n" + 
-			"    private static final long serialVersionUID = 174841398690789156L;\n" + 
+			"package q;\n" +
+			"public class SchedulerException extends Exception {\n" +
+			"    private static final long serialVersionUID = 174841398690789156L;\n" +
 			"}\n",
 			"q/Trigger.java",
-			"package q;\n" + 
-			"import java.io.Serializable;\n" + 
-			"public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {\n" + 
-			"    public static final long serialVersionUID = -3904243490805975570L;\n" + 
+			"package q;\n" +
+			"import java.io.Serializable;\n" +
+			"public interface Trigger extends Serializable, Cloneable, Comparable<Trigger> {\n" +
+			"    public static final long serialVersionUID = -3904243490805975570L;\n" +
 			"}\n"
 		});
 	Runner runner = new Runner();
 	runner.shouldFlushOutputDirectory = false;
 	runner.testFiles = new String[] {
 			"ForwardingScheduler.java",
-			"import java.util.Map;\n" + 
-			"import java.util.Set;\n" + 
-			"\n" + 
-			"import q.JobDetail;\n" + 
-			"import q.Scheduler;\n" + 
-			"import q.SchedulerException;\n" + 
-			"import q.Trigger;\n" + 
-			"\n" + 
-			"public class ForwardingScheduler implements Scheduler {\n" + 
-			"  @Override\n" + 
-			"  public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)\n" + 
-			"      throws SchedulerException {\n" + 
-			"  }\n" + 
+			"import java.util.Map;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"import q.JobDetail;\n" +
+			"import q.Scheduler;\n" +
+			"import q.SchedulerException;\n" +
+			"import q.Trigger;\n" +
+			"\n" +
+			"public class ForwardingScheduler implements Scheduler {\n" +
+			"  @Override\n" +
+			"  public void scheduleJobs(Map<JobDetail, Set<? extends Trigger>> triggersAndJobs, boolean replace)\n" +
+			"      throws SchedulerException {\n" +
+			"  }\n" +
 			"}\n"
 	};
 	runner.runConformTest();

@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 public class SplitPackageBinding extends PackageBinding {
 	Set<ModuleBinding> declaringModules;
 	public Set<PlainPackageBinding> incarnations;
-	
+
 	/**
 	 * Combine two potential package bindings, answering either the better of those if the other has a problem,
 	 * or combine both into a split package.
@@ -119,7 +119,7 @@ public class SplitPackageBinding extends PackageBinding {
 		}
 		return childPackage;
 	}
-	
+
 	@Override
 	ModuleBinding[] getDeclaringModules() {
 		return this.declaringModules.toArray(new ModuleBinding[this.declaringModules.size()]);
@@ -135,12 +135,12 @@ public class SplitPackageBinding extends PackageBinding {
 		for (PackageBinding incarnation : this.incarnations) {
 			PackageBinding package0 = incarnation.getPackage0(name);
 			if (package0 == null)
-				return null; // if any incarnation lacks cached info, a full findPackage will be necessary 
+				return null; // if any incarnation lacks cached info, a full findPackage will be necessary
 			candidate = combine(package0, candidate, this.enclosingModule);
 		}
 		if (candidate != null)
 			this.knownPackages.put(name, candidate);
-		
+
 		return candidate;
 	}
 

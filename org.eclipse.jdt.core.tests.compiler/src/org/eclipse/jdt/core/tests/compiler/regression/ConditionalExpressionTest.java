@@ -78,7 +78,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			""
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=426078, Bug 426078 - [1.8] VerifyError when conditional expression passed as an argument
 	public void test003() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5)
@@ -101,7 +101,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			"true"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423685, - [1.8] poly conditional expression must not use lub
 	public void test004() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5)
@@ -123,11 +123,11 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n",
 					},
-					"----------\n" + 
-					"1. ERROR in X.java (at line 6)\n" + 
-					"	G<? super B> l = (true)? gsa : gb;\n" + 
-					"	                 ^^^^^^^^^^^^^^^^\n" + 
-					"Type mismatch: cannot convert from G<capture#2-of ? extends Object> to G<? super B>\n" + 
+					"----------\n" +
+					"1. ERROR in X.java (at line 6)\n" +
+					"	G<? super B> l = (true)? gsa : gb;\n" +
+					"	                 ^^^^^^^^^^^^^^^^\n" +
+					"Type mismatch: cannot convert from G<capture#2-of ? extends Object> to G<? super B>\n" +
 					"----------\n"
 				);
 		} else {
@@ -151,7 +151,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 					);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425181, - Cast expression in ternary operation reported as incompatible
 	public void test005() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5)
@@ -169,26 +169,26 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"interface I<T> {}\n" +
 						"interface J<T> extends I<T> {}\n",
 					},
-					"----------\n" + 
-					"1. WARNING in X.java (at line 3)\n" + 
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
-					"	          ^\n" + 
-					"J is a raw type. References to generic type J<T> should be parameterized\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 3)\n" + 
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
-					"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Type mismatch: cannot convert from I<capture#1-of ? extends I> to I<? super J>\n" + 
-					"----------\n" + 
-					"3. WARNING in X.java (at line 3)\n" + 
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
-					"	                           ^\n" + 
-					"I is a raw type. References to generic type I<T> should be parameterized\n" + 
-					"----------\n" + 
-					"4. WARNING in X.java (at line 3)\n" + 
-					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" + 
-					"	                                         ^\n" + 
-					"J is a raw type. References to generic type J<T> should be parameterized\n" + 
+					"----------\n" +
+					"1. WARNING in X.java (at line 3)\n" +
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
+					"	          ^\n" +
+					"J is a raw type. References to generic type J<T> should be parameterized\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
+					"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Type mismatch: cannot convert from I<capture#1-of ? extends I> to I<? super J>\n" +
+					"----------\n" +
+					"3. WARNING in X.java (at line 3)\n" +
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
+					"	                           ^\n" +
+					"I is a raw type. References to generic type I<T> should be parameterized\n" +
+					"----------\n" +
+					"4. WARNING in X.java (at line 3)\n" +
+					"	I<? super J> i = true ? (I<I>) null : (I<J>) null; // Type mismatch reported\n" +
+					"	                                         ^\n" +
+					"J is a raw type. References to generic type J<T> should be parameterized\n" +
 					"----------\n"
 				);
 		} else {
@@ -251,16 +251,16 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"    }\n" +
 						"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 9)\n" + 
-				"	foo(false ? (a,b)->a+b :new StringCatenation());\n" + 
-				"	^^^\n" + 
-				"The method foo(BinaryOperation<Integer>) in the type X is not applicable for the arguments ((false ? (<no type> a, <no type> b) -> (a + b) : new StringCatenation()))\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 9)\n" + 
-				"	foo(false ? (a,b)->a+b :new StringCatenation());\n" + 
-				"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	foo(false ? (a,b)->a+b :new StringCatenation());\n" +
+				"	^^^\n" +
+				"The method foo(BinaryOperation<Integer>) in the type X is not applicable for the arguments ((false ? (<no type> a, <no type> b) -> (a + b) : new StringCatenation()))\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	foo(false ? (a,b)->a+b :new StringCatenation());\n" +
+				"	                        ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" +
 				"----------\n"
 				);
 	}
@@ -286,21 +286,21 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"    }\n" +
 						"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 9)\n" + 
-				"	foo(false ? new StringCatenation() : (a,b)->a+b);\n" + 
-				"	^^^\n" + 
-				"The method foo(BinaryOperation<Integer>) in the type X is not applicable for the arguments ((false ? new StringCatenation() : (<no type> a, <no type> b) -> (a + b)))\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 9)\n" + 
-				"	foo(false ? new StringCatenation() : (a,b)->a+b);\n" + 
-				"	            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	foo(false ? new StringCatenation() : (a,b)->a+b);\n" +
+				"	^^^\n" +
+				"The method foo(BinaryOperation<Integer>) in the type X is not applicable for the arguments ((false ? new StringCatenation() : (<no type> a, <no type> b) -> (a + b)))\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	foo(false ? new StringCatenation() : (a,b)->a+b);\n" +
+				"	            ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from StringCatenation to BinaryOperation<Integer>\n" +
 				"----------\n"
 				);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
-	// Reference poly conditional in assignment context 
+	// Reference poly conditional in assignment context
 	public void test009() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			return;
@@ -330,7 +330,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				"SomeInt instance");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
-	// Reference poly conditional in poly invocation context 
+	// Reference poly conditional in poly invocation context
 	public void test010() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			return;
@@ -486,11 +486,11 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"}\n",
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_5 ? "" :
-					"----------\n" + 
-					"1. WARNING in X.java (at line 2)\n" + 
-					"	public X(Class clazz) {\n" + 
-					"	         ^^^^^\n" + 
-					"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+					"----------\n" +
+					"1. WARNING in X.java (at line 2)\n" +
+					"	public X(Class clazz) {\n" +
+					"	         ^^^^^\n" +
+					"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427438, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
@@ -513,11 +513,11 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"}\n",
 				},
 				this.complianceLevel < ClassFileConstants.JDK1_5 ? "" :
-					"----------\n" + 
-					"1. WARNING in X.java (at line 2)\n" + 
-					"	public X(Class clazz) {\n" + 
-					"	         ^^^^^\n" + 
-					"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+					"----------\n" +
+					"1. WARNING in X.java (at line 2)\n" +
+					"	public X(Class clazz) {\n" +
+					"	         ^^^^^\n" +
+					"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 					"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=427625, - NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode
@@ -546,7 +546,7 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				},
 				"",
 				null, true, options);
-	}	
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432487,  NullPointerException during compilation using jdk1.8.0
 	public void testBug432487() {
 		this.runNegativeTest(
@@ -617,14 +617,14 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		this.runConformTest(
 				new String[] {
 						"Main.java",
-						"public class Main {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"		try {\n" + 
-						"			if ((false) ? true: null);\n" + 
-						"		} catch(NullPointerException npe) {\n" + 
-						"			System.out.println(\"Success\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
+						"public class Main {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		try {\n" +
+						"			if ((false) ? true: null);\n" +
+						"		} catch(NullPointerException npe) {\n" +
+						"			System.out.println(\"Success\");\n" +
+						"		}\n" +
+						"	}\n" +
 						"}\n"
 				},
 				"Success");

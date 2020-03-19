@@ -64,9 +64,9 @@ public class ClasspathValidation {
 		if (!status.isOK())
 			this.project.createClasspathProblemMarker(status);
 
-		// update overlapping output problem markers 
+		// update overlapping output problem markers
 		this.project.flushClasspathProblemMarkers(false/*cycle*/, false/*format*/, true/*overlapping*/);
-		
+
 		// update resolved classpath problems
 		this.project.flushClasspathProblemMarkers(false/*cycle*/, false/*format*/, false/*overlapping*/);
 

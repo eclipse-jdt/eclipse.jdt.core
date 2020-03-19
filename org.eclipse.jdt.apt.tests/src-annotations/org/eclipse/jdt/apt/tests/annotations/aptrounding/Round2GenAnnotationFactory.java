@@ -25,23 +25,23 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class Round2GenAnnotationFactory implements AnnotationProcessorFactory{
-	
+
 	public static final List<String> SUPPORTED_TYPES;
-	
+
 	static{
 		SUPPORTED_TYPES = new ArrayList<String>();
-		SUPPORTED_TYPES.add(GenBean2.class.getName());	
+		SUPPORTED_TYPES.add(GenBean2.class.getName());
 	}
-	
+
 	public AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> decls, AnnotationProcessorEnvironment env) {
 		return new Round2GenAnnotationProcessor(env);
 	}
-	
+
 	public Collection<String> supportedAnnotationTypes() {
 		return SUPPORTED_TYPES;
 	}
-	
-	public Collection<String> supportedOptions() {		
+
+	public Collection<String> supportedOptions() {
 		return Collections.emptyList();
 	}
 }

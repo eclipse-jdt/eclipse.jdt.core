@@ -36,14 +36,14 @@ import org.eclipse.jdt.core.JavaCore;
 			log("Error: " + msg, e); //$NON-NLS-1$
 		}
 	}
-	
+
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public static void log(String message, Throwable e) {
 		log(createStatus(message, e));
 	}
-	
+
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
@@ -60,7 +60,7 @@ import org.eclipse.jdt.core.JavaCore;
 
 	/**
 	 * @noreference This method is not intended to be referenced by clients.
-	 * 
+	 *
 	 * Returns the appropriate ILog for this package
 	 */
 	public static ILog getLog() {

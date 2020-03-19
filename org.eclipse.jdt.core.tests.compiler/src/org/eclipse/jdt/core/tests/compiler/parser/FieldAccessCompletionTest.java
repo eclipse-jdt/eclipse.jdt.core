@@ -1121,7 +1121,7 @@ public void testForStatementExpression() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    int i;\n" +
-		"    for (; <CompleteOnMemberAccess:fred().x>; ) \n" + 
+		"    for (; <CompleteOnMemberAccess:fred().x>; ) \n" +
 	    "      ;\n" +
 		"  }\n" +
 		"}\n",

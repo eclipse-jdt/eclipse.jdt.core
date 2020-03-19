@@ -50,7 +50,7 @@ public final class IndexExceptionBuilder {
 	/**
 	 * Adds an address range to this problem description, given a field that may be corrupt, the base
 	 * address for its struct, and a custom description for the field.
-	 * 
+	 *
 	 * @return this
 	 */
 	public IndexExceptionBuilder addProblemAddress(String description, IField field, long address) {
@@ -62,7 +62,7 @@ public final class IndexExceptionBuilder {
 	/**
 	 * Adds an address range to this problem description, given the field that may be corrupt
 	 * and the base address for its struct.
-	 * 
+	 *
 	 * @return this
 	 */
 	public IndexExceptionBuilder addProblemAddress(IField field, long address) {

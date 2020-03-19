@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     thanson@bea.com - initial API and implementation
  *******************************************************************************/
@@ -25,6 +25,6 @@ import com.sun.mirror.type.TypeMirror;
 public interface EclipseMirrorType extends EclipseMirrorObject, TypeMirror {
 	public boolean isAssignmentCompatible(EclipseMirrorType left);
 	public boolean isSubTypeCompatible(EclipseMirrorType type);
-	
+
 	public ITypeBinding getTypeBinding();
 }

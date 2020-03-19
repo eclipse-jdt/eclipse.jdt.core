@@ -33,7 +33,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  * A processor that tests the dispatch functionality in the presence of annotations that are
  * @Inherited.  To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.inherited.InheritedAnnoProc to the command line.
- * 
+ *
  * @since 3.3
  */
 @SupportedAnnotationTypes("*")
@@ -53,8 +53,8 @@ public class InheritedAnnoProc extends BaseProcessor
 	private Element _elementAfoo;
 	private Element _elementAinit; // c'tor with no param
 	private Element _elementAinitI; // c'tor with int param
-	private Element _elementAa; // method with c'tor-like name 
-	
+	private Element _elementAa; // method with c'tor-like name
+
 	private TypeElement _elementB;
 	private TypeElement _elementBChild;
 	private TypeElement _elementBNotAnnotated;
@@ -74,23 +74,23 @@ public class InheritedAnnoProc extends BaseProcessor
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		}
-		
+
 		if (!collectElements()) {
 			return false;
 		}
-		
+
 		if (!examineGetRootElements(roundEnv)) {
 			return false;
 		}
-		
+
 		if (!examineGetElementsAnnotatedWith(roundEnv)) {
 			return false;
 		}
-		
+
 		reportSuccess();
 		return false;
 	}
-	
+
 	private boolean collectElements() {
 		_inheritedAnno = _elementUtils.getTypeElement("org.eclipse.jdt.compiler.apt.tests.annotations.InheritedAnno");
 		_notInheritedAnno = _elementUtils.getTypeElement("NotInheritedAnno");
@@ -98,7 +98,7 @@ public class InheritedAnnoProc extends BaseProcessor
 			reportError("collectElements: Couldn't load annotation type");
 			return false;
 		}
-		
+
 		_elementA = _elementUtils.getTypeElement("InheritanceA");
 		for (Element e : _elementA.getEnclosedElements()) {
 			String name = e.getSimpleName().toString();
@@ -138,7 +138,7 @@ public class InheritedAnnoProc extends BaseProcessor
 			reportError("collectElements: couldn't load elements from InheritanceA");
 			return false;
 		}
-		
+
 		_elementB = _elementUtils.getTypeElement("InheritanceB");
 		for (Element e : _elementB.getEnclosedElements()) {
 			String name = e.getSimpleName().toString();
@@ -160,20 +160,20 @@ public class InheritedAnnoProc extends BaseProcessor
 			reportError("collectElements: couldn't load elements from InheritanceB");
 			return false;
 		}
-		
+
 		return true;
 	}
 
 	/**
 	 * Test the getRootElements implementation.
-	 * @param roundEnv 
+	 * @param roundEnv
 	 * @return true if tests passed
 	 */
 	private boolean examineGetRootElements(RoundEnvironment roundEnv)
 	{
 		// Expect to see all elements (unaffected by presence of @Inherited)
-		final Element[] expected = {_notInheritedAnno, _elementA, _elementB}; 
-		
+		final Element[] expected = {_notInheritedAnno, _elementA, _elementB};
+
 		Set<? extends Element> elements = new HashSet<Element>(roundEnv.getRootElements());
 		for (Element element : expected) {
 			if (!elements.remove(element)) {
@@ -187,15 +187,15 @@ public class InheritedAnnoProc extends BaseProcessor
 		}
 		return true;
 	}
-	
+
 	private boolean examineGetElementsAnnotatedWith(RoundEnvironment roundEnv)
 	{
 		// Elements we expect to get from getElementsAnnotatedWith(@InheritedAnno)
-		final Element[] expectedInherited = 
-				{ _elementA, _elementAChild, _elementAIntf, _elementAEnum, 
-				_elementAi, _elementAfoo, _elementAinit, _elementAinitI, _elementAa, 
+		final Element[] expectedInherited =
+				{ _elementA, _elementAChild, _elementAIntf, _elementAEnum,
+				_elementAi, _elementAfoo, _elementAinit, _elementAinitI, _elementAa,
 				_elementB, _elementBChild };
-		
+
 		Set<? extends Element> actualInherited = new HashSet<Element>(roundEnv.getElementsAnnotatedWith(_inheritedAnno));
 		for (Element element : expectedInherited) {
 			if (!actualInherited.remove(element)) {
@@ -207,12 +207,12 @@ public class InheritedAnnoProc extends BaseProcessor
 			reportError("examineGetElementsAnnotatedWith(@InheritedAnno): contained unexpected elements " + actualInherited);
 			return false;
 		}
-		
+
 		// Elements we expect to get from getElementsAnnotatedWith(@NotInheritedAnno)
-		final Element[] expectedNotInherited = 
-				{ _elementA, _elementAChild, _elementAIntf, _elementAEnum, 
+		final Element[] expectedNotInherited =
+				{ _elementA, _elementAChild, _elementAIntf, _elementAEnum,
 				_elementAi, _elementAfoo, _elementAinit, _elementAinitI, _elementAa };
-		
+
 		Set<? extends Element> actualNotInherited = new HashSet<Element>(roundEnv.getElementsAnnotatedWith(_notInheritedAnno));
 		for (Element element : expectedNotInherited) {
 			if (!actualNotInherited.remove(element)) {
@@ -224,7 +224,7 @@ public class InheritedAnnoProc extends BaseProcessor
 			reportError("examineGetElementsAnnotatedWith(@NotInheritedAnno): contained unexpected elements " + actualNotInherited);
 			return false;
 		}
-		
+
 		return true;
 	}
 

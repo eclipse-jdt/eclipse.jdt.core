@@ -76,21 +76,21 @@ public void test003() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	throws new X\n" + 
-		"	^^^^^^\n" + 
-		"Syntax error on token \"throws\", throw expected\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	throws new X\n" + 
-		"	           ^\n" + 
-		"Syntax error, insert \"( )\" to complete Expression\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
-		"	throws new X\n" + 
-		"	           ^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	throws new X\n" +
+		"	^^^^^^\n" +
+		"Syntax error on token \"throws\", throw expected\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	throws new X\n" +
+		"	           ^\n" +
+		"Syntax error, insert \"( )\" to complete Expression\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	throws new X\n" +
+		"	           ^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n");
 }
 public void test004() {
@@ -139,21 +139,21 @@ public void test006() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	throws new X\n" + 
-		"	^^^^^^\n" + 
-		"Syntax error on token \"throws\", throw expected\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	throws new X\n" + 
-		"	           ^\n" + 
-		"Syntax error, insert \"( )\" to complete Expression\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 3)\n" + 
-		"	throws new X\n" + 
-		"	           ^\n" + 
-		"Syntax error, insert \";\" to complete BlockStatements\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	throws new X\n" +
+		"	^^^^^^\n" +
+		"Syntax error on token \"throws\", throw expected\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	throws new X\n" +
+		"	           ^\n" +
+		"Syntax error, insert \"( )\" to complete Expression\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	throws new X\n" +
+		"	           ^\n" +
+		"Syntax error, insert \";\" to complete BlockStatements\n" +
 		"----------\n");
 }
 public void test007() {
@@ -755,23 +755,23 @@ public void test027() {
  */
 public void _test028() {
 	String error = (this.complianceLevel == ClassFileConstants.JDK14) ?
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	Srtring bar = \"\"\"\n" + 
-			"    }\n" + 
-			"	              ^^^^\n" + 
-			"Text block is not properly closed with the delimiter\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	Srtring bar = \"\"\"\n" +
+			"    }\n" +
+			"	              ^^^^\n" +
+			"Text block is not properly closed with the delimiter\n" +
 			"----------\n" :
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	Srtring bar = \"\"\"\n" + 
-			"	              ^^\n" + 
-			"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	Srtring bar = \"\"\"\n" + 
-			"	                ^\n" + 
-			"String literal is not properly closed by a double-quote\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	Srtring bar = \"\"\"\n" +
+			"	              ^^\n" +
+			"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Srtring bar = \"\"\"\n" +
+			"	                ^\n" +
+			"String literal is not properly closed by a double-quote\n" +
 			"----------\n";
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
@@ -794,34 +794,34 @@ public void testBug485477() {
 	runNegativeTest(
 		new String[] {
 			"T.java",
-			"public class T {{\n" + 
+			"public class T {{\n" +
 			"  Object o = T.super; // error: '.' expected\n" + // instance initializer
-			"  System.out.println(o.toString());\n" + 
-			"}}\n" + 
-			"class U {\n" + 
+			"  System.out.println(o.toString());\n" +
+			"}}\n" +
+			"class U {\n" +
 			"  Object o1;\n" +
 			"  Object o2 = T.super;\n" + // field initializer
-			"  U() {\n" + 
+			"  U() {\n" +
 			"    o1 = U.super;\n" +  // constructor
 			"    System.out.println(o1.toString());\n" +
-			"  }\n" + 
+			"  }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in T.java (at line 2)\n" + 
-		"	Object o = T.super; // error: \'.\' expected\n" + 
-		"	             ^^^^^\n" + 
-		"Syntax error, insert \". Identifier\" to complete Expression\n" + 
-		"----------\n" + 
-		"2. ERROR in T.java (at line 7)\n" + 
-		"	Object o2 = T.super;\n" + 
-		"	              ^^^^^\n" + 
-		"Syntax error, insert \". Identifier\" to complete Expression\n" + 
-		"----------\n" + 
-		"3. ERROR in T.java (at line 9)\n" + 
-		"	o1 = U.super;\n" + 
-		"	       ^^^^^\n" + 
-		"Syntax error, insert \". Identifier\" to complete Expression\n" + 
+		"----------\n" +
+		"1. ERROR in T.java (at line 2)\n" +
+		"	Object o = T.super; // error: \'.\' expected\n" +
+		"	             ^^^^^\n" +
+		"Syntax error, insert \". Identifier\" to complete Expression\n" +
+		"----------\n" +
+		"2. ERROR in T.java (at line 7)\n" +
+		"	Object o2 = T.super;\n" +
+		"	              ^^^^^\n" +
+		"Syntax error, insert \". Identifier\" to complete Expression\n" +
+		"----------\n" +
+		"3. ERROR in T.java (at line 9)\n" +
+		"	o1 = U.super;\n" +
+		"	       ^^^^^\n" +
+		"Syntax error, insert \". Identifier\" to complete Expression\n" +
 		"----------\n");
 }
 }

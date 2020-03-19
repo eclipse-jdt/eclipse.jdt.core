@@ -54,11 +54,11 @@ public class MirrorDeclarationTests extends APTTestBase {
 	{
 		return new TestSuite(MirrorDeclarationTests.class);
 	}
-	
+
 	public void setUp() throws Exception
 	{
 		super.setUp();
-		
+
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String code = MirrorDeclarationCodeExample.CODE;
@@ -66,60 +66,60 @@ public class MirrorDeclarationTests extends APTTestBase {
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 	}
-	
+
 	public void testMirrorDeclaration() throws Exception
 	{
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
-	
-	public void testFieldConstant() throws Exception 
+
+	public void testFieldConstant() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String codeTrigger =
 			"package test;\n" +
 			"public @interface Trigger{}";
-		
+
 		env.addClass(srcRoot, "test", "Trigger", codeTrigger);
-		
+
 		String codeEntryPoint = "package test;\n" +
 								"@Trigger\n" +
 								"public class EntryPoint {\n" +
 								"    ClassWithNestedAnnotation nestedAnno;\n}";
-		
+
 		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);
 
-		String codeClassWithNestedAnnotation = 
+		String codeClassWithNestedAnnotation =
 			"package test; \n" +
 			"public class ClassWithNestedAnnotation {\n" +
 			"	public final int FOUR = 4; \n " +
 			"}";
-		
+
 		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 	}
-	
+
 	// TODO: Disabled due to Bugzilla 124388 -theodora
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=124388
 	public void DISABLED_testDefault() throws Exception
-	{	
+	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String codeTrigger =
 			"package test;\n" +
 			"public @interface Trigger{}";
-		
+
 		env.addClass(srcRoot, "test", "Trigger", codeTrigger);
-		
+
 		String codeEntryPoint = "package test;\n" +
 								"@Trigger\n" +
 								"public class EntryPoint {\n" +
 								"    ClassWithNestedAnnotation nestedAnno;\n}";
-		
-		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);	
-		
-		String codeClassWithNestedAnnotation = 
+
+		env.addClass(srcRoot, "test", "EntryPoint", codeEntryPoint);
+
+		String codeClassWithNestedAnnotation =
 			"package test; \n" +
 			"public class ClassWithNestedAnnotation {\n" +
 			"	public @interface NestedAnnotation{\n" +
@@ -129,35 +129,35 @@ public class MirrorDeclarationTests extends APTTestBase {
 			"		Character value() default Character.Eore; \n" +
 			"	}\n" +
 			"}";
-		
+
 		env.addClass(srcRoot, "test", "ClassWithNestedAnnotation", codeClassWithNestedAnnotation);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 	}
-	
+
 	/**
 	 * Test AST based mirror implementation and binding based mirror implementation.
 	 * Specifically,
 	 *   (i) method declaration with unresolvable return type.
 	 *  (ii) constructor declaration with unresolvable parameter
 	 * (iii) field declaration with unresolvable type.
-	 * 
+	 *
 	 * This test focus on declarations from file in context.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testUnresolvableDeclarations0()
-		throws Exception 
+		throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String declAnno =
 			"package test;\n" +
 			"public @interface DeclarationAnno{}";
-		
+
 		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);
-		
-		String codeFoo = 
+
+		String codeFoo =
 			"package test;\n" +
 			"@DeclarationAnno\n" +
 			"public class Foo {\n" +
@@ -168,47 +168,47 @@ public class MirrorDeclarationTests extends APTTestBase {
 			"    public UnknownType getType(){}\n " +
 			"    public class Inner{} \n" +
 			"}";
-		
+
 		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
 		fullBuild( project.getFullPath() );
-		
+
 		expectingOnlySpecificProblemsFor(fooPath, new ExpectedProblem[]{
 				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
 				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
 				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath)}
 		);
 	}
-	
+
 	/**
 	 * Test AST based mirror implementation and binding based mirror implementation.
 	 * Specifically,
 	 *   (i) method declaration with unresolvable return type.
 	 *  (ii) constructor declaration with unresolvable parameter
 	 * (iii) field declaration with unresolvable type.
-	 * 
+	 *
 	 * This test focus on declarations from file outside of processor
 	 * environment context.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	public void testUnresolvableDeclarations1()
-		throws Exception 
+		throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String declAnno =
 			"package test;\n" +
 			"public @interface DeclarationAnno{}";
-		
-		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);		
-		
-		String codeBar = 
+
+		env.addClass(srcRoot, "test", "DeclarationAnno", declAnno);
+
+		String codeBar =
 			"package test;\n" +
 			"@DeclarationAnno\n" +
-			"public class Bar {}";		
+			"public class Bar {}";
 		env.addClass(srcRoot, "test", "Bar", codeBar);
-		
-		String codeFoo = 
+
+		String codeFoo =
 			"package test;\n" +
 			"@DeclarationAnno\n" +
 			"public class Foo {\n" +
@@ -219,9 +219,9 @@ public class MirrorDeclarationTests extends APTTestBase {
 			"    public UnknownType getType(){}\n " +
 			"    public class Inner{} \n" +
 			"}";
-		
+
 		final IPath fooPath = env.addClass(srcRoot, "test", "Foo", codeFoo);
-		
+
 		fullBuild( project.getFullPath() );
 		expectingOnlySpecificProblemsFor(fooPath, new ExpectedProblem[]{
 				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath),
@@ -229,47 +229,47 @@ public class MirrorDeclarationTests extends APTTestBase {
 				new ExpectedProblem("", "UnknownType cannot be resolved to a type", fooPath)}
 		);
 	}
-	
+
 	public void testLocation() {
 
 		TestLocationProc p = new TestLocationProc();
 		GenericFactory.setProcessor(p);
-		
+
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		String x =
 			"package test;\n" +
 			"import org.eclipse.jdt.apt.tests.annotations.generic.*;\n" +
 			"@GenericAnnotation public class X {}";
-		
-		env.addClass(srcRoot, "test", "X", x);		
-		
+
+		env.addClass(srcRoot, "test", "X", x);
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		assertTrue("Processor not invoked", p.called);
 	}
-	
+
 	public void testSourceMirror() {
-		
+
 		TestSourceMirrorProc p = new TestSourceMirrorProc();
 		GenericFactory.setProcessor(p);
-		
+
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		env.addClass(srcRoot, SourceMirrorCodeExample.CODE_PACKAGE, SourceMirrorCodeExample.ANNO_CODE_CLASS_NAME, SourceMirrorCodeExample.ANNO_CODE);
 		env.addClass(srcRoot, SourceMirrorCodeExample.CODE_PACKAGE, SourceMirrorCodeExample.CODE_CLASS_NAME, SourceMirrorCodeExample.CODE);
-		
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		assertTrue("Processor not invoked", p.called);
 	}
-	
+
 	public void testPackageInfo() {
-		PackageInfoProc p = new PackageInfoProc(); 
+		PackageInfoProc p = new PackageInfoProc();
 		GenericFactory.setProcessor(p);
-		
+
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		IPath pkg = env.addPackage(srcRoot, "pkg");
@@ -287,18 +287,18 @@ public class MirrorDeclarationTests extends APTTestBase {
 		env.addClass(srcRoot, "pkg", "pkgAnnotation", annContents);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		assertTrue("Processor not invoked", p.called);
 	}
-	
+
 	static class TestLocationProc extends AbstractGenericProcessor {
 
 		boolean called;
-		
+
 		public void _process() {
 			called = true;
 			assertTrue(decls.size() == 1);
-			
+
 			Declaration d = decls.iterator().next();
 			SourcePosition p = d.getPosition();
 
@@ -306,11 +306,11 @@ public class MirrorDeclarationTests extends APTTestBase {
 			assertTrue(p.line() == 3);
 		}
 	}
-	
+
 	static class TestSourceMirrorProc extends AbstractGenericProcessor {
-		
+
 		boolean called;
-		
+
 		public void _process() {
 			called = true;
 			TypeDeclaration tdCode = env.getTypeDeclaration(SourceMirrorCodeExample.CODE_PACKAGE + "." + SourceMirrorCodeExample.CODE_CLASS_NAME);
@@ -328,20 +328,20 @@ public class MirrorDeclarationTests extends APTTestBase {
 			}
 		}
 	}
-	
+
 	static class PackageInfoProc extends AbstractGenericProcessor {
-		
+
 		boolean called;
-		
+
 		public void _process() {
 			called = true;
 			AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)env.getTypeDeclaration("pkg.PkgAnnotation");
-			assertTrue(null != annoDecl);			
+			assertTrue(null != annoDecl);
 			// get the annotated declarations
 			Collection<Declaration> annotatedDecls = env.getDeclarationsAnnotatedWith(annoDecl);
-			// don't return the package declaration - well, apt is doing that.. 
-			assertTrue(annotatedDecls == null  || annotatedDecls.size() == 0); 
-			
+			// don't return the package declaration - well, apt is doing that..
+			assertTrue(annotatedDecls == null  || annotatedDecls.size() == 0);
+
 			//TODO: test to support package annotation
 			// PackageDeclaration pdCode = env.getPackage("pkg");
 			// for (AnnotationMirror am : pdCode.getAnnotationMirrors()) {
@@ -358,7 +358,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 			// }
 		}
 	}
-	
+
 	public void testEnvFactory() throws JavaModelException {
 
 		IProject project = env.getProject(getProjectName());
@@ -371,15 +371,15 @@ public class MirrorDeclarationTests extends APTTestBase {
 		IJavaProject p = JavaCore.create(project);
 		ICompilationUnit cu = (ICompilationUnit) p.findElement(tail);
 		assertTrue("Could not find cu", cu != null);
-		
+
 		AnnotationProcessorEnvironment env = EnvironmentFactory.getEnvironment(cu, p);
 		TypeDeclaration t = env.getTypeDeclaration("test.X");
 
 		SourcePosition pos = t.getPosition();
-		
+
 		assertTrue(pos.column() == 32);
 		assertTrue(pos.line() == 3);
-		
+
 		// Bad type should gracefully return null
 		TypeDeclaration tBad = env.getTypeDeclaration("test.XYZ");
 		assertTrue(null == tBad);

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller <jesper@selskabet.org> -  Contributions for
@@ -889,7 +889,7 @@ public static Test setUpTest(Test test) throws Exception {
 	field.setAccessible(true);
 	Set set = (Set) field.get(null);
 	set.clear();
-	
+
 	return test;
 }
 

@@ -572,7 +572,7 @@ void write(DataOutputStream out) throws IOException {
 			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
 			out.writeBoolean(jar.isOnModulePath);
 			out.writeUTF(jar.compliance == null ? "" : jar.compliance); //$NON-NLS-1$
-			
+
 		} else if (c instanceof ClasspathJrt) {
 			ClasspathJrt jrt = (ClasspathJrt) c;
 			out.writeByte(EXTERNAL_JAR);
@@ -614,7 +614,7 @@ void write(DataOutputStream out) throws IOException {
 					} catch (IOException e) {
 						// ignore
 					}
-					
+
 				});
 			} else {
 				out.writeInt(0);

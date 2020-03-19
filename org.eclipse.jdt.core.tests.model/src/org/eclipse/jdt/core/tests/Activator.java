@@ -34,13 +34,13 @@ public class Activator extends Plugin {
 
 	@SuppressWarnings("deprecation")
 	public void start(BundleContext context) throws Exception {
-		
+
 		ServiceReference ref= context.getServiceReference(org.osgi.service.packageadmin.PackageAdmin.class.getName());
 		if (ref!=null)
 			packageAdmin = (org.osgi.service.packageadmin.PackageAdmin)context.getService(ref);
 		else
 			getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, "Failed to load PackageAdmin service. Will not be able to access bundles org.eclipse.jdt.annotation."));
-		
+
 		instance = this;
 	}
 
@@ -50,7 +50,7 @@ public class Activator extends Plugin {
 
 	/**
 	 * Make the PackageAdmin service accessible to tests.
-	 * 
+	 *
 	 * @deprecated uses deprecated class PackageAdmin.
 	 */
 	public static org.osgi.service.packageadmin.PackageAdmin getPackageAdmin() {

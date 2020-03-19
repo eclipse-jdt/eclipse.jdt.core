@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.IPath;
  * <li> project entries (<code>CPE_PROJECT</code>) </li>
  * </ul>
  * In particular, a classpath container can neither reference further classpath containers or classpath variables.
- * <p> 
+ * <p>
  * A library entry can reference other libraries through the Class-Path section of the JAR's MANIFEST.MF file. If the
  * container wants such referenced entries to be part of the classpath, the container must explicitly add them to the
  * array returned from {@link #getClasspathEntries()}.

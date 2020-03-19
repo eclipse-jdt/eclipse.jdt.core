@@ -437,7 +437,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	boolean isFirst = lastFieldBinding == this.binding
 		&& (this.indexOfFirstFieldBinding == 1 || TypeBinding.equalsEquals(lastFieldBinding.declaringClass, currentScope.enclosingReceiverType()))
 		&& this.otherBindings == null; // could be dup: next.next.next
-	TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, getFinalReceiverType(), isFirst);			
+	TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, getFinalReceiverType(), isFirst);
 	SyntheticMethodBinding accessor = this.syntheticReadAccessors == null ? null : this.syntheticReadAccessors[this.syntheticReadAccessors.length - 1];
 	if (lastFieldBinding.isStatic()) {
 		if (accessor == null) {
@@ -491,7 +491,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	boolean isFirst = lastFieldBinding == this.binding
 		&& (this.indexOfFirstFieldBinding == 1 || TypeBinding.equalsEquals(lastFieldBinding.declaringClass, currentScope.enclosingReceiverType()))
 		&& this.otherBindings == null; // could be dup: next.next.next
-	TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, getFinalReceiverType(), isFirst);			
+	TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, getFinalReceiverType(), isFirst);
 	SyntheticMethodBinding accessor = this.syntheticReadAccessors == null
 			? null
 			: this.syntheticReadAccessors[this.syntheticReadAccessors.length - 1];
@@ -516,7 +516,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 		operandType = requiredGenericCast;
 	} else {
 		operandType = lastFieldBinding.type;
-	}		
+	}
 	// duplicate the old field value
 	if (valueRequired) {
 		if (lastFieldBinding.isStatic()) {
@@ -528,7 +528,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				default:
 					codeStream.dup();
 					break;
-			}			
+			}
 		} else { // Stack:  [owner][old field value]  ---> [old field value][owner][old field value]
 			switch (operandType.id) {
 				case TypeIds.T_long :
@@ -538,10 +538,10 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 				default:
 					codeStream.dup_x1();
 					break;
-			}			
+			}
 		}
 	}
-	codeStream.generateImplicitConversion(this.implicitConversion);		
+	codeStream.generateImplicitConversion(this.implicitConversion);
 	codeStream.generateConstant(
 		postIncrement.expression.constant,
 		this.implicitConversion);
@@ -720,7 +720,7 @@ protected TypeBinding getFinalReceiverType() {
 		default:
 			TypeBinding previousGenericCast = this.otherGenericCasts == null ? null : this.otherGenericCasts[otherBindingsCount-2];
 			return previousGenericCast != null ? previousGenericCast : this.otherBindings[otherBindingsCount-2].type;
-	}	
+	}
 }
 
 // get the matching generic cast
@@ -775,7 +775,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				FieldBinding originalBinding = previousField.original();
 				if (TypeBinding.notEquals(fieldReceiverType, oldReceiverType) || originalBinding.type.leafComponentType().isTypeVariable()) { // record need for explicit cast at codegen
 			    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
-				}				
+				}
 		    }
 			// only last field is actually a write access if any
 			if (isFieldUseDeprecated(field, scope, index+1 == length ? this.bits : 0)) {
@@ -798,7 +798,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 							&& field.id >= methodScope.lastVisibleFieldID
 							&& (!field.isStatic() || methodScope.isStatic)) {
 						scope.problemReporter().forwardReference(this, index, field);
-					}					
+					}
 					// check if accessing enum static field in initializer
 					if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
 							&& field.constant(scope) == Constant.NotAConstant
@@ -864,7 +864,7 @@ public boolean isFieldAccess() {
 @Override
 public FieldBinding lastFieldBinding() {
 	if (this.otherBindings != null) {
-		return this.otherBindings[this.otherBindings.length - 1];		
+		return this.otherBindings[this.otherBindings.length - 1];
 	} else if (this.binding != null && (this.bits & RestrictiveFlagMASK) == Binding.FIELD) {
 		return (FieldBinding) this.binding;
 	}
@@ -1030,7 +1030,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
 					LocalVariableBinding local = (LocalVariableBinding) this.binding;
-					if (!local.isFinal() && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) { 
+					if (!local.isFinal() && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
 							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
 					}
@@ -1068,7 +1068,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						}
 					}
 					if (isFieldUseDeprecated(fieldBinding, scope, this.indexOfFirstFieldBinding == this.tokens.length ? this.bits : 0)) {
-						scope.problemReporter().deprecatedField(fieldBinding, this);	
+						scope.problemReporter().deprecatedField(fieldBinding, this);
 					}
 					if (fieldBinding.isStatic()) {
 						// only last field is actually a write access if any
@@ -1085,7 +1085,7 @@ public TypeBinding resolveType(BlockScope scope) {
 								&& TypeBinding.notEquals(fieldBinding.declaringClass, this.actualReceiverType)
 								&& fieldBinding.declaringClass.canBeSeenBy(scope)) {
 							scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
-						}						
+						}
 					} else {
 						boolean inStaticContext = scope.methodScope().isStatic;
 						if (this.indexOfFirstFieldBinding == 1) {
@@ -1103,7 +1103,7 @@ public TypeBinding resolveType(BlockScope scope) {
 							return null;
 						 }
 					}
-					
+
 					this.resolvedType = getOtherFieldBindings(scope);
 					if (this.resolvedType != null
 							&& (this.resolvedType.tagBits & TagBits.HasMissingType) != 0) {

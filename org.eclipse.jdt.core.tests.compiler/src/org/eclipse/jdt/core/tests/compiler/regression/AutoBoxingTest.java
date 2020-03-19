@@ -2934,21 +2934,21 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	}\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	new X().foo(1);\n" + 
-			"	        ^^^\n" + 
-			"The method foo(Object[]) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
-			"	new X().foo(new Integer(1));\n" + 
-			"	        ^^^\n" + 
-			"The method foo(Object[]) is ambiguous for the type X\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 8)\n" + 
-			"	new X().foo(1, new Integer(1));\n" + 
-			"	        ^^^\n" + 
-			"The method foo(Object[]) is ambiguous for the type X\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	new X().foo(1);\n" +
+			"	        ^^^\n" +
+			"The method foo(Object[]) is ambiguous for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	new X().foo(new Integer(1));\n" +
+			"	        ^^^\n" +
+			"The method foo(Object[]) is ambiguous for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	new X().foo(1, new Integer(1));\n" +
+			"	        ^^^\n" +
+			"The method foo(Object[]) is ambiguous for the type X\n" +
 			"----------\n");
 		this.runNegativeTest(
 			new String[] {
@@ -3785,18 +3785,18 @@ public void test124() {
 			"	}	\n" +
 			"}", // =================
 		},
-		this.complianceLevel >= ClassFileConstants.JDK1_8 ? 
-				"----------\n" + 
-				"1. ERROR in X.java (at line 3)\n" + 
-				"	boolean x = false ? \"\" : false;\n" + 
-				"	                    ^^\n" + 
-				"Type mismatch: cannot convert from String to boolean\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
-				"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" + 
-				"	                                  ^^^^^^^^^^^^\n" + 
-				"Cannot invoke getClass() on the primitive type boolean\n" + 
-				"----------\n" : 
+		this.complianceLevel >= ClassFileConstants.JDK1_8 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	boolean x = false ? \"\" : false;\n" +
+				"	                    ^^\n" +
+				"Type mismatch: cannot convert from String to boolean\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	System.out.print(\"[4:\"+ x + \",\" + x.getClass().getCanonicalName() + \"]\");\n" +
+				"	                                  ^^^^^^^^^^^^\n" +
+				"Cannot invoke getClass() on the primitive type boolean\n" +
+				"----------\n" :
 						"----------\n" +
 						"1. ERROR in X.java (at line 3)\n" +
 						"	boolean x = false ? \"\" : false;\n" +
@@ -4614,29 +4614,29 @@ public void test154() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"        T counter;\n" + 
-			"        public static void main(String[] args) {\n" + 
-			"        	 bar(new X<Integer>());\n" + 
-			"        	 new Y().foo();\n" + 
-			"        	 new Y().baz();\n" + 
-			"        }\n" + 
-			"        static void bar(X<Integer> x) {\n" + 
-			"        	x.counter = 0;\n" + 
-			"            System.out.print(Integer.toString(x.counter++));\n" + 
-			"        }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Y extends X<Integer> {\n" + 
-			"	Y() {\n" + 
-			"		this.counter = 0;\n" + 
-			"	}\n" + 
-			"    void foo() {\n" + 
-			"        System.out.print(Integer.toString(counter++));\n" + 
-			"    }\n" + 
-			"    void baz() {\n" + 
-			"        System.out.println(Integer.toString(this.counter++));\n" + 
-			"    }\n" + 
+			"public class X<T> {\n" +
+			"        T counter;\n" +
+			"        public static void main(String[] args) {\n" +
+			"        	 bar(new X<Integer>());\n" +
+			"        	 new Y().foo();\n" +
+			"        	 new Y().baz();\n" +
+			"        }\n" +
+			"        static void bar(X<Integer> x) {\n" +
+			"        	x.counter = 0;\n" +
+			"            System.out.print(Integer.toString(x.counter++));\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X<Integer> {\n" +
+			"	Y() {\n" +
+			"		this.counter = 0;\n" +
+			"	}\n" +
+			"    void foo() {\n" +
+			"        System.out.print(Integer.toString(counter++));\n" +
+			"    }\n" +
+			"    void baz() {\n" +
+			"        System.out.println(Integer.toString(this.counter++));\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"000");
@@ -4646,29 +4646,29 @@ public void test155() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"        T[] counter;\n" + 
-			"        public static void main(String[] args) {\n" + 
-			"        	 bar(new X<Integer>());\n" + 
-			"        	 new Y().foo();\n" + 
-			"        	 new Y().baz();\n" + 
-			"        }\n" + 
-			"        static void bar(X<Integer> x) {\n" + 
-			"        	x.counter = new Integer[]{ 0 };\n" + 
-			"            System.out.print(Integer.toString(x.counter[0]++));\n" + 
-			"        }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Y extends X<Integer> {\n" + 
-			"	Y() {\n" + 
-			"		this.counter =  new Integer[]{ 0 };\n" + 
-			"	}\n" + 
-			"    void foo() {\n" + 
-			"        System.out.print(Integer.toString(counter[0]++));\n" + 
-			"    }\n" + 
-			"    void baz() {\n" + 
-			"        System.out.println(Integer.toString(this.counter[0]++));\n" + 
-			"    }\n" + 
+			"public class X<T> {\n" +
+			"        T[] counter;\n" +
+			"        public static void main(String[] args) {\n" +
+			"        	 bar(new X<Integer>());\n" +
+			"        	 new Y().foo();\n" +
+			"        	 new Y().baz();\n" +
+			"        }\n" +
+			"        static void bar(X<Integer> x) {\n" +
+			"        	x.counter = new Integer[]{ 0 };\n" +
+			"            System.out.print(Integer.toString(x.counter[0]++));\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X<Integer> {\n" +
+			"	Y() {\n" +
+			"		this.counter =  new Integer[]{ 0 };\n" +
+			"	}\n" +
+			"    void foo() {\n" +
+			"        System.out.print(Integer.toString(counter[0]++));\n" +
+			"    }\n" +
+			"    void baz() {\n" +
+			"        System.out.println(Integer.toString(this.counter[0]++));\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"000");
@@ -4678,16 +4678,16 @@ public void test156() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	static void print(Character c) {\n" + 
-			"		System.out.print((char) c);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		char c = \'H\';\n" + 
-			"		print(c++);\n" + 
-			"		print(c++);\n" + 
-			"		System.out.println(\"done\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	static void print(Character c) {\n" +
+			"		System.out.print((char) c);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		char c = \'H\';\n" +
+			"		print(c++);\n" +
+			"		print(c++);\n" +
+			"		System.out.println(\"done\");\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"HIdone");
@@ -4697,17 +4697,17 @@ public void test157() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	char c = \'H\';\n" + 
-			"	static void print(Character c) {\n" + 
-			"		System.out.print((char) c);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X();\n" + 
-			"		print(x.c++);\n" + 
-			"		print(x.c++);\n" + 
-			"		System.out.println(\"done\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	char c = \'H\';\n" +
+			"	static void print(Character c) {\n" +
+			"		System.out.print((char) c);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X();\n" +
+			"		print(x.c++);\n" +
+			"		print(x.c++);\n" +
+			"		System.out.println(\"done\");\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"HIdone");
@@ -4717,19 +4717,19 @@ public void test158() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	static X singleton = new X();\n" + 
-			"	static X singleton() { return singleton; }\n" + 
-			"	char c = \'H\';\n" + 
-			"	\n" + 
-			"	static void print(Character c) {\n" + 
-			"		System.out.print((char) c);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		print(singleton().c++);\n" + 
-			"		print(singleton().c++);\n" + 
-			"		System.out.println(\"done\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	static X singleton = new X();\n" +
+			"	static X singleton() { return singleton; }\n" +
+			"	char c = \'H\';\n" +
+			"	\n" +
+			"	static void print(Character c) {\n" +
+			"		System.out.print((char) c);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		print(singleton().c++);\n" +
+			"		print(singleton().c++);\n" +
+			"		System.out.println(\"done\");\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"HIdone");
@@ -4739,37 +4739,37 @@ public void test159() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" + 
-			"public class X {\n" + 
-			"    ArrayList params;\n" + 
-			"    public int getSqlParamCount() {\n" + 
-			"        return params == null ? null:params.size();\n" + 
-			"    }\n" + 
-			"    public int getSqlParamCount2() {\n" + 
-			"        return null;\n" + 
-			"    }\n" + 
+			"import java.util.ArrayList;\n" +
+			"public class X {\n" +
+			"    ArrayList params;\n" +
+			"    public int getSqlParamCount() {\n" +
+			"        return params == null ? null:params.size();\n" +
+			"    }\n" +
+			"    public int getSqlParamCount2() {\n" +
+			"        return null;\n" +
+			"    }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	ArrayList params;\n" + 
-		"	^^^^^^^^^\n" + 
-		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 5)\n" + 
-		"	return params == null ? null:params.size();\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The expression of type Integer is unboxed into int\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 5)\n" + 
-		"	return params == null ? null:params.size();\n" + 
-		"	                             ^^^^^^^^^^^^^\n" + 
-		"The expression of type int is boxed into Integer\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 8)\n" + 
-		"	return null;\n" + 
-		"	       ^^^^\n" + 
-		"Type mismatch: cannot convert from null to int\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	ArrayList params;\n" +
+		"	^^^^^^^^^\n" +
+		"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	return params == null ? null:params.size();\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The expression of type Integer is unboxed into int\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 5)\n" +
+		"	return params == null ? null:params.size();\n" +
+		"	                             ^^^^^^^^^^^^^\n" +
+		"The expression of type int is boxed into Integer\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 8)\n" +
+		"	return null;\n" +
+		"	       ^^^^\n" +
+		"Type mismatch: cannot convert from null to int\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=232565 - variation
@@ -4777,29 +4777,29 @@ public void test160() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"        T counter;\n" + 
-			"        public static void main(String[] args) {\n" + 
-			"        	 bar(new X<Integer>());\n" + 
-			"        	 new Y().foo();\n" + 
-			"        	 new Y().baz();\n" + 
-			"        }\n" + 
-			"        static void bar(X<Integer> x) {\n" + 
-			"        	x.counter = 0;\n" + 
-			"            System.out.print(Integer.toString(++x.counter));\n" + 
-			"        }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Y extends X<Integer> {\n" + 
-			"	Y() {\n" + 
-			"		this.counter = 0;\n" + 
-			"	}\n" + 
-			"    void foo() {\n" + 
-			"        System.out.print(Integer.toString(++counter));\n" + 
-			"    }\n" + 
-			"    void baz() {\n" + 
-			"        System.out.println(Integer.toString(++this.counter));\n" + 
-			"    }\n" + 
+			"public class X<T> {\n" +
+			"        T counter;\n" +
+			"        public static void main(String[] args) {\n" +
+			"        	 bar(new X<Integer>());\n" +
+			"        	 new Y().foo();\n" +
+			"        	 new Y().baz();\n" +
+			"        }\n" +
+			"        static void bar(X<Integer> x) {\n" +
+			"        	x.counter = 0;\n" +
+			"            System.out.print(Integer.toString(++x.counter));\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X<Integer> {\n" +
+			"	Y() {\n" +
+			"		this.counter = 0;\n" +
+			"	}\n" +
+			"    void foo() {\n" +
+			"        System.out.print(Integer.toString(++counter));\n" +
+			"    }\n" +
+			"    void baz() {\n" +
+			"        System.out.println(Integer.toString(++this.counter));\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"111");
@@ -4809,29 +4809,29 @@ public void test161() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X<T> {\n" + 
-			"        T[] counter;\n" + 
-			"        public static void main(String[] args) {\n" + 
-			"        	 bar(new X<Integer>());\n" + 
-			"        	 new Y().foo();\n" + 
-			"        	 new Y().baz();\n" + 
-			"        }\n" + 
-			"        static void bar(X<Integer> x) {\n" + 
-			"        	x.counter = new Integer[]{ 0 };\n" + 
-			"            System.out.print(Integer.toString(++x.counter[0]));\n" + 
-			"        }\n" + 
-			"}\n" + 
-			"\n" + 
-			"class Y extends X<Integer> {\n" + 
-			"	Y() {\n" + 
-			"		this.counter =  new Integer[]{ 0 };\n" + 
-			"	}\n" + 
-			"    void foo() {\n" + 
-			"        System.out.print(Integer.toString(++counter[0]));\n" + 
-			"    }\n" + 
-			"    void baz() {\n" + 
-			"        System.out.println(Integer.toString(++this.counter[0]));\n" + 
-			"    }\n" + 
+			"public class X<T> {\n" +
+			"        T[] counter;\n" +
+			"        public static void main(String[] args) {\n" +
+			"        	 bar(new X<Integer>());\n" +
+			"        	 new Y().foo();\n" +
+			"        	 new Y().baz();\n" +
+			"        }\n" +
+			"        static void bar(X<Integer> x) {\n" +
+			"        	x.counter = new Integer[]{ 0 };\n" +
+			"            System.out.print(Integer.toString(++x.counter[0]));\n" +
+			"        }\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X<Integer> {\n" +
+			"	Y() {\n" +
+			"		this.counter =  new Integer[]{ 0 };\n" +
+			"	}\n" +
+			"    void foo() {\n" +
+			"        System.out.print(Integer.toString(++counter[0]));\n" +
+			"    }\n" +
+			"    void baz() {\n" +
+			"        System.out.println(Integer.toString(++this.counter[0]));\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"111");
@@ -4841,16 +4841,16 @@ public void test162() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	static void print(Character c) {\n" + 
-			"		System.out.print((char) c);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		char c = \'H\';\n" + 
-			"		print(++c);\n" + 
-			"		print(++c);\n" + 
-			"		System.out.println(\"done\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	static void print(Character c) {\n" +
+			"		System.out.print((char) c);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		char c = \'H\';\n" +
+			"		print(++c);\n" +
+			"		print(++c);\n" +
+			"		System.out.println(\"done\");\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"IJdone");
@@ -4860,17 +4860,17 @@ public void test163() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	char c = \'H\';\n" + 
-			"	static void print(Character c) {\n" + 
-			"		System.out.print((char) c);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		X x = new X();\n" + 
-			"		print(++x.c);\n" + 
-			"		print(++x.c);\n" + 
-			"		System.out.println(\"done\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	char c = \'H\';\n" +
+			"	static void print(Character c) {\n" +
+			"		System.out.print((char) c);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X x = new X();\n" +
+			"		print(++x.c);\n" +
+			"		print(++x.c);\n" +
+			"		System.out.println(\"done\");\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"IJdone");
@@ -4880,19 +4880,19 @@ public void test164() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	static X singleton = new X();\n" + 
-			"	static X singleton() { return singleton; }\n" + 
-			"	char c = \'H\';\n" + 
-			"	\n" + 
-			"	static void print(Character c) {\n" + 
-			"		System.out.print((char) c);\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		print(++singleton().c);\n" + 
-			"		print(++singleton().c);\n" + 
-			"		System.out.println(\"done\");\n" + 
-			"    }\n" + 
+			"public class X {\n" +
+			"	static X singleton = new X();\n" +
+			"	static X singleton() { return singleton; }\n" +
+			"	char c = \'H\';\n" +
+			"	\n" +
+			"	static void print(Character c) {\n" +
+			"		System.out.print((char) c);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		print(++singleton().c);\n" +
+			"		print(++singleton().c);\n" +
+			"		System.out.println(\"done\");\n" +
+			"    }\n" +
 			"}\n",
 		},
 		"IJdone");
@@ -4902,96 +4902,96 @@ public void test165() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    public void foo() {\n" + 
-			"        Integer i1 = 10 ;\n" + 
-			"        final short s = 100;\n" + 
-			"        i1 = s;\n" + 
-			"        switch (i1)\n" + 
-			"        {\n" + 
-			"            case s:\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    public void bar() {\n" + 
-			"        Integer i2 = 10 ;\n" + 
-			"        final byte b = 100;\n" + 
-			"        i2 = b;\n" + 
-			"        switch (i2)\n" + 
-			"        {\n" + 
-			"            case b:\n" + 
-			"        }\n" + 
-			"    }   \n" + 
-			"    public void baz() {\n" + 
-			"        Integer i3 = 10 ;\n" + 
-			"        final char c = 100;\n" + 
-			"        i3 = c;\n" + 
-			"        switch (i3)\n" + 
-			"        {\n" + 
-			"            case c:\n" + 
-			"        }\n" + 
-			"    }     \n" + 
+			"public class X {\n" +
+			"    public void foo() {\n" +
+			"        Integer i1 = 10 ;\n" +
+			"        final short s = 100;\n" +
+			"        i1 = s;\n" +
+			"        switch (i1)\n" +
+			"        {\n" +
+			"            case s:\n" +
+			"        }\n" +
+			"    }\n" +
+			"    public void bar() {\n" +
+			"        Integer i2 = 10 ;\n" +
+			"        final byte b = 100;\n" +
+			"        i2 = b;\n" +
+			"        switch (i2)\n" +
+			"        {\n" +
+			"            case b:\n" +
+			"        }\n" +
+			"    }   \n" +
+			"    public void baz() {\n" +
+			"        Integer i3 = 10 ;\n" +
+			"        final char c = 100;\n" +
+			"        i3 = c;\n" +
+			"        switch (i3)\n" +
+			"        {\n" +
+			"            case c:\n" +
+			"        }\n" +
+			"    }     \n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	Integer i1 = 10 ;\n" + 
-		"	             ^^\n" + 
-		"The expression of type int is boxed into Integer\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	i1 = s;\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from short to Integer\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 6)\n" + 
-		"	switch (i1)\n" + 
-		"	        ^^\n" + 
-		"The expression of type Integer is unboxed into int\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 8)\n" + 
-		"	case s:\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from short to Integer\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 12)\n" + 
-		"	Integer i2 = 10 ;\n" + 
-		"	             ^^\n" + 
-		"The expression of type int is boxed into Integer\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 14)\n" + 
-		"	i2 = b;\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from byte to Integer\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 15)\n" + 
-		"	switch (i2)\n" + 
-		"	        ^^\n" + 
-		"The expression of type Integer is unboxed into int\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 17)\n" + 
-		"	case b:\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from byte to Integer\n" + 
-		"----------\n" + 
-		"9. WARNING in X.java (at line 21)\n" + 
-		"	Integer i3 = 10 ;\n" + 
-		"	             ^^\n" + 
-		"The expression of type int is boxed into Integer\n" + 
-		"----------\n" + 
-		"10. ERROR in X.java (at line 23)\n" + 
-		"	i3 = c;\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from char to Integer\n" + 
-		"----------\n" + 
-		"11. WARNING in X.java (at line 24)\n" + 
-		"	switch (i3)\n" + 
-		"	        ^^\n" + 
-		"The expression of type Integer is unboxed into int\n" + 
-		"----------\n" + 
-		"12. ERROR in X.java (at line 26)\n" + 
-		"	case c:\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from char to Integer\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	Integer i1 = 10 ;\n" +
+		"	             ^^\n" +
+		"The expression of type int is boxed into Integer\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	i1 = s;\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from short to Integer\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 6)\n" +
+		"	switch (i1)\n" +
+		"	        ^^\n" +
+		"The expression of type Integer is unboxed into int\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 8)\n" +
+		"	case s:\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from short to Integer\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 12)\n" +
+		"	Integer i2 = 10 ;\n" +
+		"	             ^^\n" +
+		"The expression of type int is boxed into Integer\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 14)\n" +
+		"	i2 = b;\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from byte to Integer\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 15)\n" +
+		"	switch (i2)\n" +
+		"	        ^^\n" +
+		"The expression of type Integer is unboxed into int\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 17)\n" +
+		"	case b:\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from byte to Integer\n" +
+		"----------\n" +
+		"9. WARNING in X.java (at line 21)\n" +
+		"	Integer i3 = 10 ;\n" +
+		"	             ^^\n" +
+		"The expression of type int is boxed into Integer\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 23)\n" +
+		"	i3 = c;\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from char to Integer\n" +
+		"----------\n" +
+		"11. WARNING in X.java (at line 24)\n" +
+		"	switch (i3)\n" +
+		"	        ^^\n" +
+		"The expression of type Integer is unboxed into int\n" +
+		"----------\n" +
+		"12. ERROR in X.java (at line 26)\n" +
+		"	case c:\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from char to Integer\n" +
 		"----------\n");
 }
 
@@ -5000,147 +5000,147 @@ public void test166() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	void foo(short s, byte b, char c) {\n" + 
-			"		Integer is = s;\n" + 
-			"		Integer ib = b;\n" + 
-			"		Integer ic = c;	\n" + 
-			"	}\n" + 
-			"	void foo() {\n" + 
-			"		final short s = 0;\n" + 
-			"		final byte b = 0;\n" + 
-			"		final char c = 0;\n" + 
-			"		Integer is = s;\n" + 
-			"		Integer ib = b;\n" + 
-			"		Integer ic = c;	\n" + 
-			"	}\n" + 
-			"	void foo2() {\n" + 
-			"		Integer is = (short)0;\n" + 
-			"		Integer ib = (byte)0;\n" + 
-			"		Integer ic = (char)0;	\n" + 
-			"	}\n" + 
-			"	void foo3() {\n" + 
-			"		Short si = 0;\n" + 
-			"		Byte bi = 0;\n" + 
-			"		Character ci = 0;\n" + 
-			"	}\n" + 
-			"	void foo4() {\n" + 
-			"		Short si = (byte) 0;\n" + 
-			"		Byte bi = (short) 0;\n" + 
-			"		Character ci = (short) 0;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	void foo(short s, byte b, char c) {\n" +
+			"		Integer is = s;\n" +
+			"		Integer ib = b;\n" +
+			"		Integer ic = c;	\n" +
+			"	}\n" +
+			"	void foo() {\n" +
+			"		final short s = 0;\n" +
+			"		final byte b = 0;\n" +
+			"		final char c = 0;\n" +
+			"		Integer is = s;\n" +
+			"		Integer ib = b;\n" +
+			"		Integer ic = c;	\n" +
+			"	}\n" +
+			"	void foo2() {\n" +
+			"		Integer is = (short)0;\n" +
+			"		Integer ib = (byte)0;\n" +
+			"		Integer ic = (char)0;	\n" +
+			"	}\n" +
+			"	void foo3() {\n" +
+			"		Short si = 0;\n" +
+			"		Byte bi = 0;\n" +
+			"		Character ci = 0;\n" +
+			"	}\n" +
+			"	void foo4() {\n" +
+			"		Short si = (byte) 0;\n" +
+			"		Byte bi = (short) 0;\n" +
+			"		Character ci = (short) 0;\n" +
+			"	}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	Integer is = s;\n" + 
-		"	             ^\n" + 
-		"Type mismatch: cannot convert from short to Integer\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	Integer ib = b;\n" + 
-		"	             ^\n" + 
-		"Type mismatch: cannot convert from byte to Integer\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 5)\n" + 
-		"	Integer ic = c;	\n" + 
-		"	             ^\n" + 
-		"Type mismatch: cannot convert from char to Integer\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 11)\n" + 
-		"	Integer is = s;\n" + 
-		"	             ^\n" + 
-		"Type mismatch: cannot convert from short to Integer\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 12)\n" + 
-		"	Integer ib = b;\n" + 
-		"	             ^\n" + 
-		"Type mismatch: cannot convert from byte to Integer\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 13)\n" + 
-		"	Integer ic = c;	\n" + 
-		"	             ^\n" + 
-		"Type mismatch: cannot convert from char to Integer\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 16)\n" + 
-		"	Integer is = (short)0;\n" + 
-		"	             ^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from short to Integer\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 17)\n" + 
-		"	Integer ib = (byte)0;\n" + 
-		"	             ^^^^^^^\n" + 
-		"Type mismatch: cannot convert from byte to Integer\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 18)\n" + 
-		"	Integer ic = (char)0;	\n" + 
-		"	             ^^^^^^^\n" + 
-		"Type mismatch: cannot convert from char to Integer\n" + 
-		"----------\n" + 
-		"10. WARNING in X.java (at line 21)\n" + 
-		"	Short si = 0;\n" + 
-		"	           ^\n" + 
-		"The expression of type int is boxed into Short\n" + 
-		"----------\n" + 
-		"11. WARNING in X.java (at line 22)\n" + 
-		"	Byte bi = 0;\n" + 
-		"	          ^\n" + 
-		"The expression of type int is boxed into Byte\n" + 
-		"----------\n" + 
-		"12. WARNING in X.java (at line 23)\n" + 
-		"	Character ci = 0;\n" + 
-		"	               ^\n" + 
-		"The expression of type int is boxed into Character\n" + 
-		"----------\n" + 
-		"13. WARNING in X.java (at line 26)\n" + 
-		"	Short si = (byte) 0;\n" + 
-		"	           ^^^^^^^^\n" + 
-		"The expression of type byte is boxed into Short\n" + 
-		"----------\n" + 
-		"14. WARNING in X.java (at line 27)\n" + 
-		"	Byte bi = (short) 0;\n" + 
-		"	          ^^^^^^^^^\n" + 
-		"The expression of type short is boxed into Byte\n" + 
-		"----------\n" + 
-		"15. WARNING in X.java (at line 28)\n" + 
-		"	Character ci = (short) 0;\n" + 
-		"	               ^^^^^^^^^\n" + 
-		"The expression of type short is boxed into Character\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	Integer is = s;\n" +
+		"	             ^\n" +
+		"Type mismatch: cannot convert from short to Integer\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	Integer ib = b;\n" +
+		"	             ^\n" +
+		"Type mismatch: cannot convert from byte to Integer\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 5)\n" +
+		"	Integer ic = c;	\n" +
+		"	             ^\n" +
+		"Type mismatch: cannot convert from char to Integer\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 11)\n" +
+		"	Integer is = s;\n" +
+		"	             ^\n" +
+		"Type mismatch: cannot convert from short to Integer\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 12)\n" +
+		"	Integer ib = b;\n" +
+		"	             ^\n" +
+		"Type mismatch: cannot convert from byte to Integer\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 13)\n" +
+		"	Integer ic = c;	\n" +
+		"	             ^\n" +
+		"Type mismatch: cannot convert from char to Integer\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 16)\n" +
+		"	Integer is = (short)0;\n" +
+		"	             ^^^^^^^^\n" +
+		"Type mismatch: cannot convert from short to Integer\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 17)\n" +
+		"	Integer ib = (byte)0;\n" +
+		"	             ^^^^^^^\n" +
+		"Type mismatch: cannot convert from byte to Integer\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 18)\n" +
+		"	Integer ic = (char)0;	\n" +
+		"	             ^^^^^^^\n" +
+		"Type mismatch: cannot convert from char to Integer\n" +
+		"----------\n" +
+		"10. WARNING in X.java (at line 21)\n" +
+		"	Short si = 0;\n" +
+		"	           ^\n" +
+		"The expression of type int is boxed into Short\n" +
+		"----------\n" +
+		"11. WARNING in X.java (at line 22)\n" +
+		"	Byte bi = 0;\n" +
+		"	          ^\n" +
+		"The expression of type int is boxed into Byte\n" +
+		"----------\n" +
+		"12. WARNING in X.java (at line 23)\n" +
+		"	Character ci = 0;\n" +
+		"	               ^\n" +
+		"The expression of type int is boxed into Character\n" +
+		"----------\n" +
+		"13. WARNING in X.java (at line 26)\n" +
+		"	Short si = (byte) 0;\n" +
+		"	           ^^^^^^^^\n" +
+		"The expression of type byte is boxed into Short\n" +
+		"----------\n" +
+		"14. WARNING in X.java (at line 27)\n" +
+		"	Byte bi = (short) 0;\n" +
+		"	          ^^^^^^^^^\n" +
+		"The expression of type short is boxed into Byte\n" +
+		"----------\n" +
+		"15. WARNING in X.java (at line 28)\n" +
+		"	Character ci = (short) 0;\n" +
+		"	               ^^^^^^^^^\n" +
+		"The expression of type short is boxed into Character\n" +
 		"----------\n");
 }
 public void test167() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"     String foo(Comparable<String> x) {\n" + 
+			"public class X {\n" +
+			"     String foo(Comparable<String> x) {\n" +
 			"       System.out.println( \"one\" );" +
-			"		return null;\n" + 
-			"     }\n" + 
-			"     void foo(int x) {\n" + 
-			"       System.out.println( \"two\" );\n" + 
-			"     }\n" + 
-			"	void bar() {\n" + 
-			"       Integer i = 1;\n" + 
-			"       String s = foo(i); \n" + 
-			"     }\n" + 
+			"		return null;\n" +
+			"     }\n" +
+			"     void foo(int x) {\n" +
+			"       System.out.println( \"two\" );\n" +
+			"     }\n" +
+			"	void bar() {\n" +
+			"       Integer i = 1;\n" +
+			"       String s = foo(i); \n" +
+			"     }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 9)\n" + 
-		"	Integer i = 1;\n" + 
-		"	            ^\n" + 
-		"The expression of type int is boxed into Integer\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	String s = foo(i); \n" + 
-		"	           ^^^^^^\n" + 
-		"Type mismatch: cannot convert from void to String\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 10)\n" + 
-		"	String s = foo(i); \n" + 
-		"	               ^\n" + 
-		"The expression of type Integer is unboxed into int\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 9)\n" +
+		"	Integer i = 1;\n" +
+		"	            ^\n" +
+		"The expression of type int is boxed into Integer\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	String s = foo(i); \n" +
+		"	           ^^^^^^\n" +
+		"Type mismatch: cannot convert from void to String\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 10)\n" +
+		"	String s = foo(i); \n" +
+		"	               ^\n" +
+		"The expression of type Integer is unboxed into int\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
@@ -5149,58 +5149,58 @@ public void test168() {
 		new String[] {
 			"X.java",
 			"@SuppressWarnings(\"deprecation\")\n" +
-			"public class X {\n" + 
-			"    <T extends Integer> T a() { return 35; }\n" + 
-			"    <T extends Integer> T[] b() { return new int[]{35}; }\n" + 
+			"public class X {\n" +
+			"    <T extends Integer> T a() { return 35; }\n" +
+			"    <T extends Integer> T[] b() { return new int[]{35}; }\n" +
 			"    <T extends Integer> T c() { return new Integer(35); }\n" +
-			"    <T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
+			"    <T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	<T extends Integer> T a() { return 35; }\n" + 
-		"	           ^^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	<T extends Integer> T a() { return 35; }\n" + 
-		"	                                   ^^\n" + 
-		"Type mismatch: cannot convert from int to T\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 4)\n" + 
-		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" + 
-		"	           ^^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 4)\n" + 
-		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" + 
-		"	                                     ^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from int[] to T[]\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 5)\n" + 
-		"	<T extends Integer> T c() { return new Integer(35); }\n" + 
-		"	           ^^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 5)\n" + 
-		"	<T extends Integer> T c() { return new Integer(35); }\n" + 
-		"	                                   ^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Integer to T\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 6)\n" + 
-		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
-		"	           ^^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 6)\n" + 
-		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
-		"	                                     ^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Integer[] to T[]\n" + 
-		"----------\n" + 
-		"9. WARNING in X.java (at line 6)\n" + 
-		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" + 
-		"	                                                   ^^\n" + 
-		"The expression of type int is boxed into Integer\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	<T extends Integer> T a() { return 35; }\n" +
+		"	           ^^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	<T extends Integer> T a() { return 35; }\n" +
+		"	                                   ^^\n" +
+		"Type mismatch: cannot convert from int to T\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 4)\n" +
+		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" +
+		"	           ^^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 4)\n" +
+		"	<T extends Integer> T[] b() { return new int[]{35}; }\n" +
+		"	                                     ^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from int[] to T[]\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 5)\n" +
+		"	<T extends Integer> T c() { return new Integer(35); }\n" +
+		"	           ^^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 5)\n" +
+		"	<T extends Integer> T c() { return new Integer(35); }\n" +
+		"	                                   ^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Integer to T\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 6)\n" +
+		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
+		"	           ^^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 6)\n" +
+		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
+		"	                                     ^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Integer[] to T[]\n" +
+		"----------\n" +
+		"9. WARNING in X.java (at line 6)\n" +
+		"	<T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
+		"	                                                   ^^\n" +
+		"The expression of type int is boxed into Integer\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=264843
@@ -5208,9 +5208,9 @@ public void test169() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X<T extends Integer> {\n" + 
-			"    T x = 12;\n" + 
-			"    Byte y = 12;\n" + 
+			"public class X<T extends Integer> {\n" +
+			"    T x = 12;\n" +
+			"    Byte y = 12;\n" +
 			"    	void x(T t) {\n" +
 			"    		t = 5;\n" +
 			"    		switch (t) {\n" +
@@ -5227,46 +5227,46 @@ public void test169() {
 			"    	}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 1)\n" + 
-		"	public class X<T extends Integer> {\n" + 
-		"	                         ^^^^^^^\n" + 
-		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 2)\n" + 
-		"	T x = 12;\n" + 
-		"	      ^^\n" + 
-		"Type mismatch: cannot convert from int to T\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 3)\n" + 
-		"	Byte y = 12;\n" + 
-		"	         ^^\n" + 
-		"The expression of type int is boxed into Byte\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 5)\n" + 
-		"	t = 5;\n" + 
-		"	    ^\n" + 
-		"Type mismatch: cannot convert from int to T\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 6)\n" + 
-		"	switch (t) {\n" + 
-		"	        ^\n" + 
-		"The expression of type T is unboxed into int\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 7)\n" + 
-		"	case 1:\n" + 
-		"	     ^\n" + 
-		"Type mismatch: cannot convert from int to T\n" + 
-		"----------\n" + 
-		"7. WARNING in X.java (at line 12)\n" + 
-		"	t = 5;\n" + 
-		"	    ^\n" + 
-		"The expression of type int is boxed into Byte\n" + 
-		"----------\n" + 
-		"8. WARNING in X.java (at line 13)\n" + 
-		"	switch (t) {\n" + 
-		"	        ^\n" + 
-		"The expression of type Byte is unboxed into int\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	public class X<T extends Integer> {\n" +
+		"	                         ^^^^^^^\n" +
+		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	T x = 12;\n" +
+		"	      ^^\n" +
+		"Type mismatch: cannot convert from int to T\n" +
+		"----------\n" +
+		"3. WARNING in X.java (at line 3)\n" +
+		"	Byte y = 12;\n" +
+		"	         ^^\n" +
+		"The expression of type int is boxed into Byte\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 5)\n" +
+		"	t = 5;\n" +
+		"	    ^\n" +
+		"Type mismatch: cannot convert from int to T\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 6)\n" +
+		"	switch (t) {\n" +
+		"	        ^\n" +
+		"The expression of type T is unboxed into int\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 7)\n" +
+		"	case 1:\n" +
+		"	     ^\n" +
+		"Type mismatch: cannot convert from int to T\n" +
+		"----------\n" +
+		"7. WARNING in X.java (at line 12)\n" +
+		"	t = 5;\n" +
+		"	    ^\n" +
+		"The expression of type int is boxed into Byte\n" +
+		"----------\n" +
+		"8. WARNING in X.java (at line 13)\n" +
+		"	switch (t) {\n" +
+		"	        ^\n" +
+		"The expression of type Byte is unboxed into int\n" +
 		"----------\n");
 }
 }

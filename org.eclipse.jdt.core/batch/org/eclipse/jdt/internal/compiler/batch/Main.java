@@ -13,7 +13,7 @@
  *     Tom Tromey - Contribution for bug 125961
  *     Tom Tromey - Contribution for bug 159641
  *     Benjamin Muskalla - Contribution for bug 239066
- *     Stephan Herrmann  - Contributions for 
+ *     Stephan Herrmann  - Contributions for
  *     							bug 236385 - [compiler] Warn for potential programming problem if an object is created but not used
  *     							bug 295551 - Add option to automatically promote all warnings to errors
  *     							bug 359721 - [options] add command line option for new warning token "resource"
@@ -27,7 +27,7 @@
  *								Bug 408815 - [batch][null] Add CLI option for COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
- *    Mat Booth - Contribution for bug 405176 
+ *    Mat Booth - Contribution for bug 405176
  *    Frits Jalvingh - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
@@ -945,7 +945,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (globalInfoCount == 1) {
 					infoMessage = this.main.bind("compile.oneInfo"); //$NON-NLS-1$
 				} else if (globalInfoCount > 1) {
-					infoMessage = this.main.bind("compile.severalInfos", String.valueOf(warningsNumber)); //$NON-NLS-1$					
+					infoMessage = this.main.bind("compile.severalInfos", String.valueOf(warningsNumber)); //$NON-NLS-1$
 				}
 				if (globalProblemsCount == globalInfoCount || globalProblemsCount == globalErrorsCount || globalProblemsCount == globalWarningsCount) {
 					String msg = errorMessage != null ? errorMessage : warningMessage != null ? warningMessage : infoMessage;
@@ -1224,7 +1224,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				logTiming(compilerStats);
 			}
 			if (this.main.globalProblemsCount > 0) {
-				logProblemsSummary(this.main.globalProblemsCount, this.main.globalErrorsCount, this.main.globalWarningsCount, 
+				logProblemsSummary(this.main.globalProblemsCount, this.main.globalErrorsCount, this.main.globalWarningsCount,
 						this.main.globalInfoCount, this.main.globalTasksCount);
 			}
 			if (this.main.exportedClassFilesCounter != 0
@@ -1634,7 +1634,7 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 	if (NONE.equals(destPath)) {
 		destPath = NONE; // keep == comparison valid
 	}
-	
+
 	if (rejectDestinationPathOnJars && destPath != null &&
 			Util.archiveFormat(currentClasspathName) > -1) {
 		throw new IllegalArgumentException(
@@ -1646,7 +1646,7 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 			customEncoding,
 			isSourceOnly,
 			accessRuleSet,
-			destPath, 
+			destPath,
 			this.options,
 			this.releaseVersion);
 	if (currentClasspath != null) {
@@ -1717,7 +1717,7 @@ public String bind(String id, String[] arguments) {
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK9</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK10</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK11</code></li>
- * 
+ *
  * </ul>
  * @param minimalSupportedVersion the given minimal version
  * @return true if and only if the running VM supports the given minimal version, false otherwise
@@ -1880,7 +1880,7 @@ public void configure(String[] argv) {
 	String currentSourceDirectory = null;
 	String currentArg = Util.EMPTY_STRING;
 	String moduleName = null;
-	
+
 	Set<String> specifiedEncodings = null;
 
 	// expand the command line if necessary
@@ -2815,7 +2815,7 @@ public void configure(String[] argv) {
 				continue;
 			case INSIDE_RELEASE:
 				// If release is < 9, the following are disallowed:
-				// bootclasspath, -Xbootclasspath, -Xbootclasspath/a:, -Xbootclasspath/p:, 
+				// bootclasspath, -Xbootclasspath, -Xbootclasspath/a:, -Xbootclasspath/p:,
 				// -endorseddirs, -Djava.endorsed.dirs, -extdirs, -Djava.ext.dirs
 
 				// If release >= 9, the following are disallowed
@@ -3272,7 +3272,7 @@ private String validateModuleVersion(String versionString) {
 }
 
 private Parser getNewParser() {
-	return new Parser(new ProblemReporter(getHandlingPolicy(), 
+	return new Parser(new ProblemReporter(getHandlingPolicy(),
 			new CompilerOptions(this.options), getProblemFactory()), false);
 }
 private IModule extractModuleDesc(String fileName) {
@@ -3281,10 +3281,10 @@ private IModule extractModuleDesc(String fileName) {
 	// validated. Make sure the source level is set for the parser
 	Map<String,String> opts = new HashMap<String, String>(this.options);
 	opts.put(CompilerOptions.OPTION_Source, this.options.get(CompilerOptions.OPTION_Compliance));
-	Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(), 
+	Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(),
 			new CompilerOptions(opts), getProblemFactory()), false);
 	if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_JAVA)) {
-		
+
 		ICompilationUnit cu = new CompilationUnit(null, fileName, null);
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
@@ -3461,7 +3461,7 @@ public CompilationUnit[] getCompilationUnits() {
 	String defaultEncoding = this.options.get(CompilerOptions.OPTION_Encoding);
 	if (Util.EMPTY_STRING.equals(defaultEncoding))
 		defaultEncoding = null;
-	
+
 	for (int round = 0; round < 2; round++) {
 		for (int i = 0; i < fileCount; i++) {
 			char[] charName = this.filenames[i].toCharArray();
@@ -3484,7 +3484,7 @@ public CompilationUnit[] getCompilationUnits() {
 					fileName = this.filenames[i];
 				}
 				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
-						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()), 
+						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()),
 						this.modNames[i]);
 			}
 		}
@@ -3539,7 +3539,7 @@ public File getJavaHome() {
 }
 
 public FileSystem getLibraryAccess() {
-	FileSystem nameEnvironment = new FileSystem(this.checkedClasspaths, this.filenames, 
+	FileSystem nameEnvironment = new FileSystem(this.checkedClasspaths, this.filenames,
 					this.annotationsFromClasspath && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis)),
 					this.limitedModules);
 	nameEnvironment.module = this.module;
@@ -3859,7 +3859,7 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 				}
 			}
 		}
-		return result; 
+		return result;
 	}
 
 	return FileSystem.EMPTY_CLASSPATH;
@@ -4029,7 +4029,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 						default: // no severity update
 					}
 				}
-				this.options.put(CompilerOptions.OPTION_ReportMissingEnumCaseDespiteDefault, 
+				this.options.put(CompilerOptions.OPTION_ReportMissingEnumCaseDespiteDefault,
 								 isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			} else if (token.equals("emptyBlock")) {//$NON-NLS-1$
@@ -4341,10 +4341,10 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportNonnullParameterAnnotationDropped, severity, isEnabling);
 				return;
 			}
-			
+
 			break;
 		case 'o' :
-			if (token.equals("over-sync") /*|| token.equals("syncOverride")*/) { //$NON-NLS-1$ 
+			if (token.equals("over-sync") /*|| token.equals("syncOverride")*/) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, severity, isEnabling);
 				return;
 			} else if (token.equals("over-ann")) { //$NON-NLS-1$
@@ -4399,7 +4399,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("staticReceiver")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, severity, isEnabling);
 				return;
-			} else 	if (/*token.equals("over-sync") ||*/ token.equals("syncOverride")) { //$NON-NLS-1$ 
+			} else 	if (/*token.equals("over-sync") ||*/ token.equals("syncOverride")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, severity, isEnabling);
 				return;
 			} else if (token.equals("semicolon")) {//$NON-NLS-1$
@@ -4462,7 +4462,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				this.options.put(
 					CompilerOptions.OPTION_TaskTags,
 					isEnabling ? taskTags : Util.EMPTY_STRING);
-				
+
 				setSeverity(CompilerOptions.OPTION_ReportTasks, severity, isEnabling);
 				return;
 			} else if (token.equals("typeHiding")) { //$NON-NLS-1$

@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - contributions for 
+ *     Stephan Herrmann - contributions for
  *     							bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
  *     							bug 186342 - [compiler][null] Using annotations for null checking
  *******************************************************************************/
@@ -44,7 +44,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	//public CompilationUnitResult currentCompilationUnitResult;
 	public CompilationUnitDeclaration[] unitsToProcess;
 	public int totalUnits; // (totalUnits-1) gives the last unit in unitToProcess
-	
+
 	private Map<String, APTProblem[]> aptProblems;
 
 	// name lookup
@@ -507,7 +507,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.context = context;
 		}
 	}
-	
+
 	protected void backupAptProblems() {
 		if (this.unitsToProcess == null) return;
 		for (int i = 0; i < this.totalUnits; i++) {
@@ -536,7 +536,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 		}
 	}
-	
+
 	protected void restoreAptProblems() {
 		if (this.unitsToProcess != null && this.aptProblems!= null) {
 			for (int i = 0; i < this.totalUnits; i++) {
@@ -902,15 +902,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 		long analyzeStart = System.currentTimeMillis();
 		this.stats.resolveTime += analyzeStart - resolveStart;
-		
-		//No need of analysis or generation of code if statements are not required		
+
+		//No need of analysis or generation of code if statements are not required
 		if (!this.options.ignoreMethodBodies) unit.analyseCode(); // flow analysis
 
 		long generateStart = System.currentTimeMillis();
 		this.stats.analyzeTime += generateStart - analyzeStart;
-	
+
 		if (!this.options.ignoreMethodBodies) unit.generateCode(); // code generation
-		
+
 		// reference info
 		if (this.options.produceReferenceInfo && unit.scope != null)
 			unit.scope.storeDependencyInfo();
@@ -991,9 +991,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				this.annotationProcessorManager.reset();
 			}
 		} while (newUnitSize != 0 || newClassFilesSize != 0);
-		
+
 		this.annotationProcessorManager.processAnnotations(null, null, true);
-		// process potential units added in the final round see 329156 
+		// process potential units added in the final round see 329156
 		ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 		newUnitSize = newUnits.length;
 		if (newUnitSize != 0) {

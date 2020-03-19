@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.util;
 
@@ -32,19 +32,19 @@ public abstract class AnnotationScanner {
 		IN_SINGLE_QUOTE,
 		IN_DOUBLE_QUOTE
 	}
-	
+
 	public AnnotationScanner() {}
-	
+
 	public boolean containsAnnotations() throws IOException {
 		State state = NORMAL;
-		
+
 		// for escaping quotes -- need to ignore the next single character
 		// Since this applies to all states it's handled separately
 		boolean seenBackslash = false;
-		
+
 		int c = getNext();
 		while (c != -1) {
-			
+
 			if (seenBackslash) {
 				// Skip one character
 				seenBackslash = false;
@@ -56,7 +56,7 @@ public abstract class AnnotationScanner {
 			else {
 				// Handle the character based on state
 				switch (state) {
-				
+
 				case NORMAL :
 					if (c == '@')
 						return true;
@@ -70,7 +70,7 @@ public abstract class AnnotationScanner {
 						state = IN_DOUBLE_QUOTE;
 					}
 					break;
-					
+
 				case SEEN_SLASH :
 					if (c == '*') {
 						state = IN_COMMENT;
@@ -82,13 +82,13 @@ public abstract class AnnotationScanner {
 						state = NORMAL;
 					}
 					break;
-				
+
 				case IN_COMMENT :
 					if (c == '*') {
 						state = IN_COMMENT_SEEN_STAR;
 					}
 					break;
-				
+
 				case IN_COMMENT_SEEN_STAR :
 					if (c == '/') {
 						state = NORMAL;
@@ -97,25 +97,25 @@ public abstract class AnnotationScanner {
 						state = IN_COMMENT;
 					}
 					break;
-					
+
 				case IN_SINGLE_LINE_COMMENT :
 					if (c == '\n' || c == '\r') {
 						state = NORMAL;
 					}
 					break;
-					
+
 				case IN_SINGLE_QUOTE :
 					if (c == '\'') {
 						state = NORMAL;
 					}
 					break;
-					
+
 				case IN_DOUBLE_QUOTE :
 					if (c == '\"') {
 						state = NORMAL;
 					}
 					break;
-					
+
 				default :
 					throw new IllegalStateException("Unhandled state: " + state);  //$NON-NLS-1$
 				}
@@ -124,7 +124,7 @@ public abstract class AnnotationScanner {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns -1 at the end of the input
 	 */

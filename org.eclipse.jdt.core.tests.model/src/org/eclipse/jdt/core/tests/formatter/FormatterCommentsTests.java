@@ -417,7 +417,7 @@ public void testHtmlPre02() throws JavaModelException {
 	formatUnit("html.pre", "X02.java");
 }
 public void testHtmlPre02b() throws JavaModelException {
-	formatUnit("html.pre", "X02b.java");	
+	formatUnit("html.pre", "X02b.java");
 }
 public void testHtmlPre03() throws JavaModelException {
 	formatUnit("html.pre", "X03.java");
@@ -765,13 +765,13 @@ public void testLineComments01() throws JavaModelException {
 public void testLineComments02() throws JavaModelException {
 	useOldCommentWidthCounting();
 	String source =
-		"public class X02 {\r\n" + 
-		"	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" + 
+		"public class X02 {\r\n" +
+		"	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" +
 		"}\r\n";
 	formatSource(source,
-		"public class X02 {\n" + 
-		"	int field; // This is a long comment that should be split in multiple line\n" + 
-		"				// comments in case the line comment formatting is enabled\n" + 
+		"public class X02 {\n" +
+		"	int field; // This is a long comment that should be split in multiple line\n" +
+		"				// comments in case the line comment formatting is enabled\n" +
 		"}\n",
 		false /* do not repeat */
 	);
@@ -779,19 +779,19 @@ public void testLineComments02() throws JavaModelException {
 public void testLineComments02b() throws JavaModelException {
 	useOldCommentWidthCounting();
 	String source =
-		"public interface X02b {\r\n" + 
-		"\r\n" + 
-		"	int foo(); // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" + 
-		"\r\n" + 
-		"	int bar();\r\n" + 
+		"public interface X02b {\r\n" +
+		"\r\n" +
+		"	int foo(); // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" +
+		"\r\n" +
+		"	int bar();\r\n" +
 		"}\r\n";
 	formatSource(source,
-		"public interface X02b {\n" + 
-		"\n" + 
-		"	int foo(); // This is a long comment that should be split in multiple line\n" + 
-		"				// comments in case the line comment formatting is enabled\n" + 
-		"\n" + 
-		"	int bar();\n" + 
+		"public interface X02b {\n" +
+		"\n" +
+		"	int foo(); // This is a long comment that should be split in multiple line\n" +
+		"				// comments in case the line comment formatting is enabled\n" +
+		"\n" +
+		"	int bar();\n" +
 		"}\n",
 		false /* do not repeat */
 	);
@@ -812,41 +812,41 @@ public void testLineComments06() throws JavaModelException {
 public void testLineComments07() throws JavaModelException {
 	useOldCommentWidthCounting();
 	String source =
-		"package test.comments.line;\r\n" + 
-		"\r\n" + 
-		"public class X07 {\r\n" + 
-		"\r\n" + 
-		"boolean inTitle;\r\n" + 
-		"boolean inMetaTag;\r\n" + 
-		"boolean inStyle;\r\n" + 
-		"boolean inImg;\r\n" + 
-		"\r\n" + 
-		"void foo(String tagName) {\r\n" + 
-		"    inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in <TITLE>\r\n" + 
-		"    inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in <META>\r\n" + 
-		"    inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in <STYLE>\r\n" + 
-		"    inImg = tagName.equalsIgnoreCase(\"<img\");     // keep track if in <IMG>\r\n" + 
-		"}\r\n" + 
+		"package test.comments.line;\r\n" +
+		"\r\n" +
+		"public class X07 {\r\n" +
+		"\r\n" +
+		"boolean inTitle;\r\n" +
+		"boolean inMetaTag;\r\n" +
+		"boolean inStyle;\r\n" +
+		"boolean inImg;\r\n" +
+		"\r\n" +
+		"void foo(String tagName) {\r\n" +
+		"    inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in <TITLE>\r\n" +
+		"    inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in <META>\r\n" +
+		"    inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in <STYLE>\r\n" +
+		"    inImg = tagName.equalsIgnoreCase(\"<img\");     // keep track if in <IMG>\r\n" +
+		"}\r\n" +
 		"}\r\n";
 	formatSource(source,
-		"package test.comments.line;\r\n" + 
-		"\r\n" + 
-		"public class X07 {\r\n" + 
-		"\r\n" + 
-		"	boolean inTitle;\r\n" + 
-		"	boolean inMetaTag;\r\n" + 
-		"	boolean inStyle;\r\n" + 
-		"	boolean inImg;\r\n" + 
-		"\r\n" + 
-		"	void foo(String tagName) {\r\n" + 
-		"		inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in\r\n" + 
-		"														// <TITLE>\r\n" + 
-		"		inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in\r\n" + 
-		"														// <META>\r\n" + 
-		"		inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in\r\n" + 
-		"														// <STYLE>\r\n" + 
-		"		inImg = tagName.equalsIgnoreCase(\"<img\"); // keep track if in <IMG>\r\n" + 
-		"	}\r\n" + 
+		"package test.comments.line;\r\n" +
+		"\r\n" +
+		"public class X07 {\r\n" +
+		"\r\n" +
+		"	boolean inTitle;\r\n" +
+		"	boolean inMetaTag;\r\n" +
+		"	boolean inStyle;\r\n" +
+		"	boolean inImg;\r\n" +
+		"\r\n" +
+		"	void foo(String tagName) {\r\n" +
+		"		inTitle = tagName.equalsIgnoreCase(\"<title\"); // keep track if in\r\n" +
+		"														// <TITLE>\r\n" +
+		"		inMetaTag = tagName.equalsIgnoreCase(\"<META\"); // keep track if in\r\n" +
+		"														// <META>\r\n" +
+		"		inStyle = tagName.equalsIgnoreCase(\"<STYLE\"); // keep track if in\r\n" +
+		"														// <STYLE>\r\n" +
+		"		inImg = tagName.equalsIgnoreCase(\"<img\"); // keep track if in <IMG>\r\n" +
+		"	}\r\n" +
 		"}\r\n",
 		false /* do not repeat */
 	);
@@ -863,17 +863,17 @@ public void testLineComments10() throws JavaModelException {
 public void testLineComments11() throws JavaModelException {
 	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_line_length = 40;
-	String source = 
-		"package test.comments.line;\r\n" + 
-		"\r\n" + 
-		"public class X11 { // This comment will go____over the max line length\r\n" + 
+	String source =
+		"package test.comments.line;\r\n" +
+		"\r\n" +
+		"public class X11 { // This comment will go____over the max line length\r\n" +
 		"}\r\n";
 	formatSource(source,
-		"package test.comments.line;\r\n" + 
-		"\r\n" + 
-		"public class X11 { // This comment will\r\n" + 
-		"					// go____over the\r\n" + 
-		"					// max line length\r\n" + 
+		"package test.comments.line;\r\n" +
+		"\r\n" +
+		"public class X11 { // This comment will\r\n" +
+		"					// go____over the\r\n" +
+		"					// max line length\r\n" +
 		"}\r\n",
 		false /* do not repeat */
 	);
@@ -944,28 +944,28 @@ public void testBlockComments12() throws JavaModelException {
 public void testBlockComments13() throws JavaModelException {
 	setPageWidth80();
 	String source =
-		"package test.comments.block;\r\n" + 
-		"\r\n" + 
-		"public class X13 {\r\n" + 
-		"\r\n" + 
-		"protected void handleWarningToken(String token, boolean isEnabling) {\r\n" + 
-		"	if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*_backward_ _compatible_*/ ) {\r\n" + 
-		"	}\r\n" + 
-		"}\r\n" + 
+		"package test.comments.block;\r\n" +
+		"\r\n" +
+		"public class X13 {\r\n" +
+		"\r\n" +
+		"protected void handleWarningToken(String token, boolean isEnabling) {\r\n" +
+		"	if (token.equals(\"pkgDefaultMethod___\") || token.equals(\"packageDefaultMethod___\")/*_backward_ _compatible_*/ ) {\r\n" +
+		"	}\r\n" +
+		"}\r\n" +
 		"}\r\n";
 	// Difference with old formatter:
 	// 1) split comment block starts one tab before to avoid possible words over the max line length
 	//		note that in this peculiar this was not necessary as even the first word is over the max line length!
 	formatSource(source,
-		"package test.comments.block;\n" + 
-		"\n" + 
-		"public class X13 {\n" + 
-		"\n" + 
-		"	protected void handleWarningToken(String token, boolean isEnabling) {\n" + 
-		"		if (token.equals(\"pkgDefaultMethod___\") || token.equals(\n" + 
-		"				\"packageDefaultMethod___\")/* _backward_ _compatible_ */ ) {\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package test.comments.block;\n" +
+		"\n" +
+		"public class X13 {\n" +
+		"\n" +
+		"	protected void handleWarningToken(String token, boolean isEnabling) {\n" +
+		"		if (token.equals(\"pkgDefaultMethod___\") || token.equals(\n" +
+		"				\"packageDefaultMethod___\")/* _backward_ _compatible_ */ ) {\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n"
 	);
 }

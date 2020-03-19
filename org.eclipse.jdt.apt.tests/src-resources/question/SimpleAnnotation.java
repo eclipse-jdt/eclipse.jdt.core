@@ -1,10 +1,10 @@
-package question; 
+package question;
 
-import java.lang.annotation.Retention; 
-import java.lang.annotation.RetentionPolicy; 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-@Retention(value=RetentionPolicy.RUNTIME) 
-public @interface SimpleAnnotation { 
+@Retention(value=RetentionPolicy.RUNTIME)
+public @interface SimpleAnnotation {
 
-	String value(); 
+	String value();
 }

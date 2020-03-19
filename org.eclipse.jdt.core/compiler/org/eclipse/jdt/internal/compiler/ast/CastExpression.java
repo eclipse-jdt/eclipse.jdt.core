@@ -463,7 +463,7 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 		case Binding.TYPE_PARAMETER :
 			this.bits |= ASTNode.UnsafeCast;
 			return true;
-//		(disabled) https://bugs.eclipse.org/bugs/show_bug.cgi?id=240807			
+//		(disabled) https://bugs.eclipse.org/bugs/show_bug.cgi?id=240807
 //		case Binding.TYPE :
 //			if (isNarrowing && match == null && expressionType.isParameterizedType()) {
 //				this.bits |= ASTNode.UnsafeCast;

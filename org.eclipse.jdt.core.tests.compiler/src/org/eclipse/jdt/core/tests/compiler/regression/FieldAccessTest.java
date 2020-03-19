@@ -635,20 +635,20 @@ public void test021() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"import java.util.ArrayList;\n" + 
-			"\n" + 
-			"public class X {\n" + 
-			"	public void bar() {\n" + 
-			"		ArrayList myList = new ArrayList();\n" + 
-			"		int len = myList.length;\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public void bar() {\n" +
+			"		ArrayList myList = new ArrayList();\n" +
+			"		int len = myList.length;\n" +
+			"	}\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	int len = myList.length;\n" + 
-		"	                 ^^^^^^\n" + 
-		"length cannot be resolved or is not a field\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	int len = myList.length;\n" +
+		"	                 ^^^^^^\n" +
+		"length cannot be resolved or is not a field\n" +
 		"----------\n",
 		null,
 		true,
@@ -659,29 +659,29 @@ public void test022() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	static int NEW_FIELD;\n" + 
+			"public class X {\n" +
+			"	static int NEW_FIELD;\n" +
 			"}",
 			"Y.java",
-			"public class Y {\n" + 
-			"	void foo() {\n" + 
-			"		int i = X.OLD_FIELD;\n" + 
-			"	}\n" + 
-			"	void bar() {\n" + 
-			"		int j = X.OLD_FIELD;\n" + 
-			"	}\n" + 
+			"public class Y {\n" +
+			"	void foo() {\n" +
+			"		int i = X.OLD_FIELD;\n" +
+			"	}\n" +
+			"	void bar() {\n" +
+			"		int j = X.OLD_FIELD;\n" +
+			"	}\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in Y.java (at line 3)\n" + 
-		"	int i = X.OLD_FIELD;\n" + 
-		"	          ^^^^^^^^^\n" + 
-		"OLD_FIELD cannot be resolved or is not a field\n" + 
-		"----------\n" + 
-		"2. ERROR in Y.java (at line 6)\n" + 
-		"	int j = X.OLD_FIELD;\n" + 
-		"	          ^^^^^^^^^\n" + 
-		"OLD_FIELD cannot be resolved or is not a field\n" + 
+		"----------\n" +
+		"1. ERROR in Y.java (at line 3)\n" +
+		"	int i = X.OLD_FIELD;\n" +
+		"	          ^^^^^^^^^\n" +
+		"OLD_FIELD cannot be resolved or is not a field\n" +
+		"----------\n" +
+		"2. ERROR in Y.java (at line 6)\n" +
+		"	int j = X.OLD_FIELD;\n" +
+		"	          ^^^^^^^^^\n" +
+		"OLD_FIELD cannot be resolved or is not a field\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
@@ -700,11 +700,11 @@ public void test023() {
 			"    protected int field;\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in p2\\B.java (at line 4)\n" + 
-		"	protected int field;\n" + 
-		"	              ^^^^^\n" + 
-		"The field B.field is hiding a field from type A\n" + 
+		"----------\n" +
+		"1. WARNING in p2\\B.java (at line 4)\n" +
+		"	protected int field;\n" +
+		"	              ^^^^^\n" +
+		"The field B.field is hiding a field from type A\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
@@ -731,11 +731,11 @@ public void test024() {
 			"    protected int field;\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in p2\\B.java (at line 4)\n" + 
-		"	protected int field;\n" + 
-		"	              ^^^^^\n" + 
-		"The field B.field is hiding a field from type SuperSuper\n" + 
+		"----------\n" +
+		"1. WARNING in p2\\B.java (at line 4)\n" +
+		"	protected int field;\n" +
+		"	              ^^^^^\n" +
+		"The field B.field is hiding a field from type SuperSuper\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171
@@ -766,11 +766,11 @@ public void test025() {
 			"    protected int field;\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. WARNING in p2\\B.java (at line 4)\n" + 
-		"	protected int field;\n" + 
-		"	              ^^^^^\n" + 
-		"The field B.field is hiding a field from type Interface\n" + 
+		"----------\n" +
+		"1. WARNING in p2\\B.java (at line 4)\n" +
+		"	protected int field;\n" +
+		"	              ^^^^^\n" +
+		"The field B.field is hiding a field from type Interface\n" +
 		"----------\n");
 }
 public void testBug361039() {
@@ -778,19 +778,19 @@ public void testBug361039() {
 	runNegativeTest(
 		new String[] {
 			"Bug361039.java",
-			"public class Bug361039 {\n" + 
-			"	public Bug361039(boolean b) {\n" + 
-			"	}\n" + 
-			"	private Object foo() {\n" + 
-			"		return new Bug361039(!((Boolean)this.f));\n" + 
-			"	}\n" + 
+			"public class Bug361039 {\n" +
+			"	public Bug361039(boolean b) {\n" +
+			"	}\n" +
+			"	private Object foo() {\n" +
+			"		return new Bug361039(!((Boolean)this.f));\n" +
+			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Bug361039.java (at line 5)\n" + 
-		"	return new Bug361039(!((Boolean)this.f));\n" + 
-		"	                                     ^\n" + 
-		"f cannot be resolved or is not a field\n" + 
+		"----------\n" +
+		"1. ERROR in Bug361039.java (at line 5)\n" +
+		"	return new Bug361039(!((Boolean)this.f));\n" +
+		"	                                     ^\n" +
+		"f cannot be resolved or is not a field\n" +
 		"----------\n");
 }
 public static Class testClass() {

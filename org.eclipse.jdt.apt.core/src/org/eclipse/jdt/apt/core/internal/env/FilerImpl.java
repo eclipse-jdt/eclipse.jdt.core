@@ -32,34 +32,34 @@ import com.sun.mirror.apt.Filer;
 public abstract class FilerImpl implements Filer {
 
     abstract protected AbstractCompilationEnv getEnv();
-	
+
     /**
-     * Creates a new source file and returns a writer for it. The file's name 
-     * and path (relative to the root of all newly created source files) is 
-     * based on the type to be declared in that file. If more than one type is 
-     * being declared, the name of the principal top-level type (the public 
-     * one, for example) should be used. 
-     * 
+     * Creates a new source file and returns a writer for it. The file's name
+     * and path (relative to the root of all newly created source files) is
+     * based on the type to be declared in that file. If more than one type is
+     * being declared, the name of the principal top-level type (the public
+     * one, for example) should be used.
+     *
      * Character set used is the default character set for the platform
-     * 
-     * @param typeName - canonical (fully qualified) name of the principal type being declared in this file 
+     *
+     * @param typeName - canonical (fully qualified) name of the principal type being declared in this file
      */
     @Override
-	public PrintWriter createSourceFile(String typeName) throws IOException 
+	public PrintWriter createSourceFile(String typeName) throws IOException
     {
     	if (typeName == null)
     		throw new IllegalArgumentException("Type name cannot be null"); //$NON-NLS-1$
     	if ("".equals(typeName)) //$NON-NLS-1$
     		throw new IllegalArgumentException("Type name cannot be empty"); //$NON-NLS-1$
-    	
+
     	getEnv().checkValid();
-    	
+
     	PrintWriter pw;
         try {
 			pw = new JavaSourceFilePrintWriter( typeName, new StringWriter(), getEnv() );
 		} catch (CoreException e) {
 			throw new IOException(e);
-		} 
+		}
 		return pw;
     }
 
@@ -74,7 +74,7 @@ public abstract class FilerImpl implements Filer {
     	IPath path = null;
     	if ( loc == Filer.Location.CLASS_TREE )
     	{
-    		try 
+    		try
     		{
     			path = gsfm.getBinaryOutputLocation();
     		}
@@ -87,19 +87,19 @@ public abstract class FilerImpl implements Filer {
     	else if ( loc == Filer.Location.SOURCE_TREE ) {
     		path = gsfm.getFolder().getProjectRelativePath();
     	}
-    	
+
         if( pkg != null )
             path = path.append(pkg.replace('.', File.separatorChar) );
 
         path = path.append(relPath.getPath() );
-    	
+
         // Create the parent folder (need an absolute path temporarily)
         IPath absolutePath = getEnv().getProject().getLocation().append(path);
         File parentFile = absolutePath.toFile().getParentFile();
         FileSystemUtil.mkdirs( parentFile );
-        
+
     	return path;
     }
-    
-    
+
+
 }

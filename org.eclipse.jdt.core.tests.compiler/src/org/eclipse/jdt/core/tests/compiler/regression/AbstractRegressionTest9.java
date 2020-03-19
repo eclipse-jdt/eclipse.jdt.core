@@ -58,7 +58,7 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 		}
 		return new InMemoryNameEnvironment9(testFiles, this.moduleMap, classLibs);
 	}
-	
+
 	@Override
 	protected CompilationUnit[] getCompilationUnits(String[] testFiles) {
 		Map<String,char[]> moduleFiles= new HashMap<>(); // filename -> modulename
@@ -104,7 +104,7 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 	private IModule extractModuleDesc(String fileName, String fileContent, ICompilationUnit cu) {
 		if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_JAVA)) {
 			Parser parser = createParser();
-			
+
 			CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 			CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 			if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
@@ -126,7 +126,7 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 
 	/** Use in tests to associate the CU in given files to the module of the given name. */
 	public void associateToModule(String moduleName, String... fileNames) {
-		for (String fileName : fileNames)			
+		for (String fileName : fileNames)
 			this.file2module.put(fileName, moduleName);
 	}
 

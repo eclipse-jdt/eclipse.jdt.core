@@ -78,7 +78,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			super.acceptProblem(problem);
 		}
 	}
-	
+
 	/*package*/ static final int JLS_LATEST = AST.JLS14;
 
 	static class ReconcileParticipant extends CompilationParticipant {
@@ -377,7 +377,7 @@ public void testAccessRestriction2() throws CoreException, IOException {
 			new String[] {
 				"**/*"
 			},
-			null, 
+			null,
 			"1.4",
 			null
 		);
@@ -432,11 +432,11 @@ public void testAccessRestriction4() throws CoreException {
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /P3/src/Y.java (at line 1)\n" + 
-			"	public class Y extends p.X {}\n" + 
-			"	                       ^^^\n" + 
-			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" + 
+			"----------\n" +
+			"1. ERROR in /P3/src/Y.java (at line 1)\n" +
+			"	public class Y extends p.X {}\n" +
+			"	                       ^^^\n" +
+			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -473,11 +473,11 @@ public void testAccessRestriction5() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /P2/src/Y.java (at line 1)\n" + 
-			"	public class Y extends p.X {}\n" + 
-			"	                       ^^^\n" + 
-			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" + 
+			"----------\n" +
+			"1. ERROR in /P2/src/Y.java (at line 1)\n" +
+			"	public class Y extends p.X {}\n" +
+			"	                       ^^^\n" +
+			"Access restriction: The type \'X\' is not API (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 
@@ -1691,11 +1691,11 @@ public void testExcludePartOfAnotherProject1() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -1895,11 +1895,11 @@ public void testIncludePartOfAnotherProject2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2020,11 +2020,11 @@ public void testIgnoreIfBetterNonAccessibleRule2() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Discouraged access: The type \'Y\' is not API (restriction on required project \'P2\')\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Discouraged access: The type \'Y\' is not API (restriction on required project \'P2\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2065,11 +2065,11 @@ public void testIgnoreIfBetterNonAccessibleRule3() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2102,11 +2102,11 @@ public void testIgnoreIfBetterNonAccessibleRule4() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" + 
-			"	public class X extends p.internal.Y {\n" + 
-			"	                       ^^^^^^^^^^^^\n" + 
-			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/p1/X.java (at line 2)\n" +
+			"	public class X extends p.internal.Y {\n" +
+			"	                       ^^^^^^^^^^^^\n" +
+			"Access restriction: The type \'Y\' is not API (restriction on required project \'P1\')\n" +
 			"----------\n"
 		);
 	} finally {
@@ -2187,11 +2187,11 @@ public void testMethodWithError01a() throws CoreException {
 	);
 	assertProblems(
 		"Unexpected problems",
-		"----------\n" + 
-		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" + 
-		"	public_ void foo() {\n" + 
-		"	^^^^^^^\n" + 
-		"Syntax error on token \"public_\", public expected\n" + 
+		"----------\n" +
+		"1. ERROR in /Reconciler/src/p1/X.java (at line 4)\n" +
+		"	public_ void foo() {\n" +
+		"	^^^^^^^\n" +
+		"Syntax error on token \"public_\", public expected\n" +
 		"----------\n"
 	);
 
@@ -3228,8 +3228,8 @@ public void testReconcileParticipant12() throws CoreException {
 		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		assertWorkingCopyDeltas(
 			"Unexpected participant delta",
-			"X[*]: {CHILDREN | FINE GRAINED}\n" + 
-			"	bar()[+]: {}\n" + 
+			"X[*]: {CHILDREN | FINE GRAINED}\n" +
+			"	bar()[+]: {}\n" +
 			"	foo()[-]: {}"
 		);
 	} finally {
@@ -4423,23 +4423,23 @@ public void testFallthroughDiagnosis() throws CoreException, InterruptedExceptio
 		// Resources creation
 		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
 		p1.setOption(JavaCore.COMPILER_PB_FALLTHROUGH_CASE, JavaCore.ERROR);
-		String source = 
-			"public class X {\n" + 
-			"	void foo(int i) {\n" + 
-			"		switch(i) {\n" + 
-			"		case 0:\n" + 
-			"			i ++;\n" + 
-			"			// $FALL-THROUGH$\n" + 
-			"		case 1:\n" + 
-			"			i++;\n" + 
-			"			/* $FALL-THROUGH$ */\n" + 
-			"		case 2:\n" + 
-			"			i++;\n" + 
-			"		case 3:\n" + 
-			"		}\n" + 
-			"	}\n" + 
+		String source =
+			"public class X {\n" +
+			"	void foo(int i) {\n" +
+			"		switch(i) {\n" +
+			"		case 0:\n" +
+			"			i ++;\n" +
+			"			// $FALL-THROUGH$\n" +
+			"		case 1:\n" +
+			"			i++;\n" +
+			"			/* $FALL-THROUGH$ */\n" +
+			"		case 2:\n" +
+			"			i++;\n" +
+			"		case 3:\n" +
+			"		}\n" +
+			"	}\n" +
 			"}\n";
-			
+
 		createFile("/P1/X.java", source);
 		this.workingCopies = new ICompilationUnit[1];
 
@@ -4448,11 +4448,11 @@ public void testFallthroughDiagnosis() throws CoreException, InterruptedExceptio
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/P1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems("Working copy should have problems:",
-				"----------\n" + 
-				"1. ERROR in /P1/X.java (at line 12)\n" + 
-				"	case 3:\n" + 
-				"	^^^^^^\n" + 
-				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+				"----------\n" +
+				"1. ERROR in /P1/X.java (at line 12)\n" +
+				"	case 3:\n" +
+				"	^^^^^^\n" +
+				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
 				"----------\n"
 		);
 	} finally {
@@ -4462,13 +4462,13 @@ public void testFallthroughDiagnosis() throws CoreException, InterruptedExceptio
 /*
  * Ensure that the option ICompilationUnit.IGNORE_METHOD_BODIES is honored
  */
-public void testIgnoreMethodBodies1() throws CoreException {	
+public void testIgnoreMethodBodies1() throws CoreException {
 	setWorkingCopyContents(
 		"package p1;\n" +
 		"import p2.*;" +
 		"public class X {\n" +
 		"  public int foo() {\n" + // force an error by not returning
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"  }\n" +
 		"}");
 	org.eclipse.jdt.core.dom.CompilationUnit ast = this.workingCopy.reconcile(JLS_LATEST, ICompilationUnit.IGNORE_METHOD_BODIES, null, null);
@@ -4499,10 +4499,10 @@ public void testIgnoreMethodBodies2() throws CoreException {
 		"import p2.*;" +
 		"public class X {\n" +
 		"  public void foo() {\n" +
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"  }\n" +
 		"  public int bar() {\n" +
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"    new X() /*start*/{\n" +
 		"    }/*end*/;" +
 		"  }\n" +
@@ -4530,10 +4530,10 @@ public void testIgnoreMethodBodies3() throws CoreException {
 		"import p2.*;" +
 		"public class X {\n" +
 		"  public void foo() {\n" +
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"  }\n" +
 		"  public int bar() {\n" +
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"    new X() {\n" +
 		"    };" +
 		"  }\n" +
@@ -4565,10 +4565,10 @@ public void testIgnoreMethodBodies4() throws CoreException {
 		"import p2.*;" +
 		"public class X {\n" +
 		"  public void foo() {\n" +
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"  }\n" +
 		"  public int bar() {\n" +
-		"    int i = 0;\n" + 
+		"    int i = 0;\n" +
 		"    new X() {\n" +
 		"    };" +
 		"  }\n" +
@@ -4611,21 +4611,21 @@ public void testGenericAPIUsageFromA14Project() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import p2.BundleContext;\n" +
 			"public class X {\n" +
@@ -4638,18 +4638,18 @@ public void testGenericAPIUsageFromA14Project() throws CoreException {
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
-			"	String s = (String) context.getService(string); \n" + 
-			"	       ^\n" + 
-			"The value of the local variable s is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" +
+			"	String s = (String) context.getService(string); \n" +
+			"	       ^\n" +
+			"The value of the local variable s is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -4678,21 +4678,21 @@ public void testGenericAPIUsageFromA14Project2() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import p2.BundleContext;\n" +
 			"public class X {\n" +
@@ -4705,18 +4705,18 @@ public void testGenericAPIUsageFromA14Project2() throws CoreException {
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
-			"	String s = (String) context.getService(string); \n" + 
-			"	       ^\n" + 
-			"The value of the local variable s is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" +
+			"	String s = (String) context.getService(string); \n" +
+			"	       ^\n" +
+			"The value of the local variable s is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -4785,21 +4785,21 @@ public void testGenericAPIUsageFromA14Project3() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import java.util.Collection;\n" +
 			"public class X {\n" +
@@ -4812,18 +4812,18 @@ public void testGenericAPIUsageFromA14Project3() throws CoreException {
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
-			"	Collection c = p2.X.getX(); \n" + 
-			"	           ^\n" + 
-			"The value of the local variable c is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" +
+			"	Collection c = p2.X.getX(); \n" +
+			"	           ^\n" +
+			"The value of the local variable c is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -4840,7 +4840,7 @@ public void testGenericAPIUsageFromA14Project4() throws CoreException {
 	try {
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import java.lang.Comparable;\n" +
 			"public class X implements Comparable {\n" +
@@ -4864,8 +4864,8 @@ public void testGenericAPIUsageFromA14Project4() throws CoreException {
 		                     "public class X { \n" +
 		                     " private p1.X x = p1.X.getX();\n" +
 		                     " Comparable<String> y = null;\n" +
-		                     "}\n";   
-		                 
+		                     "}\n";
+
 		createFile(
 			"/Reconciler15API/src/p2/X.java",
 			otherSource
@@ -4873,25 +4873,25 @@ public void testGenericAPIUsageFromA14Project4() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		IClasspathEntry[] oldClasspath = project15.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler1415"));
 		project15.setRawClasspath(newClasspath, null);
-				
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = otherSource.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler15API/src/p2/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler15API/src/p2/X.java (at line 3)\n" + 
-			"	private p1.X x = p1.X.getX();\n" + 
-			"	             ^\n" + 
-			"The value of the field X.x is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler15API/src/p2/X.java (at line 3)\n" +
+			"	private p1.X x = p1.X.getX();\n" +
+			"	             ^\n" +
+			"The value of the field X.x is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -4923,21 +4923,21 @@ public void testGenericAPIUsageFromA14Project5() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import p2.List;\n" +
 			"public class X {\n" +
@@ -4949,18 +4949,18 @@ public void testGenericAPIUsageFromA14Project5() throws CoreException {
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
-			"	private List [] l2 = List.getBackArray(l);\n" + 
-			"	                ^^\n" + 
-			"The value of the field X.l2 is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" +
+			"	private List [] l2 = List.getBackArray(l);\n" +
+			"	                ^^\n" +
+			"The value of the field X.l2 is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -4996,46 +4996,46 @@ public void testGenericAPIUsageFromA14Project6() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import p2.Y;\n" +
-			"public class X {\n" + 
+			"public class X {\n" +
 			"   private int unused = 0;\n" +
-			"	public Object foo() {\n" + 
-			"		return new Y() {};\n" + 
-			"	}\n" + 
+			"	public Object foo() {\n" +
+			"		return new Y() {};\n" +
+			"	}\n" +
 			"}";
 
 		createFile(
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" + 
-			"	private int unused = 0;\n" + 
-			"	            ^^^^^^\n" + 
-			"The value of the field X.unused is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" +
+			"	private int unused = 0;\n" +
+			"	            ^^^^^^\n" +
+			"The value of the field X.unused is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5065,7 +5065,7 @@ public void testGenericAPIUsageFromA14Project7() throws CoreException, IOExcepti
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		addLibrary(
 				project15,
 				"libList15.jar",
@@ -5103,37 +5103,37 @@ public void testGenericAPIUsageFromA14Project7() throws CoreException, IOExcepti
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import java.util.List;\n" +
 			"import p2.Y;\n" +
-			"public class X {\n" + 
+			"public class X {\n" +
 			"	private static List getList(boolean test) {\n" +
 			"	    if (test)\n" +
-			"	        return new Y();\n" + 
+			"	        return new Y();\n" +
 			"	    else\n" +
-			"		    return Y.getY();\n" + 
-			"   }\n" + 
+			"		    return Y.getY();\n" +
+			"   }\n" +
 			"}";
 
 		createFile(
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" + 
-			"	private static List getList(boolean test) {\n" + 
-			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method getList(boolean) from the type X is never used locally\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" +
+			"	private static List getList(boolean test) {\n" +
+			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method getList(boolean) from the type X is never used locally\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5162,7 +5162,7 @@ public void testGenericAPIUsageFromA14Project8() throws CoreException, IOExcepti
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		addLibrary(
 				project15,
 				"libList15.jar",
@@ -5200,36 +5200,36 @@ public void testGenericAPIUsageFromA14Project8() throws CoreException, IOExcepti
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"import p2.Y;\n" +
-			"public class X {\n" + 
+			"public class X {\n" +
 			"	private static java.util.List getList(boolean test) {\n" +
 			"	    if (test)\n" +
-			"	        return new Y();\n" + 
+			"	        return new Y();\n" +
 			"	    else\n" +
-			"		    return Y.getY();\n" + 
-			"   }\n" + 
+			"		    return Y.getY();\n" +
+			"   }\n" +
 			"}";
 
 		createFile(
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" + 
-			"	private static java.util.List getList(boolean test) {\n" + 
-			"	                              ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method getList(boolean) from the type X is never used locally\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" +
+			"	private static java.util.List getList(boolean test) {\n" +
+			"	                              ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method getList(boolean) from the type X is never used locally\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5249,28 +5249,28 @@ public void test14ProjectWith15JRE() throws CoreException, IOException {
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
 
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"public class X {\n" +
 			"	int a;\n" +
-			"   private Class c = a == 1 ? int.class : long.class;\n" + 
+			"   private Class c = a == 1 ? int.class : long.class;\n" +
 			"}\n";
 		createFile(
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" + 
-			"	private Class c = a == 1 ? int.class : long.class;\n" + 
-			"	              ^\n" + 
-			"The value of the field X.c is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" +
+			"	private Class c = a == 1 ? int.class : long.class;\n" +
+			"	              ^\n" +
+			"The value of the field X.c is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5288,7 +5288,7 @@ public void testJsr14TargetProjectWith14JRE() throws CoreException, IOException 
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
 
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"public class X {\n" +
 			"    public void foo() {\n" +
@@ -5301,18 +5301,18 @@ public void testJsr14TargetProjectWith14JRE() throws CoreException, IOException 
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 6)\n" + 
-			"	return;\n" + 
-			"	^^^^^^^\n" + 
-			"Dead code\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 6)\n" +
+			"	return;\n" +
+			"	^^^^^^^\n" +
+			"Dead code\n" +
 			"----------\n"
 
 		);
@@ -5343,24 +5343,24 @@ public void testGenericAPIUsageFromA14Project9() throws CoreException {
 		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		
+
 		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		
+
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
 		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
 		project14.setRawClasspath(newClasspath, null);
-		
+
 		createFolder("/Reconciler1415/src/p1");
-		String source = 
+		String source =
 			"package p1;\n" +
 			"public class X {\n" +
-			"	private int unused = 0;\n" + 
+			"	private int unused = 0;\n" +
 			"    X(List l) {\n" +
 			"        Y.foo(l);\n" +
 			"    }\n" +
@@ -5370,18 +5370,18 @@ public void testGenericAPIUsageFromA14Project9() throws CoreException {
 			"/Reconciler1415/src/p1/X.java",
 			source
 		);
-		
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = source.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 3)\n" + 
-			"	private int unused = 0;\n" + 
-			"	            ^^^^^^\n" + 
-			"The value of the field X.unused is not used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 3)\n" +
+			"	private int unused = 0;\n" +
+			"	            ^^^^^^\n" +
+			"The value of the field X.unused is not used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5465,18 +5465,18 @@ public void testBug374176b() throws CoreException, IOException, InterruptedExcep
 		this.workingCopies[0].reconcile(ICompilationUnit.NO_AST, false, null, null);
 
 		assertProblems("Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /TestAnnot/src/p1/package-info.java (at line 1)\n" + 
-			"	package p1;\n" + 
-			"	        ^^\n" + 
-			"A default nullness annotation has not been specified for the package p1\n" + 
+			"----------\n" +
+			"1. ERROR in /TestAnnot/src/p1/package-info.java (at line 1)\n" +
+			"	package p1;\n" +
+			"	        ^^\n" +
+			"A default nullness annotation has not been specified for the package p1\n" +
 			"----------\n");
 		assertProblems("Unexpected problems",
-			"----------\n" + 
-			"1. ERROR in /TestAnnot/src/p1/package-info.java (at line 1)\n" + 
-			"	package p1;\n" + 
-			"	        ^^\n" + 
-			"A default nullness annotation has not been specified for the package p1\n" + 
+			"----------\n" +
+			"1. ERROR in /TestAnnot/src/p1/package-info.java (at line 1)\n" +
+			"	package p1;\n" +
+			"	        ^^\n" +
+			"A default nullness annotation has not been specified for the package p1\n" +
 			"----------\n",
 			this.problemRequestor);
 	} finally {
@@ -5485,7 +5485,7 @@ public void testBug374176b() throws CoreException, IOException, InterruptedExcep
 	}
 }
 public void testSecondaryTypeDeletion() throws CoreException, IOException {
-	
+
 	// Set working copy content with no error
 	setUpWorkingCopy("/Reconciler/src/X.java",
 			"interface I {\n" +
@@ -5502,24 +5502,24 @@ public void testSecondaryTypeDeletion() throws CoreException, IOException {
 			"----------\n"
 			);
 
-	String contents = 
+	String contents =
 					"public class X {\n" +
 					"	static void goo(I i) {\n" +
 					"	}\n" +
 					"}\n";
-	
+
 	setWorkingCopyContents(contents);
 	this.workingCopy.reconcile(ICompilationUnit.NO_AST, true, null, null);
 	assertProblems(
 			"Wrong expected problems",
-			"----------\n" + 
-			"1. ERROR in /Reconciler/src/X.java (at line 2)\n" + 
-			"	static void goo(I i) {\n" + 
-			"	                ^\n" + 
-			"I cannot be resolved to a type\n" + 
+			"----------\n" +
+			"1. ERROR in /Reconciler/src/X.java (at line 2)\n" +
+			"	static void goo(I i) {\n" +
+			"	                ^\n" +
+			"I cannot be resolved to a type\n" +
 			"----------\n"
 			);
-	}	
+	}
 /**
  * Project's compliance: source: 1.5, compiler: 1.5
  * Jar's compliance: source: 1.3, compiler: 1.3
@@ -5834,7 +5834,7 @@ public void testBug485092() throws CoreException, IOException, InterruptedExcept
 	try {
 		project15 = createJavaProject("Reconciler1518", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
 		createFolder("/Reconciler1518/src/p1");
-		String source = 
+		String source =
 				"package p1;\n" +
 				"\n" +
 				"public interface PreferenceableOption<T extends Object> {}\n";
@@ -5850,7 +5850,7 @@ public void testBug485092() throws CoreException, IOException, InterruptedExcept
 
 		project18 = createJavaProject("Reconciler18", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
 		createFolder("/Reconciler18/src/p2");
-		String otherSource = 
+		String otherSource =
 				"package p2;\n" +
 				"import org.eclipse.jdt.annotation.NonNull;\n" +
 				"import org.eclipse.jdt.annotation.Nullable;\n" +
@@ -5875,7 +5875,7 @@ public void testBug485092() throws CoreException, IOException, InterruptedExcept
 		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 		IClasspathEntry nullAnnotationsClassPathEntry = JavaCore.newLibraryEntry(new Path(annotationsLib), null, null);
-				
+
 		IClasspathEntry[] oldClasspath = project18.getRawClasspath();
 		int oldLength = oldClasspath.length;
 		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+2];
@@ -5883,18 +5883,18 @@ public void testBug485092() throws CoreException, IOException, InterruptedExcept
 		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler1518"));
 		newClasspath[oldLength + 1] = nullAnnotationsClassPathEntry;
 		project18.setRawClasspath(newClasspath, null);
-				
+
 		this.workingCopies = new ICompilationUnit[1];
 		char[] sourceChars = otherSource.toCharArray();
 		this.problemRequestor.initialize(sourceChars);
 		this.workingCopies[0] = getCompilationUnit("/Reconciler18/src/p2/PivotEnvironmentFactory.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
-			"1. WARNING in /Reconciler18/src/p2/PivotEnvironmentFactory.java (at line 5)\n" + 
-			"	import p1.PreferenceableOption;\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The import p1.PreferenceableOption is never used\n" + 
+			"----------\n" +
+			"1. WARNING in /Reconciler18/src/p2/PivotEnvironmentFactory.java (at line 5)\n" +
+			"	import p1.PreferenceableOption;\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import p1.PreferenceableOption is never used\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5914,32 +5914,32 @@ public void testBug534865() throws CoreException, IOException {
 		createFile(
 			"/Reconciler18/src/org/eclipse/jdt/annotation/Nullable.java",
 			"package org.eclipse.jdt.annotation;\n" +
-					"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
-					"\n" + 
-					"import java.lang.annotation.Documented;\n" + 
-					"import java.lang.annotation.Retention;\n" + 
-					"import java.lang.annotation.RetentionPolicy;\n" + 
+					"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
+					"\n" +
+					"import java.lang.annotation.Documented;\n" +
+					"import java.lang.annotation.Retention;\n" +
+					"import java.lang.annotation.RetentionPolicy;\n" +
 					"import java.lang.annotation.Target;\n" +
-					"@Documented\n" + 
-					"@Retention(RetentionPolicy.CLASS)\n" + 
-					"@Target({ TYPE_USE })\n" + 
-					"public @interface Nullable {\n" + 
-					"	// marker annotation with no members\n" + 
+					"@Documented\n" +
+					"@Retention(RetentionPolicy.CLASS)\n" +
+					"@Target({ TYPE_USE })\n" +
+					"public @interface Nullable {\n" +
+					"	// marker annotation with no members\n" +
 					"}\n"
 		);
-		String source = 
+		String source =
 				"package org.eclipse.jdt.annotation;\n" +
-				"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
-				"\n" + 
-				"import java.lang.annotation.Documented;\n" + 
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
+				"\n" +
+				"import java.lang.annotation.Documented;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
 				"import java.lang.annotation.Target;\n" +
-				"@Documented\n" + 
-				"@Retention(RetentionPolicy.CLASS)\n" + 
-				"@Target({ TYPE_USE })\n" + 
-				"public @interface NonNull {\n" + 
-				"	// marker annotation with no members\n" + 
+				"@Documented\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target({ TYPE_USE })\n" +
+				"public @interface NonNull {\n" +
+				"	// marker annotation with no members\n" +
 				"}\n";
 
 		createFile(
@@ -5951,7 +5951,7 @@ public void testBug534865() throws CoreException, IOException {
 		this.workingCopies[0] = getCompilationUnit("/Reconciler18/src/org/eclipse/jdt/annotation/NonNull.java").getWorkingCopy(this.wcOwner, null);
 		assertProblems(
 			"Unexpected problems",
-			"----------\n" + 
+			"----------\n" +
 			"----------\n"
 		);
 	} finally {
@@ -5969,40 +5969,40 @@ public void testBug559774() throws CoreException, IOException, InterruptedExcept
 		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
 		project14.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		project14.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
-		
+
 		String[] sources = new String[2];
 		char[][] sourceAsArray = new char[2][];
 		createFolder("/Reconciler14/src/p");
 		createFolder("/Reconciler14/src/q");
-		sources[0] = "package p;\n" + 
-				"public record X(int a, int b) {\n" + 
-				"	public X {\n" + 
-				"		this.a = a * 2;\n" + 
-				"	}\n" + 
-				"	public  void foo() {}\n" + 
-				"}\n" + 
-				"class Z {\n" + 
-				"	public void bar() {\n" + 
-				"		X x = new X(0,1);\n" + 
-				"		int l = x.a(); // works fine in the same file\n" + 
-				"		System.out.println(l);\n" + 
-				"	}\n" + 
+		sources[0] = "package p;\n" +
+				"public record X(int a, int b) {\n" +
+				"	public X {\n" +
+				"		this.a = a * 2;\n" +
+				"	}\n" +
+				"	public  void foo() {}\n" +
+				"}\n" +
+				"class Z {\n" +
+				"	public void bar() {\n" +
+				"		X x = new X(0,1);\n" +
+				"		int l = x.a(); // works fine in the same file\n" +
+				"		System.out.println(l);\n" +
+				"	}\n" +
 				"}";
 		createFile(
 			"/Reconciler14/src/p/X.java",
 			sources[0]
 		);
 		sourceAsArray[0] = sources[0].toCharArray();
-		sources[1] = 
-				"package q;\n" + 
-				"import p.X;\n" + 
-				"public class Y {\n" + 
-				"	public X myField; \n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		X x  = new X(0, 1);\n" + 
+		sources[1] =
+				"package q;\n" +
+				"import p.X;\n" +
+				"public class Y {\n" +
+				"	public X myField; \n" +
+				"	public static void main(String[] args) {\n" +
+				"		X x  = new X(0, 1);\n" +
 				"		int l = x.a(); //Incorrect Error: The method a() is undefined for the type X\n" +
-				"		System.out.println(l);\n" + 
-				"	}\n" + 
+				"		System.out.println(l);\n" +
+				"	}\n" +
 				"} ";
 
 		createFile(
@@ -6021,7 +6021,7 @@ public void testBug559774() throws CoreException, IOException, InterruptedExcept
 		this.problemRequestor.initialize(sourceAsArray[1]);
 		this.workingCopies[1] = getCompilationUnit("/Reconciler14/src/q/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourceAsArray[1], this.workingCopies[1]);
-		
+
 	} finally {
 		if (project14 != null)
 			deleteProject(project14);

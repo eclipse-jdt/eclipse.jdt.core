@@ -33,7 +33,7 @@ public class Bug530665Proc extends BaseProcessor {
 		super.reportError(value);
 		throw new RuntimeException(value);
 	}
-	
+
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if (roundEnv.errorRaised()) {
@@ -69,7 +69,7 @@ public class Bug530665Proc extends BaseProcessor {
 			} catch(IOException e) {
 				// ignored
 			}
-	
+
 			try {
 				FileObject fo = filer.createResource(StandardLocation.CLASS_OUTPUT, "targets/AnnotationProcessorTests/bug530665", "preexists.txt");
 				if (!fo.delete()) {
@@ -83,5 +83,5 @@ public class Bug530665Proc extends BaseProcessor {
 		}
 		return false;
 	}
-	
+
 }

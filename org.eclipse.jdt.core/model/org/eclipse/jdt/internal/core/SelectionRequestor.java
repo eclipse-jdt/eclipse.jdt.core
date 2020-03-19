@@ -466,7 +466,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 		HashSet existingElements = new HashSet();
 		HashMap knownScopes = new HashMap();
 		parent = this.handleFactory.createElement(binding.declaringScope, local.sourceStart, (ICompilationUnit) unit, existingElements, knownScopes);
-	} else {		
+	} else {
 		parent = findLocalElement(local.sourceStart, binding.declaringScope.methodScope()); // findLocalElement() cannot find local variable
 	}
 	LocalVariable localVar = null;
@@ -922,7 +922,7 @@ protected IJavaElement findLocalElement(int pos, MethodScope scope) {
 
 /**
  * This method returns an IMethod element from the given method and declaring type bindings. However,
- * unlike {@link Util#findMethod(IType, char[], String[], boolean)} , this does not require an IType to get 
+ * unlike {@link Util#findMethod(IType, char[], String[], boolean)} , this does not require an IType to get
  * the IMethod element.
  * @param method the given method binding
  * @param signatures the type signatures of the method arguments

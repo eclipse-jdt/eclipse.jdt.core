@@ -48,9 +48,9 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 	 */
 	static class DirectoryNode {
 
-		DirectoryNode parent;		
+		DirectoryNode parent;
 		IPath path;
-		
+
 		/** Key is a full workspace path. */
 		Map<IPath,DirectoryNode> children;
 		/**
@@ -59,7 +59,7 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 		 */
 		Map<IPath, ClassFile> classFiles;
 		IPackageFragmentRoot modelRoot; // TODO: for handling zipped annotations
-		
+
 		public DirectoryNode(DirectoryNode parent, IPath path) {
 			this.parent = parent;
 			this.path = path;
@@ -123,13 +123,13 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 
 	private static ExternalAnnotationTracker singleton;
 	private ExternalAnnotationTracker() { }
-	
+
 	/** Start listening. */
 	static void start(IWorkspace workspace) {
 		singleton = new ExternalAnnotationTracker();
 		workspace.addResourceChangeListener(singleton);
 	}
-	
+
 	/** Stop listening & clean up. */
 	static void shutdown(IWorkspace workspace) {
 		if (singleton != null) {
@@ -146,7 +146,7 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 	 * @param relativeAnnotationPath path corresponding to the qualified name of the main type of the class file.
 	 *  The path is relative to 'annotationBase'.
 	 *  When appending the file extension for annotation files it points to the annotation file
-	 *  that would correspond to the given class file. The annotation file may or may not yet exist. 
+	 *  that would correspond to the given class file. The annotation file may or may not yet exist.
 	 * @param classFile the ClassFile to register.
 	 */
 	public static void registerClassFile(IPath annotationBase, IPath relativeAnnotationPath, ClassFile classFile) {
@@ -239,6 +239,6 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 			} else {
 				traverseForClassFiles(classFiles, delta, baseDepth);
 			}
-		}		
+		}
 	}
 }

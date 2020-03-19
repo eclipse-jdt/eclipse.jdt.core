@@ -421,7 +421,7 @@ ICompilationUnit getPrimary();
  * Returns <code>null</code> if this <code>ICompilationUnit</code> is the primary
  * working copy, or this <code>ICompilationUnit</code> is not a working copy,
  * otherwise the <code>WorkingCopyOwner</code>
- * 
+ *
  * @return <code>null</code> if this <code>ICompilationUnit</code> is the primary
  * working copy, or this <code>ICompilationUnit</code> is not a working copy,
  * otherwise the <code>WorkingCopyOwner</code>

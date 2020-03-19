@@ -161,7 +161,7 @@ public void test003() {
 			"	super(getRunnable(), new B().toString()); \n" +
 			"	                     ^^^^^^^\n" +
 			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
-			"----------\n";			
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			/* A.java */
@@ -1563,7 +1563,7 @@ public void test035() {
 			"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
-			"----------\n";			
+			"----------\n";
 	this.runNegativeTest(new String[] {
 			/* A2.java */
 			"p1/A2.java",
@@ -3726,13 +3726,13 @@ public void test098() {
 			"	}	\n"+
 			"}	\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 6)\n" + 
-		"	} else {	\n" + 
-		"		System.out.println(\"unreachable inner class = \" + new Object() {}.getClass());	\n" + 
-		"		}	\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	} else {	\n" +
+		"		System.out.println(\"unreachable inner class = \" + new Object() {}.getClass());	\n" +
+		"		}	\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n",
 		"first inner class = class X$1\n" +
 		"Always true\n" +
@@ -4890,7 +4890,7 @@ public void test125() throws Exception {
 				"  Inner classes:\n" +
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" +
 				"     inner name: #44 Local, accessflags: 0 default]\n" +
-				(isMinimumCompliant(ClassFileConstants.JDK11) ? 
+				(isMinimumCompliant(ClassFileConstants.JDK11) ?
 				"  Enclosing Method: #39  #41 X.foo(Ljava/lang/String;)V\n" +
 				"\n" +
 				"Nest Host: #39 X\n" : "");
@@ -6309,7 +6309,7 @@ public void test154() {
 public void test155() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",
-		"public class X {\n" + 
+		"public class X {\n" +
 		"	Object foo() {\n" +
 		"		return new X() {};\n" +
 		"	}\n" +
@@ -6323,35 +6323,35 @@ public void test155() throws Exception {
 public void test156() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    protected final void outerMethod() {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    protected final void outerMethod() {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            C.this.outerMethod();\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            C.this.outerMethod();\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  static synthetic void access$0(package2.C arg0);\n" + 
-		"    0  aload_0 [arg0]\n" + 
+		"  static synthetic void access$0(package2.C arg0);\n" +
+		"    0  aload_0 [arg0]\n" +
 		"    1  invokevirtual package2.C.outerMethod() : void";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6359,37 +6359,37 @@ public void test156() throws Exception {
 public void test157() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            int j = C.this.outerField;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            int j = C.this.outerField;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;)I\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
-		"  static synthetic int access$0(package2.C arg0);\n" + 
-		"    0  aload_0 [arg0]\n" + 
+		"  // Method descriptor #33 (Lpackage2/C;)I\n" +
+		"  // Stack: 1, Locals: 1\n" +
+		"  static synthetic int access$0(package2.C arg0);\n" +
+		"    0  aload_0 [arg0]\n" +
 		"    1  getfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6397,38 +6397,38 @@ public void test157() throws Exception {
 public void test158() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            C.this.outerField = 12;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            C.this.outerField = 12;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;I)V\n" + 
-		"  // Stack: 2, Locals: 2\n" + 
-		"  static synthetic void access$0(package2.C arg0, int arg1);\n" + 
-		"    0  aload_0 [arg0]\n" + 
-		"    1  iload_1 [arg1]\n" + 
+		"  // Method descriptor #33 (Lpackage2/C;I)V\n" +
+		"  // Stack: 2, Locals: 2\n" +
+		"  static synthetic void access$0(package2.C arg0, int arg1);\n" +
+		"    0  aload_0 [arg0]\n" +
+		"    1  iload_1 [arg1]\n" +
 		"    2  putfield package2.C.outerField : int";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
@@ -6437,37 +6437,37 @@ public void test158() throws Exception {
 public void test159() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            int j = outerField;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            int j = outerField;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;)I\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
-		"  static synthetic int access$0(package2.C arg0);\n" + 
-		"    0  aload_0 [arg0]\n" + 
+		"  // Method descriptor #33 (Lpackage2/C;)I\n" +
+		"  // Stack: 1, Locals: 1\n" +
+		"  static synthetic int access$0(package2.C arg0);\n" +
+		"    0  aload_0 [arg0]\n" +
 		"    1  getfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6475,38 +6475,38 @@ public void test159() throws Exception {
 public void test160() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            outerField = 12;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            outerField = 12;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;I)V\n" + 
-		"  // Stack: 2, Locals: 2\n" + 
-		"  static synthetic void access$0(package2.C arg0, int arg1);\n" + 
-		"    0  aload_0 [arg0]\n" + 
-		"    1  iload_1 [arg1]\n" + 
+		"  // Method descriptor #33 (Lpackage2/C;I)V\n" +
+		"  // Stack: 2, Locals: 2\n" +
+		"  static synthetic void access$0(package2.C arg0, int arg1);\n" +
+		"    0  aload_0 [arg0]\n" +
+		"    1  iload_1 [arg1]\n" +
 		"    2  putfield package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6514,36 +6514,36 @@ public void test160() throws Exception {
 public void test161() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    static protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    static protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            int j = C.this.outerField;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            int j = C.this.outerField;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 ()I\n" + 
-		"  // Stack: 1, Locals: 0\n" + 
-		"  static synthetic int access$0();\n" + 
+		"  // Method descriptor #33 ()I\n" +
+		"  // Stack: 1, Locals: 0\n" +
+		"  static synthetic int access$0();\n" +
 		"    0  getstatic package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6551,37 +6551,37 @@ public void test161() throws Exception {
 public void test162() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    static protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    static protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            C.this.outerField = 12;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            C.this.outerField = 12;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (I)V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
-		"  static synthetic void access$0(int arg0);\n" + 
-		"    0  iload_0 [arg0]\n" + 
+		"  // Method descriptor #33 (I)V\n" +
+		"  // Stack: 1, Locals: 1\n" +
+		"  static synthetic void access$0(int arg0);\n" +
+		"    0  iload_0 [arg0]\n" +
 		"    1  putstatic package2.C.outerField : int";
 
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
@@ -6590,36 +6590,36 @@ public void test162() throws Exception {
 public void test163() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    static protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    static protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            int j = outerField;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            int j = outerField;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 ()I\n" + 
-		"  // Stack: 1, Locals: 0\n" + 
-		"  static synthetic int access$0();\n" + 
+		"  // Method descriptor #33 ()I\n" +
+		"  // Stack: 1, Locals: 0\n" +
+		"  static synthetic int access$0();\n" +
 		"    0  getstatic package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6627,37 +6627,37 @@ public void test163() throws Exception {
 public void test164() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    static protected int outerField; {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    static protected int outerField; {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            outerField = 12;\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            outerField = 12;\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (I)V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
-		"  static synthetic void access$0(int arg0);\n" + 
-		"    0  iload_0 [arg0]\n" + 
+		"  // Method descriptor #33 (I)V\n" +
+		"  // Stack: 1, Locals: 1\n" +
+		"  static synthetic void access$0(int arg0);\n" +
+		"    0  iload_0 [arg0]\n" +
 		"    1  putstatic package2.C.outerField : int";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6665,36 +6665,36 @@ public void test164() throws Exception {
 public void test165() throws Exception {
 	this.runConformTest(new String[] {
 		"package1/A.java",//=======================
-		"package package1;\n" + 
-		"abstract class A {\n" + 
-		"    static protected final void outerMethod() {\n" + 
-		"    }\n" + 
+		"package package1;\n" +
+		"abstract class A {\n" +
+		"    static protected final void outerMethod() {\n" +
+		"    }\n" +
 		"}\n",
 		"package1/B.java",//=======================
-		"package package1;\n" + 
-		"public class B extends A {\n" + 
-		"}\n", 
+		"package package1;\n" +
+		"public class B extends A {\n" +
+		"}\n",
 		"package2/C.java",//=======================
-		"package package2;\n" + 
-		"import package1.B;\n" + 
-		"public class C extends B {\n" + 
-		"    private final MyInner myInner = new MyInner();\n" + 
-		"    private class MyInner {\n" + 
-		"        public void innerMethod() {\n" + 
-		"            C.this.outerMethod();\n" + 
-		"        }\n" + 
-		"    }\n" + 
-		"    public static void main(String[] args) {\n" + 
-		"        final C c = new C();\n" + 
-		"        c.myInner.innerMethod();\n" + 
-		"    }\n" + 
+		"package package2;\n" +
+		"import package1.B;\n" +
+		"public class C extends B {\n" +
+		"    private final MyInner myInner = new MyInner();\n" +
+		"    private class MyInner {\n" +
+		"        public void innerMethod() {\n" +
+		"            C.this.outerMethod();\n" +
+		"        }\n" +
+		"    }\n" +
+		"    public static void main(String[] args) {\n" +
+		"        final C c = new C();\n" +
+		"        c.myInner.innerMethod();\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #8 ()V\n" + 
-		"  // Stack: 0, Locals: 0\n" + 
-		"  static synthetic void access$0();\n" + 
+		"  // Method descriptor #8 ()V\n" +
+		"  // Stack: 0, Locals: 0\n" +
+		"  static synthetic void access$0();\n" +
 		"    0  invokestatic package2.C.outerMethod() : void";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
@@ -6702,22 +6702,22 @@ public void test165() throws Exception {
 public void test166() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
-		"class XSuper {\n" + 
-		"	protected String field = \"[XSuper#field]\";//$NON-NLS-1$\n" + 
-		"}\n" + 
-		"public class X extends XSuper {\n" + 
-		"	protected String field = \"[X#field]\";//$NON-NLS-1$\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new X().foo();\n" + 
-		"	}\n" + 
-		"	void foo() {\n" + 
-		"		new Object() {\n" + 
-		"			void bar() {\n" + 
-		"				System.out.print(\"X.this.field=\" + X.this.field);\n" + 
-		"				System.out.print(\"X.super.field=\" + X.super.field);\n" + 
-		"			}\n" + 
-		"		}.bar();\n" + 
-		"	}\n" + 
+		"class XSuper {\n" +
+		"	protected String field = \"[XSuper#field]\";//$NON-NLS-1$\n" +
+		"}\n" +
+		"public class X extends XSuper {\n" +
+		"	protected String field = \"[X#field]\";//$NON-NLS-1$\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new X().foo();\n" +
+		"	}\n" +
+		"	void foo() {\n" +
+		"		new Object() {\n" +
+		"			void bar() {\n" +
+		"				System.out.print(\"X.this.field=\" + X.this.field);\n" +
+		"				System.out.print(\"X.super.field=\" + X.super.field);\n" +
+		"			}\n" +
+		"		}.bar();\n" +
+		"	}\n" +
 		"}\n",
 	},
 	"X.this.field=[X#field]X.super.field=[XSuper#field]");
@@ -6726,22 +6726,22 @@ public void test166() throws Exception {
 public void test167() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
-		"class XSuper {\n" + 
-		"	protected String method() { return \"[XSuper#method()]\"; }//$NON-NLS-1$\n" + 
-		"}\n" + 
-		"public class X extends XSuper {\n" + 
-		"	protected String method() { return \"[X#method()]\"; }//$NON-NLS-1$\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new X().foo();\n" + 
-		"	}\n" + 
-		"	void foo() {\n" + 
-		"		new Object() {\n" + 
-		"			void bar() {\n" + 
-		"				System.out.print(\"X.this.method()=\" + X.this.method());\n" + 
-		"				System.out.print(\"X.super.method()=\" + X.super.method());\n" + 
-		"			}\n" + 
-		"		}.bar();\n" + 
-		"	}\n" + 
+		"class XSuper {\n" +
+		"	protected String method() { return \"[XSuper#method()]\"; }//$NON-NLS-1$\n" +
+		"}\n" +
+		"public class X extends XSuper {\n" +
+		"	protected String method() { return \"[X#method()]\"; }//$NON-NLS-1$\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new X().foo();\n" +
+		"	}\n" +
+		"	void foo() {\n" +
+		"		new Object() {\n" +
+		"			void bar() {\n" +
+		"				System.out.print(\"X.this.method()=\" + X.this.method());\n" +
+		"				System.out.print(\"X.super.method()=\" + X.super.method());\n" +
+		"			}\n" +
+		"		}.bar();\n" +
+		"	}\n" +
 		"}\n",
 	},
 	"X.this.method()=[X#method()]X.super.method()=[XSuper#method()]");
@@ -6750,24 +6750,24 @@ public void test167() throws Exception {
 public void test168() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
-		"class XSuper {\n" + 
-		"	protected String field;\n" + 
-		"}\n" + 
-		"public class X extends XSuper {\n" + 
-		"	protected String field;\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new X().foo();\n" + 
-		"	}\n" + 
-		"	void foo() {\n" + 
-		"		new Object() {\n" + 
-		"			void bar() {\n" + 
+		"class XSuper {\n" +
+		"	protected String field;\n" +
+		"}\n" +
+		"public class X extends XSuper {\n" +
+		"	protected String field;\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new X().foo();\n" +
+		"	}\n" +
+		"	void foo() {\n" +
+		"		new Object() {\n" +
+		"			void bar() {\n" +
 		"				X.this.field = \"[X#field]\";\n" +
 		"				X.super.field = \"[XSuper#field]\";\n" +
-		"				System.out.print(\"X.this.field=\" + X.this.field);\n" + 
-		"				System.out.print(\"X.super.field=\" + X.super.field);\n" + 
-		"			}\n" + 
-		"		}.bar();\n" + 
-		"	}\n" + 
+		"				System.out.print(\"X.this.field=\" + X.this.field);\n" +
+		"				System.out.print(\"X.super.field=\" + X.super.field);\n" +
+		"			}\n" +
+		"		}.bar();\n" +
+		"	}\n" +
 		"}\n",
 	},
 	"X.this.field=[X#field]X.super.field=[XSuper#field]");
@@ -6776,27 +6776,27 @@ public void test168() throws Exception {
 public void test169() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
-		"import p.XSuper;\n" + 
-		"public class X extends XSuper {\n" + 
-		"	protected String method() { return \"[X#method()]\"; }//$NON-NLS-1$\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new X().foo();\n" + 
-		"	}\n" + 
-		"	void foo() {\n" + 
-		"		new Object () {\n" + 
-		"			void bar() {\n" + 
-		"				System.out.print(\"X.this.method()=\" + X.this.method());\n" + 
-		"				System.out.print(\"X.super.method()=\" + X.super.method());\n" + 
-		"			}\n" + 
-		"		}.bar();\n" + 
-		"	}\n" + 
+		"import p.XSuper;\n" +
+		"public class X extends XSuper {\n" +
+		"	protected String method() { return \"[X#method()]\"; }//$NON-NLS-1$\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new X().foo();\n" +
+		"	}\n" +
+		"	void foo() {\n" +
+		"		new Object () {\n" +
+		"			void bar() {\n" +
+		"				System.out.print(\"X.this.method()=\" + X.this.method());\n" +
+		"				System.out.print(\"X.super.method()=\" + X.super.method());\n" +
+		"			}\n" +
+		"		}.bar();\n" +
+		"	}\n" +
 		"}\n",
 		"p/XSuper.java",//=======================
-		"package p;\n" + 
-		"class XInternal {\n" + 
-		"	protected String method() { return \"[XInternal#method()]\"; }//$NON-NLS-1$\n" + 
-		"}\n" + 
-		"public class XSuper extends XInternal {\n" + 
+		"package p;\n" +
+		"class XInternal {\n" +
+		"	protected String method() { return \"[XInternal#method()]\"; }//$NON-NLS-1$\n" +
+		"}\n" +
+		"public class XSuper extends XInternal {\n" +
 		"}\n",
 	},
 	"X.this.method()=[X#method()]X.super.method()=[XInternal#method()]");
@@ -6805,18 +6805,18 @@ public void test169() throws Exception {
 public void test170() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
-		"public class X {\n" + 
-		"    class Member {\n" + 
-		"        private String field = \"SUCCESS\";\n" + 
-		"    }\n" + 
-		"    class SubMember extends Member {\n" + 
-		"    	void foo() {\n" + 
-		"    		System.out.println(super.field);\n" + 
-		"    	}\n" + 
-		"    }	\n" + 
-		"    public static void main(String argv[]) {\n" + 
-		"		new X().new SubMember().foo();    	\n" + 
-		"    }\n" + 
+		"public class X {\n" +
+		"    class Member {\n" +
+		"        private String field = \"SUCCESS\";\n" +
+		"    }\n" +
+		"    class SubMember extends Member {\n" +
+		"    	void foo() {\n" +
+		"    		System.out.println(super.field);\n" +
+		"    	}\n" +
+		"    }	\n" +
+		"    public static void main(String argv[]) {\n" +
+		"		new X().new SubMember().foo();    	\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"SUCCESS");
@@ -6825,18 +6825,18 @@ public void test170() throws Exception {
 public void test171() throws Exception {
 	this.runConformTest(new String[] {
 		"X.java",//=======================
-		"public class X {\n" + 
-		"    class Member {\n" + 
-		"        private String method() { return \"SUCCESS\"; }\n" + 
-		"    }\n" + 
-		"    class SubMember extends Member {\n" + 
-		"    	void foo() {\n" + 
-		"    		System.out.println(super.method());\n" + 
-		"    	}\n" + 
-		"    }	\n" + 
-		"    public static void main(String argv[]) {\n" + 
-		"		new X().new SubMember().foo();    	\n" + 
-		"    }\n" + 
+		"public class X {\n" +
+		"    class Member {\n" +
+		"        private String method() { return \"SUCCESS\"; }\n" +
+		"    }\n" +
+		"    class SubMember extends Member {\n" +
+		"    	void foo() {\n" +
+		"    		System.out.println(super.method());\n" +
+		"    	}\n" +
+		"    }	\n" +
+		"    public static void main(String argv[]) {\n" +
+		"		new X().new SubMember().foo();    	\n" +
+		"    }\n" +
 		"}\n",
 	},
 	"SUCCESS");
@@ -6845,50 +6845,50 @@ public void test171() throws Exception {
 public void test172() throws Exception {
 	String[] files = new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	void a() {}\n" + 
-			"	private static void a(String s) {}\n" + 
-			"	private void c() {}\n" + 
-			"	private static void c(String s) {}\n" + 
-			"	static class M1 extends X {\n" + 
-			"		public void x() {\n" + 
-			"			a(null);\n" + 
-			"			c(null);\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	static class M2 {\n" + 
-			"		public void x() {\n" + 
-			"			a(null);\n" + 
-			"			c(null);\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	void a() {}\n" +
+			"	private static void a(String s) {}\n" +
+			"	private void c() {}\n" +
+			"	private static void c(String s) {}\n" +
+			"	static class M1 extends X {\n" +
+			"		public void x() {\n" +
+			"			a(null);\n" +
+			"			c(null);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	static class M2 {\n" +
+			"		public void x() {\n" +
+			"			a(null);\n" +
+			"			c(null);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"	}\n" +
 			"}\n",
 		};
 	if (this.complianceLevel < ClassFileConstants.JDK11) {
 		this.runNegativeTest(
 				files,
-				"----------\n" + 
-				"1. WARNING in X.java (at line 8)\n" + 
-				"	a(null);\n" + 
-				"	^^^^^^^\n" + 
-				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 9)\n" + 
-				"	c(null);\n" + 
-				"	^^^^^^^\n" + 
-				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
-				"----------\n" + 
-				"3. WARNING in X.java (at line 14)\n" + 
-				"	a(null);\n" + 
-				"	^^^^^^^\n" + 
-				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 15)\n" + 
-				"	c(null);\n" + 
-				"	^^^^^^^\n" + 
-				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^^^^^^^\n" +
+				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 9)\n" +
+				"	c(null);\n" +
+				"	^^^^^^^\n" +
+				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
+				"----------\n" +
+				"3. WARNING in X.java (at line 14)\n" +
+				"	a(null);\n" +
+				"	^^^^^^^\n" +
+				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 15)\n" +
+				"	c(null);\n" +
+				"	^^^^^^^\n" +
+				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n"
 				);
 	} else {
@@ -6900,21 +6900,21 @@ public void test173() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================
-			"import java.util.ArrayList;\n" + 
-			"import java.util.Comparator;\n" + 
-			"import java.util.List;\n" + 
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		final List yourList = new ArrayList();\n" + 
-			"		final List myList = new ArrayList();\n" + 
-			"		new Comparator() {\n" + 
-			"			public int compare(Object o1, Object o2) {\n" + 
-			"				compare(yourList != null ? yourList : myList, yourList);\n" + 
-			"				return 0;\n" + 
-			"			}\n" + 
-			"		};\n" + 
-			"		System.out.println(\"SUCCESS\");\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		final List yourList = new ArrayList();\n" +
+			"		final List myList = new ArrayList();\n" +
+			"		new Comparator() {\n" +
+			"			public int compare(Object o1, Object o2) {\n" +
+			"				compare(yourList != null ? yourList : myList, yourList);\n" +
+			"				return 0;\n" +
+			"			}\n" +
+			"		};\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
 			"}",
 		},
 		"SUCCESS");
@@ -6924,27 +6924,27 @@ public void test174() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================
-			"import java.util.Comparator;\n" + 
-			"public class X {\n" + 
+			"import java.util.Comparator;\n" +
+			"public class X {\n" +
 			"	public static class MyList {\n" +
-			"		int size;\n" + 
-			"	}\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		final MyList yourList = new MyList();\n" + 
-			"		final MyList myList = new MyList();\n" + 
-			"		new Comparator() {\n" + 
+			"		int size;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		final MyList yourList = new MyList();\n" +
+			"		final MyList myList = new MyList();\n" +
+			"		new Comparator() {\n" +
 			"			public int compare(Object o1, Object o2) {\n" +
-			"				return compare((MyList) o1, (MyList) o2);\n" + 
-			"			}\n" + 
-			"			public int compare(MyList o1, MyList o2) {\n" + 
-			"				return foo(yourList != null ? yourList.size : myList.size, yourList.size);\n" + 
-			"			}\n" + 
-			"			private int foo(int i, int j) {\n" + 
-			"				return i - j;\n" + 
-			"			}\n" + 
-			"		};\n" + 
-			"		System.out.println(\"SUCCESS\");\n" + 
-			"	}\n" + 
+			"				return compare((MyList) o1, (MyList) o2);\n" +
+			"			}\n" +
+			"			public int compare(MyList o1, MyList o2) {\n" +
+			"				return foo(yourList != null ? yourList.size : myList.size, yourList.size);\n" +
+			"			}\n" +
+			"			private int foo(int i, int j) {\n" +
+			"				return i - j;\n" +
+			"			}\n" +
+			"		};\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
 			"}",
 		},
 		"SUCCESS");
@@ -6954,13 +6954,13 @@ public void test175() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",//=======================
-			"public class X {\n" + 
+			"public class X {\n" +
 			"	class Inner extends X {\n" +
-			"	}\n" + 
+			"	}\n" +
 			"	public static void main(String[] args) {\n" +
-			"		new X().new Inner(){};\n" + 
-			"		System.out.println(\"SUCCESS\");\n" + 
-			"	}\n" + 
+			"		new X().new Inner(){};\n" +
+			"		System.out.println(\"SUCCESS\");\n" +
+			"	}\n" +
 			"}",
 		},
 		"SUCCESS");
@@ -6971,13 +6971,13 @@ public void test175() throws Exception {
 				"	String which;\n" +
 				"	X(String s) {\n" +
 				"		this.which = s;\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	class Inner extends X {\n" +
 				"		Inner() {\n" +
 				"			super(\"Inner\");\n" +
 				"			System.out.print( X.this.which + \",\" ); // will output 'Enclosing,'\n" +
 				"		}\n" +
-				"	}\n" + 
+				"	}\n" +
 				"	void check() {\n" +
 				"		new X(\"Enclosing\").new Inner() {\n" +
 				"			{\n" +
@@ -6986,11 +6986,11 @@ public void test175() throws Exception {
 				"			void f() {\n" +
 				"				System.out.println( X.this.which ); // will output 'Context'\n" +
 				"			}\n" +
-				"		}.f();\n" + 
+				"		}.f();\n" +
 				"	}\n" +
 				"	public static void main(String[] args) {\n" +
 				"		new X(\"Context\").check();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}",
 			},
 			"Enclosing,Context,Context");
@@ -7000,43 +7000,43 @@ public void test176() {
 	this.runConformTest(
 		new String[] {
 			"Demo.java",
-			"import java.util.ArrayList;\n" + 
-			"public class Demo {\n" + 
-			"        static class ExprFactoryList extends ArrayList {\n" + 
-			"                class Expr {}\n" + 
-			"                class Expr2 extends Expr {}\n" + 
-			"        }\n" + 
-			"        final static ExprFactoryList arith =  new ExprFactoryList() {\n" + 
-			"                {\n" + 
-			"                        add(new Object() {public Expr generate() {return new Expr() {};} }); // OK\n" + 
-			"                        add(new Object() {public Expr generate() {return new Expr2() {};} }); // Ok\n" + 
-			"                }\n" + 
-			"        };\n" + 
-			"        final static ExprFactoryList statementFactory =  new ExprFactoryList() {\n" + 
-			"                class Statement extends Expr {}\n" + 
-			"                void m() {\n" + 
-			"                        add(new Object() {\n" + 
-			"                                public void generate() {\n" + 
-			"                                        new Statement(){}; // OK\n" + 
-			"                                }\n" + 
-			"                        });\n" + 
-			"                }\n" + 
-			"                {\n" + 
-			"                        add (new Statement()); // OK\n" + 
-			"                        add(new Object() {\n" + 
-			"                                public void generate() {\n" + 
-			"                                        new Statement(); // OK\n" + 
-			"                                        new Statement(){}; // cannot compile\n" + 
-			"                                }\n" + 
-			"                        });\n" + 
-			"                }\n" + 
-			"        };\n" + 
-			"        public static void main(String[] args) {\n" + 
-			"        	Demo demo = new Demo();\n" + 
-			"        	System.out.println(\"SUCCESS\");\n" + 
-			"        }\n" + 
-			"       \n" + 
-			"}"	
+			"import java.util.ArrayList;\n" +
+			"public class Demo {\n" +
+			"        static class ExprFactoryList extends ArrayList {\n" +
+			"                class Expr {}\n" +
+			"                class Expr2 extends Expr {}\n" +
+			"        }\n" +
+			"        final static ExprFactoryList arith =  new ExprFactoryList() {\n" +
+			"                {\n" +
+			"                        add(new Object() {public Expr generate() {return new Expr() {};} }); // OK\n" +
+			"                        add(new Object() {public Expr generate() {return new Expr2() {};} }); // Ok\n" +
+			"                }\n" +
+			"        };\n" +
+			"        final static ExprFactoryList statementFactory =  new ExprFactoryList() {\n" +
+			"                class Statement extends Expr {}\n" +
+			"                void m() {\n" +
+			"                        add(new Object() {\n" +
+			"                                public void generate() {\n" +
+			"                                        new Statement(){}; // OK\n" +
+			"                                }\n" +
+			"                        });\n" +
+			"                }\n" +
+			"                {\n" +
+			"                        add (new Statement()); // OK\n" +
+			"                        add(new Object() {\n" +
+			"                                public void generate() {\n" +
+			"                                        new Statement(); // OK\n" +
+			"                                        new Statement(){}; // cannot compile\n" +
+			"                                }\n" +
+			"                        });\n" +
+			"                }\n" +
+			"        };\n" +
+			"        public static void main(String[] args) {\n" +
+			"        	Demo demo = new Demo();\n" +
+			"        	System.out.println(\"SUCCESS\");\n" +
+			"        }\n" +
+			"       \n" +
+			"}"
 		},
 		"SUCCESS");
 }
@@ -7045,34 +7045,34 @@ public void testbug484546() {
 	this.runConformTest(
 		new String[] {
 			"inner/test/InnerTest.java",
-			"package inner.test;\n" + 
-			"class Inner029SuperSuper {\n" + 
-			"  public int getValue() {\n" + 
-			"    return 10;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"class Inner029Super extends Inner029SuperSuper {\n" + 
-			"}\n" + 
-			"class InnerSuper extends Inner029Super {\n" + 
-			"  public int getValue() {\n" + 
-			"    return 20;\n" + 
-			"  }\n" + 
-			"}\n" + 
-			"public class InnerTest extends Inner029Super {\n" + 
-			"  public int result = new Inner().getInner2().test();\n" + 
-			"  class Inner extends InnerSuper {\n" + 
-			"    Inner2 getInner2() {\n" + 
-			"      return new Inner2();\n" + 
-			"    }\n" + 
-			"    class Inner2 {\n" + 
-			"      public int test() {\n" + 
-			"        return InnerTest.super.getValue();\n" + 
-			"      }\n" + 
-			"    }\n" + 
-			"  }\n" + 
-			"  public static void main(String[] args) {\n" + 
-			"	System.out.println(new InnerTest().result);\n" + 
-			"}\n" + 
+			"package inner.test;\n" +
+			"class Inner029SuperSuper {\n" +
+			"  public int getValue() {\n" +
+			"    return 10;\n" +
+			"  }\n" +
+			"}\n" +
+			"class Inner029Super extends Inner029SuperSuper {\n" +
+			"}\n" +
+			"class InnerSuper extends Inner029Super {\n" +
+			"  public int getValue() {\n" +
+			"    return 20;\n" +
+			"  }\n" +
+			"}\n" +
+			"public class InnerTest extends Inner029Super {\n" +
+			"  public int result = new Inner().getInner2().test();\n" +
+			"  class Inner extends InnerSuper {\n" +
+			"    Inner2 getInner2() {\n" +
+			"      return new Inner2();\n" +
+			"    }\n" +
+			"    class Inner2 {\n" +
+			"      public int test() {\n" +
+			"        return InnerTest.super.getValue();\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"	System.out.println(new InnerTest().result);\n" +
+			"}\n" +
 			"}\n"
 		},
 		"10");
@@ -7081,13 +7081,13 @@ public void testbug484546() {
 public void testbug373371() {
 	String[] sources = new String[] {
 		"Outer.java",
-		"class Outer {\n" + 
-		"    class Inner extends Outer {    }\n" + 
-		"    class SubInner extends Inner {\n" + 
-		"        public SubInner() {\n" + 
-		"          // Outer.this.super(); // (1)\n" + 
-		"        }\n" + 
-		"    }\n" + 
+		"class Outer {\n" +
+		"    class Inner extends Outer {    }\n" +
+		"    class SubInner extends Inner {\n" +
+		"        public SubInner() {\n" +
+		"          // Outer.this.super(); // (1)\n" +
+		"        }\n" +
+		"    }\n" +
 		"}"
 	};
 	if (this.complianceLevel < ClassFileConstants.JDK1_4 || this.complianceLevel > ClassFileConstants.JDK1_6) {
@@ -7107,27 +7107,27 @@ public void testbug373371() {
 public void testbug522061() {
 	String[] sources = new String[] {
 		"ztest/Foo.java",
-		"package ztest;\n" + 
-		"import java.io.File;\n" + 
-		"import javax.swing.Action;\n" + 
-		"public abstract class Foo {\n" + 
-		"	public FilteredFileTree matching(final Action filterConfigAction) {\n" + 
-		"		return new FilteredFileTree() {\n" + 
-		"			//@Override\n" + 
-		"			protected File filter(File set) {\n" + 
-		"				return null;\n" + 
-		"			}\n" + 
-		"		};\n" + 
-		"	}\n" + 
-		"	public String getDisplayName() {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
-		"   private abstract class FilteredFileTree extends Foo {\n" + 
-		"		protected abstract File filter(File set);\n" + 
-		"		public String getDisplayName() {\n" + 
-		"			return Foo.this.toString();\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"package ztest;\n" +
+		"import java.io.File;\n" +
+		"import javax.swing.Action;\n" +
+		"public abstract class Foo {\n" +
+		"	public FilteredFileTree matching(final Action filterConfigAction) {\n" +
+		"		return new FilteredFileTree() {\n" +
+		"			//@Override\n" +
+		"			protected File filter(File set) {\n" +
+		"				return null;\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"	public String getDisplayName() {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"   private abstract class FilteredFileTree extends Foo {\n" +
+		"		protected abstract File filter(File set);\n" +
+		"		public String getDisplayName() {\n" +
+		"			return Foo.this.toString();\n" +
+		"		}\n" +
+		"	}\n" +
 		"}"
 	};
 	if (this.complianceLevel < ClassFileConstants.JDK1_4 || this.complianceLevel > ClassFileConstants.JDK1_6) {
@@ -7135,16 +7135,16 @@ public void testbug522061() {
 	} else {
 		this.runNegativeTest(
 			sources,
-			"----------\n" + 
-			"1. WARNING in ztest\\Foo.java (at line 6)\n" + 
-			"	return new FilteredFileTree() {\n" + 
-			"	           ^^^^^^^^^^^^^^^^^^\n" + 
-			"Access to enclosing constructor Foo.FilteredFileTree() is emulated by a synthetic accessor method\n" + 
-			"----------\n" + 
-			"2. ERROR in ztest\\Foo.java (at line 6)\n" + 
-			"	return new FilteredFileTree() {\n" + 
-			"	           ^^^^^^^^^^^^^^^^^^\n" + 
-			"No enclosing instance of type Foo is available due to some intermediate constructor invocation\n" + 
+			"----------\n" +
+			"1. WARNING in ztest\\Foo.java (at line 6)\n" +
+			"	return new FilteredFileTree() {\n" +
+			"	           ^^^^^^^^^^^^^^^^^^\n" +
+			"Access to enclosing constructor Foo.FilteredFileTree() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in ztest\\Foo.java (at line 6)\n" +
+			"	return new FilteredFileTree() {\n" +
+			"	           ^^^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type Foo is available due to some intermediate constructor invocation\n" +
 			"----------\n");
 	}
 }
@@ -7152,10 +7152,10 @@ public void testbug522061() {
 public void testbug481793() {
 	String[] sources = new String[] {
 		"A.java",
-		"public class A {\n" + 
-		"	public class B extends A {\n" + 
-		"		public class C extends B {}\n" + 
-		"	}\n" + 
+		"public class A {\n" +
+		"	public class B extends A {\n" +
+		"		public class C extends B {}\n" +
+		"	}\n" +
 		"}"
 	};
 	if (this.complianceLevel < ClassFileConstants.JDK1_4 || this.complianceLevel > ClassFileConstants.JDK1_6) {
@@ -7163,11 +7163,11 @@ public void testbug481793() {
 	} else {
 		this.runNegativeTest(
 			sources,
-			"----------\n" + 
-			"1. ERROR in A.java (at line 3)\n" + 
-			"	public class C extends B {}\n" + 
-			"	             ^\n" + 
-			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" + 
+			"----------\n" +
+			"1. ERROR in A.java (at line 3)\n" +
+			"	public class C extends B {}\n" +
+			"	             ^\n" +
+			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
 			"----------\n");
 	}
 }

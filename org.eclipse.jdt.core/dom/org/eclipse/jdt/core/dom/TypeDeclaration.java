@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Type declaration AST node type. A type declaration
  * is the union of a class declaration and an interface declaration.
- * 
+ *
  * <pre>
  * TypeDeclaration:
  * 		ClassDeclaration

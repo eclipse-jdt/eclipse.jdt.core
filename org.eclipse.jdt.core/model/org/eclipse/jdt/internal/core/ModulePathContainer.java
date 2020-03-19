@@ -64,19 +64,19 @@ public class ModulePathContainer implements IClasspathContainer{
 
 	@Override
 	public String getDescription() {
-		// 
+		//
 		return "Module path"; //$NON-NLS-1$
 	}
 
 	@Override
 	public int getKind() {
-		// 
+		//
 		return K_APPLICATION;
 	}
 
 	@Override
 	public IPath getPath() {
-		// 
+		//
 		return new Path(JavaCore.MODULE_PATH_CONTAINER_ID);
 	}
 

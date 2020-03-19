@@ -204,7 +204,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 			}
 			if (reportIllegalModifierCombination) {
 				problemReporter().illegalModifierCombinationForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
-			} 
+			}
 			if (sourceLevel >= ClassFileConstants.JDK9 && (methodBinding.modifiers & ClassFileConstants.AccPrivate) != 0) {
 				int remaining = realModifiers & ~expectedModifiers;
 				if (remaining == 0) { // check for the combination of allowed modifiers with private
@@ -233,7 +233,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 		LocalTypeBinding local = (LocalTypeBinding) declaringClass;
 		TypeReference ref = local.scope.referenceContext.allocation.type;
 		if (ref != null && (ref.bits & ASTNode.IsDiamond) != 0) {
-			// 
+			//
 			if ((realModifiers & (ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic )) == 0) {
 				methodBinding.tagBits |= TagBits.AnnotationOverride;
 			}

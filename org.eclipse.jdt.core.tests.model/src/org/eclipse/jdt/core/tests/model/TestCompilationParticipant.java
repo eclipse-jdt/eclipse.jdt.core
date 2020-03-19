@@ -26,7 +26,7 @@ public class TestCompilationParticipant extends CompilationParticipant {
 		if (failToInstantiate)
 			throw new RuntimeException();
 	}
-	
+
 	public boolean isActive(IJavaProject project) {
 		return PARTICIPANT != null && PARTICIPANT.isActive(project);
 	}

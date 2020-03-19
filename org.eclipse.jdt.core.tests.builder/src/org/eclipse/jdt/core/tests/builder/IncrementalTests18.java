@@ -42,7 +42,7 @@ public class IncrementalTests18 extends BuilderTests {
 	public static Test suite() {
 		return AbstractCompilerTest.buildUniqueComplianceTestSuite(IncrementalTests18.class, ClassFileConstants.JDK1_8);
 	}
-	
+
 	private void setupProjectForNullAnnotations() throws IOException, JavaModelException {
 		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[2.0.0,3.0.0)");
@@ -57,7 +57,7 @@ public class IncrementalTests18 extends BuilderTests {
 
 		javaProject.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423122, [1.8] Missing incremental build dependency from lambda expression to functional interface.
 	public void test423122() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
@@ -91,7 +91,7 @@ public class IncrementalTests18 extends BuilderTests {
 			"Problem : The target type of this expression must be a functional interface [ resource : </Project/src/p/X.java> range : <35,40> category : <40> severity : <2>]"
 		);
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423122, [1.8] Missing incremental build dependency from lambda expression to functional interface.
 	public void test423122a() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
@@ -179,14 +179,14 @@ public class IncrementalTests18 extends BuilderTests {
 				"public @interface T {\n" +
 				"}\n"
 			);
-		
+
 		// force annotation encoding into bindings which is necessary to reproduce.
 		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 		fullBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
-				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" +
 				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <68,72> category : <130> severity : <1>]"
 			);
 		env.addClass(root, "", "X",
@@ -199,7 +199,7 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
-				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" +
 				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <68,72> category : <130> severity : <1>]"
 			);
 	}
@@ -234,14 +234,14 @@ public class IncrementalTests18 extends BuilderTests {
 				"public @interface T {\n" +
 				"}\n"
 			);
-		
+
 		// force annotation encoding into bindings which is necessary to reproduce.
 		env.getJavaProject("Project").setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 		fullBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
-				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" +
 				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <68,72> category : <130> severity : <1>]"
 			);
 		env.addClass(root, "", "X",
@@ -254,11 +254,11 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
-				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" + 
+				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/I.java> range : <55,59> category : <130> severity : <1>]\n" +
 				"Problem : List is a raw type. References to generic type List<E> should be parameterized [ resource : </Project/src/X.java> range : <71,75> category : <130> severity : <1>]"
 			);
-	}	
-	
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428071, [1.8][compiler] Bogus error about incompatible return type during override
 	public void test428071() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
@@ -309,7 +309,7 @@ public class IncrementalTests18 extends BuilderTests {
 		File file = new File(jfxJar);
 		if (file.exists())
 			env.addExternalJars(projectPath, Util.concatWithClassLibs(jfxJar, false));
-		else 
+		else
 			return;
 
 		// remove old package fragment root so that names don't collide
@@ -364,7 +364,7 @@ public class IncrementalTests18 extends BuilderTests {
 		);
 		incrementalBuild(projectPath);
 		expectingNoProblems();
-	}	
+	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435544, [compiler][null] Enum constants not recognised as being NonNull (take2)
 	public void test435544() throws JavaModelException, IOException {
@@ -406,7 +406,7 @@ public class IncrementalTests18 extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingNoProblems();
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442452,  [compiler][regression] Bogus error: The interface Comparable cannot be implemented more than once with different arguments
 	public void testBug442452() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
@@ -423,11 +423,11 @@ public class IncrementalTests18 extends BuilderTests {
 		env.addClass(projectPath, "", "IEntity", //$NON-NLS-1$ //$NON-NLS-2$
 				"public interface IEntity<T extends IEntity<T>> extends IBasicItem {\n" +
 				"}\n"); //$NON-NLS-1$
-		
+
 		env.addClass(projectPath, "", "IBasicItem", //$NON-NLS-1$ //$NON-NLS-2$
 				"public interface IBasicItem extends Comparable<IBasicItem> {\n" +
 				"}\n"); //$NON-NLS-1$
-		
+
 		env.addClass(projectPath, "", "IAdvancedItem", //$NON-NLS-1$ //$NON-NLS-2$
 				"public interface IAdvancedItem extends Comparable<IBasicItem> {\n" +
 				"}\n"); //$NON-NLS-1$
@@ -543,38 +543,38 @@ public class IncrementalTests18 extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin");
 
 		setupProjectForNullAnnotations();
-		
+
 		// clean status from https://bugs.eclipse.org/bugs/attachment.cgi?id=257687
 		env.addClass(root, "testNullAnnotations", "package-info",
-				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"package testNullAnnotations;\n");
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.Nullable;\n" + 
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> T[] checkNotNull(T @Nullable [] array) {\n" + 
-				"        if (array == null) {\n" + 
-				"            throw new NullPointerException();\n" + 
-				"        }\n" + 
-				"        return array;\n" + 
-				"    }\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> T[] checkNotNull(T @Nullable [] array) {\n" +
+				"        if (array == null) {\n" +
+				"            throw new NullPointerException();\n" +
+				"        }\n" +
+				"        return array;\n" +
+				"    }\n" +
 				"}\n");
 		env.addClass(root, "testNullAnnotations", "Snippet",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.*;\n" + 
-				"\n" + 
-				"public class Snippet {\n" + 
-				"	@SuppressWarnings(\"unused\")\n" + 
-				"	public void foo() {\n" + 
-				"        @NonNull Object @Nullable [] objects = null;\n" + 
-				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
-				"	}\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" +
+				"public class Snippet {\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	public void foo() {\n" +
+				"        @NonNull Object @Nullable [] objects = null;\n" +
+				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" +
+				"	}\n" +
 				"}\n");
 
 		fullBuild(projectPath);
@@ -582,16 +582,16 @@ public class IncrementalTests18 extends BuilderTests {
 
 		// add an error by removing the necessary @Nullable annotation:
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> T[] checkNotNull(T [] array) {\n" + 
-				"        if (array == null) {\n" + 
-				"            throw new NullPointerException();\n" + 
-				"        }\n" + 
-				"        return array;\n" + 
-				"    }\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> T[] checkNotNull(T [] array) {\n" +
+				"        if (array == null) {\n" +
+				"            throw new NullPointerException();\n" +
+				"        }\n" +
+				"        return array;\n" +
+				"    }\n" +
 				"}\n");
 
 		incrementalBuild(projectPath);
@@ -616,59 +616,59 @@ public class IncrementalTests18 extends BuilderTests {
 		setupProjectForNullAnnotations();
 		// clean status:
 		env.addClass(root, "testNullAnnotations", "package-info",
-				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"package testNullAnnotations;\n");
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.Nullable;\n" + 
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <@Nullable T> T[] checkNotNull(T @Nullable[] array) {\n" + 
-				"        if (array == null) {\n" + 
-				"            throw new NullPointerException();\n" + 
-				"        }\n" + 
-				"        return array;\n" + 
-				"    }\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <@Nullable T> T[] checkNotNull(T @Nullable[] array) {\n" +
+				"        if (array == null) {\n" +
+				"            throw new NullPointerException();\n" +
+				"        }\n" +
+				"        return array;\n" +
+				"    }\n" +
 				"}\n");
 		env.addClass(root, "testNullAnnotations", "Snippet",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.*;\n" + 
-				"\n" + 
-				"public class Snippet {\n" + 
-				"	@SuppressWarnings(\"unused\")\n" + 
-				"	public void foo() {\n" + 
-				"        @NonNull Object @Nullable [] objects = new @NonNull Object[0];\n" + 
-				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
-				"	}\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" +
+				"public class Snippet {\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	public void foo() {\n" +
+				"        @NonNull Object @Nullable [] objects = new @NonNull Object[0];\n" +
+				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" +
+				"	}\n" +
 				"}\n");
 
 		fullBuild(projectPath);
 		expectingProblemsFor(
 				projectPath,
 				"Problem : Null type mismatch (type annotations): required \'@NonNull Object @NonNull[]\' but this expression has type \'@Nullable Object @NonNull[]\' [" +
-				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <321,342> category : <90> severity : <2>]\n" + 
+				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <321,342> category : <90> severity : <2>]\n" +
 				"Problem : Null type mismatch (type annotations): required \'@Nullable Object @Nullable[]\' but this expression has type \'@NonNull Object @Nullable[]\' [" +
-				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <334,341> category : <90> severity : <2>]");		
+				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <334,341> category : <90> severity : <2>]");
 
 		// fix error according to https://bugs.eclipse.org/bugs/show_bug.cgi?id=481276#c4
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.Nullable;\n" + 
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> T[] checkNotNull(T @Nullable[] array) {\n" + 
-				"        if (array == null) {\n" + 
-				"            throw new NullPointerException();\n" + 
-				"        }\n" + 
-				"        return array;\n" + 
-				"    }\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> T[] checkNotNull(T @Nullable[] array) {\n" +
+				"        if (array == null) {\n" +
+				"            throw new NullPointerException();\n" +
+				"        }\n" +
+				"        return array;\n" +
+				"    }\n" +
 				"}\n");
 
 		incrementalBuild(projectPath);
@@ -686,38 +686,38 @@ public class IncrementalTests18 extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin");
 
 		setupProjectForNullAnnotations();
-		
+
 		// clean status from https://bugs.eclipse.org/bugs/attachment.cgi?id=257687
 		env.addClass(root, "testNullAnnotations", "package-info",
-				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"package testNullAnnotations;\n");
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.Nullable;\n" + 
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> T[] checkNotNull(T @Nullable [] array) {\n" + 
-				"        if (array == null) {\n" + 
-				"            throw new NullPointerException();\n" + 
-				"        }\n" + 
-				"        return array;\n" + 
-				"    }\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> T[] checkNotNull(T @Nullable [] array) {\n" +
+				"        if (array == null) {\n" +
+				"            throw new NullPointerException();\n" +
+				"        }\n" +
+				"        return array;\n" +
+				"    }\n" +
 				"}\n");
 		env.addClass(root, "testNullAnnotations", "Snippet",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" + 
-				"\n" + 
-				"import org.eclipse.jdt.annotation.*;\n" + 
-				"\n" + 
-				"public class Snippet {\n" + 
-				"	@SuppressWarnings(\"unused\")\n" + 
-				"	public void foo() {\n" + 
-				"        @NonNull Object @Nullable [] objects = null;\n" + 
-				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
-				"	}\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" +
+				"public class Snippet {\n" +
+				"	@SuppressWarnings(\"unused\")\n" +
+				"	public void foo() {\n" +
+				"        @NonNull Object @Nullable [] objects = null;\n" +
+				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" +
+				"	}\n" +
 				"}\n");
 
 		fullBuild(projectPath);
@@ -725,14 +725,14 @@ public class IncrementalTests18 extends BuilderTests {
 
 		// add a warning by making @NNBD ineffective:
 		env.addClass(root, "testNullAnnotations", "package-info",
-				"@org.eclipse.jdt.annotation.NonNullByDefault({})\n" + 
+				"@org.eclipse.jdt.annotation.NonNullByDefault({})\n" +
 				"package testNullAnnotations;\n");
 
 		incrementalBuild(projectPath);
 		expectingProblemsFor(
 			projectPath,
 			"Problem : Null type safety (type annotations): The expression of type \'@NonNull Object []\' needs unchecked conversion to conform to \'@NonNull Object @NonNull[]\' [" +
-			" resource : </Project/src/testNullAnnotations/Snippet.java> range : <303,324> category : <90> severity : <1>]");		
+			" resource : </Project/src/testNullAnnotations/Snippet.java> range : <303,324> category : <90> severity : <1>]");
 	}
 
 	public void testBug483744_remove() throws JavaModelException, IOException {
@@ -745,34 +745,34 @@ public class IncrementalTests18 extends BuilderTests {
 		env.setOutputFolder(projectPath, "bin");
 
 		setupProjectForNullAnnotations();
-		
+
 		env.addClass(root, "testNullAnnotations", "package-info",
-				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
 				"package testNullAnnotations;\n");
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import java.util.*;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> List<@NonNull T> checkNotNullContents(List<@Nullable T> list, List<@NonNull T> nList) {\n" + 
-				"        return nList;\n" + 
-				"    }\n" + 
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> List<@NonNull T> checkNotNullContents(List<@Nullable T> list, List<@NonNull T> nList) {\n" +
+				"        return nList;\n" +
+				"    }\n" +
 				"}\n");
 		env.addClass(root, "testNullAnnotations", "Snippet",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
-				"import org.eclipse.jdt.annotation.*;\n" + 
-				"\n" + 
-				"import static testNullAnnotations.NonNullUtils.checkNotNullContents;\n" + 
-				"\n" + 
-				"public class Snippet {\n" + 
-				"	public List<@NonNull String> foo(List<@Nullable String> inList, List<@NonNull String> nList) {\n" + 
-				"        return checkNotNullContents(inList, nList); \n" + 
-				"	}\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import java.util.*;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" +
+				"import static testNullAnnotations.NonNullUtils.checkNotNullContents;\n" +
+				"\n" +
+				"public class Snippet {\n" +
+				"	public List<@NonNull String> foo(List<@Nullable String> inList, List<@NonNull String> nList) {\n" +
+				"        return checkNotNullContents(inList, nList); \n" +
+				"	}\n" +
 				"}\n");
 
 		fullBuild(projectPath);
@@ -780,32 +780,32 @@ public class IncrementalTests18 extends BuilderTests {
 
 		// remove @Nullable (second type annotation):
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import java.util.*;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> List<@NonNull T> checkNotNullContents(List<T> list, List<@NonNull T> nList) {\n" + 
-				"        return nList;\n" + 
-				"    }\n" + 
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> List<@NonNull T> checkNotNullContents(List<T> list, List<@NonNull T> nList) {\n" +
+				"        return nList;\n" +
+				"    }\n" +
 				"}\n");
 		incrementalBuild(projectPath); // was throwing NPE
 		expectingNoProblems();
 
 		// and add it again:
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",
-				"package testNullAnnotations;\n" + 
-				"\n" + 
-				"import java.util.*;\n" + 
+				"package testNullAnnotations;\n" +
+				"\n" +
+				"import java.util.*;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
-				"\n" + 
-				"public final class NonNullUtils {\n" + 
-				"\n" + 
-				"    public static <T> List<@NonNull T> checkNotNullContents(List<@Nullable T> list, List<@NonNull T> nList) {\n" + 
-				"        return nList;\n" + 
-				"    }\n" + 
+				"\n" +
+				"public final class NonNullUtils {\n" +
+				"\n" +
+				"    public static <T> List<@NonNull T> checkNotNullContents(List<@Nullable T> list, List<@NonNull T> nList) {\n" +
+				"        return nList;\n" +
+				"    }\n" +
 				"}\n");
 		incrementalBuild(projectPath); // was throwing NPE
 		expectingNoProblems();

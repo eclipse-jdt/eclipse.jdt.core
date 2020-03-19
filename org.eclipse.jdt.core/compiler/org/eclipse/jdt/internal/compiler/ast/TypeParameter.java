@@ -167,7 +167,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 					this.binding.evaluateNullAnnotations(scope, this);
 				}
 			}
-		}	
+		}
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 BEA Systems, Inc. 
+ * Copyright (c) 2005 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests.annotations.filegen;
@@ -24,16 +24,16 @@ import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 public class SecondGenAnnotationProcessorFactory extends BaseFactory {
-	
+
 	public SecondGenAnnotationProcessorFactory() {
 		super(SecondGenAnnotation.class.getName());
 	}
 
 	public AnnotationProcessor getProcessorFor(
 			Set<AnnotationTypeDeclaration> atds,
-			AnnotationProcessorEnvironment env) 
+			AnnotationProcessorEnvironment env)
 	{
 		return new SecondGenAnnotationProcessor( env );
 	}
-	
+
 }

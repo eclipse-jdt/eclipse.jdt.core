@@ -196,7 +196,7 @@ public IType createType(String contents, IJavaElement sibling, boolean force, IP
 @Override
 public boolean equals(Object o) {
 	if (!(o instanceof SourceType)) return false;
-	if (((SourceType) o).isLambda()) 
+	if (((SourceType) o).isLambda())
 		return false;
 	return super.equals(o);
 }
@@ -850,7 +850,7 @@ public ITypeHierarchy newTypeHierarchy(IJavaProject project, WorkingCopyOwner ow
 @Override
 public ITypeHierarchy newTypeHierarchy(IProgressMonitor monitor) throws JavaModelException {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845, The new type hierarchy should consider changes in primary
-	// working copy. 
+	// working copy.
 	return newTypeHierarchy(DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 

@@ -242,7 +242,7 @@ public class CorrectionEngine {
 			Map<String,String> currentProjectOptions = this.compilationUnit.getJavaProject().getOptions(true);
 			long sourceLevel = CompilerOptions.versionToJdkLevel(currentProjectOptions.get(JavaCore.COMPILER_SOURCE));
 			long complianceLevel = CompilerOptions.versionToJdkLevel(currentProjectOptions.get(JavaCore.COMPILER_COMPLIANCE));
-			
+
 			Scanner scanner =
 				new Scanner(
 					false /*comment*/,

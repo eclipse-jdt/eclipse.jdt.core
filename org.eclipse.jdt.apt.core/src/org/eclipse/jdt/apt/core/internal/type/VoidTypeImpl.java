@@ -23,14 +23,14 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class VoidTypeImpl implements VoidType, EclipseMirrorType
-{   
+{
 	private final ITypeBinding _binding;
 
     public VoidTypeImpl(final ITypeBinding  binding){
 		assert binding != null : "missing binding"; //$NON-NLS-1$
 		_binding = binding;
 	}
-    
+
     @Override
 	public void accept(TypeVisitor visitor)
     {
@@ -39,13 +39,13 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorType
 
     @Override
 	public String toString(){ return "void"; } //$NON-NLS-1$
-	
+
 	@Override
 	public ITypeBinding getTypeBinding(){return _binding;}
 
     @Override
 	public MirrorKind kind(){ return MirrorKind.TYPE_VOID; }
-	
+
 	@Override
 	public BaseProcessorEnv getEnvironment(){ return null; }
 

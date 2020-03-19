@@ -43,10 +43,10 @@ public class NegativeTests extends TestCase {
 		public static final int ERROR = 1;
 		public static final int INFO = 2;
 		public static final int WARNING = 4;
-		
+
 		public int errorCounter;
 		private PrintWriter writer;
-		
+
 		public TestDiagnosticListener(PrintWriter writer) {
 			this.writer = writer;
 		}
@@ -68,17 +68,17 @@ public class NegativeTests extends TestCase {
 	private static final String NEGATIVEMODELPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.negative.NegativeModelProc";
 	private static final String INHERITED_PROCNAME ="org.eclipse.jdt.compiler.apt.tests.processors.inherited.ArgsConstructorProcessor";
 	private static final String IGNOREJAVACBUGS = "ignoreJavacBugs";
-	
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		BatchTestUtils.init();
 	}
-	
+
 	/**
 	 * Validate the testNegativeModel test against the javac compiler.
 	 * All test routines are executed.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModelWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -95,9 +95,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative1, 
+	 * Inspect model of resources/targets.negative.pa.Negative1,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel1WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -105,9 +105,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative2, 
+	 * Inspect model of resources/targets.negative.pa.Negative2,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel2WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -115,9 +115,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative3, 
+	 * Inspect model of resources/targets.negative.pa.Negative3,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel3WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -125,9 +125,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative4, 
+	 * Inspect model of resources/targets.negative.pa.Negative4,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel4WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -135,9 +135,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative5, 
+	 * Inspect model of resources/targets.negative.pa.Negative5,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel5WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -145,9 +145,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative6, 
+	 * Inspect model of resources/targets.negative.pa.Negative6,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel6WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -155,9 +155,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative7, 
+	 * Inspect model of resources/targets.negative.pa.Negative7,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel7WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -165,9 +165,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative8, 
+	 * Inspect model of resources/targets.negative.pa.Negative8,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel8WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -175,9 +175,9 @@ public class NegativeTests extends TestCase {
 	}
 
 	/**
-	 * Inspect model of resources/targets.negative.pa.Negative9, 
+	 * Inspect model of resources/targets.negative.pa.Negative9,
 	 * using the Eclipse compiler.
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void testNegativeModel9WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -185,7 +185,7 @@ public class NegativeTests extends TestCase {
 	}
 
 	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575
 	 */
 	public void _testNegativeModel10WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -199,12 +199,12 @@ public class NegativeTests extends TestCase {
 		PrintWriter printWriter = new PrintWriter(errBuffer);
 		TestDiagnosticListener diagnosticListener = new TestDiagnosticListener(printWriter);
 		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, new ArrayList<String>(), targetFolder, diagnosticListener);
-		
+
 		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
 		assertEquals("Two errors should be reported", 2, diagnosticListener.errorCounter);
 		printWriter.flush();
 		printWriter.close();
-		String expectedErrors = 
+		String expectedErrors =
 				"Class targets.inherited.TestGenericChild lacks a public constructor with args: java.awt.Point" +
 				"Class targets.inherited.TestNormalChild lacks a public constructor with args: java.awt.Point";
 
@@ -215,7 +215,7 @@ public class NegativeTests extends TestCase {
 	}
 
 	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575 
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575
 	 */
 	public void testNegativeModel10WithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -233,7 +233,7 @@ public class NegativeTests extends TestCase {
 		PrintWriter printWriter = new PrintWriter(errBuffer);
 		TestDiagnosticListener diagnosticListener = new TestDiagnosticListener(printWriter);
 		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, new ArrayList<String>(), targetFolder, diagnosticListener);
-		
+
 		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
 		assertEquals("Two errors should be reported", 2, diagnosticListener.errorCounter);
 		printWriter.flush();
@@ -261,14 +261,14 @@ public class NegativeTests extends TestCase {
 
 		// Invoke processing by compiling the targets.model resources
 		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null);
-		
+
 		assertTrue("Compilation should have failed due to expected errors, but it didn't", !success);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		String property = System.getProperty(NEGATIVEMODELPROCNAME);
 		assertNotNull("No property - probably processing did not take place", property);
 		assertEquals("succeeded", property);
-		
+
 		// TODO: check "errors" against expected values to ensure that the problems were correctly reported
 	}
 
@@ -280,6 +280,6 @@ public class NegativeTests extends TestCase {
 		System.clearProperty(NEGATIVEMODELPROCNAME);
 		super.tearDown();
 	}
-	
+
 
 }

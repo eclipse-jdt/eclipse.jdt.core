@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
  *
  * The structural investigation includes: - package statement - import
  * statements - top-level types: package member, member types (member types of
- * member types...) - fields - methods. From Java 9 onwards it includes the 
+ * member types...) - fields - methods. From Java 9 onwards it includes the
  * module name in a module declaration
  *
  * If reference information is requested, then all source constructs are
@@ -233,7 +233,7 @@ public interface ISourceElementRequestor {
 	void exitMethod(int declarationEnd, Expression defaultValue);
 
 	void exitType(int declarationEnd);
-	
+
 	default void enterModule(ModuleInfo info) {
 		// do nothing
 	}

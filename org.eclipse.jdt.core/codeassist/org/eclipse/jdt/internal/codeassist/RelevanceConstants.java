@@ -15,14 +15,14 @@ package org.eclipse.jdt.internal.codeassist;
 
 public interface RelevanceConstants {
 
-	
+
 	/*
 	 * Important: The following rules must be strictly adhered to while declaring new relevance constants or modifying the existing:
 	 * 1. One or more relevance constants are used in combination to form a relevance.
 	 * 2. A particular relevance constant can be added only once to form a relevance.
 	 * 3. A resultant relevance (after combining all the applicable relevance constants) must be a positive number.
 	 * 4. The value of R_DEFAULT is maintained at a positive value such that the sum of all the negative relevance constants
-	 *    and R_DEFAULT must not be negative. 
+	 *    and R_DEFAULT must not be negative.
 	 */
 	int R_DEFAULT = 30;
 	int R_INTERESTING = 5;

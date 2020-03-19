@@ -118,19 +118,19 @@ public void testSimpleSuperTypeHierarchy() throws CoreException {
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
-//make sure uncommitted changes to primary working copy shows up in hierarchy 
+//make sure uncommitted changes to primary working copy shows up in hierarchy
 public void test228845() throws CoreException {
 	String newContents =
 		"package x.y;\n" +
 		"public class A extends B {\n" +
 		"}";
-	
+
 	ICompilationUnit primaryCu = this.copy.getPrimary();
 	primaryCu.becomeWorkingCopy(null);
-	
+
 	primaryCu.getBuffer().setContents(newContents);
 	primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
-			
+
 	IFile file = null;
 	try {
 		file = this.createFile(
@@ -161,7 +161,7 @@ public void test228845() throws CoreException {
 //make sure uncommitted changes to primary working copy shows up in hierarchy
 //created out of a BinaryType.
 public void test228845b() throws CoreException, IOException {
-	
+
 	addLibrary(getJavaProject("P"), "myLib.jar", "myLibsrc.zip", new String[] {
 			"my/pkg/X.java",
 			"package my.pkg;\n" +
@@ -172,11 +172,11 @@ public void test228845b() throws CoreException, IOException {
 			"public class Y {\n" +
 			"  }\n",
 		}, JavaCore.VERSION_1_4);
-	
-	
+
+
 	IFile file = null;
 	ICompilationUnit primaryCu = null;
-	
+
 	try {
 		file = this.createFile(
 			"P/src/Q.java",
@@ -184,21 +184,21 @@ public void test228845b() throws CoreException, IOException {
 
 		primaryCu = this.getCompilationUnit("P/src/Q.java").getWorkingCopy(null).getPrimary();
 		primaryCu.becomeWorkingCopy(null);
-		
+
 		String newContents =
 		"public class Q extends my.pkg.X {\n" +
 		"}";
-		
+
 		primaryCu.getBuffer().setContents(newContents);
 		primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		
+
 		IOrdinaryClassFile cf = getClassFile("P", "myLib.jar", "my.pkg", "X.class");
 		IType typ = cf.getType();
-	
-		ITypeHierarchy h = typ.newTypeHierarchy(null);	
-		
+
+		ITypeHierarchy h = typ.newTypeHierarchy(null);
+
 		assertHierarchyEquals(
-			"Focus: X [in X.class [in my.pkg [in myLib.jar [in P]]]]\n" + 
+			"Focus: X [in X.class [in my.pkg [in myLib.jar [in P]]]]\n" +
 			"Super types:\n" +
 			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 			"Sub types:\n" +
@@ -215,7 +215,7 @@ public void test228845b() throws CoreException, IOException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
-// Fix for 228845 does not seem to work for anonymous/local/functional types. 
+// Fix for 228845 does not seem to work for anonymous/local/functional types.
 public void test400905() throws CoreException {
 	String newContents =
 		"package x.y;\n" +
@@ -224,13 +224,13 @@ public void test400905() throws CoreException {
         "        class X extends B {}\n" +
 		"    }\n" +
 		"}";
-	
+
 	ICompilationUnit primaryCu = this.copy.getPrimary();
 	primaryCu.becomeWorkingCopy(null);
-	
+
 	primaryCu.getBuffer().setContents(newContents);
 	primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
-			
+
 	IFile file = null;
 	try {
 		file = this.createFile(
@@ -243,10 +243,10 @@ public void test400905() throws CoreException {
 		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 		assertHierarchyEquals(
-				"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
-				"Super types:\n" + 
-				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-				"Sub types:\n" + 
+				"Focus: B [in B.java [in x.y [in src [in P]]]]\n" +
+				"Super types:\n" +
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
+				"Sub types:\n" +
 				"  X [in foo() [in A [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 			h);
 	} finally {
@@ -258,7 +258,7 @@ public void test400905() throws CoreException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
-// Fix for 228845 does not seem to work for anonymous/local/functional types. 
+// Fix for 228845 does not seem to work for anonymous/local/functional types.
 public void test400905a() throws CoreException {
 	String newContents =
 		"package x.y;\n" +
@@ -267,13 +267,13 @@ public void test400905a() throws CoreException {
         "        X x  = new B() {}\n" +
 		"    }\n" +
 		"}";
-	
+
 	ICompilationUnit primaryCu = this.copy.getPrimary();
 	primaryCu.becomeWorkingCopy(null);
-	
+
 	primaryCu.getBuffer().setContents(newContents);
 	primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
-			
+
 	IFile file = null;
 	try {
 		file = this.createFile(
@@ -286,10 +286,10 @@ public void test400905a() throws CoreException {
 		ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 		assertHierarchyEquals(
-				"Focus: B [in B.java [in x.y [in src [in P]]]]\n" + 
-				"Super types:\n" + 
-				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
-				"Sub types:\n" + 
+				"Focus: B [in B.java [in x.y [in src [in P]]]]\n" +
+				"Super types:\n" +
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
+				"Sub types:\n" +
 				"  <anonymous #1> [in foo() [in A [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 			h);
 	} finally {
@@ -301,7 +301,7 @@ public void test400905a() throws CoreException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=228845
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905
-// Fix for 228845 does not seem to work for anonymous/local/functional types. 
+// Fix for 228845 does not seem to work for anonymous/local/functional types.
 public void test400905b() throws CoreException, IOException {
 	IJavaProject javaProject = getJavaProject("P");
 	String oldCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
@@ -348,11 +348,11 @@ public void test400905b() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
-							"Super types:\n" + 
-							"Sub types:\n" + 
-							"  <lambda #1> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
+							"Super types:\n" +
+							"Sub types:\n" +
+							"  <lambda #1> [in i [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
 							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 				h);
 		} finally {
@@ -414,15 +414,15 @@ public void test429435() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
-							"Super types:\n" + 
-							"Sub types:\n" + 
-							"  <lambda #1> [in doit() [in <anonymous #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
-							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]\n" + 
-							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]\n" + 
-							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" + 
-							"  <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]\n" + 
-							"  <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+					"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
+							"Super types:\n" +
+							"Sub types:\n" +
+							"  <lambda #1> [in doit() [in <anonymous #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" +
+							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]]]\n" +
+							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]]]\n" +
+							"  <lambda #1> [in doit() [in <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]]]\n" +
+							"  <lambda #1> [in doit() [in <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]]]\n" +
+							"  <lambda #1> [in zoo() [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
 							"  Y [in [Working copy] A.java [in x.y [in src [in P]]]]\n",
 				h);
 		} finally {
@@ -435,7 +435,7 @@ public void test429435() throws CoreException, IOException {
 			javaProject.setOption(JavaCore.COMPILER_SOURCE, oldSource);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429537, [1.8][hierarchy]NPE in hierarchy resolution 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=429537, [1.8][hierarchy]NPE in hierarchy resolution
 public void test429537() throws CoreException, IOException {
 	IJavaProject javaProject = getJavaProject("P");
 	String oldCompliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
@@ -470,12 +470,12 @@ public void test429537() throws CoreException, IOException {
 			ITypeHierarchy h = type.newTypeHierarchy(null);  // no working copies explicitly passed, should still honor primary working copies.
 
 			assertHierarchyEquals(
-							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" + 
-							"Super types:\n" + 
-							"Sub types:\n" + 
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
-							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" + 
+							"Focus: I [in [Working copy] A.java [in x.y [in src [in P]]]]\n" +
+							"Super types:\n" +
+							"Sub types:\n" +
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
+							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n" +
 							"  <lambda #1> [in main(String[]) [in X [in [Working copy] A.java [in x.y [in src [in P]]]]]]\n",
 				h);
 		} finally {
@@ -582,11 +582,11 @@ public void test450442() throws CoreException, IOException {
 
 		ITypeHierarchy h = project.findType("Claxx").newSupertypeHierarchy(null);
 		assertHierarchyEquals(
-				"Focus: Claxx [in Claxx.java [in <default> [in src [in Bug450442]]]]\n" + 
-				"Super types:\n" + 
-				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+				"Focus: Claxx [in Claxx.java [in <default> [in src [in Bug450442]]]]\n" +
+				"Super types:\n" +
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 				"Sub types:\n",
-				h);	
+				h);
 	} finally {
 		if (project != null)
 			this.deleteProject(project);

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -126,26 +126,26 @@ public void testBug534787_negative_001() throws IOException {
 				"    public void apply(Integer k, Integer z);\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	         ^^^\n" + 
-			"Syntax error on token \"var\", ( expected after this token\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	                  ^\n" + 
-			"Syntax error on token \")\", delete this token\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 3)\n" + 
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	                                                           ^\n" + 
-			"Syntax error, insert \")\" to complete Expression\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 3)\n" + 
-			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	                                                           ^\n" + 
-			"Syntax error, insert \")\" to complete Expression\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	         ^^^\n" +
+			"Syntax error on token \"var\", ( expected after this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	                  ^\n" +
+			"Syntax error on token \")\", delete this token\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	                                                           ^\n" +
+			"Syntax error, insert \")\" to complete Expression\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 3)\n" +
+			"	I lam = (var  x, y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	                                                           ^\n" +
+			"Syntax error, insert \")\" to complete Expression\n" +
 			"----------\n");
 }
 public void testBug534787_negative_002() throws IOException {
@@ -164,9 +164,9 @@ public void testBug534787_negative_002() throws IOException {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, Integer y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	              ^\n" + 
-			"\'var\' cannot be mixed with non-var parameters\n" + 
+			"	I lam = (var  x, Integer y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	              ^\n" +
+			"\'var\' cannot be mixed with non-var parameters\n" +
 			"----------\n");
 }
 public void testBug534787_negative_003() throws IOException {
@@ -185,9 +185,9 @@ public void testBug534787_negative_003() throws IOException {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	                         ^\n" + 
-			"'var' cannot be mixed with non-var parameters\n" + 
+			"	I lam = (Integer  x, var y) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	                         ^\n" +
+			"'var' cannot be mixed with non-var parameters\n" +
 			"----------\n");
 }
 public void testBug534787_negative_004() throws IOException {
@@ -206,8 +206,8 @@ public void testBug534787_negative_004() throws IOException {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, var y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	                              ^\n" + 
+			"	I lam = (var  x, var y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	                              ^\n" +
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
@@ -227,13 +227,13 @@ public void testBug534787_negative_005() throws IOException {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	              ^\n" + 
+			"	I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	              ^\n" +
 			"'var' cannot be mixed with non-var parameters\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
-			"	I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	                                  ^\n" + 
+			"	I lam = (var  x, Integer y, var...s) -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	                                  ^\n" +
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
@@ -251,11 +251,11 @@ public void testBug534787_negative_006() throws IOException {
 				"    public void apply(Integer k);\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	I lam = var  x -> {System.out.println(\"SUCCESS \" + x);};\n" + 
-			"	             ^\n" + 
-			"Syntax error on token \"x\", delete this token\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	I lam = var  x -> {System.out.println(\"SUCCESS \" + x);};\n" +
+			"	             ^\n" +
+			"Syntax error on token \"x\", delete this token\n" +
 			"----------\n");
 }
 public void testBug536159_01() throws IOException {
@@ -309,11 +309,11 @@ public void testBug536159_04() throws IOException {
 			+ "  public int foo (int i []);\n"
 			+ "}"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	FI x = (var i []) -> 5;\n" + 
-			"	            ^\n" + 
-			"\'var\' is not allowed as an element type of an array\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	FI x = (var i []) -> 5;\n" +
+			"	            ^\n" +
+			"\'var\' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
 public void testBug541532_01() throws IOException {

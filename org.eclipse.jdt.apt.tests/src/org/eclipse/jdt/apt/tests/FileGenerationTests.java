@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.tests;
@@ -43,13 +43,13 @@ public class FileGenerationTests extends APTTestBase {
 	{
 		return new TestSuite(FileGenerationTests.class);
 	}
-	
+
 	public void testSourceGenPackages() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
-		
-		String code = 
+
+		String code =
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;" + "\n" +
 				"@FileGenLocationAnnotation" + "\n" +
@@ -70,7 +70,7 @@ public class FileGenerationTests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String code = 
+		String code =
 			"package test;" + "\n" +
 			"import org.eclipse.jdt.apt.tests.annotations.filegen.FirstGenAnnotation;" + "\n" +
 			"@FirstGenAnnotation" + "\n" +
@@ -79,7 +79,7 @@ public class FileGenerationTests extends APTTestBase {
 			"}";
 
 		env.addClass(srcRoot, "test", "Test", code);
-		
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 
@@ -92,7 +92,7 @@ public class FileGenerationTests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String code = 
+		String code =
 			"package test;" + "\n" +
 			"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
 			"@HelloWorldAnnotation" + "\n" +
@@ -102,7 +102,7 @@ public class FileGenerationTests extends APTTestBase {
 			"}";
 
 		AptConfig.setGenSrcDir(jproj, "__foo_src");
-		
+
 		env.addClass(srcRoot, "test", "Test", code);
 
 		fullBuild( project.getFullPath() );
@@ -110,18 +110,18 @@ public class FileGenerationTests extends APTTestBase {
 
 		Map<String,String> options = AptConfig.getProcessorOptions(jproj, false);
 		String sourcepath = options.get("-sourcepath");
-		
+
 		assertTrue(sourcepath.contains("__foo_src"));
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
-	
+
 	public void testSourceGenSubDir() throws Exception
 	{
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String code = 
+		String code =
 			"package test;" + "\n" +
 			"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
 			"@HelloWorldAnnotation" + "\n" +
@@ -135,10 +135,10 @@ public class FileGenerationTests extends APTTestBase {
 
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
-	
+
 	public void testTextFileGen() throws Exception {
 		// enable the test only on windows for now
 		if (System.getProperty("os.name").indexOf("Windows") == -1) return;
@@ -147,8 +147,8 @@ public class FileGenerationTests extends APTTestBase {
 		clearProcessorResult(TextGenAnnotationProcessor.class);
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
-		
-		String code = 
+
+		String code =
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;" + "\n" +
 				"@TextGenAnnotation(\"" + TEXT_FILE_NAME + "\")" + "\n" +
@@ -160,22 +160,22 @@ public class FileGenerationTests extends APTTestBase {
 
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		
+
 		// Look for the file
 		Map<String,String> options = AptConfig.getProcessorOptions(JavaCore.create(project), false);
 		// We'll find it in the binary output directory
 		String outputRootPath = options.get("-d");
 		File theFile = new File(new File(outputRootPath), TEXT_FILE_NAME);
-		
+
 		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
-		
+
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		checkProcessorResult(TextGenAnnotationProcessor.class);
 		assertTrue("File was not found: " + theFile.getAbsolutePath(), theFile.exists());
-		
+
 		// Change the annotation to specify an illegal filename, and an exception should be thrown
-		code = 
+		code =
 			"package test;" + "\n" +
 			"import org.eclipse.jdt.apt.tests.annotations.filegen.TextGenAnnotation;" + "\n" +
 			"@TextGenAnnotation(\">.txt\")" + "\n" +
@@ -183,32 +183,32 @@ public class FileGenerationTests extends APTTestBase {
 			"{" + "\n" +
 			"}";
 		env.addClass(srcRoot, "test", "Test", code);
-		
+
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		assertEquals("Could not generate text file due to IOException", getProcessorResult(TextGenAnnotationProcessor.class));
 		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
-		
+
 		// remove the annotation, and the file should be deleted and processor should not run
-		code = 
+		code =
 			"package test;" + "\n" +
 			"public class Test" + "\n" +
 			"{" + "\n" +
 			"}";
 		env.addClass(srcRoot, "test", "Test", code);
-		
+
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		assertEquals(null, getProcessorResult(TextGenAnnotationProcessor.class));
 		assertTrue("File was found, but should be deleted: " + theFile.getAbsolutePath(), !theFile.exists());
 	}
-	
+
 	public void testIsGeneratedOrParentFile() throws Exception
 	{
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
-		
-		String code = 
+
+		String code =
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.filegen.FileGenLocationAnnotation;" + "\n" +
 				"@FileGenLocationAnnotation" + "\n" +
@@ -217,7 +217,7 @@ public class FileGenerationTests extends APTTestBase {
 				"}";
 
 		env.addClass(srcRoot, "test", "Test", code);
-		
+
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 
@@ -239,7 +239,7 @@ public class FileGenerationTests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 
-		String mainCode = 
+		String mainCode =
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
 				"@HelloWorldAnnotation(\"GeneratedFileMain\")" + "\n" +
@@ -247,7 +247,7 @@ public class FileGenerationTests extends APTTestBase {
 				"{" + "\n" +
 				"	generatedfilepackage.GeneratedFileMain gfm;" + "\n" +
 				"}";
-		String testCode = 
+		String testCode =
 				"package test;" + "\n" +
 				"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
 				"@HelloWorldAnnotation" + "\n" +
@@ -271,7 +271,7 @@ public class FileGenerationTests extends APTTestBase {
 		assertTrue(AptConfig.getProcessorOptions(jproj, false).get("-sourcepath").contains("__main_foo_src"));
 		assertTrue(AptConfig.getProcessorOptions(jproj, true).get("-sourcepath").contains("__test_foo_src"));
 		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
-		
+
 		String P = File.separator;
 
 		AptProject aptProj = new AptProject(env.getJavaProject(getProjectName()));

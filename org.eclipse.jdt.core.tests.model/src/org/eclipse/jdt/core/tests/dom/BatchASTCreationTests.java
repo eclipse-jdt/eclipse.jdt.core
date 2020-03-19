@@ -48,7 +48,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	public class TestASTRequestor extends ASTRequestor {
 		public ArrayList asts = new ArrayList();
 		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
@@ -1448,7 +1448,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			"Lp1/X<>;.foo(Lp1/Z;)V"
 		);
 	}
-	
+
 	/*
 	 * Ensures that a parameterized type binding with a capture binding in its arguments can be created using its key in batch creation.
 	 * (regression test for bug 94092 ASTParser#createASTs(..) restores wrong bindings from capture keys)
@@ -2219,17 +2219,17 @@ public void test082() throws CoreException, IOException {
 			},
 			"LA~B<LC;:1TV;LC;:1TE;>;");
 	}
-	
+
 	public void testIgnoreMethodBodies1() throws CoreException {
 		this.workingCopies = createWorkingCopies(new String[] {
 				"/P/p1/X.java",
 				"package p1;\n" +
 				"public class X {\n" +
 				"  public int foo() {\n" +
-				"    int i = 0;\n" + 
+				"    int i = 0;\n" +
 				"  }\n" +
 				"  public int bar() {\n" +
-				"    int i = 0;\n" + 
+				"    int i = 0;\n" +
 				"    new X() /*start*/{\n" +
 				"    }/*end*/;" +
 				"  }\n" +
@@ -2258,10 +2258,10 @@ public void test082() throws CoreException, IOException {
 				"package p1;\n" +
 				"public class X {\n" +
 				"  public int foo() {\n" +
-				"    int i = 0;\n" + 
+				"    int i = 0;\n" +
 				"  }\n" +
 				"  public int bar() {\n" +
-				"    int i = 0;\n" + 
+				"    int i = 0;\n" +
 				"    new X() /*start*/{\n" +
 				"    }/*end*/;" +
 				"  }\n" +

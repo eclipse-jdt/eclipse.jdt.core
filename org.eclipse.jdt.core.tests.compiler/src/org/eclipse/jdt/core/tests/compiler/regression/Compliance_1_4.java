@@ -112,36 +112,36 @@ public void test011() {
 			"	}	\n" +
 			"} \n"
 		},
-		"----------\n" + 
-		"1. ERROR in p1\\X.java (at line 4)\n" + 
-		"	while (false);	\n" + 
-		"	             ^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\X.java (at line 5)\n" + 
-		"	while (false) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"3. ERROR in p1\\X.java (at line 8)\n" + 
-		"	for (;false;);	\n" + 
-		"	             ^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"4. ERROR in p1\\X.java (at line 9)\n" + 
-		"	for (;false;) System.out.println(\"unreachable\");	\n" + 
-		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"5. WARNING in p1\\X.java (at line 10)\n" + 
-		"	if (false);	\n" + 
-		"	          ^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"6. WARNING in p1\\X.java (at line 11)\n" + 
-		"	if (false)System.out.println(\"unreachable\");		\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. ERROR in p1\\X.java (at line 4)\n" +
+		"	while (false);	\n" +
+		"	             ^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"2. ERROR in p1\\X.java (at line 5)\n" +
+		"	while (false) System.out.println(\"unreachable\");	\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"3. ERROR in p1\\X.java (at line 8)\n" +
+		"	for (;false;);	\n" +
+		"	             ^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"4. ERROR in p1\\X.java (at line 9)\n" +
+		"	for (;false;) System.out.println(\"unreachable\");	\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"5. WARNING in p1\\X.java (at line 10)\n" +
+		"	if (false);	\n" +
+		"	          ^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"6. WARNING in p1\\X.java (at line 11)\n" +
+		"	if (false)System.out.println(\"unreachable\");		\n" +
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Dead code\n" +
 		"----------\n"
 	);
 }
@@ -792,16 +792,16 @@ public void test027() {
 			"	}	\n"+
 			"}	\n"
 		},
-		"----------\n" + 
-		"1. WARNING in p1\\X.java (at line 4)\n" + 
-		"	for (;false;p());	\n" + 
-		"	            ^^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"2. ERROR in p1\\X.java (at line 4)\n" + 
-		"	for (;false;p());	\n" + 
-		"	                ^\n" + 
-		"Unreachable code\n" + 
+		"----------\n" +
+		"1. WARNING in p1\\X.java (at line 4)\n" +
+		"	for (;false;p());	\n" +
+		"	            ^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"2. ERROR in p1\\X.java (at line 4)\n" +
+		"	for (;false;p());	\n" +
+		"	                ^\n" +
+		"Unreachable code\n" +
 		"----------\n");
 }
 /*
@@ -1020,22 +1020,22 @@ public void test032() {
 			"	String bar = \"X2.bar\";	\n" +
 			"}	\n",
 		},
-		"----------\n" + 
-		"1. ERROR in p\\X.java (at line 4)\n" + 
-		"	System.out.println(new q.X2().foo);	\n" + 
-		"	                              ^^^\n" + 
-		"The field X2.foo is not visible\n" + 
-		"----------\n" + 
-		"2. ERROR in p\\X.java (at line 5)\n" + 
-		"	System.out.println(new q.X2().bar);	\n" + 
-		"	                              ^^^\n" + 
-		"The field X2.bar is not visible\n" + 
-		"----------\n" + 
-		"----------\n" + 
-		"1. WARNING in q\\X2.java (at line 3)\n" + 
-		"	protected String foo = \"X2.foo\";	\n" + 
-		"	                 ^^^\n" + 
-		"The field X2.foo is hiding a field from type X1\n" + 
+		"----------\n" +
+		"1. ERROR in p\\X.java (at line 4)\n" +
+		"	System.out.println(new q.X2().foo);	\n" +
+		"	                              ^^^\n" +
+		"The field X2.foo is not visible\n" +
+		"----------\n" +
+		"2. ERROR in p\\X.java (at line 5)\n" +
+		"	System.out.println(new q.X2().bar);	\n" +
+		"	                              ^^^\n" +
+		"The field X2.bar is not visible\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. WARNING in q\\X2.java (at line 3)\n" +
+		"	protected String foo = \"X2.foo\";	\n" +
+		"	                 ^^^\n" +
+		"The field X2.foo is hiding a field from type X1\n" +
 		"----------\n");
 }
 
@@ -1250,36 +1250,36 @@ public void test039() {
 			"	}	\n"+
 			"}	\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 5)\n" + 
-		"	for (;false;);	\n" + 
-		"	             ^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
-		"	for (;false;){}	\n" + 
-		"	             ^^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 7)\n" + 
-		"	while (false);	\n" + 
-		"	             ^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 8)\n" + 
-		"	while (false){}	\n" + 
-		"	             ^^\n" + 
-		"Unreachable code\n" + 
-		"----------\n" + 
-		"5. WARNING in X.java (at line 9)\n" + 
-		"	if (false) {} else {}	\n" + 
-		"	           ^^\n" + 
-		"Dead code\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 10)\n" + 
-		"	if (false) ; else ;			\n" + 
-		"	           ^\n" + 
-		"Dead code\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	for (;false;);	\n" +
+		"	             ^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	for (;false;){}	\n" +
+		"	             ^^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 7)\n" +
+		"	while (false);	\n" +
+		"	             ^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 8)\n" +
+		"	while (false){}	\n" +
+		"	             ^^\n" +
+		"Unreachable code\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 9)\n" +
+		"	if (false) {} else {}	\n" +
+		"	           ^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"6. WARNING in X.java (at line 10)\n" +
+		"	if (false) ; else ;			\n" +
+		"	           ^\n" +
+		"Dead code\n" +
 		"----------\n"
 );
 }
@@ -2620,21 +2620,21 @@ public void _test079() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Hello.java (at line 1)\n" + 
-		"	void ___eval() {\n" + 
-		"	^^^^\n" + 
-		"Syntax error on token \"void\", record expected\n" + 
-		"----------\n" + 
-		"2. ERROR in Hello.java (at line 1)\n" + 
-		"	void ___eval() {\n" + 
-		"	             ^\n" + 
-		"Syntax error on token \")\", { expected after this token\n" + 
-		"----------\n" + 
-		"3. ERROR in Hello.java (at line 23)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"}\" to complete RecordBody\n" + 
+		"----------\n" +
+		"1. ERROR in Hello.java (at line 1)\n" +
+		"	void ___eval() {\n" +
+		"	^^^^\n" +
+		"Syntax error on token \"void\", record expected\n" +
+		"----------\n" +
+		"2. ERROR in Hello.java (at line 1)\n" +
+		"	void ___eval() {\n" +
+		"	             ^\n" +
+		"Syntax error on token \")\", { expected after this token\n" +
+		"----------\n" +
+		"3. ERROR in Hello.java (at line 23)\n" +
+		"	}\n" +
+		"	^\n" +
+		"Syntax error, insert \"}\" to complete RecordBody\n" +
 		"----------\n"
 	);
 }

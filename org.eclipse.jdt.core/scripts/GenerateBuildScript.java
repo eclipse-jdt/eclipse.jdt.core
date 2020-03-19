@@ -75,7 +75,7 @@ public class GenerateBuildScript {
 		writer.write("        <echo message=\"compiling resources   -> .o\"/>" + LINE_SEPARATOR); //$NON-NLS-1$
 		for (int i = 0, max = collector.size(); i < max; i++) {
 			String absolutePath = (String) collector.get(i);
-			String fileName = absolutePath.substring(sourceDir.getAbsolutePath().length() + 1); 
+			String fileName = absolutePath.substring(sourceDir.getAbsolutePath().length() + 1);
 			writer.write(MessageFormat.format("  		<exec dir=\"{1}\" executable=\"$'{'gcc-path'}'/bin/{0}\">" + LINE_SEPARATOR, new Object[] { gcj_exe, dest_dir})); //$NON-NLS-1$
 			writer.write("  		<arg line=\"--resource "); //$NON-NLS-1$
 			writer.write(fileName + " " + fileName + " -c -o " + getObjectName(fileName) + "\"/>" + LINE_SEPARATOR); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -110,7 +110,7 @@ public class GenerateBuildScript {
 	private static String getObjectName(String fileName) {
 		return fileName.substring(0, fileName.lastIndexOf('.')) + ".o"; //$NON-NLS-1$
 	}
-			
+
 	public static void main(String[] args) {
 		if (args.length != 5) {
 			System.out.println("Usage: script_name directory gcj_exe_name dest_dir source/bin"); //$NON-NLS-1$
@@ -120,7 +120,7 @@ public class GenerateBuildScript {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(args[0])));
 			writer.write(HEADER);
 			File sourceDir = new File(args[1]);
-			if (sourceDir.exists()) { 
+			if (sourceDir.exists()) {
 				ArrayList collector = new ArrayList();
 				collectAllFiles(sourceDir, collector, new FileFilter() {
 					public boolean accept(File pathname) {
@@ -139,7 +139,7 @@ public class GenerateBuildScript {
 							return pathname.isDirectory() || fileName.endsWith(".class"); //$NON-NLS-1$
 						}
 					});
-					dumpAllClassFiles(writer, sourceDir, collector, args[2], args[3]);				
+					dumpAllClassFiles(writer, sourceDir, collector, args[2], args[3]);
 				}
 			}
 			writer.write(MessageFormat.format(FOOTER, new Object[] {args[2], args[3]}));

@@ -46,7 +46,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 @SupportedOptions({})
 public class FilerProc extends BaseProcessor {
-	
+
 	private ProcessingEnvironment _processingEnv;
 	private Messager _messager;
 	private Filer _filer;
@@ -67,7 +67,7 @@ public class FilerProc extends BaseProcessor {
 	 */
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations,
-			RoundEnvironment roundEnv) 
+			RoundEnvironment roundEnv)
 	{
 		if (!annotations.isEmpty()) {
 			round(annotations, roundEnv);
@@ -118,8 +118,8 @@ public class FilerProc extends BaseProcessor {
 		try {
 			fo = _filer.createResource(StandardLocation.SOURCE_OUTPUT, pkg, relativeName, annotatedEl);
 		} catch (IOException e) {
-			_messager.printMessage(Diagnostic.Kind.WARNING, 
-					"Unable to open resource file for pkg " + pkg + ", relativeName " + 
+			_messager.printMessage(Diagnostic.Kind.WARNING,
+					"Unable to open resource file for pkg " + pkg + ", relativeName " +
 					relativeName + ": " + e.getLocalizedMessage(), annotatedEl);
 			return;
 		}

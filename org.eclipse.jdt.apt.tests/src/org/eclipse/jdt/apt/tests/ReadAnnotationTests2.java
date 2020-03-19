@@ -44,7 +44,7 @@ import org.eclipse.jdt.core.tests.util.Util;
  * @author tyeung
  */
 public class ReadAnnotationTests2 extends BuilderTests {
-	
+
 	private String[] NO_ANNOTATIONS = new String[0];
 	private ICompilationUnit[] NO_UNIT = new ICompilationUnit[0];
 	private int counter = 0;
@@ -52,21 +52,21 @@ public class ReadAnnotationTests2 extends BuilderTests {
 	public ReadAnnotationTests2(final String name) {
 		super( name );
 	}
-	
+
 	public static Test suite() {
 		return new TestSuite( ReadAnnotationTests2.class );
 	}
-	
+
 	public String getProjectName() {
 		return projectName;
 	}
-	
+
 	public String getUniqueProjectName(){
 		projectName = ReadAnnotationTests.class.getName() + "Project" + counter; //$NON-NLS-1$
 		counter ++;
 		return projectName;
 	}
-	
+
 
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
@@ -74,74 +74,74 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
-	
+
 	public IPath getBinaryPath(){
 		IProject project = env.getProject( getProjectName() );
 		IFolder srcFolder = project.getFolder( "binary" ); //$NON-NLS-1$
 		IPath lib = srcFolder.getFullPath();
 		return lib;
 	}
-	
+
 	public IPath getOutputPath(){
 		IProject project = env.getProject( getProjectName() );
 		IFolder binFolder = project.getFolder( "bin" ); //$NON-NLS-1$
 		IPath bin = binFolder.getFullPath();
 		return bin;
 	}
-	
+
 	private void addAllSources()
 	{
 		IPath srcRoot = getSourcePath();
 		// SimpleAnnotation.java
-		env.addClass( 
-				srcRoot, 
-				CodeExample.PACKAGE_QUESTION, 
+		env.addClass(
+				srcRoot,
+				CodeExample.PACKAGE_QUESTION,
 				CodeExample.SIMPLE_ANNOTATION_CLASS,
 				CodeExample.SIMPLE_ANNOTATION_CODE );
-		
+
 		// RTVisibleAnnotation.java
 		env.addClass(
 				srcRoot,
-				CodeExample.PACKAGE_QUESTION, 
+				CodeExample.PACKAGE_QUESTION,
 				CodeExample.RTVISIBLE_CLASS,
 				CodeExample.RTVISIBLE_ANNOTATION_CODE);
-		
+
 		// RTInvisibleAnnotation.java
 		env.addClass(
 				srcRoot,
-				CodeExample.PACKAGE_QUESTION, 
+				CodeExample.PACKAGE_QUESTION,
 				CodeExample.RTINVISIBLE_CLASS,
 				CodeExample.RTINVISIBLE_ANNOTATION_CODE);
-		
+
 		// package-info.java
 		env.addClass(
 				srcRoot,
-				CodeExample.PACKAGE_QUESTION, 
+				CodeExample.PACKAGE_QUESTION,
 				CodeExample.PACKAGE_INFO_CLASS,
 				CodeExample.PACKAGE_INFO_CODE);
-		
+
 		// Color.java
 		env.addClass(
 				srcRoot,
-				CodeExample.PACKAGE_QUESTION, 
+				CodeExample.PACKAGE_QUESTION,
 				CodeExample.COLOR_CLASS,
 				CodeExample.COLOR_CODE);
-		
+
 		// AnnotationTest.java
 		env.addClass(
 				srcRoot,
-				CodeExample.PACKAGE_QUESTION, 
+				CodeExample.PACKAGE_QUESTION,
 				CodeExample.ANNOTATION_TEST_CLASS,
 				CodeExample.ANNOTATION_TEST_CODE);
 	}
-	
+
 	private IProject setupTest() throws Exception
-	{				
+	{
 		// project will be deleted by super-class's tearDown() method
 		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
-		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
-		
+
 		IJavaProject jproj = env.getJavaProject(projectPath);
 		jproj.setOption("org.eclipse.jdt.core.compiler.problem.deprecation", "ignore");
 
@@ -151,29 +151,29 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		env.addPackageFragmentRoot( projectPath, "src" ); //$NON-NLS-1$
 		return env.getProject(getProjectName());
 	}
-	
+
 	public void testSourceAnnotation() throws Exception {
 		// reset the error reset the error;
-		IProject project = setupTest();	
-		addAllSources();	
+		IProject project = setupTest();
+		addAllSources();
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 		_testAnnotations();
 	}
 
-	public void testBinaryAnnotation() throws Exception 
-	{	
+	public void testBinaryAnnotation() throws Exception
+	{
 		IProject project = setupTest();
-		final File jar = 
-			TestUtil.getFileInPlugin(AptTestsPlugin.getDefault(), 
+		final File jar =
+			TestUtil.getFileInPlugin(AptTestsPlugin.getDefault(),
 									 new Path("/resources/question.jar")); //$NON-NLS-1$
 		final String path = jar.getAbsolutePath();
-		env.addExternalJar(project.getFullPath(), path);		
+		env.addExternalJar(project.getFullPath(), path);
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		_testAnnotations();		
+		_testAnnotations();
 	}
-	
+
 	private ITypeBinding getTypeBinding(final String key, final IJavaProject javaProj)
 	{
 		class BindingRequestor extends ASTRequestor
@@ -194,40 +194,40 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		parser.createASTs(NO_UNIT, new String[]{key}, requestor, null);
 		return requestor._result;
 	}
-	
+
 	public void _testAnnotations()
-	{	
+	{
 		final String typeKey = BindingKey.createTypeBindingKey("question.AnnotationTest");
 		final ITypeBinding typeBinding = getTypeBinding(typeKey, env.getJavaProject(getProjectName()));
-			
+
 		assertNotNull("failed to locate 'question.AnnotationTest'", typeBinding);
 		assertEquals("Type name mismatch", "question.AnnotationTest", typeBinding.getQualifiedName());
-		
+
 		// test package annotation
 		final String[] expectedPkgAnnos = new String[]{ "@Deprecated()" };
 		assertAnnotation(expectedPkgAnnos, typeBinding.getPackage().getAnnotations() );
-		
+
 		// test annotation on type.
 		final String[] expectedTypeAnnos = new String[]{ "@Deprecated()",
 		  	     "@RTVisibleAnno(anno = @SimpleAnnotation(value = test), clazzes = {})",
 			     "@RTInvisibleAnno(value = question)" };
-		
-		assertAnnotation(expectedTypeAnnos, typeBinding.getAnnotations());	
-		
+
+		assertAnnotation(expectedTypeAnnos, typeBinding.getAnnotations());
+
 		final IVariableBinding[] fieldBindings = typeBinding.getDeclaredFields();
 		int counter = 0;
 		assertEquals(5, fieldBindings.length);
 		for(IVariableBinding fieldDecl : fieldBindings ){
-			final String name = "field" + counter;				
-			
+			final String name = "field" + counter;
+
 			assertEquals("field name mismatch", name, fieldDecl.getName());
 			final String[] expected;
-			switch(counter){				
-			case 0:		
+			switch(counter){
+			case 0:
 				expected = new String[] { "@RTVisibleAnno(name = Foundation, boolValue = false, byteValue = 16, charValue = c, doubleValue = 99.0, floatValue = 9.0, intValue = 999, longValue = 3333, shortValue = 3, colors = {question.Color RED, question.Color BLUE}, anno = @SimpleAnnotation(value = core), simpleAnnos = {@SimpleAnnotation(value = org), @SimpleAnnotation(value = eclipse), @SimpleAnnotation(value = jdt)}, clazzes = {Object.class, String.class}, clazz = Object.class)",
 								          "@RTInvisibleAnno(value = org.eclipse.jdt.core)",
 								          "@Deprecated()" };
-				break;	
+				break;
 			case 1:
 				expected = new String[] { "@Deprecated()" };
 				break;
@@ -244,18 +244,18 @@ public class ReadAnnotationTests2 extends BuilderTests {
 			default:
 				expected = NO_ANNOTATIONS;
 			}
-			
+
 			assertAnnotation(expected, fieldDecl.getAnnotations());
 			counter ++;
-		}	
-		
-		
+		}
+
+
 		final IMethodBinding[] methodBindings = typeBinding.getDeclaredMethods();
 		counter = 0;
 		assertEquals(7, methodBindings.length);
 		for(IMethodBinding methodDecl : methodBindings ){
-			final String name = "method" + counter;				
-			
+			final String name = "method" + counter;
+
 			assertEquals("method name mismatch", name, methodDecl.getName());
 			final String[] expected;
 			switch(counter)
@@ -263,7 +263,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 			case 0:
 				expected = new String[] { "@RTVisibleAnno(anno = @SimpleAnnotation(value = method0), clazzes = {})",
 					                      "@RTInvisibleAnno(value = 0)",
-					                      "@Deprecated()" };				
+					                      "@Deprecated()" };
 				break;
 			case 1:
 				expected = new String[] { "@Deprecated()" };
@@ -283,9 +283,9 @@ public class ReadAnnotationTests2 extends BuilderTests {
 			default:
 				expected = NO_ANNOTATIONS;
 			}
-			
+
 			assertAnnotation(expected, methodDecl.getAnnotations());
-			
+
 			if( counter == 5 ){
 				final int numParameters = methodDecl.getParameterTypes().length;
 				for( int pCounter=0; pCounter<numParameters; pCounter++ ){
@@ -295,30 +295,30 @@ public class ReadAnnotationTests2 extends BuilderTests {
 					case 1:
 						expectedParamAnnotations = new String[] { "@Deprecated()" };
 						break;
-					case 2:							
+					case 2:
 						expectedParamAnnotations = new String[] { "@RTVisibleAnno(anno = @SimpleAnnotation(value = param2), clazzes = {})",
-															      "@RTInvisibleAnno(value = 2)" };							
-						break;						
+															      "@RTInvisibleAnno(value = 2)" };
+						break;
 					default:
-						expectedParamAnnotations = NO_ANNOTATIONS;						
+						expectedParamAnnotations = NO_ANNOTATIONS;
 					}
 					assertAnnotation(expectedParamAnnotations, methodDecl.getParameterAnnotations(pCounter));
 				}
-				
+
 			}
 			counter ++;
 		}
 	}
-	
+
 	private void assertAnnotation(final String[] expected, IAnnotationBinding[] annotations)
 	{
-		final int expectedLen = expected.length;		
+		final int expectedLen = expected.length;
 		assertEquals("annotation number mismatch", expected.length, annotations.length); //$NON-NLS-1$
-		
+
 		final HashSet<String> expectedSet = new HashSet<String>(expectedLen * 4 / 3 + 1);
 		for( int i=0; i<expectedLen; i++ )
 			expectedSet.add(expected[i]);
-			
+
 		int counter = 0;
 		for( IAnnotationBinding mirror : annotations ){
 			if( counter >= expectedLen )
@@ -326,7 +326,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 			else{
 				final String mirrorToString = mirror.toString();
 				final boolean contains = expectedSet.contains(mirrorToString);
-				if( !contains ){					
+				if( !contains ){
 					System.err.println(mirrorToString);
 					System.err.println(expectedSet);
 				}
@@ -336,6 +336,6 @@ public class ReadAnnotationTests2 extends BuilderTests {
 			counter ++;
 		}
 	}
-	
- 
+
+
 }

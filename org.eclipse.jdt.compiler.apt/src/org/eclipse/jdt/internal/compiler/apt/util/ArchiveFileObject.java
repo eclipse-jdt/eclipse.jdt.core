@@ -263,5 +263,5 @@ public class ArchiveFileObject implements JavaFileObject {
 	@Override
 	public String toString() {
 		return this.file.getAbsolutePath() + "[" + this.entryName + "]";//$NON-NLS-1$//$NON-NLS-2$
-	}	
+	}
 }

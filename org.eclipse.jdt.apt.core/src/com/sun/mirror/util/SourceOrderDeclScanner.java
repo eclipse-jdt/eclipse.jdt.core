@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2004, Sun Microsystems, Inc.
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -15,7 +15,7 @@
  *     * Neither the name of the Sun Microsystems, Inc. nor the names of
  *       its contributors may be used to endorse or promote products derived from
  *       this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
  * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -57,7 +57,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
     static class SourceOrderComparator implements java.util.Comparator<Declaration> {
 	SourceOrderComparator(){}
 
-	
+
 	static boolean equals(Declaration d1, Declaration d2) {
 	    return d1 == d2 || (d1 != null && d1.equals(d2));
 	}
@@ -69,7 +69,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	    }
 
 	    DeclPartialOrder() {}
-	    
+
 	    public int getValue() { return value; }
 
 	    @Override
@@ -97,9 +97,9 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	    public void visitConstructorDeclaration(ConstructorDeclaration d) {value = 12;}
 
 	    @Override
-	    public void visitMethodDeclaration(MethodDeclaration d) {value = 14 + staticAdjust(d);} 
+	    public void visitMethodDeclaration(MethodDeclaration d) {value = 14 + staticAdjust(d);}
 	}
-	
+
 	private int compareEqualPosition(Declaration d1, Declaration d2) {
 	    assert d1.getPosition() == d2.getPosition();
 
@@ -144,7 +144,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 			diff = Long.signum((long)p1.column() - (long)p2.column());
 			if (diff != 0)
 			    return (int)diff;
-			else { 
+			else {
 			    // declarations may be two
 			    // compiler-generated members with the
 			    // same source position
@@ -153,7 +153,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 		    } else
 			return (diff<0)? -1:1;
 		} else
-		    return fileComp; 
+		    return fileComp;
 	    }
 	}
     }
@@ -173,21 +173,21 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	public void visitTypeDeclaration(TypeDeclaration d) {
 	d.accept(pre);
 
-	SortedSet<Declaration> decls = new 
+	SortedSet<Declaration> decls = new
 	    TreeSet<Declaration>(SourceOrderDeclScanner.comparator) ;
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
 	    decls.add(tpDecl);
 	}
-	
+
 	for(FieldDeclaration fieldDecl: d.getFields()) {
 	    decls.add(fieldDecl);
 	}
-	
+
 	for(MethodDeclaration methodDecl: d.getMethods()) {
 	    decls.add(methodDecl);
 	}
-	
+
 	for(TypeDeclaration typeDecl: d.getNestedTypes()) {
 	    decls.add(typeDecl);
 	}
@@ -202,21 +202,21 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	public void visitClassDeclaration(ClassDeclaration d) {
 	d.accept(pre);
 
-	SortedSet<Declaration> decls = new 
+	SortedSet<Declaration> decls = new
 	    TreeSet<Declaration>(SourceOrderDeclScanner.comparator) ;
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
 	    decls.add(tpDecl);
 	}
-	
+
 	for(FieldDeclaration fieldDecl: d.getFields()) {
 	    decls.add(fieldDecl);
 	}
-	
+
 	for(MethodDeclaration methodDecl: d.getMethods()) {
 	    decls.add(methodDecl);
 	}
-	
+
 	for(TypeDeclaration typeDecl: d.getNestedTypes()) {
 	    decls.add(typeDecl);
 	}
@@ -230,14 +230,14 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 
 	d.accept(post);
     }
-    
+
     @Override
 	public void visitExecutableDeclaration(ExecutableDeclaration d) {
 	d.accept(pre);
 
-	SortedSet<Declaration> decls = new 
+	SortedSet<Declaration> decls = new
 	    TreeSet<Declaration>(SourceOrderDeclScanner.comparator) ;
-	
+
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters())
 	    decls.add(tpDecl);
 

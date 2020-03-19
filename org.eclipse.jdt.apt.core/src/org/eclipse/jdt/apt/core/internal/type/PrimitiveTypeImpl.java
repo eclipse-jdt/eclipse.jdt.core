@@ -12,7 +12,7 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 
-package org.eclipse.jdt.apt.core.internal.type; 
+package org.eclipse.jdt.apt.core.internal.type;
 
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.util.TypeVisitor;
@@ -22,13 +22,13 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
-{	
-    private final ITypeBinding _binding;    
-    
+{
+    private final ITypeBinding _binding;
+
     public PrimitiveTypeImpl(ITypeBinding binding)
     {
 		assert binding != null;
-        _binding = binding;        
+        _binding = binding;
     }
     @Override
 	public void accept(TypeVisitor visitor)
@@ -41,7 +41,7 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
     {
 		final String name = getTypeBinding().getName();
 		if( "int".equals(name) ) //$NON-NLS-1$
-			return PrimitiveType.Kind.INT; 
+			return PrimitiveType.Kind.INT;
 		else if( "byte".equals(name) ) //$NON-NLS-1$
 			return PrimitiveType.Kind.BYTE;
 		else if( "short".equals(name) ) //$NON-NLS-1$
@@ -59,7 +59,7 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
 		else
 			throw new IllegalStateException("unrecognized primitive type " + _binding); //$NON-NLS-1$
     }
-    
+
     @Override
 	public String toString(){ return _binding.getName(); }
 
@@ -68,7 +68,7 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
 
     @Override
 	public MirrorKind kind(){ return MirrorKind.TYPE_PRIMITIVE; }
-	
+
 	@Override
 	public boolean equals(final Object obj)
 	{
@@ -79,10 +79,10 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
 			return false;
 		}
 	}
-	
+
 	@Override
 	public BaseProcessorEnv getEnvironment(){ return null; }
-	
+
 	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return getTypeBinding().isAssignmentCompatible(left.getTypeBinding());

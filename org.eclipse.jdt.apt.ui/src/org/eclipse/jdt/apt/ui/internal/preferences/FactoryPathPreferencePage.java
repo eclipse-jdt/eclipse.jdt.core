@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
 /**
- * 
+ *
  */
 public class FactoryPathPreferencePage extends BasePreferencePage {
 
@@ -28,12 +28,12 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 	private static final String PROP_ID= "org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"; //$NON-NLS-1$
 
 	/**
-	 * 
+	 *
 	 */
 	public FactoryPathPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
 		//setDescription(Messages.FactoryPathPreferencePage_factoryPath);
-		
+
 		// only used when page is shown programatically
 		setTitle(Messages.FactoryPathPreferencePage_preferences);
 	}
@@ -44,7 +44,7 @@ public class FactoryPathPreferencePage extends BasePreferencePage {
 	public void createControl(Composite parent) {
 		IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer) getContainer();
 		setConfigurationBlock(new FactoryPathConfigurationBlock(getNewStatusChangedListener(), getProject(), container));
-		
+
 		super.createControl(parent);
 	}
 

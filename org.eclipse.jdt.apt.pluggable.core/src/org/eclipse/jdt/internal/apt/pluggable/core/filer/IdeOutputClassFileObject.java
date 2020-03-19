@@ -28,7 +28,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
 
 /**
- * Implementation of FileObject for generating resource files in the IDE.  
+ * Implementation of FileObject for generating resource files in the IDE.
  * This is used for files that are neither class files nor Java source files.
  * @see IdeOutputJavaFileObject
  */

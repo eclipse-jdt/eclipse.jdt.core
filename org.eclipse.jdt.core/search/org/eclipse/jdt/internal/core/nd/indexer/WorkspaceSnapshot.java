@@ -154,11 +154,11 @@ public final class WorkspaceSnapshot {
 						IPath defaultOutputLocation = javaProject.getOutputLocation();
 						for (IClasspathEntry next : entries) {
 							IPath nextOutputLocation = next.getOutputLocation();
-	
+
 							if (nextOutputLocation == null) {
 								nextOutputLocation = defaultOutputLocation;
 							}
-	
+
 							IResource resource = root.findMember(nextOutputLocation);
 							if (resource != null) {
 								resourcesToScan.add(resource);
@@ -198,7 +198,7 @@ public final class WorkspaceSnapshot {
 		return allIndexables;
 	}
 
-	private static void collectAllClassFiles(IWorkspaceRoot root, List<? super IClassFile> result, 
+	private static void collectAllClassFiles(IWorkspaceRoot root, List<? super IClassFile> result,
 			Collection<? extends IResource> toScan, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor);
 

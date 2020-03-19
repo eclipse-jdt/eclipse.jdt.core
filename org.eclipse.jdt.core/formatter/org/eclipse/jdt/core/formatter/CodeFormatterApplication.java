@@ -7,7 +7,7 @@
  *  https://www.eclipse.org/legal/epl-2.0/
  *
  *  SPDX-License-Identifier: EPL-2.0
- * 
+ *
  *  Contributors:
  *     Ben Konrath <ben@bagu.org> - initial implementation
  *     Red Hat Incorporated - improvements based on comments from JDT developers
@@ -40,9 +40,9 @@ import org.eclipse.text.edits.TextEdit;
 
 /**
  * Implements an Eclipse Application for org.eclipse.jdt.core.JavaCodeFormatter.
- * 
+ *
  * <p>On MacOS, when invoked using the Eclipse executable, the "user.dir" property is set to the folder
- * in which the eclipse.ini file is located. This makes it harder to use relative paths to point to the 
+ * in which the eclipse.ini file is located. This makes it harder to use relative paths to point to the
  * files to be formatted or the configuration file to use to set the code formatter's options.</p>
  *
  * <p>There are a couple improvements that could be made: 1. Make a list of all the

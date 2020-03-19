@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2015 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
@@ -29,33 +29,33 @@ import javax.lang.model.element.TypeElement;
  * Manages context during a single round of annotation processing.
  */
 public class RoundDispatcher {
-	
+
 	private final Set<TypeElement> _unclaimedAnnotations;
 	private final RoundEnvironment _roundEnv;
 	private final IProcessorProvider _provider;
 	private boolean _searchForStar = false;
 	private final PrintWriter _traceProcessorInfo;
 	private final PrintWriter _traceRounds;
-	
+
 	/**
 	 * Processors discovered so far.  This list may grow during the
 	 * course of a round, as additional processors are discovered.
 	 */
 	private final List<ProcessorInfo> _processors;
-	
+
 	/**
 	 * @param rootAnnotations a possibly empty but non-null set of annotations on the
 	 * root compilation units of this round.  A local copy of the set will be made, to
 	 * avoid modifying the set passed in.
-	 * @param traceProcessorInfo a PrintWriter that processor trace output will be sent 
+	 * @param traceProcessorInfo a PrintWriter that processor trace output will be sent
 	 * to, or null if tracing is not desired.
-	 * @param traceRounds 
+	 * @param traceRounds
 	 */
 	public RoundDispatcher(
-			IProcessorProvider provider, 
-			RoundEnvironment env, 
-			Set<TypeElement> rootAnnotations, 
-			PrintWriter traceProcessorInfo, 
+			IProcessorProvider provider,
+			RoundEnvironment env,
+			Set<TypeElement> rootAnnotations,
+			PrintWriter traceProcessorInfo,
 			PrintWriter traceRounds)
 	{
 		_provider = provider;
@@ -65,9 +65,9 @@ public class RoundDispatcher {
 		_traceProcessorInfo = traceProcessorInfo;
 		_traceRounds = traceRounds;
 	}
-	
+
 	/**
-	 * Handle a complete round, dispatching to all appropriate processors. 
+	 * Handle a complete round, dispatching to all appropriate processors.
 	 */
 	public void round()
 	{
@@ -85,7 +85,7 @@ public class RoundDispatcher {
 			}
 			sbElements.append('}');
 			_traceRounds.println(sbElements.toString());
-			
+
 			StringBuilder sbAnnots = new StringBuilder();
 			sbAnnots.append("\tannotations: ["); //$NON-NLS-1$
 			Iterator<TypeElement> iAnnots = _unclaimedAnnotations.iterator();
@@ -99,20 +99,20 @@ public class RoundDispatcher {
 			}
 			sbAnnots.append(']');
 			_traceRounds.println(sbAnnots.toString());
-			
+
 			_traceRounds.println("\tlast round: " + _roundEnv.processingOver()); //$NON-NLS-1$
 		}
-		
+
 		// If there are no root annotations, try to find a processor that claims "*"
 		_searchForStar = _unclaimedAnnotations.isEmpty();
-		
+
 		// Iterate over all the already-found processors, giving each one a chance at the unclaimed
-		// annotations. If a processor is called at all, it is called on every subsequent round 
+		// annotations. If a processor is called at all, it is called on every subsequent round
 		// including the final round, but it may be called with an empty set of annotations.
 		for (ProcessorInfo pi : _processors) {
 			handleProcessor(pi);
 		}
-		
+
 		// If there are any unclaimed annotations, or if there were no root annotations and
 		// we have not yet run into a processor that claimed "*", continue discovery.
 		while (_searchForStar || !_unclaimedAnnotations.isEmpty()) {
@@ -123,10 +123,10 @@ public class RoundDispatcher {
 			}
 			handleProcessor(pi);
 		}
-		
+
 		// TODO: If !unclaimedAnnos.isEmpty(), issue a warning.
 	}
-	
+
 	/**
 	 * Evaluate a single processor.  Depending on the unclaimed annotations,
 	 * the annotations this processor supports, and whether it has already been
@@ -172,5 +172,5 @@ public class RoundDispatcher {
 			_provider.reportProcessorException(pi._processor, new Exception(e));
 		}
 	}
-	
+
 }

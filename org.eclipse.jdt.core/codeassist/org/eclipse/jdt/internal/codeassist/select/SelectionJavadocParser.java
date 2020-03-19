@@ -204,7 +204,7 @@ public class SelectionJavadocParser extends JavadocParser {
 			((SelectionJavadoc) this.docComment).inheritDocSelected = true;
 		}
 	}
-	
+
 	/*
 	 * Sets a flag to denote that selection has taken place on an inheritDoc tag
 	 */

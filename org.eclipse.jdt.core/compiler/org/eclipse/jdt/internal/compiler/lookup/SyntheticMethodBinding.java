@@ -36,9 +36,9 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
 	public LambdaExpression lambda;
-	
+
 	/** Switch (one from many) linked to the switch table */
-	public SwitchStatement switchStatement; 
+	public SwitchStatement switchStatement;
 	/**
 	 * Method reference expression whose target FI is Serializable. Should be set when
 	 * purpose is {@link #SerializableMethodReference}
@@ -75,7 +75,7 @@ public class SyntheticMethodBinding extends MethodBinding {
     public static final int RecordOverrideToString = 19;
     public static final int RecordOverrideHashCode = 20;
     public static final int RecordOverrideEquals = 21;
-    
+
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
 	public int fakePaddedParameters = 0; // added in synthetic constructor to avoid name clash.
@@ -303,7 +303,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
 	}
-	
+
 	/**
 	 * Construct $deserializeLambda$ method
 	 */
@@ -320,7 +320,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		this.index = methodId;
 	}
-	
+
 	/**
 	 * Construct enum special methods: values or valueOf methods
 	 */
@@ -330,7 +330,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = knownAccessMethods == null ? 0 : knownAccessMethods.length;
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(TypeConstants.SYNTHETIC_ENUM_CONSTANT_INITIALIZATION_METHOD_PREFIX).append(this.index);
-		this.selector = String.valueOf(buffer).toCharArray(); 
+		this.selector = String.valueOf(buffer).toCharArray();
 		this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		this.purpose = SyntheticMethodBinding.TooManyEnumsConstants;
@@ -424,7 +424,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.modifiers = ClassFileConstants.AccSynthetic | ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	    this.returnType = publicConstructor.declaringClass;
-	
+
 	    int realParametersLength = privateConstructor.parameters.length;
 	    int enclosingInstancesLength = enclosingInstances.length;
 	    int parametersLength =  enclosingInstancesLength + realParametersLength;
@@ -432,7 +432,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    System.arraycopy(enclosingInstances, 0, this.parameters, 0, enclosingInstancesLength);
 	    System.arraycopy(privateConstructor.parameters, 0, this.parameters, enclosingInstancesLength, realParametersLength);
 	    this.fakePaddedParameters = publicConstructor.parameters.length - realParametersLength;
-	    
+
 	    this.thrownExceptions = publicConstructor.thrownExceptions;
 	    this.purpose = SyntheticMethodBinding.FactoryMethod;
 	    this.targetMethod = publicConstructor;
@@ -655,7 +655,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	protected boolean isConstructorRelated() {
 		return this.purpose == SyntheticMethodBinding.ConstructorAccess;
 	}
-	
+
 	@Override
 	public LambdaExpression sourceLambda() {
 		return this.lambda;

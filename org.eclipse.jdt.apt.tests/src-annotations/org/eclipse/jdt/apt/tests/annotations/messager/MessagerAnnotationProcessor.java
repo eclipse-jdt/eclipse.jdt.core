@@ -32,7 +32,7 @@ import com.sun.mirror.util.SourcePosition;
 public class MessagerAnnotationProcessor extends BaseProcessor {
 
 	private final AnnotationTypeDeclaration _annotationDecl;
-	
+
 	// Text of problems created
 	public static final String PROBLEM_TEXT_INFO = "Annotated with MessagerAnnotation(INFO)"; //$NON-NLS-1$
 	public static final String PROBLEM_TEXT_WARNING = "Annotated with MessagerAnnotation(WARNING)"; //$NON-NLS-1$

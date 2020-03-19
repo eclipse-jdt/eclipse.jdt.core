@@ -1,3 +1,3 @@
 package question;
 
-public enum Color { RED, WHITE, BLUE; } 
+public enum Color { RED, WHITE, BLUE; }

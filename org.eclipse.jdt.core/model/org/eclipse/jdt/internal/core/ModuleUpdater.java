@@ -55,7 +55,7 @@ public class ModuleUpdater {
 	 * Detects any ADD_EXPORTS or ADD_READS classpath attributes, parses the value,
 	 * and collects the resulting module updates.
 	 * @param entry a classpath entry of the current project.
-	 * @throws JavaModelException 
+	 * @throws JavaModelException
 	 */
 	public void computeModuleUpdates(IClasspathEntry entry) throws JavaModelException {
 		for (IClasspathAttribute attribute : entry.getExtraAttributes()) {

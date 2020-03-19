@@ -78,8 +78,8 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_MODIFIERS_PROPERTY = SingleVariableDeclaration.MODIFIERS_PROPERTY;
 	/** @deprecated using deprecated code */
 	private static final SimplePropertyDescriptor INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY = SingleVariableDeclaration.EXTRA_DIMENSIONS_PROPERTY;
-	
-	
+
+
 	public ASTRewritingTypeDeclTest(String name) {
 		super(name);
 	}
@@ -981,43 +981,43 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
-	
+
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=262517
 	public void testSingleMemberAnnotation1_since_3() throws Exception {
 		String previousValue = null;
 		try {
 			previousValue = this.project1.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, false);
-			
+
 			this.project1.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_ANNOTATION, JavaCore.INSERT);
-			
+
 			IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 			StringBuffer buf= new StringBuffer();
 			buf.append("package test1;\n");
 			buf.append("public class E {\n");
 			buf.append("}\n");
 			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
-	
+
 			CompilationUnit astRoot= createAST(cu);
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
-	
+
 			{
 				TypeDeclaration type= findTypeDeclaration(astRoot, "E");
-	
+
 				SingleMemberAnnotation newAnnot= ast.newSingleMemberAnnotation();
-				
+
 				newAnnot.setTypeName(ast.newName("SuppressWarnings"));
-				
+
 				StringLiteral newStringLiteral= ast.newStringLiteral();
 				newStringLiteral.setLiteralValue("deprecation");
 				newAnnot.setValue(newStringLiteral);
-	
+
 				ListRewrite modifiers= rewrite.getListRewrite(type, TypeDeclaration.MODIFIERS2_PROPERTY);
 				modifiers.insertFirst(newAnnot, null);
 			}
-	
+
 			String preview= evaluateRewrite(cu, rewrite);
-	
+
 			buf= new StringBuffer();
 			buf.append("package test1;\n");
 			buf.append("@SuppressWarnings (\"deprecation\")\n");
@@ -1800,7 +1800,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot1"));
 			dim.annotations().add(markerAnnotation);
-			
+
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Annot2"));
 			dim.annotations().add(markerAnnotation);
@@ -1939,7 +1939,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	// Bug 419057 - ITypeBinding#getModifiers() misses implicit "static" for class member interface 
+	// Bug 419057 - ITypeBinding#getModifiers() misses implicit "static" for class member interface
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419057
 	public void testBug419057a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1972,7 +1972,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		ITypeBinding memberTypeBinding = memberTypeDeclaration.resolveBinding();
 		assertTrue((memberTypeBinding.getModifiers() & Modifier.STATIC) != 0);
 	}
-	
+
 	public void test401848_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -2012,7 +2012,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		String preview= evaluateRewrite(cu, rewrite);
 		String expected = "package test1;\n" +
 			"public class E {\n" +
-			"    @Marker\n"+ 
+			"    @Marker\n"+
 			"    public int i;\n" +
 			"    @test1.Marker\n" +
 			"    public F f;\n" +

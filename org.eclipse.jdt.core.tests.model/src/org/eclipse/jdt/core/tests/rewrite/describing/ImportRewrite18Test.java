@@ -187,7 +187,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
-		astRoot = (CompilationUnit) parser.createAST(null);	
+		astRoot = (CompilationUnit) parser.createAST(null);
 		TypeDeclaration type= (TypeDeclaration) astRoot.types().get(0);
 		MethodDeclaration [] methods =  type.getMethods();
 		MethodDeclaration method = methods[0];
@@ -244,7 +244,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
-		astRoot = (CompilationUnit) parser.createAST(null);	
+		astRoot = (CompilationUnit) parser.createAST(null);
 		TypeDeclaration type= (TypeDeclaration) astRoot.types().get(0);
 		MethodDeclaration [] methods =  type.getMethods();
 		MethodDeclaration method = methods[0];
@@ -395,7 +395,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 				"			\n" +
 				"		}\n" +
 				"	}\n" +
-				"}\n" + 
+				"}\n" +
 		createFolder("/" + PROJECT + "/src/pack3");
 		createFile("/" + PROJECT + "/src/pack3/C1.java", contents);
 		contents = "package pack4;\n" +
@@ -414,7 +414,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
-		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);	
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) astRoot.types().get(0);
 		MethodDeclaration [] methods =  typeDeclaration.getMethods();
 		MethodDeclaration method = methods[0];
@@ -476,7 +476,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 				"			\n" +
 				"		}\n" +
 				"	}\n" +
-				"}\n" + 
+				"}\n" +
 		createFolder("/" + PROJECT + "/src/pack4");
 		createFile("/" + PROJECT + "/src/pack4/D1.java", contents);
 
@@ -607,7 +607,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		if(testNullImportRewriteContext) {
 			actualType = rewrite.addImport(typeBinding, astRoot.getAST(), null, TypeLocation.UNKNOWN);
 		} else {
-			actualType = rewrite.addImport(typeBinding, astRoot.getAST());			
+			actualType = rewrite.addImport(typeBinding, astRoot.getAST());
 		}
 		return actualType;
 	}
@@ -770,7 +770,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	}
 
 	public void testBug474270_since_8() throws Exception {
-		String contents = 
+		String contents =
 				"package pack1;\n" +
 				"import java.util.Comparator;\n" +
 				"interface Comparator<T> {\n" +
@@ -792,7 +792,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
-		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);	
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
 		TypeDeclaration type= (TypeDeclaration) astRoot.types().get(1);
 		MethodDeclaration [] methods =  type.getMethods();
 		MethodDeclaration method = methods[0];
@@ -840,7 +840,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		edit.apply(document);
 		compilationUnit.getBuffer().setContents(document.get());
 	}
-	
+
 	public void testBug513869() throws Exception {
 		Type actualType = runTest426094andGetType(0, true);
 		assertEquals(this.bug426094TestInput[0][1], actualType.toString());

@@ -278,7 +278,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 	char[][] argumentNames = null;
 	boolean isVarArgs = false;
 	Argument[] arguments = methodDeclaration.arguments;
-	ParameterInfo[] parameterInfos = null; 
+	ParameterInfo[] parameterInfos = null;
 	ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 	methodInfo.typeAnnotated = ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0);
 
@@ -452,7 +452,7 @@ public void notifySourceElementRequestor(
 				nodes[index++] = types[i];
 			}
 		}
-		
+
 		if (parsedUnit.moduleDeclaration != null)
 			nodes[index++] = parsedUnit.moduleDeclaration;
 
@@ -781,7 +781,7 @@ private void fillModuleInfo(ModuleDeclaration mod, ISourceElementRequestor.Modul
 				}
 			}
 			exps[i] = exp;
-		}					
+		}
 		modInfo.exports = exps;
 	}
 	if (mod.servicesCount > 0) {

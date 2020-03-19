@@ -44,10 +44,10 @@ import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.DeclarationVisitor;
 
-public abstract class TypeDeclarationImpl extends MemberDeclarationImpl 
+public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 	implements TypeDeclaration, DeclaredType, ReferenceType, EclipseMirrorType
 {
-	// jdt core compiler add a field to a type with the following name when there is a hierachy problem with the type.	
+	// jdt core compiler add a field to a type with the following name when there is a hierachy problem with the type.
 	private static final String HAS_INCONSISTENT_TYPE_HIERACHY = "has inconsistent hierarchy"; //$NON-NLS-1$
     public TypeDeclarationImpl(final ITypeBinding binding,
                                final BaseProcessorEnv env)
@@ -59,21 +59,21 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 	public String getQualifiedName()
     {
         ITypeBinding type = getTypeBinding();
-        return type.getQualifiedName();      
+        return type.getQualifiedName();
     }
 
     @Override
 	public String getSimpleName()
     {
     	ITypeBinding type = getTypeBinding();
-    	return type.getName();        
+    	return type.getName();
     }
 
     @Override
 	public PackageDeclaration getPackage()
     {
         ITypeBinding binding = getDeclarationBinding();
-		return new PackageDeclarationImpl(binding.getPackage(), this, _env, false);        
+		return new PackageDeclarationImpl(binding.getPackage(), this, _env, false);
     }
 
     @Override
@@ -84,14 +84,14 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     @Override
 	public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
-    
+
 	private void getASTFields(
-    		final AbstractTypeDeclaration typeDecl, 
+    		final AbstractTypeDeclaration typeDecl,
     		final List<FieldDeclaration> results){
     	final List<?> bodyDecls = typeDecl.bodyDeclarations();
     	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
     		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
-    		IFile file = null; 
+    		IFile file = null;
     		if( bodyDecl.getNodeType() == ASTNode.FIELD_DECLARATION ){
     			final List<VariableDeclarationFragment> fragments =
                     ((org.eclipse.jdt.core.dom.FieldDeclaration)bodyDecl).fragments();
@@ -115,7 +115,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     	final List<FieldDeclaration> results = new ArrayList<>();
     	final ITypeBinding typeBinding = getDeclarationBinding();
     	if( isFromSource() ){
-    		final ASTNode node = 
+    		final ASTNode node =
     			_env.getASTNodeForBinding(typeBinding);
     		if( node != null ){
     			switch( node.getNodeType() )
@@ -123,7 +123,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     			case ASTNode.TYPE_DECLARATION:
     			case ASTNode.ANNOTATION_TYPE_DECLARATION:
     			case ASTNode.ENUM_DECLARATION:
-    				AbstractTypeDeclaration typeDecl = 
+    				AbstractTypeDeclaration typeDecl =
     					(AbstractTypeDeclaration)node;
     				// built the ast based methods first.
     				getASTFields(typeDecl, results);
@@ -135,13 +135,13 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     			}
     		}
     	}
-    	// either type is binary or 
+    	// either type is binary or
     	// constructing the binding based fields for source type.
         final IVariableBinding[] fields = typeBinding.getDeclaredFields();
         for( IVariableBinding field : fields ){
         	// note that the name HAS_INCONSISTENT_TYPE_HIERACHY is not a legal java identifier
         	// so there is no chance that we are filtering out actual declared fields.
-        	if( field.isSynthetic() || HAS_INCONSISTENT_TYPE_HIERACHY.equals(field.getName())) 
+        	if( field.isSynthetic() || HAS_INCONSISTENT_TYPE_HIERACHY.equals(field.getName()))
         		continue;
             Declaration mirrorDecl = Factory.createDeclaration(field, _env);
             if( mirrorDecl != null)
@@ -174,7 +174,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
                 results.add( (TypeParameterDeclaration)mirrorDecl );
         }
         return results;
-    }    
+    }
 
     @Override
 	public TypeDeclaration getDeclaringType()
@@ -182,7 +182,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         final ITypeBinding decl = getDeclarationBinding();
         if( decl.isMember() )
         	return Factory.createReferenceType(decl.getDeclaringClass(), _env);
-        return null;        
+        return null;
     }
 
     // Start of implementation of DeclaredType API
@@ -220,7 +220,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         if( declBinding == _binding ) return this;
         else return Factory.createReferenceType(declBinding, _env);
     }
-    
+
     @Override
 	public Collection<InterfaceType> getSuperinterfaces()
     {
@@ -245,34 +245,34 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     @Override
 	public ITypeBinding getDeclarationBinding()
-    {	
+    {
         final ITypeBinding type = getTypeBinding();
         return type.getTypeDeclaration();
     }
-    
+
     /**
      * create mirror methods that does not have a binding represention.
      */
     @SuppressWarnings("rawtypes")
 	protected void getASTMethods(
-    		final AbstractTypeDeclaration typeDecl, 
+    		final AbstractTypeDeclaration typeDecl,
     		final List<MethodDeclaration> results){
     	final List bodyDecls = typeDecl.bodyDeclarations();
-    	IFile file = null; 
+    	IFile file = null;
     	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
     		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
     		switch(bodyDecl.getNodeType()){
     		case ASTNode.METHOD_DECLARATION:
-    			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl = 
-    					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;    			
-    			
+    			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl =
+    					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;
+
     			if( !methodDecl.isConstructor() ){
     				final IMethodBinding methodBinding = methodDecl.resolveBinding();
     				// built an ast based representation.
     				if( methodBinding == null ){
     					if( file == null )
         					file = getResource();
-        				MethodDeclaration mirrorDecl = 
+        				MethodDeclaration mirrorDecl =
         					(MethodDeclaration)Factory.createDeclaration(methodDecl, file, _env);
         				if( mirrorDecl != null )
         					results.add(mirrorDecl);
@@ -287,7 +287,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 				if( methodBinding == null ){
 					if( file == null )
     					file = getResource();
-    				MethodDeclaration mirrorDecl = 
+    				MethodDeclaration mirrorDecl =
     					(MethodDeclaration)Factory.createDeclaration(memberDecl, file, _env);
     				if( mirrorDecl != null )
     					results.add(mirrorDecl);
@@ -301,10 +301,10 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     {
     	final List<MethodDeclaration> results = new ArrayList<>();
     	if( isFromSource() ){
-    		// need to consult the ast since methods with broken signature 
+    		// need to consult the ast since methods with broken signature
     		// do not appear in bindings.
     		final ITypeBinding typeBinding = getDeclarationBinding();
-    		final ASTNode node = 
+    		final ASTNode node =
     			_env.getASTNodeForBinding(typeBinding);
     		if( node != null ){
     			switch( node.getNodeType() )
@@ -312,7 +312,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     			case ASTNode.TYPE_DECLARATION:
     			case ASTNode.ANNOTATION_TYPE_DECLARATION:
     			case ASTNode.ENUM_DECLARATION:
-    				AbstractTypeDeclaration typeDecl = 
+    				AbstractTypeDeclaration typeDecl =
     					(AbstractTypeDeclaration)node;
     				// built the ast based methods first.
     				getASTMethods(typeDecl, results);
@@ -324,7 +324,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     			}
     		}
     	}
-        // build methods for binding type or 
+        // build methods for binding type or
     	// build the binding based method for source type.
     	final IMethodBinding[] methods = getDeclarationBinding().getDeclaredMethods();
         for( IMethodBinding method : methods ){
@@ -335,10 +335,10 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         }
         return results;
     }
-    
+
     @Override
 	public String toString()
-    {		
+    {
     	return getQualifiedName();
     }
 
@@ -358,14 +358,14 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 		}
 		return isSubTypeCompatible(left);
 	}
-	
+
 	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		// Operate on erasures - ignore generics for now
 		// Also ignore boxing for now
 		ITypeBinding thisErased = getTypeBinding().getErasure();
 		ITypeBinding typeErased = type.getTypeBinding().getErasure();
-		
+
 		if (kind() == MirrorKind.TYPE_CLASS) {
 			if (type.kind() == MirrorKind.TYPE_CLASS)
 				return isSubClassOf(thisErased, typeErased);
@@ -385,7 +385,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 	private static boolean isImplementorOf(ITypeBinding t1, ITypeBinding t2) {
 		if (eq(t1,t2)) return true;
 		ITypeBinding[] intfs = t1.getInterfaces();
-		
+
 		for (ITypeBinding intf : intfs) {
 			if (isImplementorOf(intf.getErasure(), t2))
 				return true;

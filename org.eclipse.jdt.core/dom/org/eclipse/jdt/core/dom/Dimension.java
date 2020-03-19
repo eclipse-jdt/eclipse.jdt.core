@@ -26,7 +26,7 @@ import java.util.List;
  * <li>extra dimension in the following node types:
  * {@link SingleVariableDeclaration}, {@link VariableDeclarationFragment}, {@link MethodDeclaration}</li>
  * </ul>
- * 
+ *
  * <pre>
  * Dimension:
  * 	{ Annotation } <b>[]</b>

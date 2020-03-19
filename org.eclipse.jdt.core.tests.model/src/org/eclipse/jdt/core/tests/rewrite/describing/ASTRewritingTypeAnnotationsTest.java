@@ -857,7 +857,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	/**
 	 * ASTRewriterTests for NameQualifiedType
 	 * @throws Exception
-	 * 
+	 *
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=406469
 	 */
 	public void testNameQualifiedTypeAnnotations() throws Exception {
@@ -897,7 +897,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 				"class FileNotFoundException extends Exception{private static final long serialVersionUID=10002L;}\n" +
 				"class EOFException extends Exception{private static final long serialVersionUID=10003L;}\n" +
 				"class IOError extends Exception{private static final long serialVersionUID=10004L;}\n";
-		StringBuffer buf = new StringBuffer(contents);			
+		StringBuffer buf = new StringBuffer(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu, /* resolve */ true, false);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -914,13 +914,13 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 			SingleVariableDeclaration param = (SingleVariableDeclaration) methodDeclaration.parameters().get(0);
 			nameQualifiedType = (NameQualifiedType) param.getType();
 			rewrite.remove((ASTNode) nameQualifiedType.annotations().get(0), null);
-			
+
 			// insert an annotation after an existing annotation
 			nameQualifiedType = (NameQualifiedType) methodDeclaration.thrownExceptionTypes().get(0);
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("Marker"));
 			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
-			
+
 			/* insert an annotation in a type not converted as a NameQualifiedType. This would involve
 			 *  creation of a NameQualifiedType from fields of the existing type.
 			 */
@@ -981,7 +981,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 	/**
 	 * ASTRewriterTests for QualifiedType
 	 * @throws Exception
-	 * 
+	 *
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=407364
 	 */
 	public void testQualifiedTypeAnnotations() throws Exception {
@@ -996,10 +996,10 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 				 "		Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();\n" +
 				 "		Outer.Inner.Deeper deeper2 =  second.new Deeper();\n" +
 				 "	}\n" + "}\n" + "class Outer {\n" +
-				 "	public class Inner {\n" + 
+				 "	public class Inner {\n" +
 				 "		public class Deeper {\n" +
-				 "		}\n" + 
-				 "	}\n" + 
+				 "		}\n" +
+				 "	}\n" +
 				 "}\n" +
 				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 				 "@interface Marker {}\n" +
@@ -1007,8 +1007,8 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 				 "@interface Marker1 {}\n" +
 				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 				 "@interface Marker2 {}\n";
-		
-		StringBuffer buf = new StringBuffer(contents);			
+
+		StringBuffer buf = new StringBuffer(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu, /* resolve */ true, false);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1024,19 +1024,19 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 			MarkerAnnotation markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
 			rewrite.replace((ASTNode) nameQualifiedType.annotations().get(0), markerAnnotation, null);
-			
+
 			// remove an annotation
 			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
 			nameQualifiedType = (NameQualifiedType) variableDeclarationStatement.getType();
 			rewrite.remove((ASTNode) nameQualifiedType.annotations().get(0), null);
-			
+
 			// insert an annotation after an existing annotation
 			variableDeclarationStatement = (VariableDeclarationStatement) statements.get(sCount++);
 			nameQualifiedType = (NameQualifiedType) variableDeclarationStatement.getType();
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
 			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
-			
+
 			/* insert an annotation in a type not converted as QualifiedType. This would involve
 			 *  creation of a QualifiedType from fields of the existing type.
 			 */
@@ -1047,7 +1047,7 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 			qualifiedName = (QualifiedName) qualifiedName.getQualifier();
 			qualifiedName = ast.newQualifiedName(ast.newName(qualifiedName.getQualifier().toString()), ast.newSimpleName(qualifiedName.getName().toString()));
 			nameQualifiedType = ast.newNameQualifiedType(qualifiedName, simpleName);
-			
+
 			markerAnnotation= ast.newMarkerAnnotation();
 			markerAnnotation.setTypeName(ast.newSimpleName("NewMarker"));
 			rewrite.getListRewrite(nameQualifiedType, NameQualifiedType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
@@ -1064,10 +1064,10 @@ public class ASTRewritingTypeAnnotationsTest extends ASTRewritingTest {
 				 "		Outer.Inner.@Marker1 @NewMarker Deeper deeper = second.new Deeper();\n" +
 				 "		Outer.Inner.@NewMarker Deeper deeper2 =  second.new Deeper();\n" +
 				 "	}\n" + "}\n" + "class Outer {\n" +
-				 "	public class Inner {\n" + 
+				 "	public class Inner {\n" +
 				 "		public class Deeper {\n" +
-				 "		}\n" + 
-				 "	}\n" + 
+				 "		}\n" +
+				 "	}\n" +
 				 "}\n" +
 				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 				 "@interface Marker {}\n" +

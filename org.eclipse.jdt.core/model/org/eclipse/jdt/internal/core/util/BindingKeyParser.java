@@ -375,7 +375,7 @@ public class BindingKeyParser {
 			while (this.index < this.source.length && "0123456789".indexOf(this.source[this.index]) != -1) //$NON-NLS-1$
 				this.index++;
 		}
-		
+
 		void skipThrownStart() {
 			while (this.index < this.source.length && this.source[this.index] == C_THROWN)
 				this.index++;
@@ -396,12 +396,12 @@ public class BindingKeyParser {
 			if (this.index < this.source.length && this.source[this.index] == ';')
 				this.index++;
 		}
-		
+
 		void skipRankStart() {
 			if (this.index < this.source.length && this.source[this.index] == '{')
 				this.index++;
 		}
-		
+
 		void skipRankEnd() {
 			if (this.index < this.source.length && this.source[this.index] == '}')
 				this.index++;
@@ -487,11 +487,11 @@ public class BindingKeyParser {
 	private Scanner scanner;
 
 	private boolean hasTypeName = true;
-	
+
 	private boolean hasModuleName;
 
 	private boolean isMalformed;
-	
+
 	private boolean isParsingThrownExceptions = false;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=336451
 
 	public BindingKeyParser(BindingKeyParser parser) {
@@ -520,7 +520,7 @@ public class BindingKeyParser {
 	}
 
 	public void consumeCapture18ID(int id, int position) {
-		// default is to do nothing		
+		// default is to do nothing
 	}
 
 	public void consumeException() {
@@ -614,7 +614,7 @@ public class BindingKeyParser {
 	public void consumeWildCard(int kind) {
 		// default is to do nothing
 	}
-	
+
 	public void consumeWildcardRank(int rank) {
 		// default is to do nothing
 	}
@@ -791,7 +791,7 @@ public class BindingKeyParser {
 					malformedKey();
 					return;
 				}
-				
+
 				int start = this.scanner.start;
 				if (this.scanner.nextToken() == Scanner.TYPE) {
 					if (!CharOperation.equals(this.scanner.getTokenSource(), new char[] {'i', 'n', 'f', 'o'})) {
@@ -939,9 +939,9 @@ public class BindingKeyParser {
 		source = this.scanner.getTokenSource();
 		int id = Integer.parseInt(new String(source));
 		this.scanner.skipRankEnd(); // }
-		
+
 		consumeCapture18ID(id, position);
-		
+
 		this.scanner.skipTypeEnd();
 	}
 
@@ -1118,7 +1118,7 @@ public class BindingKeyParser {
 		consumeWildcardRank(Integer.parseInt(new String(source)));
 		this.scanner.skipRankEnd();
 	}
-	
+
 	private void parseWildcardBound() {
 		/*
 		 * The call parser.parse() might have a side-effect on the current token type

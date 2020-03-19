@@ -34,13 +34,13 @@ public class IdeTestUtils {
 	 * Name of the subdirectory within the test bundle where target resources are stored.
 	 */
 	public static final String RESOURCES_DIR = "resources";
-	
+
 	/**
 	 * Copy files from a bundle into a project in the target workspace. Newlines will be
 	 * converted according to {@link #shouldConvertToIndependentLineDelimiter(File)}.
 	 * Directories named "CVS" will be ignored.
-	 * 
-	 * @param proj 
+	 *
+	 * @param proj
 	 *            the project within which the files will be created.
 	 * @param resourceFolderName
 	 *            the name of the folder within the plug-in that the files will be copied
@@ -58,7 +58,7 @@ public class IdeTestUtils {
 		copyResources(resourceFolder, destFolder);
 		proj.refreshLocal(IResource.DEPTH_INFINITE, null);
 	}
-	
+
 	/**
 	 * @return the absolute filesystem-based path of the root of the bundle filesystem.
 	 * This will cause the bundle to be extracted to a temporary directory on the filesystem
@@ -73,12 +73,12 @@ public class IdeTestUtils {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Copy a file from one location to another, unless the destination file already exists and has
 	 * the same timestamp and file size. Create the destination location if necessary. Convert line
 	 * delimiters according to {@link #shouldConvertToIndependentLineDelimiter(File)}.
-	 * 
+	 *
 	 * @param src
 	 *            the full path to the resource location.
 	 * @param destFolder
@@ -87,12 +87,12 @@ public class IdeTestUtils {
 	 */
 	private static void copyResource(File src, File dest) throws IOException {
 		if (dest.exists() &&
-				src.lastModified() < dest.lastModified() && 
-				src.length() == dest.length()) 
+				src.lastModified() < dest.lastModified() &&
+				src.length() == dest.length())
 		{
 			return;
 		}
-		
+
 		// read source bytes
 		byte[] srcBytes = null;
 		srcBytes = read(src);
@@ -121,7 +121,7 @@ public class IdeTestUtils {
 			}
 		}
 	}
-	
+
 	private static void copyResources(File resourceFolder, File destFolder) throws IOException {
 		if (resourceFolder == null) {
 			return;
@@ -166,7 +166,7 @@ public class IdeTestUtils {
 		}
 		return fileBytes;
 	}
-	
+
 	/**
 	 * @return true if this file's end-of-line delimiters should be replaced with
 	 * a platform-independent value, e.g. for compilation.

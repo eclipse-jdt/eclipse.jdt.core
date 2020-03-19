@@ -599,7 +599,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 * @bug 304394: IJavaElement#getAttachedJavadoc(IProgressMonitor) should support referenced entries
 	 * Test that javadoc is picked up from the referenced classpath entry when the javadoc location is added
 	 * to that entry
-	 * 
+	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394"
 	 * @throws Exception
 	 */
@@ -618,7 +618,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
 
 					chainedJar = entries[i];
-					addLibrary(this.project, "/lib/chaining.jar", null, new String[0], 
+					addLibrary(this.project, "/lib/chaining.jar", null, new String[0],
 							new String[] {
 								"META-INF/MANIFEST.MF",
 								"Manifest-Version: 1.0\n" +
@@ -630,10 +630,10 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 					break;
 				}
 			}
-			
+
 			this.project.setRawClasspath(entries, new IClasspathEntry[]{chainedJar}, this.project.getOutputLocation(), null);
 			waitForAutoBuild();
-			
+
 			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 			IOrdinaryClassFile classFile = packageFragment.getOrdinaryClassFile("X.class"); //$NON-NLS-1$
 			IType type = classFile.getType();
@@ -650,9 +650,9 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	}
 	/**
 	 * Additional test for bug 304394.
-	 * Test that javadoc is picked up from the raw classpath entry when the referenced entry doesn't 
+	 * Test that javadoc is picked up from the raw classpath entry when the referenced entry doesn't
 	 * contain the javadoc location attrribute.
-	 * 
+	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394"
 	 * @throws Exception
 	 */
@@ -671,7 +671,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 						&& "/AttachedJavadocProject/lib/test6.jar".equals(entry.getPath().toString())) { //$NON-NLS-1$
 
 					chainedJar = entries[i];
-					addLibrary(this.project, "/lib/chaining.jar", null, new String[0], 
+					addLibrary(this.project, "/lib/chaining.jar", null, new String[0],
 							new String[] {
 								"META-INF/MANIFEST.MF",
 								"Manifest-Version: 1.0\n" +
@@ -683,11 +683,11 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 					break;
 				}
 			}
-			
+
 			chainedJar = JavaCore.newLibraryEntry(chainedJar.getPath(), null, null, null, null, chainedJar.isExported());
 			this.project.setRawClasspath(entries, new IClasspathEntry[]{chainedJar}, this.project.getOutputLocation(), null);
 			waitForAutoBuild();
-			
+
 			IPackageFragment packageFragment = this.root.getPackageFragment("p1.p2"); //$NON-NLS-1$
 			IOrdinaryClassFile classFile = packageFragment.getOrdinaryClassFile("X.class"); //$NON-NLS-1$
 			IType type = classFile.getType();
@@ -814,16 +814,16 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 			String javadoc = method.getAttachedJavadoc(null);
 			assertNotNull(javadoc);
-			assertEquals("Wrong contents", "<H3>\r\n" + 
-					"PublicAbstractClass.InnerFinalException</H3>\r\n" + 
-					"<PRE>\r\n" + 
-					"public <B>PublicAbstractClass.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
-					"                                               java.lang.String&nbsp;msg)</PRE>\r\n" + 
-					"<DL>\r\n" + 
-					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
-					"<P>\r\n" + 
-					"<DL>\r\n" + 
-					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+			assertEquals("Wrong contents", "<H3>\r\n" +
+					"PublicAbstractClass.InnerFinalException</H3>\r\n" +
+					"<PRE>\r\n" +
+					"public <B>PublicAbstractClass.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" +
+					"                                               java.lang.String&nbsp;msg)</PRE>\r\n" +
+					"<DL>\r\n" +
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" +
+					"<P>\r\n" +
+					"<DL>\r\n" +
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" +
 					"</DL>\r\n", javadoc);
 		} finally {
 			this.project.setRawClasspath(entries, null);
@@ -850,16 +850,16 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 			String javadoc = method.getAttachedJavadoc(null);
 			assertNotNull(javadoc);
-			assertEquals("Wrong contents", "<H3>\r\n" + 
-					"PublicAbstractClass.InnerFinalException</H3>\r\n" + 
-					"<PRE>\r\n" + 
-					"public <B>PublicAbstractClass.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
-					"                                               java.lang.String&nbsp;msg)</PRE>\r\n" + 
-					"<DL>\r\n" + 
-					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
-					"<P>\r\n" + 
-					"<DL>\r\n" + 
-					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+			assertEquals("Wrong contents", "<H3>\r\n" +
+					"PublicAbstractClass.InnerFinalException</H3>\r\n" +
+					"<PRE>\r\n" +
+					"public <B>PublicAbstractClass.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" +
+					"                                               java.lang.String&nbsp;msg)</PRE>\r\n" +
+					"<DL>\r\n" +
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" +
+					"<P>\r\n" +
+					"<DL>\r\n" +
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" +
 					"</DL>\r\n", javadoc);
 		} finally {
 			this.project.setRawClasspath(entries, null);
@@ -887,16 +887,16 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			String javadoc = method.getAttachedJavadoc(null);
 			assertNotNull(javadoc);
 			assertEquals("Wrong contents",
-					"<H3>\r\n" + 
-					"PublicAbstractClass.A.InnerFinalException</H3>\r\n" + 
-					"<PRE>\r\n" + 
-					"public <B>PublicAbstractClass.A.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
-					"                                                 java.lang.String&nbsp;msg)</PRE>\r\n" + 
-					"<DL>\r\n" + 
-					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
-					"<P>\r\n" + 
-					"<DL>\r\n" + 
-					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+					"<H3>\r\n" +
+					"PublicAbstractClass.A.InnerFinalException</H3>\r\n" +
+					"<PRE>\r\n" +
+					"public <B>PublicAbstractClass.A.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" +
+					"                                                 java.lang.String&nbsp;msg)</PRE>\r\n" +
+					"<DL>\r\n" +
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" +
+					"<P>\r\n" +
+					"<DL>\r\n" +
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" +
 					"</DL>\r\n", javadoc);
 		} finally {
 			this.project.setRawClasspath(entries, null);
@@ -923,16 +923,16 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 
 			String javadoc = method.getAttachedJavadoc(null);
 			assertNotNull(javadoc);
-			assertEquals("Wrong contents", "<H3>\r\n" + 
-					"PublicAbstractClass.A.InnerFinalException</H3>\r\n" + 
-					"<PRE>\r\n" + 
-					"public <B>PublicAbstractClass.A.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" + 
-					"                                                 java.lang.String&nbsp;msg)</PRE>\r\n" + 
-					"<DL>\r\n" + 
-					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" + 
-					"<P>\r\n" + 
-					"<DL>\r\n" + 
-					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" + 
+			assertEquals("Wrong contents", "<H3>\r\n" +
+					"PublicAbstractClass.A.InnerFinalException</H3>\r\n" +
+					"<PRE>\r\n" +
+					"public <B>PublicAbstractClass.A.InnerFinalException</B>(java.lang.String&nbsp;property,\r\n" +
+					"                                                 java.lang.String&nbsp;msg)</PRE>\r\n" +
+					"<DL>\r\n" +
+					"<DD>javadoc for InnerFinalException(String property, String msg)\r\n" +
+					"<P>\r\n" +
+					"<DL>\r\n" +
+					"<DT><B>Parameters:</B><DD><CODE>property</CODE> - the property argument<DD><CODE>msg</CODE> - the message argument</DL>\r\n" +
 					"</DL>\r\n", javadoc);
 		} finally {
 			this.project.setRawClasspath(entries, null);
@@ -961,16 +961,16 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertNotNull(javadoc);
 			assertEquals(
 					"Wrong contents",
-					"<H3>\r\n" + 
-					"foo</H3>\r\n" + 
-					"<PRE>\r\n" + 
-					"public void <B>foo</B>()</PRE>\r\n" + 
-					"<DL>\r\n" + 
-					"<DD>Test method\r\n" + 
-					"<P>\r\n" + 
-					"<DD><DL>\r\n" + 
-					"</DL>\r\n" + 
-					"</DD>\r\n" + 
+					"<H3>\r\n" +
+					"foo</H3>\r\n" +
+					"<PRE>\r\n" +
+					"public void <B>foo</B>()</PRE>\r\n" +
+					"<DL>\r\n" +
+					"<DD>Test method\r\n" +
+					"<P>\r\n" +
+					"<DD><DL>\r\n" +
+					"</DL>\r\n" +
+					"</DD>\r\n" +
 					"</DL>\r\n",
 					javadoc);
 		} finally {
@@ -1000,16 +1000,16 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertNotNull(javadoc);
 			assertEquals(
 					"Wrong contents",
-					"<H3>\r\n" + 
-					"PublicAbstractClass.InnerFinalException</H3>\r\n" + 
-					"<PRE>\r\n" + 
-					"public <B>PublicAbstractClass.InnerFinalException</B>()</PRE>\r\n" + 
-					"<DL>\r\n" + 
-					"<DD>javadoc for InnerFinalException()\r\n" + 
-					"<P>\r\n" + 
-					"</DL>\r\n" + 
-					"\r\n" + 
-					"<!-- ============ METHOD DETAIL ========== -->\r\n" + 
+					"<H3>\r\n" +
+					"PublicAbstractClass.InnerFinalException</H3>\r\n" +
+					"<PRE>\r\n" +
+					"public <B>PublicAbstractClass.InnerFinalException</B>()</PRE>\r\n" +
+					"<DL>\r\n" +
+					"<DD>javadoc for InnerFinalException()\r\n" +
+					"<P>\r\n" +
+					"</DL>\r\n" +
+					"\r\n" +
+					"<!-- ============ METHOD DETAIL ========== -->\r\n" +
 					"\r\n",
 					javadoc);
 		} finally {
@@ -1203,37 +1203,37 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			} catch (Exception e) {
 				fail("Should not be an exception");
 			}
-			addLibrary(this.project, "valid.jar", null, 
+			addLibrary(this.project, "valid.jar", null,
 					new String[]{
 						"p/X.java",
 						"package p;\n" +
 						"/** Javadoc for class X */\n" +
-						"public class X {}"	}, 
+						"public class X {}"	},
 					JavaCore.VERSION_1_4);
-			addLibrary(this.project, "invalid.jar", null, 
+			addLibrary(this.project, "invalid.jar", null,
 					new String[]{
 						"q/Y.java",
 						"package q;\n" +
 						"/** Javadoc for class Y */\n" +
-						"public class Y {}"	}, 
+						"public class Y {}"	},
 					JavaCore.VERSION_1_4);
 
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, validUrl.toExternalForm());
-			IClasspathEntry validEntry = 
-					JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/valid.jar"), 
-							null, 
-							null, 
-							new IAccessRule[]{}, 
-							new IClasspathAttribute[] { attribute }, 
+			IClasspathEntry validEntry =
+					JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/valid.jar"),
+							null,
+							null,
+							new IAccessRule[]{},
+							new IClasspathAttribute[] { attribute },
 							false);
-			
+
 			attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, invalidUrl.toExternalForm());
-			IClasspathEntry invalidEntry = 
-					JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/invalid.jar"), 
-							null, 
-							null, 
-							new IAccessRule[]{}, 
-							new IClasspathAttribute[] { attribute }, 
+			IClasspathEntry invalidEntry =
+					JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/invalid.jar"),
+							null,
+							null,
+							new IAccessRule[]{},
+							new IClasspathAttribute[] { attribute },
 							false);
 
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length + 2];
@@ -1265,7 +1265,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 				fail("Should not throw JavaModelException");
 			}
 			assertNull("Should not have a javadoc", javadoc);
-			
+
 			packageFragment = invalidRoot.getPackageFragment("q");
 			classFile = packageFragment.getOrdinaryClassFile("Y.class");
 			type = classFile.getType();
@@ -1353,7 +1353,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			IPackageFragment packageFragment = jarRoot.getPackageFragment("org.eclipse.pub");
 			javadoc = packageFragment.getAttachedJavadoc(new NullProgressMonitor());
 			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
-			assertTrue("Should contain", javadoc.contains("Some package description"));			
+			assertTrue("Should contain", javadoc.contains("Some package description"));
 		} catch (IndexOutOfBoundsException e) {
 			assertTrue("Should not happen", false);
 		}

@@ -235,7 +235,7 @@ public class NdMethod extends NdBinding {
 
 	/**
 	 * Creates the {@link NdMethodAnnotationData} struct for this method if it does not already exist. Returns
-	 * the existing or newly-created struct. 
+	 * the existing or newly-created struct.
 	 */
 	public NdMethodAnnotationData createAnnotationData() {
 		NdMethodAnnotationData result = getAnnotationData();

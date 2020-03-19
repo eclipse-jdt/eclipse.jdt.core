@@ -63,7 +63,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * during reconcile, it is not possible to write to disk or delete files from disk; all
  * operations take place in memory only, using "working copies" provided by the Java
  * Model.
- * 
+ *
  * <h2>DATA STRUCTURES</h2>
  * <code>_buildDeps</code> is a many-to-many map that tracks which parent files
  * are responsible for which generated files. Entries in this map are created when files
@@ -81,7 +81,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * <code>ICompilationUnit.getResource()</code>.  To go the other way, we store maps
  * of IFile to ICompilationUnit.  Working copies that represent generated types are
  * stored in <code>_reconcileGenTypes</code>; working copies that represent deleted types
- * are stored in <code>_hiddenBuiltTypes</code>.  
+ * are stored in <code>_hiddenBuiltTypes</code>.
  * <p>
  * List invariants: for the many-to-many maps, every forward entry must correspond to a
  * reverse entry; this is managed (and verified) by the ManyToMany map code. Also, every
@@ -91,7 +91,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * into this overall collection, it must have <code>becomeWorkingCopy()</code> called on
  * it; whenever it is removed, it must have <code>discardWorkingCopy()</code> called on
  * it.
- * 
+ *
  * <h2>SYNCHRONIZATION NOTES</h2>
  * Synchronization around the GeneratedFileManager's maps uses the GeneratedFileMap
  * instance's monitor. When acquiring this monitor, DO NOT PERFORM ANY OPERATIONS THAT
@@ -100,7 +100,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  * deadlock situations. For example, a resource-changed listener may take a resource lock
  * and then call into the GeneratedFileManager for clean-up, where your code could reverse
  * the order in which the locks are taken. This is bad, so be careful.
- * 
+ *
  * <h2>RECONCILE vs. BUILD</h2>
  * Reconciles are based on in-memory type information, i.e., working copies. Builds are
  * based on files on disk. At any given moment, a build thread and any number of reconcile
@@ -137,13 +137,13 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
  */
 public class GeneratedFileManager
 {
-	
+
 	/**
 	 * Access to the package fragment root for generated types.
 	 * Encapsulated into this class so that synchronization can be guaranteed.
 	 */
 	private class GeneratedPackageFragmentRoot {
-		
+
 		// The name and root are returned as a single object to ensure synchronization.
 		final class NameAndRoot {
 			final String name;
@@ -153,11 +153,11 @@ public class GeneratedFileManager
 				this.root = root;
 			}
 		}
-		
+
 		private IPackageFragmentRoot _root = null;
-		
+
 		private String _folderName = null;
-		
+
 		/**
 		 * Get the package fragment root and the name of the folder
 		 * it corresponds to.  If the folder is not on the classpath,
@@ -166,7 +166,7 @@ public class GeneratedFileManager
 		public synchronized NameAndRoot get() {
 			return new NameAndRoot(_folderName, _root);
 		}
-		
+
 		/**
 		 * Force the package fragment root and folder name to be recalculated.
 		 * Check whether the new folder is actually on the classpath; if not,
@@ -183,7 +183,7 @@ public class GeneratedFileManager
 	}
 
 	/**
-	 * If true, when buffer contents are updated during a reconcile, reconcile() will 
+	 * If true, when buffer contents are updated during a reconcile, reconcile() will
 	 * be called on the new contents.  This is not necessary to update the open editor,
 	 * but if the generated file is itself a parent file, it will cause recursive
 	 * type generation.
@@ -196,18 +196,18 @@ public class GeneratedFileManager
 	 * Eclipse 3.3 this should work.
 	 */
 	private static final boolean GENERATE_TYPE_DURING_RECONCILE = true;
-	
+
 	/**
 	 * If true, the integrity of internal data structures will be verified after various
 	 * operations are performed.
 	 */
 	private static final boolean ENABLE_INTEGRITY_CHECKS = true;
-	
+
 	/**
 	 * A singleton instance of CompilationUnitHelper, which encapsulates operations on working copies.
 	 */
 	private static final CompilationUnitHelper _CUHELPER = new CompilationUnitHelper();
-	
+
 	/**
 	 * The regex delimiter used to parse package names.
 	 */
@@ -225,7 +225,7 @@ public class GeneratedFileManager
 	 * read-only during reconcile. This map is serialized.
 	 */
 	private final GeneratedFileMap _buildDeps;
-	
+
 	/**
 	 * Set of files that have been generated during build by processors that
 	 * support reconcile-time type generation.  Files in this set are expected to
@@ -243,13 +243,13 @@ public class GeneratedFileManager
 	 * and is not accessed during build. This map is not serialized.
 	 */
 	private final ManyToMany<IFile, IFile> _reconcileDeps;
-	
+
 	/**
 	 * Many-to-many map from parent files to files that are generated in build but not
 	 * during reconcile.  We need this so we can tell parents that were never reconciled
 	 * (meaning their generated children on disk are valid) from parents that have been
 	 * edited so that they no longer generate their children (meaning the generated
-	 * children may need to be removed from the typesystem).  This map is not serialized. 
+	 * children may need to be removed from the typesystem).  This map is not serialized.
 	 */
 	private final ManyToMany<IFile, IFile> _reconcileNonDeps;
 
@@ -269,7 +269,7 @@ public class GeneratedFileManager
 	 * working copy is created, {@link ICompilationUnit#becomeWorkingCopy()} is called. If
 	 * an entry is removed from this map without being added to the other,
 	 * {@link ICompilationUnit#discardWorkingCopy()} must be called.
-	 * 
+	 *
 	 * @see #_reconcileGenTypes
 	 */
 	private final Map<IFile, ICompilationUnit> _hiddenBuiltTypes;
@@ -290,7 +290,7 @@ public class GeneratedFileManager
 	 * working copy is created, {@link ICompilationUnit#becomeWorkingCopy()} is called. If
 	 * an entry is removed from this map without being added to the other,
 	 * {@link ICompilationUnit#discardWorkingCopy()} must be called.
-	 * 
+	 *
 	 * @see #_hiddenBuiltTypes
 	 */
 	private final Map<IFile, ICompilationUnit> _reconcileGenTypes;
@@ -299,7 +299,7 @@ public class GeneratedFileManager
 	 * Access to the package fragment root for generated types.  Encapsulated into a
 	 * helper class in order to ensure synchronization.
 	 */
-	private final GeneratedPackageFragmentRoot _generatedPackageFragmentRoot; 
+	private final GeneratedPackageFragmentRoot _generatedPackageFragmentRoot;
 
 	private final IJavaProject _jProject;
 
@@ -308,9 +308,9 @@ public class GeneratedFileManager
 	/**
 	 * Initialized when the build starts, and accessed during type generation.
 	 * This has the same lifecycle as _generatedPackageFragmentRoot.
-	 * If there is a configuration problem, this may be set to <code>true</code> 
+	 * If there is a configuration problem, this may be set to <code>true</code>
 	 * during generation of the first type to prevent any other types from
-	 * being generated. 
+	 * being generated.
 	 */
 	private boolean _skipTypeGeneration = false;
 
@@ -365,7 +365,7 @@ public class GeneratedFileManager
 		_generatedPackageFragmentRoot.set();
 
 	}
-	
+
 	/**
 	 * This method should only be used for testing purposes to ensure that maps contain
 	 * entries when we expect them to.
@@ -381,7 +381,7 @@ public class GeneratedFileManager
 	 * deleted, but the association from this parent to the generated file will be
 	 * removed, so that when the last parent ceases to generate a given file it will be
 	 * deleted at that time.
-	 * 
+	 *
 	 * @param newlyGeneratedFiles
 	 *            the set of files generated by <code>parentFile</code> on the most
 	 *            recent compilation; these files will be spared deletion.
@@ -394,13 +394,13 @@ public class GeneratedFileManager
 		List<ICompilationUnit> toDiscard = new ArrayList<>();
 		Set<IFile> toReport = new HashSet<>();
 		deleted = computeObsoleteFiles(parentFile, newlyGeneratedFiles, toDiscard, toReport);
-		
+
 		for (IFile toDelete : deleted) {
 			if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
 					"deleted obsolete file during build: " + toDelete); //$NON-NLS-1$
 			deletePhysicalFile(toDelete);
 		}
-		
+
 		// Discard blank WCs *after* we delete the corresponding files:
 		// we don't want the type to become briefly visible to a reconcile thread.
 		for (ICompilationUnit wcToDiscard : toDiscard) {
@@ -420,8 +420,8 @@ public class GeneratedFileManager
 	 * Only some processors specify (via {@link org.eclipse.jdt.apt.core.util.AptPreferenceConstants#RTTG_ENABLED_OPTION})
 	 * that they support type generation during reconcile.  We need to remove obsolete
 	 * files generated by those processors, but preserve files generated by
-	 * other processors. 
-	 * 
+	 * other processors.
+	 *
 	 * @param parentWC
 	 *            the WorkingCopy being reconciled
 	 * @param newlyGeneratedFiles
@@ -457,7 +457,7 @@ public class GeneratedFileManager
 	 * Removes any files parented by this file, and removes the file from dependency maps
 	 * if it is generated. This does not remove working copies parented by the file; that
 	 * will happen when the working copy corresponding to the parent file is discarded.
-	 * 
+	 *
 	 * @param f
 	 */
 	public void fileDeleted(IFile f)
@@ -475,7 +475,7 @@ public class GeneratedFileManager
 	 * intermediate directories will be created if they don't exist. This method takes
 	 * file-system locks, and assumes that the calling method has at some point acquired a
 	 * workspace-level resource lock.
-	 * 
+	 *
 	 * @param parentFiles
 	 *            the parent or parents of the type being generated.  May be empty, and/or
 	 *            may contain null entries, but must not itself be null.
@@ -498,18 +498,18 @@ public class GeneratedFileManager
 	{
 		if (_skipTypeGeneration)
 			return null;
-		
+
 		GeneratedPackageFragmentRoot.NameAndRoot gpfr = _generatedPackageFragmentRoot.get();
 		IPackageFragmentRoot root = gpfr.root;
 		if (root == null) {
-			// If the generated package fragment root wasn't set, then our classpath 
+			// If the generated package fragment root wasn't set, then our classpath
 			// is incorrect. Add a marker and return.  We do this here, rather than in
 			// the set() method, because if they're not going to generate any types
 			// then it doesn't matter that the classpath is wrong.
 			String message = Messages.bind(Messages.GeneratedFileManager_missing_classpath_entry,
 					new String[] { gpfr.name });
 			IMarker marker = _jProject.getProject().createMarker(AptPlugin.APT_CONFIG_PROBLEM_MARKER);
-			marker.setAttributes(new String[] { IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID }, 
+			marker.setAttributes(new String[] { IMarker.MESSAGE, IMarker.SEVERITY, IMarker.SOURCE_ID },
 					new Object[] { message,	IMarker.SEVERITY_ERROR, AptPlugin.APT_MARKER_SOURCE_ID });
 			// disable any future type generation
 			_skipTypeGeneration = true;
@@ -526,15 +526,15 @@ public class GeneratedFileManager
 				final String[] names = parseTypeName(typeName);
 				final String pkgName = names[0];
 				final String cuName = names[1];
-				
+
 				// Get a list of the folders that will have to be created for this package to exist
 				IFolder genSrcFolder = (IFolder) root.getResource();
 				final Set<IFolder> newFolders = computeNewPackageFolders(pkgName, genSrcFolder);
-	
+
 				// Create the package fragment in the Java Model.  This creates all needed parent folders.
 				IPackageFragment pkgFrag = _CUHELPER.createPackageFragment(pkgName, root, progressMonitor);
-	
-				// Mark all newly created folders (but not pre-existing ones) as derived.  
+
+				// Mark all newly created folders (but not pre-existing ones) as derived.
 				for (IContainer folder : newFolders) {
 					try {
 						folder.setDerived(true, progressMonitor);
@@ -543,7 +543,7 @@ public class GeneratedFileManager
 						break;
 					}
 				}
-				
+
 				saveCompilationUnit(pkgFrag, cuName, contents, progressMonitor);
 			}
 
@@ -581,16 +581,16 @@ public class GeneratedFileManager
 	 * only works on an in-memory working copy of the type, the IFile for the generated
 	 * type might not exist on disk. Likewise, the corresponding package directories of
 	 * type-name might not exist on disk.
-	 * 
+	 *
 	 * TODO: figure out how to create a working copy with a client-specified character set
-	 * 
+	 *
 	 * @param parentCompilationUnit the parent compilation unit.
 	 * @param typeName the dot-separated java type name for the new type
 	 * @param contents the contents of the new type
 	 * @return The FileGenerationResult. This will return null if the generated source
 	 *         folder is not configured, or if there is some other error during type
 	 *         generation.
-	 * 
+	 *
 	 */
 	public FileGenerationResult generateFileDuringReconcile(ICompilationUnit parentCompilationUnit, String typeName,
 			String contents) throws CoreException
@@ -599,7 +599,7 @@ public class GeneratedFileManager
 			return null;
 
 		IFile parentFile = (IFile) parentCompilationUnit.getResource();
-		
+
 		ICompilationUnit workingCopy = getWorkingCopyForReconcile(parentFile, typeName, _CUHELPER);
 
 		// Update its contents and recursively reconcile
@@ -621,7 +621,7 @@ public class GeneratedFileManager
 	 *            the parent file that you want to get generated files for
 	 * @return Set of IFile instances that are the files known to be generated by this
 	 *         parent, or an empty collection if there are none.
-	 * 
+	 *
 	 * @see #isParentFile(IFile)
 	 * @see #isGeneratedFile(IFile)
 	 */
@@ -629,11 +629,11 @@ public class GeneratedFileManager
 	{
 		return _buildDeps.getValues(parent);
 	}
-	
+
 	/**
 	 * returns true if the specified file is a generated file (i.e., it has one or more
 	 * parent files)
-	 * 
+	 *
 	 * @param f
 	 *            the file in question
 	 * @return true
@@ -642,17 +642,17 @@ public class GeneratedFileManager
 	{
 		return _buildDeps.containsValue(f);
 	}
-	
+
 
 
 	/**
 	 * returns true if the specified file is a parent file (i.e., it has one or more
 	 * generated files)
-	 * 
+	 *
 	 * @param f -
 	 *            the file in question
 	 * @return true if the file is a parent, false otherwise
-	 * 
+	 *
 	 * @see #getGeneratedFilesForParent(IFile)
 	 * @see #isGeneratedFile(IFile)
 	 */
@@ -715,7 +715,7 @@ public class GeneratedFileManager
 	/**
 	 * Invoked when a working copy is released, ie, an editor is closed.  This
 	 * includes IDE shutdown.
-	 * 
+	 *
 	 * @param wc
 	 *            must not be null, but does not have to be a parent.
 	 * @throws CoreException
@@ -745,7 +745,7 @@ public class GeneratedFileManager
 	 * not affect the reconcile-time dependencies.
 	 * <p>
 	 * This method only affects maps; it does not touch disk or modify working copies.
-	 * 
+	 *
 	 * @param isSource true for source files that will be compiled; false for non-source, e.g., text or xml.
 	 */
 	private synchronized void addBuiltFileToMaps(Collection<IFile> parentFiles, IFile generatedFile, boolean isSource)
@@ -764,7 +764,7 @@ public class GeneratedFileManager
 			}
 		}
 	}
-	
+
 	/**
 	 * Check integrity of data structures.
 	 * @return true always, so that it can be called within an assert to turn it off at runtime
@@ -774,7 +774,7 @@ public class GeneratedFileManager
 		if (!ENABLE_INTEGRITY_CHECKS || !AptPlugin.DEBUG_GFM_MAPS) {
 			return true;
 		}
-		
+
 		// There is a 1:1 correspondence between values in _reconcileDeps and
 		// keys in _reconcileGenTypes.
 		Set<IFile> depChildren = _reconcileDeps.getValueSet(); // copy - safe to modify
@@ -793,7 +793,7 @@ public class GeneratedFileManager
 			logExtraFiles("File(s) in reconcile dependency map but not in reconcile-generated list: ", //$NON-NLS-1$
 					depChildren);
 		}
-		
+
 		// Every file in _clearDuringReconcile must be a value in _buildDeps.
 		List<IFile> extraClearDuringReconcileFiles = new ArrayList<>();
 		for (IFile clearDuringReconcile : _clearDuringReconcile) {
@@ -805,7 +805,7 @@ public class GeneratedFileManager
 			logExtraFiles("File(s) in list to clear during reconcile but not in build dependency map: ", //$NON-NLS-1$
 					extraClearDuringReconcileFiles);
 		}
-		
+
 		// Every key in _hiddenBuiltTypes must be a value in _reconcileNonDeps.
 		List<IFile> extraHiddenTypes = new ArrayList<>();
 		for (IFile hidden : _hiddenBuiltTypes.keySet()) {
@@ -817,7 +817,7 @@ public class GeneratedFileManager
 			logExtraFiles("File(s) in hidden types list but not in reconcile-obsoleted list: ", //$NON-NLS-1$
 					extraHiddenTypes);
 		}
-		
+
 		// There can be no parent/child pairs that exist in both _reconcileDeps
 		// and _reconcileNonDeps.
 		Map<IFile, IFile> reconcileOverlaps = new HashMap<>();
@@ -832,7 +832,7 @@ public class GeneratedFileManager
 			logExtraFilePairs("Entries exist in both reconcile map and reconcile-obsoleted maps: ",  //$NON-NLS-1$
 					reconcileOverlaps);
 		}
-		
+
 		// Every parent/child pair in _reconcileNonDeps must have a matching
 		// parent/child pair in _buildDeps.
 		Map<IFile, IFile> extraNonDeps = new HashMap<>();
@@ -847,7 +847,7 @@ public class GeneratedFileManager
 			logExtraFilePairs("Entries exist in reconcile-obsoleted map but not in build map: ", //$NON-NLS-1$
 					extraNonDeps);
 		}
-		
+
 		// Values in _hiddenBuiltTypes must not be null
 		List<IFile> nullHiddenTypes = new ArrayList<>();
 		for (Map.Entry<IFile, ICompilationUnit> entry : _hiddenBuiltTypes.entrySet()) {
@@ -858,7 +858,7 @@ public class GeneratedFileManager
 		if (!nullHiddenTypes.isEmpty()) {
 			logExtraFiles("Null entries in hidden type list: ", nullHiddenTypes); //$NON-NLS-1$
 		}
-		
+
 		// Values in _reconcileGenTypes must not be null
 		List<IFile> nullReconcileTypes = new ArrayList<>();
 		for (Map.Entry<IFile, ICompilationUnit> entry : _reconcileGenTypes.entrySet()) {
@@ -869,7 +869,7 @@ public class GeneratedFileManager
 		if (!nullReconcileTypes.isEmpty()) {
 			logExtraFiles("Null entries in reconcile type list: ", nullReconcileTypes); //$NON-NLS-1$
 		}
-			
+
 		return true;
 	}
 
@@ -885,10 +885,10 @@ public class GeneratedFileManager
 	 * This method affects maps only; it does not touch disk nor create, modify, nor
 	 * discard any working copies. This method is atomic with respect to data structure
 	 * integrity.
-	 * 
+	 *
 	 * @param deleteState
 	 *            true if this should delete the serialized build dependencies.
-	 *            
+	 *
 	 * @return a list of working copies which must be discarded by the caller
 	 */
 	private synchronized List<ICompilationUnit> computeProjectClosed(boolean deleteState)
@@ -901,7 +901,7 @@ public class GeneratedFileManager
 		_hiddenBuiltTypes.clear();
 		_reconcileDeps.clear();
 		_reconcileNonDeps.clear();
-		
+
 		if (deleteState) {
 			_buildDeps.clearState();
 		}
@@ -959,7 +959,7 @@ public class GeneratedFileManager
 	 * <p>
 	 * This method is atomic with regard to data structure integrity.  This method
 	 * does not touch disk nor create, discard, or modify compilation units.
-	 * 
+	 *
 	 * @return a list of working copies that the caller must discard by calling
 	 *         {@link CompilationUnitHelper#discardWorkingCopy(ICompilationUnit)}.
 	 */
@@ -970,17 +970,17 @@ public class GeneratedFileManager
 		_reconcileNonDeps.clear();
 		List<ICompilationUnit> toDiscard = new ArrayList<>(_hiddenBuiltTypes.values());
 		_hiddenBuiltTypes.clear();
-		
+
 		assert checkIntegrity();
 		return toDiscard;
 	}
 
 	/**
-	 * Get the IFolder handles for any additional folders needed to 
+	 * Get the IFolder handles for any additional folders needed to
 	 * contain a type in package <code>pkgName</code> under root
 	 * <code>parent</code>.  This does not actually create the folders
 	 * on disk, it just gets resource handles.
-	 * 
+	 *
 	 * @return a set containing all the newly created folders.
 	 */
 	private Set<IFolder> computeNewPackageFolders(String pkgName, IFolder parent)
@@ -1056,23 +1056,23 @@ public class GeneratedFileManager
 		 * files, but without a serialized build dependency map.  Then they edit a parent
 		 * file, causing a generated type to disappear.  We need to discover and hide the
 		 * generated file on disk, even though it is not in the build-time dependency map.
-		 * 
+		 *
 		 * @param parentFile
 		 *            the parent type being reconciled, which need not exist on disk.
 		 * @param newlyGeneratedFiles
 		 *            the set of files generated in the last reconcile
 		 * @param toSetBlank
 		 *            a list, to which this will add files that the caller must then set blank
-		 *            with {@link CompilationUnitHelper#updateWorkingCopyContents(String, 
+		 *            with {@link CompilationUnitHelper#updateWorkingCopyContents(String,
 		 *            ICompilationUnit, WorkingCopyOwner, boolean)}
 		 * @param toDiscard
 		 *            a list, to which this will add files that the caller must then discard
 		 *            with {@link CompilationUnitHelper#discardWorkingCopy(ICompilationUnit)}.
 		 */
 		private synchronized void computeObsoleteReconcileTypes(
-				IFile parentFile, Set<IFile> newlyGeneratedFiles, 
+				IFile parentFile, Set<IFile> newlyGeneratedFiles,
 				CompilationUnitHelper cuh,
-				List<ICompilationUnit> toSetBlank, List<ICompilationUnit> toDiscard) 
+				List<ICompilationUnit> toSetBlank, List<ICompilationUnit> toDiscard)
 		{
 			// Get types previously but no longer generated during reconcile
 			Set<IFile> obsoleteFiles = _reconcileDeps.getValues(parentFile);
@@ -1082,12 +1082,12 @@ public class GeneratedFileManager
 				_reconcileDeps.remove(parentFile, obsoleteFile);
 				if (_reconcileDeps.getKeys(obsoleteFile).isEmpty()) {
 					ICompilationUnit wc = _reconcileGenTypes.remove(obsoleteFile);
-					assert wc != null : 
+					assert wc != null :
 						"Value in reconcile deps missing from reconcile type list: " + obsoleteFile; //$NON-NLS-1$
 					typesToDiscard.put(obsoleteFile, wc);
 				}
 			}
-			
+
 			Set<IFile> builtChildren = _buildDeps.getValues(parentFile);
 			builtChildren.retainAll(_clearDuringReconcile);
 			builtChildren.removeAll(newlyGeneratedFiles);
@@ -1115,10 +1115,10 @@ public class GeneratedFileManager
 					toSetBlank.add(wc);
 				}
 			}
-		
+
 			// discard any working copies that we're not setting blank
 			toDiscard.addAll(typesToDiscard.values());
-			
+
 			assert checkIntegrity();
 		}
 
@@ -1131,13 +1131,13 @@ public class GeneratedFileManager
 	 * <p>
 	 * This method does not touch the disk and does not create, update, or discard working
 	 * copies. This method is atomic with regard to data structure integrity.
-	 * 
+	 *
 	 * @param parentFile
 	 *            used to be a parent but may no longer be.
 	 * @param deletedFiles
 	 *            a list of files which are being deleted, which might or might not have
 	 *            been hidden by blank working copies.
-	 * 
+	 *
 	 * @return a list of working copies which the caller must discard
 	 */
 	private synchronized List<ICompilationUnit> computeObsoleteHiddenTypes(IFile parentFile, Set<IFile> deletedFiles)
@@ -1161,7 +1161,7 @@ public class GeneratedFileManager
 	 * empty and are marked as "derived".
 	 * <p>
 	 * This does not affect or refer to the dependency maps.
-	 * 
+	 *
 	 * @param file is assumed to be under the generated source folder.
 	 */
 	private void deletePhysicalFile(IFile file)
@@ -1171,7 +1171,7 @@ public class GeneratedFileManager
 		IContainer parent = file.getParent(); // parent in the folder sense,
 		// not the typegen sense
 		try {
-			if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+			if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
 					"delete physical file: " + file); //$NON-NLS-1$
 			file.delete(true, true, /* progressMonitor */null);
 		} catch (CoreException e) {
@@ -1199,7 +1199,7 @@ public class GeneratedFileManager
 			parent = grandParent;
 		}
 	}
-	
+
 	/**
 	 * Given a typename a.b.C, this will return the IFile for the type name, where the
 	 * IFile is in the GENERATED_SOURCE_FOLDER_NAME.
@@ -1216,14 +1216,14 @@ public class GeneratedFileManager
 			folder = folder.getFolder(parts[i]);
 
 		// the last part of the type name is the file name
-		String fileName = parts[parts.length - 1] + ".java"; //$NON-NLS-1$		
+		String fileName = parts[parts.length - 1] + ".java"; //$NON-NLS-1$
 		IFile file = folder.getFile(fileName);
 		return file;
 	}
 
 	/**
 	 * given file f, return the typename corresponding to the file.  This assumes
-	 * that derived files use java naming rules (i.e., type "a.b.C" will be file 
+	 * that derived files use java naming rules (i.e., type "a.b.C" will be file
 	 * "a/b/C.java".
 	 */
 	private String getTypeNameForDerivedFile( IFile f )
@@ -1232,16 +1232,16 @@ public class GeneratedFileManager
 
 		IFolder folder = _gsfm.getFolder();
 		IPath generatedSourcePath = folder.getFullPath();
-		
-		int count = p.matchingFirstSegments( generatedSourcePath );	
+
+		int count = p.matchingFirstSegments( generatedSourcePath );
 		p = p.removeFirstSegments( count );
-	
+
 		String s = p.toPortableString();
 		int idx = s.lastIndexOf( '.' );
 		s = p.toPortableString().replace( '/', '.' );
 		return s.substring( 0, idx );
 	}
-	
+
 	/**
 	 * Get a working copy for the specified generated type.  If we already have
 	 * one cached, use that; if not, create a new one.  Update the reconcile-time
@@ -1250,7 +1250,7 @@ public class GeneratedFileManager
 	 * This method does not touch disk, nor does it update or discard any working
 	 * copies.  However, it may call CompilationUnitHelper to get a new working copy.
 	 * This method is atomic with respect to data structures.
-	 * 
+	 *
 	 * @param parentFile the IFile whose processing is causing the new type to be generated
 	 * @param typeName the name of the type to be generated
 	 * @param cuh the CompilationUnitHelper utility object
@@ -1261,7 +1261,7 @@ public class GeneratedFileManager
 		IPackageFragmentRoot root = _generatedPackageFragmentRoot.get().root;
 		IFile generatedFile = getIFileForTypeName(typeName);
 		ICompilationUnit workingCopy;
-		
+
 		workingCopy = _hiddenBuiltTypes.remove(generatedFile);
 		if (null != workingCopy) {
 			// file is currently hidden with a blank WC. Move that WC to the regular list.
@@ -1280,18 +1280,18 @@ public class GeneratedFileManager
 				workingCopy = cuh.getWorkingCopy(typeName, root);
 				_reconcileDeps.put(parentFile, generatedFile);
 				_reconcileGenTypes.put(generatedFile, workingCopy);
-				if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+				if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
 						"added new working copy to regular list: " + generatedFile); //$NON-NLS-1$
-			} 
+			}
 		}
 
 		assert checkIntegrity();
 		return workingCopy;
 	}
-	
+
 	/**
 	 * Check whether a child file has any parents that could apply in reconcile.
-	 * 
+	 *
 	 * @return true if <code>child</code> has no other parents in
 	 *         {@link #_reconcileDeps}, and also no other parents in {@link #_buildDeps}
 	 *         that are not masked by a corresponding entry in {@link #_reconcileNonDeps}.
@@ -1353,17 +1353,17 @@ public class GeneratedFileManager
 	 * <p>
 	 * TODO: this is almost identical to code in CompilationUnitHelper.  Is the difference
 	 * intentional?
-	 * 
+	 *
 	 * @param qualifiedName
 	 *            a fully qualified type name
 	 * @return a String array containing {package name, filename}
 	 */
 	private static String[] parseTypeName(String qualifiedName) {
-		
+
 		//TODO: the code in CompilationUnitHelper doesn't perform this check.  Should it?
 		if (qualifiedName.indexOf('/') != -1)
 			qualifiedName = qualifiedName.replace('/', '.');
-		
+
 		String[] names = new String[2];
 		String pkgName;
 		String fname;
@@ -1371,7 +1371,7 @@ public class GeneratedFileManager
 		if ( idx > 0 )
 		{
 		    pkgName = qualifiedName.substring( 0, idx );
-		    fname = 
+		    fname =
 				qualifiedName.substring(idx + 1, qualifiedName.length()) + ".java"; //$NON-NLS-1$
 		}
 		else
@@ -1392,7 +1392,7 @@ public class GeneratedFileManager
 	 * This operation affects the maps only. This operation is atomic with respect to map
 	 * integrity. This operation does not touch the disk nor create, update, or discard
 	 * any working copies.
-	 * 
+	 *
 	 * @param f
 	 *            can be a parent, generated, both, or neither.
 	 * @return a list of generated files that are no longer relevant and must be deleted.
@@ -1414,7 +1414,7 @@ public class GeneratedFileManager
 		}
 		boolean removed = _buildDeps.removeKey(f);
 		if (removed) {
-			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace( 
+			if (AptPlugin.DEBUG_GFM_MAPS) AptPlugin.trace(
 					"removed parent file from build dependencies: " + f); //$NON-NLS-1$
 		}
 
@@ -1430,7 +1430,7 @@ public class GeneratedFileManager
 	 * <p>
 	 * This method does not touch disk nor create, modify, or discard working copies. This
 	 * method is atomic with regard to data structure integrity.
-	 * 
+	 *
 	 * @param file
 	 *            a file representing a working copy that is not necessarily a parent or
 	 *            generated file
@@ -1461,7 +1461,7 @@ public class GeneratedFileManager
 			}
 		}
 		_reconcileNonDeps.removeKey(file);
-		
+
 		assert checkIntegrity();
 		return toDiscard;
 	}
@@ -1482,7 +1482,7 @@ public class GeneratedFileManager
 	 * This method touches the disk and modifies working copies. It can only be called
 	 * during build, not during reconcile, and it should not be called while holding any
 	 * locks (other than the workspace rules held by the build).
-	 * 
+	 *
 	 * @param pkgFrag
 	 *            the package fragment in which the type will be created. The fragment's
 	 *            folders must already exist on disk.
@@ -1495,7 +1495,7 @@ public class GeneratedFileManager
 	private void saveCompilationUnit(IPackageFragment pkgFrag, final String cuName, String contents,
 			IProgressMonitor progressMonitor)
 	{
-		
+
 		ICompilationUnit unit = pkgFrag.getCompilationUnit(cuName);
 		boolean isWorkingCopy = unit.isWorkingCopy();
 		if (isWorkingCopy) {
@@ -1503,7 +1503,7 @@ public class GeneratedFileManager
 				// If we have a working copy, all we
 				// need to do is update its contents and commit it...
 				_CUHELPER.commitNewContents(unit, contents, progressMonitor);
-				if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+				if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
 						"Committed existing working copy during build: " + unit.getElementName()); //$NON-NLS-1$
 			}
 			catch (JavaModelException e) {
@@ -1512,7 +1512,7 @@ public class GeneratedFileManager
 				if (e.getJavaModelStatus().getCode() == IJavaModelStatusConstants.INVALID_RESOURCE) {
 					_CUHELPER.discardWorkingCopy(unit);
 					isWorkingCopy = false;
-					if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+					if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
 							"Discarded invalid existing working copy in order to try again: " + unit.getElementName()); //$NON-NLS-1$
 				}
 				else {
@@ -1524,7 +1524,7 @@ public class GeneratedFileManager
 		if (!isWorkingCopy) {
 			try {
 				unit = pkgFrag.createCompilationUnit(cuName, contents, true, progressMonitor);
-				if (AptPlugin.DEBUG_GFM) AptPlugin.trace( 
+				if (AptPlugin.DEBUG_GFM) AptPlugin.trace(
 						"Created compilation unit during build: " + unit.getElementName()); //$NON-NLS-1$
 			} catch (JavaModelException e) {
 				AptPlugin.log(e, "Unable to create compilation unit on disk: " +  //$NON-NLS-1$

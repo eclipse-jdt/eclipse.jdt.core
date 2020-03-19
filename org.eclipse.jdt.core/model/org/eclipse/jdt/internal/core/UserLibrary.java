@@ -177,7 +177,7 @@ public class UserLibrary {
 					String pathString = element.getAttribute(TAG_PATH);
 					String sourceAttachString = element.hasAttribute(TAG_SOURCEATTACHMENT) ? element.getAttribute(TAG_SOURCEATTACHMENT) : null;
 					String sourceAttachRootString = element.hasAttribute(TAG_SOURCEATTACHMENTROOT) ? element.getAttribute(TAG_SOURCEATTACHMENTROOT) : null;
-					IPath entryPath = null; 
+					IPath entryPath = null;
 					IPath sourceAttachPath = null;
 					IPath sourceAttachRootPath = null;
 					if (version.equals(VERSION_ONE)) {

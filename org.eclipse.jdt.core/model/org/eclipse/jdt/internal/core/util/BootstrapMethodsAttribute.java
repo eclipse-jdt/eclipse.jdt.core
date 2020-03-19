@@ -47,7 +47,7 @@ public class BootstrapMethodsAttribute extends ClassFileAttribute implements IBo
 			BootstrapMethodsEntry entry;
 			for (int i = 0; i < length; i++) {
 				this.entries[i] = entry = new BootstrapMethodsEntry(classFileBytes, constantPool, offset + readOffset);
-				readOffset += 4 + 2 * entry.getBootstrapArguments().length; 
+				readOffset += 4 + 2 * entry.getBootstrapArguments().length;
 			}
 		} else {
 			this.entries = NO_ENTRIES;
@@ -61,7 +61,7 @@ public class BootstrapMethodsAttribute extends ClassFileAttribute implements IBo
 	public IBootstrapMethodsEntry[] getBootstrapMethods() {
 		return this.entries;
 	}
-	
+
 	@Override
 	public int getBootstrapMethodsLength() {
 		return this.numberOfBootstrapMethods;

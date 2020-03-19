@@ -93,10 +93,10 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			VariableDeclarationFragment variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			CreationReference creationReference = (CreationReference) variableDeclarationFragment.getInitializer();
 			TypeParameter typeParameter= ast.newTypeParameter();
-			typeParameter.setName(ast.newSimpleName("Integer"));			
+			typeParameter.setName(ast.newSimpleName("Integer"));
 			ListRewrite listRewrite = rewrite.getListRewrite(creationReference, CreationReference.TYPE_ARGUMENTS_PROPERTY);
 			listRewrite.replace((ASTNode)(creationReference.typeArguments().get(0)), typeParameter, null);
-			
+
 			// case 2: add a type argument.
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(1);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
@@ -104,7 +104,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("Integer"));
 			listRewrite = rewrite.getListRewrite(creationReference, CreationReference.TYPE_ARGUMENTS_PROPERTY);
 			listRewrite.insertLast(simpleType, null);
-			
+
 			// case 3: delete a type argument.
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(2);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
@@ -139,7 +139,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			simpleType = ast.newSimpleType(ast.newQualifiedName(ast.newSimpleName("Y"), ast.newSimpleName("Z")));
 			rewrite.replace(creationReference.getType(), simpleType, null);
 		}
-		
+
 		String preview= evaluateRewrite(cu, rewrite);
 		contents = "package test407131;\n" +
 				"\n" +
@@ -177,7 +177,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 		buf= new StringBuffer(contents);
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/**
 	 * tests various aspects of CreationReference (Constructor Method Reference) with ArrayType as lhs
 	 * @throws Exception
@@ -227,7 +227,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 		buf= new StringBuffer(contents);
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/**
 	 * tests various aspects of {@link ExpressionMethodReference}
 	 * @throws Exception
@@ -273,7 +273,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			rewrite.replace(expressionMethodReference.getExpression(), ast.newSimpleName("z"), null);
 			rewrite.getListRewrite(expressionMethodReference, ExpressionMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(simpleType, null);
 			rewrite.replace(expressionMethodReference.getName(), ast.newSimpleName("bar"), null);
-			
+
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(3);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			expressionMethodReference = (ExpressionMethodReference) variableDeclarationFragment.getInitializer();
@@ -281,7 +281,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			ASTNode typeArgument = (ASTNode) expressionMethodReference.typeArguments().get(0);
 			rewrite.getListRewrite(expressionMethodReference, ExpressionMethodReference.TYPE_ARGUMENTS_PROPERTY).remove(typeArgument, null);
 			rewrite.replace(expressionMethodReference.getName(), ast.newSimpleName("foo"), null);
-			
+
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 		contents = "package test407131;\n" +
@@ -308,7 +308,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 		buf= new StringBuffer(contents);
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/**
 	 * tests various aspects of {@link TypeMethodReference}
 	 * @throws Exception
@@ -359,7 +359,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			rewrite.replace(typeMethodReference.getType(), newType, null);
 			rewrite.getListRewrite(typeMethodReference, TypeMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(simpleType, null);
 			rewrite.replace(typeMethodReference.getName(), ast.newSimpleName("bar"), null);
-			
+
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(1);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			typeMethodReference = (TypeMethodReference) variableDeclarationFragment.getInitializer();
@@ -367,7 +367,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			rewrite.replace(typeMethodReference.getType(), newType, null);
 			ASTNode typeArgument = (ASTNode) typeMethodReference.typeArguments().get(0);
 			rewrite.getListRewrite(typeMethodReference, TypeMethodReference.TYPE_ARGUMENTS_PROPERTY).remove(typeArgument, null);
-			rewrite.replace(typeMethodReference.getName(), ast.newSimpleName("foo"), null);			
+			rewrite.replace(typeMethodReference.getName(), ast.newSimpleName("foo"), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 		contents = "package test407131;\n" +
@@ -398,7 +398,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 		buf= new StringBuffer(contents);
 		assertEqualString(preview, buf.toString());
 	}
-	
+
 	/**
 	 * tests various aspects of SuperMethodReference
 	 * @throws Exception
@@ -442,7 +442,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			ASTNode typeArgument = (ASTNode) superMethodReference.typeArguments().get(0);
 			rewrite.getListRewrite(superMethodReference, SuperMethodReference.TYPE_ARGUMENTS_PROPERTY).remove(typeArgument, null);
 			rewrite.replace(superMethodReference.getName(), ast.newSimpleName("bar"), null);
-			
+
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(1);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
 			superMethodReference = (SuperMethodReference) variableDeclarationFragment.getInitializer();
@@ -450,7 +450,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("String"));
 			rewrite.getListRewrite(superMethodReference, SuperMethodReference.TYPE_ARGUMENTS_PROPERTY).insertFirst(simpleType, null);
 			rewrite.replace(superMethodReference.getName(), ast.newSimpleName("foo"), null);
-			
+
 		}
 		String preview = evaluateRewrite(cu, rewrite);
 		contents = "package test407131;\n" +
@@ -539,7 +539,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			typeMethodReference.setType(qualifiedType);
 			typeMethodReference.setName(ast.newSimpleName("foo"));
 			rewrite.replace(creationReference, typeMethodReference, null);
-			
+
 			// case 2: CreationReference to SuperMethodReference
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(1);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
@@ -547,7 +547,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			SuperMethodReference superMethodReference = ast.newSuperMethodReference();
 			superMethodReference.setName(ast.newSimpleName("foo"));
 			rewrite.replace(creationReference, superMethodReference, null);
-			
+
 			// case 3: TypeMethodReference to SuperMethodReference
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(2);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
@@ -555,8 +555,8 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			superMethodReference = ast.newSuperMethodReference();
 			superMethodReference.setName(ast.newSimpleName("bar"));
 			superMethodReference.setQualifier(ast.newSimpleName("X"));
-			rewrite.replace(typeMethodReference, superMethodReference, null);			
-			
+			rewrite.replace(typeMethodReference, superMethodReference, null);
+
 			// case 4: SuperMethodReference to CreationMethodReference
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(3);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
@@ -566,8 +566,8 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			creationReference = ast.newCreationReference();
 			creationReference.setType(parameterizedType);
 			creationReference.typeArguments().add(ast.newSimpleType(ast.newSimpleName("String")));
-			rewrite.replace(superMethodReference, creationReference, null);			
-			
+			rewrite.replace(superMethodReference, creationReference, null);
+
 			// case 5: SuperMethodReference to ExpressionMethodReference
 			variableDeclarationStatement = (VariableDeclarationStatement) methodDecl.getBody().statements().get(4);
 			variableDeclarationFragment = (VariableDeclarationFragment) variableDeclarationStatement.fragments().get(0);
@@ -575,10 +575,10 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 			ExpressionMethodReference expressionMethodReference = ast.newExpressionMethodReference();
 			expressionMethodReference.setExpression(ast.newQualifiedName(ast.newSimpleName("Y"), ast.newSimpleName("Z")));
 			expressionMethodReference.setName(ast.newSimpleName("foo"));
-			rewrite.replace(superMethodReference, expressionMethodReference, null);			
-			
+			rewrite.replace(superMethodReference, expressionMethodReference, null);
+
 		}
-		
+
 		String preview= evaluateRewrite(cu, rewrite);
 		contents = "package test407131;\n" +
 				"import java.lang.annotation.*;\n" +
@@ -617,5 +617,5 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"}\n";
 		buf= new StringBuffer(contents);
 		assertEqualString(preview, buf.toString());
-	}	
+	}
 }

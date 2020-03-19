@@ -104,16 +104,16 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		} catch (IOException e) {
 			this.fs = null;
 		}
-		return false; 
+		return false;
 	}
 	/*
 	 * Set up the paths where modules and regular classes need to be read. We need to deal with two different kind of
 	 * formats of cy.sym: Post JDK 12: ct.sym -> 9 -> java/ -> lang/* 9-modules -> java.base -> module-info.sig
-	 * 
+	 *
 	 * From JDK 12 onward: ct.sym -> 9 -> java.base -> module-info.sig java/ -> lang/* Notably, 1) in JDK 12 modules
 	 * classes and ordinary classes are located in the same location 2) in JDK 12, ordinary classes are found inside
 	 * their respective modules
-	 * 
+	 *
 	 */
 	protected void initialize() throws CoreException {
 		this.releaseInHex = Integer.toHexString(Integer.parseInt(this.release)).toUpperCase();
@@ -144,7 +144,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 			this.modulePath = modPath;
 			this.modPathString = this.zipFilename + "|"+ modPath.toString(); //$NON-NLS-1$
 		}
-		
+
 		if (!Files.exists(this.releasePath.resolve(this.releaseInHex))) {
 			Exception e = new IllegalArgumentException("release " + this.release + " is not found in the system"); //$NON-NLS-1$//$NON-NLS-2$
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
@@ -299,7 +299,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 					inner: if (this.isJRE12Plus) {
 						if (moduleName != null) {
 							p = this.fs.getPath(rel, moduleName, qualifiedBinaryFileName);
-						} 
+						}
 						else {
 							try (DirectoryStream<java.nio.file.Path> stream = Files
 									.newDirectoryStream(this.fs.getPath(rel))) {
@@ -332,7 +332,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 						moduleNameFilter);
 			}
 			return createAnswer(fileNameWithoutExtension, reader);
-		} catch (ClassFormatException | IOException e) { 
+		} catch (ClassFormatException | IOException e) {
 			// treat as if class file is missing
 		}
 		return null;

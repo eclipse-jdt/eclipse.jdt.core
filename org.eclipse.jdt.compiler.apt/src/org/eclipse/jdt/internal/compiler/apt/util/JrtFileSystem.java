@@ -48,18 +48,18 @@ import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 public class JrtFileSystem extends Archive {
 
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
-	
+
 	static final String BOOT_MODULE = "jrt-fs.jar"; //$NON-NLS-1$
-	
+
 	public HashMap<String, Path> modulePathMap;
 	Path modules;
 	private java.nio.file.FileSystem jrtfs;
-	
+
 	public JrtFileSystem(File file) throws ZipException, IOException {
 		this.file = file;
 		initialize();
 	}
-	
+
 	public void initialize() throws IOException {
 		// initialize packages
 		this.modulePathMap = new HashMap<>();
@@ -109,7 +109,7 @@ public class JrtFileSystem extends Archive {
             files = p.filter((path) -> {
             	if (Files.isDirectory(path))
             		return false;
-            	else 
+            	else
             		return true;
             }).collect(Collectors.toList());
         } catch (IOException e) {
@@ -136,7 +136,7 @@ public class JrtFileSystem extends Archive {
 	public String toString() {
 		return "JRT: " + (this.file == null ? "UNKNOWN_ARCHIVE" : this.file.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
-	
+
 	class JrtFileObject extends ArchiveFileObject {
 		String module;
 		Path path;
@@ -164,7 +164,7 @@ public class JrtFileSystem extends Archive {
 			}
 			return reader;
 		}
-		
+
 
 		/* (non-Javadoc)
 		 * @see javax.tools.FileObject#getCharContent(boolean)
@@ -245,6 +245,6 @@ public class JrtFileSystem extends Archive {
 		@Override
 		public String toString() {
 			return this.file.getAbsolutePath() + "[" + this.entryName + "]";//$NON-NLS-1$//$NON-NLS-2$
-		}	
+		}
 	}
 }

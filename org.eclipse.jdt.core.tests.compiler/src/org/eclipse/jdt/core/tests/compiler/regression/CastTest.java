@@ -10,7 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contributions for 
+ *     Stephan Herrmann - Contributions for
  *								Bug 428274 - [1.8] [compiler] Cannot cast from Number to double
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -1721,13 +1721,13 @@ public void test045() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(castLongToInt(3));\n" + 
-			"	}\n" + 
-			"	private static int castLongToInt(long longVal) {\n" + 
-			"		return (int)((long)longVal);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(castLongToInt(3));\n" +
+			"	}\n" +
+			"	private static int castLongToInt(long longVal) {\n" +
+			"		return (int)((long)longVal);\n" +
+			"	}\n" +
 			"}\n",
 		},
 		"3");
@@ -1738,19 +1738,19 @@ public void test046() {
 		true,
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		char a = 65;\n" + 
-			"		String b = \"\" + a; // -> \"A\"\n" + 
-			"		String c = \"\" + (int) a;\n" + 
-			"		System.out.print(b);\n" + 
-			"		System.out.print(c);\n" + 
-			"		\n" + 
-			"		String logText = \" second case \";\n" + 
-			"		char firstChar = 65;\n" + 
-			"		logText += (int) firstChar;\n" + 
-			"		System.out.println(logText);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		char a = 65;\n" +
+			"		String b = \"\" + a; // -> \"A\"\n" +
+			"		String c = \"\" + (int) a;\n" +
+			"		System.out.print(b);\n" +
+			"		System.out.print(c);\n" +
+			"		\n" +
+			"		String logText = \" second case \";\n" +
+			"		char firstChar = 65;\n" +
+			"		logText += (int) firstChar;\n" +
+			"		System.out.println(logText);\n" +
+			"	}\n" +
 			"}",
 		},
 		"",
@@ -1817,11 +1817,11 @@ public void test048() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in A.java (at line 7)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in A.java (at line 7)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n"
 	);
 }
@@ -1848,11 +1848,11 @@ public void test049() {
 			"}\n"
 		};
 	runner.expectedCompilerLog =
-		"----------\n" + 
-		"1. WARNING in A.java (at line 3)\n" + 
-		"	Other<?>.Member m = (Other<?>.Member) om2;\n" + 
-		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Unnecessary cast from Other2<?>.Member2<capture#1-of ?> to Other<?>.Member\n" + 
+		"----------\n" +
+		"1. WARNING in A.java (at line 3)\n" +
+		"	Other<?>.Member m = (Other<?>.Member) om2;\n" +
+		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Unnecessary cast from Other2<?>.Member2<capture#1-of ?> to Other<?>.Member\n" +
 		"----------\n";
 	runner.javacTestOptions =
 		Excuse.EclipseHasSomeMoreWarnings; // javac is inconsistent: accepting both assignments, not issuing a warning though in simpler cases it does
@@ -1880,11 +1880,11 @@ public void test050() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in A.java (at line 7)\n" + 
-		"	Zork z;\n" + 
-		"	^^^^\n" + 
-		"Zork cannot be resolved to a type\n" + 
+		"----------\n" +
+		"1. ERROR in A.java (at line 7)\n" +
+		"	Zork z;\n" +
+		"	^^^^\n" +
+		"Zork cannot be resolved to a type\n" +
 		"----------\n"
 	);
 }
@@ -1892,15 +1892,15 @@ public void test050() {
 public void test051() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		boolean y = (boolean) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Boolean.TRUE;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		boolean y = (boolean) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Boolean.TRUE;\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -1908,11 +1908,11 @@ public void test051() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	boolean y = (boolean) x;\n" + 
-				"	            ^^^^^^^^^^^\n" + 
-				"Cannot cast from Object to boolean\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	boolean y = (boolean) x;\n" +
+				"	            ^^^^^^^^^^^\n" +
+				"Cannot cast from Object to boolean\n" +
 				"----------\n"
 			);
 	} else {
@@ -1929,15 +1929,15 @@ public void test051() {
 public void test052() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		byte y = (byte) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Byte.valueOf((byte)1);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		byte y = (byte) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Byte.valueOf((byte)1);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -1945,11 +1945,11 @@ public void test052() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	byte y = (byte) x;\n" + 
-				"	         ^^^^^^^^\n" + 
-				"Cannot cast from Object to byte\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	byte y = (byte) x;\n" +
+				"	         ^^^^^^^^\n" +
+				"Cannot cast from Object to byte\n" +
 				"----------\n"
 			);
 	} else {
@@ -1966,15 +1966,15 @@ public void test052() {
 public void test053() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		char y = (char) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Character.valueOf('d');\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		char y = (char) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Character.valueOf('d');\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -1982,11 +1982,11 @@ public void test053() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	char y = (char) x;\n" + 
-				"	         ^^^^^^^^\n" + 
-				"Cannot cast from Object to char\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	char y = (char) x;\n" +
+				"	         ^^^^^^^^\n" +
+				"Cannot cast from Object to char\n" +
 				"----------\n"
 			);
 	} else {
@@ -2004,15 +2004,15 @@ public void test053() {
 public void test054() throws Exception {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		int y = (int) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Integer.valueOf(1);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		int y = (int) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Integer.valueOf(1);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2020,11 +2020,11 @@ public void test054() throws Exception {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	int y = (int) x;\n" + 
-				"	        ^^^^^^^\n" + 
-				"Cannot cast from Object to int\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	int y = (int) x;\n" +
+				"	        ^^^^^^^\n" +
+				"Cannot cast from Object to int\n" +
 				"----------\n"
 			);
 	} else {
@@ -2035,29 +2035,29 @@ public void test054() throws Exception {
 				},
 				"1"
 			);
-		String expectedOutput = 
-				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-				"  // Stack: 2, Locals: 3\n" + 
-				"  public static void main(java.lang.String[] args);\n" + 
-				"     0  invokestatic X.foo() : java.lang.Object [16]\n" + 
-				"     3  astore_1 [x]\n" + 
-				"     4  aload_1 [x]\n" + 
-				"     5  checkcast java.lang.Integer [20]\n" + 
-				"     8  invokevirtual java.lang.Integer.intValue() : int [22]\n" + 
-				"    11  istore_2 [y]\n" + 
-				"    12  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
-				"    15  iload_2 [y]\n" + 
-				"    16  invokevirtual java.io.PrintStream.println(int) : void [32]\n" + 
-				"    19  return\n" + 
-				"      Line numbers:\n" + 
-				"        [pc: 0, line: 3]\n" + 
-				"        [pc: 4, line: 4]\n" + 
-				"        [pc: 12, line: 5]\n" + 
-				"        [pc: 19, line: 6]\n" + 
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 20] local: args index: 0 type: java.lang.String[]\n" + 
-				"        [pc: 4, pc: 20] local: x index: 1 type: java.lang.Object\n" + 
-				"        [pc: 12, pc: 20] local: y index: 2 type: int\n" + 
+		String expectedOutput =
+				"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+				"  // Stack: 2, Locals: 3\n" +
+				"  public static void main(java.lang.String[] args);\n" +
+				"     0  invokestatic X.foo() : java.lang.Object [16]\n" +
+				"     3  astore_1 [x]\n" +
+				"     4  aload_1 [x]\n" +
+				"     5  checkcast java.lang.Integer [20]\n" +
+				"     8  invokevirtual java.lang.Integer.intValue() : int [22]\n" +
+				"    11  istore_2 [y]\n" +
+				"    12  getstatic java.lang.System.out : java.io.PrintStream [26]\n" +
+				"    15  iload_2 [y]\n" +
+				"    16  invokevirtual java.io.PrintStream.println(int) : void [32]\n" +
+				"    19  return\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 3]\n" +
+				"        [pc: 4, line: 4]\n" +
+				"        [pc: 12, line: 5]\n" +
+				"        [pc: 19, line: 6]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 20] local: args index: 0 type: java.lang.String[]\n" +
+				"        [pc: 4, pc: 20] local: x index: 1 type: java.lang.Object\n" +
+				"        [pc: 12, pc: 20] local: y index: 2 type: int\n" +
 				"  \n";
 		File f = new File(OUTPUT_DIR + File.separator + "X.class");
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -2076,15 +2076,15 @@ public void test054() throws Exception {
 public void test055() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		long y = (long) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Long.valueOf(Long.MAX_VALUE);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		long y = (long) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Long.valueOf(Long.MAX_VALUE);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2092,11 +2092,11 @@ public void test055() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	long y = (long) x;\n" + 
-				"	         ^^^^^^^^\n" + 
-				"Cannot cast from Object to long\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	long y = (long) x;\n" +
+				"	         ^^^^^^^^\n" +
+				"Cannot cast from Object to long\n" +
 				"----------\n"
 			);
 	} else {
@@ -2113,15 +2113,15 @@ public void test055() {
 public void test056() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		short y = (short) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Short.valueOf((short) 1);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		short y = (short) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Short.valueOf((short) 1);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2129,11 +2129,11 @@ public void test056() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	short y = (short) x;\n" + 
-				"	          ^^^^^^^^^\n" + 
-				"Cannot cast from Object to short\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	short y = (short) x;\n" +
+				"	          ^^^^^^^^^\n" +
+				"Cannot cast from Object to short\n" +
 				"----------\n"
 			);
 	} else {
@@ -2150,15 +2150,15 @@ public void test056() {
 public void test057() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		double y = (double) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Double.valueOf(1.0);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		double y = (double) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Double.valueOf(1.0);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2166,11 +2166,11 @@ public void test057() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	double y = (double) x;\n" + 
-				"	           ^^^^^^^^^^\n" + 
-				"Cannot cast from Object to double\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	double y = (double) x;\n" +
+				"	           ^^^^^^^^^^\n" +
+				"Cannot cast from Object to double\n" +
 				"----------\n"
 			);
 	} else {
@@ -2187,15 +2187,15 @@ public void test057() {
 public void test058() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		float y = (float) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Float.valueOf(1.0f);\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		float y = (float) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Float.valueOf(1.0f);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2203,11 +2203,11 @@ public void test058() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 4)\n" + 
-				"	float y = (float) x;\n" + 
-				"	          ^^^^^^^^^\n" + 
-				"Cannot cast from Object to float\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	float y = (float) x;\n" +
+				"	          ^^^^^^^^^\n" +
+				"Cannot cast from Object to float\n" +
 				"----------\n"
 			);
 	} else {
@@ -2224,20 +2224,20 @@ public void test058() {
 public void test059() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
 			"		Object x = foo();\n" +
-			"		try {\n" + 
+			"		try {\n" +
 			"			int y = (int) x;\n" +
 			"		} catch (ClassCastException e) {\n" +
 			"			System.out.println(\"SUCCESS\");\n" +
 			"			return;\n" +
-			"		}\n" + 
-			"		System.out.println(\"FAIL\");\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Float.valueOf(1.0f);\n" + 
-			"	}\n" + 
+			"		}\n" +
+			"		System.out.println(\"FAIL\");\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Float.valueOf(1.0f);\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2245,11 +2245,11 @@ public void test059() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	int y = (int) x;\n" + 
-				"	        ^^^^^^^\n" + 
-				"Cannot cast from Object to int\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	int y = (int) x;\n" +
+				"	        ^^^^^^^\n" +
+				"Cannot cast from Object to int\n" +
 				"----------\n"
 			);
 	} else {
@@ -2266,20 +2266,20 @@ public void test059() {
 public void test059b() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		try {\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		try {\n" +
 			"			int y = (int) x;\n" +
 			"		} catch (ClassCastException e) {\n" +
 			"			System.out.println(\"SUCCESS\");\n" +
 			"			return;\n" +
-			"		}\n" + 
+			"		}\n" +
 			"		System.out.println(\"FAIL\");\n" +
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Boolean.TRUE;\n" + 
-			"	}\n" + 
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Boolean.TRUE;\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2287,11 +2287,11 @@ public void test059b() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	int y = (int) x;\n" + 
-				"	        ^^^^^^^\n" + 
-				"Cannot cast from Object to int\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	int y = (int) x;\n" +
+				"	        ^^^^^^^\n" +
+				"Cannot cast from Object to int\n" +
 				"----------\n"
 			);
 	} else {
@@ -2308,20 +2308,20 @@ public void test059b() {
 public void test059c() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		try {\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		try {\n" +
 			"			char y = (char) x;\n" +
 			"		} catch (ClassCastException e) {\n" +
 			"			System.out.println(\"SUCCESS\");\n" +
 			"			return;\n" +
-			"		}\n" + 
+			"		}\n" +
 			"		System.out.println(\"FAIL\");\n" +
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Boolean.TRUE;\n" + 
-			"	}\n" + 
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Boolean.TRUE;\n" +
+			"	}\n" +
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
 		this.runNegativeTest(
@@ -2329,11 +2329,11 @@ public void test059c() {
 					"X.java",
 					source
 				},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
-				"	char y = (char) x;\n" + 
-				"	         ^^^^^^^^\n" + 
-				"Cannot cast from Object to char\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	char y = (char) x;\n" +
+				"	         ^^^^^^^^\n" +
+				"Cannot cast from Object to char\n" +
 				"----------\n"
 			);
 	} else {
@@ -2349,15 +2349,15 @@ public void test059c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
 public void test060() {
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		Boolean y = (Boolean) x;\n" + 
-			"		System.out.println(y);\n" + 
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Boolean.TRUE;\n" + 
-			"	}\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		Boolean y = (Boolean) x;\n" +
+			"		System.out.println(y);\n" +
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Boolean.TRUE;\n" +
+			"	}\n" +
 			"}";
 	this.runConformTest(
 			new String[] {
@@ -2370,20 +2370,20 @@ public void test060() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=353085
 public void test061() {
 	String source =
-			"public class X {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		Object x = foo();\n" + 
-			"		try {\n" + 
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Object x = foo();\n" +
+			"		try {\n" +
 			"			Float y = (Float) x;\n" +
 			"		} catch (ClassCastException e) {\n" +
 			"			System.out.println(\"SUCCESS\");\n" +
 			"			return;\n" +
-			"		}\n" + 
+			"		}\n" +
 			"		System.out.println(\"FAIL\");\n" +
-			"	}\n" + 
-			"	public static Object foo() {\n" + 
-			"		return Boolean.TRUE;\n" + 
-			"	}\n" + 
+			"	}\n" +
+			"	public static Object foo() {\n" +
+			"		return Boolean.TRUE;\n" +
+			"	}\n" +
 			"}";
 	this.runConformTest(
 			new String[] {
@@ -2409,24 +2409,24 @@ public void test061b() throws Exception {
 			},
 			""
 		);
-	String expectedOutput = 
-			"public class X {\n" + 
-			"  \n" + 
-			"  // Method descriptor #6 ()V\n" + 
-			"  // Stack: 1, Locals: 2\n" + 
-			"  public X();\n" + 
-			"     0  aload_0 [this]\n" + 
-			"     1  invokespecial java.lang.Object() [8]\n" + 
-			"     4  aconst_null\n" + 
-			"     5  checkcast java.lang.Object[] [10]\n" + 
-			"     8  astore_1 [x]\n" + 
-			"     9  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 2]\n" + 
-			"        [pc: 4, line: 3]\n" + 
-			"        [pc: 9, line: 4]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+	String expectedOutput =
+			"public class X {\n" +
+			"  \n" +
+			"  // Method descriptor #6 ()V\n" +
+			"  // Stack: 1, Locals: 2\n" +
+			"  public X();\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Object() [8]\n" +
+			"     4  aconst_null\n" +
+			"     5  checkcast java.lang.Object[] [10]\n" +
+			"     8  astore_1 [x]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 2]\n" +
+			"        [pc: 4, line: 3]\n" +
+			"        [pc: 9, line: 4]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
 			"        [pc: 9, pc: 10] local: x index: 1 type: java.lang.Object[]\n" +
 			"}";
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
@@ -2460,16 +2460,16 @@ public void test420283() {
 					"    }\n" +
 					"}\n"
 				},
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	Integer i = (Integer & Serializable) l.get(0);\n" + 
-				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Unnecessary cast from Integer to Integer & Serializable\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
-				"	Integer i = (Integer & Serializable) l.get(0);\n" + 
-				"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Additional bounds are not allowed in cast operator at source levels below 1.8\n" + 
+				"----------\n" +
+				"1. WARNING in X.java (at line 5)\n" +
+				"	Integer i = (Integer & Serializable) l.get(0);\n" +
+				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Unnecessary cast from Integer to Integer & Serializable\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	Integer i = (Integer & Serializable) l.get(0);\n" +
+				"	             ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Additional bounds are not allowed in cast operator at source levels below 1.8\n" +
 				"----------\n");
 		return;
 	}
@@ -2492,16 +2492,16 @@ public void test420283() {
 }
 
 public void testBug428274() {
-	String source = 
-			"public class Junk4 {\n" + 
-			"    static void setValue(Number n) {\n" + 
+	String source =
+			"public class Junk4 {\n" +
+			"    static void setValue(Number n) {\n" +
 			"        int rounded = (int) Math.round((double) n);\n" +
-			"		System.out.println(rounded);\n" + 
+			"		System.out.println(rounded);\n" +
 			"    }\n" +
 			"	public static void main(String[] args) {\n" +
 			"		setValue(Double.valueOf(3.3));\n" +
 			"		setValue(Double.valueOf(3.7));\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
 		runNegativeTest(
@@ -2509,11 +2509,11 @@ public void testBug428274() {
 				"Junk4.java",
 				source
 			},
-			"----------\n" + 
-			"1. ERROR in Junk4.java (at line 3)\n" + 
-			"	int rounded = (int) Math.round((double) n);\n" + 
-			"	                               ^^^^^^^^^^\n" + 
-			"Cannot cast from Number to double\n" + 
+			"----------\n" +
+			"1. ERROR in Junk4.java (at line 3)\n" +
+			"	int rounded = (int) Math.round((double) n);\n" +
+			"	                               ^^^^^^^^^^\n" +
+			"Cannot cast from Number to double\n" +
 			"----------\n");
 	} else {
 		runConformTest(
@@ -2530,25 +2530,25 @@ public void testBug428274b() {
 	Runner runner = new Runner();
 	runner.testFiles = new String[] {
 			"Junk4.java",
-			"public class Junk4<T> {\n" + 
-			"    void setValue(T n) {\n" + 
+			"public class Junk4<T> {\n" +
+			"    void setValue(T n) {\n" +
 			"        int rounded = (int) Math.round((double) n);\n" +
-			"		System.out.println(rounded);\n" + 
+			"		System.out.println(rounded);\n" +
 			"    }\n" +
 			"	public static void main(String[] args) {\n" +
 			"		Junk4<Number> j = new Junk4<Number>();\n" +
 			"		j.setValue(Double.valueOf(3.3));\n" +
 			"		j.setValue(Double.valueOf(3.7));\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n"
 	};
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
 		runner.expectedCompilerLog =
-			"----------\n" + 
-			"1. ERROR in Junk4.java (at line 3)\n" + 
-			"	int rounded = (int) Math.round((double) n);\n" + 
-			"	                               ^^^^^^^^^^\n" + 
-			"Cannot cast from T to double\n" + 
+			"----------\n" +
+			"1. ERROR in Junk4.java (at line 3)\n" +
+			"	int rounded = (int) Math.round((double) n);\n" +
+			"	                               ^^^^^^^^^^\n" +
+			"Cannot cast from T to double\n" +
 			"----------\n";
 		runner.runNegativeTest();
 	} else {
@@ -2560,26 +2560,26 @@ public void testBug428274b() {
 }
 // note: spec allows all reference types, but neither javac nor common sense accept arrays :)
 public void testBug428274c() {
-	String source = 
-			"public class Junk4 {\n" + 
-			"    static void setValue(Object[] n) {\n" + 
+	String source =
+			"public class Junk4 {\n" +
+			"    static void setValue(Object[] n) {\n" +
 			"        int rounded = (int) Math.round((double) n);\n" +
-			"		System.out.println(rounded);\n" + 
+			"		System.out.println(rounded);\n" +
 			"    }\n" +
 			"	public static void main(String[] args) {\n" +
 			"		setValue(new Double[] { Double.valueOf(3.3) });\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n";
 	runNegativeTest(
 		new String[] {
 			"Junk4.java",
 			source
 		},
-		"----------\n" + 
-		"1. ERROR in Junk4.java (at line 3)\n" + 
-		"	int rounded = (int) Math.round((double) n);\n" + 
-		"	                               ^^^^^^^^^^\n" + 
-		"Cannot cast from Object[] to double\n" + 
+		"----------\n" +
+		"1. ERROR in Junk4.java (at line 3)\n" +
+		"	int rounded = (int) Math.round((double) n);\n" +
+		"	                               ^^^^^^^^^^\n" +
+		"Cannot cast from Object[] to double\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
@@ -2593,30 +2593,30 @@ public void test428388() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	int x = (int) \"Hello\";\n" + 
-		"	        ^^^^^^^^^^^^^\n" + 
-		"Cannot cast from String to int\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	int x = (int) \"Hello\";\n" +
+		"	        ^^^^^^^^^^^^^\n" +
+		"Cannot cast from String to int\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
 public void test428388a() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
-	
+
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    static void setValue(Number n) {\n" + 
+			"public class X {\n" +
+			"    static void setValue(Number n) {\n" +
 			"       int rounded = (int) Math.round((double) n);\n" +
-			"		System.out.println(rounded);\n" + 
+			"		System.out.println(rounded);\n" +
 			"    }\n" +
 			"	public static void main(String[] args) {\n" +
 			"		setValue(Double.valueOf(3.3));\n" +
 			"		setValue(Double.valueOf(3.7));\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n",
 		},
 		"3\n4");
@@ -2630,26 +2630,26 @@ public void test428388a() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"  // Method descriptor #15 (Ljava/lang/Number;)V\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  static void setValue(java.lang.Number n);\n" + 
-			"     0  aload_0 [n]\n" + 
-			"     1  checkcast java.lang.Double [16]\n" + 
-			"     4  invokevirtual java.lang.Double.doubleValue() : double [18]\n" + 
-			"     7  invokestatic java.lang.Math.round(double) : long [22]\n" + 
-			"    10  l2i\n" + 
-			"    11  istore_1 [rounded]\n" + 
-			"    12  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
-			"    15  iload_1 [rounded]\n" + 
-			"    16  invokevirtual java.io.PrintStream.println(int) : void [34]\n" + 
-			"    19  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 12, line: 4]\n" + 
-			"        [pc: 19, line: 5]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 20] local: n index: 0 type: java.lang.Number\n" + 
-			"        [pc: 12, pc: 20] local: rounded index: 1 type: int\n" + 
+			"  // Method descriptor #15 (Ljava/lang/Number;)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  static void setValue(java.lang.Number n);\n" +
+			"     0  aload_0 [n]\n" +
+			"     1  checkcast java.lang.Double [16]\n" +
+			"     4  invokevirtual java.lang.Double.doubleValue() : double [18]\n" +
+			"     7  invokestatic java.lang.Math.round(double) : long [22]\n" +
+			"    10  l2i\n" +
+			"    11  istore_1 [rounded]\n" +
+			"    12  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+			"    15  iload_1 [rounded]\n" +
+			"    16  invokevirtual java.io.PrintStream.println(int) : void [34]\n" +
+			"    19  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 3]\n" +
+			"        [pc: 12, line: 4]\n" +
+			"        [pc: 19, line: 5]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 20] local: n index: 0 type: java.lang.Number\n" +
+			"        [pc: 12, pc: 20] local: rounded index: 1 type: int\n" +
 			"  \n";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -2664,22 +2664,22 @@ public void test428388b() throws Exception {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    static void setValue(Number n) {\n" + 
+			"public class X {\n" +
+			"    static void setValue(Number n) {\n" +
 			"       char rounded = (char) n;\n" +
-			"		System.out.println(rounded);\n" + 
+			"		System.out.println(rounded);\n" +
 			"    }\n" +
 			"	public static void main(String[] args) {\n" +
 			"		setValue(Double.valueOf(3.3));\n" +
 			"		setValue(Double.valueOf(3.7));\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	char rounded = (char) n;\n" + 
-		"	               ^^^^^^^^\n" + 
-		"Cannot cast from Number to char\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	char rounded = (char) n;\n" +
+		"	               ^^^^^^^^\n" +
+		"Cannot cast from Number to char\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
@@ -2689,9 +2689,9 @@ public void test428388c() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    static void setValue(Number n) {\n" + 
-			"       try {\n" +		
+			"public class X {\n" +
+			"    static void setValue(Number n) {\n" +
+			"       try {\n" +
 			"           byte rounded = (byte) n;\n" +
 			"		    System.out.println(rounded);\n" +
 			"       } catch (ClassCastException c) {\n" +
@@ -2701,7 +2701,7 @@ public void test428388c() throws Exception {
 			"	public static void main(String[] args) {\n" +
 			"		setValue(Double.valueOf(3.3));\n" +
 			"		setValue(Double.valueOf(3.7));\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}\n",
 		},
 		"CCE\nCCE");
@@ -2800,21 +2800,21 @@ public void test428388g() throws Exception {
 			"  }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public class X implements Serializable {\n" + 
-		"	             ^\n" + 
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 3)\n" + 
-		"	static <S extends Boolean & Serializable>int test(S b) {\n" + 
-		"	                  ^^^^^^^\n" + 
-		"The type parameter S should not be bounded by the final type Boolean. Final types cannot be further extended\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 4)\n" + 
-		"	return (int) b;\n" + 
-		"	       ^^^^^^^\n" + 
-		"Cannot cast from S to int\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public class X implements Serializable {\n" +
+		"	             ^\n" +
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 3)\n" +
+		"	static <S extends Boolean & Serializable>int test(S b) {\n" +
+		"	                  ^^^^^^^\n" +
+		"The type parameter S should not be bounded by the final type Boolean. Final types cannot be further extended\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	return (int) b;\n" +
+		"	       ^^^^^^^\n" +
+		"Cannot cast from S to int\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
@@ -2835,16 +2835,16 @@ public void test428388h() throws Exception {
 			"  }\n" +
 			"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 2)\n" + 
-		"	public class X implements Serializable {\n" + 
-		"	             ^\n" + 
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	return (int) (Boolean & Serializable) b;\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot cast from Boolean & Serializable to int\n" + 
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	public class X implements Serializable {\n" +
+		"	             ^\n" +
+		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	return (int) (Boolean & Serializable) b;\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Cannot cast from Boolean & Serializable to int\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428388, [1.8][compiler] Casting to primitives is over tolerant - probable regression since bug 428274
@@ -2880,20 +2880,20 @@ public void test428388i() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"  // Method descriptor #17 (Ljava/io/Serializable;)I\n" + 
-			"  // Stack: 2, Locals: 2\n" + 
-			"  static int test(java.io.Serializable v);\n" + 
-			"     0  aload_0 [v]\n" + 
-			"     1  checkcast java.lang.Integer [18]\n" + 
-			"     4  invokevirtual java.lang.Integer.intValue() : int [20]\n" + 
-			"     7  ireturn\n" + 
-			"     8  astore_1 [c]\n" + 
-			"     9  getstatic java.lang.System.out : java.io.PrintStream [24]\n" + 
-			"    12  ldc <String \"CCE\"> [30]\n" + 
-			"    14  invokevirtual java.io.PrintStream.println(java.lang.String) : void [32]\n" + 
-			"    17  iconst_m1\n" + 
+			"  // Method descriptor #17 (Ljava/io/Serializable;)I\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  static int test(java.io.Serializable v);\n" +
+			"     0  aload_0 [v]\n" +
+			"     1  checkcast java.lang.Integer [18]\n" +
+			"     4  invokevirtual java.lang.Integer.intValue() : int [20]\n" +
+			"     7  ireturn\n" +
+			"     8  astore_1 [c]\n" +
+			"     9  getstatic java.lang.System.out : java.io.PrintStream [24]\n" +
+			"    12  ldc <String \"CCE\"> [30]\n" +
+			"    14  invokevirtual java.io.PrintStream.println(java.lang.String) : void [32]\n" +
+			"    17  iconst_m1\n" +
 			"    18  ireturn\n";
-	
+
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
 		System.out.println(Util.displayString(actualOutput, 2));
@@ -2922,7 +2922,7 @@ public void test428388j() throws Exception {
 		},
 		"10101010");
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
 public void test428522() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
@@ -2948,24 +2948,24 @@ public void test428522() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-			"  // Stack: 2, Locals: 1\n" + 
-			"  public static void main(java.lang.String[] args);\n" + 
-			"     0  ldc2_w <Long 100> [16]\n" + 
-			"     3  invokestatic java.lang.Long.valueOf(long) : java.lang.Long [18]\n" + 
-			"     6  checkcast java.lang.Long [19]\n" + 
-			"     9  invokevirtual java.lang.Long.longValue() : long [24]\n" + 
-			"    12  pop2\n" + 
-			"    13  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
-			"    16  ldc <String \"OK\"> [34]\n" + 
-			"    18  invokevirtual java.io.PrintStream.println(java.lang.String) : void [36]\n" + 
-			"    21  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 13, line: 4]\n" + 
-			"        [pc: 21, line: 5]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+			"  // Stack: 2, Locals: 1\n" +
+			"  public static void main(java.lang.String[] args);\n" +
+			"     0  ldc2_w <Long 100> [16]\n" +
+			"     3  invokestatic java.lang.Long.valueOf(long) : java.lang.Long [18]\n" +
+			"     6  checkcast java.lang.Long [19]\n" +
+			"     9  invokevirtual java.lang.Long.longValue() : long [24]\n" +
+			"    12  pop2\n" +
+			"    13  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+			"    16  ldc <String \"OK\"> [34]\n" +
+			"    18  invokevirtual java.io.PrintStream.println(java.lang.String) : void [36]\n" +
+			"    21  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 3]\n" +
+			"        [pc: 13, line: 4]\n" +
+			"        [pc: 21, line: 5]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" +
 			"}";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -2975,7 +2975,7 @@ public void test428522() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
 public void test428522a() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
@@ -3001,25 +3001,25 @@ public void test428522a() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-			"  // Stack: 2, Locals: 3\n" + 
-			"  public static void main(java.lang.String[] args);\n" + 
-			"     0  ldc2_w <Long 100> [16]\n" + 
-			"     3  invokestatic java.lang.Long.valueOf(long) : java.lang.Long [18]\n" + 
-			"     6  checkcast java.lang.Long [19]\n" + 
-			"     9  invokevirtual java.lang.Long.longValue() : long [24]\n" + 
-			"    12  lstore_1 [l]\n" + 
-			"    13  getstatic java.lang.System.out : java.io.PrintStream [28]\n" + 
-			"    16  ldc <String \"OK\"> [34]\n" + 
-			"    18  invokevirtual java.io.PrintStream.println(java.lang.String) : void [36]\n" + 
-			"    21  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 13, line: 4]\n" + 
-			"        [pc: 21, line: 5]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" + 
-			"        [pc: 13, pc: 22] local: l index: 1 type: long\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+			"  // Stack: 2, Locals: 3\n" +
+			"  public static void main(java.lang.String[] args);\n" +
+			"     0  ldc2_w <Long 100> [16]\n" +
+			"     3  invokestatic java.lang.Long.valueOf(long) : java.lang.Long [18]\n" +
+			"     6  checkcast java.lang.Long [19]\n" +
+			"     9  invokevirtual java.lang.Long.longValue() : long [24]\n" +
+			"    12  lstore_1 [l]\n" +
+			"    13  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+			"    16  ldc <String \"OK\"> [34]\n" +
+			"    18  invokevirtual java.io.PrintStream.println(java.lang.String) : void [36]\n" +
+			"    21  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 3]\n" +
+			"        [pc: 13, line: 4]\n" +
+			"        [pc: 21, line: 5]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 22] local: args index: 0 type: java.lang.String[]\n" +
+			"        [pc: 13, pc: 22] local: l index: 1 type: long\n" +
 			"}";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3029,7 +3029,7 @@ public void test428522a() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
 public void test428522b() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
@@ -3051,7 +3051,7 @@ public void test428522b() throws Exception {
 		"CCE:OK", customOptions);
 
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428522,  [1.8] VerifyError when a non primitive type cast to primitive type
 public void test428522c() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
@@ -3077,24 +3077,24 @@ public void test428522c() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" + 
-			"  // Stack: 2, Locals: 1\n" + 
-			"  public static void main(java.lang.String[] args);\n" + 
-			"     0  bipush 100\n" + 
-			"     2  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [16]\n" + 
-			"     5  checkcast java.lang.Integer [17]\n" + 
-			"     8  invokevirtual java.lang.Integer.intValue() : int [22]\n" + 
-			"    11  pop\n" + 
-			"    12  getstatic java.lang.System.out : java.io.PrintStream [26]\n" + 
-			"    15  ldc <String \"OK\"> [32]\n" + 
-			"    17  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" + 
-			"    20  return\n" + 
-			"      Line numbers:\n" + 
-			"        [pc: 0, line: 3]\n" + 
-			"        [pc: 12, line: 4]\n" + 
-			"        [pc: 20, line: 5]\n" + 
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 21] local: args index: 0 type: java.lang.String[]\n" + 
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+			"  // Stack: 2, Locals: 1\n" +
+			"  public static void main(java.lang.String[] args);\n" +
+			"     0  bipush 100\n" +
+			"     2  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [16]\n" +
+			"     5  checkcast java.lang.Integer [17]\n" +
+			"     8  invokevirtual java.lang.Integer.intValue() : int [22]\n" +
+			"    11  pop\n" +
+			"    12  getstatic java.lang.System.out : java.io.PrintStream [26]\n" +
+			"    15  ldc <String \"OK\"> [32]\n" +
+			"    17  invokevirtual java.io.PrintStream.println(java.lang.String) : void [34]\n" +
+			"    20  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 3]\n" +
+			"        [pc: 12, line: 4]\n" +
+			"        [pc: 20, line: 5]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 21] local: args index: 0 type: java.lang.String[]\n" +
 			"}";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3114,15 +3114,15 @@ public void test441731() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface MUIElement {}\n" + 
-			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" + 
-			"interface MWindowElement extends MUIElement {}\n" + 
-			"interface MWindow extends MUIElementContainer<MWindowElement> {}\n" + 
-			"public class X {\n" + 
-			"	void test(MUIElementContainer<MUIElement> me) {\n" + 
-			"		if(((MUIElement) me) instanceof MWindow) return;\n" + 
-			"		MWindow mw = (MWindow)((MUIElement)me);\n" + 
-			"	}\n" + 
+			"interface MUIElement {}\n" +
+			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" +
+			"interface MWindowElement extends MUIElement {}\n" +
+			"interface MWindow extends MUIElementContainer<MWindowElement> {}\n" +
+			"public class X {\n" +
+			"	void test(MUIElementContainer<MUIElement> me) {\n" +
+			"		if(((MUIElement) me) instanceof MWindow) return;\n" +
+			"		MWindow mw = (MWindow)((MUIElement)me);\n" +
+			"	}\n" +
 			"}\n"
 		},
 		customOptions);
@@ -3136,27 +3136,27 @@ public void test448112() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"\n" + 
-			"  static class Y {\n" + 
-			"	  public Object getAttribute(String name) {\n" + 
-			"	  	return new Long(100L);\n" + 
-			"	  }\n" + 
-			"	}\n" + 
-			"	public static void foo2(Y y) {\n" + 
-			"\n" + 
-			"		try {\n" + 
-			"			long v1 = (Long) y.getAttribute(\"v1\");\n" + 
-			"			long v2 = (Long) y.getAttribute(\"v2\");\n" + 
-			"\n" + 
-			"			System.out.println(String.valueOf(v1));\n" + 
-			"\n" + 
-			"		} catch (java.lang.Throwable t) {}\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public static void main(String args[]) {\n" + 
-			"		foo2(new Y());\n" + 
-			"  }\n" + 
+			"public class X {\n" +
+			"\n" +
+			"  static class Y {\n" +
+			"	  public Object getAttribute(String name) {\n" +
+			"	  	return new Long(100L);\n" +
+			"	  }\n" +
+			"	}\n" +
+			"	public static void foo2(Y y) {\n" +
+			"\n" +
+			"		try {\n" +
+			"			long v1 = (Long) y.getAttribute(\"v1\");\n" +
+			"			long v2 = (Long) y.getAttribute(\"v2\");\n" +
+			"\n" +
+			"			System.out.println(String.valueOf(v1));\n" +
+			"\n" +
+			"		} catch (java.lang.Throwable t) {}\n" +
+			"	}\n" +
+			"	\n" +
+			"	public static void main(String args[]) {\n" +
+			"		foo2(new Y());\n" +
+			"  }\n" +
 			"}",
 		},
 		"100", customOptions);
@@ -3169,24 +3169,24 @@ public void test448112() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"  public static void foo2(X.Y y);\n" + 
-			"     0  aload_0 [y]\n" + 
-			"     1  ldc <String \"v1\"> [16]\n" + 
-			"     3  invokevirtual X$Y.getAttribute(java.lang.String) : java.lang.Object [18]\n" + 
-			"     6  checkcast java.lang.Long [24]\n" + 
-			"     9  invokevirtual java.lang.Long.longValue() : long [26]\n" + 
-			"    12  lstore_1 [v1]\n" + 
-			"    13  aload_0 [y]\n" + 
-			"    14  ldc <String \"v2\"> [30]\n" + 
-			"    16  invokevirtual X$Y.getAttribute(java.lang.String) : java.lang.Object [18]\n" + 
-			"    19  checkcast java.lang.Long [24]\n" + 
-			"    22  pop\n" + 
-			"    23  getstatic java.lang.System.out : java.io.PrintStream [32]\n" + 
-			"    26  lload_1 [v1]\n" + 
-			"    27  invokestatic java.lang.String.valueOf(long) : java.lang.String [38]\n" + 
-			"    30  invokevirtual java.io.PrintStream.println(java.lang.String) : void [44]\n" + 
-			"    33  goto 37\n" + 
-			"    36  pop\n" + 
+			"  public static void foo2(X.Y y);\n" +
+			"     0  aload_0 [y]\n" +
+			"     1  ldc <String \"v1\"> [16]\n" +
+			"     3  invokevirtual X$Y.getAttribute(java.lang.String) : java.lang.Object [18]\n" +
+			"     6  checkcast java.lang.Long [24]\n" +
+			"     9  invokevirtual java.lang.Long.longValue() : long [26]\n" +
+			"    12  lstore_1 [v1]\n" +
+			"    13  aload_0 [y]\n" +
+			"    14  ldc <String \"v2\"> [30]\n" +
+			"    16  invokevirtual X$Y.getAttribute(java.lang.String) : java.lang.Object [18]\n" +
+			"    19  checkcast java.lang.Long [24]\n" +
+			"    22  pop\n" +
+			"    23  getstatic java.lang.System.out : java.io.PrintStream [32]\n" +
+			"    26  lload_1 [v1]\n" +
+			"    27  invokestatic java.lang.String.valueOf(long) : java.lang.String [38]\n" +
+			"    30  invokevirtual java.io.PrintStream.println(java.lang.String) : void [44]\n" +
+			"    33  goto 37\n" +
+			"    36  pop\n" +
 			"    37  return\n";
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3205,29 +3205,29 @@ public void test461706() {
 	this.runConformTest(
 		new String[] {
 			"Bug.java",
-			"import java.util.ArrayList;\n" + 
-			"import java.util.List;\n" + 
-			"public class Bug {\n" + 
-			"	private static class AndCondition implements ICondition {\n" + 
-			"		public AndCondition(ICondition cond1, ICondition cond2) {\n" + 
-			"			// todo\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	private static class SimpleCondition implements ICondition {\n" + 
-			"	}\n" + 
-			"	private static interface ICondition {\n" + 
-			"		ICondition TRUE = new SimpleCondition();\n" + 
-			"		default ICondition and(final ICondition cond) {\n" + 
-			"			return new AndCondition(this, cond);\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public static void main(final String[] args) {\n" + 
-			"		final List<SimpleCondition> conditions = new ArrayList<>();\n" + 
-			"		conditions.stream()\n" + 
-			"				.map(x -> (ICondition)x)\n" + 
-			"				.reduce((x, y) -> x.and(y))\n" + 
-			"				.orElse(ICondition.TRUE);\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class Bug {\n" +
+			"	private static class AndCondition implements ICondition {\n" +
+			"		public AndCondition(ICondition cond1, ICondition cond2) {\n" +
+			"			// todo\n" +
+			"		}\n" +
+			"	}\n" +
+			"	private static class SimpleCondition implements ICondition {\n" +
+			"	}\n" +
+			"	private static interface ICondition {\n" +
+			"		ICondition TRUE = new SimpleCondition();\n" +
+			"		default ICondition and(final ICondition cond) {\n" +
+			"			return new AndCondition(this, cond);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void main(final String[] args) {\n" +
+			"		final List<SimpleCondition> conditions = new ArrayList<>();\n" +
+			"		conditions.stream()\n" +
+			"				.map(x -> (ICondition)x)\n" +
+			"				.reduce((x, y) -> x.and(y))\n" +
+			"				.orElse(ICondition.TRUE);\n" +
+			"	}\n" +
 			"}"
 		},
 		customOptions);
@@ -3242,29 +3242,29 @@ public void test461706a() {
 	runner.testFiles =
 		new String[] {
 			"Bug.java",
-			"import java.util.ArrayList;\n" + 
-			"import java.util.List;\n" + 
-			"public class Bug {\n" + 
-			"	private static class AndCondition implements ICondition {\n" + 
-			"		public AndCondition(ICondition cond1, ICondition cond2) {\n" + 
-			"			// todo\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	static class SimpleCondition implements ICondition {\n" + 
-			"	}\n" + 
-			"	private static interface ICondition {\n" + 
-			"		ICondition TRUE = new SimpleCondition();\n" + 
-			"		default ICondition and(final ICondition cond) {\n" + 
-			"			return new AndCondition(this, cond);\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"	public static void main(final String[] args) {\n" + 
-			"		final List<ICondition> conditions = new ArrayList<>();\n" + 
-			"		conditions.stream()\n" + 
-			"				.map(x -> (ICondition)x)\n" + 
-			"				.reduce((x, y) -> x.and(y))\n" + 
-			"				.orElse(ICondition.TRUE);\n" + 
-			"	}\n" + 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class Bug {\n" +
+			"	private static class AndCondition implements ICondition {\n" +
+			"		public AndCondition(ICondition cond1, ICondition cond2) {\n" +
+			"			// todo\n" +
+			"		}\n" +
+			"	}\n" +
+			"	static class SimpleCondition implements ICondition {\n" +
+			"	}\n" +
+			"	private static interface ICondition {\n" +
+			"		ICondition TRUE = new SimpleCondition();\n" +
+			"		default ICondition and(final ICondition cond) {\n" +
+			"			return new AndCondition(this, cond);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public static void main(final String[] args) {\n" +
+			"		final List<ICondition> conditions = new ArrayList<>();\n" +
+			"		conditions.stream()\n" +
+			"				.map(x -> (ICondition)x)\n" +
+			"				.reduce((x, y) -> x.and(y))\n" +
+			"				.orElse(ICondition.TRUE);\n" +
+			"	}\n" +
 			"}"
 		};
 	runner.expectedCompilerLog =
@@ -3355,10 +3355,10 @@ public void test548647() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"interface MUIElement {}\n" + 
-			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" + 
-			"interface MWindowElement extends MUIElement {}\n" + 
-			"interface MWindow extends MUIElementContainer<MWindowElement> {}\n" + 
+			"interface MUIElement {}\n" +
+			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" +
+			"interface MWindowElement extends MUIElement {}\n" +
+			"interface MWindow extends MUIElementContainer<MWindowElement> {}\n" +
 			"public class X {\n" +
 			"	MUIElementContainer<MUIElement> field;\n" +
 			"	MUIElementContainer<MUIElement> getField() {\n" +
@@ -3370,8 +3370,8 @@ public void test548647() {
 			"		if(((Object) me) instanceof MWindow) return;\n" +
 			"		if ((MUIElement)field instanceof MWindow) return;\n" +
 			"		if ((MUIElement)getField() instanceof MWindow) return;\n" +
-			"		MWindow mw = (MWindow)((MUIElement)me);\n" + 
-			"	}\n" + 
+			"		MWindow mw = (MWindow)((MUIElement)me);\n" +
+			"	}\n" +
 			"}\n"
 		},
 		customOptions);
@@ -3388,13 +3388,13 @@ public void test548647a() {
 			"public class Bug {\n" +
 			"	Integer k;\n" +
 			"	private Number getK() { return k; }\n" +
-			"	public void fn(Number n) {\n" + 
+			"	public void fn(Number n) {\n" +
 			"		Number j = n;\n" +
 			"		if ((Number) n instanceof Long) return;\n" +
 			"		if ((Number) k instanceof Integer) return;\n" +
 			"		if ((Number) j instanceof Integer) return;\n" +
 			"		if ((Number) getK() instanceof Integer) return;\n" +
-			"	}\n" + 
+			"	}\n" +
 			"}"
 		};
 	runner.expectedCompilerLog =

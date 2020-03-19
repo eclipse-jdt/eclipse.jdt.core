@@ -203,13 +203,13 @@ private static Class[] getAllTestClasses() {
 
 		// Creation of imports
 		CreateImportsTests.class,
-		
+
 		// Util tests
 		UtilTests.class,
-		
+
 		JavaCoreOptionsTests.class,
 		JavaCorePreferenceModifyListenerTest.class,
-		
+
 		// Tests regarding null-annotations:
 		NullAnnotationModelTests.class,
 		ExternalAnnotations17Test.class,

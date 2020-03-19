@@ -28,13 +28,13 @@ public class ExpectedProblem {
 	private final IPath _resourcePath;
 	private final int _start;
 	private final int _end;
-	
+
 	public ExpectedProblem(String location, String message, IPath resourcePath) {
 		this (location, message, resourcePath, -1, -1);
 	}
-	
-	public ExpectedProblem(String location, 
-			String message, 
+
+	public ExpectedProblem(String location,
+			String message,
 			IPath resourcePath,
 			int start,
 			int end)
@@ -45,32 +45,32 @@ public class ExpectedProblem {
 		_start = start;
 		_end = end;
 	}
-	
+
 	public String getLocation() {
 		return _location;
 	}
-	
+
 	public boolean equalsProblem(final Problem problem) {
 		if (problem == null)
 			return false;
-		
+
 		// Ignore the location, as this is what Problem.equals does as well
 		//if (!_location.equals(problem.getLocation())) return false;
 		if (!_message.equals(problem.getMessage())) return false;
 		if (!_resourcePath.equals(problem.getResourcePath())) return false;
 		if (_start != -1 && _start != problem.getStart()) return false;
 		if (_end != -1 && _end != problem.getEnd()) return false;
-		
+
 		return true;
 	}
-	
+
 	public String toString(){
-  		return 
-			"Problem : " 
-			+ _message 
-			+ " [ resource : <" 
-			+ _resourcePath 
-			+ ">" 
+  		return
+			"Problem : "
+			+ _message
+			+ " [ resource : <"
+			+ _resourcePath
+			+ ">"
 			+ (" range : <" + _start + "," + _end + ">")
 			+ "]";
 	}

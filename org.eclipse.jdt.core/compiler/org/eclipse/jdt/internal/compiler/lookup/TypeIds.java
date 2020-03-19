@@ -103,19 +103,19 @@ public interface TypeIds {
 	final int T_JavaIoExternalizable = 56;
 	final int T_JavaIoObjectStreamException = 57;
 	final int T_JavaIoException = 58;
-	
+
 	final int T_JavaUtilCollection = 59;
-	
+
 	// java 7
 	final int T_JavaLangSafeVarargs = 60;
-	
+
 	final int T_JavaLangInvokeMethodHandlePolymorphicSignature = 61;
 
 	// java 7 java.lang.AutoCloseable
 	final int T_JavaLangAutoCloseable = 62;
-	
+
 	// new in 3.8 for null annotations, removed in 4.6 (ids 65-67)
-	
+
 	// new in 3.8 to identify org.eclipse.core.runtime.Assert
 	final int T_OrgEclipseCoreRuntimeAssert = 68;
 	// new in 3.9 to identify more assertion utilities:
@@ -138,7 +138,7 @@ public interface TypeIds {
 
 	// Java 8 - JEP 120
 	final int T_JavaLangAnnotationRepeatable = 90;
-	
+
 	// classes with methods with "dangerous" signatures:
 	final int T_JavaUtilMap = 91;
 	final int T_JavaUtilList = 92;
@@ -151,7 +151,7 @@ public interface TypeIds {
 
 	// If you add new type id, make sure to bump up T_LastWellKnownTypeId if there is a cross over.
 	final int T_LastWellKnownTypeId = 128;
-	
+
 
 	final int NoId = Integer.MAX_VALUE;
 
@@ -239,19 +239,19 @@ public interface TypeIds {
 	 * @see ReferenceBinding#hasTypeBit(int)
 	 */
 	final int BitUninitialized = 0x8000000;
-	/** 
+	/**
 	 * Marks all sub-types of java.lang.AutoCloseable.
 	 * @see ReferenceBinding#hasTypeBit(int)
 	 */
 	final int BitAutoCloseable = 1;
-	/** 
+	/**
 	 * Marks all sub-types of java.io.Closeable.
 	 * @see ReferenceBinding#hasTypeBit(int)
 	 */
 	final int BitCloseable = 2;
 	/**
 	 * Bit for members of a white list:
-	 * Subtypes of Closeable that wrap another resource without directly holding any OS resources. 
+	 * Subtypes of Closeable that wrap another resource without directly holding any OS resources.
 	 */
 	final int BitWrapperCloseable = 4;
 	/**
@@ -259,7 +259,7 @@ public interface TypeIds {
 	 * Subtypes of Closeable that do not hold an OS resource that needs to be released.
 	 */
 	final int BitResourceFreeCloseable = 8;
-	
+
 	final int BitUninternedType = 16;
 
 	/** Bit for a type configured as a @NonNull annotation. */

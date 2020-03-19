@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2007 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.checkargs;
@@ -32,14 +32,14 @@ import javax.lang.model.element.TypeElement;
 @SupportedAnnotationTypes("org.eclipse.jdt.compiler.apt.tests.annotations.CheckArgs")
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class CheckArgsProc extends AbstractProcessor {
-	
+
 	private final static String[] _expected =
 	{
 		"foo", "bar",
 		"novalue", null,
 		"bar2", null
 	};
-	
+
 	/* (non-Javadoc)
 	 * @see javax.annotation.processing.AbstractProcessor#process(java.util.Set, javax.annotation.processing.RoundEnvironment)
 	 */
@@ -47,7 +47,7 @@ public class CheckArgsProc extends AbstractProcessor {
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if (roundEnv.processingOver())
 			return true;
-		
+
 		Map<String, String> options = new HashMap<String, String>(processingEnv.getOptions());
 		options.remove("phase");
 		if (_expected.length/2 != options.size()) {
@@ -61,12 +61,12 @@ public class CheckArgsProc extends AbstractProcessor {
 			String observedValue = options.get(key);
 			if (value == null && observedValue != null) {
 				throw new IllegalStateException(
-						"Bad processor arguments: key " + key + 
+						"Bad processor arguments: key " + key +
 						" expected null value but observed value " + observedValue);
 			}
 			else if (value != null && !value.equals(observedValue)){
 				throw new IllegalStateException(
-						"Bad processor arguments: key " + key + 
+						"Bad processor arguments: key " + key +
 						" expected value " + value + " but observed value " + observedValue);
 			}
 		}

@@ -233,41 +233,41 @@ public void test007() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"	@Annot({\n" + 
+			"public class X {\n" +
+			"	@Annot({\n" +
 			"		@A(name = \"name\", //$NON-NLS-1$\n" +
-			" 		value = \"Test\") //$NON-NLS-1$\n" + 
-			"	})\n" + 
-			"	@X2(\"\") //$NON-NLS-1$\n" + 
-			"	void foo() {\n" + 
-			"	}\n" + 
+			" 		value = \"Test\") //$NON-NLS-1$\n" +
+			"	})\n" +
+			"	@X2(\"\") //$NON-NLS-1$\n" +
+			"	void foo() {\n" +
+			"	}\n" +
 			"}\n" +
-			"@interface Annot {\n" + 
-			"	A[] value();\n" + 
+			"@interface Annot {\n" +
+			"	A[] value();\n" +
 			"}\n" +
-			"@interface A {\n" + 
-			"	String name();\n" + 
-			"	String value();\n" + 
+			"@interface A {\n" +
+			"	String name();\n" +
+			"	String value();\n" +
 			"}\n" +
-			"@interface X2 {\n" + 
-			"	String value();\n" + 
+			"@interface X2 {\n" +
+			"	String value();\n" +
 			"}",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 3)\n" + 
-		"	@A(name = \"name\", //$NON-NLS-1$\n" + 
-		"	                  ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	value = \"Test\") //$NON-NLS-1$\n" + 
-		"	                ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
-		"	@X2(\"\") //$NON-NLS-1$\n" + 
-		"	        ^^^^^^^^^^^^^\n" + 
-		"Unnecessary $NON-NLS$ tag\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	@A(name = \"name\", //$NON-NLS-1$\n" +
+		"	                  ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	value = \"Test\") //$NON-NLS-1$\n" +
+		"	                ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	@X2(\"\") //$NON-NLS-1$\n" +
+		"	        ^^^^^^^^^^^^^\n" +
+		"Unnecessary $NON-NLS$ tag\n" +
 		"----------\n",
 		null,
 		true,

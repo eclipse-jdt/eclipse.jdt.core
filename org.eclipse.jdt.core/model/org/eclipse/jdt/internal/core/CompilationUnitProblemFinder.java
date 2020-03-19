@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -106,15 +106,15 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 		CompilationResult result =
 			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.options.maxProblemsPerUnit);
-		
+
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259, build the compilation unit in its own sand box.
 		final long savedComplianceLevel = this.options.complianceLevel;
 		final long savedSourceLevel = this.options.sourceLevel;
-		
+
 		LookupEnvironment environment = packageBinding.environment;
 		if (environment == null)
 			environment = this.lookupEnvironment;
-		
+
 		try {
 			IJavaProject project = ((SourceTypeElementInfo) sourceTypes[0]).getHandle().getJavaProject();
 			this.options.complianceLevel = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
@@ -152,14 +152,14 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 		CompilationResult result =
 				new CompilationResult(TypeConstants.MODULE_INFO_FILE_NAME, 1, 1, this.options.maxProblemsPerUnit);
-			
+
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259, build the compilation unit in its own sand box.
 		final long savedComplianceLevel = this.options.complianceLevel;
 		final long savedSourceLevel = this.options.sourceLevel;
-		
+
 		if (environment == null)
 			environment = this.lookupEnvironment;
-		
+
 		try {
 			IJavaProject project = handle.getJavaProject();
 			this.options.complianceLevel = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
@@ -232,7 +232,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	}
 
 	/*
-	 * Can return null if the process was aborted or canceled 
+	 * Can return null if the process was aborted or canceled
 	 */
 	public static CompilationUnitDeclaration process(
 			CompilationUnit unitElement,

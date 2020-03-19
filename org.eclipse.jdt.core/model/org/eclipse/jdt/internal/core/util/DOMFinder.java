@@ -228,7 +228,7 @@ public class DOMFinder extends ASTVisitor {
 	public boolean visit(SingleVariableDeclaration node) {
 		if (found(node, node.getName()) && this.resolveBinding)
 			this.foundBinding = node.resolveBinding();
-		return true;		
+		return true;
 	}
 
 	@Override

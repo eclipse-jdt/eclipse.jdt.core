@@ -432,11 +432,11 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	constructor.binding.tagBits |= (inheritedConstructorBinding.tagBits & TagBits.HasMissingType);
 	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;
 	if (inheritedConstructorBinding.parameterNonNullness != null // this implies that annotation based null analysis is enabled
-			&& argumentsLength > 0) 
+			&& argumentsLength > 0)
 	{
 		// copy nullness info from inherited constructor to the new constructor:
 		int len = inheritedConstructorBinding.parameterNonNullness.length;
-		System.arraycopy(inheritedConstructorBinding.parameterNonNullness, 0, 
+		System.arraycopy(inheritedConstructorBinding.parameterNonNullness, 0,
 				constructor.binding.parameterNonNullness = new Boolean[len], 0, len);
 	}
 	// TODO(stephan): do argument types already carry sufficient info about type annotations?
@@ -669,18 +669,18 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			this.scope.problemReporter().unusedPrivateType(this);
 		}
 	}
-	
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
-	if (this.typeParameters != null && 
+	if (this.typeParameters != null &&
 			!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 		for (int i = 0, length = this.typeParameters.length; i < length; ++i) {
 			TypeParameter typeParameter = this.typeParameters[i];
 			if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
-				this.scope.problemReporter().unusedTypeParameter(typeParameter);			
+				this.scope.problemReporter().unusedTypeParameter(typeParameter);
 			}
 		}
 	}
-	
+
 	// for local classes we use the flowContext as our parent, but never use an initialization context for this purpose
 	// see Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 	FlowContext parentContext = (flowContext instanceof InitializationFlowContext) ? null : flowContext;
@@ -1375,7 +1375,7 @@ checkOuterScope:while (outerScope != null) {
 						}
 					} else if (existing2 instanceof ReferenceBinding
 							&& existing2.isValidBinding()
-							&& outerScope.isDefinedInType((ReferenceBinding) existing2)) { 
+							&& outerScope.isDefinedInType((ReferenceBinding) existing2)) {
 							blockScope.problemReporter().typeCollidesWithEnclosingType(this);
 							break checkOuterScope;
 					} else if (existing2 == null) {

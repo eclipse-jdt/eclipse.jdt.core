@@ -29,7 +29,7 @@ public class Round1GenAnnotationProcessor implements AnnotationProcessor{
 	{
 		_env = env;
 	}
-	
+
 	public void process() {
 		final TypeDeclaration beanType = _env.getTypeDeclaration("test.Bean");
 		final Filer filer = _env.getFiler();
@@ -42,15 +42,15 @@ public class Round1GenAnnotationProcessor implements AnnotationProcessor{
 			}
 			catch(IOException io){}
 		}
-		
+
 		final Collection<TypeDeclaration> typeDecls = _env.getTypeDeclarations();
 		final Messager msger = _env.getMessager();
 		if( typeDecls.size() == 1 ){
 			final TypeDeclaration type = typeDecls.iterator().next();
 			if( !type.getQualifiedName().equals( "p1.X") )
-				msger.printError("Expected to find p1.X but got " + type.getQualifiedName() ); 
+				msger.printError("Expected to find p1.X but got " + type.getQualifiedName() );
 		}
 		else
-			msger.printError("expected one type declaration but got " + typeDecls );	
+			msger.printError("expected one type declaration but got " + typeDecls );
 	}
 }

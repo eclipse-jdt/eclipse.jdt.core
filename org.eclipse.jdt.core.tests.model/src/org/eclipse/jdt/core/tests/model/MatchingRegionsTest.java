@@ -20,10 +20,10 @@ import org.eclipse.jdt.core.search.SearchPattern;
 
 /**
  * Class to test the matching regions API method added on {@link SearchPattern}
- * 
+ *
  * @see SearchPattern#getMatchingRegions(String, String, int)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=218605"
- * 
+ *
  * @since 3.5
  */
 public class MatchingRegionsTest extends AbstractJavaModelTests {

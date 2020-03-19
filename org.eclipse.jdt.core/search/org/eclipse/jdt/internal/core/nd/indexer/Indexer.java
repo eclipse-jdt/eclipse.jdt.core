@@ -97,7 +97,7 @@ public final class Indexer {
 	public static boolean DEBUG_INSERTIONS;
 	public static boolean DEBUG_SELFTEST;
 	public static int DEBUG_LOG_SIZE_MB;
-	
+
 	// New index is disabled, see bug 544898
 //	private static final String ENABLE_NEW_JAVA_INDEX = "enableNewJavaIndex"; //$NON-NLS-1$
 //	private static IPreferenceChangeListener listener = new IPreferenceChangeListener() {
@@ -181,7 +181,7 @@ public final class Indexer {
 	 * when running the unit tests, since indexing will not occur unless it is triggered
 	 * explicitly.
 	 * <p>
-	 * Synchronize on {@link #automaticIndexingMutex} before accessing. 
+	 * Synchronize on {@link #automaticIndexingMutex} before accessing.
 	 */
 	public void enableAutomaticIndexing(boolean enabled) {
 		boolean runRescan = false;
@@ -200,7 +200,7 @@ public final class Indexer {
 				// Force a rescan when re-enabling automatic indexing since we may have missed an update
 				this.rescanJob.schedule();
 			}
-	
+
 			if (!enabled) {
 				// Wait for any existing indexing operations to finish when disabling automatic indexing since
 				// we only want explicitly-triggered indexing operations to run after the method returns
@@ -471,7 +471,7 @@ public final class Indexer {
 	private int cleanGarbage(long currentTimeMillis, Collection<IPath> allIndexables, IProgressMonitor monitor) {
 		JavaIndex index = JavaIndex.getIndex(this.nd);
 
-		int result = 0; 
+		int result = 0;
 		HashSet<IPath> paths = new HashSet<>();
 		paths.addAll(allIndexables);
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
@@ -555,7 +555,7 @@ public final class Indexer {
 				if (!toDelete.isInIndex()) {
 					break;
 				}
-		
+
 				int numChildren = toDelete.getTypeCount();
 				deletionMonitor.setWorkRemaining(numChildren + 1);
 				if (numChildren == 0) {
@@ -1076,7 +1076,7 @@ public final class Indexer {
 	/**
 	 * Dirties the given filesystem location. This must point to a single file (not a folder) that needs to be
 	 * rescanned. The file may have been added, removed, or changed.
-	 * 
+	 *
 	 * @param location an absolute filesystem location
 	 */
 	public void makeDirty(IPath location) {
@@ -1096,7 +1096,7 @@ public final class Indexer {
 	 * Schedules a rescan of the given path (which may be either a workspace path or an absolute path on the local
 	 * filesystem). This may point to either a single file or a folder that needs to be rescanned. Any resource that
 	 * has this path as a prefix will be rescanned.
-	 * 
+	 *
 	 * @param pathToRescan
 	 */
 	public void makeWorkspacePathDirty(IPath pathToRescan) {

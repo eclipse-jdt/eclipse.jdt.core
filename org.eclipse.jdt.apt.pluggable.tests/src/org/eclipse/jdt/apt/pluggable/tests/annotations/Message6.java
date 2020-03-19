@@ -26,7 +26,7 @@ public @interface Message6 {
 	 * Message severity.  INFO will be reported as a log entry.
 	 */
 	Diagnostic.Kind value() default Diagnostic.Kind.WARNING;
-	
+
 	/**
 	 * Optional message text
 	 */

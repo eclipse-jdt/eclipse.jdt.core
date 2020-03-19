@@ -37,7 +37,7 @@ class RecoveredPackageBinding implements IPackageBinding {
 		this.binding = binding;
 		this.resolver = resolver;
 	}
-	
+
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		return AnnotationBinding.NoAnnotations;

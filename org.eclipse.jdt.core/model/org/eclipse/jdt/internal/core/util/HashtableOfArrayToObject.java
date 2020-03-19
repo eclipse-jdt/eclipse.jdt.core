@@ -100,7 +100,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 		}
 		return -1;
 	}
-	
+
 	public Object[] getKey(Object[] key, int keyLength) {
 		int length = this.keyTable.length;
 		int index = hashCode(key, keyLength) % length;

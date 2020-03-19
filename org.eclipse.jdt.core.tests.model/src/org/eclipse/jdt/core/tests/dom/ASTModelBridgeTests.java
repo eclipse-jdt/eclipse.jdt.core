@@ -48,7 +48,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	protected void checkSourceRange(int start, int length, String expectedContents, String source) {
 		assertTrue("length == 0", length != 0); //$NON-NLS-1$ //$NON-NLS-2$
 		assertTrue("start == -1", start != -1); //$NON-NLS-1$
@@ -348,7 +348,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 */
 	public void testAnnotation6() throws JavaModelException {
 		ASTNode node = buildAST(
-			"/*start*/@MyAnnot/*end*/\n" + 
+			"/*start*/@MyAnnot/*end*/\n" +
 			"public @interface X {\n" +
 			"}\n" +
 			"@interface MyAnnot {\n" +
@@ -362,14 +362,14 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an annotation on an enum type is correct.
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=249844 )
 	 */
 	public void testAnnotation7() throws JavaModelException {
 		ASTNode node = buildAST(
-			"/*start*/@MyAnnot/*end*/\n" + 
+			"/*start*/@MyAnnot/*end*/\n" +
 			"public enum X {\n" +
 			"}\n" +
 			"@interface MyAnnot {\n" +
@@ -383,7 +383,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			element
 		);
 	}
-	
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an annotation of a binary member type is correct.
 	 */
@@ -529,19 +529,19 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"public @interface NonNull{}\n");
 		createFile("/P/src/lib/Foo.java",
 				"package lib;\n" +
-				"public class Foo {\n" + 
-				"	public <T> void bug1(@NonNull T x) { return; }\n" + 
-				"	public static <T> void bug2(@NonNull String x) { return; }\n" + 
+				"public class Foo {\n" +
+				"	public <T> void bug1(@NonNull T x) { return; }\n" +
+				"	public static <T> void bug2(@NonNull String x) { return; }\n" +
 				"}\n");
-		
+
 		String barSource =
 				"import lib.Foo;\n" +
-				"public class Bar {\n" + 
-				"	void m() { new Foo().bug1(\"x\"); Foo.bug2(\"x\"); }\n" + 
+				"public class Bar {\n" +
+				"	void m() { new Foo().bug1(\"x\"); Foo.bug2(\"x\"); }\n" +
 				"}\n";
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy("/P/src/Bar.java", barSource, this.wcOwner);
-		
+
 		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setProject(getJavaProject("P"));
 		parser.setSource(this.workingCopies[1]);
@@ -863,8 +863,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/p/IScriptRunnable.java",
 			"package p;\n" +
-			"public interface IScriptRunnable<V, E extends Exception> {\n" + 
-			"	public V run(Object cx, Object scope) throws E;\n" + 
+			"public interface IScriptRunnable<V, E extends Exception> {\n" +
+			"	public V run(Object cx, Object scope) throws E;\n" +
 			"}",
 			owner
 		);
@@ -872,7 +872,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"/P/src/p/Environment.java",
 			"package p;\n" +
 			"public interface Environment {\n" +
-			"	public <V, E extends Exception> V execute(IScriptRunnable<V, E> code) throws E;\n" + 
+			"	public <V, E extends Exception> V execute(IScriptRunnable<V, E> code) throws E;\n" +
 			"}",
 			owner
 		);
@@ -881,13 +881,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"import p.*;\n" +
 			"public class X {\n" +
 			"	p.Environment env;\n" +
-			"	private void test() {\n" + 
-			"		env.execute(new IScriptRunnable<Object, RuntimeException>() {\n" + 
-			"			public Object run(Object cx, Object scope) throws RuntimeException {\n" + 
-			"				return null;\n" + 
-			"			}\n" + 
-			"		});\n" + 
-			"	}\n" + 
+			"	private void test() {\n" +
+			"		env.execute(new IScriptRunnable<Object, RuntimeException>() {\n" +
+			"			public Object run(Object cx, Object scope) throws RuntimeException {\n" +
+			"				return null;\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
 			"}",
 			owner
 		);
@@ -898,8 +898,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		};
 		IBinding[] bindings = parser.createBindings(elements, null);
 		assertBindingsEqual(
-			"Lp/IScriptRunnable<TV;TE;>;\n" + 
-			"Lp/Environment;\n" + 
+			"Lp/IScriptRunnable<TV;TE;>;\n" +
+			"Lp/Environment;\n" +
 			"LX$90;",
 			bindings);
 	}
@@ -1282,7 +1282,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LX;@LX~MyAnnot;",
 			bindings);
 	}
-	
+
 	/*
 	 * Ensures that the correct IBinding is created for package-info.class's IType
 	 */
@@ -1400,13 +1400,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 					"  public static <T> T foo(int i, boolean f) { return null; }\n" +
 					"}");
 			IType typeA = javaProject.findType("p.A");
-			
+
 			IJavaElement[] elems= typeA.getMethod("foo", new String[]{"I", "Z"}).getParameters();
 			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elems, null);
 			assertBindingsEqual(
-				"Lp/A;.foo<T:Ljava/lang/Object;>(IZ)TT;#arg0#0#0\n" + 
+				"Lp/A;.foo<T:Ljava/lang/Object;>(IZ)TT;#arg0#0#0\n" +
 				"Lp/A;.foo<T:Ljava/lang/Object;>(IZ)TT;#arg1#0#1",
 				bindings);
 			IVariableBinding param1 = (IVariableBinding) bindings[0];
@@ -1898,10 +1898,10 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=368646
 	 */
 	public void testLocalVariable7() throws JavaModelException {
-		final String source = "public class X {\n" + 
-				"	public void m(String strX) {\n" + 
-				"		String strB = strX;\n" + 
-				"	}\n" + 
+		final String source = "public class X {\n" +
+				"	public void m(String strX) {\n" +
+				"		String strB = strX;\n" +
+				"	}\n" +
 				"}";
 		ASTNode node = buildAST(source);
 		final boolean[] checked = new boolean[1];
@@ -2595,7 +2595,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"Lp/X<TT;>;\n" +
 				"Lp/X;:TT;",
 				bindings);
-	
+
 			IJavaElement element = bindings[1].getJavaElement();
 			assertElementExists(
 				"Unexpected Java element",
@@ -2669,8 +2669,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(
-				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;\n" + 
-				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TT;\n" + 
+				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;\n" +
+				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TT;\n" +
 				"Llib/A;.foo<T:Ljava/lang/Object;Z:Ljava/lang/Object;>(ITZ;)TT;:TZ;",
 				bindings);
 		} finally {
@@ -2699,7 +2699,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 	/**
 	 * Test behavior when the binding key denotes a non existent type.
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847" 
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847"
 	 */
 	public void test157847a() throws CoreException {
 		String filePath = "/P/src/Bug157847A.java";
@@ -2729,7 +2729,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/**
 	 * Ensures that we don't create internally inconsistent wildcard
 	 * bindings of the form '? extends <null>' or '? super <null>'
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847" 
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847"
 	 */
 	public void test157847b() throws CoreException {
 		String filePath = "/P/src/Bug157847B.java";
@@ -2759,7 +2759,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	/**
 	 * Ensures that we don't create internally inconsistent wildcard
 	 * bindings of the form '? extends <null>' or '? super <null>'
-	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847" 
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=157847"
 	 */
 	public void test157847c() throws CoreException {
 		String filePath = "/P/src/Bug157847C.java";
@@ -2796,7 +2796,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"	Y<MissingType1, MissingType2> y;\n" +
 				"	public X() {\n" +
 				"		this.y = new Y<MissingType1, MissingType2>();\n" +
-				"	}\n" + 
+				"	}\n" +
 				"}";
 			createFile(filePath, contents);
 			ICompilationUnit compilationUnit = getCompilationUnit("P", "src", "", "X.java");
@@ -2825,36 +2825,36 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			);
 			assertNotNull("No ast", asts[0]);
 			final IProblem[] problems = asts[0].getProblems();
-			String expectedProblems = 
-				"1. ERROR in /P/src/X.java (at line 3)\n" + 
-				"	Y<MissingType1, MissingType2> y;\n" + 
-				"	  ^^^^^^^^^^^^\n" + 
-				"MissingType1 cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"2. ERROR in /P/src/X.java (at line 3)\n" + 
-				"	Y<MissingType1, MissingType2> y;\n" + 
-				"	                ^^^^^^^^^^^^\n" + 
-				"MissingType2 cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"3. ERROR in /P/src/X.java (at line 5)\n" + 
-				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
-				"	^^^^^^\n" + 
-				"MissingType1 cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"4. ERROR in /P/src/X.java (at line 5)\n" + 
-				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
-				"	^^^^^^\n" + 
-				"MissingType2 cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"5. ERROR in /P/src/X.java (at line 5)\n" + 
-				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
-				"	               ^^^^^^^^^^^^\n" + 
-				"MissingType1 cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"6. ERROR in /P/src/X.java (at line 5)\n" + 
-				"	this.y = new Y<MissingType1, MissingType2>();\n" + 
-				"	                             ^^^^^^^^^^^^\n" + 
-				"MissingType2 cannot be resolved to a type\n" + 
+			String expectedProblems =
+				"1. ERROR in /P/src/X.java (at line 3)\n" +
+				"	Y<MissingType1, MissingType2> y;\n" +
+				"	  ^^^^^^^^^^^^\n" +
+				"MissingType1 cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. ERROR in /P/src/X.java (at line 3)\n" +
+				"	Y<MissingType1, MissingType2> y;\n" +
+				"	                ^^^^^^^^^^^^\n" +
+				"MissingType2 cannot be resolved to a type\n" +
+				"----------\n" +
+				"3. ERROR in /P/src/X.java (at line 5)\n" +
+				"	this.y = new Y<MissingType1, MissingType2>();\n" +
+				"	^^^^^^\n" +
+				"MissingType1 cannot be resolved to a type\n" +
+				"----------\n" +
+				"4. ERROR in /P/src/X.java (at line 5)\n" +
+				"	this.y = new Y<MissingType1, MissingType2>();\n" +
+				"	^^^^^^\n" +
+				"MissingType2 cannot be resolved to a type\n" +
+				"----------\n" +
+				"5. ERROR in /P/src/X.java (at line 5)\n" +
+				"	this.y = new Y<MissingType1, MissingType2>();\n" +
+				"	               ^^^^^^^^^^^^\n" +
+				"MissingType1 cannot be resolved to a type\n" +
+				"----------\n" +
+				"6. ERROR in /P/src/X.java (at line 5)\n" +
+				"	this.y = new Y<MissingType1, MissingType2>();\n" +
+				"	                             ^^^^^^^^^^^^\n" +
+				"MissingType2 cannot be resolved to a type\n" +
 				"----------\n";
 			assertProblems("Wrong problems", expectedProblems, problems, contents.toCharArray());
 		} finally {

@@ -72,7 +72,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 
 		this.packageCache = new HashSet<>(41);
 		this.packageCache.add(Util.EMPTY_STRING);
-		
+
 		for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = ((ZipEntry) e.nextElement()).getName();
 			addToPackageCache(fileName, false);
@@ -159,8 +159,8 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 						}
 					if (this.accessRuleSet == null)
 						return new NameEnvironmentAnswer(reader, null, modName);
-					return new NameEnvironmentAnswer(reader, 
-							this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), 
+					return new NameEnvironmentAnswer(reader,
+							this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()),
 							modName);
 				}
 			} catch (IOException | ClassFormatException e) {

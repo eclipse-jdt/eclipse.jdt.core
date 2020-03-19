@@ -640,7 +640,7 @@ public char[] getEnclosingMethod() {
 	if (this.enclosingMethod == null) {
 		// read the name
 		StringBuffer buffer = new StringBuffer();
-		
+
 		int nameAndTypeOffset = this.constantPoolOffsets[this.enclosingNameAndTypeIndex];
 		int utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 1)];
 		buffer.append(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
@@ -678,9 +678,9 @@ public char[] getModule() {
 	return this.moduleName;
 }
 /**
- * Returns the module declaration that this class file represents. This will be 
+ * Returns the module declaration that this class file represents. This will be
  * null for non module-info class files.
- * 
+ *
  * @return the module declaration this represents
  */
 public IBinaryModule getModuleDeclaration() {

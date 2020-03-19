@@ -156,11 +156,11 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 		assertPerformance();
 
 	}
-	
+
 	// Test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=301438
 	public void testPerSuperTypes() throws CoreException {
 		assertNotNull("Parser not found!", PARSER_WORKING_COPY);
-		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT, 
+		setComment(Performance.EXPLAINS_DEGRADATION_COMMENT,
 				"Extra handling of type parameters even in case of 1.4 projects");
 		// Warm up
 		for (int i=0; i<10*WARMUP_COUNT; i++) { // More Warm up is required.

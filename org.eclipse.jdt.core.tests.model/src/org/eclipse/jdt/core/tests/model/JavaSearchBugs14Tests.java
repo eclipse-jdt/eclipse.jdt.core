@@ -193,7 +193,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public record Point(int comp_) { \n" +
 						"	public Point  {\n" +
 						"	  comp_=11;\n" +
-						"	  this.comp_=11;\n" +	
+						"	  this.comp_=11;\n" +
 						"	}\n" +
 						"}\n"
 				);
@@ -216,7 +216,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public record Point(int comp_) { \n" +
 						"	public Point  {\n" +
 						"	  comp_=11;\n" +
-						"	  this.comp_=comp_;\n" +	
+						"	  this.comp_=comp_;\n" +
 						"	}\n" +
 						"}\n"
 				);
@@ -281,7 +281,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public record Point(int comp_) { \n" +
 						"	public Point (int a) {\n" +
 						"	 // comp_=11;\n" +
-						"	 this.comp_=a;\n" +	
+						"	 this.comp_=a;\n" +
 						"	}\n" +
 						"}\n"
 				);
@@ -521,8 +521,8 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" + 
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" + 
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
 				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
@@ -551,9 +551,9 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" + 
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" + 
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" + 
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
 				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
@@ -825,7 +825,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 			assertTrue(elements.length ==1);
 			assertTrue(elements[0] instanceof ResolvedSourceType);
 			boolean record = ((ResolvedSourceType)elements[0]).isRecord();
-			assertTrue(record);	
+			assertTrue(record);
 		} finally {
 			deleteProject(project1);
 		}
@@ -886,7 +886,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public class cl {\n"+
 						"public cl() {\n"+
 						"	method1();\n"+
-						"}\n"+		
+						"}\n"+
 						"private void method1() {\n"+
 						"	String y= this.toString();\n"+
 						"	if (y instanceof String /*here*/yz) {\n"+
@@ -913,7 +913,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public class cl {\n"+
 						"public cl() {\n"+
 						"	method1();\n"+
-						"}\n"+		
+						"}\n"+
 						"private void method1() {\n"+
 						"	String y= this.toString();\n"+
 						"	if (y instanceof String /*here*/yz) {\n"+
@@ -942,7 +942,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public class cl {\n"+
 						"public cl() {\n"+
 						"	method1();\n"+
-						"}\n"+		
+						"}\n"+
 						"private void method1() {\n"+
 						"	String y= this.toString();\n"+
 						"	if (y instanceof String /*here*/yz) {\n"+
@@ -963,7 +963,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		assertTrue((elements[0] instanceof LocalVariable));
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java void cl.method1() [yz] EXACT_MATCH\n" + 
+				"src/X.java void cl.method1() [yz] EXACT_MATCH\n" +
 				"src/X.java void cl.method1() [yz] EXACT_MATCH");
 	}
 
@@ -974,7 +974,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"public record cl() {\n"+
 						"public cl{\n"+
 						"	method1();\n"+
-						"}\n"+		
+						"}\n"+
 						"private void method1() {\n"+
 						"	String y= this.toString();\n"+
 						"	if (y instanceof String /*here*/yz) {\n"+
@@ -995,7 +995,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		assertTrue((elements[0] instanceof LocalVariable));
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java void cl.method1() [yz] EXACT_MATCH\n" + 
+				"src/X.java void cl.method1() [yz] EXACT_MATCH\n" +
 				"src/X.java void cl.method1() [yz] EXACT_MATCH");
 	}
 }

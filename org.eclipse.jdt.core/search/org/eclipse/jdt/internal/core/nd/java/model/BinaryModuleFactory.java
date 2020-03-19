@@ -86,8 +86,8 @@ public class BinaryModuleFactory {
 	 * the file on disk, the type is read from the index. Otherwise the type is read from disk. Returns null if
 	 * no such type exists.
 	 * <strong>caveat</strong> modules are not yet supported in the index.
-	 * 
-	 * @throws ClassFormatException 
+	 *
+	 * @throws ClassFormatException
 	 */
 	public static IBinaryModule readModule(BinaryModuleDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
 // FIXME: support module in the new index
@@ -100,7 +100,7 @@ public class BinaryModuleFactory {
 //		}
 		return rawReadModule(descriptor, true);
 	}
-	
+
 	public static IBinaryModule rawReadModule(BinaryModuleDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException {
 		try {
 			return rawReadModuleTestForExists(descriptor, fullyInitialize, true);
@@ -112,7 +112,7 @@ public class BinaryModuleFactory {
 	/**
 	 * Read the class file from disk, circumventing the index's cache. This should only be used by callers
 	 * that need to read information from the class file which aren't present in the index (such as method bodies).
-	 * 
+	 *
 	 * @return the newly-created IBinaryModule or null if the given class file does not exist.
 	 * @throws ClassFormatException if the class file existed but was corrupt
 	 * @throws JavaModelException if unable to read the class file due to a transient failure

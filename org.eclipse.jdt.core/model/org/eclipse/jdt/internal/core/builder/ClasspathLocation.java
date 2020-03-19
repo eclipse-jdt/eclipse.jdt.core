@@ -129,9 +129,9 @@ public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean
 	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, externalAnnotationPath, autoModule);
 }
 
-static ClasspathLocation forLibrary(String libraryPathname, 
-										long lastModified, 
-										AccessRuleSet accessRuleSet, 
+static ClasspathLocation forLibrary(String libraryPathname,
+										long lastModified,
+										AccessRuleSet accessRuleSet,
 										IPath annotationsPath,
 										boolean isOnModulePath,
 										String compliance) {

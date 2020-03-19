@@ -37,19 +37,19 @@ public class Bug419769Proc extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		Set<? extends Element> rootElements = roundEnv.getRootElements();
-		
+
 		for (Element element : rootElements) {
 			if(element.getSimpleName().contentEquals("AnnotatedClass")){
 				//Always create error
 				processingEnv.getMessager().printMessage(Kind.ERROR, "Some Error Message.", element);
-				
+
 				Filer filer = processingEnv.getFiler();
-				
+
 				try {
 					JavaFileObject file = filer.createSourceFile("gen.GeneratedClass");
-					
+
 					Writer writer = file.openWriter();
-					
+
 					writer.append("package gen;  public class GeneratedClass{}");
 					writer.close();
 				} catch (IOException e) {
@@ -57,7 +57,7 @@ public class Bug419769Proc extends AbstractProcessor {
 				}
 				processingEnv.getMessager().printMessage(Kind.ERROR, "Yet another Error Message.", element);
 			}
-			
+
 		}
 		return false;
 	}

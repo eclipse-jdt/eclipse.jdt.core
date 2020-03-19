@@ -154,7 +154,7 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 			this.value = NoValue;
 		IMethodBinding methodBinding = getMethodBinding();
 		if (methodBinding.getReturnType().isArray() && !this.value.getClass().isArray()) {
-			this.value = new Object[] { this.value }; 
+			this.value = new Object[] { this.value };
 		}
 	}
 

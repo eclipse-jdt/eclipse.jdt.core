@@ -47,7 +47,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+
 	static class Result implements Comparable {
 		long length;
 		long time;

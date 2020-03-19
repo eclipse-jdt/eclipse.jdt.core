@@ -23,7 +23,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
- 
+
 /**
  * Qualifier for a type in a method signature or a local variable declaration:
  * The entity (return value, parameter, field, local variable) whose type has this

@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
- *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335             
+ *							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *							Bug 406982 - [1.8][compiler] Generation of MethodParameters Attribute in classfile
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
@@ -58,7 +58,7 @@ public interface ClassFileConstants {
 	int ACC_TRANSITIVE 		= 0x0020;
 	int ACC_STATIC_PHASE	= 0x0040;
 	int ACC_SYNTHETIC 		= 0x1000;
-	
+
 	/**
 	 * Other VM flags.
 	 */

@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SwitchTest extends AbstractRegressionTest {
-	
+
 	private static final long JDKLevelSupportingStringSwitch = ClassFileConstants.JDK1_7;
 
 static {
@@ -296,7 +296,7 @@ public void test010() {
 		"}\n",
 	},
 	this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
-	
+
 }
 public void test011() {
 	this.runConformTest(new String[] {
@@ -609,38 +609,38 @@ public void test014() {
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
 	this.runNegativeTest(new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	void foo1(int i) {\n" + 
-		"		switch (i) {\n" + 
-		"			case 0://OK\n" + 
-		"			case 1://OK\n" + 
-		"				System.out.println();\n" + 
-		"				//$FALL-THROUGH$\n" + 
-		"			case 2://OK\n" + 
-		"				System.out.println(); //$FALL-THROUGH$\n" + 
-		"			case 3://OK\n" + 
-		"				System.out.println();\n" + 
-		"				//$FALL-THROUGH$ - some allowed explanation\n" + 
-		"			case 4://OK\n" + 
-		"			case 5://OK\n" + 
-		"				System.out.println();\n" + 
-		"				//$FALL-THROUGH$ - not last comment, thus inoperant\n" + 
-		"				// last comment is not fall-through explanation\n" + 
-		"			case 6://WRONG\n" + 
-		"				//$FALL-THROUGH$ - useless since not leading the case\n" + 
-		"				System.out.println();\n" + 
-		"				/*$FALL-THROUGH$ - block comment, is also allowed */\n" + 
-		"			case 7://OK\n" + 
-		"				System.out.println(\"aa\"); //$NON-NLS-1$\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	void foo1(int i) {\n" +
+		"		switch (i) {\n" +
+		"			case 0://OK\n" +
+		"			case 1://OK\n" +
+		"				System.out.println();\n" +
+		"				//$FALL-THROUGH$\n" +
+		"			case 2://OK\n" +
+		"				System.out.println(); //$FALL-THROUGH$\n" +
+		"			case 3://OK\n" +
+		"				System.out.println();\n" +
+		"				//$FALL-THROUGH$ - some allowed explanation\n" +
+		"			case 4://OK\n" +
+		"			case 5://OK\n" +
+		"				System.out.println();\n" +
+		"				//$FALL-THROUGH$ - not last comment, thus inoperant\n" +
+		"				// last comment is not fall-through explanation\n" +
+		"			case 6://WRONG\n" +
+		"				//$FALL-THROUGH$ - useless since not leading the case\n" +
+		"				System.out.println();\n" +
+		"				/*$FALL-THROUGH$ - block comment, is also allowed */\n" +
+		"			case 7://OK\n" +
+		"				System.out.println(\"aa\"); //$NON-NLS-1$\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n",
 	},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 18)\n" + 
-	"	case 6://WRONG\n" + 
-	"	^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+	"----------\n" +
+	"1. ERROR in X.java (at line 18)\n" +
+	"	case 6://WRONG\n" +
+	"	^^^^^^\n" +
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
 	"----------\n",
 	null,
 	true,
@@ -652,38 +652,38 @@ public void test015() {
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
 	this.runNegativeTest(new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	void foo1(int i) {\n" + 
-		"		switch (i) {\n" + 
-		"			case 0://OK\n" + 
-		"			case 1://OK\n" + 
-		"				System.out.println();\n" + 
-		"				//	  $FALL-THROUGH$\n" + 
-		"			case 2://OK\n" + 
-		"				System.out.println(); // 	 $FALL-THROUGH$\n" + 
-		"			case 3://OK\n" + 
-		"				System.out.println();\n" + 
-		"				//	$FALL-THROUGH$ - some allowed explanation\n" + 
-		"			case 4://OK\n" + 
-		"			case 5://OK\n" + 
-		"				System.out.println();\n" + 
-		"				// $FALL-THROUGH$ - not last comment, thus inoperant\n" + 
-		"				// last comment is not fall-through explanation\n" + 
-		"			case 6://WRONG\n" + 
-		"				// $FALL-THROUGH$ - useless since not leading the case\n" + 
-		"				System.out.println();\n" + 
-		"				/* $FALL-THROUGH$ - block comment, is also allowed */\n" + 
-		"			case 7://OK\n" + 
-		"				System.out.println(\"aa\"); //$NON-NLS-1$\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	void foo1(int i) {\n" +
+		"		switch (i) {\n" +
+		"			case 0://OK\n" +
+		"			case 1://OK\n" +
+		"				System.out.println();\n" +
+		"				//	  $FALL-THROUGH$\n" +
+		"			case 2://OK\n" +
+		"				System.out.println(); // 	 $FALL-THROUGH$\n" +
+		"			case 3://OK\n" +
+		"				System.out.println();\n" +
+		"				//	$FALL-THROUGH$ - some allowed explanation\n" +
+		"			case 4://OK\n" +
+		"			case 5://OK\n" +
+		"				System.out.println();\n" +
+		"				// $FALL-THROUGH$ - not last comment, thus inoperant\n" +
+		"				// last comment is not fall-through explanation\n" +
+		"			case 6://WRONG\n" +
+		"				// $FALL-THROUGH$ - useless since not leading the case\n" +
+		"				System.out.println();\n" +
+		"				/* $FALL-THROUGH$ - block comment, is also allowed */\n" +
+		"			case 7://OK\n" +
+		"				System.out.println(\"aa\"); //$NON-NLS-1$\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n",
 	},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 18)\n" + 
-	"	case 6://WRONG\n" + 
-	"	^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+	"----------\n" +
+	"1. ERROR in X.java (at line 18)\n" +
+	"	case 6://WRONG\n" +
+	"	^^^^^^\n" +
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
 	"----------\n",
 	null,
 	true,
@@ -695,24 +695,24 @@ public void test016() {
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
 	this.runNegativeTest(new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	void foo1(int i) {\n" + 
-		"		switch (i) {\n" + 
-		"			case 0://OK\n" + 
-		"			case 1://OK\n" + 
-		"				System.out.println();\n" + 
-		"				//	  $FALL-THROUGH - missing trailing $ in tag\n" + 
-		"			case 2://WRONG\n" + 
-		"				System.out.println();\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	void foo1(int i) {\n" +
+		"		switch (i) {\n" +
+		"			case 0://OK\n" +
+		"			case 1://OK\n" +
+		"				System.out.println();\n" +
+		"				//	  $FALL-THROUGH - missing trailing $ in tag\n" +
+		"			case 2://WRONG\n" +
+		"				System.out.println();\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n",
 	},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 8)\n" + 
-	"	case 2://WRONG\n" + 
-	"	^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+	"----------\n" +
+	"1. ERROR in X.java (at line 8)\n" +
+	"	case 2://WRONG\n" +
+	"	^^^^^^\n" +
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
 	"----------\n",
 	null,
 	true,
@@ -724,25 +724,25 @@ public void test017() {
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
 	this.runNegativeTest(new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	void foo1(char previousChar) {\n" + 
-		"		switch(previousChar) {\n" + 
-		"			case \'/\':\n" + 
-		"				if (previousChar == \'*\') {\n" + 
-		"					// End of javadoc\n" + 
-		"					break;\n" + 
-		"					//$FALL-THROUGH$ into default case\n" + 
-		"				}\n" + 
-		"			default :\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	void foo1(char previousChar) {\n" +
+		"		switch(previousChar) {\n" +
+		"			case \'/\':\n" +
+		"				if (previousChar == \'*\') {\n" +
+		"					// End of javadoc\n" +
+		"					break;\n" +
+		"					//$FALL-THROUGH$ into default case\n" +
+		"				}\n" +
+		"			default :\n" +
+		"		}\n" +
+		"	}\n" +
 		"}\n",
 	},
-	"----------\n" + 
-	"1. ERROR in X.java (at line 10)\n" + 
-	"	default :\n" + 
-	"	^^^^^^^\n" + 
-	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+	"----------\n" +
+	"1. ERROR in X.java (at line 10)\n" +
+	"	default :\n" +
+	"	^^^^^^^\n" +
+	"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" +
 	"----------\n",
 	null,
 	true,
@@ -776,10 +776,10 @@ public void test019() {
 		"public class X {\n" +
 		"	public static void main(String[] args) {\n" +
 		"		try {\n" +
-		"			switch((Integer) null) {};\n" + 
-		"			System.out.println(\"FAILED\");\n" + 
-		"		} catch(NullPointerException e) {\n" + 
-		"			System.out.println(\"SUCCESS\");\n" + 
+		"			switch((Integer) null) {};\n" +
+		"			System.out.println(\"FAILED\");\n" +
+		"		} catch(NullPointerException e) {\n" +
+		"			System.out.println(\"SUCCESS\");\n" +
 		"		}\n" +
 		"	}\n" +
 		"}\n",
@@ -794,10 +794,10 @@ public void test020() {
 		"public class X {\n" +
 		"	public static void main(String[] args) {\n" +
 		"		try {\n" +
-		"			switch(foo()) {};\n" + 
-		"			System.out.println(\"FAILED\");\n" + 
-		"		} catch(NullPointerException e) {\n" + 
-		"			System.out.println(\"SUCCESS\");\n" + 
+		"			switch(foo()) {};\n" +
+		"			System.out.println(\"FAILED\");\n" +
+		"		} catch(NullPointerException e) {\n" +
+		"			System.out.println(\"SUCCESS\");\n" +
 		"		}\n" +
 		"	}" +
 		"	static Integer foo() {\n" +
@@ -815,11 +815,11 @@ public void test021() {
 		"public class X {\n" +
 		"	public static void main(String[] args) {\n" +
 		"		try {\n" +
-		"			switch((Character) null) {\n" + 
-		"				default: System.out.println(\"FAILED\");\n" + 
-		"			}\n" + 
-		"		} catch(NullPointerException e) {\n" + 
-		"			System.out.println(\"SUCCESS\");\n" + 
+		"			switch((Character) null) {\n" +
+		"				default: System.out.println(\"FAILED\");\n" +
+		"			}\n" +
+		"		} catch(NullPointerException e) {\n" +
+		"			System.out.println(\"SUCCESS\");\n" +
 		"		}\n" +
 		"	}\n" +
 		"}\n",
@@ -833,12 +833,12 @@ public void test022() {
 		"X.java",
 		"public class X {\n" +
 		"	public static void main(String[] args) {\n" +
-		"		java.math.RoundingMode mode = null;\n" + 
+		"		java.math.RoundingMode mode = null;\n" +
 		"		try {\n" +
-		"			switch (mode) {}\n" + 
-		"			System.out.println(\"FAILED\");\n" + 
-		"		} catch(NullPointerException e) {\n" + 
-		"			System.out.println(\"SUCCESS\");\n" + 
+		"			switch (mode) {}\n" +
+		"			System.out.println(\"FAILED\");\n" +
+		"		} catch(NullPointerException e) {\n" +
+		"			System.out.println(\"SUCCESS\");\n" +
 		"		}\n" +
 		"	}\n" +
 		"}\n",
@@ -852,13 +852,13 @@ public void test023() {
 		"X.java",
 		"public class X {\n" +
 		"	public static void main(String[] args) {\n" +
-		"		java.math.RoundingMode mode = java.math.RoundingMode.FLOOR;\n" + 
+		"		java.math.RoundingMode mode = java.math.RoundingMode.FLOOR;\n" +
 		"		try {\n" +
 		"			switch (mode) {\n" +
-		"				default: System.out.println(\"SUCCESS\");\n" + 
-		"			}\n" + 
-		"		} catch(NullPointerException e) {\n" + 
-		"			System.out.println(\"FAILED\");\n" + 
+		"				default: System.out.println(\"SUCCESS\");\n" +
+		"			}\n" +
+		"		} catch(NullPointerException e) {\n" +
+		"			System.out.println(\"FAILED\");\n" +
 		"		}\n" +
 		"	}\n" +
 		"}\n",
@@ -868,31 +868,31 @@ public void test023() {
 
 // JDK7: Strings in Switch.
 public void testStringSwitchAtJDK6() {
-		String newMessage = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	default: return args;\n" + 
-			"	         ^^^^^^^^^^^^\n" + 
-			"Void methods cannot return a value\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	default: return args;\n" +
+			"	         ^^^^^^^^^^^^\n" +
+			"Void methods cannot return a value\n" +
 			"----------\n";
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 4)\n" + 
-			"	default: return args;\n" + 
-			"	         ^^^^^^^^^^^^\n" + 
-			"Void methods cannot return a value\n" + 
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	default: return args;\n" +
+			"	         ^^^^^^^^^^^^\n" +
+			"Void methods cannot return a value\n" +
 			"----------\n";
-			
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {\n" +
-			"		switch(args[0]) {\n" + 
+			"		switch(args[0]) {\n" +
 			"		default: return args;\n" +
 			"		}\n" +
 			"	}\n" +
@@ -903,76 +903,76 @@ public void testStringSwitchAtJDK6() {
 
 //JDK7: Strings in Switch.
 public void testCaseTypeMismatch() {
-	String newMessage = 	
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	case 123: break;\n" + 
-		"	     ^^^\n" + 
-		"Type mismatch: cannot convert from int to String\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 5)\n" + 
-		"	case (byte) 1: break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from byte to String\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 6)\n" + 
-		"	case (char) 2: break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from char to String\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 7)\n" + 
-		"	case (short)3: break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from short to String\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 8)\n" + 
-		"	case (int) 4: break;\n" + 
-		"	     ^^^^^^^\n" + 
-		"Type mismatch: cannot convert from int to String\n" + 
-		"----------\n" + 
-		"6. ERROR in X.java (at line 9)\n" + 
-		"	case (long) 5: break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from long to String\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 10)\n" + 
-		"	case (float) 6: break;\n" + 
-		"	     ^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from float to String\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 11)\n" + 
-		"	case (double) 7: break;\n" + 
-		"	     ^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from double to String\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 12)\n" + 
-		"	case (boolean) 8: break;\n" + 
-		"	     ^^^^^^^^^^^\n" + 
-		"Cannot cast from int to boolean\n" + 
-		"----------\n" + 
-		"10. ERROR in X.java (at line 12)\n" + 
-		"	case (boolean) 8: break;\n" + 
-		"	     ^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from boolean to String\n" + 
+	String newMessage =
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	case 123: break;\n" +
+		"	     ^^^\n" +
+		"Type mismatch: cannot convert from int to String\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	case (byte) 1: break;\n" +
+		"	     ^^^^^^^^\n" +
+		"Type mismatch: cannot convert from byte to String\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	case (char) 2: break;\n" +
+		"	     ^^^^^^^^\n" +
+		"Type mismatch: cannot convert from char to String\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 7)\n" +
+		"	case (short)3: break;\n" +
+		"	     ^^^^^^^^\n" +
+		"Type mismatch: cannot convert from short to String\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 8)\n" +
+		"	case (int) 4: break;\n" +
+		"	     ^^^^^^^\n" +
+		"Type mismatch: cannot convert from int to String\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 9)\n" +
+		"	case (long) 5: break;\n" +
+		"	     ^^^^^^^^\n" +
+		"Type mismatch: cannot convert from long to String\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 10)\n" +
+		"	case (float) 6: break;\n" +
+		"	     ^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from float to String\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 11)\n" +
+		"	case (double) 7: break;\n" +
+		"	     ^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from double to String\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 12)\n" +
+		"	case (boolean) 8: break;\n" +
+		"	     ^^^^^^^^^^^\n" +
+		"Cannot cast from int to boolean\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 12)\n" +
+		"	case (boolean) 8: break;\n" +
+		"	     ^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from boolean to String\n" +
 		"----------\n";
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 12)\n" + 
-			"	case (boolean) 8: break;\n" + 
-			"	     ^^^^^^^^^^^\n" + 
-			"Cannot cast from int to boolean\n" + 
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 12)\n" +
+			"	case (boolean) 8: break;\n" +
+			"	     ^^^^^^^^^^^\n" +
+			"Cannot cast from int to boolean\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {\n" +
-			"		switch(args[0]) {\n" + 
+			"		switch(args[0]) {\n" +
 			"		case 123: break;\n" +
 			"       case (byte) 1: break;\n" +
 			"       case (char) 2: break;\n" +
@@ -993,21 +993,21 @@ public void testCaseTypeMismatch2() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	String newMessage = 	
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	case Days.Sunday: break;\n" + 
-		"	     ^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Days to String\n" + 
+	String newMessage =
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	case Days.Sunday: break;\n" +
+		"	     ^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Days to String\n" +
 		"----------\n";
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	switch (\"Sunday\") {\n" + 
-			"	        ^^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (\"Sunday\") {\n" +
+			"	        ^^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"enum Days { Sunday, Monday, Tuesday, Wednesday, Thuresday, Friday, Satuday };\n" +
@@ -1028,24 +1028,24 @@ public void testCaseTypeMismatch3() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	String newMessage = 	
-		"----------\n" + 
-		"1. ERROR in X.java (at line 7)\n" + 
-		"	case \"0\": break;\n" + 
-		"	     ^^^\n" + 
-		"Type mismatch: cannot convert from String to int\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	case \"Sunday\": break;\n" + 
-		"	     ^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from String to Days\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
-		"	case \"0\": break;\n" + 
-		"	     ^^^\n" + 
-		"Type mismatch: cannot convert from String to Integer\n" + 
+	String newMessage =
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	case \"0\": break;\n" +
+		"	     ^^^\n" +
+		"Type mismatch: cannot convert from String to int\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	case \"Sunday\": break;\n" +
+		"	     ^^^^^^^^\n" +
+		"Type mismatch: cannot convert from String to Days\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 13)\n" +
+		"	case \"0\": break;\n" +
+		"	     ^^^\n" +
+		"Type mismatch: cannot convert from String to Integer\n" +
 		"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"enum Days { Sunday, Monday, Tuesday, Wednesday, Thuresday, Friday, Satuday };\n" +
@@ -1069,42 +1069,42 @@ public void testCaseTypeMismatch3() {
 }
 // JDK7: Strings in Switch.
 public void testDuplicateCase() {
-		String newMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	case \"123\": break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 5)\n" + 
-			"	case \"123\": break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 6)\n" + 
-			"	default: return args;\n" + 
-			"	         ^^^^^^^^^^^^\n" + 
-			"Void methods cannot return a value\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case \"123\": break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case \"123\": break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	default: return args;\n" +
+			"	         ^^^^^^^^^^^^\n" +
+			"Void methods cannot return a value\n" +
 			"----------\n";
-		
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	default: return args;\n" + 
-			"	         ^^^^^^^^^^^^\n" + 
-			"Void methods cannot return a value\n" + 
+
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	default: return args;\n" +
+			"	         ^^^^^^^^^^^^\n" +
+			"Void methods cannot return a value\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {\n" +
-			"		switch(args[0]) {\n" + 
+			"		switch(args[0]) {\n" +
 			"		case \"123\": break;\n" +
 			"		case \"123\": break;\n" +
 			"       default: return args;\n" +
@@ -1117,72 +1117,72 @@ public void testDuplicateCase() {
 
 // JDK7: Strings in Switch.
 public void testDuplicateCase2() {
-		String newMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	case \"123\": break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
-			"	case \"123\": break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 11)\n" + 
-			"	case \"1\" + \"2\" + \"3\": break;\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 13)\n" + 
-			"	case local: break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 14)\n" + 
-			"	case field: break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 15)\n" + 
-			"	case ifield: break;\n" + 
-			"	     ^^^^^^\n" + 
-			"Cannot make a static reference to the non-static field ifield\n" + 
-			"----------\n" + 
-			"7. ERROR in X.java (at line 16)\n" + 
-			"	case inffield: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"Cannot make a static reference to the non-static field inffield\n" + 
-			"----------\n" + 
-			"8. ERROR in X.java (at line 19)\n" + 
-			"	default: break;\n" + 
-			"	^^^^^^^\n" + 
-			"The default case is already defined\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	case \"123\": break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	case \"123\": break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	case \"1\" + \"2\" + \"3\": break;\n" +
+			"	^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 13)\n" +
+			"	case local: break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 14)\n" +
+			"	case field: break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 15)\n" +
+			"	case ifield: break;\n" +
+			"	     ^^^^^^\n" +
+			"Cannot make a static reference to the non-static field ifield\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 16)\n" +
+			"	case inffield: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"Cannot make a static reference to the non-static field inffield\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 19)\n" +
+			"	default: break;\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
 			"----------\n";
-		
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 15)\n" + 
-			"	case ifield: break;\n" + 
-			"	     ^^^^^^\n" + 
-			"Cannot make a static reference to the non-static field ifield\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 16)\n" + 
-			"	case inffield: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"Cannot make a static reference to the non-static field inffield\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 19)\n" + 
-			"	default: break;\n" + 
-			"	^^^^^^^\n" + 
-			"The default case is already defined\n" + 
+
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 15)\n" +
+			"	case ifield: break;\n" +
+			"	     ^^^^^^\n" +
+			"Cannot make a static reference to the non-static field ifield\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 16)\n" +
+			"	case inffield: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"Cannot make a static reference to the non-static field inffield\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 19)\n" +
+			"	default: break;\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1192,7 +1192,7 @@ public void testDuplicateCase2() {
 			"    static String nffield = \"123\";\n" +
 			"    public static void main(String [] args, final String argument) {\n" +
 			"        final String local = \"123\";\n" +
-			"	switch(args[0]) {\n" + 
+			"	switch(args[0]) {\n" +
 			"	   case \"123\": break;\n" +
 			"      case \"\u0031\u0032\u0033\": break;\n" +
 			"	   case \"1\" + \"2\" + \"3\": break;\n" +
@@ -1212,42 +1212,42 @@ public void testDuplicateCase2() {
 }
 // JDK7: Strings in Switch.
 public void testVariableCase() {
-		String newMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	case local: break;\n" + 
-			"	     ^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	case argument: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
-			"	case inffield: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
-			"	case nffield: break;\n" + 
-			"	     ^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 11)\n" + 
-			"	case argument: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case local: break;\n" +
+			"	     ^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	case argument: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	case inffield: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 10)\n" +
+			"	case nffield: break;\n" +
+			"	     ^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 11)\n" +
+			"	case argument: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
 			"----------\n";
-		
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1255,7 +1255,7 @@ public void testVariableCase() {
 			"    static String nffield = \"123\";\n" +
 			"    public void main(String [] args, final String argument) {\n" +
 			"        String local = \"123\";\n" +
-			"	switch(args[0]) {\n" + 
+			"	switch(args[0]) {\n" +
 			"	   case local: break;\n" +
 			"	   case argument: break;\n" +
 			"      case inffield: break;\n" +
@@ -1269,27 +1269,27 @@ public void testVariableCase() {
 }
 // JDK7: Strings in Switch.
 public void testVariableCaseFinal() {
-		String newMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	case argument: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
-			"	case argument: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case argument: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	case argument: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
 			"----------\n";
-		
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1297,7 +1297,7 @@ public void testVariableCaseFinal() {
 			"    final static String nffield = \"123123\";\n" +
 			"    public void main(String [] args, final String argument) {\n" +
 			"        final String local = \"1233\";\n" +
-			"	switch(args[0]) {\n" + 
+			"	switch(args[0]) {\n" +
 			"	   case local: break;\n" +
 			"	   case argument: break;\n" +
 			"      case inffield: break;\n" +
@@ -1311,52 +1311,52 @@ public void testVariableCaseFinal() {
 }
 //JDK7: Strings in Switch.
 public void testNullCase() {
-		String newMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	case local: break;\n" + 
-			"	     ^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	case argument: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 9)\n" + 
-			"	case inffield: break;\n" + 
-			"	     ^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 10)\n" + 
-			"	case nffield: break;\n" + 
-			"	     ^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 11)\n" + 
-			"	case (String) null: break;\n" + 
-			"	     ^^^^^^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 12)\n" + 
-			"	case true ? (String) null : (String) null : break;\n" + 
-			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"case expressions must be constant expressions\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 12)\n" + 
-			"	case true ? (String) null : (String) null : break;\n" + 
-			"	                            ^^^^^^^^^^^^^\n" + 
-			"Dead code\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case local: break;\n" +
+			"	     ^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	case argument: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	case inffield: break;\n" +
+			"	     ^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 10)\n" +
+			"	case nffield: break;\n" +
+			"	     ^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 11)\n" +
+			"	case (String) null: break;\n" +
+			"	     ^^^^^^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 12)\n" +
+			"	case true ? (String) null : (String) null : break;\n" +
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n" +
+			"7. WARNING in X.java (at line 12)\n" +
+			"	case true ? (String) null : (String) null : break;\n" +
+			"	                            ^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
 			"----------\n";
-		
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1364,7 +1364,7 @@ public void testNullCase() {
 			"    final static String nffield = null;\n" +
 			"    public void main(String [] args, final String argument) {\n" +
 			"        final String local = null;\n" +
-			"	switch(args[0]) {\n" + 
+			"	switch(args[0]) {\n" +
 			"	   case local: break;\n" +
 			"	   case argument: break;\n" +
 			"      case inffield: break;\n" +
@@ -1379,52 +1379,52 @@ public void testNullCase() {
 }
 // JDK7: Strings in Switch.
 public void testDuplicateCase3() {
-		String newMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 9)\n" + 
-			"	case \"123\": break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 10)\n" + 
-			"	case \"1\" + \"2\" + \"3\": break;\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
-			"	case local: break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 13)\n" + 
-			"	case field: break;\n" + 
-			"	^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 14)\n" + 
-			"	case ifield: break;\n" + 
-			"	^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
-			"----------\n" + 
-			"6. ERROR in X.java (at line 18)\n" + 
-			"	default: break;\n" + 
-			"	^^^^^^^\n" + 
-			"The default case is already defined\n" + 
+		String newMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	case \"123\": break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	case \"1\" + \"2\" + \"3\": break;\n" +
+			"	^^^^^^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 12)\n" +
+			"	case local: break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 13)\n" +
+			"	case field: break;\n" +
+			"	^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 14)\n" +
+			"	case ifield: break;\n" +
+			"	^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 18)\n" +
+			"	default: break;\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
 			"----------\n";
-		
-		String oldMessage = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 8)\n" + 
-			"	switch(args[0]) {\n" + 
-			"	       ^^^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 18)\n" + 
-			"	default: break;\n" + 
-			"	^^^^^^^\n" + 
-			"The default case is already defined\n" + 
+
+		String oldMessage =
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	switch(args[0]) {\n" +
+			"	       ^^^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 18)\n" +
+			"	default: break;\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
 			"----------\n";
-				
+
 		this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1434,7 +1434,7 @@ public void testDuplicateCase3() {
 			"    static String nffield = \"123\";\n" +
 			"    public  void main(String [] args, final String argument) {\n" +
 			"        final String local = \"123\";\n" +
-			"	switch(args[0]) {\n" + 
+			"	switch(args[0]) {\n" +
 			"	   case \"123\": break;\n" +
 			"	   case \"1\" + \"2\" + \"3\": break;\n" +
 			"           default: break;\n" +
@@ -1453,15 +1453,15 @@ public void testDuplicateCase3() {
 }
 
 public void testDuplicateHashCode() {
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testDuplicateHashCode.java (at line 5)\n" + 
-		"	switch (dispatcher) {\n" + 
-		"	        ^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testDuplicateHashCode.java (at line 5)\n" +
+		"	switch (dispatcher) {\n" +
+		"	        ^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testDuplicateHashCode.java",
 		"public class testDuplicateHashCode {\n" +
@@ -1509,15 +1509,15 @@ public void testDuplicateHashCode() {
 	}
 }
 public void testDuplicateHashCode2() {
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testDuplicateHashCode.java (at line 5)\n" + 
-		"	switch (dispatcher) {\n" + 
-		"	        ^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testDuplicateHashCode.java (at line 5)\n" +
+		"	switch (dispatcher) {\n" +
+		"	        ^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testDuplicateHashCode.java",
 		"public class testDuplicateHashCode {\n" +
@@ -1572,35 +1572,35 @@ public void testDuplicateHashCode2() {
 	}
 }
 public void testSwitchOnNull() {
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testSwitchOnNull.java (at line 13)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"2. ERROR in testSwitchOnNull.java (at line 23)\n" + 
-		"	switch ((String) null) {\n" + 
-		"	        ^^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"3. ERROR in testSwitchOnNull.java (at line 33)\n" + 
-		"	switch (someMethod()) {\n" + 
-		"	        ^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"4. ERROR in testSwitchOnNull.java (at line 40)\n" + 
-		"	switch (nullString) {\n" + 
-		"	        ^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"5. ERROR in testSwitchOnNull.java (at line 47)\n" + 
-		"	switch (someMethod()) {\n" + 
-		"	        ^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testSwitchOnNull.java (at line 13)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"2. ERROR in testSwitchOnNull.java (at line 23)\n" +
+		"	switch ((String) null) {\n" +
+		"	        ^^^^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"3. ERROR in testSwitchOnNull.java (at line 33)\n" +
+		"	switch (someMethod()) {\n" +
+		"	        ^^^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"4. ERROR in testSwitchOnNull.java (at line 40)\n" +
+		"	switch (nullString) {\n" +
+		"	        ^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"5. ERROR in testSwitchOnNull.java (at line 47)\n" +
+		"	switch (someMethod()) {\n" +
+		"	        ^^^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testSwitchOnNull.java",
 		"public class testSwitchOnNull {\n" +
@@ -1668,15 +1668,15 @@ public void testSwitchOnNull() {
 	}
 }
 public void testSideEffect() {
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testSideEffect.java (at line 11)\n" + 
-		"	switch(dispatcher()) {\n" + 
-		"	       ^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testSideEffect.java (at line 11)\n" +
+		"	switch(dispatcher()) {\n" +
+		"	       ^^^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testSideEffect.java",
 		"public class testSideEffect {\n" +
@@ -1706,15 +1706,15 @@ public void testSideEffect() {
 	}
 }
 public void testFallThrough() {
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testFallThrough.java (at line 11)\n" + 
-		"	switch(s = dispatcher()) {\n" + 
-		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testFallThrough.java (at line 11)\n" +
+		"	switch(s = dispatcher()) {\n" +
+		"	       ^^^^^^^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testFallThrough.java",
 		"public class testFallThrough {\n" +
@@ -1756,15 +1756,15 @@ public void testFallThrough() {
 	}
 }
 public void testFallThrough2() {
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testFallThrough.java (at line 11)\n" + 
-		"	switch(s = dispatcher()) {\n" + 
-		"	       ^^^^^^^^^^^^^^^^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testFallThrough.java (at line 11)\n" +
+		"	switch(s = dispatcher()) {\n" +
+		"	       ^^^^^^^^^^^^^^^^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testFallThrough.java",
 		"public class testFallThrough {\n" +
@@ -1800,16 +1800,16 @@ public void testMarysLamb() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-		
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testMarysLamb.java (at line 4)\n" + 
-		"	switch(s) {\n" + 
-		"	       ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testMarysLamb.java (at line 4)\n" +
+		"	switch(s) {\n" +
+		"	       ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testMarysLamb.java",
 		"public class testMarysLamb {\n" +
@@ -1828,16 +1828,16 @@ public void testMarysLamb() {
 		this.runConformTest(sourceFiles, "Mary Had A Little Lamb");
 	}
 }
-public void testBreakOut() {	
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in testBreakOut.java (at line 5)\n" + 
-		"	switch(s) {\n" + 
-		"	       ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+public void testBreakOut() {
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in testBreakOut.java (at line 5)\n" +
+		"	switch(s) {\n" +
+		"	       ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"testBreakOut.java",
 		"public class testBreakOut {\n" +
@@ -1865,25 +1865,25 @@ public void testMultipleSwitches() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 35)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 51)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 35)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 51)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1967,25 +1967,25 @@ public void testNestedSwitches() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	String errorMsg = 		
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 7)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 18)\n" + 
-		"	switch (s) {\n" + 
-		"	        ^\n" + 
-		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 18)\n" +
+		"	switch (s) {\n" +
+		"	        ^\n" +
+		"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 		"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -2036,31 +2036,31 @@ public void testNestedSwitches() {
 	}
 }
 public void testFor356002() {
-	String errorMsg = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	switch (foo()) {\n" + 
-			"	        ^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (foo()) {\n" +
+			"	        ^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	private static String foo() {\n" + 
-		"		return \"\";\n" + 
-		"	}\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		switch (foo()) {\n" + 
-		"			default: {\n" + 
-		"				int j = 0;\n" + 
-		"				if (j <= 0)\n" + 
+		"public class X {\n" +
+		"	private static String foo() {\n" +
+		"		return \"\";\n" +
+		"	}\n" +
+		"	public static void main(String[] args) {\n" +
+		"		switch (foo()) {\n" +
+		"			default: {\n" +
+		"				int j = 0;\n" +
+		"				if (j <= 0)\n" +
 		"					System.out.println(\"DONE\");\n" +
-		"			}\n" + 
-		"			return;\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"			}\n" +
+		"			return;\n" +
+		"		}\n" +
+		"	}\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2070,28 +2070,28 @@ public void testFor356002() {
 	}
 }
 public void testFor356002_2() {
-	String errorMsg = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	switch (\"\") {\n" + 
-			"	        ^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (\"\") {\n" +
+			"	        ^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		switch (\"\") {\n" + 
-		"			default: {\n" + 
-		"				int j = 0;\n" + 
-		"				if (j <= 0)\n" + 
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		switch (\"\") {\n" +
+		"			default: {\n" +
+		"				int j = 0;\n" +
+		"				if (j <= 0)\n" +
 		"					System.out.println(\"DONE\");\n" +
-		"			}\n" + 
-		"			return;\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"			}\n" +
+		"			return;\n" +
+		"		}\n" +
+		"	}\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2102,34 +2102,34 @@ public void testFor356002_2() {
 }
 public void testFor356002_3() {
 	String errorMsg =
-			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	switch (foo()) {\n" + 
-			"	        ^^^^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	switch (foo()) {\n" +
+			"	        ^^^^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-	
+
 	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	private static String foo() {\n" + 
-		"		return null;\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	private static String foo() {\n" +
+		"		return null;\n" +
+		"	}\n" +
 		"	public static void main(String[] args) {\n" +
 		"		try {\n" +
-		"			switch (foo()) {\n" + 
-		"				default: {\n" + 
-		"					int j = 0;\n" + 
-		"					if (j <= 0)\n" + 
+		"			switch (foo()) {\n" +
+		"				default: {\n" +
+		"					int j = 0;\n" +
+		"					if (j <= 0)\n" +
 		"						;\n" +
-		"				}\n" + 
-		"				return;\n" + 
-		"			}\n" + 
+		"				}\n" +
+		"				return;\n" +
+		"			}\n" +
 		"		} catch(NullPointerException e) {\n" +
 		"			System.out.println(\"DONE\");\n" +
 		"		}\n" +
-		"	}\n" + 
+		"	}\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2165,7 +2165,7 @@ public void testBug374605() {
 			null,
 			true,
 			options
-		);	
+		);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927() {
@@ -2194,7 +2194,7 @@ public void testBug380927() {
 				"    }\n" +
 				"}\n",
 			},
-			"Success");	
+			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927a() {
@@ -2223,7 +2223,7 @@ public void testBug380927a() {
 				"    }\n" +
 				"}\n",
 			},
-			"Success");	
+			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927b() {
@@ -2252,7 +2252,7 @@ public void testBug380927b() {
 				"    }\n" +
 				"}\n",
 			},
-			"Success");	
+			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927c() {
@@ -2283,7 +2283,7 @@ public void testBug380927c() {
 				"    }\n" +
 				"}\n",
 			},
-			"Success");	
+			"Success");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927d() {
@@ -2306,12 +2306,12 @@ public void testBug380927d() {
 				"    }\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	System.out.println(b);\n" + 
-			"	                   ^\n" + 
-			"The local variable b may not have been initialized\n" + 
-			"----------\n");	
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	System.out.println(b);\n" +
+			"	                   ^\n" +
+			"The local variable b may not have been initialized\n" +
+			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927e() {
@@ -2334,12 +2334,12 @@ public void testBug380927e() {
 				"    }\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	System.out.println(b);\n" + 
-			"	                   ^\n" + 
-			"The local variable b may not have been initialized\n" + 
-			"----------\n");	
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	System.out.println(b);\n" +
+			"	                   ^\n" +
+			"The local variable b may not have been initialized\n" +
+			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927f() {
@@ -2362,12 +2362,12 @@ public void testBug380927f() {
 				"    }\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	System.out.println(b);\n" + 
-			"	                   ^\n" + 
-			"The local variable b may not have been initialized\n" + 
-			"----------\n");	
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	System.out.println(b);\n" +
+			"	                   ^\n" +
+			"The local variable b may not have been initialized\n" +
+			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927g() {
@@ -2392,12 +2392,12 @@ public void testBug380927g() {
 				"    }\n" +
 				"}\n",
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 13)\n" + 
-			"	System.out.println(b);\n" + 
-			"	                   ^\n" + 
-			"The local variable b may not have been initialized\n" + 
-			"----------\n");	
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	System.out.println(b);\n" +
+			"	                   ^\n" +
+			"The local variable b may not have been initialized\n" +
+			"----------\n");
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383629
@@ -2407,36 +2407,36 @@ public void testBug383629() throws Exception {
 		new String[] {
 			"X.java",
 			"public class X {\n" +
-			"	  public static void main(String[] args) {\n" +           
+			"	  public static void main(String[] args) {\n" +
 			"	    char  chc;         \n" +
-			"	     do {      \n" +                   
-			"	        if (args == null) {      \n" +                                       
-			"	           switch ('a') {     \n" +                                        
-			"	           case '\\n':      \n" +            
+			"	     do {      \n" +
+			"	        if (args == null) {      \n" +
+			"	           switch ('a') {     \n" +
+			"	           case '\\n':      \n" +
 			"	                 chc = 'b';\n" +
 			"	           }               \n" +
-			"	        } else {            \n" +   
-			"	           switch ('a') {       \n" +           
+			"	        } else {            \n" +
+			"	           switch ('a') {       \n" +
 			"	              case '\\r':\n" +
-			"	           }          \n" +     
+			"	           }          \n" +
 			"	        }\n" +
 			"	     } while (false);\n" +
 			"	     System.out.println(\"Done\");\n" +
 			"	  }\n" +
 			"}",
 		}); // custom requestor
-	
+
 	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_6 ?
-			"      Local variable table:\n" + 
+			"      Local variable table:\n" +
 			"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n":
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n" + 
-				"      Stack map table: number of frames 4\n" + 
-				"        [pc: 24, same]\n" + 
-				"        [pc: 27, same]\n" + 
-				"        [pc: 30, same]\n" + 
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n" +
+				"      Stack map table: number of frames 4\n" +
+				"        [pc: 24, same]\n" +
+				"        [pc: 27, same]\n" +
+				"        [pc: 30, same]\n" +
 				"        [pc: 52, same]\n";
-	
+
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -2456,54 +2456,54 @@ public void testBug381172() throws Exception {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"public class X {\n" + 
-			"    public static void main(String[] args){\n" + 
-			"        System.out.println(\"Test\");\n" + 
-			"    }\n" + 
-			"    public void method() {\n" + 
-			"        try {\n" + 
-			"            int rc;\n" + 
-			"            switch ( 0 )\n" + 
-			"            {\n" + 
-			"                case 0:\n" + 
-			"                    rc = 0;\n" + 
-			"                    setRC( rc );\n" + 
-			"                    break;\n" + 
-			"                case 1:\n" + 
-			"                    rc = 1;\n" + 
-			"                    setRC( 0 );\n" + 
-			"                    break;\n" + 
-			"                case 2:\n" + 
-			"                    rc = 2;\n" + 
-			"                    setRC( 0 );\n" + 
-			"                    break;\n" + 
-			"                default:\n" + 
-			"                    break;\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"        catch ( final Exception ex ) {}\n" + 
-			"    }\n" + 
-			"    private void setRC(int rc) {}\n" + 
+			"public class X {\n" +
+			"    public static void main(String[] args){\n" +
+			"        System.out.println(\"Test\");\n" +
+			"    }\n" +
+			"    public void method() {\n" +
+			"        try {\n" +
+			"            int rc;\n" +
+			"            switch ( 0 )\n" +
+			"            {\n" +
+			"                case 0:\n" +
+			"                    rc = 0;\n" +
+			"                    setRC( rc );\n" +
+			"                    break;\n" +
+			"                case 1:\n" +
+			"                    rc = 1;\n" +
+			"                    setRC( 0 );\n" +
+			"                    break;\n" +
+			"                case 2:\n" +
+			"                    rc = 2;\n" +
+			"                    setRC( 0 );\n" +
+			"                    break;\n" +
+			"                default:\n" +
+			"                    break;\n" +
+			"            }\n" +
+			"        }\n" +
+			"        catch ( final Exception ex ) {}\n" +
+			"    }\n" +
+			"    private void setRC(int rc) {}\n" +
 			"}",
 		}); // custom requestor
-	
+
 	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_6 ?
-			"      Local variable table:\n" + 
-			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
 			"        [pc: 0, pc: 1] local: rc index: 1 type: int\n":
-				"      Local variable table:\n" + 
-				"        [pc: 0, pc: 63] local: this index: 0 type: X\n" + 
-				"        [pc: 30, pc: 38] local: rc index: 1 type: int\n" + 
-				"        [pc: 40, pc: 48] local: rc index: 1 type: int\n" + 
-				"        [pc: 50, pc: 58] local: rc index: 1 type: int\n" + 
-				"      Stack map table: number of frames 6\n" + 
-				"        [pc: 28, same]\n" + 
-				"        [pc: 38, same]\n" + 
-				"        [pc: 48, same]\n" + 
-				"        [pc: 58, same]\n" + 
-				"        [pc: 61, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" + 
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 63] local: this index: 0 type: X\n" +
+				"        [pc: 30, pc: 38] local: rc index: 1 type: int\n" +
+				"        [pc: 40, pc: 48] local: rc index: 1 type: int\n" +
+				"        [pc: 50, pc: 58] local: rc index: 1 type: int\n" +
+				"      Stack map table: number of frames 6\n" +
+				"        [pc: 28, same]\n" +
+				"        [pc: 38, same]\n" +
+				"        [pc: 48, same]\n" +
+				"        [pc: 58, same]\n" +
+				"        [pc: 61, same_locals_1_stack_item, stack: {java.lang.Exception}]\n" +
 				"        [pc: 62, same]\n";
-	
+
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -2539,31 +2539,31 @@ public void test383643() {
 					"    }\n" +
 					"}\n",
 				},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	switch (p) {\n" + 
-			"	        ^\n" + 
-			"p cannot be resolved to a variable\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 4)\n" + 
-			"	switch (p) {\n" + 
-			"	        ^\n" + 
-			"The switch statement should have a default case\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 5)\n" + 
-			"	case ONE:\n" + 
-			"	     ^^^\n" + 
-			"ONE cannot be resolved to a variable\n" + 
-			"----------\n" + 
-			"4. ERROR in X.java (at line 8)\n" + 
-			"	case TWO:\n" + 
-			"	     ^^^\n" + 
-			"TWO cannot be resolved to a variable\n" + 
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch (p) {\n" +
+			"	        ^\n" +
+			"p cannot be resolved to a variable\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	switch (p) {\n" +
+			"	        ^\n" +
+			"The switch statement should have a default case\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case ONE:\n" +
+			"	     ^^^\n" +
+			"ONE cannot be resolved to a variable\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 8)\n" +
+			"	case TWO:\n" +
+			"	     ^^^\n" +
+			"TWO cannot be resolved to a variable\n" +
 			"----------\n",
 			null,
 			true,
 			options
-		);	
+		);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=387146 - the fall-through comment is ignored
 public void test387146a() {
@@ -2625,24 +2625,24 @@ public void test387146b() {
 }
 //JDK7: Strings in Switch.
 public void test393537() {
-	String errorMsg = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	switch (\"\") {\n" + 
-			"	        ^^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (\"\") {\n" +
+			"	        ^^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		switch (\"\") {\n" + 
-		"			case \"\":\n" + 
-		"			default:\n" + 
-		"		}\n" + 
-		"	}\n" + 
+		"public class X {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		switch (\"\") {\n" +
+		"			case \"\":\n" +
+		"			default:\n" +
+		"		}\n" +
+		"	}\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2653,27 +2653,27 @@ public void test393537() {
 }
 //JDK7: Strings in Switch.
 public void test410892() {
-	String errorMsg = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	switch (s) {\n" + 
-			"	        ^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	switch (s) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"   public void testFunction(String s) {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   public void testFunction(String s) {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2686,27 +2686,27 @@ public void test410892() {
 }
 //JDK7: Strings in Switch.
 public void test410892_2() {
-	String errorMsg = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	switch (s) {\n" + 
-			"	        ^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	switch (s) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
 
-	String [] sourceFiles = 
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"   public X(String s) {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   public X(String s) {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2719,28 +2719,28 @@ public void test410892_2() {
 }
 //JDK7: Strings in Switch.
 public void test410892_3() {
-	String errorMsg = 		
-			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	switch (s) {\n" + 
-			"	        ^\n" + 
-			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (s) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type String for source level below 1.7. Only convertible int values or enum variables are permitted\n" +
 			"----------\n";
-	
-	String [] sourceFiles = 
+
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"   static {\n" + 
-		"        int var1 = 0;\n" + 
+		"public class X {\n" +
+		"   static {\n" +
+		"        int var1 = 0;\n" +
 		"        int var2 = 0;\n" +
 		"        String s = \"test2\";\n" +
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel < JDKLevelSupportingStringSwitch) {
@@ -2756,26 +2756,26 @@ public void test410892_4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	String errorMsg = 		
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	int var2 = 0;\n" + 
-			"	    ^^^^\n" + 
-			"The value of the local variable var2 is not used\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	int var2 = 0;\n" +
+			"	    ^^^^\n" +
+			"The value of the local variable var2 is not used\n" +
 			"----------\n";
-	String [] sourceFiles = 
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"   public void testFunction(String s) {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   public void testFunction(String s) {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
@@ -2791,26 +2791,26 @@ public void test410892_5() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	String errorMsg = 		
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	int var2 = 0;\n" + 
-			"	    ^^^^\n" + 
-			"The value of the local variable var2 is not used\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	int var2 = 0;\n" +
+			"	    ^^^^\n" +
+			"The value of the local variable var2 is not used\n" +
 			"----------\n";
-	String [] sourceFiles = 
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"   public X(String s) {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   public X(String s) {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
@@ -2826,27 +2826,27 @@ public void test410892_6() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	String errorMsg = 		
-			"----------\n" + 
-			"1. WARNING in X.java (at line 4)\n" + 
-			"	int var2 = 0;\n" + 
-			"	    ^^^^\n" + 
-			"The value of the local variable var2 is not used\n" + 
+	String errorMsg =
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	int var2 = 0;\n" +
+			"	    ^^^^\n" +
+			"The value of the local variable var2 is not used\n" +
 			"----------\n";
-	String [] sourceFiles = 
+	String [] sourceFiles =
 		new String[] {
 		"X.java",
-		"public class X {\n" + 
-		"   static {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        String s = \"Test2\";\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   static {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        String s = \"Test2\";\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
@@ -2858,105 +2858,105 @@ public void test410892_6() {
 	}
 }
 public void test526911() {
-	String [] sourceFiles = 
+	String [] sourceFiles =
 		new String[] {
 		"Main.java",
-		"public class Main {\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new Main().run();\n" + 
-		"	}\n" + 
-		"	\n" + 
-		"	private void run() {\n" + 
-		"		V v = new VA();\n" + 
-		"		I i = I.create(v);\n" + 
-		"		System.out.printf(\"%d %d\", i.m1(), i.m2());\n" + 
-		"	}\n" + 
+		"public class Main {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new Main().run();\n" +
+		"	}\n" +
+		"	\n" +
+		"	private void run() {\n" +
+		"		V v = new VA();\n" +
+		"		I i = I.create(v);\n" +
+		"		System.out.printf(\"%d %d\", i.m1(), i.m2());\n" +
+		"	}\n" +
 		"}\n",
 		"XI.java",
-		"public class XI implements I {\n" + 
-		"	V v;\n" + 
-		"	public XI(V v) {\n" + 
-		"		this.v = v;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m1() {\n" + 
-		"		return 1;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m2() {\n" + 
-		"		return 11;\n" + 
-		"	}\n" + 
+		"public class XI implements I {\n" +
+		"	V v;\n" +
+		"	public XI(V v) {\n" +
+		"		this.v = v;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m1() {\n" +
+		"		return 1;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m2() {\n" +
+		"		return 11;\n" +
+		"	}\n" +
 		"}\n",
 		"YI.java",
-		"public class YI implements I {\n" + 
-		"	V v;\n" + 
-		"	public YI(V v) {\n" + 
-		"		this.v = v;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m1() {\n" + 
-		"		return 2;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m2() {\n" + 
-		"		return 22;\n" + 
-		"	}\n" + 
+		"public class YI implements I {\n" +
+		"	V v;\n" +
+		"	public YI(V v) {\n" +
+		"		this.v = v;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m1() {\n" +
+		"		return 2;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m2() {\n" +
+		"		return 22;\n" +
+		"	}\n" +
 		"}\n",
 		"V.java",
-		"public class V {\n" + 
-		"	public enum T { A, B, C }\n" + 
-		"	private T t;\n" + 
-		"	public V(T t) {\n" + 
-		"		this.t = t;\n" + 
-		"	}\n" + 
-		"	public T getT() { return t; }\n" + 
+		"public class V {\n" +
+		"	public enum T { A, B, C }\n" +
+		"	private T t;\n" +
+		"	public V(T t) {\n" +
+		"		this.t = t;\n" +
+		"	}\n" +
+		"	public T getT() { return t; }\n" +
 		"}\n" +
-		"class VA extends V {\n" + 
-		"	VA() {\n" + 
-		"		super(T.A);\n" + 
-		"	}\n" + 
+		"class VA extends V {\n" +
+		"	VA() {\n" +
+		"		super(T.A);\n" +
+		"	}\n" +
 		"}",
 		"I.java",
-		"enum H { X, Y }\n" + 
-		"public interface I {\n" + 
-		"	public static final int i = 0;\n" + 
-		"	public int m1();\n" + 
-		"	public int m2();\n" + 
-		"	public static I create(V v) { \n" + 
-		"		V.T t = v.getT();\n" + 
-		"		H h = getH(t);\n" + 
-		"		switch (h) { // depending on H i need different implementations of I. XI and YI provide them\n" + 
-		"		case X:\n" + 
-		"			return new XI(v);\n" + 
-		"		case Y:\n" + 
-		"			return new YI(v);\n" + 
-		"		default:\n" + 
-		"			throw new Error();\n" + 
-		"		}	\n" + 
-		"	}\n" + 
-		"	static H getH(V.T t) { // different T's require different H's to handle them\n" + 
-		"		switch (t) {\n" + 
-		"		case A:\n" + 
-		"			return H.X;\n" + 
-		"		case B:\n" + 
-		"		case C:\n" + 
-		"			return H.Y;\n" + 
-		"		}\n" + 
-		"		throw new Error();\n" + 
-		"	}\n" + 
+		"enum H { X, Y }\n" +
+		"public interface I {\n" +
+		"	public static final int i = 0;\n" +
+		"	public int m1();\n" +
+		"	public int m2();\n" +
+		"	public static I create(V v) { \n" +
+		"		V.T t = v.getT();\n" +
+		"		H h = getH(t);\n" +
+		"		switch (h) { // depending on H i need different implementations of I. XI and YI provide them\n" +
+		"		case X:\n" +
+		"			return new XI(v);\n" +
+		"		case Y:\n" +
+		"			return new YI(v);\n" +
+		"		default:\n" +
+		"			throw new Error();\n" +
+		"		}	\n" +
+		"	}\n" +
+		"	static H getH(V.T t) { // different T's require different H's to handle them\n" +
+		"		switch (t) {\n" +
+		"		case A:\n" +
+		"			return H.X;\n" +
+		"		case B:\n" +
+		"		case C:\n" +
+		"			return H.Y;\n" +
+		"		}\n" +
+		"		throw new Error();\n" +
+		"	}\n" +
 		"}",
 		"X.java",
-		"public class X {\n" + 
-		"   static {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        String s = \"Test2\";\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   static {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        String s = \"Test2\";\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
@@ -2964,110 +2964,110 @@ public void test526911() {
 	}
 }
 public void test526911a() {
-	// target 1.8, run with 9, should work fine 
+	// target 1.8, run with 9, should work fine
 	if (this.complianceLevel < ClassFileConstants.JDK9)
 		return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
-	String [] sourceFiles = 
+	String [] sourceFiles =
 		new String[] {
 		"Main.java",
-		"public class Main {\n" + 
-		"	public static void main(String[] args) {\n" + 
-		"		new Main().run();\n" + 
-		"	}\n" + 
-		"	\n" + 
-		"	private void run() {\n" + 
-		"		V v = new VA();\n" + 
-		"		I i = I.create(v);\n" + 
-		"		System.out.printf(\"%d %d\", i.m1(), i.m2());\n" + 
-		"	}\n" + 
+		"public class Main {\n" +
+		"	public static void main(String[] args) {\n" +
+		"		new Main().run();\n" +
+		"	}\n" +
+		"	\n" +
+		"	private void run() {\n" +
+		"		V v = new VA();\n" +
+		"		I i = I.create(v);\n" +
+		"		System.out.printf(\"%d %d\", i.m1(), i.m2());\n" +
+		"	}\n" +
 		"}\n",
 		"XI.java",
-		"public class XI implements I {\n" + 
-		"	V v;\n" + 
-		"	public XI(V v) {\n" + 
-		"		this.v = v;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m1() {\n" + 
-		"		return 1;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m2() {\n" + 
-		"		return 11;\n" + 
-		"	}\n" + 
+		"public class XI implements I {\n" +
+		"	V v;\n" +
+		"	public XI(V v) {\n" +
+		"		this.v = v;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m1() {\n" +
+		"		return 1;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m2() {\n" +
+		"		return 11;\n" +
+		"	}\n" +
 		"}\n",
 		"YI.java",
-		"public class YI implements I {\n" + 
-		"	V v;\n" + 
-		"	public YI(V v) {\n" + 
-		"		this.v = v;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m1() {\n" + 
-		"		return 2;\n" + 
-		"	}\n" + 
-		"	@Override\n" + 
-		"	public int m2() {\n" + 
-		"		return 22;\n" + 
-		"	}\n" + 
+		"public class YI implements I {\n" +
+		"	V v;\n" +
+		"	public YI(V v) {\n" +
+		"		this.v = v;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m1() {\n" +
+		"		return 2;\n" +
+		"	}\n" +
+		"	@Override\n" +
+		"	public int m2() {\n" +
+		"		return 22;\n" +
+		"	}\n" +
 		"}\n",
 		"V.java",
-		"public class V {\n" + 
-		"	public enum T { A, B, C }\n" + 
-		"	private T t;\n" + 
-		"	public V(T t) {\n" + 
-		"		this.t = t;\n" + 
-		"	}\n" + 
-		"	public T getT() { return t; }\n" + 
+		"public class V {\n" +
+		"	public enum T { A, B, C }\n" +
+		"	private T t;\n" +
+		"	public V(T t) {\n" +
+		"		this.t = t;\n" +
+		"	}\n" +
+		"	public T getT() { return t; }\n" +
 		"}\n" +
-		"class VA extends V {\n" + 
-		"	VA() {\n" + 
-		"		super(T.A);\n" + 
-		"	}\n" + 
+		"class VA extends V {\n" +
+		"	VA() {\n" +
+		"		super(T.A);\n" +
+		"	}\n" +
 		"}",
 		"I.java",
-		"enum H { X, Y }\n" + 
-		"public interface I {\n" + 
-		"	public static final int i = 0;\n" + 
-		"	public int m1();\n" + 
-		"	public int m2();\n" + 
-		"	public static I create(V v) { \n" + 
-		"		V.T t = v.getT();\n" + 
-		"		H h = getH(t);\n" + 
-		"		switch (h) { // depending on H i need different implementations of I. XI and YI provide them\n" + 
-		"		case X:\n" + 
-		"			return new XI(v);\n" + 
-		"		case Y:\n" + 
-		"			return new YI(v);\n" + 
-		"		default:\n" + 
-		"			throw new Error();\n" + 
-		"		}	\n" + 
-		"	}\n" + 
-		"	static H getH(V.T t) { // different T's require different H's to handle them\n" + 
-		"		switch (t) {\n" + 
-		"		case A:\n" + 
-		"			return H.X;\n" + 
-		"		case B:\n" + 
-		"		case C:\n" + 
-		"			return H.Y;\n" + 
-		"		}\n" + 
-		"		throw new Error();\n" + 
-		"	}\n" + 
+		"enum H { X, Y }\n" +
+		"public interface I {\n" +
+		"	public static final int i = 0;\n" +
+		"	public int m1();\n" +
+		"	public int m2();\n" +
+		"	public static I create(V v) { \n" +
+		"		V.T t = v.getT();\n" +
+		"		H h = getH(t);\n" +
+		"		switch (h) { // depending on H i need different implementations of I. XI and YI provide them\n" +
+		"		case X:\n" +
+		"			return new XI(v);\n" +
+		"		case Y:\n" +
+		"			return new YI(v);\n" +
+		"		default:\n" +
+		"			throw new Error();\n" +
+		"		}	\n" +
+		"	}\n" +
+		"	static H getH(V.T t) { // different T's require different H's to handle them\n" +
+		"		switch (t) {\n" +
+		"		case A:\n" +
+		"			return H.X;\n" +
+		"		case B:\n" +
+		"		case C:\n" +
+		"			return H.Y;\n" +
+		"		}\n" +
+		"		throw new Error();\n" +
+		"	}\n" +
 		"}",
 		"X.java",
-		"public class X {\n" + 
-		"   static {\n" + 
-		"        int var1 = 0;\n" + 
-		"        int var2 = 0;\n" + 
-		"        String s = \"Test2\";\n" + 
-		"        switch (s) {\n" + 
-		"        case \"test\": \n" + 
-		"            var2 = ++var1 % 2;\n" + 
-		"            break;\n" + 
-		"        }\n" + 
-		"   }\n" + 
+		"public class X {\n" +
+		"   static {\n" +
+		"        int var1 = 0;\n" +
+		"        int var2 = 0;\n" +
+		"        String s = \"Test2\";\n" +
+		"        switch (s) {\n" +
+		"        case \"test\": \n" +
+		"            var2 = ++var1 % 2;\n" +
+		"            break;\n" +
+		"        }\n" +
+		"   }\n" +
 		"}",
 	};
 	this.runConformTest(sourceFiles, "1 11", options);
@@ -3078,51 +3078,51 @@ public void testBug533475() {
 	runConformTest(
 		new String[] {
 			"SwitchBug.java",
-			"public class SwitchBug {\n" + 
-			"    static class MyClass {\n" + 
-			"        private static final Object C = \"\";\n" + 
-			"\n" + 
-			"        public enum State {\n" + 
-			"            ENABLED(C); // pass null constant\n" + 
-			"\n" + 
-			"            State(Object value) {\n" + 
-			"            } // value can be ignored\n" + 
-			"        }\n" + 
-			"\n" + 
-			"        /* unused method with switch statement IN SAME CLASS */\n" + 
-			"        private void unusedMethod() {\n" + 
-			"            switch (State.ENABLED) {\n" + 
-			"            case ENABLED:\n" + 
-			"                break;\n" + 
-			"            }\n" + 
-			"        }\n" + 
-			"    }\n" + 
-			"    \n" + 
-			"    public static void main(String[] args) {\n" + 
-			"        // access enum values from an other class\n" + 
-			"        MyClass.State.values();\n" + 
-			"        System.out.println(\"It runs.\");\n" + 
-			"    }\n" + 
+			"public class SwitchBug {\n" +
+			"    static class MyClass {\n" +
+			"        private static final Object C = \"\";\n" +
+			"\n" +
+			"        public enum State {\n" +
+			"            ENABLED(C); // pass null constant\n" +
+			"\n" +
+			"            State(Object value) {\n" +
+			"            } // value can be ignored\n" +
+			"        }\n" +
+			"\n" +
+			"        /* unused method with switch statement IN SAME CLASS */\n" +
+			"        private void unusedMethod() {\n" +
+			"            switch (State.ENABLED) {\n" +
+			"            case ENABLED:\n" +
+			"                break;\n" +
+			"            }\n" +
+			"        }\n" +
+			"    }\n" +
+			"    \n" +
+			"    public static void main(String[] args) {\n" +
+			"        // access enum values from an other class\n" +
+			"        MyClass.State.values();\n" +
+			"        System.out.println(\"It runs.\");\n" +
+			"    }\n" +
 			"}\n"
 		});
 }
 public void testBug545518() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_8 || this.complianceLevel >= ClassFileConstants.JDK12)
 		return;
-	String message = 
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Multi-constant case labels supported from Java 14 onwards only\n" + 
+	String message =
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Multi-constant case labels supported from Java 14 onwards only\n" +
 			"----------\n";
-	
+
 	this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String [] args) {\n" +
 			"  	 String arg = \"ABD\";\n" +
-			"    switch(arg) {\n" + 
+			"    switch(arg) {\n" +
 			"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
 			"	 }\n" +
 			"  }\n" +

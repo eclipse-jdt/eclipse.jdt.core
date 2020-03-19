@@ -144,7 +144,7 @@ class BindingComparator {
 			return moduleBinding2 == null;
 		if (moduleBinding2 == null)
 			return false;
-		return CharOperation.equals(moduleBinding.moduleName, moduleBinding2.moduleName); 
+		return CharOperation.equals(moduleBinding.moduleName, moduleBinding2.moduleName);
 	}
 
 	static boolean isEqual(VariableBinding variableBinding, VariableBinding variableBinding2) {
