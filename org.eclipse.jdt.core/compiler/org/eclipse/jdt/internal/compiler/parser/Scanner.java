@@ -587,7 +587,6 @@ protected final boolean scanForTextBlockBeginning() {
 			while (ScannerHelper.isWhitespace(c)) {
 				switch (c) {
 					case 10 : /* \ u000a: LINE FEED               */
-					case 13 : /* \ u000d: CARRIAGE RETURN         */
 						this.currentCharacter = c;
 						this.currentPosition = temp;
 						return true;

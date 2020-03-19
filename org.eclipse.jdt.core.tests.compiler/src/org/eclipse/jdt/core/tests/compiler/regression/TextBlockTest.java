@@ -34,7 +34,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "testCompliances_13" };
+//		TESTS_NAMES = new String[] { "testCompliances_14" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1280,6 +1280,31 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}"
 				}, 
 				"256",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_14() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	String textBlock = \"\"\"\r\n" + 
+						"          This is a multi-line\n" + 
+						"          message that is super-\n" + 
+						"          exciting!\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"        String str = \"This is a multi-line\\n\" + \n" + 
+						"				\"message that is super-\\n\" + \n" + 
+						"				\"exciting!\";\n" + 
+						"        return textBlock.equals(str);\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
