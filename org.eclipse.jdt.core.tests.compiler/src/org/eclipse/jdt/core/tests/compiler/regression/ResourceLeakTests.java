@@ -6522,4 +6522,30 @@ public void testBug560671b() {
 		},
 		options);
 }
+public void testBug561259() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	  protected String m(String charset) throws IOException\n" + 
+			"	  {\n" + 
+			"		InputStream contents = new FileInputStream(\"/tmp/f\");\n" + 
+			"	    BufferedReader reader = new BufferedReader(new InputStreamReader(contents, charset));\n" + 
+			"	    CharArrayWriter writer = new CharArrayWriter();\n" + 
+			"	    int c;\n" + 
+			"	    while ((c = reader.read()) != -1)\n" + 
+			"	    {\n" + 
+			"	      writer.write(c);\n" + 
+			"	    }\n" + 
+			"	    contents.close();\n" + 
+			"	    return writer.toString();\n" + 
+			"	  }\n" + 
+			"}\n"
+		},
+		options);
+}
 }

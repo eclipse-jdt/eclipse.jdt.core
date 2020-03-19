@@ -366,7 +366,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 								newStatus = finallyStatus;
 						}
 					}
-					if (allocation.closeTracker.innerTracker != null) {
+					if (allocation.closeTracker.innerTracker != null && allocation.closeTracker.innerTracker != innerTracker) {
 						innerTracker = pickMoreUnsafe(allocation.closeTracker.innerTracker, innerTracker, scope, flowInfo);
 					}
 					allocation.closeTracker.innerTracker = innerTracker;
