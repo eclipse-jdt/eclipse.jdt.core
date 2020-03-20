@@ -119,7 +119,7 @@ public static void checkNeedForCastCast(BlockScope scope, CastExpression enclosi
 	// check if could cast directly to enclosing cast type, without intermediate type cast
 	CastExpression alternateCast = new CastExpression(null, enclosingCast.type);
 	alternateCast.resolvedType = enclosingCast.resolvedType;
-	if (!alternateCast.checkCastTypesCompatibility(scope, enclosingCast.resolvedType, nestedCast.expression.resolvedType, null /* no expr to avoid side-effects*/)) return;
+	if (!alternateCast.checkCastTypesCompatibility(scope, enclosingCast.resolvedType, nestedCast.expression.resolvedType, null /* no expr to avoid side-effects*/, true)) return;
 	scope.problemReporter().unnecessaryCast(nestedCast);
 }
 
@@ -214,6 +214,7 @@ public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiv
 public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int operatorSignature, Expression left, int leftTypeId, boolean leftIsCast, Expression right, int rightTypeId, boolean rightIsCast) {
 	if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;
 
+	boolean useAutoBoxing = operator != OperatorIds.EQUAL_EQUAL && operator != OperatorIds.NOT_EQUAL;
 	// check need for left operand cast
 	int alternateLeftTypeId = leftTypeId;
 	if (leftIsCast) {
@@ -223,7 +224,10 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 		} else  {
 			TypeBinding alternateLeftType = ((CastExpression)left).expression.resolvedType;
 			if (alternateLeftType == null) return; // cannot do better
-			if ((alternateLeftTypeId = alternateLeftType.id) == leftTypeId || scope.environment().computeBoxingType(alternateLeftType).id == leftTypeId) { // obvious identity cast
+			if ((alternateLeftTypeId = alternateLeftType.id) == leftTypeId
+					|| (useAutoBoxing
+							? scope.environment().computeBoxingType(alternateLeftType).id == leftTypeId
+							: TypeBinding.equalsEquals(alternateLeftType, left.resolvedType))) { // obvious identity cast
 				scope.problemReporter().unnecessaryCast((CastExpression)left);
 				leftIsCast = false;
 			} else if (alternateLeftTypeId == TypeIds.T_null) {
@@ -241,7 +245,10 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 		} else {
 			TypeBinding alternateRightType = ((CastExpression)right).expression.resolvedType;
 			if (alternateRightType == null) return; // cannot do better
-			if ((alternateRightTypeId = alternateRightType.id) == rightTypeId || scope.environment().computeBoxingType(alternateRightType).id == rightTypeId) { // obvious identity cast
+			if ((alternateRightTypeId = alternateRightType.id) == rightTypeId
+					|| (useAutoBoxing
+							? scope.environment().computeBoxingType(alternateRightType).id == rightTypeId
+							: TypeBinding.equalsEquals(alternateRightType, right.resolvedType))) { // obvious identity cast
 				scope.problemReporter().unnecessaryCast((CastExpression)right);
 				rightIsCast = false;
 			} else if (alternateRightTypeId == TypeIds.T_null) {
@@ -615,7 +622,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					&& expressionType.isProvablyDistinct(this.instanceofType)) {
 				this.bits |= ASTNode.DisableUnnecessaryCastCheck;
 			}
-			boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression);
+			boolean isLegal = checkCastTypesCompatibility(scope, castType, expressionType, this.expression, true);
 			if (isLegal) {
 				this.expression.computeConversion(scope, castType, expressionType);
 				if ((this.bits & ASTNode.UnsafeCast) != 0) { // unsafe cast

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -934,8 +934,8 @@ public class EqualExpression extends BinaryExpression {
 		// spec 15.20.3
 		if ((!leftType.isBaseType() || leftType == TypeBinding.NULL) // cannot compare: Object == (int)0
 				&& (!rightType.isBaseType() || rightType == TypeBinding.NULL)
-				&& (checkCastTypesCompatibility(scope, leftType, rightType, null)
-						|| checkCastTypesCompatibility(scope, rightType, leftType, null))) {
+				&& (checkCastTypesCompatibility(scope, leftType, rightType, null, true)
+						|| checkCastTypesCompatibility(scope, rightType, leftType, null, true))) {
 
 			// (special case for String)
 			if ((rightType.id == T_JavaLangString) && (leftType.id == T_JavaLangString)) {
@@ -954,8 +954,8 @@ public class EqualExpression extends BinaryExpression {
 				TypeBinding alternateRightType = unnecessaryRightCast ? ((CastExpression)this.right).expression.resolvedType : rightType;
 				// Bug 543727 - check if either cast is really needed
 				if (!isCastNeeded(alternateLeftType, alternateRightType)) {
-					if (checkCastTypesCompatibility(scope, alternateLeftType, alternateRightType, null)
-							|| checkCastTypesCompatibility(scope, alternateRightType, alternateLeftType, null)) {
+					if (checkCastTypesCompatibility(scope, alternateLeftType, alternateRightType, null, false)
+							|| checkCastTypesCompatibility(scope, alternateRightType, alternateLeftType, null, false)) {
 						if (unnecessaryLeftCast) scope.problemReporter().unnecessaryCast((CastExpression)this.left);
 						if (unnecessaryRightCast) scope.problemReporter().unnecessaryCast((CastExpression)this.right);
 					}

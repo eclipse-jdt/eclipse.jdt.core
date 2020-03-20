@@ -180,7 +180,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		// if not a valid binding, an error has already been reported for unresolved type
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
 				|| checkedType.isBaseType()
-				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
+				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}
 	}

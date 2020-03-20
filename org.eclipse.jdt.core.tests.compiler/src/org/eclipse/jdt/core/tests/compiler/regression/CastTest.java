@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2019 IBM Corporation and others.
+ * Copyright (c) 2003, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1795,6 +1795,57 @@ public void test047() {
 		"Unnecessary cast from Character to Character\n" +
 		"----------\n"
 	);
+}
+public void testBug418795() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		 Integer smallNumber = 42;\n" +
+			"        Integer largeNumber = 500;\n" +
+			"\n" +
+			"        // this prints:\n" +
+			"        if (smallNumber == 42)\n" +
+			"            System.out.println(\"42\");\n" +
+			"\n" +
+			"        // this prints:\n" +
+			"        if (largeNumber == 500)\n" +
+			"            System.out.println(\"500\");\n" +
+			"\n" +
+			"        // this prints:\n" +
+			"        if (smallNumber == (Object) 42)\n" +
+			"            System.out.println(\"42\");\n" +
+			"\n" +
+			"        // this doesn't print:\n" +
+			"        if (largeNumber == (Object) 500)\n" +
+			"            System.out.println(\"500\");\n" +
+			"" +
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
+public void testBug329437() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String... args) {\n" +
+			"		Integer a = Integer.valueOf(10);\n" +
+			"		Integer b = Integer.valueOf(10);\n" +
+			"		boolean abEqual = (int)a == (int)b;\n" +
+			"		System.out.println(abEqual);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
 public void test048() {
