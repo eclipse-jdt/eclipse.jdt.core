@@ -1589,4 +1589,14 @@ public void testSubword_backtrackStartAndFail() {
 	int[] regions = SearchPattern.getMatchingRegions("listener", name, SearchPattern.R_SUBWORD_MATCH);
 	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
 }
+public void testSubword_fieldPrefix() {
+	String name = "_field";
+	int[] regions = SearchPattern.getMatchingRegions("field", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "_[field]", printRegions(name, regions));
+}
+public void testSubword_contentAssistFilter() {
+	String name = "substring(int beginIndex)";
+	int[] regions = SearchPattern.getMatchingRegions("index", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
+}
 }
