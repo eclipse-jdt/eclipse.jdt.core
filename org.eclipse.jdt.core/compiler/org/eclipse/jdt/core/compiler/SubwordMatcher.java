@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.compiler;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
@@ -22,9 +23,20 @@ class SubwordMatcher {
 	private static final int[] EMPTY_REGIONS = new int[0];
 
 	private final char[] name;
+	private final BitSet wordBoundaries;
 
 	public SubwordMatcher(String name) {
 		this.name = name.toCharArray();
+		this.wordBoundaries = new BitSet(name.length());
+
+		BoundaryState state = BoundaryState.SEPARATOR;
+		for (int i = 0; i < this.name.length; i++) {
+			char c = this.name[i];
+			if (state.isWordBoundary(c)) {
+				this.wordBoundaries.set(i);
+			}
+			state = state.next(c);
+		}
 	}
 
 	public int[] getMatchingRegions(String pattern) {
@@ -46,6 +58,10 @@ class SubwordMatcher {
 
 			// For as long as we're exactly matching, bring it on
 			if (patternChar == nameChar) {
+				continue;
+			}
+			if (!isWordBoundary(iName) && equalsIgnoreCase(patternChar, nameChar)) {
+				// we're not at a word boundary, case-insensitive match is fine
 				continue;
 			}
 
@@ -92,12 +108,9 @@ class SubwordMatcher {
 	 */
 	private int indexOfWordStart(int nameStart, char patternChar) {
 
-		char target = ScannerHelper.toUpperCase(patternChar);
-		boolean lastWasSeparator = false;
-
 		for (int iName = nameStart; iName < this.name.length; iName++) {
 			char nameChar = this.name[iName];
-			if (nameChar == target || (lastWasSeparator && nameChar == patternChar)) {
+			if (isWordBoundary(iName) && equalsIgnoreCase(nameChar, patternChar)) {
 				return iName;
 			}
 
@@ -105,11 +118,65 @@ class SubwordMatcher {
 			if (!ScannerHelper.isJavaIdentifierPart(nameChar)) {
 				return -1;
 			}
-
-			lastWasSeparator = nameChar == '_';
 		}
 
 		// We have exhausted name
 		return -1;
+	}
+
+	private boolean equalsIgnoreCase(char a, char b) {
+		return ScannerHelper.toLowerCase(a) == ScannerHelper.toLowerCase(b);
+	}
+
+	private boolean isWordBoundary(int iName) {
+		return this.wordBoundaries.get(iName);
+	}
+
+	private enum BoundaryState {
+		SEPARATOR() {
+			@Override
+			public BoundaryState next(char c) {
+				if (c == '_')
+					return SEPARATOR;
+
+				return ScannerHelper.isUpperCase(c) ? CAPS_WORD : WORD;
+			}
+			@Override
+			public boolean isWordBoundary(char c) {
+				return true;
+			}
+		},
+		WORD() {
+			@Override
+			public BoundaryState next(char c) {
+				if (c == '_')
+					return SEPARATOR;
+
+				return WORD;
+			}
+
+			@Override
+			public boolean isWordBoundary(char c) {
+				return ScannerHelper.isUpperCase(c);
+			}
+		},
+		CAPS_WORD() {
+			@Override
+			public BoundaryState next(char c) {
+				if (c == '_')
+					return SEPARATOR;
+
+				return ScannerHelper.isUpperCase(c) ? CAPS_WORD : WORD;
+			}
+
+			@Override
+			public boolean isWordBoundary(char c) {
+				return next(c) == SEPARATOR;
+			}
+		};
+
+		public abstract boolean isWordBoundary(char c);
+
+		public abstract BoundaryState next(char c);
 	}
 }
