@@ -1847,6 +1847,28 @@ public void testBug329437() {
 		},
 		options);
 }
+public void testBug521778() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static int intThruFloat(int x) { return (int)(float)x; }\n" +
+			"	static long longThruFloat(long x) { return (long)(float)x; }\n" +
+			"	static long longThruDouble(long x) { return (long)(double)x; }\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(intThruFloat(2147483646));\n" +
+			"		System.out.println(longThruFloat(-9223372036854775806L));\n" +
+			"		System.out.print(longThruDouble(-9223372036854775807L));\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"2147483647\n" + 			// not the
+		"-9223372036854775808\n" +  // same as
+		"-9223372036854775808",		// the input
+		options);
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=302919
 public void test048() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());

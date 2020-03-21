@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -116,6 +116,7 @@ public static void checkNeedForCastCast(BlockScope scope, CastExpression enclosi
 
 	CastExpression nestedCast = (CastExpression) enclosingCast.expression;
 	if ((nestedCast.bits & ASTNode.UnnecessaryCast) == 0) return;
+	if (nestedCast.losesPrecision(scope)) return;
 	// check if could cast directly to enclosing cast type, without intermediate type cast
 	CastExpression alternateCast = new CastExpression(null, enclosingCast.type);
 	alternateCast.resolvedType = enclosingCast.resolvedType;
@@ -123,6 +124,23 @@ public static void checkNeedForCastCast(BlockScope scope, CastExpression enclosi
 	scope.problemReporter().unnecessaryCast(nestedCast);
 }
 
+private boolean losesPrecision(Scope scope) {
+	// implements the following from JLS §5.1.2:
+	// "A widening primitive conversion from int to float, or from long to float, or from long to double, may result in loss of precision [...]"
+	// (extended to boxed types)
+	TypeBinding exprType = this.expression.resolvedType;
+	if (exprType.isBoxedPrimitiveType())
+		exprType = scope.environment().computeBoxingType(exprType);
+	switch (this.resolvedType.id) {
+		case TypeIds.T_JavaLangFloat:
+		case TypeIds.T_float: 	// (float)myInt , (float)myLong need rounding
+			return exprType.id == TypeIds.T_int || exprType.id == TypeIds.T_long;
+		case TypeIds.T_JavaLangDouble:
+		case TypeIds.T_double:	// (double)myLong needs rounding
+			return exprType.id == TypeIds.T_long;
+	}
+	return false;
+}
 
 /**
  * Casting an enclosing instance will considered as useful if removing it would actually bind to a different type
