@@ -3495,6 +3495,42 @@ public void test548647a() {
 			"----------\n";
 	runner.runWarningTest();
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=472466 [compiler] bogus warning "unnecessary cast"
+public void test472466() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+	runner.testFiles =
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public int foo() {\n" +
+			"		Object x = 4;\n" +
+			"		Integer y = 5;\n" +
+			"		if (x == (Object)50) return -1;\n" +
+			"		if (x == (Integer)50) return -2;\n" +
+			"		if ((Integer)x == (Integer)50) return -3;\n" +
+			"		if (y == 7) return -4;\n" +
+			"		if ((Integer)y == 9) return -5;\n" +
+			"		if ((Object)50 == x) return -6;\n" +
+			"		if ((Integer)50 == x) return -7;\n" +
+			"		if ((Integer)50 == (Integer)x) return -8;\n" +
+			"		if (7 == y) return -9;\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}\n"
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. WARNING in X.java (at line 9)\n" +
+			"	if ((Integer)y == 9) return -5;\n" +
+			"	    ^^^^^^^^^^\n" +
+			"Unnecessary cast from Integer to Integer\n" +
+			"----------\n";
+	runner.runWarningTest();
+}
 
 public static Class testClass() {
 	return CastTest.class;
