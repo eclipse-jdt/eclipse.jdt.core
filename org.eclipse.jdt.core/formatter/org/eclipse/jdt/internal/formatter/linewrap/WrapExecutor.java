@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 Mateusz Matela and others.
+ * Copyright (c) 2014, 2020 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -149,7 +149,7 @@ public class WrapExecutor {
 			if (token.hasNLSTag())
 				this.isNLSTagInLine = true;
 
-			if (token.isWrappable() && isInsideFormatRegion(token)) {
+			if (token.isWrappable() && isWrapInsideFormatRegion(index)) {
 				WrapPolicy wrapPolicy = token.getWrapPolicy();
 				if (wrapPolicy.wrapMode == WrapMode.TOP_PRIORITY && getLineBreaksBefore() == 0
 						&& index > this.currentTopPriorityGroupEnd) {
@@ -546,7 +546,7 @@ public class WrapExecutor {
 					|| (activeTopPriorityWrap >= 0 && i != activeTopPriorityWrap)
 					|| policiesTried.contains(wrapPolicy)
 					|| wrapPolicy.structureDepth >= depthLimit
-					|| !isInsideFormatRegion(token))
+					|| !isWrapInsideFormatRegion(i))
 				continue;
 			policiesTried.add(wrapPolicy);
 
@@ -678,9 +678,11 @@ public class WrapExecutor {
 		return result;
 	}
 
-	boolean isInsideFormatRegion(Token token) {
-		int pos = token.originalStart;
-		return this.regions.stream().anyMatch(r -> pos >= r.getOffset() && pos < r.getOffset() + r.getLength());
+	boolean isWrapInsideFormatRegion(int tokenIndex) {
+		int pos1 = this.tm.get(tokenIndex - 1).originalEnd;
+		int pos2 = this.tm.get(tokenIndex).originalStart;
+		return this.regions.stream().anyMatch(r -> (pos1 >= r.getOffset() && pos1 < r.getOffset() + r.getLength())
+				|| (pos2 >= r.getOffset() && pos2 < r.getOffset() + r.getLength()));
 	}
 
 	int getWrapIndent(Token token) {

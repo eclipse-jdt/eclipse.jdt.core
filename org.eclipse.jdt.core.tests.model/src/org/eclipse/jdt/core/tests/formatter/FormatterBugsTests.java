@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13103,6 +13103,25 @@ public void testBug559006() {
 		"		doSomething(aaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbb,\n" +
 		"				+ ccccccccccccccccccc);\n" +
 		"		doSomethingElse();\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/560889 - [formatter] Unneeded wraps with "Format edited lines" save action
+ */
+public void testBug560889() {
+	this.formatterPrefs.page_width = 50;
+	formatSource(
+		"class C {\n" +
+		"	void f() {\n" +
+		"[#		doSomething(aaaaaaaaaaaaaaaaaa)#]\n" +
+		"				.andThen(ccccccccccccccccccc);\n" +
+		"	}\n" +
+		"}",
+		"class C {\n" +
+		"	void f() {\n" +
+		"		doSomething(aaaaaaaaaaaaaaaaaa)\n" +
+		"				.andThen(ccccccccccccccccccc);\n" +
 		"	}\n" +
 		"}");
 }
