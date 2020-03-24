@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1775,14 +1775,15 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 	boolean
 		thisHasNulls = (this.tagBits & NULL_FLAG_MASK) != 0,
 		otherHasNulls = (otherInits.tagBits & NULL_FLAG_MASK) != 0,
-		thisHadNulls = thisHasNulls;
+		thisWasUnreachable = false,
+		otherIsUnreachable = false;
 	long
 		a1, a2, a3, a4,
 		na1, na2, na3, na4,
 		nb1, nb2, nb3, nb4,
 		b1, b2, b3, b4;
 	if ((otherInits.tagBits & FlowInfo.UNREACHABLE_BY_NULLANALYSIS) != 0) {
-		otherHasNulls = false; // skip merging, otherInits is unreachable by null analysis
+		otherIsUnreachable = true; // skip merging, otherInits is unreachable by null analysis
 	} else if ((this.tagBits & FlowInfo.UNREACHABLE_BY_NULLANALYSIS) != 0) { // directly copy if this is unreachable by null analysis
 		this.nullBit1 = otherInits.nullBit1;
 		this.nullBit2 = otherInits.nullBit2;
@@ -1790,10 +1791,10 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		this.nullBit4 = otherInits.nullBit4;
 		this.iNBit = otherInits.iNBit;
 		this.iNNBit = otherInits.iNNBit;
-		thisHadNulls = false;
+		thisWasUnreachable = true;
 		thisHasNulls = otherHasNulls;
 		this.tagBits = otherInits.tagBits;
-	} else if (thisHadNulls) {
+	} else if (thisHasNulls) {
     	if (otherHasNulls) {
     		this.nullBit1 = (a1 = this.nullBit1) & (b1 = otherInits.nullBit1) & (
     				((a2 = this.nullBit2) & (((b2 = otherInits.nullBit2) &
@@ -1857,7 +1858,11 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 
 	// treating extra storage
 	if (this.extra != null || otherInits.extra != null) {
-		int mergeLimit = 0, copyLimit = 0, resetLimit = 0;
+		// four areas, but not all combinations are possible: only one of copyLimit/resetLimit will be > 0, takeLimit is exclusive to all others
+		int takeLimit = 0;  // [..takeLimit]			: this is unreachable, take null info from other as-is
+		int mergeLimit = 0; // [0..mergeLimit]			: both flows have extra bits. Merge'em
+		int copyLimit = 0;  // (mergeLimit..copyLimit] 	: only other has extra bits. Copy'em, sheding some doubt
+		int resetLimit = 0; // (copyLimit..resetLimit]  : only this has extra bits. Shed doubt on them.
 		int i;
 		if (this.extra != null) {
 			if (otherInits.extra != null) {
@@ -1929,16 +1934,31 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		  	this.extra[0][i] = 0;
 		}
 		// refine null bits requirements
-		if (!otherHasNulls) {
-		  copyLimit = 0; // no need to carry inexisting nulls
-		  mergeLimit = 0;
-		  resetLimit = 0;
+		if (!otherHasNulls || otherIsUnreachable) {
+			if (otherIsUnreachable) {
+				// other is unreachable, completely ignore it
+				resetLimit = 0;
+			} else {
+				// if there was anything to do, do it per resetLimit loop:
+				resetLimit = Math.max(resetLimit, mergeLimit);
+			}
+			copyLimit = 0; // no need to carry inexisting nulls
+			mergeLimit = 0;
 		}
-		if (!thisHadNulls) {
-		  resetLimit = 0; // no need to reset anything
+		if (thisWasUnreachable) {
+			// completely ignore unreachable info (don't shed any doubts on other)
+			takeLimit = Math.max(resetLimit, mergeLimit);
+			mergeLimit = 0;
+			resetLimit = 0;
 		}
 		// compose nulls
-		for (i = 0; i < mergeLimit; i++) {
+		for (i = 0; i < takeLimit; i++) {
+    		this.extra[1 + 1][i] = otherInits.extra[1+1][i];
+    		this.extra[2 + 1][i] = otherInits.extra[2+1][i];
+    		this.extra[3 + 1][i] = otherInits.extra[3+1][i];
+    		this.extra[4 + 1][i] = otherInits.extra[4+1][i];
+		}
+		for (; i < mergeLimit; i++) {
     		this.extra[1 + 1][i] = (a1=this.extra[1+1][i]) & (b1=otherInits.extra[1+1][i]) & (
     				((a2=this.extra[2+1][i]) & (((b2=otherInits.extra[2+1][i]) &
     												~(((a3=this.extra[3+1][i]) & (a4=this.extra[4+1][i])) ^ ((b3=otherInits.extra[3+1][i]) & (b4=otherInits.extra[4+1][i]))))
@@ -1995,6 +2015,10 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
       		this.extra[2 + 1][i] = (a2 = this.extra[2 + 1][i]) & (na3 = ~(a3 = this.extra[3 + 1][i]) | (na1 = ~a1));
       		this.extra[3 + 1][i] = a3 & ((na2 = ~a2) & (a4 = this.extra[4 + 1][i]) | na1) | a1 & na2 & ~a4;
       		this.extra[4 + 1][i] = (na3 | na2) & na1 & a4	| a1 & na3 & na2;
+      		if (otherInits.extra != null && otherInits.extra[0].length > i) {
+	    		this.extra[IN][i] |= otherInits.extra[IN][i];
+	    		this.extra[INN][i] |= otherInits.extra[INN][i];
+      		}
 			thisHasNulls = thisHasNulls ||
 				this.extra[3][i] != 0 ||
 				this.extra[4][i] != 0 ||
@@ -2121,7 +2145,7 @@ public String toString(){
 				pot += "," + this.extra[1][i]; //$NON-NLS-1$
 				nullS += "," + this.extra[2][i] //$NON-NLS-1$
 				    + this.extra[3][i] + this.extra[4][i] + this.extra[5][i]
-					+", incoming: " + this.extra[IN][i] + this.extra[INN]; //$NON-NLS-1$
+					+", incoming: " + this.extra[IN][i] + this.extra[INN][i]; //$NON-NLS-1$
 			}
 			if (ceil < this.extra[0].length) {
 				def += ",..."; //$NON-NLS-1$
@@ -2308,6 +2332,15 @@ private void createExtraSpace(int length) {
 		this.extra[j] = new long[length];
 	}
 	if ((this.tagBits & UNROOTED) != 0) {
+		Arrays.fill(this.extra[IN], -1L);
+		Arrays.fill(this.extra[INN], -1L);
+	}
+}
+
+public void acceptAllIncomingNullness() {
+	this.iNBit = -1L;
+	this.iNNBit = -1L;
+	if (this.extra != null) {
 		Arrays.fill(this.extra[IN], -1L);
 		Arrays.fill(this.extra[INN], -1L);
 	}

@@ -18384,4 +18384,105 @@ public void testBug551012() {
 		"Redundant null check: The field BAR is a nonnull constant\n" +
 		"----------\n");
 }
+public void testBug561280() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
+	runConformTest(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.List;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class Test\n" +
+			"{\n" +
+			"  protected static final String ERROR_TYPE = \"error\";\n" +
+			"  protected static final String OBJECT_TYPE = \"object\";\n" +
+			"  protected static final String UNKNOWN_FEATURE_TYPE = \"unknownFeature\";\n" +
+			"  protected static final String DOCUMENT_ROOT_TYPE = \"documentRoot\";\n" +
+			"\n" +
+			"  protected final static String TYPE_ATTRIB = \"\";\n" +
+			"  protected final static String NIL_ATTRIB = \"\";\n" +
+			"  protected final static String SCHEMA_LOCATION_ATTRIB = \"\";\n" +
+			"  protected final static String NO_NAMESPACE_SCHEMA_LOCATION_ATTRIB = \"\";\n" +
+			"\n" +
+			"  protected final static boolean DEBUG_DEMANDED_PACKAGES = false;\n" +
+			"\n" +
+			"\n" +
+			"  protected Object xmlResource;\n" +
+			"  protected Object helper;\n" +
+			"  protected Object elements;\n" +
+			"  protected Object objects;\n" +
+			"  protected Object types;\n" +
+			"  protected Object mixedTargets;\n" +
+			"  protected Object prefixesToFactories;\n" +
+			"  protected Object urisToLocations;\n" +
+			"  protected Object externalURIToLocations;\n" +
+			"  protected boolean processSchemaLocations;\n" +
+			"  protected Object extent;\n" +
+			"  protected Object deferredExtent;\n" +
+			"  protected Object resourceSet;\n" +
+			"  protected Object packageRegistry;\n" +
+			"  protected Object resourceURI;\n" +
+			"  protected boolean resolve;\n" +
+			"  protected boolean oldStyleProxyURIs;\n" +
+			"  protected boolean disableNotify;\n" +
+			"  protected StringBuffer text;\n" +
+			"  protected boolean isIDREF;\n" +
+			"  protected boolean isSimpleFeature;\n" +
+			"  protected Object sameDocumentProxies;\n" +
+			"  protected Object[] identifiers;\n" +
+			"  protected int[] positions;\n" +
+			"  protected static final int ARRAY_SIZE = 64;\n" +
+			"  protected static final int REFERENCE_THRESHOLD = 5;\n" +
+			"  protected int capacity;\n" +
+			"  protected Set<String> notFeatures;\n" +
+			"  protected String idAttribute;\n" +
+			"  protected String hrefAttribute;\n" +
+			"  protected Object xmlMap;\n" +
+			"  protected Object extendedMetaData;\n" +
+			"  protected Object anyType;\n" +
+			"  protected Object anySimpleType;\n" +
+			"  protected boolean recordUnknownFeature;\n" +
+			"  protected boolean useNewMethods;\n" +
+			"  protected boolean recordAnyTypeNSDecls;\n" +
+			"  protected Object eObjectToExtensionMap;\n" +
+			"  protected Object contextFeature;\n" +
+			"  protected Object xmlSchemaTypePackage = null;\n" +
+			"  protected boolean deferIDREFResolution;\n" +
+			"  protected boolean processAnyXML;\n" +
+			"  protected Object ecoreBuilder;\n" +
+			"  protected boolean isRoot;\n" +
+			"  protected Object locator;\n" +
+			"  protected Object attribs;\n" +
+			"  protected boolean useConfigurationCache;\n" +
+			"  protected boolean needsPushContext;\n" +
+			"  protected Object resourceEntityHandler;\n" +
+			"  protected Object uriHandler;\n" +
+			"  protected Object documentRoot;\n" +
+			"  protected boolean usedNullNamespacePackage;\n" +
+			"  protected boolean isNamespaceAware;\n" +
+			"  protected boolean suppressDocumentRoot;\n" +
+			"  protected boolean laxWildcardProcessing;\n" +
+			"\n" +
+			"  protected static void processObjectx(Object object)\n" +
+			"  {\n" +
+			"    if (object instanceof List)\n" +
+			"    {\n" +
+			"      List<?> list = ((List<?>)object);\n" +
+			"      list.size();\n" +
+			"    }\n" +
+			"\n" +
+			"    if (object != null)\n" +
+			"    {\n" +
+			"      object.hashCode();\n" +
+			"    }\n" +
+			"    else\n" +
+			"    {\n" +
+			"      System.err.println(\"#\");\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n"
+		});
+}
 }

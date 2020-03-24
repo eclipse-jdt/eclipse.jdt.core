@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -87,8 +87,7 @@ public ExceptionHandlingFlowContext(
 	this(parent, tryStatement, handledExceptions, exceptionToCatchBlockMap,
 			tryStatement.catchArguments, initializationParent, scope, flowInfo.unconditionalInits());
 	UnconditionalFlowInfo unconditionalCopy = flowInfo.unconditionalCopy();
-	unconditionalCopy.iNBit = -1L;
-	unconditionalCopy.iNNBit = -1L;
+	unconditionalCopy.acceptAllIncomingNullness();
 	unconditionalCopy.tagBits |= FlowInfo.UNROOTED;
 	this.initsOnFinally = unconditionalCopy;
 }
