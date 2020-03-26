@@ -270,11 +270,12 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			// shortcut regular copy because array copy is better
 			int otherLength;
 			this.extra = new long[extraLength][];
-			System.arraycopy(otherInits.extra[0], 0,
-				(this.extra[0] = new long[otherLength =
-					otherInits.extra[0].length]), 0, otherLength);
-			System.arraycopy(otherInits.extra[1], 0,
-				(this.extra[1] = new long[otherLength]), 0, otherLength);
+			this.extra[0] = new long[otherLength = otherInits.extra[0].length];
+			this.extra[1] = new long[otherLength];
+			if (handleInits) {
+				System.arraycopy(otherInits.extra[0], 0, this.extra[0], 0, otherLength);
+				System.arraycopy(otherInits.extra[1], 0, this.extra[1], 0, otherLength);
+			}
 			if (otherHasNulls) {
 				for (int j = 2; j < extraLength; j++) {
 					System.arraycopy(otherInits.extra[j], 0,
@@ -2284,6 +2285,9 @@ public UnconditionalFlowInfo mergeDefiniteInitsWith(UnconditionalFlowInfo otherI
 				// current storage is longer
 				for (; i < otherLength; i++) {
 					this.extra[0][i] &= otherInits.extra[0][i];
+				}
+				for (; i < length; i++) {
+					this.extra[0][i] = 0; // absent otherInit.extra means: all are 0
 				}
 			}
 		} else {
