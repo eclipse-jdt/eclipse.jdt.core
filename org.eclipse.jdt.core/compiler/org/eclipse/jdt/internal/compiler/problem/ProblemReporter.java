@@ -222,6 +222,9 @@ public class ProblemReporter extends ProblemHandler {
 	  CONSTRUCTOR_ACCESS = 0x8,
 	  METHOD_ACCESS = 0xC;
 
+	private static String RESTRICTED_IDENTIFIER_RECORD = "RestrictedIdentifierrecord"; //$NON-NLS-1$
+	private static String RECORD = "record"; //$NON-NLS-1$
+
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	super(policy, options, problemFactory);
 }
@@ -7647,7 +7650,7 @@ public void parseErrorReplaceToken(
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
-	syntaxError(
+	handleSyntaxError(
 		IProblem.ParsingError,
 		start,
 		end,
@@ -8221,6 +8224,60 @@ public void superTypeCannotUseWildcard(SourceTypeBinding type, TypeReference sup
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
+private boolean handleSyntaxErrorOnNewTokens(
+	int id,
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken) {
+	boolean val = false;
+	if (isIdentifier(currentKind)) {
+		String eTokenName = new String(errorTokenSource);
+		String origExpectedToken = expectedToken;
+		expectedToken = replaceIfSynthetic(expectedToken);
+		if (isIdentifier(currentKind)) {
+			if (RESTRICTED_IDENTIFIER_RECORD.equals(origExpectedToken) && RECORD.equals(eTokenName)) {
+				if (this.options.sourceLevel < ClassFileConstants.JDK14) {
+					previewFeatureNotSupported(start, end, RECORD, CompilerOptions.VERSION_14);
+					val = true;
+				} else if (!this.options.enablePreviewFeatures) {
+					previewFeatureNotEnabled(start, end, RECORD);
+					val = true;
+				}
+			}
+		}
+	}
+	return val;
+}
+private void handleSyntaxError(
+	int id,
+	int start,
+	int end,
+	int currentKind,
+	char[] errorTokenSource,
+	String errorTokenName,
+	String expectedToken) {
+	if (!handleSyntaxErrorOnNewTokens(
+			IProblem.ParsingError,
+			start,
+			end,
+			currentKind,
+			errorTokenSource,
+			errorTokenName,
+			expectedToken
+			)) {
+		syntaxError(
+			IProblem.ParsingError,
+			start,
+			end,
+			currentKind,
+			errorTokenSource,
+			errorTokenName,
+			expectedToken);
+	}
+}
 private void syntaxError(
 	int id,
 	int startPosition,
@@ -8271,8 +8328,8 @@ private String replaceIfSynthetic(String token) {
 		return "("; //$NON-NLS-1$
 	if (token.equals("RestrictedIdentifierYield")) //$NON-NLS-1$
 		return "yield"; //$NON-NLS-1$
-	if (token.equals("RestrictedIdentifierrecord")) //$NON-NLS-1$
-		return "record"; //$NON-NLS-1$
+	if (token.equals(RESTRICTED_IDENTIFIER_RECORD))
+		return RECORD;
 	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){
