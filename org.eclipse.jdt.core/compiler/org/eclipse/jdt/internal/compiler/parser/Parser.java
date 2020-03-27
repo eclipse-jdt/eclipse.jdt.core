@@ -917,6 +917,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 
 	protected int nestedType, dimensions, switchNestingLevel;
 	ASTNode [] noAstNodes = new ASTNode[AstStackIncrement];
+	public boolean switchWithTry = false;
 
 	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
 	//modifiers dimensions nestedType etc.......
@@ -9839,6 +9840,7 @@ protected void consumeDefaultLabelExpr() {
 
 	class ResultExpressionsCollector extends ASTVisitor {
 		Stack<SwitchExpression> targetSwitchExpressions;
+		Stack<TryStatement> tryStatements;
 		public ResultExpressionsCollector(SwitchExpression se) {
 			if (this.targetSwitchExpressions == null)
 				this.targetSwitchExpressions = new Stack<>();
@@ -9865,6 +9867,8 @@ protected void consumeDefaultLabelExpr() {
 				// flag an error while resolving
 				yieldStatement.switchExpression = targetSwitchExpression;
 			}
+			if (this.tryStatements != null && !this.tryStatements.empty())
+				yieldStatement.tryStatement = this.tryStatements.peek();
 			return true;
 		}
 		@Override
@@ -9874,6 +9878,20 @@ protected void consumeDefaultLabelExpr() {
 		@Override
 		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
 			return false;
+		}
+		@Override
+		public boolean visit(TryStatement stmt, BlockScope blockScope) {
+			if (this.tryStatements == null)
+				this.tryStatements = new Stack<>();
+			this.tryStatements.push(stmt);
+			SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
+			targetSwitchExpression.containsTry = true;
+			stmt.enclosingSwitchExpression = targetSwitchExpression;
+			return true;
+		}
+		@Override
+		public void endVisit(TryStatement stmt, BlockScope blockScope) {
+			this.tryStatements.pop();
 		}
 	}
 	s.resultExpressions = new ArrayList<>(0); // indicates processed
@@ -9907,6 +9925,7 @@ protected void consumeSwitchExpression() {
 			problemReporter().switchExpressionsNotSupported(s);
 		}
 		collectResultExpressionsYield(s);
+		this.switchWithTry |= s.containsTry;
 		pushOnExpressionStack(s);
 	}
 }
@@ -12237,6 +12256,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.intPtr = -1;
 	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
 	this.switchNestingLevel = 0;
+	this.switchWithTry = false;
 	this.variablesCounter[this.nestedType] = 0;
 	this.dimensions = 0 ;
 	this.realBlockPtr = -1;
@@ -13411,6 +13431,7 @@ protected void prepareForBlockStatements() {
 	this.variablesCounter[this.nestedType] = 0;
 	this.realBlockStack[this.realBlockPtr = 1] = 0;
 	this.switchNestingLevel = 0;
+	this.switchWithTry = false;
 }
 /**
  * Returns this parser's problem reporter initialized with its reference context.
@@ -14019,7 +14040,8 @@ protected void resetStacks() {
 	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
 	this.variablesCounter[this.nestedType] = 0;
 	this.switchNestingLevel = 0;
-	
+	this.switchWithTry = false;
+
 	this.dimensions = 0 ;
 	this.realBlockStack[this.realBlockPtr = 0] = 0;
 	this.recoveredStaticInitializerStart = 0;
@@ -14249,6 +14271,7 @@ public void copyState(Parser from) {
 	this.intPtr = parser.intPtr;
 	this.nestedType = parser.nestedType;
 	this.switchNestingLevel = parser.switchNestingLevel;
+	this.switchWithTry = parser.switchWithTry;
 	this.realBlockPtr = parser.realBlockPtr;
 	this.valueLambdaNestDepth = parser.valueLambdaNestDepth;
 	

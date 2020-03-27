@@ -222,7 +222,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			signature.append(this.expectedType.signature());
 		}
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
-		codeStream.invokeDynamic(invokeDynamicNumber, (this.shouldCaptureInstance ? 1 : 0) + this.outerLocalVariablesSlotSize, 1, this.descriptor.selector, signature.toString().toCharArray());
+		codeStream.invokeDynamic(invokeDynamicNumber, (this.shouldCaptureInstance ? 1 : 0) + this.outerLocalVariablesSlotSize, 1, this.descriptor.selector, signature.toString().toCharArray(),
+				this.resolvedType.id, this.resolvedType);
 		if (!valueRequired)
 			codeStream.pop();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);		

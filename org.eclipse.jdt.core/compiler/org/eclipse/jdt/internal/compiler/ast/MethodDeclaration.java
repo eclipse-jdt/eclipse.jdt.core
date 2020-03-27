@@ -221,6 +221,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		//fill up the method body with statement
 		parser.parse(this, unit);
+		this.containsSwitchWithTry = parser.switchWithTry;
 	}
 
 	@Override

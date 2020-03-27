@@ -26,7 +26,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug552764" };
+//		TESTS_NAMES = new String[] { "testBug545567" };
 	}
 	
 	public static Class<?> testClass() {
@@ -49,10 +49,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
-	protected void runConformTestWithJavac(String[] testFiles, String expectedOutput) {
-		runConformTest(testFiles, expectedOutput, _getCompilerOptions(), new String[] {"--enable-preview"}, new JavacTestOptions("-source 14 --enable-preview"));
-	}
-	
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions());
@@ -3805,7 +3801,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 		public void testConversion1() {
-		runConformTestWithJavac(
+		runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -3833,7 +3829,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"int");
 	}
 	public void testConversion2() {
-		runConformTestWithJavac(
+		runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -3861,7 +3857,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"double");
 	}
 	public void testConversion3() {
-		runConformTestWithJavac(
+		runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -3889,7 +3885,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"float");
 	}
 	public void testConversion4() {
-		runConformTestWithJavac(
+		runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -3917,7 +3913,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"int");
 	}
 	public void testConversion5() {
-		runConformTestWithJavac(
+		runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -3940,5 +3936,863 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"}\n"
 				}, 
 				"char");
+	}
+	public void testBug545567_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	int t = switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield 1;\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"                yield 3;\n" +
+						"            }\n" +
+						"        }\n" +
+						"     };\n" +
+						"     System.out.println(t);\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"3");
+	}
+	public void testBug545567_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	float t = switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield 1;\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"                yield 3;\n" +
+						"            }\n" +
+						"        }\n" +
+						"     };\n" +
+						"     System.out.println(t);\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"3.0");
+	}
+	public void testBug545567_3() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	String t = switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield \"one\";\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"                yield \"three\";\n" +
+						"            }\n" +
+						"        }\n" +
+						"     };\n" +
+						"     System.out.println(t);\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"three");
+	}
+	public void testBug545567_4() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	String t = switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield \"one\";\n" +
+						"            }\n" +
+						"            catch (Exception ex) {\n" +
+						"                yield \"two\";\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"                yield \"three\";\n" +
+						"            }\n" +
+						"        }\n" +
+						"     };\n" +
+						"     System.out.println(t);\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"three");
+	}
+	public void testBug545567_5() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	String t = switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield \"one\";\n" +
+						"            }\n" +
+						"            catch (Exception ex) {\n" +
+						"            }\n" +
+						"            yield \"zero\";\n" +
+						"        }\n" +
+						"     };\n" +
+						"     System.out.print(t);\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"one");
+	}
+	public void testBug545567_6() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	(new X()).foo(switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield \"one\";\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"            	yield \"zero\";\n" +
+						"            }\n" +
+						"        }\n" +
+						"     });\n" +
+						"    }\n" +
+						"     public void foo (String str) {\n" +
+						"     	System.out.print(str);\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"zero");
+	}
+	public void testBug545567_7() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	System.out.print(switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield \"one\";\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"            	yield \"zero\";\n" +
+						"            }\n" +
+						"        }\n" +
+						"     });\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"zero");
+	}
+	public void testBug545567_8() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    @SuppressWarnings({ \"preview\", \"finally\", \"preview\" })\n" +
+						"	public static void main(String[] args) {\n" +
+						"    	System.out.print(switch (0) {\n" +
+						"        default -> {\n" +
+						"            try {\n" +
+						"                yield 1;\n" +
+						"            }\n" +
+						"            catch (Exception ex) {\n" +
+						"                yield 2;\n" +
+						"            }\n" +
+						"            finally {\n" +
+						"                yield 3;\n" +
+						"            }\n" +
+						"        }\n" +
+						"     });\n" +
+						"    }\n" +
+						"}\n" +
+						"\n"
+				},
+				"3");
+	}
+	public void testBug545567_9() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       public static void main(String[] args) {\n"+
+					"       new X().foo(args);\n"+
+					"    }\n"+
+					"    @SuppressWarnings({ \"finally\" })\n"+
+					"       public void foo(String[] args) {\n"+
+					"       int t = switch (0) {\n"+
+					"        default -> {\n"+
+					"             try {\n"+
+					"                yield 1;\n"+
+					"            }\n"+
+					"            catch (Exception ex) {\n"+
+					"                yield 2; \n"+
+					"            }\n"+
+					"            finally {\n"+
+					"                yield 3;\n"+
+					"            }\n"+
+					"        }       \n"+
+					"     };\n"+
+					"       t += switch (0) {\n"+
+					"    default -> {\n"+
+					"         try {\n"+
+					"            yield 1;\n"+
+					"        }\n"+
+					"        catch (Exception ex) {\n"+
+					"            yield 2; \n"+
+					"        }\n"+
+					"        finally {\n"+
+					"            yield 3;\n"+
+					"        }\n"+
+					"    }       \n"+
+					" };\n"+
+					"     System.out.println(t);\n"+
+					"    } \n"+
+					"}\n"
+				},
+				"6");
+	}
+	public void testBug545567_10() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+								"       public static void main(String[] args) {\n"+
+								"       new X().foo(args);\n"+
+								"    }\n"+
+								"    @SuppressWarnings({ \"finally\" })\n"+
+								"       public void foo(String[] args) {\n"+
+								"       int k = 0;\n"+
+								"       int t = switch (0) {\n"+
+								"        default -> {\n"+
+								"             try {\n"+
+								"                k = switch (0) {\n"+
+								"                   default -> {\n"+
+								"                        try {\n"+
+								"                           yield 10;\n"+
+								"                       }\n"+
+								"                       catch (Exception ex) {\n"+
+								"                           yield 20; \n"+
+								"                       }\n"+
+								"                       finally {\n"+
+								"                           yield 30;\n"+
+								"                       }\n"+
+								"                   }       \n"+
+								"                };\n"+
+								"            }\n"+
+								"            catch (Exception ex) {\n"+
+								"                yield 2; \n"+
+								"            }\n"+
+								"            finally {\n"+
+								"                yield 3;\n"+
+								"            }\n"+
+								"        }       \n"+
+								"     };\n"+
+								"     System.out.println(t + k);\n"+
+								"    } \n"+
+								"}\n"
+				},
+				"33");
+	}
+	public void testBug545567_11() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+								"       public static void main(String[] args) {\n"+
+								"       new X().foo(args);\n"+
+								"    }\n"+
+								"    @SuppressWarnings({ \"finally\" })\n"+
+								"       public void foo(String[] args) {\n"+
+								"       int k = 0;\n"+
+								"       int t = switch (0) {\n"+
+								"        default -> {\n"+
+								"             try {\n"+
+								"                k = switch (0) {\n"+
+								"                   default -> {\n"+
+								"                        try {\n"+
+								"                           yield 10;\n"+
+								"                       }\n"+
+								"                       catch (Exception ex) {\n"+
+								"                           yield 20; \n"+
+								"                       }\n"+
+								"                   }       \n"+
+								"                };\n"+
+								"            }\n"+
+								"            catch (Exception ex) {\n"+
+								"                yield 2; \n"+
+								"            }\n"+
+								"            finally {\n"+
+								"                yield 3;\n"+
+								"            }\n"+
+								"        }       \n"+
+								"     };\n"+
+								"     System.out.println(t + k);\n"+
+								"    } \n"+
+								"}\n"
+				},
+				"13");
+	}
+	public void testBug545567_12() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+								"       public static void main(String[] args) {\n"+
+								"       new X().foo(args);\n"+
+								"    }\n"+
+								"    @SuppressWarnings({ \"finally\" })\n"+
+								"       public void foo(String[] args) {\n"+
+								"       int k = 0;\n"+
+								"       int t = switch (0) {\n"+
+								"        default -> {\n"+
+								"             try {\n"+
+								"                k = switch (0) {\n"+
+								"                   default -> {\n"+
+								"                        try {\n"+
+								"                           yield 10;\n"+
+								"                       }\n"+
+								"                       catch (Exception ex) {\n"+
+								"                           yield 20; \n"+
+								"                       }\n"+
+								"                       finally {\n"+
+								"                           yield 30;\n"+
+								"                       }\n"+
+								"                   }       \n"+
+								"                };\n"+
+								"            }\n"+
+								"            finally {\n"+
+								"                yield 3;\n"+
+								"            }\n"+
+								"        }       \n"+
+								"     };\n"+
+								"     System.out.println(t + k);\n"+
+								"    } \n"+
+								"}\n"
+				},
+				"33");
+	}
+	public void testBug545567_13() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"        case 0 -> {yield 100;}\n"+
+				"           default -> {  \n"+
+				"                try {\n"+
+				"                   yield 1;\n"+
+				"               }\n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }\n"+
+				"               finally {\n"+
+				"                   yield 3; \n"+
+				"               }\n"+
+				"           }  \n"+
+				"        } + switch (10) {\n"+
+				"        case 0 -> {yield 1024;}\n"+
+				"        default -> {  \n"+
+				"             try {\n"+
+				"                yield 10;\n"+
+				"            }\n"+
+				"            catch (Exception ex) {\n"+
+				"                yield 20;\n"+
+				"             }\n"+
+				"            finally {\n"+
+				"                yield 30; \n"+
+				"            }\n"+
+				"        }  \n"+
+				"     });  \n"+
+				"    }\n"+
+				"}\n"
+			},
+			"33");
+	}
+	public void testBug545567_14() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"        case 0 -> {yield 100;}\n"+
+				"           default -> {  \n"+
+				"                try {\n"+
+				"                   yield 1;\n"+
+				"               }\n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }\n"+
+				"               finally {\n"+
+				"                 yield switch (10) {\n"+
+				"                   case 0 -> {yield 1024;}\n"+
+				"                   default -> {  \n"+
+				"                        try {\n"+
+				"                           yield 10;\n"+
+				"                       }\n"+
+				"                       catch (Exception ex) {\n"+
+				"                           yield 20;\n"+
+				"                        }\n"+
+				"                       finally {\n"+
+				"                           yield 30; \n"+
+				"                       }\n"+
+				"                   }  \n"+
+				"                };               }\n"+
+				"           }  \n"+
+				"        });  \n"+
+				"    }\n"+
+				"}\n"
+			},
+			"30");
+	}
+	public void testBug545567_15() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"        case 0 -> {yield 100;}\n"+
+				"           default -> {  \n"+
+				"                try {\n"+
+				"                       yield 1;\n"+
+				"               }\n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }\n"+
+				"               finally {\n"+
+				"                   System.out.println(switch (1) {\n"+
+				"                    default -> {yield 100;}});\n"+
+				"                  yield 1;\n"+
+				"                }\n"+
+				"           }  \n"+
+				"        });  \n"+
+				"    }\n"+
+				"}\n"
+			},
+			"100\n1");
+	}
+	public void testBug545567_16() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"        case 0 -> {yield 100;}\n"+
+				"           default -> {   \n"+
+				"                try {\n"+
+				"                    yield switch (10) {\n"+
+				"                    case 0 -> {yield 1024;}\n"+
+				"                    default -> {   \n"+
+				"                         try {\n"+
+				"                            yield 10; \n"+
+				"                        }   \n"+
+				"                        catch (Exception ex) {\n"+
+				"                            yield 20; \n"+
+				"                         }   \n"+
+				"                        finally {\n"+
+				"                            yield 30; \n"+
+				"                        }   \n"+
+				"                    }   \n"+
+				"                 };                 \n"+
+				"               }   \n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }   \n"+
+				"               finally {\n"+
+				"                 yield 3;               }   \n"+
+				"           }   \n"+
+				"        });  \n"+
+				"    }   \n"+
+				"}\n"
+			},
+			"3");
+	}
+	public void testBug545567_17() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"        case 0 -> {yield 100;}\n"+
+				"           default -> {   \n"+
+				"                try {\n"+
+				"                    System.out.println( switch (10) {\n"+
+				"                    case 0 -> {yield 1024;}\n"+
+				"                    default -> {   \n"+
+				"                         try {\n"+
+				"                            yield 10; \n"+
+				"                        }   \n"+
+				"                        catch (Exception ex) {\n"+
+				"                            yield 20; \n"+
+				"                         }    \n"+
+				"                        finally {\n"+
+				"                            yield 30; \n"+
+				"                        }   \n"+
+				"                    }   \n"+
+				"                 }); \n"+
+				"                   yield 1;   \n"+
+				"               }   \n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }   \n"+
+				"               finally {\n"+
+				"                 yield 3;               }   \n"+
+				"           }   \n"+
+				"        });  \n"+
+				"    }   \n"+
+				"}\n"
+			},
+			"30\n"+
+			"3");
+	}
+	public void testBug545567_18() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				"       public static void main(String[] args) {\n"+
+				"       new X().foo(args);\n"+
+				"    }   \n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public void foo(String[] args) {\n"+
+				"       int t = 0;\n"+
+				"       t += switch (200) {\n"+
+				"       case 0 -> {yield 100;}\n"+
+				"        default -> {\n"+
+				"             try {\n"+
+				"                yield 1;\n"+
+				"            }   \n"+
+				"            catch (Exception ex) {\n"+
+				"                yield 2;  \n"+
+				"            }   \n"+
+				"            finally {\n"+
+				"                yield 3;\n"+
+				"            }   \n"+
+				"        }\n"+
+				"     };\n"+
+				"     System.out.println(t);\n"+
+				"    }   \n"+
+				"}\n"
+			},
+			"3");
+	}
+	public void testBug545567_19() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"           default -> {   \n"+
+				"                try {  \n"+
+				"                    yield switch (10) {\n"+
+				"                    default -> {   \n"+
+				"                         try {\n"+
+				"                            yield 10; \n"+
+				"                        }   \n"+
+				"                        catch (Exception ex) {\n"+
+				"                            yield 20; \n"+
+				"                         }   \n"+
+				"                        finally {\n"+
+				"                            yield 30; \n"+
+				"                         }   \n"+
+				"                    }   \n"+
+				"                 };                 \n"+
+				"               }   \n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }   \n"+
+				"               finally {\n"+
+				"                 yield 3;               }     \n"+
+				"           }   \n"+
+				"        });   \n"+
+				"    }   \n"+
+				"} \n"+
+				"\n"
+			},
+			"3");
+	}
+	// test with Autocloseable
+	public void testBug545567_20() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"           default -> {   \n"+
+				"                try(Y y = new Y();) { \n"+
+				"                       yield  1;\n"+
+				"                }\n"+
+				"               catch (Exception ex) {\n"+
+				"                   yield 2;\n"+
+				"                }   \n"+
+				"               finally {\n"+
+				"                 yield 3;\n" +
+				"               }\n"+
+				"           }\n"+
+				"        });\n"+
+				"    }\n"+
+				"} \n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {\n"+
+				"               // do nothing\n"+
+				"       }\n"+
+				"}\n"
+			},
+			"3");
+	}
+	public void testBug545567_21() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"        System.out.println(switch (1) {\n"+
+				"           default -> {   \n"+
+				"                try(Y y = new Y();) { \n"+
+				"                       yield  10;\n"+
+				"                }\n"+
+				"               catch (Exception ex) {\n"+
+				"                }   \n"+
+				"                 yield 3;\n" +
+				"           }\n"+
+				"        });\n"+
+				"    }\n"+
+				"} \n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {\n"+
+				"               // do nothing\n"+
+				"       }\n"+
+				"}\n"
+			},
+			"10");
+	}
+	public void testBug545567_22() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"       @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"               int argslength = args.length;\n"+
+				"               int t = switch (1) {\n"+
+				"                       case 0 -> {\n"+
+				"                               yield 100;\n"+
+				"                       }\n"+
+				"                       default -> {\n"+
+				"                               try (Y y = new Y();){\n"+
+				"                                               if (argslength < 1)\n"+
+				"                                               yield 10;\n"+
+				"                                               else\n"+
+				"                                                       yield 12;\n"+
+				"                               } catch (Exception ex) {\n"+
+				"                                       yield 2;\n"+
+				"                               } finally {\n"+
+				"                                       yield 3;\n"+
+				"                               }\n"+
+				"                       }\n"+
+				"               };   \n"+
+				"               System.out.println(t);\n"+
+				"       }\n"+
+				"}\n"+
+				"      \n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {\n"+
+				"               // do nothing\n"+
+				"       } \n"+
+				"}\n"
+			},
+			"3");
+	}
+	public void testBug545567_23() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"       @SuppressWarnings({ \"finally\" })\n"+
+				"       public static void main(String[] args) {\n"+
+				"               int t = switch (1) {\n"+
+				"                       case 0 -> {\n"+
+				"                               yield 100;\n"+
+				"                       }\n"+
+				"                       default -> {\n"+
+				"                               try {\n"+
+				"                                       throw new Exception();\n"+
+				"                               } catch (Exception ex) {\n"+
+				"                                       yield 2;\n"+
+				"                               } finally {\n"+
+				"                                       yield 3;\n"+
+				"                               }\n"+
+				"                       }\n"+
+				"               };   \n"+
+				"               System.out.println(t);\n"+
+				"       }\n"+
+				"}\n"+
+				"      \n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {\n"+
+				"               // do nothing\n"+
+				"       } \n"+
+				"}\n"
+			},
+			"3");
+	}
+	public void testBug545567_24() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   new X().foo();\n"+
+				" }\n"+
+				" @SuppressWarnings({ \"finally\" })\n"+
+				" public  void foo() {\n"+
+				"   int t = switch (1) {\n"+
+				"     case 0 -> {\n"+
+				"       yield bar(100);\n"+
+				"     }\n"+
+				"     default -> {\n"+
+				"       final Y y2 = new Y();\n"+
+				"       try (Y y = new Y(); y2){\n"+
+				"           yield bar(10);\n"+
+				"       } catch (Exception ex) {\n"+
+				"         yield bar(2);\n"+
+				"       } finally {\n"+
+				"         yield bar(3);\n"+
+				"       }\n"+
+				"     }\n"+
+				"   };   \n"+
+				"   System.out.println(t);\n"+
+				" }\n"+
+				" public int bar(int i) {\n"+
+				"   return i;\n"+
+				" }\n"+
+				"}\n"+
+				"\n"+
+				"class Y implements AutoCloseable {\n"+
+				" @Override\n"+
+				" public void close() throws Exception {\n"+
+				"   // do nothing\n"+
+				" }\n"+
+				"}"
+			},
+			"3");
+	}
+	public void testBug545567_25() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   new X().foo();\n"+
+				" }\n"+
+				" @SuppressWarnings({ \"finally\" })\n"+
+				" public  void foo() {\n"+
+				"   int t = switch (1) {\n"+
+				"     case 0 -> {\n"+
+				"       yield bar(100);\n"+
+				"     }\n"+
+				"     default -> {\n"+
+				"       final Y y2 = new Y();\n"+
+				"       try (Y y = new Y(); y2){\n"+
+				"           yield new X().bar(10);\n"+
+				"       } catch (Exception ex) {\n"+
+				"         yield bar(2);\n"+
+				"       } finally {\n"+
+				"         yield new X().bar(3);\n"+
+				"       }\n"+
+				"     }\n"+
+				"   };   \n"+
+				"   System.out.println(t);\n"+
+				" }\n"+
+				" public int bar(int i) {\n"+
+				"   return i;\n"+
+				" }\n"+
+				"}\n"+
+				"\n"+
+				"class Y implements AutoCloseable {\n"+
+				" @Override\n"+
+				" public void close() throws Exception {\n"+
+				"   // do nothing\n"+
+				" }\n"+
+				"}"
+			},
+			"3");
+	}
+	// NPE here to correct
+	public void _testBug545567_xx() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    @SuppressWarnings({ \"finally\" })\n"+
+					"       public static void main(String[] args) {\n"+
+					"        System.out.println(switch (1) {\n"+
+					"        case 0 -> {yield 100;}\n"+
+					"           default -> {  \n"+
+					"                try {\n"+
+					"                       yield switch(0) {\n"+
+					"               }\n"+
+					"               catch (Exception ex) {\n"+
+					"                   yield 2;\n"+
+					"                }\n"+
+					"               finally {\n"+
+					"                  yield 3;\n"+
+					"                }\n"+
+					"           }  \n"+
+					"        });  \n"+
+					"    }\n"+
+					"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
+				"	     ^^^^^^^\n" +
+				"Type mismatch: cannot convert from String to int\n" +
+				"----------\n");
+
 	}
 }

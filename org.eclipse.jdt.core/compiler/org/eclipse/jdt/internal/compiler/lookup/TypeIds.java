@@ -283,4 +283,8 @@ public interface TypeIds {
 	 * Set of type bits that should be inherited by any sub types.
 	 */
 	final int InheritableBits = BitAutoCloseable | BitCloseable | BitUninternedType | BitMap | BitCollection | BitList ;
+	
+	public static int getCategory(int typeId) {
+		return typeId == TypeIds.T_double || typeId == TypeIds.T_long ? 2 : 1;
+	}
 }

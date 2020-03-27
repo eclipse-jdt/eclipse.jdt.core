@@ -403,6 +403,9 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 
 			// normal local assignment (since cannot store in outer local which are final locations)
 			codeStream.store(localBinding, valueRequired);
+			if ((this.bits & ASTNode.IsSecretYieldValueUsage) != 0) {
+				localBinding.recordInitializationStartPC(codeStream.position);
+			}
 			if ((this.bits & ASTNode.FirstAssignmentToLocal) != 0) { // for local variable debug attributes
 				localBinding.recordInitializationStartPC(codeStream.position);
 			}

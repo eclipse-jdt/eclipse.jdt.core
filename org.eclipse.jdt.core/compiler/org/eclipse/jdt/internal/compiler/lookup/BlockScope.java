@@ -211,6 +211,42 @@ private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 	varBinding.modifiers = modifiers;
 }
 
+public void adjustLocalVariablePositions(int delta, boolean offsetAlreadyUpdated) {
+	this.offset += offsetAlreadyUpdated ? 0 : delta;
+	if (this.offset > this.maxOffset)
+		this.maxOffset = this.offset;
+
+	for (Scope subScope : this.subscopes) {
+		if (subScope instanceof BlockScope) {
+			((BlockScope) subScope).adjustCurrentAndSubScopeLocalVariablePositions(delta);
+		}
+	}
+
+	Scope scope = this.parent;
+	while (scope instanceof BlockScope) {
+		BlockScope pBlock = (BlockScope) scope;
+		int diff = this.maxOffset - pBlock.maxOffset;
+		pBlock.maxOffset += diff > 0 ? diff : 0;
+		if (scope instanceof MethodScope)
+			break;
+		scope = scope.parent;
+	}
+}
+public void adjustCurrentAndSubScopeLocalVariablePositions(int delta) {
+	this.offset += delta;
+	if (this.offset > this.maxOffset)
+		this.maxOffset = this.offset;
+
+	for (LocalVariableBinding lvb : this.locals) {
+		if (lvb != null && lvb.resolvedPosition != -1)
+			lvb.resolvedPosition += delta;
+	}
+	for (Scope subScope : this.subscopes) {
+		if (subScope instanceof BlockScope) {
+			((BlockScope) subScope).adjustCurrentAndSubScopeLocalVariablePositions(delta);
+		}
+	}
+}
 /* Compute variable positions in scopes given an initial position offset
  * ignoring unused local variables.
  *

@@ -545,7 +545,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		return;
 	}
 	parser.parse(this, unit, false);
-
+	this.containsSwitchWithTry = parser.switchWithTry;
 }
 
 @Override
