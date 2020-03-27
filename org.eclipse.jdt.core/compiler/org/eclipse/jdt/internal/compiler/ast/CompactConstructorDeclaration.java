@@ -28,6 +28,7 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		parser.parse(this, unit, false);
+		this.containsSwitchWithTry = parser.switchWithTry;
 	}
 	@Override
 	protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding field) {

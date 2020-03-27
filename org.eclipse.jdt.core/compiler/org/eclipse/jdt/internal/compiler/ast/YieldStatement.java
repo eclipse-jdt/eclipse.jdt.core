@@ -17,16 +17,21 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class YieldStatement extends BranchStatement {
 
 	public Expression expression;
 	public SwitchExpression switchExpression;
+	public TryStatement tryStatement;
 	/**
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public boolean isImplicit;
+	static final char[] SECRET_YIELD_RESULT_VALUE_NAME = " secretYieldValue".toCharArray(); //$NON-NLS-1$
+	private LocalVariableBinding secretYieldResultValue = null;
+	public BlockScope scope;
 
 public YieldStatement(Expression exp, int sourceStart, int sourceEnd) {
 	super(null, sourceStart, sourceEnd);
@@ -80,8 +85,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (traversedContext instanceof InsideSubRoutineFlowContext) {
 			ASTNode node = traversedContext.associatedNode;
 			if (node instanceof TryStatement) {
-				TryStatement tryStatement = (TryStatement) node;
-				flowInfo.addInitializationsFrom(tryStatement.subRoutineInits); // collect inits
+				flowInfo.addInitializationsFrom(((TryStatement) node).subRoutineInits); // collect inits
 			}
 		} else if (traversedContext == targetContext) {
 			// only record break info once accumulated through subroutines, and only against target context
@@ -97,59 +101,104 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return FlowInfo.DEAD_END;
 }
 @Override
-protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
-	this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
+protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
+	sub.setSwitchExpression(this.switchExpression);
+}
+protected void addSecretYieldResultValue(BlockScope scope1) {
+	SwitchExpression se = this.switchExpression;
+	if (se == null || !se.containsTry)
+		return;
+	LocalVariableBinding local = new LocalVariableBinding(
+			YieldStatement.SECRET_YIELD_RESULT_VALUE_NAME,
+			se.resolvedType,
+			ClassFileConstants.AccDefault,
+			false);
+	local.setConstant(Constant.NotAConstant);
+	local.useFlag = LocalVariableBinding.USED;
+	local.declaration = new LocalDeclaration(YieldStatement.SECRET_YIELD_RESULT_VALUE_NAME, 0, 0);
+	assert se.yieldResolvedPosition >= 0;
+	local.resolvedPosition = se.yieldResolvedPosition;
+	assert local.resolvedPosition < this.scope.maxOffset;
+	this.scope.addLocalVariable(local);
+	this.secretYieldResultValue = local;
+}
+
+@Override
+protected void restartExceptionLabels(CodeStream codeStream) {
+	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
 }
 @Override
-protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
-	if (this.label == null && this.expression != null && this.switchExpression != null) {
-		TypeBinding postConversionType = this.expression.postConversionType(currentScope);
-		switch(postConversionType.id) {
-			case TypeIds.T_long :
-			case TypeIds.T_double :
-				codeStream.decrStackSize(2);
-				break;
-			case TypeIds.T_void :
-				break;
-			default :
-				codeStream.decrStackSize(1);
-				break;
+protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
+	SwitchExpression se = this.switchExpression;
+	if (se != null && se.containsTry && se.resolvedType != null ) {
+		addSecretYieldResultValue(this.scope);
+		assert this.secretYieldResultValue != null;
+		codeStream.record(this.secretYieldResultValue);
+		SingleNameReference lhs = new SingleNameReference(this.secretYieldResultValue.name, 0);
+		lhs.binding = this.secretYieldResultValue;
+		lhs.bits &= ~ASTNode.RestrictiveFlagMASK;  // clear bits
+		lhs.bits |= Binding.LOCAL;
+		lhs.bits |= ASTNode.IsSecretYieldValueUsage;
+		((LocalVariableBinding) lhs.binding).markReferenced(); // TODO : Can be skipped?
+		Assignment assignment = new Assignment(lhs, this.expression, 0);
+		assignment.generateCode(this.scope, codeStream);
+		int l = this.subroutines == null ? 0 : this.subroutines.length;
+		boolean foundFinally = false;
+		if (l > 0) {
+			for (int i = 0; i < l; ++i) {
+				SubRoutineStatement srs = this.subroutines[i];
+				srs.exitAnyExceptionHandler();
+				srs.exitDeclaredExceptionHandlers(codeStream);
+				if (srs instanceof TryStatement) {
+					TryStatement ts = (TryStatement) srs;
+					if (ts.finallyBlock != null) {
+						foundFinally = true;
+					}
+				}
+			}
 		}
+		if (!foundFinally) {
+			 // no finally - TODO: Check for SynSta?
+			se.loadStoredTypesAndKeep(codeStream);
+			codeStream.load(this.secretYieldResultValue);
+		}
+		codeStream.removeVariable(this.secretYieldResultValue);
+	} else {
+		this.expression.generateCode(this.scope, codeStream, se != null);
 	}
 }
+private boolean isInsideTry() {
+	return this.switchExpression != null && this.switchExpression.containsTry;
+}
 @Override
-public void resolve(BlockScope scope) {
-	// METHOD IN WORKS - INCOMPLETE
-	super.resolve(scope);
+public void resolve(BlockScope skope) {
+	this.scope = isInsideTry() ? new BlockScope(skope) : skope;
+	super.resolve(this.scope);
 	if (this.expression == null) {
-		//currentScope.problemReporter().switchExpressionYieldMissingExpression(this);
 		return;
 
 	}
 	if (this.switchExpression != null || this.isImplicit) {
 		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
-			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+			if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 				/* JLS 13 14.11.2
 				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
 				In switch statements they must be switch labeled statement expressions, ... */
-				scope.problemReporter().invalidExpressionAsStatement(this.expression);
+				this.scope.problemReporter().invalidExpressionAsStatement(this.expression);
 				return;
 			}
 		}
 	} else {
-		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
-			scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
+		if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+			this.scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
 		}
 	}
-	this.expression.resolveType(scope);
-//	if  (this.expression != null) {
-//		this.expression.resolveType(scope);
-//	}
+	this.expression.resolveType(this.scope);
 }
 
 @Override
-public TypeBinding resolveExpressionType(BlockScope scope) {
-	return this.expression != null ? this.expression.resolveType(scope) : null;
+public TypeBinding resolveExpressionType(BlockScope scope1) {
+	return this.expression != null ? this.expression.resolveType(scope1) : null;
 }
 
 @Override

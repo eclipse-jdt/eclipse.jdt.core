@@ -38,6 +38,12 @@ protected void generateExpressionResultCode(BlockScope currentScope, CodeStream 
 protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
 	// do nothing here
 }
+protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
+	// Do nothing
+}
+protected void restartExceptionLabels(CodeStream codeStream) {
+	// do nothing
+}
 /**
  * Branch code generation
  *
@@ -56,7 +62,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.subroutines != null){
 		for (int i = 0, max = this.subroutines.length; i < max; i++){
 			SubRoutineStatement sub = this.subroutines[i];
+			SwitchExpression se = sub.getSwitchExpression();
+			setSubroutineSwitchExpression(sub);
 			boolean didEscape = sub.generateSubRoutineInvocation(currentScope, codeStream, this.targetLabel, this.initStateIndex, null);
+			sub.setSwitchExpression(se);
 			if (didEscape) {
 					codeStream.recordPositionsFrom(pc, this.sourceStart);
 					SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, i, codeStream);
@@ -64,10 +73,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 						codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 					}
+					restartExceptionLabels(codeStream);
 					return;
 			}
 		}
 	}
+//	checkAndLoadSyntheticVars(codeStream);
 	codeStream.goto_(this.targetLabel);
 	adjustStackSize(currentScope, codeStream);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);

@@ -93,6 +93,7 @@ public class TryStatement extends SubRoutineStatement {
 	private ExceptionLabel[] resourceExceptionLabels;
 	private int[] caughtExceptionsCatchBlocks;
 
+	public SwitchExpression enclosingSwitchExpression = null;
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -967,11 +968,17 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	int finallyMode = finallyMode();
 	switch(finallyMode) {
 		case FINALLY_DOES_NOT_COMPLETE :
+			if (this.switchExpression != null) {
+				this.finallyBlock.generateCode(currentScope, codeStream);
+				return true;
+			}
 			codeStream.goto_(this.subRoutineStartLabel);
 			return true;
 
 		case NO_FINALLY :
-			exitDeclaredExceptionHandlers(codeStream);
+			if (this.switchExpression == null) { // already taken care at Yield
+				exitDeclaredExceptionHandlers(codeStream);
+			}
 			return false;
 	}
 	// optimize subroutine invocation sequences, using the targetLocation (if any)

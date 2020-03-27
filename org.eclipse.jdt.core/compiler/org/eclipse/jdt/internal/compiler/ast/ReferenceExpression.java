@@ -410,7 +410,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		}
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, this.descriptor.selector, buffer.toString().toCharArray(),
-				this.isConstructorReference(), (this.lhs instanceof TypeReference? (TypeReference) this.lhs : null), this.typeArguments);
+				this.isConstructorReference(), (this.lhs instanceof TypeReference? (TypeReference) this.lhs : null), this.typeArguments,
+				this.resolvedType.id, this.resolvedType);
 		if (!valueRequired)
 			codeStream.pop();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);

@@ -72,9 +72,11 @@ public abstract class AbstractMethodDeclaration
 	public int bodyStart;
 	public int bodyEnd = -1;
 	public CompilationResult compilationResult;
+	public boolean containsSwitchWithTry = false;
 
 	AbstractMethodDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
+		this.containsSwitchWithTry = false;
 	}
 
 	/*

@@ -139,6 +139,28 @@ public static final TypeBinding wellKnownType(Scope scope, int id) {
 		return null;
 	}
 }
+public static final TypeBinding wellKnownBaseType(int id) {
+	switch (id) {
+	case TypeIds.T_boolean:
+		return TypeBinding.BOOLEAN;
+	case TypeIds.T_byte:
+		return TypeBinding.BYTE;
+	case TypeIds.T_char:
+		return TypeBinding.CHAR;
+	case TypeIds.T_short:
+		return TypeBinding.SHORT;
+	case TypeIds.T_double:
+		return TypeBinding.DOUBLE;
+	case TypeIds.T_float:
+		return TypeBinding.FLOAT;
+	case TypeIds.T_int:
+		return TypeBinding.INT;
+	case TypeIds.T_long:
+		return TypeBinding.LONG;
+	default:
+		return null;
+	}
+}
 
 public ReferenceBinding actualType() {
 	return null; // overridden in ParameterizedTypeBinding & WildcardBinding

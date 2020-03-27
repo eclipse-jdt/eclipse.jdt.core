@@ -158,6 +158,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_EXCEPTION = {JAVA, LANG, "Exception".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ERROR = {JAVA, LANG, "Error".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ILLEGALARGUMENTEXCEPTION = {JAVA, LANG, "IllegalArgumentException".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INCOMPATIBLECLASSCHANGEERROR = {JAVA, LANG, "IncompatibleClassChangeError".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ITERABLE = {JAVA, LANG, "Iterable".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_NOCLASSDEFERROR = {JAVA, LANG, "NoClassDefError".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_OBJECT = {JAVA, LANG, OBJECT};

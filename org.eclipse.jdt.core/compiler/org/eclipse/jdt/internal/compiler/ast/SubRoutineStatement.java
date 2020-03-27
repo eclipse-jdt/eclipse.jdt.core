@@ -34,6 +34,7 @@ public abstract class SubRoutineStatement extends Statement {
 	}
 
 	ExceptionLabel anyExceptionLabel;
+	protected SwitchExpression switchExpression = null;
 
 	public ExceptionLabel enterAnyExceptionHandler(CodeStream codeStream) {
 
@@ -74,5 +75,13 @@ public abstract class SubRoutineStatement extends Statement {
 
 	public void placeAllAnyExceptionHandler() {
 		this.anyExceptionLabel.place();
+	}
+
+	public SwitchExpression getSwitchExpression() {
+		return this.switchExpression;
+	}
+
+	public void setSwitchExpression(SwitchExpression switchExpression) {
+		this.switchExpression = switchExpression;
 	}
 }
