@@ -52,8 +52,6 @@ private IncrementalImageBuilder testImageBuilder;
 
 public static int MaxCompileLoop = 5; // perform a full build if it takes more than ? incremental compile loops
 
-private static final boolean DISABLE_FIX_FOR_559965 = Boolean.getBoolean("DISABLE_FIX_FOR_559965"); //$NON-NLS-1$
-
 protected IncrementalImageBuilder(JavaBuilder javaBuilder, State buildState, CompilationGroup compilationGroup) {
 	super(javaBuilder, true, buildState, compilationGroup);
 	this.nameEnvironment.isIncrementalBuild = true;
@@ -139,7 +137,7 @@ public boolean build(SimpleLookupTable deltas) {
 
 			this.notifier.subTask(Messages.build_analyzingSources);
 			addAffectedSourceFiles();
-			if (this.testImageBuilder != null && !DISABLE_FIX_FOR_559965) {
+			if (this.testImageBuilder != null) {
 				this.testImageBuilder.addAffectedSourceFiles();
 			}
 			this.notifier.updateProgressDelta(0.05f);
