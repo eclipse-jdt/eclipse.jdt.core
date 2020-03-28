@@ -257,6 +257,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 
 /**
+ * Back-propagation of flow info: before analysing a branch where a given condition is known to hold true/false respectively,
+ * ask the condition to contribute its information to the given flowInfo.
+ * @param flowInfo the info to be used for analysing the branch
+ * @param result condition result that would cause entering the branch
+ */
+protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
+	// nop
+}
+
+/**
  * Returns false if cast is not legal.
  */
 public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castType, TypeBinding expressionType, Expression expression, boolean useAutoBoxing) {

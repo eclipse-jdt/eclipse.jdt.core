@@ -123,6 +123,7 @@ public class WhileStatement extends Statement {
 					condInfo.initsWhenTrue());
 
 			if (this.action.complainIfUnreachable(actionInfo, currentScope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
+				this.condition.updateFlowOnBooleanResult(actionInfo, true);
 				actionInfo = this.action.analyseCode(currentScope, loopingContext, actionInfo);
 			}
 
@@ -175,6 +176,7 @@ public class WhileStatement extends Statement {
 				isConditionOptimizedFalse,
 				!isConditionTrue /*while(true); unreachable(); */);
 		this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+		this.condition.updateFlowOnBooleanResult(mergedInfo, false);
 		return mergedInfo;
 	}
 

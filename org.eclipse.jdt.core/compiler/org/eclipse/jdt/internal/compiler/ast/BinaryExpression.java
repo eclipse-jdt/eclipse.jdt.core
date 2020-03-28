@@ -90,6 +90,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 }
 
+@Override
+protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
+	int operator = (this.bits & OperatorMASK) >> OperatorSHIFT;
+	if (result ? operator == AND_AND : operator == OR_OR) {
+		this.left.updateFlowOnBooleanResult(flowInfo, result);
+		this.right.updateFlowOnBooleanResult(flowInfo, result);
+	}
+}
+
 public void computeConstant(BlockScope scope, int leftId, int rightId) {
 	//compute the constant when valid
 	if ((this.left.constant != Constant.NotAConstant)

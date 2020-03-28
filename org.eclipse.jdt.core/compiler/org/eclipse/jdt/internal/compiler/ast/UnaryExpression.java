@@ -33,24 +33,30 @@ public class UnaryExpression extends OperatorExpression {
 		this.bits |= operator << OperatorSHIFT; // encode operator
 	}
 
-@Override
-public FlowInfo analyseCode(
-		BlockScope currentScope,
-		FlowContext flowContext,
-		FlowInfo flowInfo) {
-	if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
-		flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
-		flowInfo = this.expression.
-			analyseCode(currentScope, flowContext, flowInfo).
-			asNegatedCondition();
-		flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
-	} else {
-		flowInfo = this.expression.
-			analyseCode(currentScope, flowContext, flowInfo);
+	@Override
+	public FlowInfo analyseCode(
+			BlockScope currentScope,
+			FlowContext flowContext,
+			FlowInfo flowInfo) {
+		if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+			flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
+			flowInfo = this.expression.
+				analyseCode(currentScope, flowContext, flowInfo).
+				asNegatedCondition();
+			flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
+		} else {
+			flowInfo = this.expression.
+				analyseCode(currentScope, flowContext, flowInfo);
+		}
+		this.expression.checkNPE(currentScope, flowContext, flowInfo);
+		return flowInfo;
 	}
-	this.expression.checkNPE(currentScope, flowContext, flowInfo);
-	return flowInfo;
-}
+
+	@Override
+	protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
+		if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT)
+			this.expression.updateFlowOnBooleanResult(flowInfo, !result);
+	}
 
 	@Override
 	public Constant optimizedBooleanConstant() {

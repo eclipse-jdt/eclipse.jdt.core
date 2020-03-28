@@ -393,6 +393,13 @@ public interface TypeConstants {
 	//    detail for the above:
 	char[] OPTIONAL = "optional".toCharArray(); //$NON-NLS-1$
 
+	// utils that ensure argument is nonnull if result is true
+	// java.lang.Class:
+	char[] IS_INSTANCE = "isInstance".toCharArray(); //$NON-NLS-1$
+	// java.lang.Objects:
+	char[] NON_NULL = "nonNull".toCharArray();   //$NON-NLS-1$
+	char[] IS_NULL = "isNull".toCharArray();   //$NON-NLS-1$
+
 	// well-known methods with "dangerous" signatures:
 	char[][] JAVA_UTIL_MAP = new char[][] { JAVA, UTIL, "Map".toCharArray() }; //$NON-NLS-1$
 	char[] GET = "get".toCharArray(); //$NON-NLS-1$

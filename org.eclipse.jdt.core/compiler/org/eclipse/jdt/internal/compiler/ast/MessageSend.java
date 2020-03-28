@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -68,6 +68,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
 
 import java.util.HashMap;
+import java.util.function.BiConsumer;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -140,6 +141,8 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	public boolean argumentsHaveErrors = false;
 
 	public FakedTrackingVariable closeTracker;
+
+	BiConsumer<FlowInfo, Boolean> flowUpdateOnBooleanResult; // we assume only one arg can be affected, hence no need for a list of updates
 
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -217,6 +220,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				case NULL_ASSERTION:
 					flowInfo = analyseNullAssertion(currentScope, argument, flowContext, flowInfo, true);
 					break;
+				case ARG_NONNULL_IF_TRUE:
+					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true);
+					break;
+				case ARG_NULL_IF_TRUE:
+					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), false);
+					break;
 				default:
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 			}
@@ -249,6 +258,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowContext.expireNullCheckedFieldInfo(); // no longer trust this info after any message send
 	return flowInfo;
 }
+public void recordFlowUpdateOnResult(LocalVariableBinding local, boolean nonNullIfTrue) {
+	this.flowUpdateOnBooleanResult = (f, result) -> {
+		if (result == nonNullIfTrue)
+			f.markAsDefinitelyNonNull(local);
+		else
+			f.markAsDefinitelyNull(local);
+	};
+}
+@Override
+protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
+	if (this.flowUpdateOnBooleanResult != null) {
+		this.flowUpdateOnBooleanResult.accept(flowInfo, result);
+	}
+}
 private void yieldQualifiedCheck(BlockScope currentScope) {
 	long sourceLevel = currentScope.compilerOptions().sourceLevel;
 	if (sourceLevel < ClassFileConstants.JDK14 || !this.receiverIsImplicitThis())
@@ -273,78 +296,93 @@ private void recordCallingClose(BlockScope currentScope, FlowContext flowContext
 }
 
 // classification of well-known assertion utilities:
-private static final int TRUE_ASSERTION = 1;
-private static final int FALSE_ASSERTION = 2;
-private static final int NULL_ASSERTION = 3;
-private static final int NONNULL_ASSERTION = 4;
+private enum AssertUtil { NONE, TRUE_ASSERTION, FALSE_ASSERTION, NULL_ASSERTION, NONNULL_ASSERTION, ARG_NONNULL_IF_TRUE, ARG_NULL_IF_TRUE }
 
 // is the argument at the given position being checked by a well-known assertion utility?
 // if so answer what kind of assertion we are facing.
-private int detectAssertionUtility(int argumentIdx) {
+private AssertUtil detectAssertionUtility(int argumentIdx) {
 	TypeBinding[] parameters = this.binding.original().parameters;
 	if (argumentIdx < parameters.length) {
 		TypeBinding parameterType = parameters[argumentIdx];
 		TypeBinding declaringClass = this.binding.declaringClass;
 		if (declaringClass != null && parameterType != null) {
-			switch (declaringClass.id) {
+			switch (declaringClass.original().id) {
 				case TypeIds.T_OrgEclipseCoreRuntimeAssert:
 					if (parameterType.id == TypeIds.T_boolean)
-						return TRUE_ASSERTION;
+						return AssertUtil.TRUE_ASSERTION;
 					if (parameterType.id == TypeIds.T_JavaLangObject && CharOperation.equals(TypeConstants.IS_NOTNULL, this.selector))
-						return NONNULL_ASSERTION;
+						return AssertUtil.NONNULL_ASSERTION;
 					break;
 				case TypeIds.T_JunitFrameworkAssert:
 				case TypeIds.T_OrgJunitAssert:
 					if (parameterType.id == TypeIds.T_boolean) {
 						if (CharOperation.equals(TypeConstants.ASSERT_TRUE, this.selector))
-							return TRUE_ASSERTION;
+							return AssertUtil.TRUE_ASSERTION;
 						if (CharOperation.equals(TypeConstants.ASSERT_FALSE, this.selector))
-							return FALSE_ASSERTION;
+							return AssertUtil.FALSE_ASSERTION;
 					} else if (parameterType.id == TypeIds.T_JavaLangObject) {
 						if (CharOperation.equals(TypeConstants.ASSERT_NOTNULL, this.selector))
-							return NONNULL_ASSERTION;
+							return AssertUtil.NONNULL_ASSERTION;
 						if (CharOperation.equals(TypeConstants.ASSERT_NULL, this.selector))
-							return NULL_ASSERTION;
+							return AssertUtil.NULL_ASSERTION;
 					}
 					break;
 				case TypeIds.T_OrgApacheCommonsLangValidate:
 					if (parameterType.id == TypeIds.T_boolean) {
 						if (CharOperation.equals(TypeConstants.IS_TRUE, this.selector))
-							return TRUE_ASSERTION;
+							return AssertUtil.TRUE_ASSERTION;
 					} else if (parameterType.id == TypeIds.T_JavaLangObject) {
 						if (CharOperation.equals(TypeConstants.NOT_NULL, this.selector))
-							return NONNULL_ASSERTION;
+							return AssertUtil.NONNULL_ASSERTION;
 					}
 					break;
 				case TypeIds.T_OrgApacheCommonsLang3Validate:
 					if (parameterType.id == TypeIds.T_boolean) {
 						if (CharOperation.equals(TypeConstants.IS_TRUE, this.selector))
-							return TRUE_ASSERTION;
+							return AssertUtil.TRUE_ASSERTION;
 					} else if (parameterType.isTypeVariable()) {
 						if (CharOperation.equals(TypeConstants.NOT_NULL, this.selector))
-							return NONNULL_ASSERTION;
+							return AssertUtil.NONNULL_ASSERTION;
 					}
 					break;
 				case TypeIds.T_ComGoogleCommonBasePreconditions:
 					if (parameterType.id == TypeIds.T_boolean) {
 						if (CharOperation.equals(TypeConstants.CHECK_ARGUMENT, this.selector)
 							|| CharOperation.equals(TypeConstants.CHECK_STATE, this.selector))
-							return TRUE_ASSERTION;
+							return AssertUtil.TRUE_ASSERTION;
 					} else if (parameterType.isTypeVariable()) {
 						if (CharOperation.equals(TypeConstants.CHECK_NOT_NULL, this.selector))
-							return NONNULL_ASSERTION;
+							return AssertUtil.NONNULL_ASSERTION;
 					}
 					break;
 				case TypeIds.T_JavaUtilObjects:
 					if (parameterType.isTypeVariable()) {
 						if (CharOperation.equals(TypeConstants.REQUIRE_NON_NULL, this.selector))
-							return NONNULL_ASSERTION;
+							return AssertUtil.NONNULL_ASSERTION;
+					}
+					if (this.arguments[argumentIdx] instanceof SingleNameReference) {
+						SingleNameReference nameRef = (SingleNameReference) this.arguments[argumentIdx];
+						if (nameRef.binding instanceof LocalVariableBinding) {
+							if (CharOperation.equals(TypeConstants.NON_NULL, this.selector))
+								return AssertUtil.ARG_NONNULL_IF_TRUE;
+							if (CharOperation.equals(TypeConstants.IS_NULL, this.selector))
+								return AssertUtil.ARG_NULL_IF_TRUE;
+						}
+					}
+					break;
+				case TypeIds.T_JavaLangClass:
+					if (CharOperation.equals(TypeConstants.IS_INSTANCE, this.selector)) {
+						if (this.arguments[argumentIdx] instanceof SingleNameReference) {
+							SingleNameReference nameRef = (SingleNameReference) this.arguments[argumentIdx];
+							if (nameRef.binding instanceof LocalVariableBinding)
+								return AssertUtil.ARG_NONNULL_IF_TRUE;
+						}
 					}
 					break;
 			}
 		}
 	}
-	return 0;
+	return AssertUtil.NONE;
 }
 
 private FlowInfo analyseBooleanAssertion(BlockScope currentScope, Expression argument,

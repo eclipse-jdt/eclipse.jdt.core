@@ -148,6 +148,8 @@ public class ForStatement extends Statement {
 					}
 				}
 			if (this.action.complainIfUnreachable(actionInfo, this.scope, initialComplaintLevel, true) < Statement.COMPLAINED_UNREACHABLE) {
+				if (this.condition != null)
+					this.condition.updateFlowOnBooleanResult(actionInfo, true);
 				actionInfo = this.action.analyseCode(this.scope, loopingContext, actionInfo).unconditionalInits();
 			}
 
@@ -238,6 +240,8 @@ public class ForStatement extends Statement {
 		}
 		this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
 		this.scope.checkUnclosedCloseables(mergedInfo, loopingContext, null, null);
+		if (this.condition != null)
+			this.condition.updateFlowOnBooleanResult(mergedInfo, false);
 		return mergedInfo;
 	}
 

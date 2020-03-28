@@ -1,3 +1,16 @@
+/*******************************************************************************
+ * Copyright (c) 2016, 2020 Stephan Herrmann and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     Stephan Herrmann - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
@@ -309,5 +322,95 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			getCompilerOptions(),
 			"",
 			"good");
+	}
+
+	public void testBooleanNullAssertions() {
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import java.util.Objects;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"	public void demonstrateNotWorkingNullCheck() {\n" +
+				"        Object mayBeNull = null;\n" +
+				"        if (Math.random() > 0.5) {\n" +
+				"            mayBeNull = new Object();\n" +
+				"        }\n" +
+				"        if (Object.class.isInstance(mayBeNull)) {\n" +
+				"            mayBeNull.toString();\n" +
+				"        }\n" +
+				"    }\n" +
+				"	public void negatedNullCheck() {\n" +
+				"        Object mayBeNull = null;\n" +
+				"        if (Math.random() > 0.5) {\n" +
+				"            mayBeNull = new Object();\n" +
+				"        }\n" +
+				"        if (!Object.class.isInstance(mayBeNull)) {\n" +
+				"            System.out.println(\"not\");\n" +
+				"        } else {\n" +
+				"            mayBeNull.toString();\n" +
+				"        }\n" +
+				"    }\n" +
+				"	public void nullCheckAlgegra() {\n" +
+				"        Object mayBeNull = null;\n" +
+				"        if (Math.random() > 0.5) {\n" +
+				"            mayBeNull = new Object();\n" +
+				"        }\n" +
+				"        if (Math.random() > 0.5 && Object.class.isInstance(mayBeNull)) {\n" +
+				"            mayBeNull.toString();\n" + // both operands are true
+				"        }\n" +
+				"        if (!Object.class.isInstance(mayBeNull) || Math.random() > 0.5) {\n" +
+				"            System.out.println(\"not\");\n" +
+				"        } else {\n" +
+				"            mayBeNull.toString();\n" + // both operands are false
+				"        }\n" +
+				"        if (Object.class.isInstance(mayBeNull) && mayBeNull.equals(\"hi\"))\n" + // second evaluated only when first is true
+				"            System.out.println(\"equal\");\n" +
+				"        if (Objects.isNull(mayBeNull) || mayBeNull.equals(\"hi\"))\n" + // second evaluated only when first is false
+				"            System.out.println(\"equal or null\");\n" +
+				"    }\n" +
+				"	public void objectsUtils() {\n" +
+				"        Object mayBeNull = null;\n" +
+				"        if (Math.random() > 0.5) {\n" +
+				"            mayBeNull = new Object();\n" +
+				"        }\n" +
+				"        String s = Objects.nonNull(mayBeNull) ? mayBeNull.toString(): null;\n" +
+				"        if (Objects.isNull(mayBeNull) || Math.random() > 0.5) {\n" +
+				"            System.out.println(\"not\");\n" +
+				"        } else {\n" +
+				"            mayBeNull.toString();\n" +
+				"        }\n" +
+				"    }\n" +
+				"	public void loops() {\n" +
+				"        Object mayBeNull = null;\n" +
+				"        if (Math.random() > 0.5) {\n" +
+				"            mayBeNull = new Object();\n" +
+				"        }\n" +
+				"        for (; Objects.nonNull(mayBeNull); mayBeNull=next(mayBeNull)) {\n" +
+				"            mayBeNull.toString();\n" + // guarded by the condition
+				"        }\n" +
+				"        mayBeNull.toString(); // can only be null after the loop\n" +
+				"        Object initiallyNN = new Object();\n" +
+				"        while (Objects.nonNull(initiallyNN)) {\n" +
+				"            initiallyNN.toString();\n" + // guarded by the condition
+				"            initiallyNN = next(initiallyNN);\n" +
+				"        }\n" +
+				"        initiallyNN.toString(); // can only be null after the loop\n" +
+				"    }\n" +
+				"    @Nullable Object next(Object o) { return o; }\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" +
+			"1. ERROR in X.java (at line 62)\n" +
+			"	mayBeNull.toString(); // can only be null after the loop\n" +
+			"	^^^^^^^^^\n" +
+			"Null pointer access: The variable mayBeNull can only be null at this location\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 68)\n" +
+			"	initiallyNN.toString(); // can only be null after the loop\n" +
+			"	^^^^^^^^^^^\n" +
+			"Null pointer access: The variable initiallyNN can only be null at this location\n" +
+			"----------\n");
 	}
 }

@@ -106,6 +106,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.bits &= ~ASTNode.IsThenStatementUnreachable;
 			}
 		}
+		this.condition.updateFlowOnBooleanResult(thenFlowInfo, true);
 		thenFlowInfo = this.thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
 		if (!(this.thenStatement instanceof Block))
 			flowContext.expireNullCheckedFieldInfo();
@@ -136,6 +137,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.bits &= ~ASTNode.IsElseStatementUnreachable;
 			}
 		}
+		this.condition.updateFlowOnBooleanResult(elseFlowInfo, false);
 		elseFlowInfo = this.elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
 		if (!(this.elseStatement instanceof Block))
 			flowContext.expireNullCheckedFieldInfo();
