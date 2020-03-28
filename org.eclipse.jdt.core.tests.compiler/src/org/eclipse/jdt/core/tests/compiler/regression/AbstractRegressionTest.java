@@ -109,10 +109,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
 
-	public class Runner {
+	protected class Runner {
 		boolean shouldFlushOutputDirectory = true;
 		// input:
-		public String[] testFiles;
+		String[] testFiles;
 		String[] dependantFiles;
 		String[] classLibraries;
 		boolean  libsOnModulePath;
@@ -132,14 +132,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		JavacTestOptions javacTestOptions;
 		// execution:
 		boolean forceExecution;
-		public String[] vmArguments;
-		public String expectedOutputString;
+		String[] vmArguments;
+		String expectedOutputString;
 		String expectedErrorString;
 
 		ASTVisitor visitor;
-		public Runner() {}
+
 		@SuppressWarnings("synthetic-access")
-		public void runConformTest() {
+		protected void runConformTest() {
 			runTest(this.shouldFlushOutputDirectory,
 					this.testFiles,
 					this.dependantFiles != null ? this.dependantFiles : new String[] {},
@@ -1890,11 +1890,6 @@ protected static class JavacTestOptions {
 				JavacTestOptions.DEFAULT /* default javac test options */,
 				charset);
 	}
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
-		runConformTest(testFiles, expectedOutput, customOptions, vmArguments, RUN_JAVAC ? /* javac test options */
-				new JavacTestOptions("-source 1.4") :
-					JavacTestOptions.DEFAULT);
-	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, JavacTestOptions javacOptions) {
 		runTest(
 			// test directory preparation
@@ -1916,6 +1911,28 @@ protected static class JavacTestOptions {
 			null /* do not check error string */,
 			// javac options
 			javacOptions);
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
+		runTest(
+			// test directory preparation
+			true /* flush output directory */,
+			testFiles /* test files */,
+			// compiler options
+			null /* no class libraries */,
+			customOptions /* no custom options */,
+			false /* do not perform statements recovery */,
+			null /* no custom requestor */,
+			// compiler results
+			false /* expecting no compiler errors */,
+			null /* do not check compiler log */,
+			// runtime options
+			false /* do not force execution */,
+			vmArguments /* no vm arguments */,
+			// runtime results
+			expectedOutput /* expected output string */,
+			null /* do not check error string */,
+			// javac options
+			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 	protected void runConformTest(
 			String[] testFiles,
@@ -2751,16 +2768,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			Map customOptions) {
-		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions, JavacTestOptions.DEFAULT);
-	}
-	protected void runNegativeTest(
-			String[] testFiles,
-			String expectedCompilerLog,
-			String[] classLibraries,
-			boolean shouldFlushOutputDirectory,
-			String[] vmArguments,
-			Map customOptions) {
-		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, vmArguments, customOptions, JavacTestOptions.DEFAULT);
+		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions);
 	}
 	protected void runNegativeTest(
 		String[] testFiles,
@@ -2768,8 +2776,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
 		String[] vmArguments,
-		Map customOptions,
-		JavacTestOptions javacOptions) {
+		Map customOptions) {
 		runTest(
 	 		// test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
@@ -2794,7 +2801,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			null /* do not check output string */,
 			null /* do not check error string */,
 			// javac options
-			javacOptions);
+			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 	protected void runNegativeTest(
 			boolean skipJavac,
@@ -2839,8 +2846,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			boolean shouldFlushOutputDirectory,
 			Map customOptions,
 			String expectedErrorString) {
-			runNegativeTest(testFiles, expectedCompilerLog, classLibraries,
-					shouldFlushOutputDirectory, customOptions, expectedErrorString,
+			runNegativeTest(testFiles, expectedCompilerLog, classLibraries, 
+					shouldFlushOutputDirectory, customOptions, expectedErrorString, 
 					JavacTestOptions.DEFAULT);
 		}
 	protected void runNegativeTest(
@@ -3453,7 +3460,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			}
 		}
 		// javac part
-		if (RUN_JAVAC) {
+		if (RUN_JAVAC && javacTestOptions != JavacTestOptions.SKIP) {
 			runJavac(testFiles, expectingCompilerErrors, expectedCompilerLog,
 					expectedJavacOutputString, expectedErrorString, shouldFlushOutputDirectory,
 					javacTestOptions, vmArguments, classLibraries, libsOnModulePath);
