@@ -875,7 +875,14 @@ protected static class JavacTestOptions {
 			EclipseBug235546 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug449063 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063
-					 new EclipseJustification(MismatchType.StandardOutputMismatch) : null;
+					 new EclipseJustification(MismatchType.StandardOutputMismatch) : null,
+			EclipseBug561549 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=561549
+					 new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+						@Override
+						Excuse excuseFor(JavacCompiler compiler) {
+							return compiler.compliance > ClassFileConstants.JDK9 ? this : null;
+						}
+					 } : null;
 		public static final EclipseJustification
 			EclipseJustification0001 = RUN_JAVAC ?
 					new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
