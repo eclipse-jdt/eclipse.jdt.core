@@ -221,10 +221,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					flowInfo = analyseNullAssertion(currentScope, argument, flowContext, flowInfo, true);
 					break;
 				case ARG_NONNULL_IF_TRUE:
-					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true);
+					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true, false);
+					break;
+				case ARG_NONNULL_IF_TRUE_NEGATABLE:
+					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true, true);
 					break;
 				case ARG_NULL_IF_TRUE:
-					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), false);
+					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), false, true);
 					break;
 				default:
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
@@ -258,12 +261,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowContext.expireNullCheckedFieldInfo(); // no longer trust this info after any message send
 	return flowInfo;
 }
-public void recordFlowUpdateOnResult(LocalVariableBinding local, boolean nonNullIfTrue) {
+public void recordFlowUpdateOnResult(LocalVariableBinding local, boolean nonNullIfTrue, boolean negatable) {
 	this.flowUpdateOnBooleanResult = (f, result) -> {
-		if (result == nonNullIfTrue)
-			f.markAsDefinitelyNonNull(local);
-		else
-			f.markAsDefinitelyNull(local);
+		if (result || negatable) {
+			if (result == nonNullIfTrue)
+				f.markAsDefinitelyNonNull(local);
+			else
+				f.markAsDefinitelyNull(local);
+		}
 	};
 }
 @Override
@@ -296,7 +301,7 @@ private void recordCallingClose(BlockScope currentScope, FlowContext flowContext
 }
 
 // classification of well-known assertion utilities:
-private enum AssertUtil { NONE, TRUE_ASSERTION, FALSE_ASSERTION, NULL_ASSERTION, NONNULL_ASSERTION, ARG_NONNULL_IF_TRUE, ARG_NULL_IF_TRUE }
+private enum AssertUtil { NONE, TRUE_ASSERTION, FALSE_ASSERTION, NULL_ASSERTION, NONNULL_ASSERTION, ARG_NONNULL_IF_TRUE, ARG_NONNULL_IF_TRUE_NEGATABLE, ARG_NULL_IF_TRUE }
 
 // is the argument at the given position being checked by a well-known assertion utility?
 // if so answer what kind of assertion we are facing.
@@ -364,7 +369,7 @@ private AssertUtil detectAssertionUtility(int argumentIdx) {
 						SingleNameReference nameRef = (SingleNameReference) this.arguments[argumentIdx];
 						if (nameRef.binding instanceof LocalVariableBinding) {
 							if (CharOperation.equals(TypeConstants.NON_NULL, this.selector))
-								return AssertUtil.ARG_NONNULL_IF_TRUE;
+								return AssertUtil.ARG_NONNULL_IF_TRUE_NEGATABLE;
 							if (CharOperation.equals(TypeConstants.IS_NULL, this.selector))
 								return AssertUtil.ARG_NULL_IF_TRUE;
 						}

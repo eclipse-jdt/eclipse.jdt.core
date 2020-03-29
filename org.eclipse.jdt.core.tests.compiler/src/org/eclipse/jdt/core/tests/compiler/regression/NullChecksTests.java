@@ -345,10 +345,13 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 				"        if (Math.random() > 0.5) {\n" +
 				"            mayBeNull = new Object();\n" +
 				"        }\n" +
-				"        if (!Object.class.isInstance(mayBeNull)) {\n" +
+				"        if (!Objects.nonNull(mayBeNull)) {\n" +
 				"            System.out.println(\"not\");\n" +
 				"        } else {\n" +
 				"            mayBeNull.toString();\n" +
+				"        }\n" +
+				"        if (!(Integer.class.isInstance(mayBeNull) || Long.class.isInstance(mayBeNull))) {\n" +
+				"            mayBeNull.toString(); // still only a potential problem\n" +
 				"        }\n" +
 				"    }\n" +
 				"	public void nullCheckAlgegra() {\n" +
@@ -402,12 +405,17 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" +
-			"1. ERROR in X.java (at line 62)\n" +
+			"1. ERROR in X.java (at line 24)\n" +
+			"	mayBeNull.toString(); // still only a potential problem\n" +
+			"	^^^^^^^^^\n" +
+			"Potential null pointer access: The variable mayBeNull may be null at this location\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 65)\n" +
 			"	mayBeNull.toString(); // can only be null after the loop\n" +
 			"	^^^^^^^^^\n" +
 			"Null pointer access: The variable mayBeNull can only be null at this location\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 68)\n" +
+			"3. ERROR in X.java (at line 71)\n" +
 			"	initiallyNN.toString(); // can only be null after the loop\n" +
 			"	^^^^^^^^^^^\n" +
 			"Null pointer access: The variable initiallyNN can only be null at this location\n" +
