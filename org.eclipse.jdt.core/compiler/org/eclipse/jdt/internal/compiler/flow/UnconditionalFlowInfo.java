@@ -244,10 +244,7 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 				if ((length = this.extra[0].length) <
 						(otherLength = otherInits.extra[0].length)) {
 					// current storage is shorter -> grow current
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[otherLength]), 0, length);
-					}
+					growSpace(otherLength, 0, length);
 					mergeLimit = length;
 					copyLimit = otherLength;
 					if (COVERAGE_TEST_FLAG) {
@@ -280,6 +277,10 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 				for (int j = 2; j < extraLength; j++) {
 					System.arraycopy(otherInits.extra[j], 0,
 						(this.extra[j] = new long[otherLength]), 0, otherLength);
+				}
+				if ((this.tagBits & UNROOTED) != 0) {
+					Arrays.fill(this.extra[IN], 0, otherLength, -1);
+					Arrays.fill(this.extra[INN], 0, otherLength, -1);
 				}
 				if (COVERAGE_TEST_FLAG) {
 					if (CoverageTestId == 5) {
@@ -416,10 +417,7 @@ public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 			int i = 0, length, otherLength;
 			if ((length = this.extra[0].length) < (otherLength = otherInits.extra[0].length)) {
 				// current storage is shorter -> grow current
-				for (int j = 0; j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0,
-						(this.extra[j] = new long[otherLength]), 0, length);
-				}
+				growSpace(otherLength, 0, length);
 				for (; i < length; i++) {
 					this.extra[1][i] |= otherInits.extra[1][i];
 				}
@@ -533,11 +531,7 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 			mergeLimit = copyLimit;
 			if (mergeLimit > this.extra[0].length) {
 				mergeLimit = this.extra[0].length;
-				for (int j = 0; j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0,
-							this.extra[j] = new long[copyLimit], 0,
-							mergeLimit);
-				}
+				growSpace(copyLimit, 0, mergeLimit);
 				if (! thisHadNulls) {
     				mergeLimit = 0;
     				// will do with a copy -- caveat: only valid because definite assignment bits copied above
@@ -1201,12 +1195,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 			else {
 				int oldLength;
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					int newLength = vectorIndex + 1;
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[newLength]), 0,
-							oldLength);
-					}
+					growSpace(vectorIndex + 1, 0, oldLength);
 					if (COVERAGE_TEST_FLAG) {
 						if (CoverageTestId == 17) {
 							throw new AssertionFailedException("COVERAGE 17"); //$NON-NLS-1$
@@ -1298,12 +1287,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 			else {
 				int oldLength;
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					int newLength = vectorIndex + 1;
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[newLength]), 0,
-							oldLength);
-					}
+					growSpace(vectorIndex + 1, 0, oldLength);
 					if (COVERAGE_TEST_FLAG) {
 						if(CoverageTestId == 21) {
 							throw new AssertionFailedException("COVERAGE 21"); //$NON-NLS-1$
@@ -1358,11 +1342,7 @@ final private void markAsDefinitelyAssigned(int position) {
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[vectorIndex + 1]), 0,
-							oldLength);
-					}
+					growSpace(vectorIndex + 1, 0, oldLength);
 				}
 			}
 			long mask;
@@ -1419,11 +1399,7 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
     		else {
     			int oldLength; // might need to grow the arrays
     			if (vectorIndex >= (oldLength = this.extra[0].length)) {
-    				for (int j = 0; j < extraLength; j++) {
-    					System.arraycopy(this.extra[j], 0,
-    						(this.extra[j] = new long[vectorIndex + 1]), 0,
-    						oldLength);
-    				}
+    				growSpace(vectorIndex + 1, 0, oldLength);
     			}
     		}
     		this.extra[2][vectorIndex]
@@ -1477,11 +1453,7 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
     		else {
     			int oldLength; // might need to grow the arrays
     			if (vectorIndex >= (oldLength = this.extra[0].length)) {
-    				for (int j = 0; j < extraLength; j++) {
-    					System.arraycopy(this.extra[j], 0,
-    						(this.extra[j] = new long[vectorIndex + 1]), 0,
-    						oldLength);
-    				}
+    				growSpace(vectorIndex + 1, 0, oldLength);
     			}
     		}
     		this.extra[2][vectorIndex]
@@ -1542,11 +1514,7 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[vectorIndex + 1]), 0,
-							oldLength);
-					}
+					growSpace(vectorIndex+1, 0, oldLength);
 				}
 			}
 			this.extra[2][vectorIndex]
@@ -1630,11 +1598,7 @@ public void markPotentiallyUnknownBit(LocalVariableBinding local) {
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[vectorIndex + 1]), 0,
-							oldLength);
-					}
+    				growSpace(vectorIndex + 1, 0, oldLength);
 				}
 			}
     		mask = 1L << (position % BitCacheSize);
@@ -1678,11 +1642,7 @@ public void markPotentiallyNullBit(LocalVariableBinding local) {
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[vectorIndex + 1]), 0,
-							oldLength);
-					}
+    				growSpace(vectorIndex + 1, 0, oldLength);
 				}
 			}
     		mask = 1L << (position % BitCacheSize);
@@ -1726,11 +1686,7 @@ public void markPotentiallyNonNullBit(LocalVariableBinding local) {
 			else {
 				int oldLength; // might need to grow the arrays
 				if (vectorIndex >= (oldLength = this.extra[0].length)) {
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[vectorIndex + 1]), 0,
-							oldLength);
-					}
+					growSpace(vectorIndex + 1, 0, oldLength);
 				}
 			}
     		mask = 1L << (position % BitCacheSize);
@@ -1872,10 +1828,7 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 				if ((length = this.extra[0].length) <
 						(otherLength = otherInits.extra[0].length)) {
 					// current storage is shorter -> grow current
-					for (int j = 0; j < extraLength; j++) {
-						System.arraycopy(this.extra[j], 0,
-							(this.extra[j] = new long[otherLength]), 0, length);
-					}
+					growSpace(otherLength, 0, length);
 					mergeLimit = length;
 					copyLimit = otherLength;
 					if (COVERAGE_TEST_FLAG) {
@@ -2124,29 +2077,30 @@ public String toString(){
 	}
 	if ((this.tagBits & NULL_FLAG_MASK) != 0) {
 		if (this.extra == null) {
-			return "FlowInfo<def: " + this.definiteInits //$NON-NLS-1$
-				+", pot: " + this.potentialInits  //$NON-NLS-1$
+			return "FlowInfo<def: " + Long.toHexString(this.definiteInits) //$NON-NLS-1$
+				+", pot: " + Long.toHexString(this.potentialInits)  //$NON-NLS-1$
 				+ ", reachable:" + ((this.tagBits & UNREACHABLE) == 0) //$NON-NLS-1$
-				+", null: " + this.nullBit1 //$NON-NLS-1$
-					+ this.nullBit2 + this.nullBit3 + this.nullBit4
-				+", incoming: " + this.iNBit + this.iNNBit //$NON-NLS-1$
+				+", null: " + Long.toHexString(this.nullBit1) //$NON-NLS-1$
+					+'.'+ Long.toHexString(this.nullBit2) +'.'+ Long.toHexString(this.nullBit3) +'.'+ Long.toHexString(this.nullBit4)
+				+", incoming: " + Long.toHexString(this.iNBit) +'.'+ Long.toHexString(this.iNNBit) //$NON-NLS-1$
 				+">"; //$NON-NLS-1$
 		}
 		else {
-			String def = "FlowInfo<def:[" + this.definiteInits, //$NON-NLS-1$
-				pot = "], pot:[" + this.potentialInits, //$NON-NLS-1$
-				nullS = ", null:[" + this.nullBit1 //$NON-NLS-1$
-					+ this.nullBit2 + this.nullBit3 + this.nullBit4;
+			String def = "FlowInfo<def:[" + Long.toHexString(this.definiteInits), //$NON-NLS-1$
+				pot = "], pot:[" + Long.toHexString(this.potentialInits), //$NON-NLS-1$
+				nullS = ", null:[" + Long.toHexString(this.nullBit1) //$NON-NLS-1$
+					+'.'+ Long.toHexString(this.nullBit2) +'.'+ Long.toHexString(this.nullBit3) +'.'+ Long.toHexString(this.nullBit4)
+					+", incoming: " + Long.toHexString(this.iNBit) +'.'+ Long.toHexString(this.iNNBit); //$NON-NLS-1$
 			int i, ceil;
 			for (i = 0, ceil = this.extra[0].length > 3 ?
 								3 :
 								this.extra[0].length;
 				i < ceil; i++) {
-				def += "," + this.extra[0][i]; //$NON-NLS-1$
-				pot += "," + this.extra[1][i]; //$NON-NLS-1$
-				nullS += "," + this.extra[2][i] //$NON-NLS-1$
-				    + this.extra[3][i] + this.extra[4][i] + this.extra[5][i]
-					+", incoming: " + this.extra[IN][i] + this.extra[INN][i]; //$NON-NLS-1$
+				def += "," + Long.toHexString(this.extra[0][i]); //$NON-NLS-1$
+				pot += "," + Long.toHexString(this.extra[1][i]); //$NON-NLS-1$
+				nullS += "\n\t" + Long.toHexString(this.extra[2][i]) //$NON-NLS-1$
+					+'.'+ Long.toHexString(this.extra[3][i]) +'.'+ Long.toHexString(this.extra[4][i]) +'.'+ Long.toHexString(this.extra[5][i])
+					+", incoming: " + Long.toHexString(this.extra[IN][i]) +'.'+ Long.toHexString(this.extra[INN][i]); //$NON-NLS-1$
 			}
 			if (ceil < this.extra[0].length) {
 				def += ",..."; //$NON-NLS-1$
@@ -2270,10 +2224,7 @@ public UnconditionalFlowInfo mergeDefiniteInitsWith(UnconditionalFlowInfo otherI
 			int i = 0, length, otherLength;
 			if ((length = this.extra[0].length) < (otherLength = otherInits.extra[0].length)) {
 				// current storage is shorter -> grow current
-				for (int j = 0; j < extraLength; j++) {
-					System.arraycopy(this.extra[j], 0,
-						(this.extra[j] = new long[otherLength]), 0, length);
-				}
+				growSpace(otherLength, 0, length);
 				for (; i < length; i++) {
 					this.extra[0][i] &= otherInits.extra[0][i];
 				}
@@ -2338,6 +2289,18 @@ private void createExtraSpace(int length) {
 	if ((this.tagBits & UNROOTED) != 0) {
 		Arrays.fill(this.extra[IN], -1L);
 		Arrays.fill(this.extra[INN], -1L);
+	}
+}
+
+public void growSpace(int newLength, int copyStart, int copyLength) {
+	for (int j = 0; j < extraLength; j++) {
+		System.arraycopy(this.extra[j], copyStart,
+			(this.extra[j] = new long[newLength]), copyStart,
+			copyLength);
+	}
+	if ((this.tagBits & UNROOTED) != 0) {
+		Arrays.fill(this.extra[IN], copyStart+copyLength, newLength, -1);
+		Arrays.fill(this.extra[INN], copyStart+copyLength, newLength, -1);
 	}
 }
 

@@ -52,7 +52,7 @@ public class MethodScope extends BlockScope {
 
 	// flow analysis
 	/* By specifying {@code -Djdt.flow.test.extra=true} tests can push all flow analysis into the extra bits of UnconditionalFlowInfo. */
-	private static int baseAnalysisIndex = Boolean.getBoolean("jdt.flow.test.extra") ? 64 : 0; //$NON-NLS-1$
+	private static int baseAnalysisIndex = 0;
 	public int analysisIndex = baseAnalysisIndex; // for setting flow-analysis id
 	public boolean isPropagatingInnerClassEmulation;
 
@@ -66,6 +66,13 @@ public class MethodScope extends BlockScope {
 
 	// remember suppressed warning re missing 'default:' to give hints on possibly related flow problems
 	public boolean hasMissingSwitchDefault; // TODO(stephan): combine flags to a bitset?
+
+	static {
+		if (Boolean.getBoolean("jdt.flow.test.extra")) { //$NON-NLS-1$
+			baseAnalysisIndex = 64;
+			System.out.println("JDT/Core testing with -Djdt.flow.test.extra=true"); //$NON-NLS-1$
+		}
+	}
 
 public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 	super(METHOD_SCOPE, parent);
