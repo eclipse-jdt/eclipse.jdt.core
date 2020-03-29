@@ -1026,7 +1026,9 @@ protected static class JavacTestOptions {
 			JavacBug8221413_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8221413
 					new JavacBug8221413(" --release 12 --enable-preview -Xlint:-preview") : null,
 			JavacBug8226510_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8226510
-					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null;
+					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null,
+			JavacBug8231436 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
+				    new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -2846,8 +2848,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			boolean shouldFlushOutputDirectory,
 			Map customOptions,
 			String expectedErrorString) {
-			runNegativeTest(testFiles, expectedCompilerLog, classLibraries, 
-					shouldFlushOutputDirectory, customOptions, expectedErrorString, 
+			runNegativeTest(testFiles, expectedCompilerLog, classLibraries,
+					shouldFlushOutputDirectory, customOptions, expectedErrorString,
 					JavacTestOptions.DEFAULT);
 		}
 	protected void runNegativeTest(

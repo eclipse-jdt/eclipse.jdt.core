@@ -685,19 +685,20 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test032() throws Exception {
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 				new String[] {
 					"Marker.java",
 					"@interface Marker {}",
 					"X.java",
 					"public class X<@Marker T> {}",
-				},
-				"");
+				};
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
 	}
 	public void test033() throws Exception {
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 				new String[] {
 					"Marker.java",
 					"@interface Marker {}",
@@ -705,8 +706,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"public class Y {}",
 					"X.java",
 					"public class X extends @Marker Y {}",
-				},
-				"");
+				};
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
 	}
 	// check locations
 	public void test034() throws Exception {
@@ -877,8 +879,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void test037() {
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 				new String[] {
 					"X.java",
 					"@interface Marker {}\n" +
@@ -888,8 +890,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"		return null;\n" +
 					"	}\n" +
 					"}\n",
-				},
-				"");
+				};
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383950
 	// [1.8][compiler] Type annotations must have target type meta annotation TYPE_USE
@@ -2149,8 +2152,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test065() throws Exception {
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -2158,8 +2161,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"}\n" +
 					"@interface Marker {\n" +
 					"}\n"
-				},
-				"");
+				};
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
 	}
 	public void test066() throws Exception {
 		this.runNegativeTest(
@@ -2197,8 +2201,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test068() throws Exception {
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -2206,8 +2210,9 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"}\n" +
 					"@interface Marker {\n" +
 					"}\n"
-				},
-				"");
+				};
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385293
 	public void test069() throws Exception {
