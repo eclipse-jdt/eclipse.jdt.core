@@ -82,18 +82,20 @@ String[] directoryList(String qualifiedPackageName) {
 			IResource[] members = ((IContainer) container).members();
 			dirList = new String[members.length];
 			int index = 0;
+			boolean foundClass = false;
 			if (members.length > 0) {
 				for (int i = 0, l = members.length; i < l; i++) {
 					IResource m = members[i];
 					String name = m.getName();
-					if (m.getType() == IResource.FOLDER
-							|| (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name))) {
+					boolean isClass = m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name);
+					if (m.getType() == IResource.FOLDER || isClass) {
 						// add exclusion pattern check here if we want to hide .class files
 						dirList[index++] = name;
+						foundClass |= isClass;
 					}
 				}
 			}
-			if(index==0) {
+			if(!foundClass) {
 				container = this.sourceFolder.findMember(qualifiedPackageName);
 				if (container instanceof IContainer) {
 					members = ((IContainer) container).members();
