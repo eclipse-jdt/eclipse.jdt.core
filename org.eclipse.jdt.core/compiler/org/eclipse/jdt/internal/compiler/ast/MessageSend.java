@@ -222,12 +222,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					break;
 				case ARG_NONNULL_IF_TRUE:
 					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true, false);
+					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 					break;
 				case ARG_NONNULL_IF_TRUE_NEGATABLE:
 					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true, true);
+					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 					break;
 				case ARG_NULL_IF_TRUE:
 					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), false, true);
+					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 					break;
 				default:
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();

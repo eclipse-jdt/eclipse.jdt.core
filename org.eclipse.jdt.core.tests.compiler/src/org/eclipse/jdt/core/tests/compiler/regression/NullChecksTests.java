@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -420,5 +421,27 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 			"	^^^^^^^^^^^\n" +
 			"Null pointer access: The variable initiallyNN can only be null at this location\n" +
 			"----------\n");
+	}
+	public void testBug465085_comment12() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
+		runConformTest(
+			new String[] {
+				"Snippet.java",
+				"import java.util.Collection;\n" +
+				"\n" +
+				"public class Snippet {\n" +
+				"	int instanceCount(Collection<?> elements, Class<?> clazz) {\n" +
+				"		int count = 0;\n" +
+				"		for (Object o : elements) {  // warning here: \"The value of the local variable o is not used\"\n" +
+				"			if (clazz.isInstance(o)) {\n" +
+				"				count++;\n" +
+				"			}\n" +
+				"		}\n" +
+				"		return count;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			options);
 	}
 }
