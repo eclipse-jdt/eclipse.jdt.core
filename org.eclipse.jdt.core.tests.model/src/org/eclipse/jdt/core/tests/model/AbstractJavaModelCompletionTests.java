@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 
 import junit.framework.*;
 
@@ -165,9 +166,9 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.oldOptions = JavaCore.getOptions();
 	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.DISABLED);
 	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
 	JavaCore.setOptions(options);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "false");
 	waitUntilIndexesReady();
 }
 @Override

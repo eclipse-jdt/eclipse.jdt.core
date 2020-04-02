@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Hashtable;
-
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -25,6 +23,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 
 import junit.framework.Test;
 
@@ -147,14 +146,12 @@ public void test486988_0004() throws JavaModelException {
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "p";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	Hashtable<String, String> tmpOld = JavaCore.getOptions();
-	Hashtable<String, String> options = new Hashtable<>(tmpOld);
-	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.DISABLED);
-	JavaCore.setOptions(options);
+	String oldValue = System.getProperty(AssistOptions.PROPERTY_SubstringMatch);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "false");
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	JavaCore.setOptions(tmpOld);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, oldValue);
 	String expected = "provides[KEYWORD]{provides, null, null, provides, null, 49}";
 	assertResults(expected,	requestor.getResults());
 }
@@ -171,14 +168,12 @@ public void _test486988_0005() throws JavaModelException {
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "p";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-	Hashtable<String, String> tmpOld = JavaCore.getOptions();
-	Hashtable<String, String> options = new Hashtable<>(tmpOld);
-	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.ENABLED);
-	JavaCore.setOptions(options);
+	String oldValue = System.getProperty(AssistOptions.PROPERTY_SubstringMatch);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "true");
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	JavaCore.setOptions(tmpOld);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, oldValue);
 	String expected = "exports[KEYWORD]{exports, null, null, exports, null, 19}\n"
 			+ "provides[KEYWORD]{provides, null, null, provides, null, 49}";
 	assertResults(expected,	requestor.getResults());
@@ -196,14 +191,12 @@ public void _test486988_0006() throws JavaModelException {
 	String completeBehind = "u";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 
-	Hashtable<String, String> tmpOld = JavaCore.getOptions();
-	Hashtable<String, String> options = new Hashtable<>(tmpOld);
-	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.ENABLED);
-	JavaCore.setOptions(options);
+	String oldValue = System.getProperty(AssistOptions.PROPERTY_SubstringMatch);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "true");
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	JavaCore.setOptions(tmpOld);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, oldValue);
 
 	String expected = "requires[KEYWORD]{requires, null, null, requires, null, 19}\n"
 			+ "uses[KEYWORD]{uses, null, null, uses, null, 49}";
@@ -243,17 +236,15 @@ public void test486988_0007() throws JavaModelException {
 	String completeBehind = "mypa";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 
-	Hashtable<String, String> tmpOld = JavaCore.getOptions();
-	Hashtable<String, String> options = new Hashtable<>(tmpOld);
-	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.DISABLED);
-	JavaCore.setOptions(options);
+	String oldValue = System.getProperty(AssistOptions.PROPERTY_SubstringMatch);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "false");
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String expected = "mypack1[PACKAGE_REF]{mypack1, mypack1, null, null, null, 49}\n"
 			+ "mypack2[PACKAGE_REF]{mypack2, mypack2, null, null, null, 49}\n"
 			+ "mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, 49}";
 	assertResults(expected, requestor.getResults());
-	JavaCore.setOptions(tmpOld);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, oldValue);
 }
 
 public void test486988_0008() throws JavaModelException {
@@ -289,15 +280,13 @@ public void test486988_0008() throws JavaModelException {
 	String completeBehind = "mypack1 t";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 
-	Hashtable<String, String> tmpOld = JavaCore.getOptions();
-	Hashtable<String, String> options = new Hashtable<>(tmpOld);
-	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.DISABLED);
-	JavaCore.setOptions(options);
+	String oldValue = System.getProperty(AssistOptions.PROPERTY_SubstringMatch);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "false");
 
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String expected = "to[KEYWORD]{to, null, null, to, null, 49}";
 	assertResults(expected, requestor.getResults());
-	JavaCore.setOptions(tmpOld);
+	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, oldValue);
 
 }
 public void test486988_0009() throws Exception {
