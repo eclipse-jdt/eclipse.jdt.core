@@ -6548,4 +6548,44 @@ public void testBug561259() {
 		},
 		options);
 }
+public void testBug560076() {
+	runNegativeTest(
+		new String[] {
+			"org/sqlite/database/sqlite/SQLiteOpenHelper.java",
+			"package org.sqlite.database.sqlite;\n" +
+			"\n" +
+			"public abstract class SQLiteOpenHelper {\n" +
+			"    private void getDatabaseLocked(String name, SQLiteDatabase mDatabase) {\n" +
+			"        SQLiteDatabase sQLiteDatabase4 = mDatabase;\n" +
+			"        try {\n" +
+			"            sQLiteDatabase4 = name == null ? null : openDatabase();\n" +
+			"        } catch (Throwable e) {\n" +
+			"            sQLiteDatabase4 = openDatabase();\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    public static SQLiteDatabase openDatabase() {\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"final class SQLiteDatabase implements java.io.Closeable {\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. WARNING in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 4)\n" +
+		"	private void getDatabaseLocked(String name, SQLiteDatabase mDatabase) {\n" +
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method getDatabaseLocked(String, SQLiteDatabase) from the type SQLiteOpenHelper is never used locally\n" +
+		"----------\n" +
+		"2. ERROR in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 13)\n" +
+		"	public static SQLiteDatabase openDatabase() {\n" +
+		"	                             ^^^^^^^^^^^^^^\n" +
+		"This method must return a result of type SQLiteDatabase\n" +
+		"----------\n" +
+		"3. ERROR in org\\sqlite\\database\\sqlite\\SQLiteOpenHelper.java (at line 17)\n" +
+		"	final class SQLiteDatabase implements java.io.Closeable {\n" +
+		"	            ^^^^^^^^^^^^^^\n" +
+		"The type SQLiteDatabase must implement the inherited abstract method Closeable.close()\n" +
+		"----------\n");
+}
 }
