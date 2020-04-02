@@ -5310,12 +5310,18 @@ private int getNextTokenAfterTypeParameterHeader() {
 	int count = 1;
 	try {
 		int token;
-		while ((token = this.vanguardScanner.getNextToken()) != TokenNameEOF) {
+		while ((token = this.vanguardScanner.getNextToken()) != TokenNameNotAToken) {
+			if (token == TokenNameEOF)
+				break;
 			if (token == TokenNameLESS)
 				++count;
 			if (token == TokenNameGREATER)
 				--count;
-			if (count == 0)
+			if (token == TokenNameRIGHT_SHIFT)
+				count= count -2;
+			if (token == TokenNameUNSIGNED_RIGHT_SHIFT)
+				count= count -3;
+			if (count <= 0)
 				return this.vanguardScanner.getNextToken();
 		}
 	} catch (InvalidInputException e) {
