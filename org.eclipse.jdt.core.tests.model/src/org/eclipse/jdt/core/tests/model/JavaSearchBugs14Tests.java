@@ -998,4 +998,30 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 				"src/X.java void cl.method1() [yz] EXACT_MATCH\n" +
 				"src/X.java void cl.method1() [yz] EXACT_MATCH");
 	}
+	public void testBug561132_033() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class cl {\n"+
+						"public cl() {\n"+
+						"	method1();\n"+
+						"}\n"+
+						"private void method1() {\n"+
+						"	String y= this.toString();\n"+
+						"	if (y instanceof String yz) {\n"+
+						"	      System.out.println(/*here*/yz.toLowerCase());\n"+
+						"	}\n"+
+						"}\n"+
+						"}\n"
+				);
+
+		String str = this.workingCopies[0].getSource();
+		String selection = "/*here*/yz";
+		int start = str.indexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+		assertTrue(elements.length ==1);
+		assertTrue((elements[0] instanceof LocalVariable));
+
+	}
 }
