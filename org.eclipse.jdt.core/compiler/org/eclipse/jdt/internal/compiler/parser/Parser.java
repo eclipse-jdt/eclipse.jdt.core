@@ -9880,6 +9880,10 @@ protected void consumeDefaultLabelExpr() {
 			return false;
 		}
 		@Override
+		public boolean visit(LambdaExpression stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
 		public boolean visit(TryStatement stmt, BlockScope blockScope) {
 			if (this.tryStatements == null)
 				this.tryStatements = new Stack<>();

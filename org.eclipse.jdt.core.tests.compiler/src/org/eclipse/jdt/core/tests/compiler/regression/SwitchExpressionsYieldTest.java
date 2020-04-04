@@ -21,8 +21,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
+public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -4792,6 +4792,42 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
 				"	     ^^^^^^^\n" +
 				"Type mismatch: cannot convert from String to int\n" +
+				"----------\n");
+
+	}
+	public void testBug561762_001() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       public static void main(String[] args) {\n"+
+					"               new X().foo(1);\n"+
+					"       }\n"+
+					"       @SuppressWarnings({ \"finally\" })\n"+
+					"       public  void foo(int i) {\n"+
+					"               int t = switch (1) { \n"+
+					"                       case 0 -> {\n"+
+					"                               yield 0;\n"+
+					"                       }\n"+
+					"                       default -> {\n"+
+					"                               I lam2 = (x) ->  {\n"+
+					"                                               yield 2000;\n"+
+					"                               };\n"+
+					"                               yield 1;\n"+
+					"                       }\n"+
+					"               };\n"+
+					"               System.out.println(t);\n"+
+					"       }\n"+
+					"}\n"+
+					"interface I {\n"+
+					"       public int apply(int i);\n"+
+					"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	yield 2000;\n" +
+				"	^^^^^^^^^^^\n" +
+				"yield outside of switch expression\n" +
 				"----------\n");
 
 	}
