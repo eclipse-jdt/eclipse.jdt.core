@@ -1035,7 +1035,9 @@ protected static class JavacTestOptions {
 			JavacBug8226510_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8226510
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null,
 			JavacBug8231436 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
-				    new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null;
+				    new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			JavacBug8231436_EclipseWarns = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
+				    new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1067,6 +1069,14 @@ protected static class JavacTestOptions {
 							Excuse excuseFor(JavacCompiler compiler) {
 								return compiler.compliance != ClassFileConstants.JDK1_5 ||
 										compiler.minor != 1600 ? null : this;
+							}
+					}: null,
+			JavacThrowsAnExceptionForJava_since9_EclipseWarns = RUN_JAVAC ?
+					new JavacHasABug(
+						MismatchType.JavacErrorsEclipseWarnings) {
+							@Override
+							Excuse excuseFor(JavacCompiler compiler) {
+								return compiler.compliance < ClassFileConstants.JDK9 ? null : this;
 							}
 					}: null;
 	}

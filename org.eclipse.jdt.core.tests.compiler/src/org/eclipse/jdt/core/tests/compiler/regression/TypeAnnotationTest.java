@@ -27,8 +27,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
+
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -3302,7 +3305,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 
 	public void test066_codeblocks_methodReference() throws Exception {
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -3322,8 +3326,21 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"@interface B {\n" +
 				"	int value() default -1;\n" +
 				"}\n",
-		},
-		"");
+			};
+		if (this.complianceLevel < ClassFileConstants.JDK9) { // luckily introduction of ecj warning and javac crash coincide
+			runner.runConformTest();
+		} else {
+			runner.expectedCompilerLog =
+				"----------\n" +
+				"1. WARNING in X.java (at line 6)\n" +
+				"	I i = @B(1) int @B(2)[]::<String>clone;\n" +
+				"	                          ^^^^^^\n" +
+				"Unused type arguments for the non generic method clone() of type Object; it should not be parameterized with arguments <String>\n" +
+				"----------\n";
+			runner.javacTestOptions = JavacHasABug.JavacThrowsAnExceptionForJava_since9_EclipseWarns;
+			runner.runWarningTest();
+		}
+
 		String expectedOutput =
 			"    RuntimeVisibleTypeAnnotations: \n" +
 			"      #30 @B(\n" +
@@ -4236,7 +4253,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	// as of https://bugs.openjdk.java.net/browse/JDK-8231435 no-@Target annotations are legal also in TYPE_USE/TYPE_PARAMETER position
 	public void test083_multiuseAnnotations() throws Exception {
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"X.java",
 				"@interface Annot {\n" +
@@ -4247,8 +4265,11 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"	public void foo(String @Annot(3)[] args) {\n" +
 				"	}\n" +
 				"}\n",
-		},
-		"");
+			};
+		runner.expectedCompilerLog = "";
+		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
+
 		String expectedOutput =
 				"  // Field descriptor #6 Ljava/lang/String;\n" +
 				"  java.lang.String f;\n" +

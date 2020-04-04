@@ -22,6 +22,7 @@ import java.io.File;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -1426,7 +1427,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	public void testDeprecation() {
-		this.runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"TC.java",
 				"@Deprecated\n" +
@@ -1440,7 +1442,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n" +
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
-			},
+			};
+		runner.expectedCompilerLog =
 			"----------\n" +
 			"1. WARNING in T.java (at line 1)\n" +
 			"	@java.lang.annotation.Repeatable(TC.class)\n" +
@@ -1451,11 +1454,14 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	interface I<@T(1) @T(2) K> {\n" +
 			"	            ^^\n" +
 			"The type TC is deprecated\n" +
-			"----------\n");
+			"----------\n";
+		runner.javacTestOptions = JavacHasABug.JavacBug8231436_EclipseWarns;
+		runner.runWarningTest();
 	}
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
 		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"T.java",
 				"@Deprecated\n" +
@@ -1468,8 +1474,10 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n" +
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
-			},
-			"");
+			};
+		runner.expectedCompilerLog = "";
+		runner.javacTestOptions = JavacHasABug.JavacBug8231436;
+		runner.runConformTest();
 	}
 
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
