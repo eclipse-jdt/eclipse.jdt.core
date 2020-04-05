@@ -26,7 +26,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug545567" };
+//		TESTS_NAMES = new String[] { "testBug561766" };
 	}
 
 	public static Class<?> testClass() {
@@ -4763,39 +4763,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
-	// NPE here to correct
-	public void _testBug545567_xx() {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n"+
-					"    @SuppressWarnings({ \"finally\" })\n"+
-					"       public static void main(String[] args) {\n"+
-					"        System.out.println(switch (1) {\n"+
-					"        case 0 -> {yield 100;}\n"+
-					"           default -> {  \n"+
-					"                try {\n"+
-					"                       yield switch(0) {\n"+
-					"               }\n"+
-					"               catch (Exception ex) {\n"+
-					"                   yield 2;\n"+
-					"                }\n"+
-					"               finally {\n"+
-					"                  yield 3;\n"+
-					"                }\n"+
-					"           }  \n"+
-					"        });  \n"+
-					"    }\n"+
-					"}\n",
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 12)\n" +
-				"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
-				"	     ^^^^^^^\n" +
-				"Type mismatch: cannot convert from String to int\n" +
-				"----------\n");
-
-	}
 	public void testBug561762_001() {
 		this.runNegativeTest(
 				new String[] {
@@ -4829,6 +4796,78 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	yield 2000;\n" +
 				"	^^^^^^^^^^^\n" +
 				"yield outside of switch expression\n" +
+				"----------\n");
+
+	}
+	public void testBug561766_001() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    @SuppressWarnings({ \"finally\" })\n"+
+					"       public static void main(String[] args) {\n"+
+					"        System.out.println(switch (1) {\n"+
+					"        case 0 -> {yield switch(0) {}\n"+
+					"        } \n"+
+					"           default -> {\n"+
+					"                  yield 3;\n"+
+					"           }\n"+
+					"        });\n"+
+					"    }\n"+
+					"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case 0 -> {yield switch(0) {}\n" +
+				"	                            ^\n" +
+				"Syntax error, insert \";\" to complete BlockStatements\n" +
+				"----------\n");
+
+	}
+	public void testBug561766_002() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    @SuppressWarnings({ \"finally\" })\n"+
+					"       public static void main(String[] args) {\n"+
+					"        System.out.println(switch (1) {\n"+
+					"        case 0 -> {yield 100;}\n"+
+					"           default -> {  \n"+
+					"                try {\n"+
+					"                       yield switch(0) {\n"+
+					"               }\n"+
+					"               catch (Exception ex) {\n"+
+					"                   yield 2;\n"+
+					"                }\n"+
+					"               finally {\n"+
+					"                  yield 3;\n"+
+					"                }\n"+
+					"           }  \n"+
+					"        });  \n"+
+					"    }\n"+
+					"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error, insert \";\" to complete YieldStatement\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error, insert \"}\" to complete Block\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 18)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error on token \"}\", delete this token\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 19)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error, insert \"}\" to complete ClassBody\n" +
 				"----------\n");
 
 	}
