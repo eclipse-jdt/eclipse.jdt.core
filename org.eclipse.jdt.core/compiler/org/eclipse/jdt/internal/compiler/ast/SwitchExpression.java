@@ -487,6 +487,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			} else {
 				// re-resolving of poly expression:
 				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
+				if (resultExpressionsCount == 0)
+					return this.resolvedType = null; // error flagging would have been done during the earlier phase.
 				for (int i = 0; i < resultExpressionsCount; i++) {
 					Expression resultExpr = this.resultExpressions.get(i);
 					if (resultExpr.resolvedType == null || resultExpr.resolvedType.kind() == Binding.POLY_TYPE) {
