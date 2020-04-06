@@ -1,2 +1,2 @@
-@javax.xml.bind.annotation.XmlSchema(namespace = "com.reinhardt.annotationdiscoveryvisitornpe")
+@javax.annotation.processing.Generated(value = "JustTest")
 package com.reinhardt.annotationdiscoveryvisitornpe;
