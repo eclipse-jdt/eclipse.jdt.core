@@ -1713,10 +1713,14 @@ public String bind(String id, String[] arguments) {
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_4</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_6</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_7</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_8</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK9</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK10</code></li>
  * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK11</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK12</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK13</code></li>
+ * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK14</code></li>
  *
  * </ul>
  * @param minimalSupportedVersion the given minimal version
