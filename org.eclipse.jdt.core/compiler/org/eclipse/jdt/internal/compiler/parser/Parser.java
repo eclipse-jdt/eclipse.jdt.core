@@ -4543,7 +4543,7 @@ protected void consumeInstanceOfExpression() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
 	Expression exp;
-	if (length != 0) {
+	if (length > 0) {
 		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
