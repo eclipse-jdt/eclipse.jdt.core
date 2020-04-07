@@ -597,6 +597,15 @@ protected static class JavacTestOptions {
 		return options;
 	}
 	@java.lang.SuppressWarnings("synthetic-access")
+	static JavacTestOptions forRelease(String release, String additionalOptions) {
+		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
+		String result = isJRE9Plus ? "-release "+release : "-source 1."+release+" -target 1."+release;
+		if (additionalOptions != null)
+			result = result + " " + additionalOptions;
+		options.setCompilerOptions(result);
+		return options;
+	}
+	@java.lang.SuppressWarnings("synthetic-access")
 	static JavacTestOptions forReleaseWithPreview(String release) {
 		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
 		if (isJRE9Plus)
