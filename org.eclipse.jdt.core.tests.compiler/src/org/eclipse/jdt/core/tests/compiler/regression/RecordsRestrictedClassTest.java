@@ -36,7 +36,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		return RecordsRestrictedClassTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_14);
+		return buildMinimalComplianceTestSuite(testClass(), F_15);
 	}
 	public RecordsRestrictedClassTest(String testName){
 		super(testName);
@@ -45,9 +45,9 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15); // FIXME
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
@@ -66,12 +66,12 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("14");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("15");
 		runner.runConformTest();
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("14"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("15"));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -87,8 +87,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("14") :
-			JavacTestOptions.forReleaseWithPreview("14", javacAdditionalTestOptions);
+		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("15") :
+			JavacTestOptions.forReleaseWithPreview("15", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 
@@ -717,7 +717,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-	public void testBug550750_032() {
+	public void _testBug550750_032() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -734,7 +734,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void testBug550750_033() {
+	public void _testBug550750_033() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -751,7 +751,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void testBug550750_034() {
+	public void _testBug550750_034() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -769,7 +769,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void testBug550750_035() {
+	public void _testBug550750_035() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -792,7 +792,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void testBug550750_036() {
+	public void _testBug550750_036() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",

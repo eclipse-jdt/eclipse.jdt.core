@@ -192,7 +192,7 @@ public static Test suite() {
 	 ArrayList since_14 = new ArrayList();
 	 since_14.add(SwitchExpressionsYieldTest.class);
 	 since_14.add(RecordsRestrictedClassTest.class);
-	 since_14.add(PatternMatching14Test.class);
+	 since_14.add(PatternMatching15Test.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

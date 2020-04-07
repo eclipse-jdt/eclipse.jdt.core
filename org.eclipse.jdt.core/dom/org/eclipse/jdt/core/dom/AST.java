@@ -338,13 +338,34 @@ public final class AST {
 	public static final int JLS14 = 14;
 
 	/**
+	 * Constant for indicating the AST API that handles JLS15.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 15 Edition (JLS15).
+	 * JLS15 is a superset of all earlier versions of the
+	 * Java language, and the JLS15 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 15(aka JDK 15).
+	 * </p>
+	 *
+	 * @since 3.22 BETA_JAVA15
+	 */
+	public static final int JLS15 = 15;
+
+	/**
 	 * Internal synonym for {@link #JLS14}. Use to alleviate
 	 * deprecation warnings once JLS14 is deprecated
 	 * @since 3.22
 	 */
 	static final int JLS14_INTERNAL = JLS14;
 
-	@SuppressWarnings("unused")
+	/**
+	 * Internal synonym for {@link #JLS15}. Use to alleviate
+	 * deprecation warnings once JLS15 is deprecated
+	 */
+	static final int JLS15_INTERNAL = JLS15;
+
 	/* Used for Java doc only*/
 	private static final int JLS_Latest = JLS14;
 
@@ -1119,6 +1140,7 @@ public final class AST {
         t.put(JavaCore.VERSION_12, ClassFileConstants.JDK12);
         t.put(JavaCore.VERSION_13, ClassFileConstants.JDK13);
         t.put(JavaCore.VERSION_14, ClassFileConstants.JDK14);
+        t.put(JavaCore.VERSION_15, ClassFileConstants.JDK15);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1137,6 +1159,7 @@ public final class AST {
         t.put(JavaCore.VERSION_12, JLS12_INTERNAL);
         t.put(JavaCore.VERSION_13, JLS13_INTERNAL);
         t.put(JavaCore.VERSION_14, JLS14_INTERNAL);
+        t.put(JavaCore.VERSION_15, JLS15_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**

@@ -18,9 +18,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class PatternMatching14Test extends AbstractRegressionTest {
+public class PatternMatching15Test extends AbstractRegressionTest {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 14 --enable-preview -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 15 --enable-preview -Xlint:-preview");
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -28,20 +28,20 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 	}
 
 	public static Class<?> testClass() {
-		return PatternMatching14Test.class;
+		return PatternMatching15Test.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_14);
+		return buildMinimalComplianceTestSuite(testClass(), F_15);
 	}
-	public PatternMatching14Test(String testName){
+	public PatternMatching15Test(String testName){
 		super(testName);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews,
 				preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);

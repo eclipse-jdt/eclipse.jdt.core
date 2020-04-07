@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -307,6 +311,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_13;
 		} else if(rawVersion.startsWith("14")) {
 			return JavaCore.VERSION_14;
+		} else if(rawVersion.startsWith("15")) {
+			return JavaCore.VERSION_15;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -459,6 +465,20 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("14.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_15) {
+			if ("15-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("15".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("15.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("15.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
@@ -1195,7 +1215,7 @@ protected static class JavacTestOptions {
 	public final static String MODULE_INFO_NAME = new String(TypeConstants.MODULE_INFO_NAME);
 
 	public static boolean SHIFT = false;
-	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.VERSION_14;
+	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.VERSION_15;
 
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
@@ -1208,7 +1228,7 @@ protected static class JavacTestOptions {
 		super(name);
 	}
 	protected boolean checkPreviewAllowed() {
-		return this.complianceLevel == ClassFileConstants.JDK14;
+		return this.complianceLevel == ClassFileConstants.JDK15;
 	}
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);

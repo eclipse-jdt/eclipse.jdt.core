@@ -153,6 +153,9 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK14) {
 				return SourceVersion.valueOf("RELEASE_14"); //$NON-NLS-1$
 			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK15) {
+				return SourceVersion.valueOf("RELEASE_15"); //$NON-NLS-1$
+			}
 		} catch(IllegalArgumentException e) {
 			// handle call on a JDK 6
 			return SourceVersion.RELEASE_6;

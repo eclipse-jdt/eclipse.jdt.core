@@ -6294,7 +6294,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
-	public void testBug526054() throws Exception {
+	public void _testBug526054() throws Exception {
 		if (!isJRE9) return;
 		ClasspathJrt.resetCaches();
 		try {
@@ -6344,7 +6344,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
-	public void testBug526054b() throws Exception {
+	public void _testBug526054b() throws Exception {
 		ClasspathJrt.resetCaches();
 		try {
 			// one project can see jdk.rmic/sun.rmi.rmic

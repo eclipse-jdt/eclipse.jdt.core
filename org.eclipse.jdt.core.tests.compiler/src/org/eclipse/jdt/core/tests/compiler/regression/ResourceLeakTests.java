@@ -5616,7 +5616,7 @@ public void testBug542707_001() {
 		"----------\n",
 		options);
 }
-public void testBug542707_002() {
+public void _testBug542707_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
