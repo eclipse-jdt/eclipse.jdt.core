@@ -2361,17 +2361,63 @@ public void testBug560893_007() {
 			"    }\n"+
 			"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 10)\n" + 
-		"	System.out.println(li);  // error, local variable\n" + 
-		"	                   ^^\n" + 
-		"Cannot make a static reference to the non-static variable li from a local record\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	System.out.println(nsi); // error, non-static member\n" + 
-		"	                   ^^^\n" + 
-		"Cannot make a static reference to the non-static field nsi\n" + 
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	System.out.println(li);  // error, local variable\n" +
+		"	                   ^^\n" +
+		"Cannot make a static reference to the non-static variable li from a local record\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 11)\n" +
+		"	System.out.println(nsi); // error, non-static member\n" +
+		"	                   ^^^\n" +
+		"Cannot make a static reference to the non-static field nsi\n" +
 		"----------\n");
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testBug558718_001() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"record R() {}\n",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	record R() {}\n" + 
+		"	^^^^^^\n" + 
+		"Syntax error on token \"record\", record expected\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testBug558718_002() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"record R() {}\n",
+		},
+	"----------\n" +
+	"1. ERROR in X.java (at line 1)\n" +
+	"	record R() {}\n" +
+	"	^^^^^^\n" +
+	"Syntax error on token \"record\", @ expected\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 1)\n" +
+	"	record R() {}\n" +
+	"	         ^\n" +
+	"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
+	"----------\n",
+		null,
+		true,
+		options
+	);
 }
 public void testBug561528_001() {
 	runConformTest(
