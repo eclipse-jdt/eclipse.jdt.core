@@ -2403,12 +2403,17 @@ public void testBug558718_002() {
 			"X.java",
 			"record R() {}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 1)\n" + 
-		"	record R() {}\n" + 
-		"	^^^^^^\n" + 
-		"The preview feature record is only available with source level 14 and above\n" +
-		"----------\n",
+	"----------\n" +
+	"1. ERROR in X.java (at line 1)\n" +
+	"	record R() {}\n" +
+	"	^^^^^^\n" +
+	"Syntax error on token \"record\", @ expected\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 1)\n" +
+	"	record R() {}\n" +
+	"	         ^\n" +
+	"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
+	"----------\n",
 		null,
 		true,
 		options
