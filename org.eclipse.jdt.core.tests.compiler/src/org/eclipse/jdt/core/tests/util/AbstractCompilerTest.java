@@ -46,6 +46,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_12  = 0x200;
 	public static final int F_13  = 0x400;
 	public static final int F_14  = 0x800;
+	public static final int F_15  = 0x1000;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static final int UNINITIALIZED = -1;
@@ -332,7 +333,15 @@ public class AbstractCompilerTest extends TestCase {
 				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13)));
 			}
 		}
-		checkCompliance(evaluationTestClass, minimalCompliance, suite, complianceLevels, AbstractCompilerTest.F_14, ClassFileConstants.MAJOR_VERSION_14, 14);
+		int level_JAVA14 = complianceLevels & AbstractCompilerTest.F_14;
+		if (level_JAVA14 != 0) {
+			if (level_JAVA14 < minimalCompliance) {
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance 14!");
+			} else {
+				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14)));
+			}
+		}
+		checkCompliance(evaluationTestClass, minimalCompliance, suite, complianceLevels, AbstractCompilerTest.F_15, ClassFileConstants.MAJOR_VERSION_15, 15);
 		return suite;
 	}
 	private static void checkCompliance(Class evaluationTestClass, int minimalCompliance, TestSuite suite,
@@ -402,6 +411,9 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static long highestComplianceLevels() {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_15) != 0) {
+			return ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15);
+		}
 		if ((complianceLevels & AbstractCompilerTest.F_14) != 0) {
 			return ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14);
 		}
@@ -499,6 +511,8 @@ public class AbstractCompilerTest extends TestCase {
 						possibleComplianceLevels |= F_13;
 					} else if (CompilerOptions.VERSION_14.equals(compliance)) {
 						possibleComplianceLevels |= F_14;
+					} else if (CompilerOptions.VERSION_15.equals(compliance)) {
+						possibleComplianceLevels |= F_15;
 					} else {
 						System.out.println("Ignoring invalid compliance (" + compliance + ")");
 						System.out.print("Use one of ");
@@ -598,6 +612,9 @@ public class AbstractCompilerTest extends TestCase {
 													possibleComplianceLevels |= F_13;
 													if (!CompilerOptions.VERSION_13.equals(specVersion)) {
 														possibleComplianceLevels |= F_14;
+														if (!CompilerOptions.VERSION_15.equals(specVersion)) {
+															possibleComplianceLevels |= F_15;
+														}
 													}
 												}
 											}

@@ -48,6 +48,7 @@ public class ScannerHelper {
 	private static long[][][] Tables11;
 	private static long[][][] Tables12;
 	private static long[][][] Tables13;
+	private static long[][][] Tables15;
 
 	public final static int MAX_OBVIOUS = 128;
 	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
@@ -157,6 +158,9 @@ static void initializeTableJava12() {
 }
 static void initializeTableJava13() {
 	Tables13 = initializeTables("unicode12_1"); //$NON-NLS-1$
+}
+static void initializeTableJava15() {
+	Tables15 = initializeTables("unicode13"); //$NON-NLS-1$
 }
 static long[][][] initializeTables(String unicode_path) {
 	long[][][] tempTable = new long[2][][];
@@ -295,12 +299,19 @@ public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) 
 			initializeTableJava12();
 		}
 		return isJavaIdentifierPart0(codePoint, Tables12);
-	} else {
-		// java 13 supports Unicode 12.1
+	} else if (complianceLevel <= ClassFileConstants.JDK14) {
+		// java 13 and 14 support Unicode 12.1
 		if (Tables13 == null) {
 			initializeTableJava13();
 		}
 		return isJavaIdentifierPart0(codePoint, Tables13);
+
+	} else {
+		// java 15 supports Unicode 13
+		if (Tables15 == null) {
+			initializeTableJava15();
+		}
+		return isJavaIdentifierPart0(codePoint, Tables15);
 	}
 }
 public static boolean isJavaIdentifierPart(long complianceLevel, char high, char low) {
@@ -368,12 +379,18 @@ public static boolean isJavaIdentifierStart(long complianceLevel, int codePoint)
 			initializeTableJava12();
 		}
 		return isJavaIdentifierStart0(codePoint, Tables12);
-	} else {
-		// java 13 supports Unicode 12.1
+	} else if (complianceLevel <= ClassFileConstants.JDK14) {
+		// java 13 and 14 support Unicode 12.1
 		if (Tables13 == null) {
 			initializeTableJava13();
 		}
 		return isJavaIdentifierStart0(codePoint, Tables13);
+	} else {
+		// java 15 supports Unicode 13
+		if (Tables15 == null) {
+			initializeTableJava15();
+		}
+		return isJavaIdentifierStart0(codePoint, Tables15);
 	}
 }
 private static int toCodePoint(char high, char low) {
