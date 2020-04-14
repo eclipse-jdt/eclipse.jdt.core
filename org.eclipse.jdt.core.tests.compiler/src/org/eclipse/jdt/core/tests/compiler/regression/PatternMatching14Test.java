@@ -1887,4 +1887,128 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	public void test047() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"InstanceOfPatternTest.java",
+						"public class InstanceOfPatternTest {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		if (getChars() instanceof String s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"	static CharSequence getChars() {\n" +
+						"		return \"xyz\";\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"xyz",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void test048() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"InstanceOfPatternTest.java",
+						"public class InstanceOfPatternTest {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		if (getChars() instanceof String s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"	static CharSequence getChars() {\n" +
+						"		return \"xyz\";\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"xyz",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void test049() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"InstanceOfPatternTest.java",
+						"public class InstanceOfPatternTest {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		if ( ((CharSequence) getChars()) instanceof String s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"	static Object getChars() {\n" +
+						"		return \"xyz\";\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"xyz",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void test050() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runNegativeTest(
+				new String[] {
+						"InstanceOfPatternTest.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class InstanceOfPatternTest {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		if ( ((s) -> {return s;}) instanceof I s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"} \n" +
+						"interface I {\n" +
+						"	public String foo(String s);\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in InstanceOfPatternTest.java (at line 4)\n" +
+				"	if ( ((s) -> {return s;}) instanceof I s) {\n" +
+				"	     ^^^^^^^\n" +
+				"The target type of this expression must be a functional interface\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void _test051() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"InstanceOfPatternTest.java",
+						"public class InstanceOfPatternTest {\n" +
+						"	static String STR = \"2\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		if ( switch(STR) {\n" +
+						"				case \"1\" -> \"one\";\n" +
+						"				default -> \"Unknown\";\n" +
+						"			  } \n" +
+						"				instanceof String s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"	public CharSequence chars() {\n" +
+						"		return \"abc\";\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"Unknown",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
 }
