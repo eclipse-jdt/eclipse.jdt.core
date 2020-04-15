@@ -2507,4 +2507,54 @@ public void testBug561528_005() {
 		true
 	);
 }
+public void testBug561778_001() throws IOException, ClassFormatException {
+	runConformTest(
+			new String[] {
+					"XTest.java",
+					"public class XTest{\n" +
+					"	static <T> T test(X<T> box) {\n" +
+					"		return box.value(); /* */\n" +
+					"	}\n" +
+					"   public static void main(String[] args) {\n" +
+					"       System.out.println(0);\n" +
+					"   }\n" +
+					"}\n",
+					"X.java",
+					"public record X<T>(T value) {\n" +
+					"}"
+			},
+		"0");
+	String expectedOutput =
+			"  // Method descriptor #24 ()Ljava/lang/Object;\n" +
+			"  // Signature: ()TT;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.Object value();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug561778_002() throws IOException, ClassFormatException {
+	runConformTest(
+			new String[] {
+					"XTest.java",
+					"public class XTest{\n" +
+					"	static <T> Y<T> test(X<T> box) {\n" +
+					"		return box.value(); /* */\n" +
+					"	}\n" +
+					"   public static void main(String[] args) {\n" +
+					"       System.out.println(0);\n" +
+					"   }\n" +
+					"}\n",
+					"X.java",
+					"public record X<T>(Y<T> value) {\n" +
+					"}\n" +
+					"class Y<T> {\n" +
+					"}"
+			},
+		"0");
+	String expectedOutput =
+			"  // Method descriptor #24 ()LY;\n" +
+			"  // Signature: ()LY<TT;>;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public Y value();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }
