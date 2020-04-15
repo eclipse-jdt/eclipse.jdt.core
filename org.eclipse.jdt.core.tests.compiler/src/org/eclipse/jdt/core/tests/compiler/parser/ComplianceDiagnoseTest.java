@@ -2496,6 +2496,19 @@ public void test0052() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	void foo2() {\n" +
 		"	^^^^\n" +
+		"Syntax error on token \"void\", new expected\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	}\n" +
+		"	^\n" +
+		"Syntax error, insert \";\" to complete Statement\n" +
+		"----------\n";
+
+	String expectedJ14ProblemLog =
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	void foo2() {\n" +
+		"	^^^^\n" +
 		"Syntax error on token \"void\", record expected\n" +
 		"----------\n";
 
@@ -2503,7 +2516,7 @@ public void test0052() {
 		testFiles,
 		expected13ProblemLog,
 		expected14ProblemLog,
-		expected15ProblemLog
+		(this.complianceLevel < ClassFileConstants.JDK14 ? expected15ProblemLog : expectedJ14ProblemLog)
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=42243

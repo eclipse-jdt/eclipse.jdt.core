@@ -77,6 +77,7 @@ public class GenClassProc extends AbstractProcessor {
 			// get annotations on the declaration
 			String clazz = null;
 			String method = null;
+			boolean warn = false;
 			for (AnnotationMirror am : d.getAnnotationMirrors()) {
 				if (am.getAnnotationType().asElement().equals(_annoDecl)) {
 					// query the annotation to get its values
@@ -92,6 +93,9 @@ public class GenClassProc extends AbstractProcessor {
 						}
 						if ("method".equals(keyName)) {
 							method = (String)(value.getValue());
+						}
+						if ("warn".equals(keyName)) {
+							warn = ((Boolean) value.getValue()).booleanValue();
 						}
 					}
 
@@ -109,7 +113,7 @@ public class GenClassProc extends AbstractProcessor {
 			}
 
 			if (null != clazz && null != method && !roundEnv.processingOver())
-				createSourceFile(d, clazz, method);
+				createSourceFile(d, clazz, method, warn);
 		}
 		return true;
 	}
@@ -121,29 +125,31 @@ public class GenClassProc extends AbstractProcessor {
 	 * @param clazz a fully qualified classname
 	 * @param method the name of a method that will be
 	 * added to the class
+	 * @param warn whether to generate code that will cause a
+	 * warning about an unused variable (if the warning is enabled)
 	 */
-	private void createSourceFile(Element parent, String clazz, String method) {
+	private void createSourceFile(Element parent, String clazz, String method, boolean warn) {
 		int lastDot = clazz.lastIndexOf('.');
 		if (lastDot <= 0 || clazz.length() == lastDot)
 			return;
 		String pkg = clazz.substring(0, lastDot);
 		String lname = clazz.substring(lastDot + 1);
-		Writer w = null;
-		PrintWriter pw = null;
 		try {
 			JavaFileObject jfo = _filer.createSourceFile(clazz, parent);
-			w = jfo.openWriter();
-			pw = new PrintWriter(w);
-			pw.println("package " + pkg + ";");
-			pw.println("public class " + lname + " {");
-			pw.println("\tpublic String " + method + "() {");
-			// This compile error won't be reported if the -proc:only flag is set:
-			// pw.println("\t\tb = a;");
-			pw.println("\t\treturn new String(\"" + clazz + "\");");
-			pw.println("\t}");
-			pw.println("}");
-			pw.close();
-			w.close();
+			try (Writer	w = jfo.openWriter(); PrintWriter pw = new PrintWriter(w)) {
+				pw.println("package " + pkg + ";");
+				pw.println("public class " + lname + " {");
+				pw.println("\tpublic String " + method + "() {");
+				// This compile error won't be reported if the -proc:only flag is set:
+				// pw.println("\t\tb = a;");
+				if (warn) {
+					// Unused variable
+					pw.println("\t\tString s = \"" + clazz + "\";");
+				}
+				pw.println("\t\treturn new String(\"" + clazz + "\");");
+				pw.println("\t}");
+				pw.println("}");
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
