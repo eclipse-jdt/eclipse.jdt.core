@@ -4900,5 +4900,33 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"r cannot be resolved to a variable\n" +
 			"----------\n");
 	}
+	public void testBug562198_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    int a[] = {1, 2, 3};\n"+
+				"    public int foo() {\n"+
+				"        return switch (0) {\n"+
+				"               case 0 -> {\n"+
+				"                       yield a[0];\n"+
+				"               }\n"+
+				"            default -> {\n"+
+				"                try {\n"+
+				"                    // do nothing\n"+
+				"                } finally {\n"+
+				"                    // do nothing\n"+
+				"                }\n"+
+				"                yield 0;\n"+
+				"            }\n"+
+				"        };\n"+
+				"    }\n"+
+				"    public static void main(String[] args) {\n"+
+				"               System.out.println(new X().foo());\n"+
+				"       }\n"+
+				"}\n"
+			},
+			"1");
+	}
 
 }
