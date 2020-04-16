@@ -1938,7 +1938,7 @@ public void test0041() {
 	);
 }
 //TODO:  Enable after Bug 552769  is fixed
-public void _test0042() {
+public void test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"void ___eval() {\n" +
@@ -2035,28 +2035,23 @@ public void _test0042() {
 			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
 			"----------\n";
 
-	String expected_Java14_ProblemLog =
+	String expectedJ14ProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	void ___eval() {\n" +
 			"	^^^^\n" +
 			"Syntax error on token \"void\", record expected\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	             ^\n" +
-			"Syntax error on token \")\", { expected after this token\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete RecordBody\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	new Runnable() {\n" +
+			"	^^^\n" +
+			"Syntax error on token \"new\", record expected\n" +
 			"----------\n";
 	runComplianceParserTest(
 		testFiles,
-		expected_Java14_ProblemLog,
-		expected_Java14_ProblemLog,
-		expected_Java14_ProblemLog
+		expected13ProblemLog,
+		expected14ProblemLog,
+		(this.complianceLevel < ClassFileConstants.JDK14 ? expected15ProblemLog : expectedJ14ProblemLog)
 	);
 }
 /*
