@@ -161,7 +161,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		List<? extends RecordComponentElement> recordComponents = record.getRecordComponents();
 		// Test that in the first round, we don't get an NPE
 		assertNotNull("recordComponents Should not be null", recordComponents);
-		assertEquals("recordComponents Should not be null", 1, recordComponents.size());
+		assertEquals("recordComponents Should not be null", 5, recordComponents.size());
 	}
 	/*
 	 * Test for presence of record component in a record element
@@ -179,7 +179,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		assertNotNull("enclosedElements for record should not be null", enclosedElements);
 		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
 		int size = recordComponentsIn.size();
-		assertEquals("incorrect no of record components", 1, size);
+		assertEquals("incorrect no of record components", 5, size);
 		Element element = recordComponentsIn.get(0);
 		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
 		RecordComponentElement recordComponent = (RecordComponentElement) element;
@@ -285,12 +285,48 @@ public class Java14ElementProcessor extends BaseProcessor {
 		assertNotNull("enclosedElements for record should not be null", enclosedElements);
 		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
 		int size = recordComponentsIn.size();
-		assertEquals("incorrect no of record components", 1, size);
+		assertEquals("incorrect no of record components", 5, size);
 		Element element = recordComponentsIn.get(0);
 		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
 		RecordComponentElement recordComponent = (RecordComponentElement) element;
-		
 		verifyAnnotations(recordComponent, new String[]{"@MyAnnot()"});
+
+		element = recordComponentsIn.get(1);
+		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
+		recordComponent = (RecordComponentElement) element;
+		verifyAnnotations(recordComponent, new String[]{"@MyAnnot2()"});
+	}
+	public void testRecords4a() {
+		Set<? extends Element> elements = roundEnv.getRootElements();
+		TypeElement record = null;
+		for (Element element : elements) {
+			if ("Point".equals(element.getSimpleName().toString())) {
+				record = (TypeElement) element;
+			}
+		}
+		assertNotNull("TypeElement for record should not be null", record);
+		verifyAnnotations(record, new String[]{"@Deprecated()"});
+
+		List<? extends Element> enclosedElements = record.getEnclosedElements();
+		assertNotNull("enclosedElements for record should not be null", enclosedElements);
+		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
+		int size = recordComponentsIn.size();
+		assertEquals("incorrect no of record components", 5, size);
+
+		Element element = recordComponentsIn.get(2);
+		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
+		RecordComponentElement recordComponent = (RecordComponentElement) element;
+		verifyAnnotations(recordComponent, new String[]{});
+
+		element = recordComponentsIn.get(3);
+		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
+		recordComponent = (RecordComponentElement) element;
+		verifyAnnotations(recordComponent, new String[]{});
+
+		element = recordComponentsIn.get(4);
+		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
+		recordComponent = (RecordComponentElement) element;
+		verifyAnnotations(recordComponent, new String[]{});
 	}
 	public void testRecords5() {
 		Map<String, TypeKind> expRecComps = new HashMap<>();
@@ -413,7 +449,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 					TypeKind.DECLARED, TypeKind.DECLARED };
 			List<String> names = Arrays.asList(arr1);
 			List<TypeKind> types = Arrays.asList(arr2);
-			
+
 	        Element record = _elementUtils.getTypeElement("records.R3");
 	        List<? extends Element> allElements = record.getEnclosedElements();
 	        List<RecordComponentElement> components = ElementFilter.recordComponentsIn(allElements);
@@ -426,14 +462,21 @@ public class Java14ElementProcessor extends BaseProcessor {
 	            assertSame("Type kind not same for \"" + name + "\".", types.get(indexOf), accessor.getReturnType().getKind());
 	            assertTrue("should be executable type for \"" + name + "\".", (accessor.asType() instanceof ExecutableType));
 	            assertNull("should be null", accessor.getDefaultValue());
-	            if (accessor.getSimpleName().toString().equals("c")) {
-	            	assertEquals("annotations count mismatch for \"" + name + "\".", 1, accessor.getAnnotationMirrors().size());
-	            	Set<? extends ExecutableElement> accessorAnnotations = accessor.getAnnotationMirrors().get(0)
+	            List<? extends AnnotationMirror> mirrors = accessor.getAnnotationMirrors();
+				if (name.equals("c") || name.equals("bigInt") || name.equals("r1")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 1, mirrors.size());
+	            	Set<? extends ExecutableElement> accessorAnnotations = mirrors.get(0)
 	                        .getElementValues().keySet();
 	            	assertEquals("annotations type element mismatch for \"" + name + "\".", 1, accessorAnnotations.size());
 	            	int val = (int) accessorAnnotations.toArray(new ExecutableElement[0])[0].getDefaultValue()
 	                        .getValue();
 	            	assertEquals("Incorrect default value for \"" + name + "\".", 1, val);
+	            }
+	            if (name.equals("floatValue") || name.equals("x")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 0, mirrors.size());
+	            }
+	            if (name.equals("recordInstance")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 2, mirrors.size());
 	            }
 	            assertTrue("Parameters should be empty for \"" + name + "\".", accessor.getParameters().isEmpty());
 	            assertTrue("Thrown types should be empty for \"" + name + "\".", accessor.getThrownTypes().isEmpty());
