@@ -2856,6 +2856,8 @@ public void illegalLocalTypeDeclaration(TypeDeclaration typeDeclaration) {
 		problemID = IProblem.CannotDefineAnnotationInLocalType;
 	} else if ((typeDeclaration.modifiers & ClassFileConstants.AccInterface) != 0) {
 		problemID = IProblem.CannotDefineInterfaceInLocalType;
+	} else if (typeDeclaration instanceof RecordDeclaration) {
+		problemID = IProblem.RecordCannotDefineRecordInLocalType;
 	}
 	if (problemID != 0) {
 		String[] arguments = new String[] {new String(typeDeclaration.name)};

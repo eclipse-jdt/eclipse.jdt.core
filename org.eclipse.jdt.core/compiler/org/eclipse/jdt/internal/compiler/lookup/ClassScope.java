@@ -500,6 +500,11 @@ public class ClassScope extends Scope {
 				problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
 				sourceType.modifiers = 0;
 				return;
+			} else if (sourceType.isRecord()) {
+				if (enclosingType != null && enclosingType.isLocalType()) {
+					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
+					return;
+				}
 			}
 			if (sourceType.isAnonymousType()) {
 				if (compilerOptions().complianceLevel < ClassFileConstants.JDK9)

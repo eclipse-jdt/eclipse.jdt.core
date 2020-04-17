@@ -2632,4 +2632,56 @@ public void _test562250c() throws IOException, ClassFormatException {
 		"RecordComponents:\n" +
 		"Accessors:");
 }
+public void testBug562219_001() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"       public void foo() {\n"+
+				"               @SuppressWarnings(\"unused\")\n"+
+				"               class Y {\n"+
+				"                       @SuppressWarnings(\"preview\")\n"+
+				"                       class Z {\n"+
+				"                               record R() {\n"+
+				"                                       \n"+
+				"                               }\n"+
+				"                       }\n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"
+			},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	record R() {\n" +
+		"	       ^\n" +
+		"A record declaration R is not allowed in a local inner class\n" +
+		"----------\n",
+		null,
+		true
+	);
+}
+public void testBug562219_002() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public void foo() {\n"+
+				"        @SuppressWarnings(\"unused\")\n"+
+				"        class Y {\n"+
+				"           @SuppressWarnings(\"preview\")\n"+
+				"           record R() {}\n"+
+				"        }\n"+
+				"    }\n"+
+				"}\n"
+			},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	record R() {}\n" +
+		"	       ^\n" +
+		"A record declaration R is not allowed in a local inner class\n" +
+		"----------\n",
+		null,
+		true
+	);
+}
 }
