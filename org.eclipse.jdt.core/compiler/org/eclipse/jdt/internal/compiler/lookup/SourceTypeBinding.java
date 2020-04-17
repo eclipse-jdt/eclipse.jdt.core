@@ -923,7 +923,24 @@ public SyntheticMethodBinding addSyntheticRecordComponentAccessor(char[] selecto
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(selector);
-	accessMethod = new SyntheticMethodBinding(this, getField(selector, true), index);
+	FieldBinding field = getField(selector, true);
+	accessMethod = new SyntheticMethodBinding(this, field, index);
+	AnnotationBinding[] annotations = field.getAnnotations();
+	if (annotations.length > 0) {
+		List<AnnotationBinding> list = new ArrayList<>();
+		for (AnnotationBinding binding : annotations) {
+			long bits = binding.getAnnotationType().getAnnotationTagBits();
+			if ((bits & TagBits.AnnotationForMethod) != 0
+					|| (bits & TagBits.AnnotationTargetMASK) == 0) {
+				list.add(binding);
+			}
+		}
+		if (list.size() > 0) {
+			AnnotationBinding[] annots = new AnnotationBinding[list.size()];
+			annotations = list.toArray(annots);
+			accessMethod.setAnnotations(annotations, true);
+		}
+	}
 	if (accessors == null) {
 		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, accessors = new SyntheticMethodBinding[2]);
 		accessors[0] = accessMethod;
