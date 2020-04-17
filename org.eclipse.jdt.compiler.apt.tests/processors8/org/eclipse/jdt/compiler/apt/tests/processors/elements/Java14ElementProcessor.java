@@ -19,6 +19,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,10 +44,13 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.ElementScanner14;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -383,6 +387,61 @@ public class Java14ElementProcessor extends BaseProcessor {
 			assertEquals("Accessor method name incorrect", record.getSimpleName().toString(), method.getSimpleName().toString());
 		}
 	}
+	public void testRecords8() {
+		boolean result = false;
+        Object r = "DEFAULT";
+        Object param = new Object();
+        ScannerImpl<Object, Object> es = new ScannerImpl<>(r);
+
+		Element e = _elementUtils.getTypeElement("records.Record2");
+		List<? extends Element> recordElements = e.getEnclosedElements();
+		for (Element recComp : recordElements) {
+			if (recComp.getKind() == ElementKind.RECORD_COMPONENT) {
+				result = true;
+				Object r2 = recComp.accept(es, param);
+				assertSame("returned message not same", r, r2);
+				assertTrue("not visited", es.visited);
+				assertSame("Visited element not the same", recComp, es.el);
+				assertSame("Visited param not the same", param, es.param);
+			}
+		}
+        assertTrue("Test returned negative", result);
+	}
+	public void testRecords9() {
+			String[] arr1 = new String[] { "x", "bigInt", "r1", "floatValue", "c", "recordInstance" };
+			TypeKind[] arr2 = new TypeKind[] { TypeKind.INT, TypeKind.DECLARED, TypeKind.DECLARED, TypeKind.FLOAT,
+					TypeKind.DECLARED, TypeKind.DECLARED };
+			List<String> names = Arrays.asList(arr1);
+			List<TypeKind> types = Arrays.asList(arr2);
+			
+	        Element record = _elementUtils.getTypeElement("records.R3");
+	        List<? extends Element> allElements = record.getEnclosedElements();
+	        List<RecordComponentElement> components = ElementFilter.recordComponentsIn(allElements);
+	        List<ExecutableElement> accessors = components.stream().map
+	                (RecordComponentElement::getAccessor).collect(Collectors.toList());
+	        assertEquals("Size mismatch", names.size(), accessors.size());
+	        for (ExecutableElement accessor : accessors) {
+	            String name = accessor.getSimpleName().toString();
+	            int indexOf = names.indexOf(name);
+	            assertSame("Type kind not same for \"" + name + "\".", types.get(indexOf), accessor.getReturnType().getKind());
+	            assertTrue("should be executable type for \"" + name + "\".", (accessor.asType() instanceof ExecutableType));
+	            assertNull("should be null", accessor.getDefaultValue());
+	            if (accessor.getSimpleName().toString().equals("c")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 1, accessor.getAnnotationMirrors().size());
+	            	Set<? extends ExecutableElement> accessorAnnotations = accessor.getAnnotationMirrors().get(0)
+	                        .getElementValues().keySet();
+	            	assertEquals("annotations type element mismatch for \"" + name + "\".", 1, accessorAnnotations.size());
+	            	int val = (int) accessorAnnotations.toArray(new ExecutableElement[0])[0].getDefaultValue()
+	                        .getValue();
+	            	assertEquals("Incorrect default value for \"" + name + "\".", 1, val);
+	            }
+	            assertTrue("Parameters should be empty for \"" + name + "\".", accessor.getParameters().isEmpty());
+	            assertTrue("Thrown types should be empty for \"" + name + "\".", accessor.getThrownTypes().isEmpty());
+	            assertTrue("Type parameters should be empty for \"" + name + "\".", accessor.getTypeParameters().isEmpty());
+	            assertFalse("Should not be default for \"" + name + "\".", accessor.isDefault());
+	            assertFalse("Should not be varargs for \"" + name + "\".", accessor.isVarArgs());
+	        }
+	}
 
 	@Override
 	public void reportError(String msg) {
@@ -522,6 +581,57 @@ public class Java14ElementProcessor extends BaseProcessor {
 
 		public AssertionFailedError(String msg) {
 			super(msg);
+		}
+	}
+
+	class ScannerImpl<R, P> extends ElementScanner14<R, P> {
+		public Object el;
+		boolean isType;
+		boolean isMethod;
+		public boolean visited;
+		public boolean scanned;
+		R result;
+		public Object param;
+
+		public List<TypeParameterElement> params = new ArrayList<>();
+
+		public ScannerImpl() {
+			super();
+		}
+
+		public ScannerImpl(R r) {
+			super(r);
+		}
+
+		@Override
+		public R visitType(TypeElement e, P p) {
+			el = e;
+			param = p;
+			isType = true;
+			return super.visitType(e, p);
+		}
+
+		@Override
+		public R visitExecutable(ExecutableElement e, P p) {
+			isMethod = true;
+			el = e;
+			param = p;
+			return super.visitExecutable(e, p);
+		}
+
+		public R visitRecordComponent(RecordComponentElement e, P p) {
+			el = e;
+			param = p;
+			visited = true;
+			return super.visitRecordComponent(e, p);
+		}
+
+		public R scan(Element e, P p) {
+			scanned = true;
+			if (e instanceof TypeParameterElement) {
+				params.add((TypeParameterElement) e);
+			}
+			return DEFAULT_VALUE;
 		}
 	}
 }

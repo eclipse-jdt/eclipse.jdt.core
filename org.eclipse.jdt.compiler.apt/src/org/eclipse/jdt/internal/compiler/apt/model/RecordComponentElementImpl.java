@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.compiler.apt.model;
 
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.RecordComponentElement;
 
@@ -44,5 +45,9 @@ public class RecordComponentElementImpl extends VariableElementImpl implements R
 			return new ExecutableElementImpl(_env, accessor);
 		}
 		return null;
+	}
+	@Override
+	public <R, P> R accept(ElementVisitor<R, P> visitor, P param) {
+		return visitor.visitRecordComponent(this, param);
 	}
 }
