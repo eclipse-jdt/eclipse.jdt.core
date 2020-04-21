@@ -1674,18 +1674,18 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 						"		foo(new String[] {\"abcd\"});\n" + 
 						"	}\n" +
 						"  public static void foo(Object[] obj) {\n" +
-						"		for(int i = 0; (obj[i] instanceof String s) && s.length() > 0 ; i++) {\n" + 
-						"			throw new IllegalArgumentException();\n" + 
-						"		}\n" + 
+						"		for(int i = 0; (obj[i] instanceof String s) && s.length() > 0 ;) {\n" +
+						"			throw new IllegalArgumentException();\n" +
+						"		}\n" +
 						"		System.out.println(s);\n" +
 						"	}\n" +
 						"}\n",
 				},
-				"----------\n" + 
-				"1. ERROR in X38.java (at line 10)\n" + 
-				"	System.out.println(s);\n" + 
-				"	                   ^\n" + 
-				"s cannot be resolved to a variable\n" + 
+				"----------\n" +
+				"1. ERROR in X38.java (at line 10)\n" +
+				"	System.out.println(s);\n" +
+				"	                   ^\n" +
+				"The pattern variable s is not in scope in this location\n" +
 				"----------\n",
 				"",
 				null,
@@ -2008,6 +2008,40 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"Unknown",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void test052() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	@SuppressWarnings(\"preview\")\n" +
+						"	public static void main(String args[]) {\n" +
+						"		String result = null;\n" +
+						"		Object obj = \"abc\";\n" +
+						"		int i = switch (0) {\n" +
+						"			case 1 -> {\n" +
+						"				yield 1;\n" +
+						"			}\n" +
+						"			default -> {\n" +
+						"				for (int j = 0; !(obj instanceof String s);) {\n" +
+						"					obj = null;\n" +
+						"				}\n" +
+						"				result = s;\n" +
+						"				System.out.println(result);\n" +
+						"				yield 2;\n" +
+						"			}\n" +
+						"		};\n" +
+						"		System.out.println(i);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"abc\n" +
+				"2",
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
