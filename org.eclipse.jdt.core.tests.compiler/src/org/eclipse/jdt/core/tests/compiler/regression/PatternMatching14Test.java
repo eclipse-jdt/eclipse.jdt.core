@@ -2045,4 +2045,26 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
+	public void testBug562392() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X<T> {\n" +
+						"	public boolean foo(T obj) {\n" +
+						"		if (obj instanceof T s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"		return true;\n" +
+						"	}\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		String s = \"x\";\n" +
+						"		System.out.println(new X<String>().foo(s));\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"x\n" +
+				"true",
+				compilerOptions);
+		}
 }
