@@ -2145,4 +2145,190 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				"",
 				compilerOptions);
 		}
+	public void test053() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	@SuppressWarnings(\"preview\")\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		Object obj = \"x\";\n" +
+						"		if (obj instanceof String s) {\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"		String s = \"y\";\n" +
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"x\n" +
+				"y",
+				compilerOptions);
+	}
+	public void test054() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	@SuppressWarnings(\"preview\")\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		Object obj = \"x\";\n" +
+						"		while (!(obj instanceof String s)) {\n" +
+						"			String s = \"y\";\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"x",
+				compilerOptions);
+	}
+	public void test055() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"public static void main(String argv[]) {\n" +
+						"		String result = \"\";\n" +
+						"		Object obj = \"abc\";\n" +
+						"		for (; !(obj instanceof String a);) {\n" +
+						"			String a = \"\";\n" +
+						"			result = a;\n" +
+						"			obj = null;\n" +
+						"		}\n" +
+						"		if (!result.equals(\"abc\")) {\n" +
+						"			System.out.println(\"PASS\");\n" +
+						"		} else {\n" +
+						"			System.out.println(\"FAIL\");\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"PASS",
+				compilerOptions);
+	}
+	public void _test056() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X {\n" +
+						"	public static int impl(I a) {\n" +
+						"		return a.foo(\"Default\");\n" +
+						"	}\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		String result = \"\";\n" +
+						"		Object obj = \"a\";\n" +
+						"		for (int i = 0; !(obj instanceof String a); i = impl(a -> a.length())) {\n" +
+						"			obj = null;\n" +
+						"		}\n" +
+						"		if (!result.equals(\"\"))\n" +
+						"			System.out.println(\"FAIL\");\n" +
+						"		else\n" +
+						"			System.out.println(\"PASS\");\n" +
+						"	}\n" +
+						"}\n" +
+						"interface I {\n" +
+						"	int foo(String s);\n" +
+						"}\n",
+				},
+				"PASS",
+				compilerOptions);
+	}
+	public void test056a() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X {\n" +
+						"	public static int impl(I a) {\n" +
+						"		return a.foo(\"Default\");\n" +
+						"	}\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		String result = \"\";\n" +
+						"		Object obj = \"a\";\n" +
+						"		for (int i = 0; !(obj instanceof String a); i = impl(x -> {\n" +
+						"															String a = \"\";\n" +
+						"															return a.length();\n" +
+						"														})) {\n" +
+						"			obj = null;\n" +
+						"		}\n" +
+						"		if (!result.equals(\"\"))\n" +
+						"			System.out.println(\"FAIL\");\n" +
+						"		else\n" +
+						"			System.out.println(\"PASS\");\n" +
+						"	}\n" +
+						"}\n" +
+						"interface I {\n" +
+						"	int foo(String s);\n" +
+						"}\n",
+				},
+				"PASS",
+				compilerOptions);
+	}
+	/*
+	 * Test we report only one duplicate variable, i.e., in THEN stmt
+	 * where pattern variable is in scope.
+	 */
+	public void test057() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	@SuppressWarnings(\"preview\")\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		Object obj = \"x\";\n" +
+						"		if (obj instanceof String s) {\n" +
+						"			String s = \"\";\n" +
+						"			System.out.println(s);\n" +
+						"		}\n" +
+						"		String s = \"y\";\n" +
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	String s = \"\";\n" +
+				"	       ^\n" +
+				"Duplicate local variable s\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+		}
+	public void test058() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	@SuppressWarnings(\"preview\")\n" +
+						"	public static void main(String[] s) {\n" +
+						"		Object obj = \"x\";\n" +
+						"		if (obj instanceof String[] s && s.length > 0) {\n" +
+						"			System.out.println(s[0]);\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (obj instanceof String[] s && s.length > 0) {\n" +
+				"	                            ^\n" +
+				"Duplicate local variable s\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
 }
