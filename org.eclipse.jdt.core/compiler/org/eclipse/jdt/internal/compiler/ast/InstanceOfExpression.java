@@ -26,6 +26,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -176,7 +177,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 
 	if (!checkedType.isReifiable()) {
-		scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
+		if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK14)
+			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
 	} else if (checkedType.isValidBinding()) {
 		// if not a valid binding, an error has already been reported for unresolved type
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5357,6 +5357,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// reject instanceof type variable or parameterized type
 	public void test0178() {
+		if (this.complianceLevel >= ClassFileConstants.JDK14)
+			return;
 		Map customOptions = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -26367,6 +26369,8 @@ public void test0813() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695
 public void test0814() {
+	if (this.complianceLevel >= ClassFileConstants.JDK14)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -26448,6 +26452,8 @@ public void test0815() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
 public void test0816() {
+	if (this.complianceLevel >= ClassFileConstants.JDK14)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -26474,6 +26480,8 @@ public void test0816() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104695 - variation
 public void test0817() {
+	if (this.complianceLevel >= ClassFileConstants.JDK14)
+		return;
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -31917,6 +31925,8 @@ public void test0954() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105049
 public void test0955() {
+	if (this.complianceLevel >= ClassFileConstants.JDK14)
+		return;
 	this.runNegativeTest(
 		new String[] {
 		"X.java", //================================
@@ -50123,6 +50133,8 @@ public void test1425() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258039
 public void test1426() {
+	if (this.complianceLevel >= ClassFileConstants.JDK14)
+		return;
 	this.runNegativeTest(
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
@@ -51684,6 +51696,8 @@ public void test268798a() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=307885
 public void test1460() {
+	if (this.complianceLevel >= ClassFileConstants.JDK14)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"Test.java",
