@@ -2045,7 +2045,7 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
-	public void testBug562392() {
+	public void _testBug562392a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -2065,6 +2065,84 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				},
 				"x\n" +
 				"true",
+				compilerOptions);
+		}
+	public void _testBug562392b() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X<T> {\n" +
+						"	public boolean foo(Object obj) {\n" +
+						"        if (obj instanceof T) {\n" +
+						"            return false;\n" +
+						"        }\n" +
+						"        return true;\n" +
+						"    }\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		System.out.println(\"\");\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	if (obj instanceof T) {\n" +
+				"	    ^^^^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from Object to T\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+		}
+	public void _testBug562392c() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X<T> {\n" +
+						"	public boolean foo(Object obj) {\n" +
+						"        if (obj instanceof T t) {\n" +
+						"            return false;\n" +
+						"        }\n" +
+						"        return true;\n" +
+						"    }\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		System.out.println(\"\");\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (obj instanceof T t) {\n" +
+				"	    ^^^^^^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from Object to T\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+		}
+	public void _testBug562392d() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X<T> {\n" +
+						"	public boolean foo(Object obj) {\n" +
+						"        if (null instanceof T t) {\n" +
+						"            return false;\n" +
+						"        }\n" +
+						"        return true;\n" +
+						"    }\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		System.out.println(\"\");\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"",
 				compilerOptions);
 		}
 }
