@@ -127,4 +127,31 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 				Signature.getUnionTypeBounds(typeSignature) // method name is wrong, it actually means: getIntersectionTypeBounds
 			);
 	}
+	public void testBug562382() throws CoreException {
+		this.wc = getWorkingCopy("/Resolve/src/X.java",
+				"class X {\n" +
+				"	class Number {};\n" +
+				"	class Integer extends Number {};\n" +
+				"	interface Function<T, R> {\n" +
+				"	    R apply(T t);\n" +
+				"	}\n" +
+				"	Function<Number, Integer> fail() {\n" +
+				"		return new Function<>() {\n" +
+				"			@Override\n" +
+				"			public Integer apply(Number t) {\n" +
+				"				return null;\n" +
+				"			}\n" +
+				"		};\n" +
+				"	}\n" +
+				"}"
+				);
+		String str = this.wc.getSource();
+		String selection = "Number";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] selected = this.wc.codeSelect(start, length);
+		assertEquals(1, selected.length);
+		assertEquals("Number", selected[0].getElementName());
+	}
 }
