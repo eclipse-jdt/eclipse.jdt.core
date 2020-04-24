@@ -776,8 +776,7 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.10 */
 	int MissingTypeInLambda = MethodRelated + 271;
-	/** @since 3.20
-	 * @noreference preview related error */
+	/** @since 3.23 BETA_JAVA 15 */
 	int UnterminatedTextBlock = PreviewRelated + 272;
 	// type related problems
 	/** @since 3.1 */
@@ -2107,6 +2106,8 @@ void setSourceStart(int sourceStart);
 	int PreviewFeatureNotSupported = Compliance + 1105;
 	/** @since 3.20*/
 	int PreviewFeaturesNotAllowed = PreviewRelated + 1106;
+	/** @since 3.23 BETA_JAVA15 */
+	int FeatureNotSupported = Compliance + 1107;
 
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;

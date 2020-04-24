@@ -142,6 +142,13 @@
                 <message_argument value="2098858"/>
             </message_arguments>
         </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.23 BETA_JAVA15"/>
+                <message_argument value="3.22 BETA_JAVA15"/>
+                <message_argument value="FeatureNotSupported"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/InstanceofExpression.java" type="org.eclipse.jdt.core.dom.InstanceofExpression">
         <filter comment="For Java 14" id="336658481">

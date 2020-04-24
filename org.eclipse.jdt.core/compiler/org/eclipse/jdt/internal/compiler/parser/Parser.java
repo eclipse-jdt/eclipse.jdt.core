@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -965,6 +969,7 @@ private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
 protected boolean parsingJava9Plus;
 protected boolean parsingJava14Plus;
+protected boolean parsingJava15Plus;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
 private boolean haltOnSyntaxError = false;
@@ -986,8 +991,9 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	initializeScanner();
 	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
-	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
+	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
+	this.parsingJava15Plus = this.options.sourceLevel >= ClassFileConstants.JDK15;
 	this.astLengthStack = new int[50];
 	this.patternLengthStack = new int[20];
 	this.expressionLengthStack = new int[30];
@@ -9765,14 +9771,8 @@ protected void consumeStaticOnly() {
 	}
 }
 protected void consumeTextBlock() {
-	if (!this.parsingJava14Plus) {
-		problemReporter().previewFeatureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_14); //$NON-NLS-1$
-	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().previewFeatureNotEnabled(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks"); //$NON-NLS-1$
-	} else {
-		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemReporter().previewFeatureUsed(this.scanner.startPosition, this.scanner.currentPosition - 1);
-		}
+	if (!this.parsingJava15Plus) {
+		problemReporter().featureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_15); //$NON-NLS-1$
 	}
 	char[] textBlock2 = this.scanner.getCurrentTextBlock();
 	TextBlock textBlock;
@@ -9787,8 +9787,6 @@ protected void consumeTextBlock() {
 						this.scanner.startPosition,
 						this.scanner.currentPosition - 1,
 						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
-		// TODO
-		//this.compilationUnit.recordStringLiteral(stringLiteral, this.currentElement != null);
 	} else {
 		textBlock = new TextBlock(
 				textBlock2,

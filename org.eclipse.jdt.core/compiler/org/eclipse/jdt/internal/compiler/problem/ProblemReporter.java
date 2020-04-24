@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -9525,6 +9529,15 @@ public void previewFeatureNotSupported(int sourceStart, int sourceEnd, String fe
 	String[] args = new String[] {featureName, sourceLevel};
 	this.handle(
 			IProblem.PreviewFeatureNotSupported,
+			args,
+			args,
+			sourceStart,
+			sourceEnd);
+}
+public void featureNotSupported(int sourceStart, int sourceEnd, String featureName, String sourceLevel) {
+	String[] args = new String[] {featureName, sourceLevel};
+	this.handle(
+			IProblem.FeatureNotSupported,
 			args,
 			args,
 			sourceStart,
