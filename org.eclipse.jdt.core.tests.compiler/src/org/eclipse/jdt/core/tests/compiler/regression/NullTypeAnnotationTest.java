@@ -18191,7 +18191,8 @@ public void testBug562347_561280c9() {
 		"----------\n");
 }
 public void testBug562347() {
-	runNegativeTestWithLibs(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"NotificationListingHolder.java",
 			"@SuppressWarnings(\"unused\")\n" +
@@ -18214,7 +18215,8 @@ public void testBug562347() {
 			"class Test {\n" +
 			"    public final String field;\n" +
 			"}"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. ERROR in NotificationListingHolder.java (at line 9)\n" +
 		"	if (z) {\n" +
@@ -18240,6 +18242,8 @@ public void testBug562347() {
 		"	public final String field;\n" +
 		"	                    ^^^^^\n" +
 		"The blank final field field may not have been initialized\n" +
-		"----------\n");
+		"----------\n";
+	runner.classLibraries = this.LIBS;
+	runner.runNegativeTest();
 }
 }
