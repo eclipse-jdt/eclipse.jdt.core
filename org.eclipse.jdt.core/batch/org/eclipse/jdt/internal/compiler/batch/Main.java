@@ -2099,125 +2099,18 @@ public void configure(String[] argv) {
 					mode = INSIDE_DEFAULT_ENCODING;
 					continue;
 				}
-				if (currentArg.equals("-1.3")) { //$NON-NLS-1$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
+				if (currentArg.startsWith("-")) { //$NON-NLS-1$
+					String version = optionStringToVersion(currentArg.substring(1));
+					if (version != null) {
+						if (didSpecifyCompliance) {
+							throw new IllegalArgumentException(
+								this.bind("configure.duplicateCompliance", currentArg));//$NON-NLS-1$
+						}
+						didSpecifyCompliance = true;
+						this.options.put(CompilerOptions.OPTION_Compliance, version);
+						mode = DEFAULT;
+						continue;
 					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_3);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.4")) { //$NON-NLS-1$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.5") || currentArg.equals("-5") || currentArg.equals("-5.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.6") || currentArg.equals("-6") || currentArg.equals("-6.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.7") || currentArg.equals("-7") || currentArg.equals("-7.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.8") || currentArg.equals("-8") || currentArg.equals("-8.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-1.9") || currentArg.equals("-9") || currentArg.equals("-9.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-10") || currentArg.equals("-10.0")) { //$NON-NLS-1$ //$NON-NLS-2$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-11") || currentArg.equals("-11.0")) { //$NON-NLS-1$ //$NON-NLS-2$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-12") || currentArg.equals("-12.0")) { //$NON-NLS-1$ //$NON-NLS-2$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-13") || currentArg.equals("-13.0")) { //$NON-NLS-1$ //$NON-NLS-2$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-					mode = DEFAULT;
-					continue;
-				}
-				if (currentArg.equals("-14") || currentArg.equals("-14.0")) { //$NON-NLS-1$ //$NON-NLS-2$
-					if (didSpecifyCompliance) {
-						throw new IllegalArgumentException(
-							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
-					}
-					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
-					mode = DEFAULT;
-					continue;
 				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
@@ -2757,36 +2650,18 @@ public void configure(String[] argv) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_3);
-				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				} else if (currentArg.equals("1.8") || currentArg.equals("8") || currentArg.equals("8.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
-				} else if (currentArg.equals("1.9") || currentArg.equals("9") || currentArg.equals("9.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
-				} else if (currentArg.equals("10") || currentArg.equals("10.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
-				} else if (currentArg.equals("11") || currentArg.equals("11.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
-				} else if (currentArg.equals("12") || currentArg.equals("12.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
-				} else if (currentArg.equals("13") || currentArg.equals("13.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-				}
-				else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
+				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
 				} else if (currentArg.equals("cldc1.1")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_CLDC1_1);
 					this.options.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.ENABLED);
-				}else {
-					throw new IllegalArgumentException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
+				} else {
+					String version = optionStringToVersion(currentArg);
+					if (version != null) {
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
+					} else {
+						throw new IllegalArgumentException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
+					}
 				}
 				mode = DEFAULT;
 				continue;
@@ -2850,28 +2725,9 @@ public void configure(String[] argv) {
 							this.bind("configure.unsupportedWithRelease", "-source"));//$NON-NLS-1$ //$NON-NLS-2$
 				}
 				this.didSpecifySource = true;
-				if (currentArg.equals("1.3")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				} else if (currentArg.equals("1.4")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-				} else if (currentArg.equals("1.5") || currentArg.equals("5") || currentArg.equals("5.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-				} else if (currentArg.equals("1.6") || currentArg.equals("6") || currentArg.equals("6.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-				} else if (currentArg.equals("1.7") || currentArg.equals("7") || currentArg.equals("7.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-				} else if (currentArg.equals("1.8") || currentArg.equals("8") || currentArg.equals("8.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-				} else if (currentArg.equals("1.9") || currentArg.equals("9") || currentArg.equals("9.0")) { //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
-				} else if (currentArg.equals("10") ||  currentArg.equals("10.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
-				} else if (currentArg.equals("11") ||  currentArg.equals("11.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
-				} else if (currentArg.equals("12") ||  currentArg.equals("12.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-				} else if (currentArg.equals("13") ||  currentArg.equals("13.0")) { //$NON-NLS-1$//$NON-NLS-2$
-					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+				String version = optionStringToVersion(currentArg);
+				if (version != null) {
+					this.options.put(CompilerOptions.OPTION_Source, version);
 				} else {
 					throw new IllegalArgumentException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}
@@ -3257,6 +3113,51 @@ public void configure(String[] argv) {
 			this.logger.logPendingError(message);
 		}
 		this.pendingErrors = null;
+	}
+}
+/** Translates any supported standarde version starting at 1.3 up-to latest into the corresponding constant from CompilerOptions */
+@SuppressWarnings("nls")
+private String optionStringToVersion(String currentArg) {
+	switch (currentArg) {
+		case "1.3": return CompilerOptions.VERSION_1_3;
+		case "1.4": return CompilerOptions.VERSION_1_4;
+		case "1.5":
+		case "5":
+		case "5.0":
+			return CompilerOptions.VERSION_1_5;
+		case "1.6":
+		case "6":
+		case "6.0":
+			return CompilerOptions.VERSION_1_6;
+		case "1.7":
+		case "7":
+		case "7.0":
+			return CompilerOptions.VERSION_1_7;
+		case "1.8":
+		case "8":
+		case "8.0":
+			return CompilerOptions.VERSION_1_8;
+		case "1.9":
+		case "9":
+		case "9.0":
+			return CompilerOptions.VERSION_9;
+		case "10":
+		case "10.0":
+			return CompilerOptions.VERSION_10;
+		case "11":
+		case "11.0":
+			return CompilerOptions.VERSION_11;
+		case "12":
+		case "12.0":
+			return CompilerOptions.VERSION_12;
+		case "13":
+		case "13.0":
+			return CompilerOptions.VERSION_13;
+		case "14":
+		case "14.0":
+			return CompilerOptions.VERSION_14;
+		default:
+			return null;
 	}
 }
 private String validateModuleVersion(String versionString) {
