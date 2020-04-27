@@ -149,7 +149,6 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
-import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -2859,7 +2858,7 @@ public void illegalLocalTypeDeclaration(TypeDeclaration typeDeclaration) {
 		problemID = IProblem.CannotDefineAnnotationInLocalType;
 	} else if ((typeDeclaration.modifiers & ClassFileConstants.AccInterface) != 0) {
 		problemID = IProblem.CannotDefineInterfaceInLocalType;
-	} else if (typeDeclaration instanceof RecordDeclaration) {
+	} else if (typeDeclaration.isRecord()) {
 		problemID = IProblem.RecordCannotDefineRecordInLocalType;
 	}
 	if (problemID != 0) {
@@ -11546,16 +11545,16 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		stmt.sourceStart,
 		stmt.sourceEnd);
 }
-public void recordIllegalComponentNameInRecord(Argument arg, RecordDeclaration rd) {
+public void recordIllegalComponentNameInRecord(Argument arg, TypeDeclaration typeDecl) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
 		IProblem.RecordIllegalComponentNameInRecord,
 		new String[] {
-				new String(arg.name), new String(rd.name)
+				new String(arg.name), new String(typeDecl.name)
 			},
 			new String[] {
-					new String(arg.name), new String(rd.name)
+					new String(arg.name), new String(typeDecl.name)
 			},
 		arg.sourceStart,
 		arg.sourceEnd);
@@ -11735,8 +11734,8 @@ public void recordComponentCannotBeVoid(ASTNode recordDecl, Argument arg) {
 		recordDecl.sourceStart,
 		recordDecl.sourceEnd);
 }
-public void recordIllegalVararg(Argument argType, RecordDeclaration recordDecl) {
-	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(recordDecl.name)};
+public void recordIllegalVararg(Argument argType, TypeDeclaration typeDecl) {
+	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(typeDecl.name)};
 	this.handle(
 		IProblem.RecordIllegalVararg,
 		arguments,

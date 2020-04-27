@@ -76,7 +76,6 @@ import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
@@ -147,7 +146,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.fields = Binding.UNINITIALIZED_FIELDS;
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
-	this.isRecordDeclaration = scope.referenceContext instanceof RecordDeclaration;
+	this.isRecordDeclaration = scope.referenceContext.isRecord();
 	computeId();
 }
 
@@ -3007,7 +3006,7 @@ public MethodBinding getRecordComponentAccessor(char[] name) {
 public void computeRecordComponents() {
 	if (!this.isRecordDeclaration || this.recordComponents != null)
 		return;
-	Argument[] recComps = ((RecordDeclaration) this.scope.referenceContext).getArgs();
+	Argument[] recComps = this.scope.referenceContext.args;
 	List<FieldBinding> list = new ArrayList<>();
 	if (recComps != null && recComps.length > 0 && this.fields != null) {
 		List<String> recordComponentNames = new ArrayList<>(0);
