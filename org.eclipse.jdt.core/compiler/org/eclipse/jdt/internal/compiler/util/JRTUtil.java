@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -329,6 +332,10 @@ class JrtFileSystem {
 
 	private final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
 
+	private static boolean DISABLE_CACHE = Boolean.getBoolean("org.eclipse.jdt.disable_JRT_cache"); //$NON-NLS-1$
+
+	private final Map<Path, Optional<byte[]>> classCache = new ConcurrentHashMap<>(10007);
+
 	FileSystem fs = null;
 	Path modRoot = null;
 	String jdkHome = null;
@@ -439,22 +446,31 @@ class JrtFileSystem {
 
 	public InputStream getContentFromJrt(String fileName, String module) throws IOException {
 		if (module != null) {
-			return Files.newInputStream(this.fs.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
+			byte[] fileBytes = getFileBytes(fileName, module);
+			if(fileBytes == null) {
+				return null;
+			}
+			return new ByteArrayInputStream(fileBytes);
 		}
 		String[] modules = getModules(fileName);
 		for (String mod : modules) {
-			return Files.newInputStream(this.fs.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+			byte[] fileBytes = getFileBytes(fileName, mod);
+			if(fileBytes != null) {
+				return new ByteArrayInputStream(fileBytes);
+			}
 		}
 		return null;
 	}
+
 	private ClassFileReader getClassfile(String fileName, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
 		String[] modules = getModules(fileName);
 		byte[] content = null;
 		String module = null;
 		for (String mod : modules) {
-			if (moduleNameFilter != null && !moduleNameFilter.test(mod))
+			if (moduleNameFilter != null && !moduleNameFilter.test(mod)) {
 				continue;
-			content = JRTUtil.safeReadBytes(this.fs.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+			}
+			content = getFileBytes(fileName, mod);
 			if (content != null) {
 				module = mod;
 				break;
@@ -468,14 +484,14 @@ class JrtFileSystem {
 		return null;
 	}
 
-	byte[] getClassfileContent(String fileName, String module) throws IOException, ClassFormatException {
+	byte[] getClassfileContent(String fileName, String module) throws IOException {
 		byte[] content = null;
 		if (module != null) {
-			content = getClassfileBytes(fileName, module);
+			content = getFileBytes(fileName, module);
 		} else {
 			String[] modules = getModules(fileName);
 			for (String mod : modules) {
-				content = JRTUtil.safeReadBytes(this.fs.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+				content = getFileBytes(fileName, mod);
 				if (content != null) {
 					break;
 				}
@@ -483,15 +499,46 @@ class JrtFileSystem {
 		}
 		return content;
 	}
-	private byte[] getClassfileBytes(String fileName, String module) throws IOException, ClassFormatException {
-		return JRTUtil.safeReadBytes(this.fs.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
+
+	private byte[] getFileBytes(String fileName, String module) throws IOException {
+		Path path = this.fs.getPath(JRTUtil.MODULES_SUBDIR, module, fileName);
+		if(DISABLE_CACHE) {
+			return JRTUtil.safeReadBytes(path);
+		} else {
+			try {
+				Optional<byte[]> bytes = this.classCache.computeIfAbsent(path, key -> {
+					try {
+						return Optional.ofNullable(JRTUtil.safeReadBytes(key));
+					} catch (IOException e) {
+						throw new RuntimeIOException(e);
+					}
+				});
+				return bytes.orElse(null);
+			} catch (RuntimeIOException rio) {
+				throw rio.getCause();
+			}
+		}
 	}
+
+	static final class RuntimeIOException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
+		public RuntimeIOException(IOException cause) {
+			super(cause);
+		}
+
+		@Override
+		public synchronized IOException getCause() {
+			return (IOException) super.getCause();
+		}
+	}
+
 	public ClassFileReader getClassfile(String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
 		if (module == null) {
 			reader = getClassfile(fileName, moduleNameFilter);
 		} else {
-			byte[] content = getClassfileBytes(fileName, module);
+			byte[] content = getFileBytes(fileName, module);
 			if (content != null) {
 				reader = new ClassFileReader(content, fileName.toCharArray());
 				reader.moduleName = module.toCharArray();
@@ -499,12 +546,13 @@ class JrtFileSystem {
 		}
 		return reader;
 	}
+
 	public ClassFileReader getClassfile(String fileName, IModule module) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
 		if (module == null) {
 			reader = getClassfile(fileName, (Predicate<String>)null);
 		} else {
-			byte[] content = getClassfileBytes(fileName, new String(module.name()));
+			byte[] content = getFileBytes(fileName, new String(module.name()));
 			if (content != null) {
 				reader = new ClassFileReader(content, fileName.toCharArray());
 			}
