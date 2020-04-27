@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -44,6 +44,9 @@ public abstract class Binding {
 	public static final int TYPE_USE = TYPE | ASTNode.Bit15;
 	public static final int INTERSECTION_TYPE18 = TYPE | ASTNode.Bit16;
 	public static final int POLY_TYPE = TYPE | ASTNode.Bit17;
+	// Java 14 - Records - preview
+	public static final int RECORD_COMPONENT = ASTNode.Bit18;
+//	public static final int VARIABLE = FIELD | LOCAL | RECORD_COMPONENT;
 
 	// In the unlikely event you add a new type binding, remember to update TypeBindingVisitor and Scope.substitute methods.
 
@@ -64,7 +67,9 @@ public abstract class Binding {
 	public static final AnnotationBinding[] NO_ANNOTATIONS = new AnnotationBinding[0];
 	public static final ElementValuePair[] NO_ELEMENT_VALUE_PAIRS = new ElementValuePair[0];
 	public static final char[][] NO_PARAMETER_NAMES = new char[0][];
+	public static final RecordComponentBinding[] NO_COMPONENTS = new RecordComponentBinding[0];
 
+	public static final RecordComponentBinding[] UNINITIALIZED_COMPONENTS = new RecordComponentBinding[0];
 	public static final FieldBinding[] UNINITIALIZED_FIELDS = new FieldBinding[0];
 	public static final MethodBinding[] UNINITIALIZED_METHODS = new MethodBinding[0];
 	public static final ReferenceBinding[] UNINITIALIZED_REFERENCE_TYPES = new ReferenceBinding[0];

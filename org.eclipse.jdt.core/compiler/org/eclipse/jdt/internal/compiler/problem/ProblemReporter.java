@@ -149,6 +149,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -2792,13 +2793,13 @@ public void illegalExtendedDimensions(AnnotationMethodDeclaration annotationType
 		annotationTypeMemberDeclaration.sourceStart,
 		annotationTypeMemberDeclaration.sourceEnd);
 }
-public void illegalExtendedDimensions(Argument argument) {
+public void illegalExtendedDimensions(AbstractVariableDeclaration aVarDecl) {
 	this.handle(
 		IProblem.IllegalExtendedDimensionsForVarArgs,
 		NoArgument,
 		NoArgument,
-		argument.sourceStart,
-		argument.sourceEnd);
+		aVarDecl.sourceStart,
+		aVarDecl.sourceEnd);
 }
 public void illegalGenericArray(TypeBinding leafComponentType, ASTNode location) {
 	this.handle(
@@ -5003,15 +5004,14 @@ public void invalidUsageOfTypeParametersForEnumDeclaration(TypeDeclaration annot
 			parameters[0].declarationSourceStart,
 			parameters[length - 1].declarationSourceEnd);
 }
-public void invalidUsageOfVarargs(Argument argument) {
+public void invalidUsageOfVarargs(AbstractVariableDeclaration aVarDecl) {
 	this.handle(
 		IProblem.InvalidUsageOfVarargs,
 		NoArgument,
 		NoArgument,
-		argument.type.sourceStart,
-		argument.sourceEnd);
+		aVarDecl.type.sourceStart,
+		aVarDecl.sourceEnd);
 }
-
 public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 	this.handle(
 			IProblem.InvalidUsageOfTypeAnnotations,
@@ -11545,29 +11545,29 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		stmt.sourceStart,
 		stmt.sourceEnd);
 }
-public void recordIllegalComponentNameInRecord(Argument arg, TypeDeclaration typeDecl) {
+public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDeclaration typeDecl) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
 		IProblem.RecordIllegalComponentNameInRecord,
 		new String[] {
-				new String(arg.name), new String(typeDecl.name)
+				new String(recComp.name), new String(typeDecl.name)
 			},
 			new String[] {
-					new String(arg.name), new String(typeDecl.name)
+					new String(recComp.name), new String(typeDecl.name)
 			},
-		arg.sourceStart,
-		arg.sourceEnd);
+		recComp.sourceStart,
+		recComp.sourceEnd);
 }
-public void recordDuplicateComponent(Argument arg) {
+public void recordDuplicateComponent(RecordComponent recordComponent) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
 		IProblem.RecordDuplicateComponent,
-		new String[] { new String(arg.name)},
-		new String[] { new String(arg.name)},
-		arg.sourceStart,
-		arg.sourceEnd);
+		new String[] { new String(recordComponent.name)},
+		new String[] { new String(recordComponent.name)},
+		recordComponent.sourceStart,
+		recordComponent.sourceEnd);
 }
 public void recordIllegalNativeModifierInRecord(AbstractMethodDeclaration method) {
 	if (!this.options.enablePreviewFeatures)
@@ -11723,7 +11723,7 @@ public void recordCannotExtendRecord(SourceTypeBinding type, TypeReference super
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
-public void recordComponentCannotBeVoid(ASTNode recordDecl, Argument arg) {
+public void recordComponentCannotBeVoid(RecordComponent arg) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String[] arguments = new String[] { new String(arg.name) };
@@ -11731,10 +11731,10 @@ public void recordComponentCannotBeVoid(ASTNode recordDecl, Argument arg) {
 		IProblem.RecordComponentCannotBeVoid,
 		arguments,
 		arguments,
-		recordDecl.sourceStart,
-		recordDecl.sourceEnd);
+		arg.sourceStart,
+		arg.sourceEnd);
 }
-public void recordIllegalVararg(Argument argType, TypeDeclaration typeDecl) {
+public void recordIllegalVararg(RecordComponent argType, TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(typeDecl.name)};
 	this.handle(
 		IProblem.RecordIllegalVararg,

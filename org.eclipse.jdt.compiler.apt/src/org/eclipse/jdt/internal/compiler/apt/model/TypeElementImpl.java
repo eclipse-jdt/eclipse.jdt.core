@@ -165,7 +165,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		if (binding.isRecord() && binding instanceof SourceTypeBinding) {
 			SourceTypeBinding sourceBinding = (SourceTypeBinding) binding;
-			for (FieldBinding field : sourceBinding.getRecordComponents()) {
+			for (FieldBinding field : sourceBinding.getImplicitComponentFields()) {
 				RecordComponentElement rec = new RecordComponentElementImpl(_env, field);
 				enclosed.add(rec);
 			}

@@ -80,6 +80,17 @@ class ExternalAnnotationSuperimposer extends TypeBindingVisitor {
 		binding.externalAnnotationProvider = provider; // for superimposing method signatures
 	}
 
+	public static void annotateComponentBinding(RecordComponentBinding componentBinding, ExternalAnnotationProvider provider, LookupEnvironment environment) {
+		char[] componentSignature = componentBinding.genericSignature();
+		if (componentSignature == null && componentBinding.type != null)
+			componentSignature = componentBinding.type.signature();
+		// TODO: check - do we need a provider.forRecordComponent; won't the field be sufficient - SH?
+		ITypeAnnotationWalker walker = provider.forField(componentBinding.name, componentSignature, environment);
+		ExternalAnnotationSuperimposer visitor = new ExternalAnnotationSuperimposer(environment);
+		if (visitor.go(walker))
+			componentBinding.type = visitor.superimpose(componentBinding.type, TypeBinding.class);
+	}
+
 	public static void annotateFieldBinding(FieldBinding field, ExternalAnnotationProvider provider, LookupEnvironment environment) {
 		char[] fieldSignature = field.genericSignature();
 		if (fieldSignature == null && field.type != null)

@@ -48,8 +48,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -73,6 +75,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBindin
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -81,6 +84,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -172,8 +176,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int GenerateCheckcast = Bit7;
 	public static final int UnsafeCast = Bit8;
 
-	// for name references
-	public static final int RestrictiveFlagMASK = Bit1|Bit2|Bit3;
+	// for name references (Java 14 addition - Records preview - Bit18)
+	public static final int RestrictiveFlagMASK = Bit1 | Bit2 | Bit3 | Bit18 ;
 
 	// for local decls
 	public static final int IsTypeElided = Bit2;  // type elided lambda argument.
@@ -182,7 +186,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsForeachElementVariable = Bit5;
 	public static final int ShadowsOuterLocal = Bit22;
 	public static final int IsAdditionalDeclarator = Bit23;
-	public static final int IsRecordComponent = Bit30;
 
 	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;
@@ -341,6 +344,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int HasFunctionalInterfaceTypes = ASTNode.Bit22;
 
 	public static final Argument [] NO_ARGUMENTS = new Argument [0];
+	public static final RecordComponent [] NO_RECORD_COMPONENTS = new RecordComponent [0];
 
 	public ASTNode() {
 
@@ -798,6 +802,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						field.setAnnotations(annotations, false);
 					}
 					break;
+				case Binding.RECORD_COMPONENT :
+					RecordComponentBinding rcb = (RecordComponentBinding) recipient;
+					if ((rcb.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
+					rcb.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if (length > 0) {
+						annotations = new AnnotationBinding[length];
+						rcb.setAnnotations(annotations, false);
+					}
+					break;
 				case Binding.LOCAL :
 					LocalVariableBinding local = (LocalVariableBinding) recipient;
 					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
@@ -852,9 +865,21 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							}
 						}
 						break;
+					case Binding.RECORD_COMPONENT :
+						RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
+						recordComponentBinding.tagBits = ((RecordComponentBinding) annotationRecipient).tagBits;
+						if (annotations != null) {
+							// need to fill the instances array
+							for (int j = 0; j < length; j++) {
+								Annotation annot = sourceAnnotations[j];
+								annotations[j] = annot.getCompilerAnnotation();
+							}
+						}
+						break;
 					case Binding.LOCAL :
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
-						long otherLocalTagBits = ((LocalVariableBinding) annotationRecipient).tagBits;
+						// Note for JDK>=14, this could be LVB or RCB, hence typecasting to VB
+						long otherLocalTagBits = ((VariableBinding) annotationRecipient).tagBits;
 						local.tagBits = otherLocalTagBits;
 						if ((otherLocalTagBits & TagBits.AnnotationSuppressWarnings) == 0) {
 							// None of the annotations is a SuppressWarnings annotation
@@ -886,6 +911,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 								}
 							}
 						}
+						// Note: This is the argument of an implicit canonical constructor of a record declaration
+						// copy the se8 annotations.
+						if (annotationRecipient instanceof RecordComponentBinding && copySE8AnnotationsToType)
+							copySE8AnnotationsToType(scope, recipient, sourceAnnotations, false);
 						break;
 				}
 				return annotations;
@@ -1048,6 +1077,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				MethodBinding method = (MethodBinding) recipient;
 				recipientTargetMask = method.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod;
 				break;
+			case Binding.RECORD_COMPONENT:
+				recipientTargetMask = TagBits.AnnotationForRecordComponent;
+				break;
 			default:
 				return;
 		}
@@ -1113,6 +1145,18 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						}
 					}
 					break;
+				case Binding.RECORD_COMPONENT:
+					RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
+					RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
+					if (Annotation.isTypeUseCompatible(recordComponent.type, scope)) { // discard hybrid annotations on name qualified types.
+						recordComponent.bits |= HasTypeAnnotations;
+						recordComponent.type.bits |= HasTypeAnnotations;
+						recordComponentBinding.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, recordComponent.type, recordComponentBinding.type);
+						if(scope.environment().usesNullTypeAnnotations()) { //TODO Bug 562478
+							recordComponentBinding.tagBits &= ~(se8nullBits);
+						}
+					}
+					break;
 				case Binding.METHOD:
 					MethodBinding method = (MethodBinding) recipient;
 					if (!method.isConstructor()) {
@@ -1149,6 +1193,43 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 	}
 
+	public static Annotation[] getRelevantAnnotations(Annotation[] annotations, long rcMask,
+			List<AnnotationBinding> relevantAnnotations) {
+
+		if (annotations == null || annotations.length == 0)
+			return null;
+
+		List<Annotation> filteredAnnotations = new ArrayList<>();
+		for (Annotation annot : annotations) {
+			AnnotationBinding annotationBinding = annot.getCompilerAnnotation();
+			if (annotationBinding == null) continue;
+			final ReferenceBinding annotationType = annotationBinding.getAnnotationType();
+			long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
+			if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0 || (metaTagBits & rcMask) != 0) {
+				filteredAnnotations.add(annot);
+				if (relevantAnnotations != null)
+					relevantAnnotations.add(annotationBinding);
+			}
+		}
+		return filteredAnnotations.toArray(new Annotation[0]);
+	}
+	public static Annotation[] copyRecordComponentAnnotations(Scope scope,
+			Binding recipient, Annotation[] annotations,
+			long rcMask) {
+
+		if (annotations == null || annotations.length == 0 || recipient == null)
+			return null;
+
+		List<AnnotationBinding> relevantAnnotations = new ArrayList<>();
+		Annotation[] filteredAnnotations = ASTNode.getRelevantAnnotations(annotations, rcMask, relevantAnnotations);
+		int sz = relevantAnnotations.size();
+		if (sz > 0) {
+			AnnotationBinding [] recipientAnnotations = relevantAnnotations.toArray(new AnnotationBinding[sz]);
+			// note: forcing to store in the bindings since we require at codegen
+			recipient.setAnnotations(recipientAnnotations, scope, true /* forceStore*/);
+		}
+		return filteredAnnotations;
+	}
 	private static TypeBinding mergeAnnotationsIntoType(BlockScope scope, AnnotationBinding[] se8Annotations, long se8nullBits, Annotation se8NullAnnotation,
 			TypeReference typeRef, TypeBinding existingType)
 	{
@@ -1226,6 +1307,10 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
 						if ((local.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
 						break;
+					case Binding.RECORD_COMPONENT :
+						RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
+						if ((recordComponentBinding.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
+						break;
 					default :
 						return;
 				}
@@ -1268,6 +1353,10 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 								LocalVariableBinding local = (LocalVariableBinding) recipient;
 								local.tagBits |= deprecationTagBits;
 								return;
+							case Binding.RECORD_COMPONENT :
+								RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
+								recordComponentBinding.tagBits |= deprecationTagBits;
+								return;
 							default:
 								return;
 						}
@@ -1297,6 +1386,10 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 			case Binding.LOCAL :
 				LocalVariableBinding local = (LocalVariableBinding) recipient;
 				local.tagBits |= TagBits.DeprecatedAnnotationResolved;
+				return;
+			case Binding.RECORD_COMPONENT :
+				RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
+				recordComponentBinding.tagBits |= TagBits.DeprecatedAnnotationResolved;
 				return;
 			default:
 				return;
