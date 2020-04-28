@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation.
+ * Copyright (c) 2018, 2020 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
@@ -84,7 +86,7 @@ public void test002() throws Exception {
 							"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " -11 --enable-preview",
+					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
 					"",
 					"----------\n" +
 							"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" +
@@ -110,7 +112,7 @@ public void test003() {
 					"}\n"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " -11 --enable-preview",
+					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
 					"",
 					"----------\n" +
 					"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
@@ -139,11 +141,11 @@ public void test004() throws Exception {
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " -11 --enable-preview",
+					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
 					"",
 					"",
 					true);
-	String expectedOutput = "// Compiled from X.java (version 11 : 55.65535, super bit)";
+	String expectedOutput = ".65535, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test005() throws Exception {
@@ -164,11 +166,11 @@ public void test005() throws Exception {
 					"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " --enable-preview -11 ",
+					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
 					"",
 					"",
 					true);
-	String expectedOutput = "// Compiled from X.java (version 11 : 55.65535, super bit)";
+	String expectedOutput = "65535, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test006() throws Exception {
@@ -360,5 +362,21 @@ public void testBug540123e() throws Exception {
 					true);
 	String expectedOutput = "invokevirtual SecurePrefs.node(java.lang.String) : SecurePrefs [14]";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
+}
+public void testBug562473() {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"	}\n" +
+					"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
+					" -source " + CompilerOptions.getLatestVersion() +
+					" -target " + CompilerOptions.getLatestVersion() + " ",
+					"",
+					"",
+					true);
 }
 }
