@@ -167,7 +167,7 @@ public class JRTUtil {
 	public static InputStream getContentFromJrt(File jrt, String fileName, String module) throws IOException {
 		return getJrtSystem(jrt).getContentFromJrt(fileName, module);
 	}
-	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException, ClassFormatException {
+	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException {
 		return getJrtSystem(jrt).getClassfileContent(fileName, module);
 	}
 	public static ClassFileReader getClassfile(File jrt, String fileName, IModule module) throws IOException, ClassFormatException {

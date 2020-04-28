@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -142,7 +141,7 @@ public class AddJrtToIndex extends BinaryContainer {
 					String docFullPath =  this.container.toString() + JAR_SEPARATOR + mod.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
-				} catch (IOException | ClassFormatException e) {
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}

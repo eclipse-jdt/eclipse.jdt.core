@@ -98,11 +98,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) 
 
 			@Override
 			public FileVisitResult visitModule(Path path, String name) throws IOException {
-				try {
-					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
-				} catch (ClassFormatException e) {
-					e.printStackTrace();
-				}
+				jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
 				this.packageSet = new SimpleSet(41);
 				this.packageSet.add(""); //$NON-NLS-1$
 				if (name.endsWith("/")) { //$NON-NLS-1$
@@ -143,11 +139,7 @@ public static void loadModules(final ClasspathJrt jrt) {
 
 				@Override
 				public FileVisitResult visitModule(Path path, String name) throws IOException {
-					try {
-						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
-					} catch (ClassFormatException e) {
-						e.printStackTrace();
-					}
+					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 			}, JRTUtil.NOTIFY_MODULES);
