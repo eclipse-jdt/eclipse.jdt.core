@@ -225,7 +225,7 @@ public class HookedJavaFileObject extends
 			//TODO: support encoding
 			switch(this.getKind()) {
 				case SOURCE :
-					CompilationUnit unit = new CompilationUnit(null, _fileName, null /* encoding */);
+					CompilationUnit unit = new CompilationUnit(null, _fileName, null /* encoding */, null, this._filer._env.shouldIgnoreOptionalProblems(_fileName.toCharArray()), null);
 					_filer.addNewUnit(unit);
 					break;
 				case CLASS :

@@ -3320,24 +3320,33 @@ private IModule extractModuleDesc(String fileName) {
 
 private static char[][] decodeIgnoreOptionalProblemsFromFolders(String folders) {
 	StringTokenizer tokenizer = new StringTokenizer(folders, File.pathSeparator);
-	char[][] result = new char[tokenizer.countTokens()][];
+	char[][] result = new char[2 * tokenizer.countTokens()][];
 	int count = 0;
 	while (tokenizer.hasMoreTokens()) {
 		String fileName = tokenizer.nextToken();
 		// relative folder names are created relative to the current user dir
 		File file = new File(fileName);
 		if (file.exists()) {
+			String absolutePath = file.getAbsolutePath();
+			result[count++] = absolutePath.toCharArray();
 			// if the file exists, we should try to use its canonical path
 			try {
-				result[count++] = file.getCanonicalPath().toCharArray();
+				String canonicalPath = file.getCanonicalPath();
+				if (!absolutePath.equals(canonicalPath)) {
+					result[count++] = canonicalPath.toCharArray();
+				}
 			} catch (IOException e) {
-				// if we got exception during canonicalization, fall back to the name that was specified
-				result[count++] = fileName.toCharArray();
+				// ignore
 			}
 		} else {
 			// if the file does not exist, use the name that was specified
 			result[count++] = fileName.toCharArray();
 		}
+	}
+	if (count < result.length) {
+		char[][] shortened = new char[count][];
+		System.arraycopy(result, 0, shortened, 0, count);
+		result = shortened;
 	}
 	return result;
 }
@@ -5358,7 +5367,7 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 		}
 	}
 }
-protected final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
+public final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
 	if (folderNames == null || fileName == null) {
 		return false;
 	}

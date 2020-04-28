@@ -326,6 +326,15 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 @Override
 public boolean hasCompilationUnit(String pkgName, String moduleName) {
 	if (scanContent()) {
+		if (!this.knownPackageNames.includes(pkgName)) {
+			// Don't waste time walking through the zip if we know that it doesn't
+			// contain a directory that matches pkgName
+			return false;
+		}
+
+		// Even if knownPackageNames contained the pkg we're looking for, we still need to verify
+		// that the package in this jar actually contains at least one .class file (since
+		// knownPackageNames includes empty packages)
 		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = e.nextElement().getName();
 			if (fileName.startsWith(pkgName)
@@ -334,6 +343,7 @@ public boolean hasCompilationUnit(String pkgName, String moduleName) {
 				return true;
 		}
 	}
+
 	return false;
 }
 

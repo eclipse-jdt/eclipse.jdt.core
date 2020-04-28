@@ -149,6 +149,16 @@ public class BatchDispatchTests extends TestCase {
 		internalTestWarnings(compiler, 1, "-nowarn", "-warn:+unused");
 	}
 
+	public void testNoWarningsInFolderWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWarnings(compiler, 0, "-warn:+unused", "-nowarn:[" + BatchTestUtils.getGenFolderName() + ']');
+	}
+
+	public void testNoWarningsInFolderWithEclipseCompiler2() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWarnings(compiler, 0, "-nowarn:[" + BatchTestUtils.getGenFolderName() + ']', "-warn:+unused");
+	}
+
 	private void internalTestWarnings(JavaCompiler compiler, int numberOfWarnings, String... extraOptions) throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
 		File inputFile = BatchTestUtils.copyResource("targets/dispatch/WarnGenClass.java", targetFolder);
