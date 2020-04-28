@@ -63,9 +63,7 @@ public class JRTUtil {
 	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
 	// TODO: Java 9 Think about clearing the cache too.
-	private static Map<String, JrtFileSystem> images = null;
-
-	private static final Object lock = new Object();
+	private static Map<String, Optional<JrtFileSystem>> images = new ConcurrentHashMap<>();
 
 	public interface JrtFileVisitor<T> {
 
@@ -108,35 +106,24 @@ public class JRTUtil {
 	}
 
 	public static JrtFileSystem getJrtSystem(File image, String release) {
-		Map<String, JrtFileSystem> i = images;
-		if (images == null) {
-			synchronized (lock) {
-	            i = images;
-	            if (i == null) {
-	            	images = i = new HashMap<>();
-	            }
-	        }
-		}
-		JrtFileSystem system = null;
 		String key = image.toString();
 		if (release != null) key = key + "|" + release; //$NON-NLS-1$
-		synchronized(i) {
-			if ((system = images.get(key)) == null) {
-				try {
-					images.put(key, system = JrtFileSystem.getNewJrtFileSystem(image, release));
-				} catch (IOException e) {
-					e.printStackTrace();
-					// Needs better error handling downstream? But for now, make sure
-					// a dummy JrtFileSystem is not created.
-				}
+		Optional<JrtFileSystem> system = images.computeIfAbsent(key, x -> {
+			try {
+				return Optional.ofNullable(JrtFileSystem.getNewJrtFileSystem(image, release));
+			} catch (IOException e) {
+				// Needs better error handling downstream? But for now, make sure
+				// a dummy JrtFileSystem is not created.
+				e.printStackTrace();
+				return Optional.empty();
 			}
-		}
-	    return system;
+		});
+		return system.orElse(null);
 	}
 
 	/** TEST ONLY (use when changing the "modules.to.load" property). */
 	public static void reset() {
-		images = null;
+		images.clear();
 		MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 	}
 
