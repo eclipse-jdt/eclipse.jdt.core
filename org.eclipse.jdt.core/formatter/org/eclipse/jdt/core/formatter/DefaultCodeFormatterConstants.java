@@ -205,6 +205,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ASSIGNMENT  = JavaCore.PLUGIN_ID + ".formatter.alignment_for_assignment";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of assertion message separator (:)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_assertion_message"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.23
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ASSERTION_MESSAGE = JavaCore.PLUGIN_ID + ".formatter.alignment_for_assertion_message";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of expressions with multiplicative operators (*, /, %)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_multiplicative_operator"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
@@ -5110,6 +5121,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.17
 	 */
 	public static final String FORMATTER_WRAP_BEFORE_ADDITIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_additive_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the assertion message operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_assertion_message_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.23
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_ASSERTION_MESSAGE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_assertion_message_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to wrap before the string concatenation operator

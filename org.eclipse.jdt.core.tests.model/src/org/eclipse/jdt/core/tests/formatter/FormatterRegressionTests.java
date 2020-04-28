@@ -15635,4 +15635,137 @@ public void testBug553155p() throws JavaModelException {
 	formatSource(source,
 		"record Range(int lo, int hi) { public Range { foo(); } }");
 }
+/**
+ * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
+ *
+ * Check that assertions are not formatted without enabling the option.
+ */
+public void testBug118641a() throws JavaModelException {
+	this.formatterPrefs.alignment_for_assertion_message = Alignment.M_NO_ALIGNMENT;
+
+	String input =
+		"public class Test {\n" +
+		"\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}";
+	formatSource(input,
+		"public class Test {\n" +
+		"\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName(FIELD_NAME)\n" +
+		"				.getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
+ *
+ *
+ * Check that an assertion is formatted when it exceeds the page width.
+ */
+public void testBug118641b() throws JavaModelException {
+	this.formatterPrefs.wrap_before_assertion_message_operator = true;
+
+	String input =
+		"public class Test {\n" +
+		"	\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}";
+	formatSource(input,
+		"public class Test {\n" +
+		"\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1\n" +
+		"				: \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
+ *
+ *
+ * Check that an assertion can be broken after the colon separator.
+ */
+public void testBug118641c() throws JavaModelException {
+	this.formatterPrefs.wrap_before_assertion_message_operator = false;
+
+	String input =
+		"public class Test {\n" +
+		"	\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}";
+	formatSource(input,
+		"public class Test {\n" +
+		"\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1 :\n" +
+		"				\"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
+ *
+ * Check that assertion messages are formatted when the assertion expression exceeds the page width.
+ */
+public void testBug118641d() throws JavaModelException {
+	this.formatterPrefs.page_width = 65;
+
+	String input =
+		"public class Test {\n" +
+		"	\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}";
+	formatSource(input,
+		"public class Test {\n" +
+		"\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName(FIELD_NAME)\n" +
+		"				.getLength() == 1\n" +
+		"				: \"XML malformed. No attribute name! Please talk to your sysadmin.\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/118641 - [formatter] Formatter does not break line on assert statement
+ *
+ * Check that an assertion message is wrapped when forced to do so.
+ */
+public void testBug118641e() throws JavaModelException {
+	this.formatterPrefs.alignment_for_assertion_message = Alignment.M_COMPACT_SPLIT | Alignment.M_FORCE;
+
+	String input =
+		"public class Test {\n" +
+		"	\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName( FIELD_NAME ).getLength() == 1 : \"XML malformed. No attribute name!\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}";
+	formatSource(input,
+		"public class Test {\n" +
+		"\n" +
+		"	public void f(int a, int b) {\n" +
+		"		assert childElement.getElementsByTagName(FIELD_NAME).getLength() == 1\n" +
+		"				: \"XML malformed. No attribute name!\";\n" +
+		"		return;\n" +
+		"	}\n" +
+		"}");
+}
 }
