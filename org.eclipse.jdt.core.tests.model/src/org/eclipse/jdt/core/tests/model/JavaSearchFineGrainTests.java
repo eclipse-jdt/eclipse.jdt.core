@@ -1675,6 +1675,19 @@ public void testTypeRefGenericAllG6_TypeVariableBounds() throws CoreException {
 	search("*", TYPE, TYPE_VARIABLE_BOUND_TYPE_REFERENCE | WILDCARD_BOUND_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
 	assertSearchResults("");
 }
+/**
+ * @bug 561268: [search] fine grained search for return type references should include generic methods
+ * @test Ensure that generic methods are found when searching for return type fine grain references
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=561268"
+ */
+public void testBug561268() throws CoreException {
+	IType type = getCompilationUnit("JavaSearch15/src/g7/a/ref/TestSearch.java").getType("TestSearch");
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { type });
+	search("ISearchTest", TYPE, RETURN_TYPE_REFERENCE, SearchPattern.R_ERASURE_MATCH, scope);
+	assertSearchResults(
+			"src/g7/a/ref/TestSearch.java ISearchTest<T> g7.a.ref.TestSearch.getSearchTestImpl() [	public static <T> !|ISearchTest|!<T> getSearchTestImpl() {@125] EXACT_MATCH\n" +
+			"src/g7/a/ref/TestSearch.java ISearchTest<Integer> g7.a.ref.TestSearch.getSearchTestImpl2() [	public static !|ISearchTest|!<Integer> getSearchTestImpl2() {@213] EXACT_MATCH");
+}
 
 // Additional tests
 public void testTypeRefGenericsTest06_TypeArgument() throws CoreException {
