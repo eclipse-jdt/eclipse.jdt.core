@@ -349,7 +349,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	@Override
 	public void cleanup() {
 		try {
-			super.reset();
+			super.cleanup();
 		} finally {
 			// The same file system is also used in JRTUtil, so don't close it here.
 			this.fs = null;
