@@ -45,7 +45,7 @@ public class ClasspathLocationTest extends AbstractJavaModelTests {
 		Path jrtPath = Paths.get(javaHome, jrt);
 		int majorSegment = getMajorVersionSegment(releaseVersion);
 		ClasspathJrt classpathJrt = ClasspathLocation.forJrtSystem(jrtPath.toString(), null, null, String.valueOf(majorSegment));
-		assertEquals(ClasspathJrtWithReleaseOption.class, classpathJrt.getClass());
+		assertEquals(ClasspathJrt.class, classpathJrt.getClass());
 
 		int olderVersion = majorSegment - 1;
 
