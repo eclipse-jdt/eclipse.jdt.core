@@ -214,6 +214,7 @@ private static Class[] getAllTestClasses() {
 
 		JavaCoreOptionsTests.class,
 		JavaCorePreferenceModifyListenerTest.class,
+		ClasspathLocationTest.class,
 
 		// Tests regarding null-annotations:
 		NullAnnotationModelTests.class,
