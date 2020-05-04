@@ -137,7 +137,7 @@ public class JRTUtil {
 			e.printStackTrace();
 			return null;
 		}
-		if (release != null /*&& !jdk.sameRelease(release)*/) {
+		if (release != null && !jdk.sameRelease(release)) {
 			key = key + "|" + release; //$NON-NLS-1$
 		}
 		JrtFileSystem system = images.computeIfAbsent(key, x -> {
@@ -466,7 +466,7 @@ class JrtFileSystem {
 	final String release;
 
 	public static JrtFileSystem getNewJrtFileSystem(Jdk jdk, String release) throws IOException {
-		if (release == null /*|| jdk.sameRelease(release)*/) {
+		if (release == null || jdk.sameRelease(release)) {
 			return new JrtFileSystem(jdk, null);
 		} else {
 			return new JrtFileSystemWithOlderRelease(jdk, release);
