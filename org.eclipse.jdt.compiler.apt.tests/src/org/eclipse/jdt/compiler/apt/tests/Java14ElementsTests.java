@@ -74,7 +74,7 @@ public class Java14ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords4", null, "records", true);
 	}
-	public void _testRecords4a() throws IOException {
+	public void testRecords4a() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords4a", null, "records", true);
 	}
