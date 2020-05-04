@@ -16,11 +16,10 @@ package org.eclipse.jdt.internal.compiler.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
@@ -41,12 +40,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JRTUtil {
 
@@ -116,16 +117,40 @@ public class JRTUtil {
 		return getJrtSystem(image, null);
 	}
 
+	/**
+	 * @param image the path to the root of the JRE whose libraries we are interested in.
+	 * @param release <code>--release</code> version
+	 */
 	public static JrtFileSystem getJrtSystem(File image, String release) {
 		String key = image.toString();
-		if (release != null) key = key + "|" + release; //$NON-NLS-1$
+		Jdk jdk;
+		try {
+			jdk = new Jdk(image);
+		} catch (IOException e) {
+			// Needs better error handling downstream? But for now, make sure
+			// a dummy JrtFileSystem is not created.
+			String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
+			if (PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(errorMessage, e);
+			}
+			System.err.println(errorMessage);
+			e.printStackTrace();
+			return null;
+		}
+		if (release != null /*&& !jdk.sameRelease(release)*/) {
+			key = key + "|" + release; //$NON-NLS-1$
+		}
 		JrtFileSystem system = images.computeIfAbsent(key, x -> {
 			try {
-				return JrtFileSystem.getNewJrtFileSystem(image, release);
+				return JrtFileSystem.getNewJrtFileSystem(jdk, release);
 			} catch (IOException e) {
 				// Needs better error handling downstream? But for now, make sure
 				// a dummy JrtFileSystem is not created.
-				System.err.println("Error: failed to create JrtFileSystem from " + image); //$NON-NLS-1$
+				String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
+				if (PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(errorMessage, e);
+				}
+				System.err.println(errorMessage);
 				e.printStackTrace();
 				// Don't save value in the map, may be we can recover later
 				return null;
@@ -275,40 +300,33 @@ public class JRTUtil {
 			return null;
 		}
 	}
+
+	/**
+	 * @param image jrt file path
+	 * @return JDK release corresponding to given jrt file, read from "release" file, if available. May return null.
+	 */
+	public static String getJdkRelease(File image) {
+		JrtFileSystem jrt = getJrtSystem(image);
+		return jrt == null ? null : jrt.getJdkRelease();
+	}
 }
 
 class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 
-	final String release;
-	private List<Path> releaseRoots = Collections.emptyList();
-	protected Path modulePath;
+	private List<Path> releaseRoots;
 	private CtSym ctSym;
 
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
 	 *
-	 * @param jrt the path to the root of the JRE whose libraries we are interested in.
 	 * @param release the older release where classes and modules should be searched for.
 	 * @throws IOException
 	 */
-	JrtFileSystemWithOlderRelease(File jrt, String release) throws IOException {
-		super(jrt);
-		this.release = release;
-		initialize(jrt, release);
-	}
-
-	@Override
-	void initialize(File jdk) throws IOException {
-		// Just to make sure we don't do anything in super.initialize()
-		// before setting this.release
-	}
-
-	private void initialize(File jdk, String rel) throws IOException {
-		super.initialize(jdk);
-		this.fs = null;// reset and proceed, TODO: this is crude and need to be removed.
+	JrtFileSystemWithOlderRelease(Jdk jdkHome, String release) throws IOException {
+		super(jdkHome, release);
 		String releaseCode = CtSym.getReleaseCode(this.release);
-		this.ctSym = JRTUtil.getCtSym(Paths.get(this.jdkHome));
+		this.ctSym = JRTUtil.getCtSym(Paths.get(this.jdk.path));
 		this.fs = this.ctSym.getFs();
 		if (!Files.exists(this.fs.getPath(releaseCode))
 				|| Files.exists(this.fs.getPath(releaseCode, "system-modules"))) { //$NON-NLS-1$
@@ -376,6 +394,63 @@ final class RuntimeIOException extends RuntimeException {
 	}
 }
 
+class Jdk {
+	final String path;
+	final String release;
+
+	public Jdk(File jrt) throws IOException {
+		this.path = toJdkHome(jrt);
+		this.release = readJdkReleaseFile(this.path);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Jdk ["); //$NON-NLS-1$
+		if (this.path != null) {
+			builder.append("path="); //$NON-NLS-1$
+			builder.append(this.path);
+			builder.append(", "); //$NON-NLS-1$
+		}
+		if (this.release != null) {
+			builder.append("release="); //$NON-NLS-1$
+			builder.append(this.release);
+		}
+		builder.append("]"); //$NON-NLS-1$
+		return builder.toString();
+	}
+
+	boolean sameRelease(String other) {
+		long jdkLevel = CompilerOptions.versionToJdkLevel(this.release);
+		long otherJdkLevel = CompilerOptions.versionToJdkLevel(other);
+		return Long.compare(jdkLevel, otherJdkLevel) == 0;
+	}
+
+	static String toJdkHome(File jrt) {
+		String home = null;
+		Path normalized = jrt.toPath().normalize();
+		if (jrt.getName().equals(JRTUtil.JRT_FS_JAR)) {
+			home = normalized.getParent().getParent().toString();
+		} else {
+			home = normalized.toString();
+		}
+		return home;
+	}
+
+	static String readJdkReleaseFile(String javaHome) throws IOException {
+		Properties properties = new Properties();
+		try(FileReader reader = new FileReader(new File(javaHome, "release"))){ //$NON-NLS-1$
+			properties.load(reader);
+		}
+		// Something like JAVA_VERSION="1.8.0_05"
+		String ver = properties.getProperty("JAVA_VERSION"); //$NON-NLS-1$
+		if (ver != null) {
+			ver = ver.replace("\"", "");  //$NON-NLS-1$//$NON-NLS-2$
+		}
+		return ver;
+	}
+}
+
 class JrtFileSystem {
 
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
@@ -387,50 +462,33 @@ class JrtFileSystem {
 
 	FileSystem fs;
 	Path modRoot;
-	String jdkHome;
+	Jdk jdk;
+	final String release;
 
-	public static JrtFileSystem getNewJrtFileSystem(File jrt, String release) throws IOException {
-		return (release == null) ? new JrtFileSystem(jrt) :
-				new JrtFileSystemWithOlderRelease(jrt, release);
-
+	public static JrtFileSystem getNewJrtFileSystem(Jdk jdk, String release) throws IOException {
+		if (release == null /*|| jdk.sameRelease(release)*/) {
+			return new JrtFileSystem(jdk, null);
+		} else {
+			return new JrtFileSystemWithOlderRelease(jdk, release);
+		}
 	}
 
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
 	 *
-	 * @param jrt the path to the root of the JRE whose libraries we are interested in.
+	 * @param jdkHome
 	 * @throws IOException
 	 */
-	JrtFileSystem(File jrt) throws IOException {
-		initialize(jrt);
-	}
-
-	void initialize(File jrt) throws IOException {
-		URL jrtPath = null;
-		this.jdkHome = null;
-		if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
-			jrtPath = jrt.toPath().toUri().toURL();
-			this.jdkHome = jrt.getParentFile().getParent();
-		} else {
-			this.jdkHome = jrt.toPath().toString();
-			jrtPath = Paths.get(this.jdkHome, "lib", JRTUtil.JRT_FS_JAR).toUri().toURL(); //$NON-NLS-1$
-
-		}
+	JrtFileSystem(Jdk jdkHome, String release) throws IOException {
+		this.jdk = jdkHome;
+		this.release = release;
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
-		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
-		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
-			try (URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath })) {
-				HashMap<String, ?> env = new HashMap<>();
-				this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
-			}
-		} else {
-			HashMap<String, String> env = new HashMap<>();
-			env.put("java.home", this.jdkHome); //$NON-NLS-1$
-			this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
-		}
+		HashMap<String, String> env = new HashMap<>();
+		env.put("java.home", this.jdk.path); //$NON-NLS-1$
+		this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
 		this.modRoot = this.fs.getPath(JRTUtil.MODULES_SUBDIR);
-		// Set up the root directory wherere modules are located
+		// Set up the root directory where modules are located
 		walkJrtForModules();
 	}
 
@@ -701,5 +759,13 @@ class JrtFileSystem {
 			this.packageToModules.put(packageName, list);
 			this.packageToModule.put(packageName, JRTUtil.MULTIPLE);
 		}
+	}
+
+	/**
+	 * @return JDK release string (something like <code>1.8.0_05<code>) read from the "release" file from JDK home
+	 *         directory
+	 */
+	public String getJdkRelease() {
+		return this.jdk.release;
 	}
 }
