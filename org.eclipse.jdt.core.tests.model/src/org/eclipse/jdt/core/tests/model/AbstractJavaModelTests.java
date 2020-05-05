@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -80,6 +83,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE12 = false;
 	protected static boolean isJRE13 = false;
 	protected static boolean isJRE14 = false;
+	protected static boolean isJRE15 = false;
 	protected static String DEFAULT_MODULES = null;
 	static {
 		String javaVersion = System.getProperty("java.version");
@@ -93,6 +97,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK15) {
+			isJRE15 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK14) {
 			isJRE14 = true;
 		}
@@ -166,6 +173,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS14 = AST.JLS14;
 
 	/**
+	 * Internal synonym for constant AST.JSL15
+	 * to alleviate deprecation warnings once AST.JLS15 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS15 = AST.JLS15;
+
+	/**
 	 * Internal synonym for constant AST.JSL11
 	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
 	 * @deprecated
@@ -176,7 +189,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for the latest AST level.
 	 *
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS14;
+	protected static final int AST_INTERNAL_LATEST = AST.JLS15;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}

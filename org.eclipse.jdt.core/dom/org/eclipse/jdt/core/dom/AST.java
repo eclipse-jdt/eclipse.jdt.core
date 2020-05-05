@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -309,7 +313,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 13 (aka JDK 13).
 	 * </p>
-	 *
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 * @since 3.20
 	 */
 	public static final int JLS13 = 13;
@@ -332,10 +336,17 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 14(aka JDK 14).
 	 * </p>
-	 *
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 * @since 3.22
 	 */
 	public static final int JLS14 = 14;
+
+	/**
+	 * Internal synonym for {@link #JLS14}. Use to alleviate
+	 * deprecation warnings once JLS14 is deprecated
+	 * @since 3.22
+	 */
+	static final int JLS14_INTERNAL = JLS14;
 
 	/**
 	 * Constant for indicating the AST API that handles JLS15.
@@ -354,20 +365,13 @@ public final class AST {
 	public static final int JLS15 = 15;
 
 	/**
-	 * Internal synonym for {@link #JLS14}. Use to alleviate
-	 * deprecation warnings once JLS14 is deprecated
-	 * @since 3.22
-	 */
-	static final int JLS14_INTERNAL = JLS14;
-
-	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
 	 */
 	static final int JLS15_INTERNAL = JLS15;
 
 	/* Used for Java doc only*/
-	private static final int JLS_Latest = JLS14;
+	private static final int JLS_Latest = JLS15;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -1050,6 +1054,21 @@ public final class AST {
 				this.apiLevel = level;
 				// initialize a scanner
 				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14);
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						compliance /*sourceLevel*/,
+						compliance /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/,
+						previewEnabled);
+				break;
+			case JLS15_INTERNAL :
+				this.apiLevel = level;
+				// initialize a scanner
+				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15);
 				this.scanner = new Scanner(
 						true /*comment*/,
 						true /*whitespace*/,

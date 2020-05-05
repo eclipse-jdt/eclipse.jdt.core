@@ -646,7 +646,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 
 	}
 
-	public void testRecord001() throws CoreException {
+	public void _testRecord001() throws CoreException {
 		if (!isJRE14) {
 			System.err.println("Test "+getName()+" requires a JRE 14");
 			return;
@@ -679,7 +679,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	 * Added for Bug 561193 - [14]record keyword inside method not colored correctly
 	 * @throws CoreException
 	 */
-	public void testRecord002() throws CoreException {
+	public void _testRecord002() throws CoreException {
 		if (!isJRE14) {
 			System.err.println("Test "+getName()+" requires a JRE 14");
 			return;
@@ -710,7 +710,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord003() throws CoreException {
+	public void _testRecord003() throws CoreException {
 		if (!isJRE14) {
 			System.err.println("Test "+getName()+" requires a JRE 14");
 			return;
@@ -746,7 +746,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord004() throws CoreException {
+	public void _testRecord004() throws CoreException {
 		if (!isJRE14) {
 			System.err.println("Test " + getName() + " requires a JRE 14");
 			return;

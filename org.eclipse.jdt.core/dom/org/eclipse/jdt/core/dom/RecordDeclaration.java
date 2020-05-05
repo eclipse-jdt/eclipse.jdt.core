@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -218,12 +222,12 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
-	 * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @exception UnsupportedOperationException if this operation is used other than JLS15
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 */
 	RecordDeclaration(AST ast) {
 		super(ast);
-		supportedOnlyIn14();
+		supportedOnlyIn15();
 		unsupportedWithoutPreviewError();
 	}
 
