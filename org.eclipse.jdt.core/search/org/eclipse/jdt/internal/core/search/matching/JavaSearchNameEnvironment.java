@@ -205,7 +205,7 @@ private void addModuleClassPathInfo(PackageFragmentRoot root, IModuleDescription
 private String addModuleClassPathInfo(ClasspathLocation cp, IModuleDescription imd) {
 	IModule mod = NameLookup.getModuleDescriptionInfo(imd);
 	String moduleName = null;
-	if (mod != null) {
+	if (mod != null && cp != null) {
 		char[] name = mod.name();
 		if (name != null) {
 			moduleName = new String(name);
