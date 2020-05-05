@@ -2211,7 +2211,8 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				"PASS",
 				compilerOptions);
 	}
-	public void _test056() {
+	// Positive - Test conflicting pattern variable and lambda argument in for loop
+	public void test056() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -2240,6 +2241,7 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				"PASS",
 				compilerOptions);
 	}
+	// Positive - Test conflicting pattern variable and lambda argument in for loop (block)
 	public void test056a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -2270,6 +2272,74 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"PASS",
+				compilerOptions);
+	}
+	// Positive - Test conflicting pattern variable and lambda argument in if
+	public void test056b() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X {\n" +
+						"	public static int impl(I a) {\n" +
+						"		return a.foo(\"Default\");\n" +
+						"	}\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		String result = \"\";\n" +
+						"		Object obj = \"a\";\n" +
+						"		if (!(obj instanceof String a)) {\n" +
+						"			  int i = impl(a -> a.length());\n" +
+						"		}\n" +
+						"		if (!result.equals(\"\"))\n" +
+						"			System.out.println(\"FAIL\");\n" +
+						"		else\n" +
+						"			System.out.println(\"PASS\");\n" +
+						"	}\n" +
+						"}\n" +
+						"interface I {\n" +
+						"	int foo(String s);\n" +
+						"}\n",
+				},
+				"PASS",
+				compilerOptions);
+	}
+	// Positive - Test conflicting pattern variable and lambda argument in if
+	public void test056d() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X {\n" +
+						"	public static int impl(I a) {\n" +
+						"		return a.foo(\"Default\");\n" +
+						"	}\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		String result = \"\";\n" +
+						"		Object obj = \"a\";\n" +
+						"		for (int i = 0; (obj instanceof String a); i = impl(a -> a.length())) {\n" +
+						"			obj = null;\n" +
+						"		}\n" +
+						"		if (!result.equals(\"\"))\n" +
+						"			System.out.println(\"FAIL\");\n" +
+						"		else\n" +
+						"			System.out.println(\"PASS\");\n" +
+						"	}\n" +
+						"}\n" +
+						"interface I {\n" +
+						"	int foo(String s);\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	for (int i = 0; (obj instanceof String a); i = impl(a -> a.length())) {\n" +
+				"	                                                    ^\n" +
+				"Lambda expression\'s parameter a cannot redeclare another local variable defined in an enclosing scope. \n" +
+				"----------\n",
+				"",
+				null,
+				true,
 				compilerOptions);
 	}
 	/*

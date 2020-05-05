@@ -309,8 +309,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			boolean localExists = existingVariable instanceof LocalVariableBinding;
-			if (localExists && (((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0)
+			if (localExists && (isPatternVariable
+					|| (((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0))
 			{
+				// Do this only if either one of them is a pattern variable.
 				this.duplicateCheckObligation = (flowInfo) -> {
 					if (flowInfo.isDefinitelyAssigned((LocalVariableBinding) existingVariable)) {
 						scope.problemReporter().redefineLocal(this);

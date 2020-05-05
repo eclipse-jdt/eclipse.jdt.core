@@ -240,6 +240,9 @@ public abstract class AbstractMethodDeclaration
 						}
 					}
 				}
+				if (methodArguments[i].duplicateCheckObligation != null) {
+					methodArguments[i].duplicateCheckObligation.accept(flowInfo);
+				}
 				// tag parameters as being set:
 				flowInfo.markAsDefinitelyAssigned(methodArguments[i].binding);
 			}
