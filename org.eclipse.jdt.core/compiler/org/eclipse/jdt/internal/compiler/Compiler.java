@@ -648,6 +648,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			reset();
 			this.annotationProcessorStartIndex  = 0;
 			this.stats.endTime = System.currentTimeMillis();
+			this.stats.overallTime += this.stats.endTime - this.stats.startTime;
 		}
 	}
 
