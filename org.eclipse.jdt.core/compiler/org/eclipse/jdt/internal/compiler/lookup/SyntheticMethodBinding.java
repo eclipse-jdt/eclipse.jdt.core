@@ -462,7 +462,6 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.purpose = SyntheticMethodBinding.FieldReadAccess;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
-		this.setTypeAnnotations(rcb.getAnnotations());
 		this.index = index;
 		this.sourceStart = rcb.sourceRecordComponent().sourceStart;
 	}

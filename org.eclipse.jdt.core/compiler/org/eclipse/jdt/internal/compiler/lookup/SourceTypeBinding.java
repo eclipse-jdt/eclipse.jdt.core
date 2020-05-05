@@ -1116,9 +1116,11 @@ public RecordComponentBinding[] components() {
 					for (FieldBinding f : this.fields) {
 						if (f.isRecordComponent() && CharOperation.equals(f.name, rcb.name)) {
 							smb.targetReadField = f;
-							long rcMask = TagBits.AnnotationForMethod | TagBits.AnnotationForTypeUse;
 							ASTNode.copyRecordComponentAnnotations(this.scope, smb,
-									rcb.sourceRecordComponent().annotations, rcMask);
+									rcb.sourceRecordComponent().annotations);
+							// Note: a) type use bit set above and b) reusing rcb type, so
+							// copySE8Annot already done for rcb.type, hence not
+							// required here (tricky on an SMB without ast)
 							break;
 						}
 					}
@@ -1143,7 +1145,7 @@ public RecordComponentBinding[] components() {
 	return this.components;
 }
 
-private Object resolveTypeFor(RecordComponentBinding component) {
+public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	if (!isPrototype())
 		return this.prototype.resolveTypeFor(component);
 
@@ -1193,10 +1195,11 @@ private Object resolveTypeFor(RecordComponentBinding component) {
 		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 			component.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		}
+		Annotation [] annotations = componentDecl.annotations;
+		ASTNode.copyRecordComponentAnnotations(initializationScope, component, annotations);
 
 		long sourceLevel = this.scope.compilerOptions().sourceLevel;
 		if (sourceLevel >= ClassFileConstants.JDK1_8) {
-			Annotation [] annotations = componentDecl.annotations;
 			if (annotations != null && annotations.length != 0) {
 				// piggybacking on an existing method to move type_use annotations to type in record component
 				ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
@@ -2307,9 +2310,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				if (field.isRecordComponent()) {
 					RecordComponentBinding rcb = getRecordComponent(field.name);
 					assert rcb != null;
-					long rcMask = TagBits.AnnotationForField | TagBits.AnnotationForTypeUse;
 					relevantRecordComponentAnnotations = ASTNode.copyRecordComponentAnnotations(initializationScope,
-							field, rcb.sourceRecordComponent().annotations, rcMask);
+							field, rcb.sourceRecordComponent().annotations);
 				}
 			}
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {

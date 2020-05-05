@@ -99,8 +99,10 @@ public class Argument extends LocalDeclaration {
 			MethodBinding methodBinding = methodDecl.binding;
 			ReferenceBinding referenceBinding = methodBinding== null ? null : methodBinding.declaringClass;
 			if (referenceBinding instanceof SourceTypeBinding) {
-				assert ((SourceTypeBinding) referenceBinding).isRecord();
-				RecordComponentBinding recordComponentBinding = ((SourceTypeBinding) referenceBinding).getRecordComponent(this.name);
+				SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) referenceBinding;
+				assert (sourceTypeBinding.isRecord());
+				sourceTypeBinding.components();
+				RecordComponentBinding recordComponentBinding = sourceTypeBinding.getRecordComponent(this.name);
 				RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
 				return recordComponent.annotations;
 			}

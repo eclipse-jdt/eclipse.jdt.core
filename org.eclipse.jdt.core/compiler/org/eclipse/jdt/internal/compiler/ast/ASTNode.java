@@ -1213,23 +1213,40 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		return filteredAnnotations.toArray(new Annotation[0]);
 	}
-	public static Annotation[] copyRecordComponentAnnotations(Scope scope,
-			Binding recipient, Annotation[] annotations,
-			long rcMask) {
-
+	public static Annotation[] copyRecordComponentAnnotations(Scope scope, Binding recipient, Annotation[] annotations) {
 		if (annotations == null || annotations.length == 0 || recipient == null)
 			return null;
 
-		List<AnnotationBinding> relevantAnnotations = new ArrayList<>();
-		Annotation[] filteredAnnotations = ASTNode.getRelevantAnnotations(annotations, rcMask, relevantAnnotations);
-		int sz = relevantAnnotations.size();
-		if (sz > 0) {
-			AnnotationBinding [] recipientAnnotations = relevantAnnotations.toArray(new AnnotationBinding[sz]);
-			// note: forcing to store in the bindings since we require at codegen
-			recipient.setAnnotations(recipientAnnotations, scope, true /* forceStore*/);
+		long recipientTargetMask = 0;
+		switch (recipient.kind()) {
+			case Binding.LOCAL:
+				assert recipient.isParameter(); // only for implicit canonical constructor arguments
+				recipientTargetMask = recipient.isParameter() ? TagBits.AnnotationForParameter : TagBits.AnnotationForLocalVariable;
+				break;
+			case Binding.FIELD:
+				recipientTargetMask = TagBits.AnnotationForField;
+				break;
+			case Binding.METHOD:
+				MethodBinding method = (MethodBinding) recipient;
+				recipientTargetMask = method.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod;
+				break;
+			case Binding.RECORD_COMPONENT:
+				// Use it on record component itself to filter out non-record component annotations.
+				recipientTargetMask = TagBits.AnnotationForRecordComponent;
+				break;
+			default:
+				return null;
 		}
+		// TODO: Null Analysis Address via bug 562478?
+
+		recipientTargetMask |= TagBits.AnnotationForTypeUse;
+		List<AnnotationBinding> relevantAnnotations = new ArrayList<>();
+		Annotation[] filteredAnnotations = ASTNode.getRelevantAnnotations(annotations, recipientTargetMask, relevantAnnotations);
+		AnnotationBinding [] recipientAnnotations = relevantAnnotations.toArray(new AnnotationBinding[relevantAnnotations.size()]);
+		recipient.setAnnotations(recipientAnnotations, scope, true /* forceStore*/);// forceStore since we require at codegen
 		return filteredAnnotations;
 	}
+
 	private static TypeBinding mergeAnnotationsIntoType(BlockScope scope, AnnotationBinding[] se8Annotations, long se8nullBits, Annotation se8NullAnnotation,
 			TypeReference typeRef, TypeBinding existingType)
 	{
