@@ -6237,7 +6237,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
 				if (!type.isValidBinding()) {
 					ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
-					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0
+							|| (problemReferenceBinding.problemId() & ProblemReasons.NotVisible) != 0) {
 						type = problemReferenceBinding.closestMatch();
 					} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
 						// check local inner types to see if this is a anonymous type
@@ -6257,7 +6258,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
 			if (!type.isValidBinding()) {
 				ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
-				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0
+					|| (problemReferenceBinding.problemId() & ProblemReasons.NotVisible) != 0) {
 					type = problemReferenceBinding.closestMatch();
 				} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
 					// check local inner types to see if this is a anonymous type
@@ -6287,7 +6289,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
 		if (!type.isValidBinding()) {
 			ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
-			if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+			if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0
+					|| (problemReferenceBinding.problemId() & ProblemReasons.NotVisible) != 0) {
 				type = problemReferenceBinding.closestMatch();
 			}
 		}
@@ -6346,7 +6349,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					CharOperation.splitOn('/', elementTypeClassName));
 				if (!type.isValidBinding()) {
 					ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
-					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0
+							|| (problemReferenceBinding.problemId() & ProblemReasons.NotVisible) != 0) {
 						type = problemReferenceBinding.closestMatch();
 					} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
 						// check local inner types to see if this is a anonymous type
@@ -6366,7 +6370,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				CharOperation.splitOn('/', typeConstantPoolName));
 			if (!type.isValidBinding()) {
 				ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
-				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0
+						|| (problemReferenceBinding.problemId() & ProblemReasons.NotVisible) != 0) {
 					type = problemReferenceBinding.closestMatch();
 				} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
 					// check local inner types to see if this is a anonymous type

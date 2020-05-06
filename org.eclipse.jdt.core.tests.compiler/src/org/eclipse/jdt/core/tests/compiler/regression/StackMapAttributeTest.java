@@ -8861,4 +8861,68 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"1-1");
 	}
+	public void test562854() {
+		this.runConformTest(
+			new String[] {
+				"bug/Bug.java",
+				"package bug;\n" +
+				"public class Bug {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		F(args.length > 1 ? pkg.Base.derived1() : pkg.Base.derived2());\n" + "	}\n" + "\n" +
+				"	static void F(pkg.Base base) {\n" +
+				"		System.out.println(base.getClass().getCanonicalName());\n" +
+				"	}\n" +
+				"}",
+				"pkg/Base.java",
+				"package pkg;\n" +
+				"public abstract class Base {\n" +
+				"	public static Derived1 derived1() {\n" +
+				"		return new Derived1();\n" +
+				"	}\n" +
+				"\n" +
+				"	public static Derived2 derived2() {\n" +
+				"		return new Derived2();\n" +
+				"	}\n" +
+				"}",
+				"pkg/Derived1.java",
+				"package pkg;\n" +
+				"class Derived1 extends Base {}",
+				"pkg/Derived2.java",
+				"package pkg;\n" +
+				"class Derived2 extends Derived1 {}",
+			},
+			"pkg.Derived2");
+	}
+	public void test562854_2() {
+		this.runConformTest(
+			new String[] {
+				"bug/Bug.java",
+				"package bug;\n" +
+				"public class Bug {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		F(args.length > 1 ? pkg.Base.derived1() : pkg.Base.derived2());\n" + "	}\n" + "\n" +
+				"	static void F(pkg.Base base) {\n" +
+				"		System.out.println(base.getClass().getCanonicalName());\n" +
+				"	}\n" +
+				"}",
+				"pkg/Base.java",
+				"package pkg;\n" +
+				"public abstract class Base {\n" +
+				"	public static Derived1 derived1() {\n" +
+				"		return new Derived1();\n" +
+				"	}\n" +
+				"\n" +
+				"	public static Derived2 derived2() {\n" +
+				"		return new Derived2();\n" +
+				"	}\n" +
+				"}",
+				"pkg/Derived1.java",
+				"package pkg;\n" +
+				"public class Derived1 extends Base {}",
+				"pkg/Derived2.java",
+				"package pkg;\n" +
+				"public class Derived2 extends Derived1 {}",
+			},
+			"pkg.Derived2");
+	}
 }
