@@ -56,12 +56,14 @@ public class DOMASTUtil {
 	 * @see ASTNode#getNodeType()
 	 * @since 3.22
 	 */
+	@SuppressWarnings("deprecation")
 	private static boolean isNodeTypeSupportedinAST(int apiLevel, boolean previewEnabled, int nodeType) {
 		switch (nodeType) {
 			case ASTNode.SWITCH_EXPRESSION:
 			case ASTNode.YIELD_STATEMENT:
 				return apiLevel >= AST.JLS14;
 			case ASTNode.TEXT_BLOCK:
+				return apiLevel >= AST.JLS15;
 			case ASTNode.RECORD_DECLARATION:
 			case ASTNode.INSTANCEOF_EXPRESSION:
 				return isPreviewEnabled(apiLevel, previewEnabled);
