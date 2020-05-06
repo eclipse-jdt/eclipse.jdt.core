@@ -659,7 +659,11 @@ public ICompilationUnit getCompilationUnit() {
 @Override
 public char[] getContents() {
 	IBuffer buffer = getBufferManager().getBuffer(this);
-	if (buffer == null) {
+	char[] contents = null;
+	if (buffer != null) {
+		contents = buffer.getCharacters();
+	}
+	if (buffer == null || (!isWorkingCopy() && contents == null && buffer.isClosed())) {
 		// no need to force opening of CU to get the content
 		// also this cannot be a working copy, as its buffer is never closed while the working copy is alive
 		IFile file = (IFile) getResource();
@@ -686,7 +690,6 @@ public char[] getContents() {
 			return CharOperation.NO_CHAR;
 		}
 	}
-	char[] contents = buffer.getCharacters();
 	if (contents == null) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=129814
 		if (JavaModelManager.getJavaModelManager().abortOnMissingSource.get() == Boolean.TRUE) {
 			IOException ioException = new IOException(Messages.buffer_closed);
