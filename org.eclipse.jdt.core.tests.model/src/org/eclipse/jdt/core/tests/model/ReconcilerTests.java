@@ -5971,8 +5971,7 @@ public void testBug534865() throws CoreException, IOException {
 			deleteProject(project18);
 	}
 }
-//TODO :Enable alongwith bug 562637
-public void _testBug559774() throws CoreException, IOException, InterruptedException {
+public void testBug562637() throws CoreException, IOException, InterruptedException {
 	if (!isJRE14) return;
 	IJavaProject project14 = null;
 	try {

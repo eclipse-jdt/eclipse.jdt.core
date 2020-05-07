@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,7 @@ public class SourceElementParserTest extends AbstractCompilerTest implements ISo
 	private SourceType currentType;
 	private SourceMethod currentMethod;
 	private SourceField currentField;
+	private SourceField currentRecordComp;
 	private SourceInitializer currentInitializer;
 	private char[] source;
 	private SourcePackage currentPackage;
@@ -257,6 +258,19 @@ public void enterField(FieldInfo fieldInfo) {
 				this.source));
 
 }
+public void enterRecordComponent(RecordComponentInfo compInfo) {
+	this.currentType.addRecordComponent(
+		this.currentRecordComp =
+			new SourceField(
+					compInfo.declarationStart,
+					compInfo.modifiers,
+					compInfo.type,
+					compInfo.name,
+					compInfo.nameSourceStart,
+					compInfo.nameSourceEnd,
+					this.source));
+
+}
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	this.currentType.addField(
 		this.currentInitializer = new SourceInitializer(
@@ -327,6 +341,9 @@ public void exitConstructor(int declarationEnd) {
 }
 public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 	this.currentField.setDeclarationSourceEnd(declarationEnd);
+}
+public void exitRecordComponent(int declarationEnd, int declarationSourceEnd) {
+	this.currentRecordComp.setDeclarationSourceEnd(declarationEnd);
 }
 public void exitMethod(int declarationEnd, Expression defaultValue) {
 	exitAbstractMethod(declarationEnd);
