@@ -355,6 +355,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="model/org/eclipse/jdt/core/SourceRange.java" type="org.eclipse.jdt.core.SourceRange">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="ISourceRange"/>
+                <message_argument value="SourceRange"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/jdom/DOMFactory.java" type="org.eclipse.jdt.core.jdom.DOMFactory">
         <filter id="576725006">
             <message_arguments>
