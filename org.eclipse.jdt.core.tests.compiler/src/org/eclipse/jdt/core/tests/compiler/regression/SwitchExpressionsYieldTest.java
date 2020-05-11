@@ -4669,5 +4669,176 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	public void testBug562728_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"       static public void main (String[] args) {\n"+
+				"               int a = 0x21;\n"+
+				"               int b = 0xff;\n"+
+				"               switch (a) {\n"+
+				"               case 0x21 -> {\n"+
+				"                       switch (b) {\n"+
+				"                       default -> System.out.println(\"default\");\n"+
+				"                       }\n"+
+				"               }\n"+
+				"               case 0x3b -> System.out.println(\"3b <- WTH?\");\n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"
+			},
+			"default");
+	}
+	public void testBug562728_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static public void main (String[] args) {\n"+
+				"   int a = 0x21;\n"+
+				"   int b = 0xff;\n"+
+				"   switch (a) {\n"+
+				"     case 0x21 -> {\n"+
+				"       switch (b) {\n"+
+				"         default -> System.out.println(\"default\");\n"+
+				"       }\n"+
+				"       return;\n"+
+				"     }\n"+
+				"     case 0x3b -> System.out.println(\"3b <- WTH?\");\n"+
+				"   }\n"+
+				" }\n"+
+				"}\n"
+			},
+			"default");
+	}
+	public void testBug562728_003() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static public void main (String[] args) throws Exception {\n"+
+					"   int a = 0x21;\n"+
+					"   int b = 0xff;\n"+
+					"   switch (a) {\n"+
+					"     case 0x21 -> {\n"+
+					"       switch (b) {\n"+
+					"         default -> throw new Exception();\n"+
+					"       }\n"+
+					"       return; \n"+
+					"     }\n"+
+					"     case 0x3b -> System.out.println(\"3b <- WTH?\");\n"+
+					"   }\n"+
+					" }\n"+
+					"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	return; \n" +
+				"	^^^^^^^\n" +
+				"Unreachable code\n" +
+				"----------\n");
 
+	}
+	public void testBug562728_004() {
+		this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"       static public void main (String[] args) throws Exception {\n"+
+			"               int a = 0x21;\n"+
+			"               int b = 0xff;\n"+
+			"               Zork();\n"+
+			"               switch (a) {\n"+
+			"               case 0x21 -> {\n"+
+			"                       switch (b) {\n"+
+			"                       default -> {\n"+
+			"                               for (;;) {\n"+
+			"                                       if (b > 1)\n"+
+			"                                       throw new Exception();\n"+
+			"                               }\n"+
+			"                       }\n"+
+			"                       }\n"+
+			"               }\n"+
+			"               case 0x3b -> System.out.println(\"3b <- WTH?\");\n"+
+			"               }\n"+
+			"       }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n");
+	}
+	public void testBug562728_005() {
+		this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {                        \n"+
+			"        public static int foo(int i) {  \n"+
+			"                int v;                  \n"+
+			"                int t = switch (i) {    \n"+
+			"                case 0 : {              \n"+
+			"                        yield 0;        \n"+
+			"                }                       \n"+
+			"                case 2 :v = 2;\n"+
+			"                default :v = 2;\n"+
+			"                };                      \n"+
+			"                return t;               \n"+
+			"        }                               \n"+
+			"                                        \n"+
+			"        public boolean bar() {          \n"+
+			"                return true;            \n"+
+			"        }\n"+
+			"        public static void main(String[] args) {\n"+
+			"                System.out.println(foo(3));\n"+
+			"        }                               \n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	default :v = 2;\n" +
+		"	         ^^^^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+		"----------\n");
+	}
+	public void testBug562728_006() {
+		this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {                        \n"+
+			"        public static int foo(int i) {  \n"+
+			"                int v;                  \n"+
+			"                int t = switch (i) {    \n"+
+			"                case 0 -> {              \n"+
+			"                        yield 0;        \n"+
+			"                }                       \n"+
+			"                case 2 ->{v = 2;}\n"+
+			"                default ->{v = 2;}\n"+
+			"                };                      \n"+
+			"                return t;               \n"+
+			"        }                               \n"+
+			"                                        \n"+
+			"        public boolean bar() {          \n"+
+			"                return true;            \n"+
+			"        }\n"+
+			"        public static void main(String[] args) {\n"+
+			"                System.out.println(foo(3));\n"+
+			"        }                               \n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	case 2 ->{v = 2;}\n" +
+		"	         ^^^^^^^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	default ->{v = 2;}\n" +
+		"	          ^^^^^^^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+		"----------\n");
+	}
 }

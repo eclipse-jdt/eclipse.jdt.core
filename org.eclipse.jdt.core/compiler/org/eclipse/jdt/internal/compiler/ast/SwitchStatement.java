@@ -87,11 +87,9 @@ public class SwitchStatement extends Expression {
 
 			if (stmt instanceof Block) {
 				Block block = (Block) stmt;
-				if (block.doesNotCompleteNormally()) {
-					return BREAKING;
-				}
-				// else add an implicit break
+				// Note implicit break anyway - Let the flow analysis do the dead code analysis
 				BreakStatement breakStatement = new BreakStatement(null, block.sourceEnd -1, block.sourceEnd);
+				breakStatement.isSynthetic = true; // suppress dead code flagging - codegen will not generate dead code anyway
 
 				int l = block.statements == null ? 0 : block.statements.length;
 				if (l == 0) {
