@@ -11479,6 +11479,14 @@ public void switchExpressionsContinueOutOfSwitchExpression(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+public void switchExpressionsReturnWithinSwitchExpression(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsReturnWithinSwitchExpression,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
 public void illegalModifierForInnerRecord(SourceTypeBinding type) {
 	if (!this.options.enablePreviewFeatures)
 		return;

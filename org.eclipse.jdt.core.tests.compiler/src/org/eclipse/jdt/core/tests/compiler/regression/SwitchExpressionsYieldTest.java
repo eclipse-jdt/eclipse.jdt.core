@@ -2166,7 +2166,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"			};\n"+
 				"			System.out.println(k);\n"+
 				"		}\n"+
-				"		return 1;\n"+
+				"		return 100;\n"+
 				"	}\n"+
 				"	public static void main(String[] args) {\n"+
 				"		X.foo();\n"+
@@ -2177,7 +2177,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	return 2;\n" +
 			"	^^^^^^^^^\n" +
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
+			"Return within switch expressions not permitted\n" +
 			"----------\n");
 	}
 	public void testBug544073_078() {
@@ -4841,4 +4841,35 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"A switch labeled block in a switch expression should not complete normally\n" +
 		"----------\n");
 	}
+    public void testBug562728_007() {
+        this.runNegativeTest(
+        new String[] {
+                "X.java",
+                "public class X {                        \n"+
+                "        public static int foo(int i) {  \n"+
+                "                int v;                  \n"+
+                "                int t = switch (i) {    \n"+
+                "                case 0 -> {              \n"+
+                "                     return 1;\n"+
+                "                }                       \n"+
+                "                default ->100;\n"+
+                "                };                      \n"+
+                "                return t;               \n"+
+                "        }                               \n"+
+                "                                        \n"+
+                "        public boolean bar() {          \n"+
+                "                return true;            \n"+
+                "        }\n"+
+                "        public static void main(String[] args) {\n"+
+                "                System.out.println(foo(3));\n"+
+                "        }                               \n"+
+                "}\n"
+        },
+        "----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Return within switch expressions not permitted\n" +
+        "----------\n");
+}
 }

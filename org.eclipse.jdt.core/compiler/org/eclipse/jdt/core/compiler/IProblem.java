@@ -2234,6 +2234,8 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsBreakOutOfSwitchExpression  = Syntax + 1722;
 	/** @since 3.22 */
 	int SwitchExpressionsContinueOutOfSwitchExpression  = Syntax + 1723;
+	/** @since 3.22 */
+	int SwitchExpressionsReturnWithinSwitchExpression  = Syntax + 1724;
 	/* records - begin */
 
 	/** @since 3.22
