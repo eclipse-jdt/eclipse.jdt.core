@@ -1192,6 +1192,9 @@ void setSourceStart(int sourceStart);
 	int JavadocUnexpectedText = Javadoc + Internal + 518;
 	/** @since 3.1 */
 	int JavadocInvalidParamTagName = Javadoc + Internal + 519;
+
+	// see also JavadocNotAccessibleType below
+
 	/*
 	 * IDs for module errors in Javadoc
 	 */
@@ -2084,6 +2087,10 @@ void setSourceStart(int sourceStart);
 	int UnnamedPackageInNamedModule = ModuleRelated + 1460;
 	/** @since  3.14 */
 	int UnstableAutoModuleName = ModuleRelated + 1461;
+
+	// doc variant of an above constant:
+	/** @since 3.22 */
+	int JavadocNotAccessibleType = Javadoc + NotAccessibleType;
 
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;

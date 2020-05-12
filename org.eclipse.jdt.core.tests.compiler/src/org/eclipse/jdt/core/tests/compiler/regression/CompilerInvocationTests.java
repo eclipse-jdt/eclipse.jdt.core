@@ -757,6 +757,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("JavadocNonGenericConstructor", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNonGenericMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNonStaticTypeFromStaticInvocation", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocNotAccessibleType", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleConstructor", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleField", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
@@ -1780,6 +1781,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("JavadocNonGenericConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNonGenericMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNonStaticTypeFromStaticInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocNotAccessibleType", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleField", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocNotVisibleMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));

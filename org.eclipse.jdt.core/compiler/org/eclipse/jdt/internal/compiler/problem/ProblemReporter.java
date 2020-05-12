@@ -591,6 +591,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.JavadocIncorrectArityForParameterizedConstructor:
 		case IProblem.JavadocParameterizedConstructorArgumentTypeMismatch:
 		case IProblem.JavadocTypeArgumentsForRawGenericConstructor:
+		case IProblem.JavadocNotAccessibleType:
 		case IProblem.JavadocNotVisibleField:
 		case IProblem.JavadocNotVisibleConstructor:
 		case IProblem.JavadocNotVisibleMethod:
@@ -5790,6 +5791,9 @@ public void javadocInvalidType(ASTNode location, TypeBinding type, int modifiers
 				break;
 			case ProblemReasons.NotVisible :
 				id = IProblem.JavadocNotVisibleType;
+				break;
+			case ProblemReasons.NotAccessible:
+				id = IProblem.JavadocNotAccessibleType;
 				break;
 			case ProblemReasons.Ambiguous :
 				id = IProblem.JavadocAmbiguousType;
