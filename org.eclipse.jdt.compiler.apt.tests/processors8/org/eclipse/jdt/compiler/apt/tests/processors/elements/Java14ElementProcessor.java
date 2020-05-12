@@ -346,8 +346,10 @@ public class Java14ElementProcessor extends BaseProcessor {
 
 		String[] arr = new String[] {"x", "i", "r", "r", "foo", "bar",
                 "equals", "hashCode", "toString"};
+		String[] arr2 = new String[] {"x", "i", "r", "t"};
 
 		List<String> expMethodNames = Arrays.asList(arr);
+		List<String> expRecComppNames = Arrays.asList(arr2);
 
         Element recordElement = _elementUtils.getTypeElement("records.Record2");
         List<? extends Element> recordElements = recordElement.getEnclosedElements();
@@ -373,6 +375,7 @@ public class Java14ElementProcessor extends BaseProcessor {
         }
 
         List<String> actualMethodNames = methods.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
+        List<String> actualRecordCompNames = actRecComps.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
 
         //checking the size
         assertEquals("expected enclosed Record Components size mismatch", expMethodNames.size(), actualMethodNames.size());
@@ -380,6 +383,39 @@ public class Java14ElementProcessor extends BaseProcessor {
         if (!actualMethodNames.containsAll(expMethodNames)) {
         	fail(" expected enclosed methods mismatch - expected at least : " + expMethodNames + " " +
                     "actual : " + actualMethodNames);
+        }
+        if (!actualRecordCompNames.containsAll(expRecComppNames)) {
+        	fail(" expected enclosed record components mismatch - expected at least : " + expRecComppNames + " " +
+                    "actual : " + actualRecordCompNames);
+        }
+	}
+	// Same as above, but use getRecordComponents() instead of getEnclosedElements()
+	public void testRecords5a() {
+		Map<String, TypeKind> expRecComps = new HashMap<>();
+		expRecComps.put("x", TypeKind.INT);
+		expRecComps.put("i", TypeKind.DECLARED);
+		expRecComps.put( "r", TypeKind.DECLARED);
+		expRecComps.put("t", TypeKind.DECLARED);
+
+		String[] arr2 = new String[] {"x", "i", "r", "t"};
+		List<String> expRecComppNames = Arrays.asList(arr2);
+
+        TypeElement recordElement = _elementUtils.getTypeElement("records.Record2");
+        List<? extends Element> recordElements = recordElement.getRecordComponents();
+        List<RecordComponentElement> actRecComps = ElementFilter.recordComponentsIn(recordElements);
+        //checking recComp  size
+        assertEquals("expected enclosed Record Components size mismatch", expRecComps.size(), actRecComps.size());
+        //checking for types for the given record component name.
+        for (RecordComponentElement actRecComp : actRecComps) {
+            String key = actRecComp.getSimpleName().toString();
+            assertEquals("expected enclosed Record Components mismatch", expRecComps.get(key), actRecComp.asType().getKind());
+        }
+
+        List<String> actualRecordCompNames = actRecComps.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
+
+        if (!actualRecordCompNames.containsAll(expRecComppNames)) {
+        	fail(" expected enclosed record components mismatch - expected at least : " + expRecComppNames + " " +
+                    "actual : " + actualRecordCompNames);
         }
 	}
 	public void testRecords6() {

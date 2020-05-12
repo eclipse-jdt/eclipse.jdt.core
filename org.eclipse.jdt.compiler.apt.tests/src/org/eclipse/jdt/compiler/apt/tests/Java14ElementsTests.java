@@ -90,6 +90,14 @@ public class Java14ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5", null, "records", true);
 	}
+	public void testRecords5a() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5a", null, "records", true);
+	}
+	public void testRecords5aJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5a", null, "records", true);
+	}
 	public void testRecords6() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords6", null, "records", true);
