@@ -702,6 +702,10 @@ void setSourceStart(int sourceStart);
 	/** @since 3.5 */
 	int ComparingIdentical = Internal + 211;
 
+	/** @since 3.22
+	 * @noreference preview feature error */
+	int UnsafeCast = TypeRelated + 212;
+
 	int UnmatchedBracket = Syntax + Internal + 220;
 	int NoFieldOnBaseType = FieldRelated + 221;
 	int InvalidExpressionAsStatement = Syntax + Internal + 222;

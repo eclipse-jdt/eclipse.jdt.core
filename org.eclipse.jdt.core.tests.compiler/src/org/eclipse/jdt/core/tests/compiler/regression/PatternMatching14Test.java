@@ -24,7 +24,7 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test005" };
+//		TESTS_NAMES = new String[] { "testBug562392" };
 	}
 
 	public static Class<?> testClass() {
@@ -2045,7 +2045,7 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
-	public void _testBug562392a() {
+	public void testBug562392a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -2067,11 +2067,12 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 		}
-	public void _testBug562392b() {
+	public void testBug562392b() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
 				new String[] {
 						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class X<T> {\n" +
 						"	public boolean foo(Object obj) {\n" +
 						"        if (obj instanceof T) {\n" +
@@ -2085,17 +2086,21 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
+				"1. ERROR in X.java (at line 4)\n" +
 				"	if (obj instanceof T) {\n" +
-				"	    ^^^^^^^^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from Object to T\n" +
+				"	    ^^^\n" +
+				"Type Object cannot be safely cast to T\n" +
 				"----------\n",
-				"",
+				"X.java:4: error: Object cannot be safely cast to T\n" +
+				"        if (obj instanceof T) {\n" +
+				"            ^\n" +
+				"  where T is a type-variable:\n" +
+				"    T extends Object declared in class X",
 				null,
 				true,
 				compilerOptions);
 		}
-	public void _testBug562392c() {
+	public void testBug562392c() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
 				new String[] {
@@ -2116,15 +2121,19 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (obj instanceof T t) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from Object to T\n" +
+				"	    ^^^\n" +
+				"Type Object cannot be safely cast to T\n" +
 				"----------\n",
-				"",
+				"X.java:4: error: Object cannot be safely cast to T\n" +
+				"        if (obj instanceof T t) {\n" +
+				"            ^\n" +
+				"  where T is a type-variable:\n" +
+				"    T extends Object declared in class X",
 				null,
 				true,
 				compilerOptions);
 		}
-	public void _testBug562392d() {
+	public void testBug562392d() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -2144,7 +2153,180 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				},
 				"",
 				compilerOptions);
+	}
+	public void testBug562392e() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X<T> {\n" +
+						"	public boolean foo(X<?> obj) {\n" +
+						"        if (obj instanceof X<String> p) {\n" +
+						"            return true;\n" +
+						"        }\n" +
+						"        return false;\n" +
+						"    }\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (obj instanceof X<String> p) {\n" +
+				"	    ^^^\n" +
+				"Type X<capture#1-of ?> cannot be safely cast to X<String>\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
+	public void testBug562392f() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"class Outer<T> {\n" +
+						"    static class Inner<T> {\n" +
+						"    }\n" +
+						"}\n" +
+						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
+						"class X<T> {\n" +
+						"    public boolean foo(Outer.Inner obj) {\n" +
+						"        if (obj instanceof Outer<?> p) {\n" +
+						"            return true;\n" +
+						"        }\n" +
+						"        return false;\n" +
+						"    }\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	if (obj instanceof Outer<?> p) {\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Outer.Inner and Outer<?>\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
+	public void testBug562392g() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class Outer<T> {\n" +
+						"    static class Inner<T> {\n" +
+						"    }\n" +
+						"}\n" +
+						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
+						"class X<T> {\n" +
+						"    public boolean foo(Object obj) {\n" +
+						"        if (obj instanceof Outer.Inner<?> p) {\n" +
+						"            return true;\n" +
+						"        }\n" +
+						"        return false;\n" +
+						"    }\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		Outer.Inner inn = new Outer.Inner();\n" +
+						"    	System.out.println(new X<String>().foo(inn));\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"true",
+				compilerOptions);
+	}
+	public void testBug562392h() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
+						"public class X<T> {\n" +
+						"	public boolean foo(X[] obj) {\n" +
+						"        if (obj instanceof Object[] p) {\n" +
+						"            return true;\n" +
+						"        }\n" +
+						"        return false;\n" +
+						"    }\n" +
+						"	public static void main(String argv[]) {\n" +
+						"		Object[] param = {new X()};\n" +
+						"       System.out.println(new X<String>().foo(param));\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	System.out.println(new X<String>().foo(param));\n" +
+				"	                                   ^^^\n" +
+				"The method foo(X[]) in the type X<String> is not applicable for the arguments (Object[])\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
+	public void testBug562392i() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String backup = compilerOptions.get(CompilerOptions.OPTION_EnablePreviews);
+		compilerOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		try {
+			runNegativeTest(
+					new String[] {
+							"Test.java",
+							"import java.util.ArrayList;\n" +
+									"import java.util.List;\n" +
+									"import java.util.function.Function;\n" +
+									"import java.util.function.UnaryOperator;\n" +
+									"@SuppressWarnings({\"preview\"})\n" +
+									"public class Test<T> {\n" +
+									"    public boolean foo(Function<ArrayList<T>, ArrayList<T>> obj) {\n" +
+									"        if (obj instanceof UnaryOperator<? extends List<T>>) {\n" +
+									"            return false;\n" +
+									"        }\n" +
+									"        return true;\n" +
+									"    }\n" +
+									"}\n",
+					},
+					"----------\n" +
+					"1. ERROR in Test.java (at line 8)\n" +
+					"	if (obj instanceof UnaryOperator<? extends List<T>>) {\n" +
+					"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Cannot perform instanceof check against parameterized type UnaryOperator<? extends List<T>>. Use the form UnaryOperator<?> instead since further generic type information will be erased at runtime\n" +
+					"----------\n",
+					"",
+					null,
+					true,
+					compilerOptions);
+		} finally {
+			compilerOptions.put(CompilerOptions.OPTION_EnablePreviews, backup);
 		}
+	}
+	public void testBug562392j() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"Test.java",
+						"import java.util.ArrayList;\n" +
+						"import java.util.List;\n" +
+						"import java.util.function.Function;\n" +
+						"import java.util.function.UnaryOperator;\n" +
+						"@SuppressWarnings({\"preview\", \"rawtypes\"})\n" +
+						"public class Test<T> {\n" +
+						"    public boolean foo(Function<ArrayList<T>, ArrayList<T>> obj) {\n" +
+						"        if (obj instanceof UnaryOperator<? extends List<T>>) {\n" +
+						"            return false;\n" +
+						"        }\n" +
+						"        return true;\n" +
+						"    }\n" +
+						"	public static void main(String argv[]) {\n" +
+						"       System.out.println(\"\");\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"",
+				compilerOptions);
+	}
 	public void test053() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
