@@ -23,14 +23,19 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
@@ -781,4 +786,103 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+
+	public void testRecord005() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents = "public class X {\n" +
+				  "	public static void main(String[] args) {\n" +
+		          "		record R(int x,String y){}\n" +
+				  "		R r = new R(100, \"Point\");\n" +
+		          "		System.out.println(r.x());\n" +
+				  "	}\n" +
+		          "}";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List<ASTNode> statements = methodDeclaration.getBody().statements();
+			node = statements.get(0);
+			assertEquals("Not a TypDeclaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+			TypeDeclarationStatement tdStmt = (TypeDeclarationStatement) node;
+			node = tdStmt.getDeclaration();
+			assertEquals("Not a RecordDeclaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+			RecordDeclaration record = (RecordDeclaration)node;
+			List<SingleVariableDeclaration> recordComponents = record.recordComponents();
+			assertEquals("There should be 2 record components", 2, recordComponents.size());
+			SingleVariableDeclaration recordComponent = recordComponents.get(0);
+			assertEquals("First record component name should be x","x" , recordComponent.getName().toString());
+			assertEquals("First record component type is int" , "int", recordComponent.getType().toString());
+			IVariableBinding resolveBinding = recordComponent.resolveBinding();
+			assertEquals("First record component binding" , true, resolveBinding.isRecordComponent());
+			recordComponent = recordComponents.get(1);
+			assertEquals("Second record component name should be y","y" , recordComponent.getName().toString());
+			assertEquals("Second record component type is String" , "String", recordComponent.getType().toString());
+			resolveBinding = recordComponent.resolveBinding();
+			assertEquals("Second record component binding" , true, resolveBinding.isRecordComponent());
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testRecord006() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents = "import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"record X(@MyAnnot int lo) {\n" +
+				"	public int lo() {\n" +
+				"		return this.lo;\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"@Target({ElementType.FIELD})\n" +
+				"@interface MyAnnot {}";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+			assertEquals("Not a Record Declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+			RecordDeclaration record = (RecordDeclaration)node;
+			List<SingleVariableDeclaration> recordComponents = record.recordComponents();
+			assertEquals("There should be 1 record component", 1, recordComponents.size());
+			SingleVariableDeclaration recordComponent = recordComponents.get(0);
+			assertEquals("Record component name should be lo","lo" , recordComponent.getName().toString());
+			assertEquals("Record component type is int" , "int", recordComponent.getType().toString());
+			IVariableBinding resolveBinding = recordComponent.resolveBinding();
+			assertEquals("Record component binding" , true, resolveBinding.isRecordComponent());
+			MarkerAnnotation annotation = (MarkerAnnotation)recordComponent.modifiers().get(0);
+			assertEquals("Record component annotation name should be MyAnnot","@MyAnnot" , annotation.toString());
+			assertEquals("Record component binding should not have annotation",0 , resolveBinding.getAnnotations().length);
+
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
 }
