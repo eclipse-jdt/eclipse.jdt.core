@@ -491,19 +491,22 @@ public final class JavaConventions {
 	}
 
 	/**
-	 * Validate the given Java type name, either simple or qualified, for the given source and compliance levels.
+	 * Validate the given Java type name, either simple or qualified, for the given source level, compliance levels
+	 * and the preview flag.
 	 *
 	 * <p>For example, <code>"java.lang.Object"</code>, or <code>"Object"</code>.</p>
 	 *
 	 * <p>The source level and compliance level values should be taken from the constant defined inside
 	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_1_x</code>, x being set
 	 * between '1' and '8'.
+	 * </p>The preview flag should be one of <code>JavaCore.ENABLED</code>, <code>JavaCore#DISABLED</code> or null.
+	 *  When null is passed, the preview is considered to be disabled.
 	 * </p>
 	 *
 	 * @param name the name of a type
 	 * @param sourceLevel the source level
 	 * @param complianceLevel the compliance level
-	 * @param previewEnabled the enable previews flag is set or not
+	 * @param previewEnabled preview flag
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given name is valid as a Java type name,
 	 *      a status with code <code>IStatus.WARNING</code>
