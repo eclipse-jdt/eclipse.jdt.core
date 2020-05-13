@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-
-import org.eclipse.jdt.internal.core.builder.ClasspathJrtWithReleaseOption;
 
 /**
  * Abstraction to the ct.sym file access (see https://openjdk.java.net/jeps/247). The ct.sym file is required to
@@ -314,7 +311,7 @@ public class CtSym {
 	/**
 	 * Populates {@link #allReleasesPaths} with the paths of all files within each matching release directory in ct.sym.
 	 * This cache is an optimization to avoid excessive calls into the zip filesystem in
-	 * {@link ClasspathJrtWithReleaseOption#findClass(String, String, String, String, boolean, Predicate)}.
+	 * {@code ClasspathJrtWithReleaseOption#findClass(String, String, String, String, boolean, Predicate)}.
 	 * <p>
 	 * 12+: something like
 	 * <p>
