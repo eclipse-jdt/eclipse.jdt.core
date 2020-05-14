@@ -486,7 +486,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"----------\n" +
 					"1. ERROR in X.java (at line 8)\n" +
 					"	default :v = 2;\n" +
-					"	         ^^^^^\n" +
+					"	            ^^\n" +
 					"A switch labeled block in a switch expression should not complete normally\n" +
 					"----------\n";
 			this.runNegativeTest(
@@ -4800,7 +4800,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" +
 		"	default :v = 2;\n" +
-		"	         ^^^^^\n" +
+		"	            ^^\n" +
 		"A switch labeled block in a switch expression should not complete normally\n" +
 		"----------\n");
 	}
@@ -4832,12 +4832,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"----------\n" +
 		"1. ERROR in X.java (at line 8)\n" +
 		"	case 2 ->{v = 2;}\n" +
-		"	         ^^^^^^^^\n" +
+		"	               ^^\n" +
 		"A switch labeled block in a switch expression should not complete normally\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 9)\n" +
 		"	default ->{v = 2;}\n" +
-		"	          ^^^^^^^^\n" +
+		"	                ^^\n" +
 		"A switch labeled block in a switch expression should not complete normally\n" +
 		"----------\n");
 	}

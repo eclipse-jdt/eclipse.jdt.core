@@ -11360,7 +11360,7 @@ public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
 		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
-		block.sourceStart,
+		block.sourceEnd - 1,
 		block.sourceEnd);
 }
 public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
@@ -11368,7 +11368,7 @@ public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
 		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
-		stmt.sourceStart,
+		stmt.sourceEnd - 1,
 		stmt.sourceEnd);
 }
 public void switchExpressionIllegalLastStatement(Statement stmt) {
