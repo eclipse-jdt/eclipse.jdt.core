@@ -4872,4 +4872,112 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"Return within switch expressions not permitted\n" +
         "----------\n");
 }
+	public void testBug563147_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {\n"+
+				" public int apply();\n"+
+				"}\n"+
+				"public class X { \n"+
+				" static public int foo(int a){\n"+
+				"   int t = switch (a) {\n"+
+				"     default -> {\n"+
+				"       I lambda = () -> { return 0;};\n"+
+				"       yield lambda.apply();\n"+
+				"     }\n"+
+				"   };\n"+
+				"   return t;\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(X.foo(1));\n"+
+				" }\n"+
+				"} \n"
+			},
+			"0");
+	}
+	public void testBug563147_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface FI {\n"+
+				"  public int foo();\n"+
+				"}\n"+
+				"public class X {\n"+
+				"  public int field = 0;\n"+
+				"  public int test() {\n"+
+				"   var v = switch (field) {\n"+
+				"     case 0 -> {\n"+
+				"       yield ((FI  ) () -> {\n"+
+				"         int i = 0;\n"+
+				"         while (true) {\n"+
+				"           i++;\n"+
+				"           if (i == 7) {\n"+
+				"             break;\n"+
+				"           }\n"+
+				"         }\n"+
+				"         return i;\n"+
+				"       });   \n"+
+				"     }\n"+
+				"     default -> {\n"+
+				"       yield null;\n"+
+				"     }\n"+
+				"   }; \n"+
+				"   return 0;\n"+
+				"  }\n"+
+				"  public static void main(String[] args) {\n"+
+				" int t = new X().test();\n"+
+				" System.out.println(t);\n"+
+				"}\n"+
+				"}\n"
+			},
+			"0");
+	}
+	public void testBug563147_003() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface FI {\n"+
+				"  public int foo();\n"+
+				"}\n"+
+				"public class X {\n"+
+				"  public int field = 0;\n"+
+				"  public int test() {\n"+
+				"   var v = switch (field) {\n"+
+				"     case 0 -> {\n"+
+				"       yield ((F  ) () -> {\n"+
+				"         int i = 0;\n"+
+				"         while (true) {\n"+
+				"           i++;\n"+
+				"           if (i == 7) {\n"+
+				"             break;\n"+
+				"           }\n"+
+				"         }\n"+
+				"         return i;\n"+
+				"       });   \n"+
+				"     }\n"+
+				"     default -> {\n"+
+				"       yield null;\n"+
+				"     }\n"+
+				"   }; \n"+
+				"   return 0;\n"+
+				"  }\n"+
+				"  public static void main(String[] args) {\n"+
+				" int t = new X().test();\n"+
+				" System.out.println(t);\n"+
+				"}\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	yield ((F  ) () -> {\n" +
+			"	        ^\n" +
+			"F cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	yield ((F  ) () -> {\n" +
+			"	             ^^^^^\n" +
+			"The target type of this expression must be a functional interface\n" +
+			"----------\n");
+	}
 }

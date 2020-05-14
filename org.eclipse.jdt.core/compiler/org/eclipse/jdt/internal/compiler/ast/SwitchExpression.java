@@ -429,6 +429,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return true;
 		}
 		@Override
+		public boolean visit(LambdaExpression lambdaExpression, BlockScope blockScope) {
+			return false;
+		}
+		@Override
 		public boolean visit(LabeledStatement stmt, BlockScope blockScope) {
 			if (stmt.label != null && stmt.label.length != 0)
 				this.labelDecls.add(new String(stmt.label));
