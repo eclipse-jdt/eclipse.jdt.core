@@ -499,7 +499,8 @@ public final class JavaConventions {
 	 * <p>The source level and compliance level values should be taken from the constant defined inside
 	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_1_x</code>, x being set
 	 * between '1' and '8'.
-	 * </p>The preview flag should be one of <code>JavaCore.ENABLED</code>, <code>JavaCore#DISABLED</code> or null.
+	 * </p>
+	 * <p>The preview flag should be one of <code>JavaCore.ENABLED</code>, <code>JavaCore#DISABLED</code> or null.
 	 *  When null is passed, the preview is considered to be disabled.
 	 * </p>
 	 *
