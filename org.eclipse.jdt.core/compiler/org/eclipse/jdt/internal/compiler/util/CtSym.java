@@ -263,6 +263,11 @@ public class CtSym {
 		if(moduleName != null) {
 			// Without this, org.eclipse.jdt.core.tests.model.ModuleBuilderTests.testConvertToModule() fails on 12+ JRE
 			path = releasePaths.get(moduleName + sep + qualifiedSignatureFileName);
+
+			// Special handling of broken module shema in java 11 for compilation with --release 10
+			if(path == null && !this.isJRE12Plus() && "A".equals(releaseInHex)){ //$NON-NLS-1$
+				path = releasePaths.get(qualifiedSignatureFileName);
+			}
 		} else {
 			path = releasePaths.get(qualifiedSignatureFileName);
 		}
