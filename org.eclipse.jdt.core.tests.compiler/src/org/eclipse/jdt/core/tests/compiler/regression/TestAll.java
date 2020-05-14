@@ -183,7 +183,6 @@ public static Test suite() {
 
 	// add 12 specific test here (check duplicates)
 	 ArrayList since_12 = new ArrayList();
-	 since_12.add(SwitchExpressionTest.class);
 	 since_12.add(Unicode11Test.class);
 
 		// add 13 specific test here (check duplicates)
