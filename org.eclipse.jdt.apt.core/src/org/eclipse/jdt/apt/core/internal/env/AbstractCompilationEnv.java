@@ -337,7 +337,8 @@ public abstract class AbstractCompilationEnv
         Map<String, String> options = getJavaProject().getOptions(true);
         String sourceLevel = options.get(JavaCore.COMPILER_SOURCE);
         String complianceLevel = options.get(JavaCore.COMPILER_COMPLIANCE);
-        IStatus status = JavaConventions.validateJavaTypeName(typeName, sourceLevel, complianceLevel);
+        String preview = options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES);
+        IStatus status = JavaConventions.validateJavaTypeName(typeName, sourceLevel, complianceLevel, preview);
         if (status.matches(IStatus.ERROR)) {
         	throw new CoreException(status);
         }

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +23,6 @@ import java.net.URLClassLoader;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -44,6 +46,8 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class JRTUtil {
 
+	public static final boolean DISABLE_CACHE = Boolean.getBoolean("org.eclipse.jdt.disable_JRT_cache"); //$NON-NLS-1$
+
 	public static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
 	public static final char[] JAVA_BASE_CHAR = JAVA_BASE.toCharArray();
 	static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
@@ -51,18 +55,21 @@ public class JRTUtil {
 	static final String[] NO_MODULE = new String[0];
 	static final String MULTIPLE = "MU"; //$NON-NLS-1$
 	static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
-	static String MODULE_TO_LOAD = null;
+	static String MODULE_TO_LOAD;
 	public static final String JRT_FS_JAR = "jrt-fs.jar"; //$NON-NLS-1$
 	static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
-	public static int NOTIFY_FILES = 0x0001;
-	public static int NOTIFY_PACKAGES = 0x0002;
-	public static int NOTIFY_MODULES = 0x0004;
-	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
+	public static final int NOTIFY_FILES = 0x0001;
+	public static final int NOTIFY_PACKAGES = 0x0002;
+	public static final int NOTIFY_MODULES = 0x0004;
+	public static final int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
 	// TODO: Java 9 Think about clearing the cache too.
-	private static Map<String, JrtFileSystem> images = null;
+	private static Map<String, Optional<JrtFileSystem>> images = new ConcurrentHashMap<>();
 
-	private static final Object lock = new Object();
+	/**
+	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
+	 */
+	private static final Map<Path, CtSym> ctSymFiles = new ConcurrentHashMap<>();
 
 	public interface JrtFileVisitor<T> {
 
@@ -105,35 +112,28 @@ public class JRTUtil {
 	}
 
 	public static JrtFileSystem getJrtSystem(File image, String release) {
-		Map<String, JrtFileSystem> i = images;
-		if (images == null) {
-			synchronized (lock) {
-	            i = images;
-	            if (i == null) {
-	            	images = i = new HashMap<>();
-	            }
-	        }
-		}
-		JrtFileSystem system = null;
 		String key = image.toString();
 		if (release != null) key = key + "|" + release; //$NON-NLS-1$
-		synchronized(i) {
-			if ((system = images.get(key)) == null) {
-				try {
-					images.put(key, system = JrtFileSystem.getNewJrtFileSystem(image, release));
-				} catch (IOException e) {
-					e.printStackTrace();
-					// Needs better error handling downstream? But for now, make sure
-					// a dummy JrtFileSystem is not created.
-				}
+		Optional<JrtFileSystem> system = images.computeIfAbsent(key, x -> {
+			try {
+				return Optional.ofNullable(JrtFileSystem.getNewJrtFileSystem(image, release));
+			} catch (IOException e) {
+				// Needs better error handling downstream? But for now, make sure
+				// a dummy JrtFileSystem is not created.
+				e.printStackTrace();
+				return Optional.empty();
 			}
-		}
-	    return system;
+		});
+		return system.orElse(null);
+	}
+
+	public static CtSym getCtSym(Path jdkHome) {
+		return ctSymFiles.computeIfAbsent(jdkHome, x -> new CtSym(x));
 	}
 
 	/** TEST ONLY (use when changing the "modules.to.load" property). */
 	public static void reset() {
-		images = null;
+		images.clear();
 		MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 	}
 
@@ -157,6 +157,7 @@ public class JRTUtil {
 	public static void walkModuleImage(File image, final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
 		getJrtSystem(image, null).walkModuleImage(visitor, notify);
 	}
+
 	public static void walkModuleImage(File image, String release, final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
 		getJrtSystem(image, release).walkModuleImage(visitor, notify);
 	}
@@ -164,15 +165,19 @@ public class JRTUtil {
 	public static InputStream getContentFromJrt(File jrt, String fileName, String module) throws IOException {
 		return getJrtSystem(jrt).getContentFromJrt(fileName, module);
 	}
-	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException, ClassFormatException {
+
+	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException {
 		return getJrtSystem(jrt).getClassfileContent(fileName, module);
 	}
+
 	public static ClassFileReader getClassfile(File jrt, String fileName, IModule module) throws IOException, ClassFormatException {
 		return getJrtSystem(jrt).getClassfile(fileName, module);
 	}
+
 	public static ClassFileReader getClassfile(File jrt, String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
 		return getJrtSystem(jrt).getClassfile(fileName, module, moduleNameFilter);
 	}
+
 	public static List<String> getModulesDeclaringPackage(File jrt, String qName, String moduleName) {
 		return getJrtSystem(jrt).getModulesDeclaringPackage(qName, moduleName);
 	}
@@ -180,6 +185,7 @@ public class JRTUtil {
 	public static boolean hasCompilationUnit(File jrt, String qualifiedPackageName, String moduleName) {
 		return getJrtSystem(jrt).hasClassFile(qualifiedPackageName, moduleName);
 	}
+
 	/*
 	 * Returns only the file name after removing trailing '/' if any for folders
 	 */
@@ -190,6 +196,7 @@ public class JRTUtil {
 		}
 		return p;
 	}
+
 	/**
 	 * Tries to read all bytes of the file denoted by path,
 	 * returns null if the file could not be found or if the read was interrupted.
@@ -205,12 +212,14 @@ public class JRTUtil {
 		}
 	}
 }
+
 class JrtFileSystemWithOlderRelease extends JrtFileSystem {
+
 	final String release;
-	String releaseInHex = null;
-	//private Path releasePath = null;
-	private String[] subReleases = null;
-	protected Path modulePath = null;
+	String releaseInHex;
+	private List<Path> releaseRoots = Collections.emptyList();
+	protected Path modulePath;
+	private CtSym ctSym;
 
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
@@ -225,118 +234,95 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 		this.release = release;
 		initialize(jrt, release);
 	}
+
 	@Override
 	void initialize(File jdk) throws IOException {
 		// Just to make sure we don't do anything in super.initialize()
 		// before setting this.release
 	}
-	void initialize(File jdk, String rel) throws IOException {
+
+	private void initialize(File jdk, String rel) throws IOException {
 		super.initialize(jdk);
 		this.fs = null;// reset and proceed, TODO: this is crude and need to be removed.
 		this.releaseInHex = Integer.toHexString(Integer.parseInt(this.release)).toUpperCase();
-		Path ct = Paths.get(this.jdkHome, "lib", "ct.sym"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!Files.exists(ct)) {
+		this.ctSym = JRTUtil.getCtSym(Paths.get(this.jdkHome));
+
+		if (!this.ctSym.exists()) {
 			return;
 		}
-		URI uri = URI.create("jar:file:" + ct.toUri().getRawPath()); //$NON-NLS-1$
-		try {
-			this.fs = FileSystems.getFileSystem(uri);
-		} catch(FileSystemNotFoundException fne) {
-			// Ignore and move on
-		}
-		if (this.fs == null) {
-			HashMap<String, ?> env = new HashMap<>();
-			try {
-				this.fs = FileSystems.newFileSystem(uri, env);
-			} catch (IOException e) {
-				return;
-			}
-		}
-		Path releasePath = this.fs.getPath("/"); //$NON-NLS-1$
+		this.fs = this.ctSym.getFs();
 		if (!Files.exists(this.fs.getPath(this.releaseInHex))
 				|| Files.exists(this.fs.getPath(this.releaseInHex, "system-modules"))) { //$NON-NLS-1$
 			this.fs = null;
 		}
-		if (this.release != null) {
-			List<String> sub = new ArrayList<>();
-			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(releasePath)) {
-				for (final java.nio.file.Path subdir: stream) {
-					String r = JRTUtil.sanitizedFileName(subdir);
-					if (r.contains(this.releaseInHex)) {
-						sub.add(r);
-					} else {
-						continue;
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				// Rethrow?
-			}
-			this.subReleases = sub.toArray(new String[sub.size()]);
-		}
-		// Ensure walkJrtForModules() is not called
+		this.releaseRoots = this.ctSym.releaseRoots(this.releaseInHex);
 	}
+
 	@Override
 	void walkModuleImage(final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, final int notify) throws IOException {
-		if (this.subReleases != null && this.subReleases.length > 0) {
-			for (String rel : this.subReleases) {
-				Path p = this.fs.getPath(rel);
-				Files.walkFileTree(p, new JRTUtil.AbstractFileVisitor<java.nio.file.Path>() {
-					@Override
-					public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs)
-							throws IOException {
-						int count = dir.getNameCount();
-						if (count == 1) {
-							return FileVisitResult.CONTINUE;
-						}
-						if (count == 2) {
-							// e.g. /9A/java.base
-							java.nio.file.Path mod = dir.getName(1);
-							if ((JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0
-									&& JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
-								return FileVisitResult.SKIP_SUBTREE;
-							}
-							return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? FileVisitResult.CONTINUE
-									: visitor.visitModule(dir, JRTUtil.sanitizedFileName(mod));
-						}
-						if ((notify & JRTUtil.NOTIFY_PACKAGES) == 0) {
-							// client is not interested in packages
-							return FileVisitResult.CONTINUE;
-						}
-						return visitor.visitPackage(dir.subpath(2, count), dir.getName(1), attrs);
+		for (Path p : this.releaseRoots) {
+			Files.walkFileTree(p, new JRTUtil.AbstractFileVisitor<java.nio.file.Path>() {
+				@Override
+				public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs)
+						throws IOException {
+					int count = dir.getNameCount();
+					if (count == 1) {
+						return FileVisitResult.CONTINUE;
 					}
+					if (count == 2) {
+						// e.g. /9A/java.base
+						java.nio.file.Path mod = dir.getName(1);
+						if ((JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0
+								&& JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
+							return FileVisitResult.SKIP_SUBTREE;
+						}
+						return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? FileVisitResult.CONTINUE
+								: visitor.visitModule(dir, JRTUtil.sanitizedFileName(mod));
+					}
+					if ((notify & JRTUtil.NOTIFY_PACKAGES) == 0) {
+						// client is not interested in packages
+						return FileVisitResult.CONTINUE;
+					}
+					return visitor.visitPackage(dir.subpath(2, count), dir.getName(1), attrs);
+				}
 
-					@Override
-					public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
-							throws IOException {
-						if ((notify & JRTUtil.NOTIFY_FILES) == 0) {
-							return FileVisitResult.CONTINUE;
-						}
-						// This happens when a file in a default package is present. E.g. /modules/some.module/file.name
-						if (file.getNameCount() == 3) {
-							cachePackage(JRTUtil.DEFAULT_PACKAGE, file.getName(1).toString());
-						}
-						return visitor.visitFile(file.subpath(2, file.getNameCount()), file.getName(1), attrs);
+				@Override
+				public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+						throws IOException {
+					if ((notify & JRTUtil.NOTIFY_FILES) == 0) {
+						return FileVisitResult.CONTINUE;
 					}
-				});
-			}
+					// This happens when a file in a default package is present. E.g. /modules/some.module/file.name
+					if (file.getNameCount() == 3) {
+						cachePackage(JRTUtil.DEFAULT_PACKAGE, file.getName(1).toString());
+					}
+					return visitor.visitFile(file.subpath(2, file.getNameCount()), file.getName(1), attrs);
+				}
+			});
 		}
 	}
 
 }
+
 class JrtFileSystem {
+
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
 
 	private final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
 
-	FileSystem fs = null;
-	Path modRoot = null;
-	String jdkHome = null;
+
+	private final Map<Path, Optional<byte[]>> classCache = new ConcurrentHashMap<>(10007);
+
+	FileSystem fs;
+	Path modRoot;
+	String jdkHome;
+
 	public static JrtFileSystem getNewJrtFileSystem(File jrt, String release) throws IOException {
 		return (release == null) ? new JrtFileSystem(jrt) :
 				new JrtFileSystemWithOlderRelease(jrt, release);
 
 	}
+
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
@@ -347,6 +333,7 @@ class JrtFileSystem {
 	JrtFileSystem(File jrt) throws IOException {
 		initialize(jrt);
 	}
+
 	void initialize(File jrt) throws IOException {
 		URL jrtPath = null;
 		this.jdkHome = null;
@@ -398,6 +385,7 @@ class JrtFileSystem {
 		}
 		return null;
 	}
+
 	public String[] getModules(String fileName) {
 		int idx = fileName.lastIndexOf('/');
 		String pack = null;
@@ -410,13 +398,14 @@ class JrtFileSystem {
 		if (module != null) {
 			if (module == JRTUtil.MULTIPLE) {
 				List<String> list = this.packageToModules.get(pack);
-				return list.toArray(new String[list.size()]);
+				return list.toArray(new String[0]);
 			} else {
 				return new String[]{module};
 			}
 		}
 		return JRTUtil.DEFAULT_MODULE;
 	}
+
 	public boolean hasClassFile(String qualifiedPackageName, String module) {
 		if (module == null)
 			return false;
@@ -439,22 +428,31 @@ class JrtFileSystem {
 
 	public InputStream getContentFromJrt(String fileName, String module) throws IOException {
 		if (module != null) {
-			return Files.newInputStream(this.fs.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
+			byte[] fileBytes = getFileBytes(fileName, module);
+			if(fileBytes == null) {
+				return null;
+			}
+			return new ByteArrayInputStream(fileBytes);
 		}
 		String[] modules = getModules(fileName);
 		for (String mod : modules) {
-			return Files.newInputStream(this.fs.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+			byte[] fileBytes = getFileBytes(fileName, mod);
+			if(fileBytes != null) {
+				return new ByteArrayInputStream(fileBytes);
+			}
 		}
 		return null;
 	}
+
 	private ClassFileReader getClassfile(String fileName, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
 		String[] modules = getModules(fileName);
 		byte[] content = null;
 		String module = null;
 		for (String mod : modules) {
-			if (moduleNameFilter != null && !moduleNameFilter.test(mod))
+			if (moduleNameFilter != null && !moduleNameFilter.test(mod)) {
 				continue;
-			content = JRTUtil.safeReadBytes(this.fs.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+			}
+			content = getFileBytes(fileName, mod);
 			if (content != null) {
 				module = mod;
 				break;
@@ -468,14 +466,14 @@ class JrtFileSystem {
 		return null;
 	}
 
-	byte[] getClassfileContent(String fileName, String module) throws IOException, ClassFormatException {
+	byte[] getClassfileContent(String fileName, String module) throws IOException {
 		byte[] content = null;
 		if (module != null) {
-			content = getClassfileBytes(fileName, module);
+			content = getFileBytes(fileName, module);
 		} else {
 			String[] modules = getModules(fileName);
 			for (String mod : modules) {
-				content = JRTUtil.safeReadBytes(this.fs.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+				content = getFileBytes(fileName, mod);
 				if (content != null) {
 					break;
 				}
@@ -483,15 +481,46 @@ class JrtFileSystem {
 		}
 		return content;
 	}
-	private byte[] getClassfileBytes(String fileName, String module) throws IOException, ClassFormatException {
-		return JRTUtil.safeReadBytes(this.fs.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
+
+	private byte[] getFileBytes(String fileName, String module) throws IOException {
+		Path path = this.fs.getPath(JRTUtil.MODULES_SUBDIR, module, fileName);
+		if(JRTUtil.DISABLE_CACHE) {
+			return JRTUtil.safeReadBytes(path);
+		} else {
+			try {
+				Optional<byte[]> bytes = this.classCache.computeIfAbsent(path, key -> {
+					try {
+						return Optional.ofNullable(JRTUtil.safeReadBytes(key));
+					} catch (IOException e) {
+						throw new RuntimeIOException(e);
+					}
+				});
+				return bytes.orElse(null);
+			} catch (RuntimeIOException rio) {
+				throw rio.getCause();
+			}
+		}
 	}
+
+	static final class RuntimeIOException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
+		public RuntimeIOException(IOException cause) {
+			super(cause);
+		}
+
+		@Override
+		public synchronized IOException getCause() {
+			return (IOException) super.getCause();
+		}
+	}
+
 	public ClassFileReader getClassfile(String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
 		if (module == null) {
 			reader = getClassfile(fileName, moduleNameFilter);
 		} else {
-			byte[] content = getClassfileBytes(fileName, module);
+			byte[] content = getFileBytes(fileName, module);
 			if (content != null) {
 				reader = new ClassFileReader(content, fileName.toCharArray());
 				reader.moduleName = module.toCharArray();
@@ -499,12 +528,13 @@ class JrtFileSystem {
 		}
 		return reader;
 	}
+
 	public ClassFileReader getClassfile(String fileName, IModule module) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
 		if (module == null) {
 			reader = getClassfile(fileName, (Predicate<String>)null);
 		} else {
-			byte[] content = getClassfileBytes(fileName, new String(module.name()));
+			byte[] content = getFileBytes(fileName, new String(module.name()));
 			if (content != null) {
 				reader = new ClassFileReader(content, fileName.toCharArray());
 			}
@@ -530,10 +560,11 @@ class JrtFileSystem {
 					}
 			    }
 			} catch (Exception e) {
-				throw new IOException(e.getMessage());
+				throw new IOException(e.getMessage(), e);
 			}
 		}
 	}
+
 	void walkModuleImage(final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, final int notify) throws IOException {
 		Files.walkFileTree(this.modRoot, new JRTUtil.AbstractFileVisitor<java.nio.file.Path>() {
 			@Override
@@ -566,7 +597,7 @@ class JrtFileSystem {
 				if (count == 3) {
 					cachePackage(JRTUtil.DEFAULT_PACKAGE, file.getName(1).toString());
 				}
-				return visitor.visitFile(file.subpath(2, file.getNameCount()), file.getName(1), attrs);
+				return visitor.visitFile(file.subpath(2, count), file.getName(1), attrs);
 			}
 		});
 	}

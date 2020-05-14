@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,11 +40,13 @@ public abstract class TypeConverter {
 
 	protected ProblemReporter problemReporter;
 	protected boolean has1_5Compliance;
+	protected boolean has14_Compliance;
 	private char memberTypeSeparator;
 
 	protected TypeConverter(ProblemReporter problemReporter, char memberTypeSeparator) {
 		this.problemReporter = problemReporter;
 		this.has1_5Compliance = problemReporter.options.originalComplianceLevel >= ClassFileConstants.JDK1_5;
+		this.has14_Compliance = problemReporter.options.originalComplianceLevel >= ClassFileConstants.JDK14;
 		this.memberTypeSeparator = memberTypeSeparator;
 	}
 

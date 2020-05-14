@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -1263,6 +1264,9 @@ public AbstractMethodDeclaration sourceMethod() {
 	return null;
 }
 public LambdaExpression sourceLambda() {
+	return null;
+}
+public RecordComponent sourceRecordComponent() {
 	return null;
 }
 public final int sourceStart() {

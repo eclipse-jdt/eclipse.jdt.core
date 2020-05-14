@@ -77,6 +77,7 @@ public class TypeMirrorImpl implements TypeMirror {
 		// TODO: fill in the rest of these
 		case Binding.FIELD:
 		case Binding.LOCAL:
+		case Binding.RECORD_COMPONENT:
 		case Binding.VARIABLE:
 		case Binding.IMPORT:
 			throw new IllegalArgumentException("Invalid binding kind: " + _binding.kind()); //$NON-NLS-1$

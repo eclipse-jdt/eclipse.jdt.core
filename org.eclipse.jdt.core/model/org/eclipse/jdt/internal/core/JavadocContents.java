@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2017 IBM Corporation and others.
+ * Copyright (c) 2009, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,14 +82,13 @@ public class JavadocContents {
 
 		if (this.typeDocRange != null) {
 			if (this.typeDocRange == UNKNOWN_FORMAT) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, this.type));
-			return String.valueOf(CharOperation.subarray(this.content, this.typeDocRange[0], this.typeDocRange[1]));
+			return new String(this.content, this.typeDocRange[0], this.typeDocRange[1] - this.typeDocRange[0]);
 		}
 		return null;
 	}
 
 	public String getPackageDoc() throws JavaModelException {
 		if (this.content == null) return null;
-		int[] range = null;
 		int index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START2, this.content, false, 0);
 		if (index == -1) {
 			index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START, this.content, false, 0);
@@ -109,8 +108,7 @@ public class JavadocContents {
 		if (index != -1) {
 			int end = CharOperation.indexOf(JavadocConstants.BOTTOM_NAVBAR, this.content, false, index);
 			if (end == -1) end = this.content.length -1;
-			range = new int[]{index, end};
-			return String.valueOf(CharOperation.subarray(this.content, range[0], range[1]));
+			return new String(this.content, index, end - index);
 		}
 		return null;
 	}
@@ -121,7 +119,7 @@ public class JavadocContents {
 		if (index == -1) return null;
 		int end = CharOperation.indexOf(JavadocConstants.BOTTOM_NAVBAR, this.content, false, index);
 		if (end == -1) end = this.content.length -1;
-		return String.valueOf(CharOperation.subarray(this.content, index, end));
+		return new String(this.content, index, end - index);
 	}
 
 	/*
@@ -146,7 +144,7 @@ public class JavadocContents {
 
 		if (range != null) {
 			if (range == UNKNOWN_FORMAT) throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, child));
-			return String.valueOf(CharOperation.subarray(this.content, range[0], range[1]));
+			return new String(this.content, range[0], range[1] - range[0]);
 		}
 		return null;
 	}
@@ -175,7 +173,7 @@ public class JavadocContents {
 			if (range == UNKNOWN_FORMAT) {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.UNKNOWN_JAVADOC_FORMAT, child));
 			}
-			return String.valueOf(CharOperation.subarray(this.content, range[0], range[1]));
+			return new String(this.content, range[0], range[1] - range[0]);
 		}
 		return null;
 	}

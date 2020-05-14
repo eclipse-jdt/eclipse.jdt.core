@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -71,7 +71,7 @@ public boolean isSuperAccess() {
 @Override
 public boolean isTypeAccess() {
 	// null is acceptable when we are resolving the first part of a reference
-	return this.binding == null || this.binding instanceof ReferenceBinding;
+	return this.binding == null || (this.binding.kind() & Binding.TYPE) != 0;
 }
 
 @Override

@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -190,14 +189,10 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		byte[] contents = null;
 		String rootPath = root.getPath().toOSString();
 		if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
-				try {
-					contents = org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(
-							new File(rootPath),
-							className,
-							root.getElementName());
-				} catch (ClassFormatException e) {
-					e.printStackTrace();
-				}
+			contents = org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(
+					new File(rootPath),
+					className,
+					root.getElementName());
 		} else {
 			ZipFile zip = root.getJar();
 			try {

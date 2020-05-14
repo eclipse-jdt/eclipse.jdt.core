@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -522,7 +523,35 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
 				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+	}
+	public void testBug558812_016a() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public record Point(int comp_) { \n" +
+						"	public Point  {\n" +
+						"	  comp_=11;\n" +
+						"	}\n" +
+						"public void method ( ) {	  \n"+
+						"	  int  compp_=comp_;\n" +
+						"	  int  compp2_=comp_;\n" +
+						"} \n"+
+						"}\n"
+				);
+
+		String str = this.workingCopies[0].getSource();
+		String selection =  "comp_";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+		assertTrue(elements.length ==1);
+		assertTrue(elements[0] instanceof IField);
+		search(elements[0], REFERENCES, EXACT_RULE);
+		assertSearchResults(
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
 				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
@@ -552,8 +581,38 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
 				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH");
+	}
+	public void testBug558812_017a() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public record Point(int comp_) { \n" +
+						"	public Point  {\n" +
+						"	  comp_=11;\n" +
+						"	}\n" +
+						"public void method ( ) {	  \n"+
+						"	  int  compp_=comp_;\n" +
+						"	  int  compp2_=comp_;\n" +
+						"	  int  compp3_=this.comp_;\n" +
+						"} \n"+
+						"}\n"
+				);
+
+		String str = this.workingCopies[0].getSource();
+		String selection =  "comp_";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+		assertTrue(elements.length ==1);
+		assertTrue(elements[0] instanceof IField);
+		search(elements[0], REFERENCES, EXACT_RULE);
+		assertSearchResults(
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
 				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
@@ -794,7 +853,7 @@ public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
 				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-						"src/X.java void Point.method() [comp_] EXACT_MATCH\n"+
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n"+
 				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 

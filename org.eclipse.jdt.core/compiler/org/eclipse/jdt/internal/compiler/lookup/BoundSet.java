@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 GK Software AG.
+ * Copyright (c) 2013, 2020 GK Software AG.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -339,10 +339,10 @@ class BoundSet {
 	/** 18.1.3 bullet 5: throws α */
 	Set<InferenceVariable> inThrows = new HashSet<>();
 
-	private TypeBound [] incorporatedBounds = new TypeBound[0];
-	private TypeBound [] unincorporatedBounds = new TypeBound [1024];
+	private TypeBound[] incorporatedBounds = Binding.NO_TYPE_BOUNDS;
+	private TypeBound[] unincorporatedBounds = new TypeBound[8];
 	private int unincorporatedBoundsCount = 0;
-	private TypeBound [] mostRecentBounds = new TypeBound[4]; // for quick & dirty duplicate elimination.
+	private TypeBound[] mostRecentBounds = new TypeBound[4]; // for quick & dirty duplicate elimination
 
 	public BoundSet() {}
 
@@ -367,8 +367,8 @@ class BoundSet {
 		Iterator<ThreeSets> outerIt = this.boundsPerVariable.values().iterator();
 		while (outerIt.hasNext())
 			size += outerIt.next().size();
+		if (size == 0) return Binding.NO_TYPE_BOUNDS;
 		TypeBound[] collected = new TypeBound[size];
-		if (size == 0) return collected;
 		outerIt = this.boundsPerVariable.values().iterator();
 		int idx = 0;
 		while (outerIt.hasNext())
@@ -382,15 +382,19 @@ class BoundSet {
 	 */
 	public BoundSet copy() {
 		BoundSet copy = new BoundSet();
-		Iterator<Entry<InferenceVariable, ThreeSets>> setsIterator = this.boundsPerVariable.entrySet().iterator();
-		while (setsIterator.hasNext()) {
-			Entry<InferenceVariable, ThreeSets> entry = setsIterator.next();
-			copy.boundsPerVariable.put(entry.getKey(), entry.getValue().copy());
+		if (!this.boundsPerVariable.isEmpty()) {
+			Iterator<Entry<InferenceVariable, ThreeSets>> setsIterator = this.boundsPerVariable.entrySet().iterator();
+			while (setsIterator.hasNext()) {
+				Entry<InferenceVariable, ThreeSets> entry = setsIterator.next();
+				copy.boundsPerVariable.put(entry.getKey(), entry.getValue().copy());
+			}
 		}
 		copy.inThrows.addAll(this.inThrows);
 		copy.captures.putAll(this.captures);
-		System.arraycopy(this.incorporatedBounds, 0, copy.incorporatedBounds = new TypeBound[this.incorporatedBounds.length], 0, this.incorporatedBounds.length);
-		System.arraycopy(this.unincorporatedBounds, 0, copy.unincorporatedBounds = new TypeBound[this.unincorporatedBounds.length], 0, this.unincorporatedBounds.length);
+		if (this.incorporatedBounds.length > 0)
+			System.arraycopy(this.incorporatedBounds, 0, copy.incorporatedBounds = new TypeBound[this.incorporatedBounds.length], 0, this.incorporatedBounds.length);
+		if (this.unincorporatedBoundsCount > 0)
+			System.arraycopy(this.unincorporatedBounds, 0, copy.unincorporatedBounds = new TypeBound[this.unincorporatedBounds.length], 0, this.unincorporatedBounds.length);
 		copy.unincorporatedBoundsCount = this.unincorporatedBoundsCount;
 		return copy;
 	}
@@ -496,8 +500,7 @@ class BoundSet {
 
 	// Driver for the real workhorse - Implements generational incorporation a la generational garbage collector.
 	boolean incorporate(InferenceContext18 context) throws InferenceFailureException {
-
-		if (this.unincorporatedBoundsCount == 0 && this.captures.size() == 0)
+		if (this.unincorporatedBoundsCount == 0 && this.captures.isEmpty())
 			return true;
 
 		do {

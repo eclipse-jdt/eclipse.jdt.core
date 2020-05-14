@@ -1,6 +1,5 @@
 package classes;
 
-import classes.MyInterface;
 import annotation.GetType;
 
 @GetType

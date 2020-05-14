@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 IBM Corporation and others.
+ * Copyright (c) 2012, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -441,6 +441,8 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 
 
 	}
+	public void enterRecordComponent(RecordComponentInfo recordComponentInfo) {
+	}
 
 	public void enterInitializer(int declarationStart, int modifiers) {
 
@@ -479,6 +481,10 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 
 	public void exitType(int declarationEnd) {
 
+
+	}
+	@Override
+	public void exitRecordComponent(int declarationEnd, int declarationSourceEnd) {
 
 	}
 

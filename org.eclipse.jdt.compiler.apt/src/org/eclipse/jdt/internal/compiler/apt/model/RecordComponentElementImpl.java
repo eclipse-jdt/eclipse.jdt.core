@@ -20,14 +20,14 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.RecordComponentElement;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 public class RecordComponentElementImpl extends VariableElementImpl implements RecordComponentElement {
 
-	protected RecordComponentElementImpl(BaseProcessingEnvImpl env, FieldBinding binding) {
+	protected RecordComponentElementImpl(BaseProcessingEnvImpl env, RecordComponentBinding binding) {
 		super(env, binding);
 	}
 
@@ -38,10 +38,10 @@ public class RecordComponentElementImpl extends VariableElementImpl implements R
 
 	@Override
 	public ExecutableElement getAccessor() {
-		FieldBinding field = (FieldBinding) this._binding;
-		ReferenceBinding binding = field.declaringClass;
+		RecordComponentBinding comp = (RecordComponentBinding) this._binding;
+		ReferenceBinding binding = comp.declaringRecord;
 		if (binding instanceof SourceTypeBinding) {
-			MethodBinding accessor = ((SourceTypeBinding) binding).getRecordComponentAccessor(field.name);
+			MethodBinding accessor = ((SourceTypeBinding) binding).getRecordComponentAccessor(comp.name);
 			return new ExecutableElementImpl(_env, accessor);
 		}
 		return null;

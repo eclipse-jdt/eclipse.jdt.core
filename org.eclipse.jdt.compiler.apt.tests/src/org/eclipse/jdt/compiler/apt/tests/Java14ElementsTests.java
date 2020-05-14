@@ -74,7 +74,7 @@ public class Java14ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords4", null, "records", true);
 	}
-	public void _testRecords4a() throws IOException {
+	public void testRecords4a() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords4a", null, "records", true);
 	}
@@ -89,6 +89,14 @@ public class Java14ElementsTests extends TestCase {
 	public void testRecords5Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5", null, "records", true);
+	}
+	public void testRecords5a() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5a", null, "records", true);
+	}
+	public void testRecords5aJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5a", null, "records", true);
 	}
 	public void testRecords6() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();

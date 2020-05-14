@@ -349,6 +349,7 @@ public class Factory {
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
+		case Binding.RECORD_COMPONENT:
 		case Binding.VARIABLE:
 			return new VariableElementImpl(_env, (VariableBinding) binding);
 		case Binding.TYPE:
@@ -464,6 +465,7 @@ public class Factory {
 		switch (binding.kind()) {
 		case Binding.FIELD:
 		case Binding.LOCAL:
+		case Binding.RECORD_COMPONENT:
 		case Binding.VARIABLE:
 			// For variables, return the type of the variable
 			return newTypeMirror(((VariableBinding)binding).type);

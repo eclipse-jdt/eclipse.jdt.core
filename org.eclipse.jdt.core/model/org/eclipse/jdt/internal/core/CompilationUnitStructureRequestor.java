@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -238,6 +238,16 @@ protected Annotation createAnnotation(JavaElement parent, String name) {
 protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
 	String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
 	return new SourceField(parent, fieldName);
+}
+protected SourceField createRecordComponent(JavaElement parent, RecordComponentInfo compInfo) {
+	String name = JavaModelManager.getJavaModelManager().intern(new String(compInfo.name));
+	SourceField field = new SourceField(parent, name) {
+		@Override
+		public boolean isRecordComponent() throws JavaModelException {
+			return true;
+		}
+	};
+	return field;
 }
 protected ImportContainer createImportContainer(ICompilationUnit parent) {
 	return (ImportContainer)parent.getImportContainer();
@@ -715,6 +725,40 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
  * @see ISourceElementRequestor
  */
 @Override
+public void exitRecordComponent(int declarationEnd, int declarationSourceEnd) {
+	JavaElement handle = (JavaElement) this.handleStack.peek();
+	RecordComponentInfo compInfo = (RecordComponentInfo) this.infoStack.peek();
+	IJavaElement[] elements = getChildren(compInfo);
+	SourceFieldElementInfo info = elements.length == 0 ? new SourceFieldElementInfo() : new SourceFieldWithChildrenInfo(elements);
+	info.isRecordComponent = true;
+	info.setNameSourceStart(compInfo.nameSourceStart);
+	info.setNameSourceEnd(compInfo.nameSourceEnd);
+	info.setSourceRangeStart(compInfo.declarationStart);
+	info.setFlags(compInfo.modifiers);
+	char[] typeName = JavaModelManager.getJavaModelManager().intern(compInfo.type);
+	info.setTypeName(typeName);
+	this.newElements.put(handle, info);
+
+	if (compInfo.annotations != null) {
+		int length = compInfo.annotations.length;
+		this.unitInfo.annotationNumber += length;
+		for (int i = 0; i < length; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Annotation annotation = compInfo.annotations[i];
+			acceptAnnotation(annotation, info, handle);
+		}
+	}
+	info.setSourceRangeEnd(declarationSourceEnd);
+	this.handleStack.pop();
+	this.infoStack.pop();
+
+	if (compInfo.typeAnnotated) {
+		this.unitInfo.annotationNumber = CompilationUnitElementInfo.ANNOTATION_THRESHOLD_FOR_DIET_PARSE;
+	}
+}
+/**
+ * @see ISourceElementRequestor
+ */
+@Override
 public void exitInitializer(int declarationEnd) {
 	JavaElement handle = (JavaElement) this.handleStack.peek();
 	int[] initializerInfo = (int[]) this.infoStack.peek();
@@ -899,5 +943,24 @@ protected Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair me
 		memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
 		return null;
 	}
+}
+@Override
+public void enterRecordComponent(RecordComponentInfo recordComponentInfo) {
+	TypeInfo parentInfo = (TypeInfo) this.infoStack.peek();
+	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
+	SourceField handle = null;
+	if (parentHandle.getElementType() == IJavaElement.TYPE) {
+		handle = createRecordComponent(parentHandle, recordComponentInfo);
+	}
+	else {
+		Assert.isTrue(false); // Should not happen
+	}
+	resolveDuplicates(handle);
+
+	addToChildren(parentInfo, handle);
+	parentInfo.childrenCategories.put(handle, recordComponentInfo.categories);
+
+	this.infoStack.push(recordComponentInfo);
+	this.handleStack.push(handle);
 }
 }

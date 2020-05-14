@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 
+import junit.framework.AssertionFailedError;
+
 abstract public class CopyMoveTests extends ModifyingResourceTests {
 public CopyMoveTests(String name) {
 	super(name);
@@ -110,9 +112,13 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		if (copy.getElementType() == IJavaElement.IMPORT_DECLARATION)
 			container = ((ICompilationUnit) container).getImportContainer();
 		IJavaElementDelta destDelta = listener.getDeltaFor(container, true);
-		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
+		assertTrue("No delta", destDelta != null);
+		assertTrue("Destination container not changed", destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 		assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(copy));
+	} catch (AssertionFailedError afe) {
+		System.err.println(listener.stackTraces());
+		throw afe;
 	} finally {
 		stopDeltas(listener);
 	}
@@ -351,7 +357,8 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				IJavaElementDelta destDelta = null;
 				if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
 					destDelta = listener.getDeltaFor(moved.getParent());
-					assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
+					assertTrue("No delta", destDelta != null);
+					assertTrue("Renamed compilation unit as result of main type not added", destDelta.getKind() == IJavaElementDelta.ADDED);
 					assertTrue("flag should be F_MOVED_FROM", (destDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 					assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(element.getParent()));
 				} else {
@@ -365,6 +372,9 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				}
 			}
 		}
+	} catch (AssertionFailedError afe) {
+		System.err.println(listener.stackTraces());
+		throw afe;
 	} finally {
 		if(checkDelta)	stopDeltas(listener);
 	}

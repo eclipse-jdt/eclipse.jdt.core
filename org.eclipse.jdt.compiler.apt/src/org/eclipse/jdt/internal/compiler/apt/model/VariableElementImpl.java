@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AptBinaryLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -109,6 +110,8 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 			return _env.getFactory().newElement(((AptSourceLocalVariableBinding) _binding).methodBinding);
 		} else if (_binding instanceof AptBinaryLocalVariableBinding) {
 			return _env.getFactory().newElement(((AptBinaryLocalVariableBinding) _binding).methodBinding);
+		} else if (_binding instanceof RecordComponentBinding) {
+			return _env.getFactory().newElement(((RecordComponentBinding)_binding).declaringRecord);
 		}
 		return null;
 	}

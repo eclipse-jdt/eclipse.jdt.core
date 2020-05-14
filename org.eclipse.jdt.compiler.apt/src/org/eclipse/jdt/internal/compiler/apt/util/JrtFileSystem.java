@@ -171,14 +171,9 @@ public class JrtFileSystem extends Archive {
 		 */
 		@Override
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-			try {
-				return Util.getCharContents(this, ignoreEncodingErrors,
-						org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.entryName, this.module),
-						this.charset.name());
-			} catch (ClassFormatException e) {
-				e.printStackTrace();
-				return null;
-			}
+			return Util.getCharContents(this, ignoreEncodingErrors,
+					org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.entryName, this.module),
+					this.charset.name());
 		}
 
 		/* (non-Javadoc)
