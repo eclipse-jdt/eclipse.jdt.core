@@ -2434,6 +2434,22 @@ public void testBug558718_002() {
 		options
 	);
 }
+public void testBug56180_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"record R () {} \n"+
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               System.out.println(new R().toString());\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "R[]");
+	String expectedOutput =
+			" public final java.lang.String toString();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+}
 public void testBug561528_001() {
 	runConformTest(
 			new String[] {

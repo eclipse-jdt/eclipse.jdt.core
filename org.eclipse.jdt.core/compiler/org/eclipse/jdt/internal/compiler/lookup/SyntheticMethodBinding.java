@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
@@ -469,7 +473,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		assert declaringSourceType.isRecord();
 		this.declaringClass = declaringSourceType;
-		this.modifiers = ClassFileConstants.AccPublic;
+		this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccFinal;
 		if (this.declaringClass.isStrictfp())
 				this.modifiers |= ClassFileConstants.AccStrictfp;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
@@ -480,12 +484,10 @@ public class SyntheticMethodBinding extends MethodBinding {
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
 		} else if (selector == TypeConstants.HASHCODE) {
-			this.modifiers |= ClassFileConstants.AccFinal;
 			this.returnType = TypeBinding.INT;
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
 		} else if (selector == TypeConstants.EQUALS) {
-			this.modifiers |= ClassFileConstants.AccFinal;
 			this.returnType = TypeBinding.BOOLEAN;
 		    this.parameters = new TypeBinding[] {declaringSourceType.scope.getJavaLangObject()};
 		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
