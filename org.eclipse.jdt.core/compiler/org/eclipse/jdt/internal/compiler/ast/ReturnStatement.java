@@ -184,6 +184,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public boolean doesNotCompleteNormally() {
 	return true;
 }
+
+@Override
+public boolean canCompleteNormally() {
+	return false;
+}
+
 /**
  * Retrun statement code generation
  *

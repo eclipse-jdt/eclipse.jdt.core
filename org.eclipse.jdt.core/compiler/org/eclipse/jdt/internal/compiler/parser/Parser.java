@@ -9875,7 +9875,7 @@ protected void consumeDefaultLabelExpr() {
 		}
 		@Override
 		public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {

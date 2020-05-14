@@ -234,7 +234,18 @@ public boolean doesNotCompleteNormally() {
 	return this.block.doesNotCompleteNormally();
 }
 @Override
+
 public boolean completesByContinue() {
 	return this.block.completesByContinue();
+}
+
+@Override
+public boolean canCompleteNormally() {
+	return this.block.canCompleteNormally();
+}
+
+@Override
+public boolean continueCompletes() {
+	return this.block.continueCompletes();
 }
 }

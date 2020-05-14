@@ -102,7 +102,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		if (this.switchLabeledRules // do this check for every block if '->' (Switch Labeled Rules)
 				&& stmt instanceof Block) {
 			Block block = (Block) stmt;
-			if (block.doesNotCompleteNormally()) {
+			if (!block.canCompleteNormally()) {
 				return BREAKING;
 			}
 		}
@@ -150,7 +150,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			for (Statement stmt : this.statements) {
 				if (!(stmt instanceof Block))
 					continue;
-				if (!stmt.doesNotCompleteNormally())
+				if (stmt.canCompleteNormally())
 					blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(stmt);
 			}
 			return;
@@ -172,7 +172,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			}
 		}
 		if (lastNonCaseStmt != null) {
-			if (!lastNonCaseStmt.doesNotCompleteNormally())
+			if (lastNonCaseStmt.canCompleteNormally())
 				blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(lastNonCaseStmt);
 			else if (lastNonCaseStmt instanceof ContinueStatement || lastNonCaseStmt instanceof ReturnStatement) {
 				blockScope.problemReporter().switchExpressionIllegalLastStatement(lastNonCaseStmt);

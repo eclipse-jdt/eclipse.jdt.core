@@ -18,7 +18,7 @@ import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
 public class LambdaShapeTests extends AbstractRegressionTest {
 static {
-//		TESTS_NAMES = new String[] { "testWhileThis"};
+//		TESTS_NAMES = new String[] { "test016"};
 //		TESTS_NUMBERS = new int[] { 50 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 }
