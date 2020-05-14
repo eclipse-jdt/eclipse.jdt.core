@@ -248,14 +248,13 @@ public class CtSym {
 				// If file is known, read it from ct.sym
 				if (Files.exists(p)) {
 					if (VERBOSE) {
-						System.out.println("exists: " + qualifiedSignatureFileName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-						System.out.println("not found: " + qualifiedSignatureFileName); //$NON-NLS-1$
+						System.out.println("found: " + qualifiedSignatureFileName + " in " + p + " for module " + moduleName  + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					}
 					return p;
 				}
 			}
 			if (VERBOSE) {
-				System.out.println("not found: " + qualifiedSignatureFileName); //$NON-NLS-1$
+				System.out.println("not found: " + qualifiedSignatureFileName + " for module " + moduleName); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return null;
 		}
@@ -269,9 +268,9 @@ public class CtSym {
 		}
 		if (VERBOSE) {
 			if (path != null) {
-				System.out.println("exists: " + qualifiedSignatureFileName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				System.out.println("found: " + qualifiedSignatureFileName + " in " + path + " for module " + moduleName +"\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			} else {
-				System.out.println("not found: " + qualifiedSignatureFileName); //$NON-NLS-1$
+				System.out.println("not found: " + qualifiedSignatureFileName + " for module " + moduleName); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return path;
