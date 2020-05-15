@@ -212,35 +212,10 @@ void recordStructuralDependency(IProject prereqProject, State prereqState) {
 void removeLocator(String typeLocatorToRemove) {
 	this.knownPackageNames = null;
 	this.references.remove(typeLocatorToRemove);
-
-	boolean removed = removeTypeLocator(typeLocatorToRemove, this.sourceLocations);
-	// Do not return here for consistency with legacy code,
-	// we probably may have duplicated types in multiple source folders
-	removed |= removeTypeLocator(typeLocatorToRemove, this.testSourceLocations);
-
-	if(!removed) {
-		// Probably something was broken, so falling back to value traversal
-		this.typeLocators.values().removeIf(v -> typeLocatorToRemove.equals(v));
-	}
+	this.typeLocators.values().removeIf(v -> typeLocatorToRemove.equals(v));
 }
 
-private boolean removeTypeLocator(String typeLocatorToRemove, ClasspathMultiDirectory[] sources) {
-	boolean removed = false;
-	IPath projectRelativePath = new Path(typeLocatorToRemove);
-	for (ClasspathMultiDirectory dir : sources) {
-		IPath srcFolder = dir.sourceFolder.getProjectRelativePath();
-		if(srcFolder.isPrefixOf(projectRelativePath)) {
-			String key = projectRelativePath.removeFirstSegments(srcFolder.segmentCount()).removeFileExtension().toString();
-			if(typeLocatorToRemove.equals(this.typeLocators.get(key))){
-				this.typeLocators.remove(key);
-				// Do not return here for consistency with legacy code,
-				// we probably may have duplicated types in multiple source folders
-				removed = true;
-			}
-		}
-	}
-	return removed;
-}
+
 
 void removePackage(IResourceDelta sourceDelta) {
 	IResource resource = sourceDelta.getResource();
