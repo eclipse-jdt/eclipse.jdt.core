@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -178,8 +182,11 @@ public class ClassScope extends Scope {
 		sourceType.setComponents(componentBindings);
 	}
 	private void checkAndSetModifiersForComponents(RecordComponentBinding compBinding, RecordComponent comp) {
-		// TODO Auto-generated method stub
-
+		int modifiers = compBinding.modifiers;
+		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
+		if (realModifiers  != 0 && comp != null){
+			problemReporter().recordComponentsCannotHaveModifiers(comp);
+		}
 	}
 
 	void buildFields() {

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -1254,6 +1258,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordIllegalVararg", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordStaticReferenceToOuterLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCannotDefineRecordInLocalType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordComponentsCannotHaveModifiers", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2280,6 +2285,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordIllegalVararg", SKIP);
 	    expectedProblemAttributes.put("RecordStaticReferenceToOuterLocalVariable",SKIP);
 	    expectedProblemAttributes.put("RecordCannotDefineRecordInLocalType",SKIP);
+	    expectedProblemAttributes.put("RecordComponentsCannotHaveModifiers",SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

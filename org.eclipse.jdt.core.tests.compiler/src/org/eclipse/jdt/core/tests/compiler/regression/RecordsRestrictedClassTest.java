@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug562439"};
+//		TESTS_NAMES = new String[] { "testBug563178"};
 	}
 
 	public static Class<?> testClass() {
@@ -3776,6 +3780,44 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 			"    #12 @Annot(\n" +
 			"    )\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug563178_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"record Point(final int x, int y){\n"+
+		"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	record Point(final int x, int y){\n" +
+		"	                       ^\n" +
+		"A record component x cannot have modifiers\n" +
+		"----------\n");
+}
+public void testBug563178_002() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"record Point(final abstract int x, int y){\n"+
+		"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	record Point(final abstract int x, int y){\n" +
+		"	                                ^\n" +
+		"A record component x cannot have modifiers\n" +
+		"----------\n");
 }
 
 }

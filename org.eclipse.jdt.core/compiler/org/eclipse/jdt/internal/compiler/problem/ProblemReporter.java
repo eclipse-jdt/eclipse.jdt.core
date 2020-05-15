@@ -11793,4 +11793,15 @@ public void recordStaticReferenceToOuterLocalVariable(LocalVariableBinding local
 		node.sourceStart,
 		node.sourceEnd);
 }
+public void recordComponentsCannotHaveModifiers(RecordComponent comp) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String[] arguments = new String[] { new String(comp.name) };
+	this.handle(
+		IProblem.RecordComponentsCannotHaveModifiers,
+		arguments,
+		arguments,
+		comp.sourceStart,
+		comp.sourceEnd);
+}
 }
