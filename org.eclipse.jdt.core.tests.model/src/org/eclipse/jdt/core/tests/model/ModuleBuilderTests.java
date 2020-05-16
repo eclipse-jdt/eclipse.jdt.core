@@ -8877,6 +8877,59 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(prjB);
 		}
 	}
+	public void testBug538512_comment9() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJava9Project("ztest", new String[] { "src" });
+			createFolder("/ztest/lib");
+			Util.createJar(new String[] {
+					"org/xml/sax/Parser.java",
+					"package org.xml.sax;\n" +
+					"public class Parser {}\n"
+				},
+				project.getProject().getLocation().toString() + "/lib/xml-apis.jar", // conflicts with module 'java.xml'
+				"1.8");
+			IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(new Path("/ztest/lib/xml-apis.jar"), null, null);
+			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
+			Util.createJar(new String[] {
+					"org/apache/xerces/parsers/SAXParser.java",
+					"package org.apache.xerces.parsers;\n" +
+					"public abstract class SAXParser implements org.xml.sax.Parser, java.io.Serializable {}\n"
+				},
+				project.getProject().getLocation().toString() + "/lib/xercesImpl.jar",
+				"1.8");
+			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			libraryEntry = JavaCore.newLibraryEntry(new Path("/ztest/lib/xercesImpl.jar"), null, null);
+			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
+
+			String testSource =
+					"package com.ztest;\n" +
+					"import org.apache.xerces.parsers.SAXParser;\n" +
+					"\n" +
+					"public class MySAXParser extends SAXParser {\n" +
+					"	static final long serialVersionUID = 0;\n" +
+					"}\n";
+			createFolder("/ztest/src/com/ztest");
+			createFile("/ztest/src/com/ztest/MySAXParser.java", testSource);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected Markers",
+					"",
+					markers);
+
+			char[] sourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/MySAXParser.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n",
+					this.problemRequestor);
+
+		} finally {
+			deleteProject("ztest");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
