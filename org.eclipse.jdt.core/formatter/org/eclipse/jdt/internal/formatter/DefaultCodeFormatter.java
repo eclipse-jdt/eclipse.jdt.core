@@ -131,14 +131,14 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.workingOptions = new DefaultCodeFormatterOptions(options);
 			this.oldCommentFormatOption = getOldCommentFormatOption(options);
 			String compilerSource = options.get(CompilerOptions.OPTION_Source);
-			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_14;
+			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_15;
 			this.previewEnabled = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES));
 		} else {
 			Map<String, String> settings = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 			this.originalOptions = new DefaultCodeFormatterOptions(settings);
 			this.workingOptions = new DefaultCodeFormatterOptions(settings);
 			this.oldCommentFormatOption = DefaultCodeFormatterConstants.TRUE;
-			this.sourceLevel = CompilerOptions.VERSION_14;
+			this.sourceLevel = CompilerOptions.VERSION_15;
 		}
 		if (defaultCodeFormatterOptions != null) {
 			this.originalOptions.set(defaultCodeFormatterOptions.getMap());

@@ -15254,7 +15254,7 @@ public void testBug390720b() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436a() throws JavaModelException {
+public void testBug549436a() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
@@ -15267,7 +15267,7 @@ public void _testBug549436a() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436b() throws JavaModelException {
+public void testBug549436b() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
@@ -15280,7 +15280,7 @@ public void _testBug549436b() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436c() throws JavaModelException {
+public void testBug549436c() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
@@ -15293,7 +15293,7 @@ public void _testBug549436c() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436d() throws JavaModelException {
+public void testBug549436d() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
@@ -15306,7 +15306,7 @@ public void _testBug549436d() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436e() throws JavaModelException {
+public void testBug549436e() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
@@ -15319,7 +15319,7 @@ public void _testBug549436e() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436f() throws JavaModelException {
+public void testBug549436f() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
@@ -15332,7 +15332,7 @@ public void _testBug549436f() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436g() throws JavaModelException {
+public void testBug549436g() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
@@ -15345,7 +15345,7 @@ public void _testBug549436g() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436h() throws JavaModelException {
+public void testBug549436h() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
@@ -15358,7 +15358,7 @@ public void _testBug549436h() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436i() throws JavaModelException {
+public void testBug549436i() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
@@ -15371,7 +15371,7 @@ public void _testBug549436i() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436j() throws JavaModelException {
+public void testBug549436j() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
@@ -15384,7 +15384,7 @@ public void _testBug549436j() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
-public void _testBug549436k() throws JavaModelException {
+public void testBug549436k() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
@@ -15508,14 +15508,14 @@ public void testBug547261() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155a() throws JavaModelException {
+public void testBug553155a() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	formatSourceInWorkspace("test553155", "in.java", "A_out.java");
 }
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155b() throws JavaModelException {
+public void testBug553155b() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.indent_body_declarations_compare_to_record_header = false;
 	formatSourceInWorkspace("test553155", "in.java", "B_out.java");
@@ -15523,7 +15523,7 @@ public void _testBug553155b() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155c() throws JavaModelException {
+public void testBug553155c() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.brace_position_for_record_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
 	formatSourceInWorkspace("test553155", "in.java", "C_out.java");
@@ -15531,7 +15531,7 @@ public void _testBug553155c() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155d() throws JavaModelException {
+public void testBug553155d() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.brace_position_for_record_constructor = DefaultCodeFormatterConstants.NEXT_LINE;
 	formatSourceInWorkspace("test553155", "in.java", "D_out.java");
@@ -15539,7 +15539,7 @@ public void _testBug553155d() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155e() throws JavaModelException {
+public void testBug553155e() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.parenthesis_positions_in_record_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES;
 	formatSourceInWorkspace("test553155", "in.java", "E_out.java");
@@ -15547,7 +15547,7 @@ public void _testBug553155e() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155f() throws JavaModelException {
+public void testBug553155f() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_after_comma_in_record_components = false;
 	formatSourceInWorkspace("test553155", "in.java", "F_out.java");
@@ -15555,7 +15555,7 @@ public void _testBug553155f() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155g() throws JavaModelException {
+public void testBug553155g() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_after_opening_paren_in_record_declaration = true;
 	formatSourceInWorkspace("test553155", "in.java", "G_out.java");
@@ -15563,7 +15563,7 @@ public void _testBug553155g() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155h() throws JavaModelException {
+public void testBug553155h() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_before_closing_paren_in_record_declaration = true;
 	formatSourceInWorkspace("test553155", "in.java", "H_out.java");
@@ -15571,7 +15571,7 @@ public void _testBug553155h() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155i() throws JavaModelException {
+public void testBug553155i() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_before_comma_in_record_components = true;
 	formatSourceInWorkspace("test553155", "in.java", "I_out.java");
@@ -15579,7 +15579,7 @@ public void _testBug553155i() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155j() throws JavaModelException {
+public void testBug553155j() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_before_opening_brace_in_record_constructor = false;
 	formatSourceInWorkspace("test553155", "in.java", "J_out.java");
@@ -15587,7 +15587,7 @@ public void _testBug553155j() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155k() throws JavaModelException {
+public void testBug553155k() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_before_opening_brace_in_record_declaration = false;
 	formatSourceInWorkspace("test553155", "in.java", "K_out.java");
@@ -15595,7 +15595,7 @@ public void _testBug553155k() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155l() throws JavaModelException {
+public void testBug553155l() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.insert_space_before_opening_paren_in_record_declaration = true;
 	formatSourceInWorkspace("test553155", "in.java", "L_out.java");
@@ -15603,7 +15603,7 @@ public void _testBug553155l() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155m() throws JavaModelException {
+public void testBug553155m() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.alignment_for_record_components = Alignment.M_ONE_PER_LINE_SPLIT + + Alignment.M_FORCE;
 	formatSourceInWorkspace("test553155", "in.java", "M_out.java");
@@ -15611,7 +15611,7 @@ public void _testBug553155m() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155n() throws JavaModelException {
+public void testBug553155n() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.alignment_for_superinterfaces_in_record_declaration = Alignment.M_ONE_PER_LINE_SPLIT + + Alignment.M_FORCE;
 	formatSourceInWorkspace("test553155", "in.java", "N_out.java");
@@ -15619,7 +15619,7 @@ public void _testBug553155n() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155o() throws JavaModelException {
+public void testBug553155o() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.keep_record_constructor_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
 	String source = "record Range(int lo, int hi) {public Range {foo();}}";
@@ -15631,7 +15631,7 @@ public void _testBug553155o() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/553155 - [14] Records - Formatter Support
  */
-public void _testBug553155p() throws JavaModelException {
+public void testBug553155p() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_15);
 	this.formatterPrefs.keep_record_constructor_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
 	this.formatterPrefs.keep_record_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
