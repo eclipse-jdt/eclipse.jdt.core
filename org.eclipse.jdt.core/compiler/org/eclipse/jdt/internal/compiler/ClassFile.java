@@ -5778,6 +5778,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if ((binding.tagBits & TagBits.HasMissingType) != 0) {
 				continue;
 			}
+			if (this.contentsOffset + 4 >= this.contents.length) {
+				resizeContents(4); // 2 bytes this iteration plus 2 bytes after the loop
+			}
 			interfaceCounter++;
 			int interfaceIndex = this.constantPool.literalIndexForType(binding);
 			this.contents[this.contentsOffset++] = (byte) (interfaceIndex >> 8);
