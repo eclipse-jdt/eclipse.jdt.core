@@ -16,8 +16,9 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -239,6 +240,9 @@ public class Scanner implements TerminalTokens {
 
 	// text block support - 13
 	/* package */ int rawStart = -1;
+
+	//Java 15 - first _ keyword appears
+	Map<String, Integer> _Keywords = null;
 
 public Scanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
@@ -3830,8 +3834,10 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 				case 3 :
 					if ((data[++index] == 'e') && (data[++index] == 'w'))
 						return TokenNamenew;
-					else
-						return TokenNameIdentifier;
+					else {
+						int token = checkFor_KeyWord(index - 1, length, data);
+						return token != TokenNameNotAToken ? token : TokenNameIdentifier;
+					}
 				case 4 :
 					if ((data[++index] == 'u') && (data[++index] == 'l') && (data[++index] == 'l'))
 						return TokenNamenull;
@@ -4171,6 +4177,25 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 	}
 }
 
+
+private int checkFor_KeyWord(int index, int length, char[] data) {
+	if (this._Keywords == null) {
+		this._Keywords = new HashMap<>(0);
+		if (this.sourceLevel >= ClassFileConstants.JDK15) {
+			if (this.previewEnabled)
+				this._Keywords.put("non-sealed", TerminalTokens.TokenNamenon_sealed); //$NON-NLS-1$
+		}
+	}
+	for (String key : this._Keywords.keySet()) {
+		if (CharOperation.prefixEquals(key.toCharArray(), data, true /* isCaseSensitive */, index)) {
+			this.currentPosition = this.currentPosition - length + key.length();
+			if (this.currentPosition < this.eofPosition)
+				this.currentCharacter = data[this.currentPosition];
+			return this._Keywords.get(key);
+		}
+	}
+	return TokenNameNotAToken;
+}
 
 public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 
@@ -4631,6 +4656,8 @@ public String toStringAction(int act) {
 			return "native"; //$NON-NLS-1$
 		case TokenNamenew :
 			return "new"; //$NON-NLS-1$
+		case TokenNamenon_sealed:
+			return "non-sealed"; //$NON-NLS-1$
 		case TokenNamenull :
 			return "null"; //$NON-NLS-1$
 		case TokenNamepackage :
@@ -4873,6 +4900,7 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNameinstanceof:
 		case TerminalTokens.TokenNamelong:
 		case TerminalTokens.TokenNamenew:
+		case TerminalTokens.TokenNamenon_sealed:
 		case TerminalTokens.TokenNamenull:
 		case TerminalTokens.TokenNamenative:
 		case TerminalTokens.TokenNamepublic:
@@ -5204,6 +5232,7 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 				case TokenNameGREATER:    // public <T> List<T> foo() { /* */ }
 				case TokenNameRIGHT_SHIFT:// static <T extends SelfType<T>> List<T> makeSingletonList(T t) { /* */ }
 				case TokenNamenew:        // new ArrayList<String>();
+				case TokenNamenon_sealed: // non-sealed X<T>
 				case TokenNamepublic:     // public List<String> foo() {}
 				case TokenNameabstract:   // abstract List<String> foo() {}
 				case TokenNameprivate:    // private List<String> foo() {}
@@ -5546,6 +5575,7 @@ public int fastForward(Statement unused) {
 			case TokenNamelong:
 			case TokenNamenative:
 			case TokenNamenew:
+			case TokenNamenon_sealed:
 			case TokenNamenull:
 			case TokenNameprivate:
 			case TokenNameprotected:

@@ -45,7 +45,7 @@ $Terminals
 	abstract assert boolean break byte case catch char class 
 	continue const default do double else enum extends false final finally float
 	for goto if implements import instanceof int
-	interface long native new null package private
+	interface long native new non-sealed null package private
 	protected public return short static strictfp super switch
 	synchronized this throw throws transient true try void
 	volatile while module open requires transitive exports opens to uses provides with
@@ -661,6 +661,7 @@ Modifier -> 'static'
 Modifier -> 'abstract'
 Modifier -> 'final'
 Modifier -> 'native'
+Modifier -> 'non-sealed'
 Modifier -> 'synchronized'
 Modifier -> 'transient'
 Modifier -> 'volatile'
@@ -674,6 +675,7 @@ Modifier ::= Annotation
 --      'abstract'
 --    | 'final'
 --    | 'public'
+--    | 'non-sealed'
 --18.8.1 Productions from 8.1: Class Declarations
 
 ClassDeclaration ::= ClassHeader ClassBody
@@ -1021,6 +1023,7 @@ ExplicitConstructorInvocation ::= Name '.' OnlyTypeArguments 'this' '(' Argument
 --InterfaceModifier ::=
 --      'public'
 --    | 'abstract'
+--    | 'non-sealed'
 --
 InterfaceDeclaration ::= InterfaceHeader InterfaceBody
 /.$putCase consumeInterfaceDeclaration(); $break ./

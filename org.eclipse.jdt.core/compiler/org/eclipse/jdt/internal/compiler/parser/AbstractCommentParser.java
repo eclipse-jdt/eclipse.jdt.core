@@ -1130,6 +1130,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				case TerminalTokens.TokenNamelong:
 				case TerminalTokens.TokenNamenative:
 				case TerminalTokens.TokenNamenew:
+				case TerminalTokens.TokenNamenon_sealed:
 				case TerminalTokens.TokenNamenull:
 				case TerminalTokens.TokenNamepackage:
 				case TerminalTokens.TokenNameprivate:

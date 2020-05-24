@@ -4263,6 +4263,7 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNameinstanceof:
 		case TerminalTokens.TokenNamelong:
 		case TerminalTokens.TokenNamenew:
+		case TerminalTokens.TokenNamenon_sealed:
 		case TerminalTokens.TokenNamenull:
 		case TerminalTokens.TokenNamenative:
 		case TerminalTokens.TokenNamepublic:

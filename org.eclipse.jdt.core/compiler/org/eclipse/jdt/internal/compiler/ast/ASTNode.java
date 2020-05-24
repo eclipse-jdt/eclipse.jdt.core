@@ -676,6 +676,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			output.append("abstract "); //$NON-NLS-1$
 		if ((modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0)
 			output.append("default "); //$NON-NLS-1$
+		if ((modifiers & ExtraCompilerModifiers.AccNonSealed) != 0)
+			output.append("non-sealed "); //$NON-NLS-1$
 		return output;
 	}
 
