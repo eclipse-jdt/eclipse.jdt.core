@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 GK Software AG and others.
+ * Copyright (c) 2013, 2020 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -576,5 +576,57 @@ public void testBug535308e() {
 			this.LIBS;
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
+}
+public void testBug474080() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.io.IOException;\n" +
+			"interface Config {\n" +
+			"	double getTime(long l);\n" +
+			"}\n" +
+			"class MarketMaker {\n" +
+			"	static double closeTime;\n" +
+			"}\n" +
+			"public class Test {\n" +
+			"	 boolean stopped;\n" +
+			"    Config config;\n" +
+			"    long tick() { return 0L; }\n" +
+			"    void doStuff() {}\n" +
+			"    public void start() {\n" +
+			"        new Thread(() -> {\n" +
+			"            while (eventSequence.running) {\n" + // unresolved
+			"                try\n" +
+			"                    {\n" +
+			"                    double t = config.getTime(tick());\n" +
+			"                    if ((t >= MarketMaker.closeTime)) {\n" +
+			"                        if ((! stopped)) {\n" +
+			"                            try {\n" +
+			"                                System.out.println(\"Stopping...\");\n" +
+			"                                doStuff();\n" +
+			"                                Thread.sleep(250);\n" +
+			"                                System.out.println(\"Simulation finished\");\n" +
+			"                            } catch (InterruptedException e) {\n" +
+			"                                e.printStackTrace();\n" +
+			"                            }\n" +
+//			"                            mainFrame.simulator.stop();\n" +
+			"                            stopped = true;\n" +
+			"                        }\n" +
+			"                    }\n" +
+			"                }\n" +
+			"                catch (IOException e) {\n" +
+			"                    e.printStackTrace();\n" +
+			"                }\n" +
+			"            }\n" +
+			"        }).start();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in Test.java (at line 15)\n" +
+		"	while (eventSequence.running) {\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"eventSequence cannot be resolved to a variable\n" +
+		"----------\n");
 }
 }
