@@ -8266,7 +8266,7 @@ public final class CompletionEngine
 			this.nameEnvironment.findTypes(
 					importName,
 					findMembers,
-					this.options.camelCaseMatch,
+					getTypesMatchRule(),
 					IJavaSearchConstants.TYPE,
 					this,
 					this.monitor);
@@ -11295,7 +11295,7 @@ public final class CompletionEngine
 				this.foundConstructorsCount = 0;
 				this.nameEnvironment.findConstructorDeclarations(
 						token,
-						this.options.camelCaseMatch,
+						getTypesMatchRule(),
 						this,
 						this.monitor);
 				acceptConstructors(scope);
@@ -11329,7 +11329,7 @@ public final class CompletionEngine
 				this.nameEnvironment.findTypes(
 						token,
 						proposeAllMemberTypes,
-						this.options.camelCaseMatch,
+						getTypesMatchRule(),
 						searchFor,
 						this,
 						this.monitor);
@@ -11342,6 +11342,17 @@ public final class CompletionEngine
 				this.nameEnvironment.findPackages(token, this);
 			}
 		}
+	}
+
+	private int getTypesMatchRule() {
+		int matchRule = SearchPattern.R_PREFIX_MATCH;
+		if (this.options.camelCaseMatch)
+			matchRule |= SearchPattern.R_CAMELCASE_MATCH;
+		if (this.options.substringMatch)
+			matchRule |= SearchPattern.R_SUBSTRING_MATCH;
+		if (this.options.subwordMatch)
+			matchRule |= SearchPattern.R_SUBWORD_MATCH;
+		return matchRule;
 	}
 
 	private void findTypesAndSubpackages(
@@ -11487,7 +11498,7 @@ public final class CompletionEngine
 			this.foundConstructorsCount = 0;
 			this.nameEnvironment.findConstructorDeclarations(
 					qualifiedName,
-					this.options.camelCaseMatch,
+					getTypesMatchRule(),
 					this,
 					this.monitor);
 			acceptConstructors(scope);
@@ -11511,7 +11522,7 @@ public final class CompletionEngine
 			this.nameEnvironment.findTypes(
 					qualifiedName,
 					false,
-					this.options.camelCaseMatch,
+					getTypesMatchRule(),
 					searchFor,
 					this,
 					this.monitor);

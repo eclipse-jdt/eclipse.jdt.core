@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.function.Predicate;
+
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
@@ -53,7 +56,12 @@ public void tearDownSuite() throws Exception {
 	}
 	super.tearDownSuite();
 }
-
+private CompletionTestsRequestor2 createFilteredRequestor() {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	Predicate<CompletionProposal> javaTypeRef = p -> p.getKind() == CompletionProposal.TYPE_REF && new String(p.getSignature()).startsWith("Ljava.");
+	requestor.setProposalFilter(javaTypeRef.negate());
+	return requestor;
+}
 public void testQualifiedNonStaticMethod() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
@@ -68,7 +76,7 @@ public void testQualifiedNonStaticMethod() throws JavaModelException {
 		"  }\n" +
 		"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "this.bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -95,7 +103,7 @@ public void testUnqualifiedNonStaticMethod() throws JavaModelException {
 		"  }\n" +
 		"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -121,7 +129,7 @@ public void testQualifiedStaticMethod() throws JavaModelException {
 		"  }\n" +
 		"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "Test.bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -146,7 +154,7 @@ public void testUnqualifiedStaticMethod() throws JavaModelException {
 		"  }\n" +
 		"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "Bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -172,7 +180,7 @@ public void testQualifiedNonStaticField() throws JavaModelException {
 		"  }\n" +
 		"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "this.item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -199,7 +207,7 @@ public void testUnqualifiedNonStaticField() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -225,7 +233,7 @@ public void testQualifiedStaticField() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "Test.item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -250,7 +258,7 @@ public void testUnqualifiedStaticField() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -277,7 +285,7 @@ public void testLocalVariable() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -304,7 +312,7 @@ public void testMethodParamVariable() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -318,48 +326,54 @@ public void testMethodParamVariable() throws JavaModelException {
 			requestor.getResults());
 }
 public void testClassTypeInstantiation() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/test/Test.java",
-			"package test;"+
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
 			"interface Foobar {}\n" +
 			"class SpecificFooBar implements Foobar {}\n" +
 			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
 			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
 			"public class Test {\n" +
 			"  {\n" +
 			"    Foobar f = new bar\n" +
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "new bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeFieldDeclaration() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/test/Test.java",
-			"package test;"+
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
 			"interface Foobar {}\n" +
 			"class SpecificFooBar implements Foobar {}\n" +
 			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
 			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
 			"public class Test {\n" +
 			"  public bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "public bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -372,20 +386,23 @@ public void testClassTypeFieldDeclaration() throws JavaModelException {
 			requestor.getResults());
 }
 public void testClassTypeParamDeclaration() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/test/Test.java",
-			"package test;"+
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
 			"interface Foobar {}\n" +
 			"class SpecificFooBar implements Foobar {}\n" +
 			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
 			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
 			"public class Test {\n" +
 			"  void setFoo(bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "void setFoo(bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -398,22 +415,25 @@ public void testClassTypeParamDeclaration() throws JavaModelException {
 			requestor.getResults());
 }
 public void testClassTypeLocalVarDeclaration() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/test/Test.java",
-			"package test;"+
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
 			"interface Foobar {}\n" +
 			"class SpecificFooBar implements Foobar {}\n" +
 			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
 			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
 			"public class Test {\n" +
 			"  void foo() {\n" +
 			"    final bar" +
 			"  }" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "final bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -426,21 +446,24 @@ public void testClassTypeLocalVarDeclaration() throws JavaModelException {
 			requestor.getResults());
 }
 public void testClassTypeThrowsDeclaration() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
+			"interface Foobar {}\n" +
+			"class SpecificFooBar implements Foobar {}\n" +
+			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
+			"interface Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
 			"package test;"+
-			"interface Foobar {}\n" +
-			"class SpecificFooBar implements Foobar extends Exception {}\n" +
-			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
-			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz extends Exception {}\n" +
 			"public class Test {\n" +
 			"  void foo() throws bar {\n" +
 			"  }" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "void foo() throws bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -452,20 +475,23 @@ public void testClassTypeThrowsDeclaration() throws JavaModelException {
 			requestor.getResults());
 }
 public void testClassTypeExtends() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/test/Test.java",
-			"package test;"+
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
 			"interface Foobar {}\n" +
 			"class SpecificFooBar implements Foobar {}\n" +
 			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
 			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
 			"public class Test extends bar {\n" +
 			"  }" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "public class Test extends bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -477,21 +503,24 @@ public void testClassTypeExtends() throws JavaModelException {
 			requestor.getResults());
 }
 public void testClassTypeImplements() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/test/Test.java",
-			"package test;"+
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foobar.java",
+			"package test;\n"+
 			"interface Foobar {}\n" +
 			"interface FoobarExtension extends Foobar {}\n" +
 			"class SpecificFooBar implements Foobar {}\n" +
 			"class EvenMoreSpecificFooBar extends SpecificFooBar {}\n" +
 			"interface Foobaz {}\n" +
-			"class SpecificFooBaz implements Foobaz {}\n" +
+			"class SpecificFooBaz implements Foobaz {}\n");
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
 			"public class Test implements bar {\n" +
 			"  }" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "public class Test implements bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -515,7 +544,7 @@ public void testInnerClassTypeInstantiation() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "t.new bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -535,7 +564,7 @@ public void testInnerClassTypeFieldDeclaration() throws JavaModelException {
 			"  public bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "public bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -555,7 +584,7 @@ public void testInnerClassTypeParamDeclaration() throws JavaModelException {
 			"  void foo(bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "void foo(bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -577,7 +606,7 @@ public void testInnerClassTypeLocalVarDeclaration() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "final bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -597,7 +626,7 @@ public void testInnerClassTypeThrowsDeclaration() throws JavaModelException {
 			"  void foo() throws bar" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "void foo() throws bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -617,7 +646,7 @@ public void testInnerClassTypeExtends() throws JavaModelException {
 			"  class SpecificFooBar extends bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "SpecificFooBar extends bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -637,7 +666,7 @@ public void testInnerClassTypeImplements() throws JavaModelException {
 			"  class SpecificFooBar implements bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "class SpecificFooBar implements bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -659,7 +688,7 @@ public void testStaticNestedClassTypeInstantiation() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "new bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -679,7 +708,7 @@ public void testStaticNestedClassTypeFieldDeclaration() throws JavaModelExceptio
 			"  public bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "public bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -699,7 +728,7 @@ public void testStaticNestedClassTypeParamDeclaration() throws JavaModelExceptio
 			"  void foo(bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "void foo(bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -721,7 +750,7 @@ public void testStaticNestedClassTypeLocalVarDeclaration() throws JavaModelExcep
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "final bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -741,7 +770,7 @@ public void testStaticNestedClassTypeThrowsDeclaration() throws JavaModelExcepti
 			"  void foo() throws bar" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "void foo() throws bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -761,7 +790,7 @@ public void testStaticNestedClassTypeExtends() throws JavaModelException {
 			"  class SpecificFooBar extends bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "SpecificFooBar extends bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -781,7 +810,7 @@ public void testStaticNestedClassTypeImplements() throws JavaModelException {
 			"  class SpecificFooBar implements bar\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "class SpecificFooBar implements bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -803,7 +832,7 @@ public void testLocalClassTypeInstantiation() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "new bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -825,7 +854,7 @@ public void testLocalClassTypeLocalVarDeclaration() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "final bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -847,7 +876,7 @@ public void testLocalClassTypeExtends() throws JavaModelException {
 			"  }\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "class SpecificFooBar extends bar";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -868,7 +897,7 @@ public void testBug488441_1() throws JavaModelException {
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test.java",
 			content);
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".st";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -898,7 +927,7 @@ public void testBug488441_2() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			content);
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".st";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -928,7 +957,7 @@ public void testBug488441_3() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			content);
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".st";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -958,7 +987,7 @@ public void testBug488441_4() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			content);
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".st";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -990,7 +1019,7 @@ public void testBug488441_5() throws JavaModelException {
 			"	}\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".as";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -1023,7 +1052,7 @@ public void testBug488441_6() throws JavaModelException {
 			"	}\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".aS";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -1056,7 +1085,7 @@ public void testBug488441_7() throws JavaModelException {
 			"	}\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".as";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
@@ -1089,7 +1118,7 @@ public void testBug488441_8() throws JavaModelException {
 			"	}\n" +
 			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	CompletionTestsRequestor2 requestor = createFilteredRequestor();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = ".as";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();

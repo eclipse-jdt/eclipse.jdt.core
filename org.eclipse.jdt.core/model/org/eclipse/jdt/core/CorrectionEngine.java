@@ -297,6 +297,7 @@ public class CorrectionEngine {
 			try {
 				Hashtable options = new Hashtable(oldOptions);
 				options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.DISABLED);
+				options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
 				JavaCore.setOptions(options);
 
 				this.compilationUnit.codeComplete(
