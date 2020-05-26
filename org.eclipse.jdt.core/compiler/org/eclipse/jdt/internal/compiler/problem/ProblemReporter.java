@@ -228,6 +228,11 @@ public class ProblemReporter extends ProblemHandler {
 
 	private static String RESTRICTED_IDENTIFIER_RECORD = "RestrictedIdentifierrecord"; //$NON-NLS-1$
 	private static String RECORD = "record"; //$NON-NLS-1$
+	private static String RESTRICTED_IDENTIFIER_SEALED = "RestrictedIdentifiersealed"; //$NON-NLS-1$
+	private static String SEALED = "sealed"; //$NON-NLS-1$
+	private static String RESTRICTED_IDENTIFIER_PERMITS = "RestrictedIdentifierpermits"; //$NON-NLS-1$
+	private static String PERMITS = "permits"; //$NON-NLS-1$
+	private static String PREVIEW_KEYWORD_NON_SEALED = "non-sealed"; //$NON-NLS-1$
 
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	super(policy, options, problemFactory);
@@ -5082,6 +5087,16 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 private boolean isIdentifier(int token) {
 	return token == TerminalTokens.TokenNameIdentifier;
 }
+private boolean isRestrictedIdentifier(int token) {
+	switch(token) {
+		case TerminalTokens.TokenNameRestrictedIdentifierYield:
+		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
+		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
+		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
+			return true;
+		default: return false;
+	}
+}
 private boolean isKeyword(int token) {
 	switch(token) {
 		case TerminalTokens.TokenNameabstract:
@@ -5138,6 +5153,8 @@ private boolean isKeyword(int token) {
 			return true;
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
+		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
+		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
 			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
@@ -8243,18 +8260,24 @@ private boolean handleSyntaxErrorOnNewTokens(
 	String errorTokenName,
 	String expectedToken) {
 	boolean val = false;
+	String[] rIdents = {RESTRICTED_IDENTIFIER_RECORD, RESTRICTED_IDENTIFIER_SEALED, RESTRICTED_IDENTIFIER_PERMITS, PREVIEW_KEYWORD_NON_SEALED};
+	String[] rNames = {RECORD, SEALED, PERMITS, PREVIEW_KEYWORD_NON_SEALED};
 	if (isIdentifier(currentKind)) {
 		String eTokenName = new String(errorTokenSource);
 		String origExpectedToken = expectedToken;
 		expectedToken = replaceIfSynthetic(expectedToken);
 		if (isIdentifier(currentKind)) {
-			if (RESTRICTED_IDENTIFIER_RECORD.equals(origExpectedToken) && RECORD.equals(eTokenName)) {
-				if (this.options.sourceLevel < ClassFileConstants.JDK14) {
-					previewFeatureNotSupported(start, end, RECORD, CompilerOptions.VERSION_14);
-					val = true;
-				} else if (!this.options.enablePreviewFeatures) {
-					previewFeatureNotEnabled(start, end, RECORD);
-					val = true;
+			for (int i = 0, l = rIdents.length; i < l; ++i) {
+				String rIdent = rIdents[i];
+				String rName = rNames[i];
+				if (rIdent.equals(origExpectedToken) && rName.equals(eTokenName)) {
+					if (this.options.sourceLevel < ClassFileConstants.JDK15) {
+						previewFeatureNotSupported(start, end, rName, CompilerOptions.VERSION_15);
+						val = true;
+					} else if (!this.options.enablePreviewFeatures) {
+						previewFeatureNotEnabled(start, end, rName);
+						val = true;
+					}
 				}
 			}
 		}
@@ -8310,6 +8333,8 @@ private void syntaxError(
 	} else {
 		eTokenName = errorTokenName;
 	}
+	if (isRestrictedIdentifier(currentKind))
+		eTokenName = replaceIfSynthetic(eTokenName);
 
 	String[] arguments;
 	if(expectedToken != null) {
@@ -8340,6 +8365,10 @@ private String replaceIfSynthetic(String token) {
 		return "yield"; //$NON-NLS-1$
 	if (token.equals(RESTRICTED_IDENTIFIER_RECORD))
 		return RECORD;
+	if (token.equals(RESTRICTED_IDENTIFIER_SEALED))
+		return SEALED;
+	if (token.equals(RESTRICTED_IDENTIFIER_PERMITS))
+		return PERMITS;
 	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){

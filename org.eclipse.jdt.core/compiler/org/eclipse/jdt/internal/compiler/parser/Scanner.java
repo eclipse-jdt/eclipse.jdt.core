@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -19,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -3887,7 +3893,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 					} else
 						return TokenNameIdentifier;
 				case 7 :
-					if (data[++index] == 'a')
+					if (data[++index] == 'a') {
 						if ((data[++index] == 'c')
 							&& (data[++index] == 'k')
 							&& (data[++index] == 'a')
@@ -3896,7 +3902,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 							return TokenNamepackage;
 						else
 							return TokenNameIdentifier;
-					else
+					} else {
 						if ((data[index] == 'r')
 							&& (data[++index] == 'i')
 							&& (data[++index] == 'v')
@@ -3904,8 +3910,16 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 							&& (data[++index] == 't')
 							&& (data[++index] == 'e')) {
 							return TokenNameprivate;
-						} else
+						} else if ((data[index] == 'e')
+								&& (data[++index] == 'r')
+								&& (data[++index] == 'm')
+								&& (data[++index] == 'i')
+								&& (data[++index] == 't')
+								&& (data[++index] == 's')) {
+							return disambiguatedRestrictedIdentifierpermits(TokenNameRestrictedIdentifierpermits);
+							} else
 							return TokenNameIdentifier;
+					}
 				case 8 :
 					if (areRestrictedModuleKeywordsActive()
 						&& (data[++index] == 'r')
@@ -3997,9 +4011,15 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 							&& (data[++index] == 'i')
 							&& (data[++index] == 't')
 							&& (data[++index] == 'c')
-							&& (data[++index] == 'h'))
+							&& (data[++index] == 'h')) {
 							return TokenNameswitch;
-						else
+						} else if ((data[index] == 'e')
+							&& (data[++index] == 'a')
+							&& (data[++index] == 'l')
+							&& (data[++index] == 'e')
+							&& (data[++index] == 'd')) {
+								return disambiguatedRestrictedIdentifiersealed(TokenNameRestrictedIdentifiersealed);
+						} else
 							return TokenNameIdentifier;
 				case 8 :
 					if ((data[++index] == 't')
@@ -4662,6 +4682,8 @@ public String toStringAction(int act) {
 			return "null"; //$NON-NLS-1$
 		case TokenNamepackage :
 			return "package"; //$NON-NLS-1$
+		case TokenNameRestrictedIdentifierpermits:
+			return "permits"; //$NON-NLS-1$
 		case TokenNameprivate :
 			return "private"; //$NON-NLS-1$
 		case TokenNameprotected :
@@ -4670,6 +4692,8 @@ public String toStringAction(int act) {
 			return "public"; //$NON-NLS-1$
 		case TokenNamereturn :
 			return "return"; //$NON-NLS-1$
+		case TokenNameRestrictedIdentifiersealed:
+			return "sealed"; //$NON-NLS-1$
 		case TokenNameshort :
 			return "short"; //$NON-NLS-1$
 		case TokenNamestatic :
@@ -4926,6 +4950,8 @@ public static boolean isKeyword(int token) {
 			return true;
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
+		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
+		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
 			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
@@ -4973,7 +4999,7 @@ private static class Goal {
 
 	int first;      // steer the parser towards a single minded pursuit.
 	int [] follow;  // the definite terminal symbols that signal the successful reduction to goal.
-	int rule;
+	int[] rules;
 
 	static int LambdaParameterListRule = 0;
 	static int IntersectionCastRule = 0;
@@ -4981,6 +5007,8 @@ private static class Goal {
 	static int VarargTypeAnnotationsRule  = 0;
 	static int BlockStatementoptRule = 0;
 	static int YieldStatementRule = 0;
+	static int[] RestrictedIdentifierSealedRule;
+	static int[] RestrictedIdentifierPermitsRule;
 
 	static Goal LambdaParameterListGoal;
 	static Goal IntersectionCastGoal;
@@ -4988,9 +5016,17 @@ private static class Goal {
 	static Goal ReferenceExpressionGoal;
 	static Goal BlockStatementoptGoal;
 	static Goal YieldStatementGoal;
+	static Goal RestrictedIdentifierSealedGoal;
+	static Goal RestrictedIdentifierPermitsGoal;
+
+	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
+			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
+	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
 
 	static {
 
+		List<Integer> ridSealed = new ArrayList<>(2);
+		List<Integer> ridPermits = new ArrayList<>();
 		for (int i = 1; i <= ParserBasicInformation.NUM_RULES; i++) {  // 0 == $acc
 			if ("ParenthesizedLambdaParameterList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				LambdaParameterListRule = i;
@@ -5009,8 +5045,16 @@ private static class Goal {
 			else
 			if ("YieldStatement".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				YieldStatementRule = i;
+			else
+			if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				ridSealed.add(i);
+			else
+			if ("ClassTypeList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				ridPermits.add(i);
 
 		}
+		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
+		RestrictedIdentifierPermitsRule = ridPermits.stream().mapToInt(Integer :: intValue).toArray();
 
 		LambdaParameterListGoal =  new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
 		IntersectionCastGoal =     new Goal(TokenNameLPAREN, followSetOfCast(), IntersectionCastRule);
@@ -5018,13 +5062,21 @@ private static class Goal {
 		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
 		BlockStatementoptGoal =    new Goal(TokenNameLBRACE, new int [0], BlockStatementoptRule);
 		YieldStatementGoal =       new Goal(TokenNameARROW, new int [0], YieldStatementRule);
+		RestrictedIdentifierSealedGoal = new Goal(TokenNameRestrictedIdentifiersealed, RestrictedIdentifierSealedFollow, RestrictedIdentifierSealedRule);
+		RestrictedIdentifierPermitsGoal = new Goal(TokenNameRestrictedIdentifierpermits, RestrictedIdentifierPermitsFollow, RestrictedIdentifierPermitsRule);
 	}
 
 
 	Goal(int first, int [] follow, int rule) {
 		this.first = first;
 		this.follow = follow;
-		this.rule = rule;
+		this.rules = new int[] {rule};
+	}
+
+	Goal(int first, int [] follow, int[] rules) {
+		this.first = first;
+		this.follow = follow;
+		this.rules = rules;
 	}
 
 	boolean hasBeenReached(int act, int token) {
@@ -5032,7 +5084,14 @@ private static class Goal {
 		System.out.println("[Goal = " + Parser.name[Parser.non_terminal_index[Parser.lhs[this.rule]]] + "]  " + "Saw: " + Parser.name[Parser.non_terminal_index[Parser.lhs[act]]] + "::" +  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					Parser.name[Parser.terminal_index[token]]);
 		*/
-		if (act == this.rule) {
+		boolean foundRule = false;
+		for (int i : this.rules) {
+			if (act == i) {
+				foundRule = true;
+				break;
+			}
+		}
+		if (foundRule) {
 			final int length = this.follow.length;
 			if (length == 0)
 				return true;
@@ -5194,6 +5253,18 @@ private VanguardParser getVanguardParser() {
 	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
 	return this.vanguardParser;
 }
+private VanguardParser getNewVanguardParser() {
+	VanguardScanner vs = getNewVanguardScanner();
+	VanguardParser vp = new VanguardParser(vs);
+	vs.setActiveParser(vp);
+	return vp;
+}
+private VanguardScanner getNewVanguardScanner() {
+	VanguardScanner vs = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
+	vs.setSource(this.source);
+	vs.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
+	return vs;
+}
 protected final boolean mayBeAtBreakPreview() {
 	return this.breakPreviewAllowed && this.lookBack[1] != TokenNameARROW;
 }
@@ -5233,6 +5304,7 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 				case TokenNameRIGHT_SHIFT:// static <T extends SelfType<T>> List<T> makeSingletonList(T t) { /* */ }
 				case TokenNamenew:        // new ArrayList<String>();
 				case TokenNamenon_sealed: // non-sealed X<T>
+				case TokenNameRestrictedIdentifiersealed: // sealed X<T>
 				case TokenNamepublic:     // public List<String> foo() {}
 				case TokenNameabstract:   // abstract List<String> foo() {}
 				case TokenNameprivate:    // private List<String> foo() {}
@@ -5242,6 +5314,7 @@ protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw jus
 				case TokenNamesuper:      // ? super Context<N>
 				case TokenNameAND:        // T extends Object & Comparable<? super T>
 				case TokenNameimplements: // class A implements I<Z>
+				case TokenNameRestrictedIdentifierpermits: // class A permits I<Z>
 				case TokenNamethrows:     // throws Y<Z>
 				case TokenNameAT:         // @Deprecated <T> void foo() {}
 				case TokenNameinstanceof: // if (o instanceof List<E>[])
@@ -5266,6 +5339,7 @@ private final boolean maybeAtEllipsisAnnotationsStart() { // Did the '@' we saw 
 		case TokenNameextends:
 		case TokenNamesuper:
 		case TokenNameimplements:
+		case TokenNameRestrictedIdentifierpermits:
 		case TokenNameDOT:
 		case TokenNameLBRACE:
 		case TokenNameinstanceof:
@@ -5323,6 +5397,15 @@ private boolean mayBeAtAnYieldStatement() {
 		default:
 			return false;
 	}
+}
+private boolean mayBeAtARestricedIdentifier(int restrictedIdentifier) {
+	switch (restrictedIdentifier) {
+		case TokenNameRestrictedIdentifiersealed:
+			break;
+		case TokenNameRestrictedIdentifierpermits:
+			break;
+	}
+	return true;
 }
 int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
 	// and here's the kludge
@@ -5448,6 +5531,26 @@ private boolean disambiguateYieldWithLookAhead() {
 	}
 	return false; // IIE event;
 }
+int disambiguatedRestrictedIdentifierpermits(int restrictedIdentifierToken) {
+	// and here's the kludge
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
+		return restrictedIdentifierToken;
+	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
+		return TokenNameIdentifier;
+
+	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtARestricedIdentifier,
+			restrictedIdentifierToken, Goal.RestrictedIdentifierPermitsGoal);
+}
+int disambiguatedRestrictedIdentifiersealed(int restrictedIdentifierToken) {
+	// and here's the kludge
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
+		return restrictedIdentifierToken;
+	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
+		return TokenNameIdentifier;
+
+	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtARestricedIdentifier,
+			restrictedIdentifierToken, Goal.RestrictedIdentifierSealedGoal);
+}
 int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierYield)
@@ -5495,6 +5598,17 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 	}
 	return token;
 }
+int disambiguatesRestrictedIdentifierWithLookAhead(Predicate<Integer> checkPrecondition, int restrictedIdentifierToken, Goal goal) {
+	if (checkPrecondition.test(restrictedIdentifierToken)) {
+		VanguardParser vp = getNewVanguardParser();
+		VanguardScanner vs = (VanguardScanner) vp.scanner;
+		vs.resetTo(this.currentPosition, this.eofPosition - 1);
+		if (vp.parse(goal) == VanguardParser.SUCCESS)
+			return restrictedIdentifierToken;
+	}
+	return TokenNameIdentifier;
+}
+
 int disambiguatedToken(int token) {
 	final VanguardParser parser = getVanguardParser();
 	if (token == TokenNameARROW  && this.inCase) {
@@ -5580,6 +5694,7 @@ public int fastForward(Statement unused) {
 			case TokenNameprivate:
 			case TokenNameprotected:
 			case TokenNamepublic:
+			case TokenNameRestrictedIdentifiersealed:
 			case TokenNamereturn:
 			case TokenNameshort:
 			case TokenNamestatic:

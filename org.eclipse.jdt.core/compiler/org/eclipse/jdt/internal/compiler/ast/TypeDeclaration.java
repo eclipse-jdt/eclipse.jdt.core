@@ -97,6 +97,10 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int nRecordComponents;
 	public boolean isLocalRecord;
 	public static Set<String> disallowedComponentNames;
+
+	// 15 Sealed Type preview support
+	public TypeReference[] permittedTypes;
+
 	static {
 		disallowedComponentNames = new HashSet<>(6);
 		disallowedComponentNames.add("clone"); //$NON-NLS-1$
@@ -1268,6 +1272,13 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 			this.superInterfaces[i].print(0, output);
 		}
 	}
+	if (this.permittedTypes != null && this.permittedTypes.length > 0) {
+		output.append(" permits "); //$NON-NLS-1$
+		for (int i = 0; i < this.permittedTypes.length; i++) {
+			if (i > 0) output.append( ", "); //$NON-NLS-1$
+			this.permittedTypes[i].print(0, output);
+		}
+	}
 	return output;
 }
 
@@ -1652,6 +1663,11 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 				for (int i = 0; i < length; i++)
 					this.superInterfaces[i].traverse(visitor, this.scope);
 			}
+			if (this.permittedTypes != null) {
+				int length = this.permittedTypes.length;
+				for (int i = 0; i < length; i++)
+					this.permittedTypes[i].traverse(visitor, this.scope);
+			}
 			if (this.typeParameters != null) {
 				int length = this.typeParameters.length;
 				for (int i = 0; i < length; i++) {
@@ -1713,6 +1729,11 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 				for (int i = 0; i < length; i++)
 					this.superInterfaces[i].traverse(visitor, this.scope);
 			}
+			if (this.permittedTypes != null) {
+				int length = this.permittedTypes.length;
+				for (int i = 0; i < length; i++)
+					this.permittedTypes[i].traverse(visitor, this.scope);
+			}
 			if (this.typeParameters != null) {
 				int length = this.typeParameters.length;
 				for (int i = 0; i < length; i++) {
@@ -1773,6 +1794,11 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 				int length = this.superInterfaces.length;
 				for (int i = 0; i < length; i++)
 					this.superInterfaces[i].traverse(visitor, this.scope);
+			}
+			if (this.permittedTypes != null) {
+				int length = this.permittedTypes.length;
+				for (int i = 0; i < length; i++)
+					this.permittedTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.typeParameters != null) {
 				int length = this.typeParameters.length;

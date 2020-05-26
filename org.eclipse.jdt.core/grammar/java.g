@@ -117,6 +117,8 @@ $Terminals
 	BeginCaseExpr
 	RestrictedIdentifierYield
 	RestrictedIdentifierrecord
+	RestrictedIdentifiersealed
+	RestrictedIdentifierpermits
 
 --    BodyMarker
 
@@ -221,6 +223,10 @@ Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 Goal ::= '@' TypeAnnotations
 -- JSR 354 Reconnaissance mission.
 Goal ::= '->' YieldStatement
+-- JSR 360 Restricted
+Goal ::= RestrictedIdentifiersealed Modifiersopt
+Goal ::= RestrictedIdentifierpermits ClassTypeList
+
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -662,6 +668,7 @@ Modifier -> 'abstract'
 Modifier -> 'final'
 Modifier -> 'native'
 Modifier -> 'non-sealed'
+Modifier -> RestrictedIdentifiersealed
 Modifier -> 'synchronized'
 Modifier -> 'transient'
 Modifier -> 'volatile'
@@ -682,7 +689,7 @@ ClassDeclaration ::= ClassHeader ClassBody
 /.$putCase consumeClassDeclaration(); $break ./
 /:$readableName ClassDeclaration:/
 
-ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt
+ClassHeader ::= ClassHeaderName ClassHeaderExtendsopt ClassHeaderImplementsopt ClassHeaderPermittedSubclassesopt
 /.$putCase consumeClassHeader(); $break ./
 /:$readableName ClassHeader:/
 
@@ -1029,7 +1036,7 @@ InterfaceDeclaration ::= InterfaceHeader InterfaceBody
 /.$putCase consumeInterfaceDeclaration(); $break ./
 /:$readableName InterfaceDeclaration:/
 
-InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt
+InterfaceHeader ::= InterfaceHeaderName InterfaceHeaderExtendsopt InterfaceHeaderPermittedSubClassesAndSubInterfacesopt
 /.$putCase consumeInterfaceHeader(); $break ./
 /:$readableName InterfaceHeader:/
 
@@ -2254,6 +2261,26 @@ FormalParameterListopt -> FormalParameterList
 ClassHeaderImplementsopt ::= $empty
 ClassHeaderImplementsopt -> ClassHeaderImplements
 /:$readableName ClassHeaderImplements:/
+
+ClassHeaderPermittedSubclassesopt ::= $empty
+ClassHeaderPermittedSubclassesopt -> ClassHeaderPermittedSubclasses
+/:$readableName ClassHeaderPermittedSubclasses:/
+/:$compliance 15:/
+
+ClassHeaderPermittedSubclasses ::= RestrictedIdentifierpermits ClassTypeList
+/.$putCase consumeClassHeaderPermittedSubclasses(); $break ./
+/:$readableName ClassHeaderPermittedSubclasses:/
+/:$compliance 15:/
+
+InterfaceHeaderPermittedSubClassesAndSubInterfacesopt ::= $empty
+InterfaceHeaderPermittedSubClassesAndSubInterfacesopt -> InterfaceHeaderPermittedSubClassesAndSubInterfaces
+/:$readableName InterfaceHeaderPermittedSubClassesAndSubInterfaces:/
+/:$compliance 15:/
+
+InterfaceHeaderPermittedSubClassesAndSubInterfaces ::= RestrictedIdentifierpermits ClassTypeList
+/.$putCase consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces(); $break ./
+/:$readableName InterfaceHeaderPermittedSubClassesAndSubInterfaces:/
+/:$compliance 15:/
 
 InterfaceMemberDeclarationsopt ::= $empty
 /. $putCase consumeEmptyInterfaceMemberDeclarationsopt(); $break ./

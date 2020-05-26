@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * SPDX-License-Identifier: EPL-2.0
  *
@@ -1133,9 +1137,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				case TerminalTokens.TokenNamenon_sealed:
 				case TerminalTokens.TokenNamenull:
 				case TerminalTokens.TokenNamepackage:
+				case TerminalTokens.TokenNameRestrictedIdentifierpermits:
 				case TerminalTokens.TokenNameprivate:
 				case TerminalTokens.TokenNameprotected:
 				case TerminalTokens.TokenNamepublic:
+				case TerminalTokens.TokenNameRestrictedIdentifiersealed:
 				case TerminalTokens.TokenNameshort:
 				case TerminalTokens.TokenNamestatic:
 				case TerminalTokens.TokenNamestrictfp:

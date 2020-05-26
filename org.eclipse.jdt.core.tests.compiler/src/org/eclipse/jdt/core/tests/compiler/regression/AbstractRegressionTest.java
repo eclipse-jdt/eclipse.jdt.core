@@ -4030,9 +4030,9 @@ protected void runNegativeTest(
 	}
 	protected Map<String, String> setPresetPreviewOptions() {
 		Map<String, String> options = getCompilerOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return options;

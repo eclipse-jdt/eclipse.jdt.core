@@ -130,7 +130,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"non-sealed class interface I {}\n"+
+				"non-sealed interface I {}\n"+
 				"non-sealed class X {\n"+
 				"  public static void main(String[] args){\n"+
 				"     System.out.println(0);\n" +
@@ -138,5 +138,183 @@ public class SealedTypes15Tests extends AbstractRegressionTest {
 				"}\n"
 			},
 			"0");
+	}
+	public void testBug562715_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n"
+			},
+			"100");
+	}
+	public void testBug562715_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public sealed class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     int sealed = 100;\n" +
+				"     System.out.println(sealed);\n" +
+				"  }\n"+
+				"}\n"
+			},
+			"100");
+	}
+	public void testBug562715_003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed public class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n"
+			},
+			"100");
+	}
+	public void testBug562715_004() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {}\n"+
+				"sealed public class X<T> {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n"
+			},
+			"100");
+	}
+	public void testBug562715_005() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed public sealed class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+			"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	sealed public sealed class X {\n" +
+			"	                           ^\n" +
+			"Duplicate modifier for the type X\n" +
+			"----------\n");
+	}
+	public void testBug562715_006() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public sealed class X {\n"+
+				"  public static sealed void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+			"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public static sealed void main(String[] args){\n" +
+			"	              ^^^^^^\n" +
+			"Syntax error on token \"sealed\", static expected\n" +
+			"----------\n");
+	}
+	public void testBug562715_007() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed @MyAnnot public class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n" +
+				"@interface MyAnnot {}\n"
+			},
+			"100");
+	}
+	public void testBug562715_008() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed class X permits Y {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n"+
+				"class Y extends X {}\n"
+			},
+			"100");
+	}
+	public void testBug562715_009() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed class X permits Y,Z {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n"+
+				"class Y extends X {}\n" +
+				"class Z extends X {}\n"
+			},
+			"100");
+	}
+	public void testBug562715_010() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public sealed class X permits {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+			"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public sealed class X permits {\n" +
+			"	                      ^^^^^^^\n" +
+			"Syntax error on token \"permits\", ClassType expected after this token\n" +
+			"----------\n");
+	}
+	// TODO : Enable after error flag code implemented
+	public void _testBug562715_011() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed enum Natural {ONE, TWO}\n"+
+				"public sealed class X {\n"+
+				"  public static sealed void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+			"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	EXPECTED ERROR IN RECORD\n" +
+			"	              ^^^^^^\n" +
+			"Syntax error on token \"sealed\", static expected\n" +
+			"----------\n");
+	}
+	public void _testBug562715_xxx() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed record R() {}\n"+
+				"public sealed class X {\n"+
+				"  public static sealed void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+			"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	EXPECTED ERROR IN RECORD\n" +
+			"	              ^^^^^^\n" +
+			"Syntax error on token \"sealed\", static expected\n" +
+			"----------\n");
 	}
 }

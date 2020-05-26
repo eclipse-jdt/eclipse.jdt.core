@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -352,6 +356,9 @@ public boolean bodyStartsAtHeaderEnd(){
 			return this.typeDeclaration.bodyStart == this.typeDeclaration.superclass.sourceEnd+1;
 		}
 	} else {
+		if (this.typeDeclaration.permittedTypes != null)
+			return this.typeDeclaration.bodyStart
+			== this.typeDeclaration.permittedTypes[this.typeDeclaration.permittedTypes.length-1].sourceEnd+1;
 		return this.typeDeclaration.bodyStart
 				== this.typeDeclaration.superInterfaces[this.typeDeclaration.superInterfaces.length-1].sourceEnd+1;
 	}
@@ -797,6 +804,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 			case -1 :
 			case TokenNameextends :
 			case TokenNameimplements :
+			case TokenNameRestrictedIdentifierpermits:
 			case TokenNameGREATER :
 			case TokenNameRIGHT_SHIFT :
 			case TokenNameUNSIGNED_RIGHT_SHIFT :
