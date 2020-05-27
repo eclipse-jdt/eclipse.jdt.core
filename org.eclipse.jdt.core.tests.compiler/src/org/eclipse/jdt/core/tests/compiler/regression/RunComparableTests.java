@@ -33,6 +33,7 @@ public class RunComparableTests extends junit.framework.TestCase {
 		ALL_CLASSES = new ArrayList();
 		ALL_CLASSES.add(AmbiguousMethodTest.class);
 		ALL_CLASSES.add(AutoBoxingTest.class);
+		ALL_CLASSES.add(SuppressWarningsTest.class);
 		ALL_CLASSES.add(Compliance_1_5.class);
 		ALL_CLASSES.add(GenericTypeTest.class);
 		ALL_CLASSES.add(GenericsRegressionTest.class);

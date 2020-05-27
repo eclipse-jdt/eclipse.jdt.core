@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
@@ -1157,6 +1158,111 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		//passing in the directory to no warn should ignore the path - resulting in no warnings.
 		assertEquals("No error should be reported", 0, errors.size());
 	}
+
+	private void suppressTest(String fileName, String source, String expectedDiagnostics, String expectedOutput) throws Exception {
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		File inputFile = new File(tmpFolder, fileName);
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(source);
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		// System compiler
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("-warn:+unused,boxing");
+		final List<Diagnostic<JavaFileObject>> errors = new ArrayList<>();
+ 		CompilationTask task = compiler.getTask(printWriter, manager, new DiagnosticListener<JavaFileObject>() {
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				errors.add((Diagnostic<JavaFileObject>) diagnostic);
+			}
+
+		}, options, null, units);
+		task.call();
+		printWriter.flush();
+		printWriter.close();
+
+		assertEquals("Unexpected diagnostics:", expectedDiagnostics,
+				errors.stream()
+				.map(d -> d.getKind().toString() + ' ' + 
+						d.getLineNumber() + ": " + d.getMessage(Locale.getDefault()))
+				.collect(Collectors.joining("\n")));
+		assertEquals("Unexpected output:", expectedOutput.replaceAll("---OUTPUT_DIR_PLACEHOLDER---", tmpFolder), stringWriter.toString());
+	}
+
+	public void testCompilerSimpleSuppressWarnings() throws Exception {
+		suppressTest("p/SuppressTest.java", 
+				"package p;\n" +
+				"public class SuppressTest {\n" +
+				"@SuppressWarnings(\"boxing\")\n" +
+				"public Long get(long l) {\n" +
+				"  Long result = l * 2;\n" +
+				"  return result;\n" +
+				"}\n}\n",
+				"", "");
+	}
+
+	public void testCompilerNestedSuppressWarnings() throws Exception {
+		suppressTest("p/SuppressTest.java", 
+				"package p;\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class SuppressTest {\n" +
+				"private String unused=\"testUnused\";\n" +
+				"@SuppressWarnings(\"boxing\")\n" +
+				"public Long get(long l) {\n" +
+				"  Long result = l * 2;\n" +
+				"  return result;\n" +
+				"}\n}\n",
+				"", "");
+	}
+
+	public void testCompilerUnrelatedSuppressWarnings() throws Exception {
+		suppressTest("p/SuppressTest.java", 
+				"package p;\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class SuppressTest {\n" +
+				"private String unused=\"testUnused\";\n" +
+				"public Long get(long l) {\n" +
+				"  Long result = l * 2;\n" +
+				"  return result;\n" +
+				"}\n}\n",
+				"WARNING 6: The expression of type long is boxed into java.lang.Long",
+				"----------\n" +
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/p/SuppressTest.java (at line 6)\n" +
+				"	Long result = l * 2;\n" +
+				"	              ^^^^^\n" +
+				"The expression of type long is boxed into Long\n" +
+				"----------\n" +
+				"1 problem (1 warning)\n"
+				);
+	}
+
 	public void testSupportedCompilerVersions() throws IOException {
 		Set<SourceVersion> sourceVersions = compiler.getSourceVersions();
 		SourceVersion[] values = SourceVersion.values();
