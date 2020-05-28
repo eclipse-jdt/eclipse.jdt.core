@@ -68,6 +68,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter13Test.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	static int getAST13() {
 		return AST.JLS13;
 	}
@@ -398,6 +399,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		}
 	}
 	// Moved over from ASTConverter9Test
+	@SuppressWarnings("deprecation")
 	public void _testBug531714_015() throws CoreException {
 		// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
 		if (!isJRE13) {

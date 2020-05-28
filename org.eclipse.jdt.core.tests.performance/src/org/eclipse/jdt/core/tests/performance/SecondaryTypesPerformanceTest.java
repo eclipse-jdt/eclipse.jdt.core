@@ -84,7 +84,7 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 		classpathList.add(testScratchArea);
 
 		for (int i = 0; i<10; ++i) {
-			ASTParser parser = ASTParser.newParser(AST.JLS13);
+			ASTParser parser = ASTParser.newParser(AST.JLS14);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(true);
 			parser.setBindingsRecovery(true);

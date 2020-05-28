@@ -156,6 +156,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL13
 	 * to alleviate deprecation warnings once AST.JLS13 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS13 = AST.JLS13;
 

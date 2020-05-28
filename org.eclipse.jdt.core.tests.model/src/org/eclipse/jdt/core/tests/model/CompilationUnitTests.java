@@ -61,7 +61,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	final String compliance = "1.5"; //$NON-NLS-1$
-	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	createFolder("/P/src/p");
 	createFile(
 		"/P/src/p/X.java",

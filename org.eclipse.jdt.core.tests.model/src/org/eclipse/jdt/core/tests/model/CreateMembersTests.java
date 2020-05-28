@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,8 +18,10 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class CreateMembersTests extends AbstractJavaModelTests {
@@ -43,7 +45,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setUpJavaProject("CreateMembers", "1.5");
+		setUpJavaProject("CreateMembers", "14");
 	}
 	@Override
 	public void tearDownSuite() throws Exception {
@@ -170,5 +172,52 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			"Unexpected exception",
 			"Invalid sibling: E1 [in E [in E.java [in <default> [in src [in CreateMembers]]]]]",
 			expected);
+	}
+	public void testBug563622_1() throws JavaModelException {
+		IJavaProject javaProject = getJavaProject("CreateMembers");
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		try {
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Outer.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createType("record Point() {}", null, true, null);
+			String expectedSource =
+					"public class Outer {\n" +
+					"\n" +
+					"	record Point() {}\n" +
+					"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	public void testBug563622_2() throws JavaModelException {
+		IJavaProject javaProject = getJavaProject("CreateMembers");
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+		JavaModelException expected = null;
+		try {
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Outer.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			try {
+				type.createType("record Point() {}", null, true, null);
+			} catch (JavaModelException e) {
+				expected = e;
+			}
+			assertExceptionEquals(
+					"Unexpected exception",
+					"Invalid contents specified",
+					expected);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
 	}
 }
