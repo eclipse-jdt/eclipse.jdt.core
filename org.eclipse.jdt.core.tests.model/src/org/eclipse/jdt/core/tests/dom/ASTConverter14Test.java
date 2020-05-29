@@ -885,4 +885,46 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		}
 	}
 
+	public void testRecord007() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents = "record X(int lo) {\n" +
+				"	public int lo() {\n" +
+				"		return this.lo;\n" +
+				"	}\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+			assertEquals("Not a Record Declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+			RecordDeclaration record = (RecordDeclaration)node;
+			List<SingleVariableDeclaration> recordComponents = record.recordComponents();
+			assertEquals("There should be 1 record component", 1, recordComponents.size());
+			SingleVariableDeclaration recordComponent = recordComponents.get(0);
+			SimpleName recordComponentName = recordComponent.getName();
+			assertEquals("Record component name should be lo","lo" , recordComponentName.toString());
+			ITypeBinding resolveTypeBinding = recordComponentName.resolveTypeBinding();
+			assertEquals("Record component type is int" , "int",resolveTypeBinding.getName() );
+			IVariableBinding resolveBinding = (IVariableBinding)recordComponentName.resolveBinding();
+			assertEquals("Record component binding" , true, resolveBinding.isRecordComponent());
+
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
 }
