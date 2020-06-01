@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2020 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,11 +23,13 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.model.AnnotationMemberValue;
 import org.eclipse.jdt.internal.compiler.apt.model.AnnotationMirrorImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.ExecutableElementImpl;
+import org.eclipse.jdt.internal.compiler.apt.model.ModuleElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.VariableElementImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -40,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -64,6 +67,18 @@ public class BaseMessagerImpl {
 		int endPosition = 0;
 		if (e != null) {
 			switch(e.getKind()) {
+				case MODULE:
+					ModuleElementImpl moduleElementImpl = (ModuleElementImpl) e;
+					Binding moduleBinding = moduleElementImpl._binding;
+					if (moduleBinding instanceof SourceModuleBinding) {
+						SourceModuleBinding sourceModuleBinding = (SourceModuleBinding) moduleBinding;
+						CompilationUnitDeclaration unitDeclaration = (CompilationUnitDeclaration) sourceModuleBinding.scope.referenceContext();
+						referenceContext = unitDeclaration;
+						elementAnnotations = unitDeclaration.moduleDeclaration.annotations;
+						startPosition = unitDeclaration.moduleDeclaration.sourceStart;
+						endPosition = unitDeclaration.moduleDeclaration.sourceEnd;
+					}
+					break;
 				case ANNOTATION_TYPE :
 				case INTERFACE :
 				case CLASS :

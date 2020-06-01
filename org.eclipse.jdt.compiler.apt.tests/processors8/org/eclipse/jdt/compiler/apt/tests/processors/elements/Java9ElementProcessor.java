@@ -266,8 +266,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 	public void testModuleElement1() {
 		CharSequence name = "mod.a";
 		ModuleElement mod = _elementUtils.getModuleElement(name);
-		assertEquals("incorrect name", "mod.a", mod.getQualifiedName().toString());
-		assertEquals("incorrect name", "mod.a", mod.getQualifiedName().toString());
+		assertEquals("incorrect qualified name", "mod.a", mod.getQualifiedName().toString());
+		assertEquals("incorrect simple name", "a", mod.getSimpleName().toString());
 		List<? extends Element> enclosedElements = mod.getEnclosedElements();
 		PackageElement pack = null;
 		for (Element element : enclosedElements) {

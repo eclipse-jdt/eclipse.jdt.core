@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 IBM Corporation and others.
+ * Copyright (c) 2006, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -253,8 +253,15 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		if (binding == null) {
 			return false;
 		}
-		module.resolveTypeDirectives(scope);
-		// The above call also resolvesAnnotations
+		//module.resolveTypeDirectives(scope);
+		// The above call also resolvesAnnotations <=== actually this doesn't populate _annoToElement which is what we need
+
+		Annotation[] annotations = module.annotations;
+		if (annotations != null) {
+			this.resolveAnnotations(module.scope, 
+					annotations, 
+					binding);
+		}
 		return true;
 	}
 

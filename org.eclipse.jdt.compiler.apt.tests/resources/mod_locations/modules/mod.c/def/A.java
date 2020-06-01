@@ -1,0 +1,3 @@
+package def;
+class A {
+}
