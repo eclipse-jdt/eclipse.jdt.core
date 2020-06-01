@@ -2252,6 +2252,9 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsContinueOutOfSwitchExpression  = Syntax + 1723;
 	/** @since 3.22 */
 	int SwitchExpressionsReturnWithinSwitchExpression  = Syntax + 1724;
+
+	/* Java 14 errors end */
+	/* Java 15 errors begin */
 	/* records - begin */
 
 	/** @since 3.22
@@ -2345,5 +2348,66 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int PatternVariableNotInScope = PreviewRelated + 1780;
-	/* Java14 errors - end */
+
+
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedMissingModifier = PreviewRelated + 1850;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedDisAllowedNonSealedModifier = PreviewRelated + 1851;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedSuperClassDoesNotPermit = PreviewRelated + 1852;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedSuperInterfaceDoesNotPermit = PreviewRelated + 1853;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedMissingSealedModifier = PreviewRelated + 1854;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedPermittedTypeNotAccessible = PreviewRelated + 1855;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedDuplicateTypeInPermits = PreviewRelated + 1856;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedNotDirectSuperClass = PreviewRelated + 1857;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedPermittedTypeOutsideOfModule = PreviewRelated + 1858;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedPermittedTypeOutsideOfPackage = PreviewRelated + 1859;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedSealedTypeMissingPermits = PreviewRelated + 1860;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedEnumHasDisallowedModifiers = PreviewRelated + 1861;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1862;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedInterfaceMissingSealedNonSealedModifier = PreviewRelated +1863;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedNotDirectSuperInterface = PreviewRelated + 1864;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedDisAllowedSealedModifier = PreviewRelated + 1865;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedDisAllowedModifierInLocalClass = PreviewRelated +1866;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedDirectSuperTypeSealed = PreviewRelated + 1867;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedAttemptToInstantiateSealed = PreviewRelated + 1868;
+
+	/* Java15 errors - end */
+
 	}
