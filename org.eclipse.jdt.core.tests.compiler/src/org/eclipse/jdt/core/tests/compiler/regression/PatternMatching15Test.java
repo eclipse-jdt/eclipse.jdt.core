@@ -50,6 +50,8 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
+		if(!isJRE15Plus)
+			return;
 		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
 	protected void runNegativeTest(
@@ -66,6 +68,62 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 		runner.customOptions = customOptions;
 		runner.expectedJavacOutputString = javacLog;
 		runner.runNegativeTest();
+	}
+	public void test000a() {
+		Map<String, String> options = getCompilerOptions(false);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+		runNegativeTest(
+				new String[] {
+						"X1.java",
+						"public class X1 {\n" +
+						"  public void foo(Object obj) {\n" +
+						"		if (obj instanceof String s) {\n" +
+						"		}\n " +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X1.java (at line 3)\n" +
+				"	if (obj instanceof String s) {\n" +
+				"	                   ^^^^^^^^\n" +
+				"The preview feature Instanceof Pattern is only available with source level 15 and above\n" +
+				"----------\n",
+				null,
+				true,
+				options);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
+	}
+	public void test000b() {
+		Map<String, String> options = getCompilerOptions(true);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+		runNegativeTest(
+				new String[] {
+						"X1.java",
+						"public class X1 {\n" +
+						"  public void foo(Object obj) {\n" +
+						"		if (obj instanceof String s) {\n" +
+						"		}\n " +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X1.java (at line 0)\n" +
+				"	public class X1 {\n" +
+				"	^\n" +
+				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level 15\n" +
+				"----------\n",
+				null,
+				true,
+				options);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	}
 	public void test001() {
 		Map<String, String> options = getCompilerOptions(false);

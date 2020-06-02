@@ -4536,8 +4536,8 @@ private void consumeTypeTestPattern() {
 	type = getTypeReference(this.intStack[this.intPtr--]); //getTypeReference(0); // no type dimension
 	local.declarationSourceStart = type.sourceStart;
 	local.type = type;
-	if (!this.parsingJava14Plus) {
-		problemReporter().previewFeatureNotSupported(type.sourceStart, local.declarationEnd, "Instanceof Pattern", CompilerOptions.VERSION_13); //$NON-NLS-1$
+	if (!this.parsingJava15Plus) {
+		problemReporter().previewFeatureNotSupported(type.sourceStart, local.declarationEnd, "Instanceof Pattern", CompilerOptions.VERSION_15); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(type.sourceStart, local.declarationEnd, "Instanceof Pattern"); //$NON-NLS-1$
 	} else {
