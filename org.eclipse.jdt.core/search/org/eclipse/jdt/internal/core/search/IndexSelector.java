@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -131,11 +132,9 @@ private static int canSeeFocus(IJavaElement focus, JavaProject javaProject, char
 				if (focusQualifiedNames != null) { // builder state is usable, hence use it to try to reduce project which can see the focus...
 					State projectState = (State) JavaModelManager.getJavaModelManager().getLastBuiltState(javaProject.getProject(), null);
 					if (projectState != null) {
-						Object[] values = projectState.getReferences().valueTable;
-						int vLength = values.length;
-						for (int j=0; j<vLength; j++)  {
-							if (values[j] == null) continue;
-							ReferenceCollection references = (ReferenceCollection) values[j];
+						Collection<ReferenceCollection> values = projectState.getReferences().values();
+						for (ReferenceCollection references : values) {
+							if (references == null) continue;
 							if (references.includes(focusQualifiedNames, null, null)) {
 								return PROJECT_CAN_SEE_FOCUS;
 							}

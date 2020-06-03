@@ -677,4 +677,10 @@ public class ForeachStatement extends Statement {
 	public boolean doesNotCompleteNormally() {
 		return false; // may not be entered at all.
 	}
+
+	@Override
+	public boolean canCompleteNormally() {
+		return true;
+	}
+
 }

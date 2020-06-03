@@ -22,6 +22,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -29,7 +31,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -88,6 +89,25 @@ public class StateTest extends BuilderTests {
 		writeReadAndCompareReferences(implementationProjectPath);
 	}
 
+
+	public void testBug563546() throws JavaModelException, Exception {
+		IPath project = env.addProject("Bug563546"); //$NON-NLS-1$
+		env.addExternalJars(project, Util.getJavaClassLibs());
+
+		env.addClass(project, "a", "WithOther", //$NON-NLS-1$ //$NON-NLS-2$
+			"package a;\n" +
+			"class Other {\n" +
+			"}\n" +
+			"public class WithOther {\n" +
+			"}" //$NON-NLS-1$
+		);
+		fullBuild();
+		env.removePackage(project, "a");
+		incrementalBuild();
+
+		writeReadAndCompareReferences(project);
+	}
+
 	private void writeReadAndCompareReferences(IPath projectPath)
 			throws JavaModelException, IOException, CoreException {
 		JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
@@ -98,20 +118,17 @@ public class StateTest extends BuilderTests {
 		JavaBuilder.writeState(savedState, new DataOutputStream(outputStream));
 		byte[] bytes = outputStream.toByteArray();
 		State readState = JavaBuilder.readState(project, new DataInputStream(new ByteArrayInputStream(bytes)));
-		SimpleLookupTable readReferences = readState.getReferences();
+		Map<String, ReferenceCollection> readReferences = readState.getReferences();
 		assertEqualLookupTables(savedState.getReferences(), readReferences);
 	}
 
-	private void assertEqualLookupTables(SimpleLookupTable expectation, SimpleLookupTable actual) {
-		assertEquals(expectation.elementSize, actual.elementSize);
-		Object[] expectedKeys = expectation.keyTable;
-		for(int i = 0; i < expectedKeys.length; i++) {
-			Object key = expectedKeys[i];
-			if (key != null) {
-				ReferenceCollection actualReferenceCollection = (ReferenceCollection) actual.get(key);
-				ReferenceCollection expectedReferenceCollection = (ReferenceCollection) expectation.valueTable[i];
-				assertEqualReferenceCollections(expectedReferenceCollection, actualReferenceCollection);
-			}
+	private void assertEqualLookupTables(Map<String, ReferenceCollection> expectation, Map<String, ReferenceCollection> actual) {
+		assertEquals(expectation.size(), actual.size());
+		Set<String> expectedKeys = expectation.keySet();
+		for (String key : expectedKeys) {
+			ReferenceCollection actualReferenceCollection = actual.get(key);
+			ReferenceCollection expectedReferenceCollection = expectation.get(key);
+			assertEqualReferenceCollections(expectedReferenceCollection, actualReferenceCollection);
 		}
 	}
 

@@ -13126,4 +13126,73 @@ public void testBug560889() {
 		"	}\n" +
 		"}");
 }
+public void testBug563487a() {
+	formatSource(
+		"class A {\n" +
+		"	protected void f() {\n" +
+		"		cccccccccccccc\n" +
+		"				// \n" +
+		"				.forEach(c -> {\n" +
+		"					aaaaaa();\n" +
+		"[#					bbbbbb();#]\n" +
+		"				});\n" +
+		"	}\n" +
+		"}",
+		"class A {\n" +
+		"	protected void f() {\n" +
+		"		cccccccccccccc\n" +
+		"				// \n" +
+		"				.forEach(c -> {\n" +
+		"					aaaaaa();\n" +
+		"					bbbbbb();\n" +
+		"				});\n" +
+		"	}\n" +
+		"}");
+}
+public void testBug563487b() {
+	formatSource(
+		"class A {\n" +
+		"	protected void f() {\n" +
+		"		cccccccccccccc\n" +
+		"				// \n" +
+		"					.forEach(c -> {\n" +
+		"						aaaaaa();\n" +
+		"[#					bbbbbb();#]\n" +
+		"					});\n" +
+		"	}\n" +
+		"}",
+		"class A {\n" +
+		"	protected void f() {\n" +
+		"		cccccccccccccc\n" +
+		"				// \n" +
+		"					.forEach(c -> {\n" +
+		"						aaaaaa();\n" +
+		"					bbbbbb();\n" +
+		"					});\n" +
+		"	}\n" +
+		"}");
+}
+public void testBug563487c() {
+	formatSource(
+		"class A {\n" +
+		"protected void f() {\n" +
+		"cccccccccccccc\n" +
+		"		// \n" +
+		"		.forEach(c -> {\n" +
+		"			aaaaaa();\n" +
+		"[#			bbbbbb();#]\n" +
+		"		});\n" +
+		"}\n" +
+		"}",
+		"class A {\n" +
+		"protected void f() {\n" +
+		"cccccccccccccc\n" +
+		"		// \n" +
+		"		.forEach(c -> {\n" +
+		"			aaaaaa();\n" +
+		"			bbbbbb();\n" +
+		"		});\n" +
+		"}\n" +
+		"}");
+}
 }

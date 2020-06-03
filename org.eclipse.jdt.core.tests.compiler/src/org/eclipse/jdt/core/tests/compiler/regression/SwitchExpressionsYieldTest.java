@@ -4872,6 +4872,218 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		"Return within switch expressions not permitted\n" +
         "----------\n");
 }
+	public void testBug563023_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				" static public int foo(int a, int b){\n"+
+				"   int t = switch (a) {\n"+
+				"     default -> {\n"+
+				"       switch (b) {\n"+
+				"            default -> {\n"+
+				"              yield 0;\n"+
+				"            }\n"+
+				"       }      \n"+
+				"     }\n"+
+				"   };\n"+
+				"   return t;\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(X.foo(0, 0));\n"+
+				" }\n"+
+				"}\n"
+			},
+			"0");
+	}
+    public void testBug563023_002() {
+        this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"public class X { \n"+
+    			" static public int foo(int a, int b){\n"+
+    			"   int t = switch (a) {\n"+
+    			"     default -> {\n"+
+    			"       switch (b) {\n"+
+    			"            case 0 -> {\n"+
+    			"              break;\n"+
+    			"            }\n"+
+    			"            default -> {\n"+
+    			"              yield 0;\n"+
+    			"            }\n"+
+    			"       }      \n"+
+    			"     }\n"+
+    			"   };\n"+
+    			"   return t;\n"+
+    			" }\n"+
+    			" public static void main(String[] args) {\n"+
+    			"   System.out.println(X.foo(0, 0));\n"+
+    			" }\n"+
+    			"}\n"
+    		},
+        "----------\n" +
+		"1. ERROR in X.java (at line 13)\n" +
+		"	}\n" +
+		"	^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+        "----------\n");
+}
+    public void testBug563023_003() {
+        this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"public class X { \n"+
+    			" static public int foo(int a, int b){\n"+
+    			"   int t = switch (a) {\n"+
+    			"     default -> {\n"+
+    			"       switch (b) {\n"+
+    			"            case 0 -> {\n"+
+    			"              yield 0;\n"+
+    			"            }\n"+
+    			"       }      \n"+
+    			"     }\n"+
+    			"   };\n"+
+    			"   return t;\n"+
+    			" }\n"+
+    			" public static void main(String[] args) {\n"+
+    			"   System.out.println(X.foo(0, 0));\n"+
+    			" }\n"+
+    			"}\n"
+    		},
+        "----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	}\n" +
+		"	^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+        "----------\n");
+}
+    public void testBug563023_004() {
+        this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"public class X { \n"+
+    			" static public int foo(int a, int b){\n"+
+    			"   int t = switch (a) {\n"+
+    			"     default -> {\n"+
+    			"       switch (b) {\n"+
+    			"            case 0 -> {\n"+
+    			"              break;\n"+
+    			"            }\n"+
+    			"            default -> yield 0;\n"+
+    			"       }      \n"+
+    			"     }\n"+
+    			"   };\n"+
+    			"   return t;\n"+
+    			" }\n"+
+    			" public static void main(String[] args) {\n"+
+    			"   System.out.println(X.foo(0, 0));\n"+
+    			" }\n"+
+    			"}\n"
+    		},
+        "----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	default -> yield 0;\n" +
+		"	                 ^\n" +
+		"Syntax error on token \"0\", delete this token\n" +
+        "----------\n");
+}
+    public void testBug563023_005() {
+        this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"public class X { \n"+
+    			" static public int foo(int a, int b){\n"+
+    			"   int t = switch (a) {\n"+
+    			"     default -> {\n"+
+    			"       switch (b) {\n"+
+    			"            case 0 -> {\n"+
+    			"              break;\n"+
+    			"            }\n"+
+    			"            default ->{ yield 0;}\n"+
+    			"       }      \n"+
+    			"     }\n"+
+    			"   };\n"+
+    			"   return t;\n"+
+    			" }\n"+
+    			" public static void main(String[] args) {\n"+
+    			"   System.out.println(X.foo(0, 0));\n"+
+    			" }\n"+
+    			"}\n"
+    		},
+        "----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	}\n" +
+		"	^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+        "----------\n");
+}
+	public void testBug563023_006() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				" static public int foo(MyEnum a, MyEnum b){\n"+
+				"   int t = switch (a) {\n"+
+				"     default -> {\n"+
+				"       switch (b) {\n"+
+				"       case ONE -> { \n"+
+				"              yield 0;\n"+
+				"            }\n"+
+				"       default -> {yield 1;}\n"+
+				"       }      \n"+
+				"     }\n"+
+				"   };\n"+
+				"   return t;\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(X.foo(MyEnum.ONE, MyEnum.TWO));\n"+
+				" }\n"+
+				"} \n"+
+				"enum MyEnum {\n"+
+				" ONE,\n"+
+				" TWO\n"+
+				"}\n"
+			},
+			"1");
+	}
+    public void testBug563023_007() {
+        this.runNegativeTest(
+    		new String[] {
+    			"X.java",
+    			"public class X { \n"+
+    			" static public int foo(MyEnum a, MyEnum b){\n"+
+    			"   int t = switch (a) {\n"+
+    			"     default -> {\n"+
+    			"       switch (b) {\n"+
+    			"       case ONE -> { \n"+
+    			"              yield 0;\n"+
+    			"            }\n"+
+    			"       }      \n"+
+    			"     }\n"+
+    			"   };\n"+
+    			"   return t;\n"+
+    			" }\n"+
+    			" public static void main(String[] args) {\n"+
+    			"   System.out.println(X.foo(MyEnum.ONE, MyEnum.TWO));\n"+
+    			" }\n"+
+    			"} \n"+
+    			"enum MyEnum {\n"+
+    			" ONE,\n"+
+    			" TWO\n"+
+    			"}\n"
+    		},
+        "----------\n" +
+		"1. WARNING in X.java (at line 5)\n" +
+		"	switch (b) {\n" +
+		"	        ^\n" +
+		"The enum constant TWO needs a corresponding case label in this enum switch on MyEnum\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	}\n" +
+		"	^^\n" +
+		"A switch labeled block in a switch expression should not complete normally\n" +
+        "----------\n");
+}
 	public void testBug563147_001() {
 		runConformTest(
 			new String[] {

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
@@ -108,52 +109,42 @@ public class CtSym {
 	 */
 	private final Map<String, Map<String, Path>> allReleasesPaths = new ConcurrentHashMap<>();
 
-	CtSym(Path jdkHome) {
+	CtSym(Path jdkHome) throws IOException {
 		this.jdkHome = jdkHome;
 		this.ctSymFile = jdkHome.resolve("lib/ct.sym"); //$NON-NLS-1$
-		FileSystem fst = null;
+		init();
+	}
+
+	private void init() throws IOException {
 		boolean exists = Files.exists(this.ctSymFile);
-		if (exists) {
-			URI uri = URI.create("jar:file:" + this.ctSymFile.toUri().getRawPath()); //$NON-NLS-1$
+		if (!exists) {
+			throw new FileNotFoundException("File " + this.ctSymFile + " does not exist"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+		FileSystem fst = null;
+		URI uri = URI.create("jar:file:" + this.ctSymFile.toUri().getRawPath()); //$NON-NLS-1$
+		try {
+			fst = FileSystems.getFileSystem(uri);
+		} catch (Exception fne) {
+			// Ignore and move on
+		}
+		if (fst == null) {
 			try {
+				fst = FileSystems.newFileSystem(uri, new HashMap<>());
+			} catch (FileSystemAlreadyExistsException e) {
 				fst = FileSystems.getFileSystem(uri);
-			} catch (Exception fne) {
-				// Ignore and move on
-			}
-			if (fst == null) {
-				try {
-					fst = FileSystems.newFileSystem(uri, new HashMap<>());
-				} catch (FileSystemAlreadyExistsException e) {
-					fst = FileSystems.getFileSystem(uri);
-				} catch (IOException e) {
-					//
-				}
 			}
 		}
 		this.fs = fst;
 		if (fst == null) {
-			this.root = null;
-			this.isJRE12Plus = false;
+			throw new IOException("Failed to create ct.sym file system for " + this.ctSymFile); //$NON-NLS-1$
 		} else {
-			try {
-				this.root = fst.getPath("/"); //$NON-NLS-1$
-				this.isJRE12Plus = isCurrentRelease12plus();
-			} catch (IOException e) {
-				this.root = null;
-			}
+			this.root = fst.getPath("/"); //$NON-NLS-1$
+			this.isJRE12Plus = isCurrentRelease12plus();
 		}
-
 	}
 
 	/**
-	 * @return true if ct.sym file exists and can be read
-	 */
-	public boolean exists() {
-		return this.fs != null;
-	}
-
-	/**
-	 * @return may return null if ct.sym file doesn't exist
+	 * @return never null
 	 */
 	public FileSystem getFs() {
 		return this.fs;
@@ -168,7 +159,7 @@ public class CtSym {
 	}
 
 	/**
-	 * @return may return null if ct.sym file doesn't exist
+	 * @return never null
 	 */
 	public Path getRoot() {
 		return this.root;
@@ -180,9 +171,6 @@ public class CtSym {
 	 * @return set with all root paths related to given release in ct.sym file
 	 */
 	public List<Path> releaseRoots(String releaseInHex) {
-		if (!exists()) {
-			return Collections.emptyList();
-		}
 		List<Path> list = this.releaseRootPaths.computeIfAbsent(releaseInHex, x -> {
 			List<Path> rootDirs = new ArrayList<>();
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.root)) {
@@ -248,14 +236,13 @@ public class CtSym {
 				// If file is known, read it from ct.sym
 				if (Files.exists(p)) {
 					if (VERBOSE) {
-						System.out.println("exists: " + qualifiedSignatureFileName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-						System.out.println("not found: " + qualifiedSignatureFileName); //$NON-NLS-1$
+						System.out.println("found: " + qualifiedSignatureFileName + " in " + p + " for module " + moduleName  + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					}
 					return p;
 				}
 			}
 			if (VERBOSE) {
-				System.out.println("not found: " + qualifiedSignatureFileName); //$NON-NLS-1$
+				System.out.println("not found: " + qualifiedSignatureFileName + " for module " + moduleName); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return null;
 		}
@@ -264,14 +251,19 @@ public class CtSym {
 		if(moduleName != null) {
 			// Without this, org.eclipse.jdt.core.tests.model.ModuleBuilderTests.testConvertToModule() fails on 12+ JRE
 			path = releasePaths.get(moduleName + sep + qualifiedSignatureFileName);
+
+			// Special handling of broken module shema in java 11 for compilation with --release 10
+			if(path == null && !this.isJRE12Plus() && "A".equals(releaseInHex)){ //$NON-NLS-1$
+				path = releasePaths.get(qualifiedSignatureFileName);
+			}
 		} else {
 			path = releasePaths.get(qualifiedSignatureFileName);
 		}
 		if (VERBOSE) {
 			if (path != null) {
-				System.out.println("exists: " + qualifiedSignatureFileName + "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+				System.out.println("found: " + qualifiedSignatureFileName + " in " + path + " for module " + moduleName +"\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			} else {
-				System.out.println("not found: " + qualifiedSignatureFileName); //$NON-NLS-1$
+				System.out.println("not found: " + qualifiedSignatureFileName + " for module " + moduleName); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return path;
@@ -351,9 +343,6 @@ public class CtSym {
 	}
 
 	public byte[] getFileBytes(Path path) throws IOException {
-		if (!exists()) {
-			return null;
-		}
 		if (DISABLE_CACHE) {
 			return JRTUtil.safeReadBytes(path);
 		} else {
@@ -417,8 +406,6 @@ public class CtSym {
 		sb.append("CtSym ["); //$NON-NLS-1$
 		sb.append("file="); //$NON-NLS-1$
 		sb.append(this.ctSymFile);
-		sb.append(", exists="); //$NON-NLS-1$
-		sb.append(this.exists());
 		sb.append("]"); //$NON-NLS-1$
 		return sb.toString();
 	}

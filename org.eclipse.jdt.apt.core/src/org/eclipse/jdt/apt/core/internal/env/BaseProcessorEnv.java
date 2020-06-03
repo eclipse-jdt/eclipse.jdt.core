@@ -85,8 +85,9 @@ import com.sun.mirror.util.Types;
  */
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 {
+	private static final int JLS_LATEST = AST.JLS14;
 	static{
-		final AST ast = AST.newAST(AST.JLS13, true);
+		final AST ast = AST.newAST(JLS_LATEST, true);
 		EMPTY_AST_UNIT = ast.newCompilationUnit();
 	}
 	public static final CompilationUnit EMPTY_AST_UNIT;
@@ -508,7 +509,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS13);
+		final ASTParser parser = ASTParser.newParser(JLS_LATEST);
 		parser.setResolveBindings(true);
 		parser.setBindingsRecovery(true);
 		parser.setProject(_javaProject);
@@ -719,7 +720,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             if( astUnit != null ) return astUnit;
             else{
                 // Note: very expensive operation. we are re-compiling a file with binding information.
-                final ASTParser parser =  ASTParser.newParser(AST.JLS13);
+                final ASTParser parser =  ASTParser.newParser(JLS_LATEST);
                 parser.setResolveBindings(true);
         		parser.setBindingsRecovery(true);
                 parser.setSource(unit);
@@ -868,7 +869,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		String bogusKey = BindingKey.createTypeBindingKey("java.lang.Object"); //$NON-NLS-1$
 		String[] keys = new String[] {bogusKey};
 
-		ASTParser p = ASTParser.newParser( AST.JLS13 );
+		ASTParser p = ASTParser.newParser( JLS_LATEST );
 		p.setResolveBindings(true);
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
@@ -898,7 +899,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
-		ASTParser p = ASTParser.newParser( AST.JLS13 );
+		ASTParser p = ASTParser.newParser( JLS_LATEST );
 		p.setResolveBindings(true);
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );

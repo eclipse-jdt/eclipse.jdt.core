@@ -420,7 +420,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private void prepareLineBreaks() {
 		LineBreaksPreparator breaksPreparator = new LineBreaksPreparator(this.tokenManager, this.workingOptions);
 		this.astRoot.accept(breaksPreparator);
-		breaksPreparator.finishUp(this.formatRegions);
+		breaksPreparator.finishUp();
 		this.astRoot.accept(new OneLineEnforcer(this.tokenManager, this.workingOptions));
 	}
 

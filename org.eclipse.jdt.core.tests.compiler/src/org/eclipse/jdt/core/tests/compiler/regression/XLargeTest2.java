@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 Andrey Loskutov and others.
+ * Copyright (c) 2018, 2020 Andrey Loskutov and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -404,4 +404,22 @@ public class XLargeTest2 extends AbstractRegressionTest {
 				"interface gwz {}\n" +
 				"interface gxc {}\n";
 	}
+	public void testBug550480() {
+		StringBuilder source = new StringBuilder();
+		source.append("package p;\n");
+		String[] names = new String[571];
+		for (int i = 0; i < 571; i++) {
+			names[i] = "I"+i;
+			source.append("interface ").append(names[i]).append(" {}\n");
+		}
+		source.append("public abstract class hft implements ");
+		source.append(String.join(", ", names));
+		source.append("\n{\n}\n");
+		runConformTest(
+			new String[] {
+				"p/hft.java",
+				source.toString()
+			});
+	}
+
 }

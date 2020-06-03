@@ -306,6 +306,10 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				skipNext = true;
 				continue;
 			}
+			if (tokens[i].trim().equals("-enableJavadoc")) {
+				buf.append(" -Xdoclint:all ");
+				continue;
+			}
 			buf.append(tokens[i]).append(' ');
 		}
 		if (versionOptions != null) {
@@ -418,7 +422,9 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"2 problems (2 errors)\n",
 				false,
-				"missing tags");
+				"missing tags",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
 	public void testBug549855b() {
@@ -491,7 +497,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"2 problems (2 errors)\n",
 				false,
-				"missing and invalid tags");
+				"service-type not found");
 	}
 
 	public void testBug549855c() {
@@ -566,7 +572,9 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"2 problems (2 errors)\n",
 				false,
-				"duplicate tags");
+				"duplicate tags",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.NoWarningForDuplicateJavadocTag);
 	}
 
 	public void testBug549855d() {
@@ -686,7 +694,9 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"1 problem (1 error)\n",
 				false,
-				"missing tags");
+				"missing tags",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
 	public void testBug549855f() {
@@ -753,7 +763,9 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"1 problem (1 error)\n",
 				false,
-				"missing tags");
+				"missing tags",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
 	public void testBug549855g() {
@@ -824,7 +836,9 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"2 problems (2 errors)\n",
 				false,
-				"missing tags");
+				"missing tags",
+				OUTPUT_DIR,
+				JavacTestOptions.JavacHasABug.NoWarningForMissingJavadocTag);
 	}
 
 	public void testBug549855h() {
@@ -897,7 +911,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"2 problems (2 errors)\n",
 				false,
-				"invalid tags");
+				"reference not found");
 	}
 
 	public void testBug549855i() {
@@ -935,7 +949,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"1 problem (1 error)\n",
 				false,
-				"missing comment");
+				"no comment");
 	}
 
 	public void testBug562960() {
@@ -962,15 +976,15 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 			},
 			options,
 			"",
-			"----------\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/Test.java (at line 2)\n" + 
-			"	* {@link sun.security.ssl.X509TrustManagerImpl}\n" + 
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Javadoc: The type sun.security.ssl.X509TrustManagerImpl is not accessible\n" + 
-			"----------\n" + 
+			"----------\n" +
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/Test.java (at line 2)\n" +
+			"	* {@link sun.security.ssl.X509TrustManagerImpl}\n" +
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Javadoc: The type sun.security.ssl.X509TrustManagerImpl is not accessible\n" +
+			"----------\n" +
 			"1 problem (1 error)\n",
 			false,
-			"what?");
+			"reference not found");
 	}
 
 }

@@ -3560,8 +3560,9 @@ public abstract class Scope {
 
 	private boolean isUnnecessarySamePackageImport(Binding resolvedImport, Scope unitScope) {
 		if (resolvedImport instanceof ReferenceBinding) {
-			if (unitScope.getCurrentPackage() == ((ReferenceBinding) resolvedImport).getPackage()) {
-				if ((resolvedImport.getAnnotationTagBits() & TagBits.IsNestedType) != 0)
+			ReferenceBinding referenceBinding = (ReferenceBinding) resolvedImport;
+			if (unitScope.getCurrentPackage() == referenceBinding.getPackage()) {
+				if (referenceBinding.isNestedType())
 					return false; // importing nested types is still necessary
 				return true;
 			}
