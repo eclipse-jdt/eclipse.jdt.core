@@ -86,6 +86,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		anonymousType.typeBits |= inheritedBits;
+		anonymousType.setPermittedTypes(Binding.NO_PERMITTEDTYPES); // JLS 15 JEP 360 Preview - Sec 15.9.5
 		if (supertype.isInterface()) {
 			anonymousType.setSuperClass(getJavaLangObject());
 			anonymousType.setSuperInterfaces(new ReferenceBinding[] { supertype });
@@ -1060,6 +1061,7 @@ public class ClassScope extends Scope {
 		if (sourceType.id == TypeIds.T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			sourceType.setSuperClass(null);
 			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+			sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
 			if (!sourceType.isClass())
 				problemReporter().objectMustBeClass(sourceType);
 			if (this.referenceContext.superclass != null || (this.referenceContext.superInterfaces != null && this.referenceContext.superInterfaces.length > 0))
@@ -1146,6 +1148,54 @@ public class ClassScope extends Scope {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
 		}
 		return !foundCycle;
+	}
+
+	private boolean connectPermittedTypes() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+		if (this.referenceContext.permittedTypes == null) {
+			return true;
+		}
+		if (sourceType.id == TypeIds.T_JavaLangObject) // already handled the case of redefining java.lang.Object
+			return true;
+
+		boolean noProblems = true;
+		int length = this.referenceContext.permittedTypes.length;
+		ReferenceBinding[] permittedTypeBindings = new ReferenceBinding[length];
+		int count = 0;
+		nextPermittedType : for (int i = 0; i < length; i++) {
+		    TypeReference permittedTypeRef = this.referenceContext.permittedTypes[i];
+			ReferenceBinding permittedType = findPermittedtype(permittedTypeRef);
+			if (permittedType == null) { // detected cycle
+				sourceType.tagBits |= TagBits.HierarchyHasProblems;
+				noProblems = false;
+				continue nextPermittedType;
+			}
+			// check for simple interface collisions
+			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (i.e. a.b.I and c.d.I)
+			for (int j = 0; j < i; j++) {
+				if (TypeBinding.equalsEquals(permittedTypeBindings[j], permittedType)) {
+					problemReporter().sealedDuplicateTypeInPermits(sourceType, permittedTypeRef, permittedType);
+					sourceType.tagBits |= TagBits.HierarchyHasProblems;
+					noProblems = false;
+					continue nextPermittedType;
+				}
+			}
+			if ((permittedType.tagBits & TagBits.HierarchyHasProblems) != 0
+					|| !permittedTypeRef.resolvedType.isValidBinding()) {
+				sourceType.tagBits |= TagBits.HierarchyHasProblems; // propagate if missing supertype
+				noProblems &= permittedTypeRef.resolvedType.isValidBinding();
+			}
+			// only want to reach here when no errors are reported
+			permittedTypeBindings[count++] = permittedType;
+		}
+		// hold onto all correctly resolved superinterfaces
+		if (count > 0) {
+			if (count != length)
+				System.arraycopy(permittedTypeBindings, 0, permittedTypeBindings = new ReferenceBinding[count], 0, count);
+			sourceType.setPermittedTypes(permittedTypeBindings);
+		}
+		return noProblems;
 	}
 
 	private boolean connectRecordSuperclass() {
@@ -1252,6 +1302,7 @@ public class ClassScope extends Scope {
 				environment().typesBeingConnected.add(sourceType);
 				boolean noProblems = connectSuperclass();
 				noProblems &= connectSuperInterfaces();
+				noProblems &= connectPermittedTypes();
 				environment().typesBeingConnected.remove(sourceType);
 				sourceType.tagBits |= TagBits.EndHierarchyCheck;
 				noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
@@ -1310,6 +1361,7 @@ public class ClassScope extends Scope {
 			environment().typesBeingConnected.add(sourceType);
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
+			noProblems &= connectPermittedTypes();
 			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 			noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
@@ -1469,6 +1521,7 @@ public class ClassScope extends Scope {
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;
 			if (sourceType.superInterfaces == null)  sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES); // be more resilient for hierarchies (144976)
+			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
 			throw e;
 		} finally {
@@ -1477,6 +1530,24 @@ public class ClassScope extends Scope {
 		}
 	}
 
+	private ReferenceBinding findPermittedtype(TypeReference typeReference) {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		LookupEnvironment env = unitScope.environment;
+		try {
+			env.missingClassFileLocation = typeReference;
+			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
+			unitScope.recordQualifiedReference(typeReference.getTypeName());
+			ReferenceBinding permittedType = (ReferenceBinding) typeReference.resolveType(this);
+			return permittedType;
+		} catch (AbortCompilation e) {
+			SourceTypeBinding sourceType = this.referenceContext.binding;
+			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
+			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
+		}
+	}
 	/* Answer the problem reporter to use for raising new problems.
 	*
 	* Note that as a side-effect, this updates the current reference context

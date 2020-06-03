@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1509,6 +1513,19 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 			return false;
 	}
 }
+/**
+ * Answer true if the receiver has non-sealed modifier
+ */
+public final boolean isNonSealed() {
+	return (this.modifiers & ExtraCompilerModifiers.AccNonSealed) != 0;
+}
+
+/**
+ * Answer true if the receiver has sealed modifier
+ */
+public final boolean isSealed() {
+	return (this.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
+}
 
 @Override
 public boolean isSubtypeOf(TypeBinding other, boolean simulatingBugJDK8026527) {
@@ -2037,6 +2054,11 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore)
 @Override
 public ReferenceBinding superclass() {
 	return null;
+}
+
+@Override
+public ReferenceBinding[] permittedTypes() {
+	return Binding.NO_PERMITTEDTYPES;
 }
 
 @Override

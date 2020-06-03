@@ -2352,7 +2352,7 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedMissingModifier = PreviewRelated + 1850;
+	int SealedMissingClassModifier = PreviewRelated + 1850;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedDisAllowedNonSealedModifier = PreviewRelated + 1851;
@@ -2367,7 +2367,7 @@ void setSourceStart(int sourceStart);
 	int SealedMissingSealedModifier = PreviewRelated + 1854;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedPermittedTypeNotAccessible = PreviewRelated + 1855;
+	int SealedMissingInterfaceModifier = PreviewRelated + 1855;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedDuplicateTypeInPermits = PreviewRelated + 1856;
@@ -2407,7 +2407,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedAttemptToInstantiateSealed = PreviewRelated + 1868;
-
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedAnnotationTypeDeclarationCannotHavePermittedTypes = PreviewRelated + 1869;
 	/* Java15 errors - end */
 
 	}

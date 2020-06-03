@@ -1471,6 +1471,9 @@ public void resolve() {
 				if (this.superInterfaces != null) {
 					this.scope.problemReporter().annotationTypeDeclarationCannotHaveSuperinterfaces(this);
 				}
+				if (this.permittedTypes != null) {
+					this.scope.problemReporter().sealedAnnotationTypeDeclarationCannotHavePermittedTypes(this);
+				}
 				break;
 			case TypeDeclaration.ENUM_DECL :
 				// check enum abstract methods

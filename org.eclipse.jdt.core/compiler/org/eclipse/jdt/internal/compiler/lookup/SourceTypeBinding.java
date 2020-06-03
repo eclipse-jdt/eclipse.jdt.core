@@ -103,6 +103,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private MethodBinding[] methods;                       // MUST NOT be modified directly, use setter !
 	public ReferenceBinding[] memberTypes;                 // MUST NOT be modified directly, use setter !
 	public TypeVariableBinding[] typeVariables;            // MUST NOT be modified directly, use setter !
+	public ReferenceBinding[] permittedTypes;              // MUST NOT be modified directly, use setter !
 
 	public ClassScope scope;
 	protected SourceTypeBinding prototype;
@@ -1067,9 +1068,178 @@ private void checkAnnotationsInType() {
 
 void faultInTypesForFieldsAndMethods() {
 	if (!isPrototype()) throw new IllegalStateException();
+	checkPermitsInType();
 	checkAnnotationsInType();
 	internalFaultInTypeForFieldsAndMethods();
 }
+// TODO: Optimize the multiple loops - defer until the feature becomes standard.
+private void checkPermitsInType() {
+	TypeDeclaration typeDecl = this.scope.referenceContext;
+	boolean hasPermittedTypes = this.permittedTypes != null && this.permittedTypes.length > 0;
+	if (hasPermittedTypes) {
+		if (!this.isSealed())
+			this.scope.problemReporter().sealedMissingSealedModifier(this, typeDecl);
+		ModuleBinding sourceModuleBinding = this.module();
+		boolean isUnnamedModule = sourceModuleBinding.isUnnamed();
+		if (isUnnamedModule) {
+			PackageBinding sourceTypePackage = this.getPackage();
+			for (int i =0, l = this.permittedTypes.length; i < l; i++) {
+				ReferenceBinding permType = this.permittedTypes[i];
+				if (!permType.isValidBinding()) continue;
+				if (sourceTypePackage != permType.getPackage()) {
+					TypeReference permittedTypeRef = typeDecl.permittedTypes[i];
+					this.scope.problemReporter().sealedPermittedTypeOutsideOfPackage(permType, this, permittedTypeRef, sourceTypePackage);
+				}
+			}
+		} else {
+			for (int i = 0, l = this.permittedTypes.length; i < l; i++) {
+				ReferenceBinding permType = this.permittedTypes[i];
+				if (!permType.isValidBinding()) continue;
+				ModuleBinding permTypeModule = permType.module();
+				if (sourceModuleBinding != permTypeModule) {
+					TypeReference permittedTypeRef = typeDecl.permittedTypes[i];
+					this.scope.problemReporter().sealedPermittedTypeOutsideOfModule(permType, this, permittedTypeRef, sourceModuleBinding);
+				}
+			}
+		}
+	}
+
+	ReferenceBinding superType = this.superclass();
+	if (this.isNonSealed()) {
+		boolean foundSealedSuperInterface = false;
+		if (!superType.isSealed()) {
+			ReferenceBinding[] superInterfaces1 = this.superInterfaces();
+			int l = superInterfaces1 != null ? superInterfaces1.length : 0;
+			for (int i = 0; i < l; ++i) {
+				ReferenceBinding superInterface = superInterfaces1[i];
+				if (superInterface.isSealed()) {
+					foundSealedSuperInterface = true;
+					break;
+				}
+			}
+			if (!foundSealedSuperInterface) {
+				this.scope.problemReporter().sealedDisAllowedNonSealedModifier(this, typeDecl);
+			}
+		}
+	}
+	boolean isAnySuperTypeSealed = this.superclass != null ? this.superclass.isSealed() : false;
+	TypeReference superTypeRef = typeDecl.superclass;
+	if (!isAnySuperTypeSealed) {
+		ReferenceBinding[] superInterfaces1 = this.superInterfaces();
+		int l = superInterfaces1 != null ? superInterfaces1.length : 0;
+		for (int i = 0; i < l; ++i) {
+			ReferenceBinding superInterface = superInterfaces1[i];
+			if (superInterface.isSealed()) {
+				superType = superInterface;
+				superTypeRef = typeDecl.superInterfaces[i];
+				isAnySuperTypeSealed = true;
+				break;
+			}
+		}
+	}
+	if (isAnySuperTypeSealed) {
+		if (!(this.isFinal() || this.isSealed() || this.isNonSealed()))
+			if (this.isClass())
+				this.scope.problemReporter().sealedMissingClassModifier(this, superTypeRef, superType);
+			else if (this.isInterface())
+				this.scope.problemReporter().sealedMissingInterfaceModifier(this, superTypeRef, superType);
+		List<SourceTypeBinding> typesInCU = collectAllTypeBindings(typeDecl, this.scope.compilationUnitScope());
+		if (typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
+			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, typeDecl.superclass, this.superclass);
+		for (int i = 0, l = this.superInterfaces.length; i < l; ++i) {
+			ReferenceBinding superInterface = this.superInterfaces[i];
+			if (superInterface != null && !checkPermitsAndAdd(superInterface, typesInCU)) {
+				TypeReference superInterfaceRef = typeDecl.superInterfaces[i];
+				if (this.isClass())
+					this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, superInterfaceRef, superInterface);
+				else if (this.isInterface())
+					this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superInterfaceRef, superInterface);
+			}
+		}
+	}
+	for (int i = 0, l = this.permittedTypes.length; i < l; i++) {
+	    TypeReference permittedTypeRef = this.scope.referenceContext.permittedTypes[i];
+		ReferenceBinding permittedType = this.permittedTypes[i];
+		if (permittedType == null || !permittedType.isValidBinding())
+			continue;
+		if (this.isClass()) {
+			ReferenceBinding permSuperType = permittedType.superclass();
+			if (!TypeBinding.equalsEquals(this, permSuperType)) {
+				this.scope.problemReporter().sealedNotDirectSuperClass(permittedType, permittedTypeRef, this);
+				continue;
+			}
+		} else if (this.isInterface()) {
+			ReferenceBinding[] permSuperInterfaces = permittedType.superInterfaces();
+			boolean foundSuperInterface = false;
+			if (permSuperInterfaces != null) {
+				for (ReferenceBinding psi : permSuperInterfaces) {
+					if (TypeBinding.equalsEquals(this, psi)) {
+						foundSuperInterface = true;
+						break;
+					}
+				}
+				if (!foundSuperInterface) {
+					this.scope.problemReporter().sealedNotDirectSuperInterface(permittedType, permittedTypeRef, this);
+					continue;
+				}
+			}
+		}
+	}
+	return;
+}
+private List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, CompilationUnitScope unitScope) {
+	class TypeBindingsCollector extends ASTVisitor {
+		List<SourceTypeBinding> types = new ArrayList<>();
+		@Override
+		public boolean visit(
+				TypeDeclaration localTypeDeclaration,
+				BlockScope scope1) {
+				this.types.add(localTypeDeclaration.binding);
+				return true;
+			}
+			@Override
+			public boolean visit(
+				TypeDeclaration memberTypeDeclaration,
+				ClassScope scope1) {
+				this.types.add(memberTypeDeclaration.binding);
+				return true;
+			}
+			@Override
+			public boolean visit(
+				TypeDeclaration typeDeclaration,
+				CompilationUnitScope scope1) {
+				this.types.add(typeDeclaration.binding);
+				return true; // do nothing by default, keep traversing
+			}
+	}
+	TypeBindingsCollector typeCollector = new TypeBindingsCollector();
+	typeDecl.traverse(typeCollector, unitScope);
+	return typeCollector.types;
+}
+
+private boolean checkPermitsAndAdd(ReferenceBinding superType, List<SourceTypeBinding> types) {
+	if (superType == null
+			|| superType.equals(this.scope.getJavaLangObject()))
+		return true;
+	if (superType.isSealed()) {
+		ReferenceBinding[] superPermittedTypes = superType.permittedTypes();
+		for (ReferenceBinding permittedType : superPermittedTypes) {
+			if (permittedType.isValidBinding() && TypeBinding.equalsEquals(this, permittedType))
+				return true;
+		}
+		// add this if the super type also in the same compilation unit - implicitly permits
+//		if (types.contains(this)) {
+//			int len = superPermittedTypes.length;
+//			ReferenceBinding[] newPermTypes = new ReferenceBinding [len + 1];
+//			System.arraycopy(superPermittedTypes, 0, newPermTypes, 0, len);
+//			newPermTypes[len] = this;
+//			((SourceTypeBinding) superType).setPermittedTypes(newPermTypes);
+//			return true;
+//		}
+	}
+	return false;
+}
+
 public RecordComponentBinding[] components() {
 
 	if (!this.isRecordDeclaration)
@@ -2220,6 +2390,11 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 }
 
 @Override
+public ReferenceBinding[] permittedTypes() {
+	return this.permittedTypes;
+}
+
+@Override
 public TypeBinding prototype() {
 	return this.prototype;
 }
@@ -2827,6 +3002,22 @@ public MethodBinding [] setMethods(MethodBinding[] methods) {
 		}
 	}
 	return this.methods = methods;
+}
+
+//Propagate writes to all annotated variants so the clones evolve along.
+public ReferenceBinding [] setPermittedTypes(ReferenceBinding [] permittedTypes) {
+
+	if (!isPrototype())
+		return this.prototype.setPermittedTypes(permittedTypes);
+
+	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
+		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
+		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
+			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
+			annotatedType.permittedTypes = permittedTypes;
+		}
+	}
+	return this.permittedTypes = permittedTypes;
 }
 
 // Propagate writes to all annotated variants so the clones evolve along.
