@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2019 BEA Systems Inc. and others
+ * Copyright (c) 2005, 2020 BEA Systems Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -85,7 +85,7 @@ import com.sun.mirror.util.Types;
  */
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 {
-	private static final int JLS_LATEST = AST.JLS14;
+	private static final int JLS_LATEST = AST.JLS15;
 	static{
 		final AST ast = AST.newAST(JLS_LATEST, true);
 		EMPTY_AST_UNIT = ast.newCompilationUnit();

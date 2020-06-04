@@ -50,6 +50,12 @@ import org.eclipse.jdt.core.dom.YieldStatement;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
+/*
+ * This test, although originally was created for AST Level 14,
+ * during the second iteration of preview feature Records,
+ * being migrated to AST 15.
+ *
+ */
 @SuppressWarnings("rawtypes")
 public class ASTConverter14Test extends ConverterTestSetup {
 
@@ -58,12 +64,10 @@ public class ASTConverter14Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST14(), false);
-		if (this.ast.apiLevel() == AST.JLS14 ) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
-		}
+		this.ast = AST.newAST(getAST15(), false);
+		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 	}
 
 	public ASTConverter14Test(String name) {
@@ -79,8 +83,8 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter14Test.class);
 	}
 
-	static int getAST14() {
-		return AST.JLS14;
+	static int getAST15() {
+		return AST.JLS15;
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -362,6 +366,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 
 	}
 	// Moved over from ASTConverter9Test
+	@SuppressWarnings("deprecation")
 	public void _testBug531714_015() throws CoreException {
 		// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
 		if (!isJRE14) {
@@ -788,8 +793,8 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	}
 
 	public void testRecord005() throws CoreException {
-		if (!isJRE14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
 		String contents = "public class X {\n" +
@@ -799,7 +804,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		          "		System.out.println(r.x());\n" +
 				  "	}\n" +
 		          "}";
-		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -839,8 +844,8 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	}
 
 	public void testRecord006() throws CoreException {
-		if (!isJRE14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
 		String contents = "import java.lang.annotation.ElementType;\n" +
@@ -853,7 +858,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 				"}\n" +
 				"@Target({ElementType.FIELD})\n" +
 				"@interface MyAnnot {}";
-		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -886,8 +891,8 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	}
 
 	public void testRecord007() throws CoreException {
-		if (!isJRE14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
 		String contents = "record X(int lo) {\n" +
@@ -896,7 +901,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 				"	}\n" +
 				"\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {

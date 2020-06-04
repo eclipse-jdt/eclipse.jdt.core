@@ -85,6 +85,9 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 
 		waitUntilIndexesReady();
 	}
+	/**
+	 * @deprecated uses deprecated AST level
+	 */
 	protected static int getJLS14() {
 		return AST.JLS14;
 	}

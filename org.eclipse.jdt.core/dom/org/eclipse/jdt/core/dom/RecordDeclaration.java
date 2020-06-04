@@ -178,7 +178,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (apiLevel == AST.JLS14_INTERNAL && previewEnabled) {
+		if (apiLevel == AST.JLS15_INTERNAL && previewEnabled) {
 			return PROPERTY_DESCRIPTORS;
 		}
 		return null;

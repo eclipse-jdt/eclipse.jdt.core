@@ -43,7 +43,7 @@ public class ReconcilerTests9 extends ModifyingResourceTests {
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
 
-	/*package*/ static final int JLS_LATEST = AST.JLS14;
+	/*package*/ static final int JLS_LATEST = AST.JLS15;
 
 /**
  */
