@@ -516,7 +516,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in p2\\Y.java (at line 2)\n" +
 			"	non-sealed public interface Y {}\n" +
 			"	                            ^\n" +
-			"A class Y declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
+			"An interface Y declared as non-sealed should have a sealed direct superinterface\n" +
 			"----------\n");
 	}
 	public void testBug563806_009() {
@@ -919,5 +919,200 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"public sealed interface Y extends p1.X {}",
 			};
 		runner.runConformTest();
+	}
+	public void testBug563806_028() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public non-sealed enum X {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	public non-sealed enum X {\n" +
+			"	                       ^\n" +
+			"Illegal modifier for the enum X; only public is permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_029() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public sealed enum X {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	public sealed enum X {\n" +
+			"	                   ^\n" +
+			"Illegal modifier for the enum X; only public is permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_030() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public class X {\n"+
+				"static sealed enum Y {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 3)\n" +
+			"	static sealed enum Y {}\n" +
+			"	                   ^\n" +
+			"Illegal modifier for the member enum Y; only public, protected, private & static are permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_031() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public class X {\n"+
+				"static non-sealed enum Y {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 3)\n" +
+			"	static non-sealed enum Y {}\n" +
+			"	                       ^\n" +
+			"Illegal modifier for the member enum Y; only public, protected, private & static are permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_032() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public sealed non-sealed interface X {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	public sealed non-sealed interface X {\n" +
+			"	                                   ^\n" +
+			"An interface X is declared both sealed and non-sealed\n" +
+			"----------\n");
+	}
+	public void testBug563806_033() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public sealed  @interface X {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	public sealed  @interface X {\n" +
+			"	       ^^^^^^\n" +
+			"Syntax error on token \"sealed\", static expected\n" +
+			"----------\n");
+	}
+	public void testBug563806_034() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public  non-sealed @interface X {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	public  non-sealed @interface X {\n" +
+			"	                              ^\n" +
+			"An interface X declared as non-sealed should have a sealed direct superinterface\n" +
+			"----------\n");
+	}
+	public void testBug563806_035() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public  non-sealed interface X {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	public  non-sealed interface X {\n" +
+			"	                             ^\n" +
+			"An interface X declared as non-sealed should have a sealed direct superinterface\n" +
+			"----------\n");
+	}
+	public void testBug563806_036() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public  class X {\n"+
+				"  public void foo() {\n"+
+				"    sealed class Y{}\n"+
+				"  }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 4)\n" +
+			"	sealed class Y{}\n" +
+			"	             ^\n" +
+			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_037() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public  class X {\n"+
+				"  public void foo() {\n"+
+				"    non-sealed class Y{}\n"+
+				"  }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 4)\n" +
+			"	non-sealed class Y{}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_038() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"public  class X {\n"+
+				"  public void foo() {\n"+
+				"    non-sealed sealed class Y{}\n"+
+				"  }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 4)\n" +
+			"	non-sealed sealed class Y{}\n" +
+			"	                        ^\n" +
+			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
+			"----------\n");
+	}
+	public void testBug563806_039() {
+		this.runNegativeTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"sealed class A{}\n"+
+				"public  class X {\n"+
+				"  public void foo() {\n"+
+				"    class Y extends A{}\n"+
+				"  }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 5)\n" +
+			"	class Y extends A{}\n" +
+			"	                ^\n" +
+			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface A\n" +
+			"----------\n");
 	}
 }

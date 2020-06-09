@@ -11856,12 +11856,12 @@ public void sealedMissingClassModifier(SourceTypeBinding type, TypeReference sup
 public void sealedMissingInterfaceModifier(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	sealedMissingModifier(IProblem.SealedMissingInterfaceModifier, type, superclass, superTypeBinding);
 }
-public void sealedDisAllowedNonSealedModifier(SourceTypeBinding type, TypeDeclaration typeDecl) {
+public void sealedDisAllowedNonSealedModifierInClass(SourceTypeBinding type, TypeDeclaration typeDecl) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String name = new String(type.sourceName());
 	this.handle(
-			IProblem.SealedDisAllowedNonSealedModifier,
+			IProblem.SealedDisAllowedNonSealedModifierInClass,
 			new String[] { name },
 			new String[] { name },
 			typeDecl.sourceStart,
@@ -11983,16 +11983,23 @@ public void sealedInterfaceIsSealedAndNonSealed(SourceTypeBinding type, ASTNode 
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedInterfaceIsSealedAndNonSealed, new String[] { name }, new String[] { name },
-			node.sourceStart, node.sourceEnd);
+	this.handle(IProblem.SealedInterfaceIsSealedAndNonSealed,
+			new String[] { name },
+			new String[] { name },
+			node.sourceStart,
+			node.sourceEnd);
 }
 
-public void sealedInterfaceMissingSealedNonSealedModifier(SourceTypeBinding type, ASTNode node) {
+public void sealedDisAllowedNonSealedModifierInInterface(SourceTypeBinding type, TypeDeclaration typeDecl) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedInterfaceMissingSealedNonSealedModifier, new String[] { name }, new String[] { name },
-			node.sourceStart, node.sourceEnd);
+	this.handle(
+			IProblem.SealedDisAllowedNonSealedModifierInInterface,
+			new String[] { name },
+			new String[] { name },
+			typeDecl.sourceStart,
+			typeDecl.sourceEnd);
 }
 
 public void sealedNotDirectSuperInterface(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
@@ -12026,12 +12033,19 @@ public void sealedDisAllowedModifierInLocalClass(SourceTypeBinding type, ASTNode
 			node.sourceStart, node.sourceEnd);
 }
 
-public void sealedDirectSuperTypeSealed(SourceTypeBinding type, ASTNode node) {
+public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedDirectSuperTypeSealed, new String[] { name }, new String[] { name }, node.sourceStart,
-			node.sourceEnd);
+	String superTypeFullName = new String(superTypeBinding.readableName());
+	String superTypeShortName = new String(superTypeBinding.shortReadableName());
+	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
+	this.handle(
+		IProblem.SealedLocalDirectSuperTypeSealed,
+		new String[] {superTypeFullName, name},
+		new String[] {superTypeShortName, name},
+		superclass.sourceStart,
+		superclass.sourceEnd);
 }
 
 public void sealedAttemptToInstantiateSealed(SourceTypeBinding type, ASTNode node) {

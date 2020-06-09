@@ -53,6 +53,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,6 +61,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -1072,9 +1074,33 @@ void faultInTypesForFieldsAndMethods() {
 	checkAnnotationsInType();
 	internalFaultInTypeForFieldsAndMethods();
 }
+
+private Map.Entry<TypeReference, ReferenceBinding> getFirstSealedSuperTypeOrInterface(TypeDeclaration typeDecl) {
+	boolean isAnySuperTypeSealed = this.superclass != null ? this.superclass.isSealed() : false;
+	if (isAnySuperTypeSealed)
+		return new AbstractMap.SimpleEntry<>(typeDecl.superclass, this.superclass);
+
+	ReferenceBinding[] superInterfaces1 = this.superInterfaces();
+	int l = superInterfaces1 != null ? superInterfaces1.length : 0;
+	for (int i = 0; i < l; ++i) {
+		ReferenceBinding superInterface = superInterfaces1[i];
+		if (superInterface.isSealed()) {
+			return new AbstractMap.SimpleEntry<>(typeDecl.superInterfaces[i], superInterface);
+		}
+	}
+	return null;
+}
 // TODO: Optimize the multiple loops - defer until the feature becomes standard.
 private void checkPermitsInType() {
+	if (this.isRecordDeclaration || this.isEnum())
+		return; // handled separately
 	TypeDeclaration typeDecl = this.scope.referenceContext;
+	if (this.isInterface()) {
+		if (isSealed() && isNonSealed()) {
+			this.scope.problemReporter().sealedInterfaceIsSealedAndNonSealed(this, typeDecl);
+			return;
+		}
+	}
 	boolean hasPermittedTypes = this.permittedTypes != null && this.permittedTypes.length > 0;
 	if (hasPermittedTypes) {
 		if (!this.isSealed())
@@ -1104,45 +1130,31 @@ private void checkPermitsInType() {
 		}
 	}
 
-	ReferenceBinding superType = this.superclass();
-	if (this.isNonSealed()) {
-		boolean foundSealedSuperInterface = false;
-		if (!superType.isSealed()) {
-			ReferenceBinding[] superInterfaces1 = this.superInterfaces();
-			int l = superInterfaces1 != null ? superInterfaces1.length : 0;
-			for (int i = 0; i < l; ++i) {
-				ReferenceBinding superInterface = superInterfaces1[i];
-				if (superInterface.isSealed()) {
-					foundSealedSuperInterface = true;
-					break;
-				}
-			}
-			if (!foundSealedSuperInterface) {
-				this.scope.problemReporter().sealedDisAllowedNonSealedModifier(this, typeDecl);
-			}
+//	ReferenceBinding superType = this.superclass();
+	Map.Entry<TypeReference, ReferenceBinding> sealedEntry = getFirstSealedSuperTypeOrInterface(typeDecl);
+	boolean foundSealedSuperTypeOrInterface = sealedEntry != null;
+	if (this.isLocalType()) {
+		if (this.isSealed() || this.isNonSealed())
+			return; // already handled elsewhere
+		if (foundSealedSuperTypeOrInterface) {
+			this.scope.problemReporter().sealedLocalDirectSuperTypeSealed(this, sealedEntry.getKey(), sealedEntry.getValue());
+			return;
 		}
-	}
-	boolean isAnySuperTypeSealed = this.superclass != null ? this.superclass.isSealed() : false;
-	TypeReference superTypeRef = typeDecl.superclass;
-	if (!isAnySuperTypeSealed) {
-		ReferenceBinding[] superInterfaces1 = this.superInterfaces();
-		int l = superInterfaces1 != null ? superInterfaces1.length : 0;
-		for (int i = 0; i < l; ++i) {
-			ReferenceBinding superInterface = superInterfaces1[i];
-			if (superInterface.isSealed()) {
-				superType = superInterface;
-				superTypeRef = typeDecl.superInterfaces[i];
-				isAnySuperTypeSealed = true;
-				break;
-			}
-		}
-	}
-	if (isAnySuperTypeSealed) {
-		if (!(this.isFinal() || this.isSealed() || this.isNonSealed()))
+	} else if (this.isNonSealed()) {
+		if (!foundSealedSuperTypeOrInterface) {
 			if (this.isClass())
-				this.scope.problemReporter().sealedMissingClassModifier(this, superTypeRef, superType);
+				this.scope.problemReporter().sealedDisAllowedNonSealedModifierInClass(this, typeDecl);
 			else if (this.isInterface())
-				this.scope.problemReporter().sealedMissingInterfaceModifier(this, superTypeRef, superType);
+				this.scope.problemReporter().sealedDisAllowedNonSealedModifierInInterface(this, typeDecl);
+		}
+	}
+	if (foundSealedSuperTypeOrInterface) {
+		if (!(this.isFinal() || this.isSealed() || this.isNonSealed())) {
+			if (this.isClass())
+				this.scope.problemReporter().sealedMissingClassModifier(this, sealedEntry.getKey(), sealedEntry.getValue());
+			else if (this.isInterface())
+				this.scope.problemReporter().sealedMissingInterfaceModifier(this, sealedEntry.getKey(), sealedEntry.getValue());
+		}
 		List<SourceTypeBinding> typesInCU = collectAllTypeBindings(typeDecl, this.scope.compilationUnitScope());
 		if (typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
 			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, typeDecl.superclass, this.superclass);

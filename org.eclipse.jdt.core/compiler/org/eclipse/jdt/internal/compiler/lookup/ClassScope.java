@@ -659,10 +659,13 @@ public class ClassScope extends Scope {
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
 		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
+			boolean flagSealedNonModifiers = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
+					compilerOptions().enablePreviewFeatures &&
+					(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers) {
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 					modifiers &= ~ClassFileConstants.AccAbstract; // avoid leaking abstract modifier
 					realModifiers &= ~ClassFileConstants.AccAbstract;
@@ -673,7 +676,7 @@ public class ClassScope extends Scope {
 				// each enum constant is an anonymous local type and its modifiers were already checked as an enum constant field
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 			if (!sourceType.isAnonymousType()) {
@@ -768,8 +771,11 @@ public class ClassScope extends Scope {
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
+				boolean flagSealedNonModifiers = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
+						compilerOptions().enablePreviewFeatures &&
+						(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);

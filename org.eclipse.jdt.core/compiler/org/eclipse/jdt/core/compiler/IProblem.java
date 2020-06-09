@@ -2355,7 +2355,7 @@ void setSourceStart(int sourceStart);
 	int SealedMissingClassModifier = PreviewRelated + 1850;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedDisAllowedNonSealedModifier = PreviewRelated + 1851;
+	int SealedDisAllowedNonSealedModifierInClass = PreviewRelated + 1851;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedSuperClassDoesNotPermit = PreviewRelated + 1852;
@@ -2391,7 +2391,7 @@ void setSourceStart(int sourceStart);
 	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1862;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedInterfaceMissingSealedNonSealedModifier = PreviewRelated +1863;
+	int SealedDisAllowedNonSealedModifierInInterface = PreviewRelated + 1863;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedNotDirectSuperInterface = PreviewRelated + 1864;
@@ -2403,7 +2403,7 @@ void setSourceStart(int sourceStart);
 	int SealedDisAllowedModifierInLocalClass = PreviewRelated +1866;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedDirectSuperTypeSealed = PreviewRelated + 1867;
+	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1867;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedAttemptToInstantiateSealed = PreviewRelated + 1868;
