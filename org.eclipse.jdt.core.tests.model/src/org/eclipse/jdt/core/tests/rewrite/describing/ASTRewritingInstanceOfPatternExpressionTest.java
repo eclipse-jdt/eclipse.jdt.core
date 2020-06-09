@@ -36,7 +36,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 
 	public ASTRewritingInstanceOfPatternExpressionTest(String name) {
-		super(name, 14);
+		super(name, 15);
 	}
 
 	public ASTRewritingInstanceOfPatternExpressionTest(String name, int apiLevel) {
@@ -50,18 +50,18 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS14 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		if (this.apiLevel == AST.JLS15 ) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test001() throws Exception {
-		if (this.apiLevel != 14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (this.apiLevel != 15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

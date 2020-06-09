@@ -230,6 +230,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_03_since_12() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS15) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -399,6 +402,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_04_since_12() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS15) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	= "package test1;\n"+
 				"public class X {\n"+

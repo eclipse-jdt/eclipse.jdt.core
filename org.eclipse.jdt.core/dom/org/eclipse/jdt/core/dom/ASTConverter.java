@@ -3103,7 +3103,7 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.TextBlock expression) {
-		if (!this.ast.isPreviewEnabled()) {
+		if (this.ast.apiLevel < AST.JLS15_INTERNAL) {
 			return createFakeNullLiteral(expression);
 		}
 		int length = expression.sourceEnd - expression.sourceStart + 1;
