@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,7 +23,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,30 +36,22 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.ModuleElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.ElementScanner14;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
-import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 @SupportedAnnotationTypes("*")
-public class Java14ElementProcessor extends BaseProcessor {
+public class RecordElementProcessor extends BaseElementProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
@@ -260,7 +255,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		modifiers = toSMethod.getModifiers();
 		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
 		assertTrue("should be strictfp", modifiers.contains(Modifier.STRICTFP));
-		assertFalse("should not be final", modifiers.contains(Modifier.FINAL));
+		assertTrue("should be final", modifiers.contains(Modifier.FINAL));
 		modifiers = hashMethod.getModifiers();
 		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
 		assertTrue("should be final", modifiers.contains(Modifier.FINAL));
@@ -520,197 +515,5 @@ public class Java14ElementProcessor extends BaseProcessor {
 	            assertFalse("Should not be default for \"" + name + "\".", accessor.isDefault());
 	            assertFalse("Should not be varargs for \"" + name + "\".", accessor.isVarArgs());
 	        }
-	}
-
-	@Override
-	public void reportError(String msg) {
-		throw new AssertionFailedError(msg);
-	}
-	private String getExceptionStackTrace(Throwable t) {
-		StringBuffer buf = new StringBuffer(t.getMessage());
-		StackTraceElement[] traces = t.getStackTrace();
-		for (int i = 0; i < traces.length; i++) {
-			StackTraceElement trace = traces[i];
-			buf.append("\n\tat " + trace);
-			if (i == 12)
-				break; // Don't dump all stacks
-		}
-		return buf.toString();
-	}
-	protected String getElementsAsString(List<? extends Element> list) {
-		StringBuilder builder = new StringBuilder("[");
-		for (Element element : list) {
-			if (element instanceof PackageElement) {
-				builder.append(((PackageElement) element).getQualifiedName());
-			} else if (element instanceof ModuleElement) {
-				builder.append(((ModuleElement) element).getQualifiedName());
-			} else if (element instanceof TypeElement) {
-				builder.append(((TypeElement) element).getQualifiedName());
-			}  else {
-				builder.append(element.getSimpleName());
-			}
-			builder.append(", ");
-		}
-		builder.append("]");
-		return builder.toString();
-	}
-	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
-		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
-		Set<String> actual = new HashSet<String>(expected.length);
-		for (Modifier modifier : modifiers) {
-			actual.add(modifier.toString());
-		}
-		for(int i = 0, length = expected.length; i < length; i++) {
-			boolean result = actual.remove(expected[i]);
-			if (!result) reportError("Modifier not present :" + expected[i]);
-		}
-		if (!actual.isEmpty()) {
-			reportError("Unexpected modifiers present:" + actual.toString());
-		}
-	}
-	public void assertTrue(String msg, boolean value) {
-		if (!value) reportError(msg);
-	}
-	public void assertFalse(String msg, boolean value) {
-		if (value) reportError(msg);
-	}
-	public void assertSame(String msg, Object obj1, Object obj2) {
-		if (obj1 != obj2) {
-			reportError(msg + ", should be " + obj1.toString() + " but " + obj2.toString());
-		}
-	}
-	public void assertNotSame(String msg, Object obj1, Object obj2) {
-		if (obj1 == obj2) {
-			reportError(msg + ", " + obj1.toString() + " should not be same as " + obj2.toString());
-		}
-	}
-	public void assertNotNull(String msg, Object obj) {
-		if (obj == null) {
-			reportError(msg);
-		}
-	}
-	public void assertNull(String msg, Object obj) {
-		if (obj != null) {
-			reportError(msg);
-		}
-	}
-    public void assertEquals(String message, Object expected, Object actual) {
-        if (equalsRegardingNull(expected, actual)) {
-            return;
-        } else {
-        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
-        }
-    }
-
-    public void assertEquals(String message, Object expected, Object alternateExpected, Object actual) {
-        if (equalsRegardingNull(expected, actual) || equalsRegardingNull(alternateExpected, actual)) {
-            return;
-        } else {
-        	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
-        }
-    }
-
-    static boolean equalsRegardingNull(Object expected, Object actual) {
-        if (expected == null) {
-            return actual == null;
-        }
-        return expected.equals(actual);
-    }
-
-	public void assertEquals(String msg, int expected, int actual) {
-		if (expected != actual) {
-			StringBuffer buf = new StringBuffer();
-			buf.append(msg);
-			buf.append(", expected " + expected + " but was " + actual);
-			reportError(buf.toString());
-		}
-	}
-	public void assertEquals(Object expected, Object actual) {
-		if (expected != actual) {
-
-		}
-	}
-	private void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {
-		List<? extends AnnotationMirror> annotations = construct.getAnnotationMirrors();
-		assertEquals("Incorrect no of annotations", annots.length, annotations.size());
-		for(int i = 0, length = annots.length; i < length; i++) {
-			AnnotationMirror mirror = annotations.get(i);
-			assertEquals("Invalid annotation value", annots[i], getAnnotationString(mirror));
-		}
-	}
-
-	private String getAnnotationString(AnnotationMirror annot) {
-		DeclaredType annotType = annot.getAnnotationType();
-		TypeElement type = (TypeElement) annotType.asElement();
-		StringBuffer buf = new StringBuffer("@" + type.getSimpleName());
-		Map<? extends ExecutableElement, ? extends AnnotationValue> values = annot.getElementValues();
-		Set<? extends ExecutableElement> keys = values.keySet();
-		buf.append('(');
-		for (ExecutableElement executableElement : keys) { // @Marker3()
-			buf.append(executableElement.getSimpleName());
-			buf.append('=');
-			AnnotationValue value = values.get(executableElement);
-			buf.append(value.getValue());
-		}
-		buf.append(')');
-		return buf.toString();
-	}
-	private class AssertionFailedError extends Error {
-		private static final long serialVersionUID = 1L;
-
-		public AssertionFailedError(String msg) {
-			super(msg);
-		}
-	}
-
-	class ScannerImpl<R, P> extends ElementScanner14<R, P> {
-		public Object el;
-		boolean isType;
-		boolean isMethod;
-		public boolean visited;
-		public boolean scanned;
-		R result;
-		public Object param;
-
-		public List<TypeParameterElement> params = new ArrayList<>();
-
-		public ScannerImpl() {
-			super();
-		}
-
-		public ScannerImpl(R r) {
-			super(r);
-		}
-
-		@Override
-		public R visitType(TypeElement e, P p) {
-			el = e;
-			param = p;
-			isType = true;
-			return super.visitType(e, p);
-		}
-
-		@Override
-		public R visitExecutable(ExecutableElement e, P p) {
-			isMethod = true;
-			el = e;
-			param = p;
-			return super.visitExecutable(e, p);
-		}
-
-		public R visitRecordComponent(RecordComponentElement e, P p) {
-			el = e;
-			param = p;
-			visited = true;
-			return super.visitRecordComponent(e, p);
-		}
-
-		public R scan(Element e, P p) {
-			scanned = true;
-			if (e instanceof TypeParameterElement) {
-				params.add((TypeParameterElement) e);
-			}
-			return DEFAULT_VALUE;
-		}
 	}
 }

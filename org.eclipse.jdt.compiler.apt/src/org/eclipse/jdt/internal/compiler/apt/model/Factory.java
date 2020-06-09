@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
@@ -204,6 +208,20 @@ public class Factory {
 				case ClassFileConstants.AccVolatile :
 					appendModifier(result, modifiers, checkBits[i], Modifier.VOLATILE);
 					break;
+				case ExtraCompilerModifiers.AccNonSealed :
+					try {
+						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("NON_SEALED")); //$NON-NLS-1$
+					} catch(IllegalArgumentException iae) {
+						// Don't have JDK 15, just ignore and proceed.
+					}
+					break;
+				case ExtraCompilerModifiers.AccSealed :
+					try {
+						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("SEALED")); //$NON-NLS-1$
+					} catch(IllegalArgumentException iae) {
+						// Don't have JDK 15, just ignore and proceed.
+					}
+					break;
 			}
 		}
 	}
@@ -321,7 +339,9 @@ public class Factory {
 					ClassFileConstants.AccFinal,
 					ClassFileConstants.AccPrivate,
 					ClassFileConstants.AccStatic,
-					ClassFileConstants.AccStrictfp
+					ClassFileConstants.AccStrictfp,
+					ExtraCompilerModifiers.AccSealed,
+					ExtraCompilerModifiers.AccNonSealed
 				});
 				break;
 			case MODULE :

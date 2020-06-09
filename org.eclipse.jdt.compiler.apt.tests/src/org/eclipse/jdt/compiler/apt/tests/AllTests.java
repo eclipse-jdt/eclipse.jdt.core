@@ -37,7 +37,8 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Java9ElementsTests.class);
 		suite.addTestSuite(Java11ElementsTests.class);
 		suite.addTestSuite(Java12ElementsTests.class);
-		suite.addTestSuite(Java14ElementsTests.class);
+		suite.addTestSuite(RecordElementsTests.class);
+		suite.addTestSuite(SealedTypeElementsTests.class);
 		suite.addTestSuite(AnnotationProcessorTests.class);
 		return suite;
 	}

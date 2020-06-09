@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -197,6 +201,19 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		return Collections.emptyList();
     }
 
+	@Override
+	public List<? extends TypeMirror> getPermittedSubclasses() {
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		if (binding.isSealed()) {
+			List<TypeMirror> permitted = new ArrayList<>();
+			for (ReferenceBinding type : binding.permittedTypes()) {
+				TypeMirror typeMirror = _env.getFactory().newTypeMirror(type);
+				permitted.add(typeMirror);
+			}
+			return Collections.unmodifiableList(permitted);
+		}
+		return Collections.emptyList();
+    }
 	@Override
 	public Element getEnclosingElement() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
