@@ -472,6 +472,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// add record attributes
 			attributesNumber += generateRecordAttributes();
 		}
+		if (this.targetJDK >= ClassFileConstants.JDK15) {
+			// add record attributes
+			attributesNumber += generatePermittedTypeAttributes();
+		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -2919,6 +2923,39 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int nAttrs = generateNestMembersAttribute(); //either member or host will exist 4.7.29
 		nAttrs += generateNestHostAttribute();
 		return nAttrs;
+	}
+	private int generatePermittedTypeAttributes() {
+		SourceTypeBinding type = this.referenceBinding;
+		int localContentsOffset = this.contentsOffset;
+		ReferenceBinding[] permittedTypes = type.permittedTypes();
+		int l = permittedTypes != null ? permittedTypes.length : 0;
+		if (l == 0)
+			return 0;
+
+		int exSize = 8 + 2 * l;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
+		}
+		int attributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.PermittedSubclasses);
+		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) attributeNameIndex;
+		int value = (l << 1) + 2;
+		this.contents[localContentsOffset++] = (byte) (value >> 24);
+		this.contents[localContentsOffset++] = (byte) (value >> 16);
+		this.contents[localContentsOffset++] = (byte) (value >> 8);
+		this.contents[localContentsOffset++] = (byte) value;
+		this.contents[localContentsOffset++] = (byte) (l >> 8);
+		this.contents[localContentsOffset++] = (byte) l;
+
+		for (int i = 0; i < l; i++) {
+			char[] permittedTypeName = permittedTypes[i].constantPoolName();
+			int permittedTypeIndex = this.constantPool.literalIndexForType(permittedTypeName);
+			this.contents[localContentsOffset++] = (byte) (permittedTypeIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) permittedTypeIndex;
+		}
+		this.contentsOffset = localContentsOffset;
+		return 1;
 	}
 	private int generateRecordAttributes() {
 		SourceTypeBinding record = this.referenceBinding;
