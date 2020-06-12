@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -282,6 +286,7 @@ public final class Messages extends NLS {
 	public static String disassembler_nesthost;
 	public static String disassembler_nestmembers;
 	public static String disassembler_record;
+	public static String disassembler_permittedsubclasses;
 	public static String disassembler_components;
 	public static String disassembler_endofcomponent;
 	public static String disassembler_genericattributeheader;

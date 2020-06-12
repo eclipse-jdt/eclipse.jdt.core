@@ -33,7 +33,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug562715_008"};
+//		TESTS_NAMES = new String[] { "testBug564191"};
 	}
 
 	public static Class<?> testClass() {
@@ -1114,5 +1114,26 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	                ^\n" +
 			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface A\n" +
 			"----------\n");
+	}
+	public void testBug564191_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"p1/X.java",
+				"package p1;\n"+
+				"sealed class X permits Y, Z{\n" +
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n" +
+				"final class Y extends X{}\n" +
+				"final class Z extends X{}\n",
+			},
+			"0");
+		String expectedOutput =
+				"PermittedSubclasses:\n" +
+				"   #33 p1/Y,\n" +
+				"   #35 p1/Z\n" +
+				"}";
+		verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }

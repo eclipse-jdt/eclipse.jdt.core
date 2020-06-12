@@ -387,6 +387,12 @@
         </filter>
     </resource>
     <resource path="model/org/eclipse/jdt/core/util/IClassFileReader.java" type="org.eclipse.jdt.core.util.IClassFileReader">
+        <filter comment="Permitted Subclasses for JEP 360 Sealed Types" id="404000815">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.util.IClassFileReader"/>
+                <message_argument value="getPermittedSubclassesAttribute()"/>
+            </message_arguments>
+        </filter>
         <filter comment="For the Java 14 preview feature record" id="404000815">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.util.IClassFileReader"/>
