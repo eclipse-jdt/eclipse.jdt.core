@@ -203,7 +203,7 @@ public static Test suite() {
 	 // add 14 specific test here (check duplicates)
 	 ArrayList since_15 = new ArrayList();
 	 since_15.add(SealedTypes15Tests.class);
-
+	 since_15.add(ClassFileReaderTest_15.class);
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));

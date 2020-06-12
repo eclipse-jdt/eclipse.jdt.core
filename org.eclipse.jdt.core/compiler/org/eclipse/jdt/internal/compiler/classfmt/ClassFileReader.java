@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -67,6 +71,8 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private InnerClassInfo[] innerInfos;
 	private char[][] interfaceNames;
 	private int interfacesCount;
+	private char[][] permittedSubtypesNames;
+	private int permittedSubtypesCount;
 	private MethodInfo[] methods;
 	private int methodsCount;
 	private char[] signature;
@@ -470,6 +476,22 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						}
 					}
 					break;
+				case 'P' :
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.PermittedSubclasses)) {
+						int offset = readOffset + 6;
+						this.permittedSubtypesCount = u2At(offset);
+						if (this.permittedSubtypesCount != 0) {
+							offset += 2;
+							this.permittedSubtypesNames = new char[this.permittedSubtypesCount][];
+							for (int j = 0; j < this.permittedSubtypesCount; j++) {
+								utf8Offset =
+									this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(offset)] + 1)];
+		 						this.permittedSubtypesNames[j] = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		 						offset += 2;
+							}
+						}
+					}
+					break;
 			}
 			readOffset += (6 + u4At(readOffset + 2));
 		}
@@ -730,6 +752,11 @@ public char[] getInnerSourceName() {
 @Override
 public char[][] getInterfaceNames() {
 	return this.interfaceNames;
+}
+
+@Override
+public char[][] getPermittedSubtypeNames() {
+	return this.permittedSubtypesNames;
 }
 
 @Override
@@ -1036,6 +1063,17 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 				return true;
 			for (int i = 0, max = this.interfacesCount; i < max; i++)
 				if (!CharOperation.equals(this.interfaceNames[i], newInterfacesNames[i]))
+					return true;
+		}
+
+		// permitted sub-types
+		char[][] newPermittedSubtypeNames = newClassFile.getPermittedSubtypeNames();
+		if (this.permittedSubtypesNames != newPermittedSubtypeNames) {
+			int newPermittedSubtypesLength = newPermittedSubtypeNames == null ? 0 : newPermittedSubtypeNames.length;
+			if (newPermittedSubtypesLength != this.permittedSubtypesCount)
+				return true;
+			for (int i = 0, max = this.permittedSubtypesCount; i < max; i++)
+				if (!CharOperation.equals(this.permittedSubtypesNames[i], newPermittedSubtypeNames[i]))
 					return true;
 		}
 

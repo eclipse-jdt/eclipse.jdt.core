@@ -59,6 +59,7 @@ public class AbstractCompilerTest extends TestCase {
 
 	protected long complianceLevel;
 	protected boolean enableAPT = false;
+	protected boolean enablePreview = false;
 	protected static boolean isJRE9Plus = false; // Stop gap, so tests need not be run at 9, but some tests can be adjusted for JRE 9
 	protected static boolean isJRE11Plus = false;
 	protected static boolean isJRE12Plus = false;

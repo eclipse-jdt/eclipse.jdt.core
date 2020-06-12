@@ -1416,6 +1416,8 @@ protected static class JavacTestOptions {
 			int major = (int)(this.complianceLevel>>16);
 			buffer.append("\" -" + (major - ClassFileConstants.MAJOR_VERSION_0));
 		}
+		if (this.complianceLevel == ClassFileConstants.getLatestJDKLevel()  && this.enablePreview)
+			buffer.append(" --enable-preview ");
 		buffer
 			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
