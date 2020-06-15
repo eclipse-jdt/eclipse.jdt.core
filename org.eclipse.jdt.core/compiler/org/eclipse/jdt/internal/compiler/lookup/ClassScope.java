@@ -39,6 +39,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -327,6 +328,7 @@ public class ClassScope extends Scope {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
+		connectPermittedTypes();
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			checkParameterizedTypeBounds();
 			checkParameterizedSuperTypeCollisions();
@@ -1049,6 +1051,8 @@ public class ClassScope extends Scope {
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
 			for (int i = 0, size = memberTypes.length; i < size; i++)
 				 ((SourceTypeBinding) memberTypes[i]).scope.connectTypeHierarchy();
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.connectPermittedTypes();
 		}
 	}
 	/*
@@ -1156,16 +1160,53 @@ public class ClassScope extends Scope {
 		return !foundCycle;
 	}
 
-	private boolean connectPermittedTypes() {
+	void connectPermittedTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
-		if (this.referenceContext.permittedTypes == null) {
-			return true;
-		}
-		if (sourceType.id == TypeIds.T_JavaLangObject) // already handled the case of redefining java.lang.Object
-			return true;
+		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum()) // already handled
+			return;
 
-		boolean noProblems = true;
+		if (this.referenceContext.permittedTypes == null) {
+			// When both sealed and non-sealed are used, an error is reported further
+			// down the line. Let's ignore it here and move on.
+			if (sourceType.isSealed()) {
+				// First top level types
+				SourceTypeBinding[] topLevelTypes = compilationUnitScope().topLevelTypes;
+				List<ReferenceBinding> permitted = null;
+				if (topLevelTypes != null) {
+					for (SourceTypeBinding subtype : topLevelTypes) {
+						if (!TypeBinding.equalsEquals(subtype, sourceType)) {
+							if (subtype.findSuperTypeOriginatingFrom(sourceType) != null) {
+								if (permitted == null)
+									permitted = new ArrayList<>();
+								permitted.add(subtype);
+							}
+						}
+					}
+				}
+				// And nested types
+				if (sourceType.memberTypes != null) {
+					for (ReferenceBinding subtype : sourceType.memberTypes) {
+						if (!TypeBinding.equalsEquals(subtype, sourceType))
+							if (subtype.findSuperTypeOriginatingFrom(sourceType) != null) {
+								if (permitted == null)
+									permitted = new ArrayList<>();
+								permitted.add(subtype);
+							}
+					}
+				}
+				if (permitted == null || permitted.size() == 0) {
+					problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
+				} else {
+					ReferenceBinding[] permittedTypeBindings = new ReferenceBinding[permitted.size()];
+					permitted.toArray(permittedTypeBindings);
+					sourceType.setPermittedTypes(permittedTypeBindings);
+					return;
+				}
+			}
+			sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+			return;
+		}
 		int length = this.referenceContext.permittedTypes.length;
 		ReferenceBinding[] permittedTypeBindings = new ReferenceBinding[length];
 		int count = 0;
@@ -1173,8 +1214,6 @@ public class ClassScope extends Scope {
 		    TypeReference permittedTypeRef = this.referenceContext.permittedTypes[i];
 			ReferenceBinding permittedType = findPermittedtype(permittedTypeRef);
 			if (permittedType == null) { // detected cycle
-				sourceType.tagBits |= TagBits.HierarchyHasProblems;
-				noProblems = false;
 				continue nextPermittedType;
 			}
 			// check for simple interface collisions
@@ -1182,15 +1221,8 @@ public class ClassScope extends Scope {
 			for (int j = 0; j < i; j++) {
 				if (TypeBinding.equalsEquals(permittedTypeBindings[j], permittedType)) {
 					problemReporter().sealedDuplicateTypeInPermits(sourceType, permittedTypeRef, permittedType);
-					sourceType.tagBits |= TagBits.HierarchyHasProblems;
-					noProblems = false;
 					continue nextPermittedType;
 				}
-			}
-			if ((permittedType.tagBits & TagBits.HierarchyHasProblems) != 0
-					|| !permittedTypeRef.resolvedType.isValidBinding()) {
-				sourceType.tagBits |= TagBits.HierarchyHasProblems; // propagate if missing supertype
-				noProblems &= permittedTypeRef.resolvedType.isValidBinding();
 			}
 			// only want to reach here when no errors are reported
 			permittedTypeBindings[count++] = permittedType;
@@ -1200,8 +1232,9 @@ public class ClassScope extends Scope {
 			if (count != length)
 				System.arraycopy(permittedTypeBindings, 0, permittedTypeBindings = new ReferenceBinding[count], 0, count);
 			sourceType.setPermittedTypes(permittedTypeBindings);
+		} else {
+			sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
 		}
-		return noProblems;
 	}
 
 	private boolean connectRecordSuperclass() {
@@ -1308,7 +1341,6 @@ public class ClassScope extends Scope {
 				environment().typesBeingConnected.add(sourceType);
 				boolean noProblems = connectSuperclass();
 				noProblems &= connectSuperInterfaces();
-				noProblems &= connectPermittedTypes();
 				environment().typesBeingConnected.remove(sourceType);
 				sourceType.tagBits |= TagBits.EndHierarchyCheck;
 				noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
@@ -1367,7 +1399,7 @@ public class ClassScope extends Scope {
 			environment().typesBeingConnected.add(sourceType);
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
-			noProblems &= connectPermittedTypes();
+			connectPermittedTypes();
 			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 			noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);

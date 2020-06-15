@@ -151,7 +151,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"     System.out.println(0);\n" +
 				"  }\n"+
 				"}\n" +
-				"sealed interface SI permits X, I{}\n"
+				"sealed interface SI permits X, I{}\n" +
+				"non-sealed interface I2 extends I{}\n"
 			},
 			"0");
 	}
@@ -159,10 +160,12 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"sealed class X {\n"+
+				"sealed class X permits Y {\n"+
 				"  public static void main(String[] args){\n"+
 				"     System.out.println(100);\n" +
 				"  }\n"+
+				"}\n" +
+				"non-sealed class Y extends X {\n"+
 				"}\n"
 			},
 			"100");
@@ -176,6 +179,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"     int sealed = 100;\n" +
 				"     System.out.println(sealed);\n" +
 				"  }\n"+
+				"}\n" +
+				"non-sealed class Y extends X {\n"+
 				"}\n"
 			},
 			"100");
@@ -188,6 +193,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"  public static void main(String[] args){\n"+
 				"     System.out.println(100);\n" +
 				"  }\n"+
+				"}\n" +
+				"non-sealed class Y extends X {\n"+
 				"}\n"
 			},
 			"100");
@@ -201,6 +208,23 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"  public static void main(String[] args){\n"+
 				"     System.out.println(100);\n" +
 				"  }\n"+
+				"}\n" +
+				"non-sealed class Y<T> extends X<T> {\n"+
+				"}\n" +
+				"non-sealed interface I2 extends I {}\n"
+			},
+			"100");
+	}
+	public void testBug562715_004a() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed public class X<T> {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
+				"}\n" +
+				"non-sealed class Y extends X {\n"+
 				"}\n"
 			},
 			"100");
@@ -220,6 +244,11 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	sealed public sealed class X {\n" +
 			"	                           ^\n" +
 			"Duplicate modifier for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	sealed public sealed class X {\n" +
+			"	                           ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
 			"----------\n");
 	}
 	public void testBug562715_006() {
@@ -233,7 +262,12 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public sealed class X {\n" +
+			"	                    ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
 			"	public static sealed void main(String[] args){\n" +
 			"	              ^^^^^^\n" +
 			"Syntax error on token \"sealed\", static expected\n" +
@@ -248,7 +282,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"     System.out.println(100);\n" +
 				"  }\n"+
 				"}\n" +
-				"@interface MyAnnot {}\n"
+				"@interface MyAnnot {}\n" +
+				"non-sealed class Y extends X{}"
 			},
 			"100");
 	}
@@ -261,7 +296,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"     System.out.println(100);\n" +
 				"  }\n"+
 				"}\n"+
-				"sealed class Y extends X {}\n"
+				"sealed class Y extends X {}\n" +
+				"final class Z extends Y {}\n"
 			},
 			"100");
 	}
@@ -275,7 +311,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"  }\n"+
 				"}\n"+
 				"sealed class Y extends X {}\n" +
-				"final class Z extends X {}\n"
+				"final class Z extends X {}\n" +
+				"final class Y2 extends Y {}\n"
 			},
 			"100");
 	}
@@ -291,6 +328,11 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
+			"	public sealed class X permits {\n" +
+			"	                    ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits {\n" +
 			"	                      ^^^^^^^\n" +
 			"Syntax error on token \"permits\", ClassType expected after this token\n" +
@@ -385,6 +427,11 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"----------\n" +
 			"1. ERROR in p1\\A.java (at line 2)\n" +
+			"	public sealed class A extends X{}\n" +
+			"	                    ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares A as its direct superclass\n" +
+			"----------\n" +
+			"2. ERROR in p1\\A.java (at line 2)\n" +
 			"	public sealed class A extends X{}\n" +
 			"	                              ^\n" +
 			"The type A extending a sealed class X should be a permitted subtype of X\n" +
@@ -520,19 +567,17 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	public void testBug563806_009() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public sealed class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(100);\n" +
+				"  }\n"+
 				"}\n"+
 				"final class Y extends X {}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	final class Y extends X {}\n" +
-			"	                      ^\n" +
-			"The type Y extending a sealed class X should be a permitted subtype of X\n" +
-			"----------\n");
+			"100");
 	}
 	public void testBug563806_010() {
 		this.runNegativeTest(
@@ -554,19 +599,19 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	public void testBug563806_011() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
-				"public sealed interface X {\n"+
+				"public class X {\n" +
+				"  public static void main(String[] args) { \n" +
+				"    System.out.println(\"0\");\n" +
+				"  }\n" +
+				"}\n" +
+				"sealed interface Y {\n"+
 				"}\n"+
-				"final class Y implements X {}",
+				"final class Z implements Y {}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	final class Y implements X {}\n" +
-			"	                         ^\n" +
-			"The type Y extending a sealed class X should be a permitted subtype of X\n" +
-			"----------\n");
+			"0");
 	}
 	public void testBug563806_012() {
 		this.runNegativeTest(
@@ -600,11 +645,6 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	interface Y extends X {}\n" +
 			"	                    ^\n" +
 			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	interface Y extends X {}\n" +
-			"	                    ^\n" +
-			"The type Y extending a sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
 	public void testBug563806_014() {
@@ -744,10 +784,10 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"package p1;\n"+
 				"public sealed interface X permits Y, p2.Y {\n"+
 				"}\n"+
-				"sealed interface Y extends X{}\n",
+				"non-sealed interface Y extends X{}\n",
 				"p2/Y.java",
 				"package p2;\n"+
-				"public sealed interface Y extends p1.X{}",
+				"public non-sealed interface Y extends p1.X{}",
 			},
 			"----------\n" +
 			"1. ERROR in p1\\X.java (at line 2)\n" +
@@ -845,7 +885,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"package p1;\n"+
 				"public sealed interface X permits Y, p2.Y {\n"+
 				"}\n"+
-				"sealed interface Y extends X{}\n",
+				"non-sealed interface Y extends X{}\n",
 				"p2/Y.java",
 				"package p2;\n"+
 				"public interface Y {}",
@@ -913,10 +953,10 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"package p1;\n"+
 				"public sealed interface X permits Y, p2.Y {\n"+
 				"}\n"+
-				"sealed interface Y extends X{}\n",
+				"non-sealed interface Y extends X{}\n",
 				"p2/Y.java",
 				"package p2;\n"+
-				"public sealed interface Y extends p1.X {}",
+				"public non-sealed interface Y extends p1.X {}",
 			};
 		runner.runConformTest();
 	}
@@ -994,6 +1034,11 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed non-sealed interface X {\n" +
 			"	                                   ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"----------\n" +
+			"2. ERROR in p1\\X.java (at line 2)\n" +
+			"	public sealed non-sealed interface X {\n" +
+			"	                                   ^\n" +
 			"An interface X is declared both sealed and non-sealed\n" +
 			"----------\n");
 	}
@@ -1058,6 +1103,11 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	sealed class Y{}\n" +
 			"	             ^\n" +
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
+			"----------\n" +
+			"2. ERROR in p1\\X.java (at line 4)\n" +
+			"	sealed class Y{}\n" +
+			"	             ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares Y as its direct superclass\n" +
 			"----------\n");
 	}
 	public void testBug563806_037() {
@@ -1094,6 +1144,11 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	non-sealed sealed class Y{}\n" +
 			"	                        ^\n" +
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
+			"----------\n" +
+			"2. ERROR in p1\\X.java (at line 4)\n" +
+			"	non-sealed sealed class Y{}\n" +
+			"	                        ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares Y as its direct superclass\n" +
 			"----------\n");
 	}
 	public void testBug563806_039() {
@@ -1109,7 +1164,12 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in p1\\X.java (at line 5)\n" +
+			"1. ERROR in p1\\X.java (at line 2)\n" +
+			"	sealed class A{}\n" +
+			"	             ^\n" +
+			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares A as its direct superclass\n" +
+			"----------\n" +
+			"2. ERROR in p1\\X.java (at line 5)\n" +
 			"	class Y extends A{}\n" +
 			"	                ^\n" +
 			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface A\n" +
@@ -1135,5 +1195,143 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"   #35 p1/Z\n" +
 				"}";
 		verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test that implicit permitted (top-level) types make it to the .class file
+	public void testBug564190_1() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X {\n" +
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n" +
+					"final class Y extends X{}\n" +
+					"final class Z extends X{}\n",
+				},
+				"0");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #33 p1/Y,\n" +
+					"   #35 p1/Z\n" +
+					"}";
+			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test that implicit permitted final (member) types make it to the .class file
+	public void testBug564190_2() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X {\n" +
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"  final class Y extends X{}\n" +
+					"  final class Z extends X{}\n" +
+					"}",
+				},
+				"0");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #33 p1/X$Y,\n" +
+					"   #36 p1/X$Z\n" +
+					"}";
+			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test that implicit permitted non-sealed (member) types make it to the .class file
+	public void testBug564190_3() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X {\n" +
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"  non-sealed class Y extends X{}\n" +
+					"  non-sealed class Z extends X{}\n" +
+					"}",
+				},
+				"0");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #33 p1/X$Y,\n" +
+					"   #36 p1/X$Z\n" +
+					"}";
+			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Test that implicit permitted member type is reported without final, sealed or non-sealed
+	public void testBug564190_4() throws IOException, ClassFormatException {
+		runNegativeTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X  {\n" +
+					"	class Y extends X {}\n" +
+					"	final class Z extends Y {}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in p1\\X.java (at line 3)\n" +
+				"	class Y extends X {}\n" +
+				"	                ^\n" +
+				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
+				"----------\n");
+	}
+	// Test that implicit permitted member type with implicit permitted types
+	// is reported when its permitted type doesn't extend the member type
+	public void testBug564190_5() throws IOException, ClassFormatException {
+		runNegativeTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X {\n" +
+					"	sealed class Y extends X {}\n" +
+					"	final class Z {}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in p1\\X.java (at line 3)\n" +
+				"	sealed class Y extends X {}\n" +
+				"	             ^\n" +
+				"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares Y as its direct superclass\n" +
+				"----------\n");
+	}
+	// Test that implicit permitted member type with explicit permits clause
+	// is reported when its permitted type doesn't extend the member type
+	public void testBug564190_6() throws IOException, ClassFormatException {
+		runNegativeTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X  {\n" +
+					"	sealed class Y extends X permits Z {}\n" +
+					"	final class Z {}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in p1\\X.java (at line 3)\n" +
+				"	sealed class Y extends X permits Z {}\n" +
+				"	                                 ^\n" +
+				"Permitted class Z does not declare p1.X.Y as direct super class\n" +
+				"----------\n");
+	}
+	// Test that implicit permitted member type with explicit permits clause
+	// is reported when its permitted type doesn't extend the member type
+	public void testBug564190_7() throws IOException, ClassFormatException {
+		runNegativeTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed interface SI {}",
+				},
+				"----------\n" +
+				"1. ERROR in p1\\X.java (at line 2)\n" +
+				"	sealed interface SI {}\n" +
+				"	                 ^^\n" +
+				"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares SI as its direct superclass\n" +
+				"----------\n");
 	}
 }

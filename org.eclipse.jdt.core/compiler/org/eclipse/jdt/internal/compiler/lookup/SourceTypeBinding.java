@@ -1169,6 +1169,13 @@ private void checkPermitsInType() {
 			}
 		}
 	}
+	for (int i = 0, length = this.memberTypes.length; i < length; i++)
+		((SourceTypeBinding) this.memberTypes[i]).checkPermitsInType();
+
+	if (this.scope.referenceContext.permittedTypes == null) {
+		// Ignore implicitly permitted case
+		return;
+	}
 	for (int i = 0, l = this.permittedTypes.length; i < l; i++) {
 	    TypeReference permittedTypeRef = this.scope.referenceContext.permittedTypes[i];
 		ReferenceBinding permittedType = this.permittedTypes[i];
@@ -1234,20 +1241,13 @@ private boolean checkPermitsAndAdd(ReferenceBinding superType, List<SourceTypeBi
 			|| superType.equals(this.scope.getJavaLangObject()))
 		return true;
 	if (superType.isSealed()) {
+		if (superType.isParameterizedType() || superType.isRawType())
+			superType = superType.actualType();
 		ReferenceBinding[] superPermittedTypes = superType.permittedTypes();
 		for (ReferenceBinding permittedType : superPermittedTypes) {
 			if (permittedType.isValidBinding() && TypeBinding.equalsEquals(this, permittedType))
 				return true;
 		}
-		// add this if the super type also in the same compilation unit - implicitly permits
-//		if (types.contains(this)) {
-//			int len = superPermittedTypes.length;
-//			ReferenceBinding[] newPermTypes = new ReferenceBinding [len + 1];
-//			System.arraycopy(superPermittedTypes, 0, newPermTypes, 0, len);
-//			newPermTypes[len] = this;
-//			((SourceTypeBinding) superType).setPermittedTypes(newPermTypes);
-//			return true;
-//		}
 	}
 	return false;
 }
