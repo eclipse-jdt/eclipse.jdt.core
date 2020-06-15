@@ -97,7 +97,7 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 	/*
 	 * typeBinding shows "int value" rather than "@MyAnnotation int value"
 	 */
-	public void _test001() throws Exception {
+	public void test001() throws Exception {
 		String contents = "package pack1;\n" +
 				"import pack2.MyAnnotation;\n" +
 				"public record X(@MyAnnotation int value){\n" +
@@ -135,9 +135,7 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 		assertTrue(actualType.isPrimitiveType());
 		apply(rewrite);
 		String contentsA = "package pack1;\n" +
-				"\n" +
 				"import pack2.MyAnnotation;\n" +
-				"\n" +
 				"public record X(@MyAnnotation int value){\n"+
 				"}\n";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
