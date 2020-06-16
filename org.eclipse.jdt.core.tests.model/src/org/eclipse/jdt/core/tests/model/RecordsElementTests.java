@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -34,10 +38,10 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		super(name);
 	}
 	public static Test suite() {
-		return buildModelTestSuite(AbstractCompilerTest.F_14, RecordsElementTests.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_15, RecordsElementTests.class);
 	}
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "14");
+		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
 		createJavaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		return createJavaProject;
 	}

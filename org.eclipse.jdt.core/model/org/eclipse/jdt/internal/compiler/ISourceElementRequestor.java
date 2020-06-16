@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -89,6 +93,7 @@ public interface ISourceElementRequestor {
 		public int nameSourceEnd;
 		public char[] superclass;
 		public char[][] superinterfaces;
+		public char[][] permittedSubtypes;
 		public TypeParameterInfo[] typeParameters;
 		public char[][] categories;
 		public boolean secondary;

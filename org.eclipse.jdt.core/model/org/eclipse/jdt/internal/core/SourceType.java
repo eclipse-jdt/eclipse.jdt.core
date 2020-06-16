@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -299,6 +303,12 @@ public IField[] getRecordComponents() throws JavaModelException {
 	if (!isRecord())
 		return NO_FIELDS;
 	return getFieldsOrComponents(true);
+}
+@Override
+public String[] getPermittedSubtypeNames() throws JavaModelException {
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	char[][] names= info.getPermittedSubtypeNames();
+	return CharOperation.toStrings(names);
 }
 private IField[] getFieldsOrComponents(boolean component) throws JavaModelException {
 	ArrayList list = getChildrenOfType(FIELD);
@@ -694,6 +704,15 @@ public boolean isRecord() throws JavaModelException {
 	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.RECORD_DECL;
 }
+/**
+ * @see IType#isSealed()
+ * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+ */
+@Override
+public boolean isSealed() throws JavaModelException {
+	SourceTypeElementInfo info = (SourceTypeElementInfo) getElementInfo();
+	return Flags.isSealed(info.getModifiers());
+}
 
 /**
  * @see IType
@@ -967,6 +986,9 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		}
 	} else {
 		try {
+			if (isSealed()) {
+				buffer.append("sealed "); //$NON-NLS-1$
+			}
 			if (isRecord()) {
 				buffer.append("record "); //$NON-NLS-1$
 			} else if (isEnum()) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -49,6 +53,8 @@ public class SourceTypeElementInfo extends AnnotatableInfo implements ISourceTyp
 	 * case of a source type
 	 */
 	protected char[][] superInterfaceNames;
+
+	protected char[][] permittedTypeNames;
 
 	/**
 	 * Backpointer to my type handle - useful for translation
@@ -182,7 +188,16 @@ public char[][] getInterfaceNames() {
 	}
 	return this.superInterfaceNames;
 }
-
+/**
+ * @see ISourceType
+ */
+@Override
+public char[][] getPermittedSubtypeNames() {
+	if (isAnonymous()) { // if anonymous type
+		return null;
+	}
+	return this.permittedTypeNames;
+}
 /**
  * @see ISourceType
  */
@@ -333,6 +348,9 @@ protected void setSuperclassName(char[] superclassName) {
  */
 protected void setSuperInterfaceNames(char[][] superInterfaceNames) {
 	this.superInterfaceNames = superInterfaceNames;
+}
+protected void setPermittedSubtypeNames(char[][] permittedTypeNames) {
+	this.permittedTypeNames = permittedTypeNames;
 }
 @Override
 public String toString() {

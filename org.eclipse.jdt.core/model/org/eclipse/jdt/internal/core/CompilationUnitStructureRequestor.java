@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -584,10 +588,14 @@ private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handl
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	char[] superclass = typeInfo.superclass;
 	info.setSuperclassName(superclass == null ? null : manager.intern(superclass));
-	char[][] superinterfaces = typeInfo.superinterfaces;
-	for (int i = 0, length = superinterfaces == null ? 0 : superinterfaces.length; i < length; i++)
-		superinterfaces[i] = manager.intern(superinterfaces[i]);
-	info.setSuperInterfaceNames(superinterfaces);
+	char[][] typeNames = typeInfo.superinterfaces;
+	for (int i = 0, length = typeNames == null ? 0 : typeNames.length; i < length; i++)
+		typeNames[i] = manager.intern(typeNames[i]);
+	info.setSuperInterfaceNames(typeNames);
+	typeNames = typeInfo.permittedSubtypes;
+	for (int i = 0, length = typeNames == null ? 0 : typeNames.length; i < length; i++)
+		typeNames[i] = manager.intern(typeNames[i]);
+	info.setPermittedSubtypeNames(typeNames);
 	info.addCategories(handle, typeInfo.categories);
 	this.newElements.put(handle, info);
 

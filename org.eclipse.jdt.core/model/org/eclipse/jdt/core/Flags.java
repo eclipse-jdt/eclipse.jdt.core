@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added constant AccDefault
@@ -193,6 +197,26 @@ public final class Flags {
 	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public static final int  AccRecord = ExtraCompilerModifiers.AccRecord;
+	/**
+	 * Sealed property flag.
+	 * <p>
+	 * Note that this flag's value is internal and is not defined in the
+	 * Virtual Machine specification.
+	 * </p>
+	 * @since 3.22 BETA_JAVA15
+	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	public static final int  AccSealed = ExtraCompilerModifiers.AccSealed;
+	/**
+	 * Non-sealed property flag.
+	 * <p>
+	 * Note that this flag's value is internal and is not defined in the
+	 * Virtual Machine specification.
+	 * </p>
+	 * @since 3.22 BETA_JAVA15
+	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	public static final int  AccNonSealed = ExtraCompilerModifiers.AccNonSealed;
 
 	/**
 	 * Not instantiable.
@@ -401,6 +425,30 @@ public final class Flags {
 	 */
 	public static boolean isRecord(int flags) {
 		return (flags & AccRecord) != 0;
+	}
+	/**
+	  * Returns whether the given integer has the <code>AccSealed</code>
+	 * bit set.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>AccSealed</code> flag is included
+	 * @see #AccSealed
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	public static boolean isSealed(int flags) {
+		return (flags & AccSealed) != 0;
+	}
+	/**
+	  * Returns whether the given integer has the <code>AccNonSealed</code>
+	 * bit set.
+	 *
+	 * @param flags the flags
+	 * @return <code>true</code> if the <code>AccNonSealed</code> flag is included
+	 * @see #AccNonSealed
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	public static boolean isNonSealed(int flags) {
+		return (flags & AccNonSealed) != 0;
 	}
 
 	/**

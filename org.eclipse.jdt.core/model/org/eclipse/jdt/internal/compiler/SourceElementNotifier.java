@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -166,18 +170,23 @@ protected char[] getSuperclassName(TypeDeclaration typeDeclaration) {
 	TypeReference superclass = typeDeclaration.superclass;
 	return superclass != null ? CharOperation.concatWith(superclass.getParameterizedTypeName(), '.') : null;
 }
+protected char[][] getPermittedSubTypes(TypeDeclaration typeDeclaration) {
+	return extractTypeReferences(typeDeclaration.permittedTypes);
+}
 protected char[][] getThrownExceptions(AbstractMethodDeclaration methodDeclaration) {
-	char[][] thrownExceptionTypes = null;
-	TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
+	return extractTypeReferences(methodDeclaration.thrownExceptions);
+}
+private char[][] extractTypeReferences(TypeReference[] thrownExceptions) {
+	char[][] names = null;
 	if (thrownExceptions != null) {
 		int thrownExceptionLength = thrownExceptions.length;
-		thrownExceptionTypes = new char[thrownExceptionLength][];
+		names = new char[thrownExceptionLength][];
 		for (int i = 0; i < thrownExceptionLength; i++) {
-			thrownExceptionTypes[i] =
+			names[i] =
 				CharOperation.concatWith(thrownExceptions[i].getParameterizedTypeName(), '.');
 		}
 	}
-	return thrownExceptionTypes;
+	return names;
 }
 protected char[][] getTypeParameterBounds(TypeParameter typeParameter) {
 	TypeReference firstBound = typeParameter.type;
@@ -702,7 +711,10 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 			} else {
 				typeInfo.declarationStart = typeDeclaration.allocation.sourceStart;
 			}
-			typeInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
+			typeInfo.modifiers = deprecated
+					? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated
+					: currentModifiers & ExtraCompilerModifiers.AccJustFlag;
+			typeInfo.modifiers |= currentModifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed);
 			typeInfo.name = typeDeclaration.name;
 			typeInfo.nameSourceStart = isEnumInit ? typeDeclaration.allocation.enumConstant.sourceStart : typeDeclaration.sourceStart;
 			typeInfo.nameSourceEnd = sourceEnd(typeDeclaration);
@@ -715,6 +727,9 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 			typeInfo.annotations = typeDeclaration.annotations;
 			typeInfo.extraFlags = ExtraFlags.getExtraFlags(typeDeclaration);
 			typeInfo.node = typeDeclaration;
+			if ((currentModifiers & ExtraCompilerModifiers.AccSealed) != 0) {
+				typeInfo.permittedSubtypes = getPermittedSubTypes(typeDeclaration);
+			}
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
 					if (superclassName != null)

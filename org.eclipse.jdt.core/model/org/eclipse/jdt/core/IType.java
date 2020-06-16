@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added J2SE 1.5 support
@@ -759,6 +763,22 @@ public interface IType extends IMember, IAnnotatable {
 	String[] getSuperInterfaceNames() throws JavaModelException;
 
 	/**
+	 * Returns the names of types that this sealed type permits to be its sub types.
+	 * For a non sealed type, an empty array is returned.
+	 * If type declares an explicit permits clause, then the permitted sub-types
+	 * are returned in the declared order. If a sealed type does not explicitly
+	 * declare permitted sub types, then the implicit permitted types, that is,
+	 * the types in the same compilation unit that are sub types of this sealed type
+	 * are returned in the order they appear within the compilation unit.
+	 *
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @return names of types that this type permits to be its sub types
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	String[] getPermittedSubtypeNames() throws JavaModelException;
+
+	/**
 	 * Returns the formal type parameter signatures for this type.
 	 * Returns an empty array if this type has no formal type parameters.
 	 * <p>
@@ -914,6 +934,16 @@ public interface IType extends IMember, IAnnotatable {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	boolean isRecord() throws JavaModelException;
+	/**
+	 * Returns whether this type is a sealed type.
+	 *
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource.
+	 * @return true if this type this type is a sealed type, false otherwise
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	boolean isSealed() throws JavaModelException;
+
 	/**
 	 * Returns the record components declared by this record class, or an empty
 	 * array if this is not a record.
