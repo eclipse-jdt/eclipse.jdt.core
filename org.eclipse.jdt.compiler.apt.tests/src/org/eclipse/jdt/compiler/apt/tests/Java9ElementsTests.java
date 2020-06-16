@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 IBM Corporation.
+ * Copyright (c) 2017, 2020 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,7 +32,22 @@ import junit.framework.TestCase;
 
 public class Java9ElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ElementProcessor";
+	
+	private static final String MODULE_MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ModuleProcessor";
 
+	public void testModuleAnnotationProcessing1Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		if (compiler == null) {
+			System.out.println("No system java compiler available");
+			return;
+		}
+		internalTest3(compiler, MODULE_MODULE_PROC, "testModuleAnnotationProcessing1", null, false);
+	}
+	public void testModuleAnnotationProcessing1() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest3(compiler, MODULE_MODULE_PROC, "testModuleAnnotationProcessing1", null, false);
+	}
+	
 	public void _testRootElements1Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
@@ -504,21 +519,44 @@ public class Java9ElementsTests extends TestCase {
 		if (!canRunJava9()) {
 			return;
 		}
-		System.clearProperty(MODULE_PROC);
+		System.clearProperty(processor);
 		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
 		BatchTestUtils.copyResources("mod_locations/modules", srcRoot);
 
 		List<String> options = new ArrayList<String>();
 		options.add("-processor");
-		options.add(MODULE_PROC);
-		options.add("-A" + MODULE_PROC);
+		options.add(processor);
+		options.add("-A" + processor);
 		options.add("-A" + testMethod);
 		if (compiler instanceof EclipseCompiler) {
 			options.add("-9");
 		}
-		BatchTestUtils.compileInModuleMode(compiler, options, MODULE_PROC, srcRoot, null, true);
-		assertEquals("succeeded", System.getProperty(MODULE_PROC));
+		BatchTestUtils.compileInModuleMode(compiler, options, processor, srcRoot, null, true);
+		assertEquals("succeeded", System.getProperty(processor));
 	}
+	/*
+	 * Tests are run in multi-module mode but only compiling a module path
+	 */
+	private void internalTest3(JavaCompiler compiler, String processor, String testMethod, String testClass, boolean binaryMode) throws IOException {
+		if (!canRunJava9()) {
+			return;
+		}
+		System.clearProperty(processor);
+		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
+		BatchTestUtils.copyResources("mod_locations/modules", srcRoot);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-processor");
+		options.add(processor);
+		options.add("-A" + processor);
+		options.add("-A" + testMethod);
+		if (compiler instanceof EclipseCompiler) {
+			options.add("-9");
+		}
+		BatchTestUtils.compileInModuleMode(compiler, options, processor, srcRoot, null, true, binaryMode);
+		assertEquals("succeeded", System.getProperty(processor));
+	}
+	
 	public boolean canRunJava9() {
 		try {
 			SourceVersion.valueOf("RELEASE_9");

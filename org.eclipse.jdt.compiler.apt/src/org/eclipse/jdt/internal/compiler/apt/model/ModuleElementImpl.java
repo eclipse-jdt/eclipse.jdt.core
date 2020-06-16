@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 IBM Corporation and others.
+ * Copyright (c) 2018, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -72,7 +73,14 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 	@Override
 	public Name getSimpleName() {
-		return new NameImpl(this.binding.moduleName);
+		char[] simpleName = this.binding.moduleName;
+		for(int i = simpleName.length-1;i>=0;i--) {
+			if(simpleName[i] == '.') {
+				simpleName = Arrays.copyOfRange(simpleName, i+1, simpleName.length);
+				break;
+			}
+		}
+		return new NameImpl(simpleName);
 	}
 
 	@Override

@@ -2229,7 +2229,7 @@ public abstract class Scope {
 						for (int i = 0, length = imports.length; i < length; i++) {
 							ImportBinding importBinding = imports[i];
 							if (importBinding.isStatic() && !importBinding.onDemand) {
-								if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
+								if (CharOperation.equals(importBinding.getSimpleName(), name)) {
 									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null && importBinding.resolvedImport instanceof FieldBinding) {
 										foundField = (FieldBinding) importBinding.resolvedImport;
 										ImportReference importReference = importBinding.reference;
@@ -3440,7 +3440,7 @@ public abstract class Scope {
 				nextImport : for (int i = 0, length = imports.length; i < length; i++) {
 					ImportBinding importBinding = imports[i];
 					if (!importBinding.onDemand) {
-						if (CharOperation.equals(importBinding.compoundName[importBinding.compoundName.length - 1], name)) {
+						if (CharOperation.equals(importBinding.getSimpleName(), name)) {
 							Binding resolvedImport = unitScope.resolveSingleImport(importBinding, Binding.TYPE);
 							if (resolvedImport == null) continue nextImport;
 							if (resolvedImport instanceof TypeBinding) {
