@@ -547,6 +547,7 @@ public class ASTConverter1_5Test extends ConverterTestSetup {
 				Expression initializer = fragment.getInitializer();
 				assertTrue("Initializer is not a TextBlock", initializer instanceof TextBlock);
 				ITypeBinding binding = initializer.resolveTypeBinding();
+				assertNotNull("No binding", binding);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
