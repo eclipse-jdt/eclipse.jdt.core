@@ -8,7 +8,6 @@ public record Point(@MyAnnot int comp_,
     private static String field1;
     public static double field2;
     protected static Character field3;
-	public Point  {}
 	public boolean equals(Object o) {
 		return false;
 	}
