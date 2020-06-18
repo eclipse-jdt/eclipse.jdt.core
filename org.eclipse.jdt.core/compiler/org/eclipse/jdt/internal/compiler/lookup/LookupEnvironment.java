@@ -1479,6 +1479,34 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 	}
 	return result;
 }
+private boolean flaggedJavaBaseTypeErrors(ReferenceBinding result, char[][] compoundName) {
+	assert result != null && !result.isValidBinding();
+	if (CharOperation.equals(TypeConstants.JAVA, compoundName[0])) {
+		ReferenceBinding type = getType(compoundName, javaBaseModule());
+		if (type != null && type.isValidBinding()) {
+			PackageBinding pack = type.getPackage();
+			char[] readableName = pack != null ? pack.readableName() : null;
+			if (readableName != null) {
+				// 7.4.3 : The packages java, java.lang, and java.io are always observable.
+				if (CharOperation.equals(readableName, TypeConstants.JAVA)
+						|| CharOperation.equals(readableName, CharOperation.concatWith(TypeConstants.JAVA_LANG, '.'))
+						|| CharOperation.equals(readableName, CharOperation.concatWith(TypeConstants.JAVA_IO, '.'))) {
+					PackageBinding currentPack = getTopLevelPackage(readableName);
+					ModuleBinding visibleModule = currentPack != null ? currentPack.enclosingModule : null;
+					if (visibleModule != null && visibleModule != javaBaseModule()) {
+						// A type from java.base is not visible
+						if (!this.globalOptions.enableJdtDebugCompileMode) {
+							this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation, visibleModule.readableName());
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
 public ReferenceBinding getCachedType0(char[][] compoundName) {
 	if (compoundName.length == 1) {
 		return this.defaultPackage.getType0(compoundName[0]);
@@ -1754,7 +1782,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 	}
 	if (binding == TheNotFoundType) {
 		// report the missing class file first
-		if (!wasMissingType) {
+		if (!wasMissingType && !flaggedJavaBaseTypeErrors(binding, compoundName)) {
 			/* Since missing types have been already been complained against while producing binaries, there is no class path
 			 * misconfiguration now that did not also exist in some equivalent form while producing the class files which encode
 			 * these missing types. So no need to bark again. Note that wasMissingType == true signals a type referenced in a .class

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,7 +55,7 @@ public ReconcilerTests9(String name) {
 static {
 //	JavaModelManager.VERBOSE = true;
 //	TESTS_PREFIX = "testAnnotations";
-//	TESTS_NAMES = new String[] { "testAnnotations2" };
+//	TESTS_NAMES = new String[] { "testBug564289_001" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -948,6 +948,80 @@ public void testBug547113() throws CoreException {
 		deleteProject(a);
 		deleteProject(b);
 		deleteProject(c);
+	}
+}
+public void testBug564289_001() throws Exception {
+	if (!isJRE9)
+		return;
+	IJavaProject p = null;
+	String outputDirectory = Util.getOutputDirectory();
+	try {
+		String lib1path = "externalLib/foo.jar";
+		Util.createJar(
+				new String[] {
+					"net/openhft/chronicle/core/io/IORuntimeException.java",
+					"package net.openhft.chronicle.core.io;\n" +
+					"public class IORuntimeException extends java.lang.RuntimeException {\n" +
+					"	private static final long serialVersionUID = 1L;\n" +
+					"	public IORuntimeException(java.lang.String message) {}\n" +
+					"}",
+					"net/openhft/chronicle/bytes/ReadBytesMarshallable.java",
+					"package net.openhft.chronicle.bytes;\n" +
+					"public abstract interface ReadBytesMarshallable {\n" +
+					"	public abstract void readMarshallable() throws net.openhft.chronicle.core.io.IORuntimeException;\n" +
+					"}",
+					"net/openhft/chronicle/bytes/BytesMarshallable.java",
+					"package net.openhft.chronicle.bytes;\n" +
+					"public abstract interface BytesMarshallable extends net.openhft.chronicle.bytes.ReadBytesMarshallable {\n" +
+					"	  public default void readMarshallable() throws net.openhft.chronicle.core.io.IORuntimeException {\n" +
+					"	  }\n" +
+					"}",
+					"java/lang/Sri420.java",
+					"package java.lang;\n" +
+					"public class Sri420 {\n" +
+					"}",
+				},
+				null,
+				getExternalResourcePath(lib1path),
+				JavaCore.VERSION_1_8);
+
+		p = createJava9Project("p", "11");
+		addLibraryEntry(p, new Path(getExternalResourcePath(lib1path)), null, null, null, null, null, false);
+
+		createFolder("p/src/X");
+		createFile("p/src/X.java",
+				"import net.openhft.chronicle.bytes.BytesMarshallable; \n" +
+				"/** */\n" +
+				"public class X {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        System.out.println(\"BytesMarshallable: \" + new BytesMarshallable() {});\n" +
+				"    } \n" +
+				"}\n");
+		p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+		waitForAutoBuild();
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers",	"The package java.lang.String conflicts with a package accessible from another module: <unnamed>",  markers);
+
+		this.workingCopy.discardWorkingCopy();
+		this.workingCopy = getCompilationUnit("p/src/X.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		String expected = 		"----------\n" +
+				"1. ERROR in /p/src/X.java (at line 1)\n" +
+				"	import net.openhft.chronicle.bytes.BytesMarshallable; \n" +
+				"	^\n" +
+				"The package java.lang.String conflicts with a package accessible from another module: <unnamed>\n" +
+				"----------\n";
+		assertProblems("Expecting  problems",expected, this.problemRequestor);
+
+		markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers",	"The package java.lang.String conflicts with a package accessible from another module: <unnamed>",  markers);
+	} finally {
+		deleteExternalResource("externalLib");
+		deleteProject(p);
+		File outputDir = new File(outputDirectory);
+		if (outputDir.exists())
+			Util.flushDirectoryContent(outputDir);
 	}
 }
 }

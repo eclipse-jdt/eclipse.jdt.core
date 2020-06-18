@@ -5045,13 +5045,13 @@ public void illegalTypeAnnotationsInStaticMemberAccess(Annotation first, Annotat
 			first.sourceStart,
 			last.sourceEnd);
 }
-public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, boolean implicitAnnotationUse) {
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, boolean implicitAnnotationUse,
+		char[] visibleModuleName) {
 	// ProblemReporter is not designed to be reentrant. Just in case, we discovered a build path problem while we are already
 	// in the midst of reporting some other problem, save and restore reference context thereby mimicking a stack.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755.
 	ReferenceContext savedContext = this.referenceContext;
 	this.referenceContext = compUnitDecl;
-	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
 	int start = 0, end = 0;
 	if (location != null) {
 		if (location instanceof InvocationSite) {
@@ -5065,15 +5065,33 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		}
 	}
 	try {
-		this.handle(
-				implicitAnnotationUse ? IProblem.MissingNullAnnotationImplicitlyUsed : IProblem.IsClassPathCorrect,
-				arguments,
-				arguments,
-				start,
-				end);
+		if (visibleModuleName == null) {
+			String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
+			this.handle(
+					implicitAnnotationUse ? IProblem.MissingNullAnnotationImplicitlyUsed : IProblem.IsClassPathCorrect,
+					arguments,
+					arguments,
+					start,
+					end);
+		} else {
+			String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName), new String(visibleModuleName)};
+			this.handle(
+					IProblem.ConflictingPackageFromOtherModules,
+					arguments,
+					arguments,
+					start,
+					end);
+		}
 	} finally {
 		this.referenceContext = savedContext;
 	}
+}
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, char[] visibleModuleName) {
+	assert visibleModuleName != null;
+	isClassPathCorrect(wellKnownTypeName, compUnitDecl, location, false /* donot care */, visibleModuleName);
+}
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, boolean implicitAnnotationUse) {
+	isClassPathCorrect(wellKnownTypeName, compUnitDecl, location, implicitAnnotationUse, null);
 }
 private boolean isIdentifier(int token) {
 	return token == TerminalTokens.TokenNameIdentifier;
