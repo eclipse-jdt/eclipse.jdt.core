@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -568,6 +572,14 @@ public class SourceTypeConverter extends TypeConverter {
 			for (int i = 0; i < interfaceCount; i++) {
 				type.superInterfaces[i] = createTypeReference(interfaceNames[i], start, end, true /* include generics */);
 				type.superInterfaces[i].bits |= ASTNode.IsSuperType;
+			}
+		}
+		char[][] permittedSubtypeNames = typeInfo.getPermittedSubtypeNames();
+		int permittedSubtypeCount = permittedSubtypeNames == null ? 0 : permittedSubtypeNames.length;
+		if (permittedSubtypeCount > 0) {
+			type.permittedTypes = new TypeReference[permittedSubtypeCount];
+			for (int i = 0; i < permittedSubtypeCount; i++) {
+				type.permittedTypes[i] = createTypeReference(permittedSubtypeNames[i], start, end, true /* include generics */);
 			}
 		}
 		/* convert member types */

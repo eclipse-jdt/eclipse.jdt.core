@@ -1334,4 +1334,23 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares SI as its direct superclass\n" +
 				"----------\n");
 	}
+	public void testBug564450_001() throws IOException, ClassFormatException {
+		runNegativeTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"sealed class X permits Y{\n" +
+					"}",
+					"p1/Y.java",
+					"package p1;\n"+
+					"class Y extends X {\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in p1\\Y.java (at line 2)\n" +
+				"	class Y extends X {\n" +
+				"	                ^\n" +
+				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
+				"----------\n");
+	}
 }
