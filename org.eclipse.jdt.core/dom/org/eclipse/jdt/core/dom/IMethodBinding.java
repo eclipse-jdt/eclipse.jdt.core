@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,6 +46,35 @@ public interface IMethodBinding extends IBinding {
 	 *    and <code>false</code> if this is the binding for a method
 	 */
 	public boolean isConstructor();
+
+	/**
+	 * Returns whether this binding is for a compact constructor or not.
+	 *
+	 * <p>
+	 * This method returns <code>true</code> for:
+	 * <ul>
+	 * <li>compact constructors where the binding
+	 * information was obtained from a Java source file containing a compact constructor
+	 * declaration</li>
+	 * </ul>
+	 *
+	 * </p>
+	 * <p>
+	 * This method returns <code>false</code> for:
+	 * <ul>
+	 * <li>methods</li>
+	 * <li>constructors</li>
+	 * <li>constructors where the binding information was obtained from a Java class file (it
+	 * is not possible to determine from a class file whether a constructor is a
+	 * compact constructor or not</li>
+	 * </ul>
+	 * <p>
+	 *
+	 * @return <code>true</code> if this is the binding for a compact constructor
+	 * in a source file and and <code>false</code> otherwise
+	 * @noreference
+	 */
+	public boolean isCompactConstructor();
 
 	/**
 	 * Returns whether this binding is known to be a compiler-generated
