@@ -1546,6 +1546,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava14Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "14");
 	}
+	protected IJavaProject createJava15Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "15");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}

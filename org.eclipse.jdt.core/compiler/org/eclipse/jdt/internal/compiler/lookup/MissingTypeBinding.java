@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -38,6 +42,7 @@ public MissingTypeBinding(PackageBinding packageBinding, char[][] compoundName, 
 	this.modifiers = ClassFileConstants.AccPublic;
 	this.superclass = null; // will be fixed up using #setMissingSuperclass(...)
 	this.superInterfaces = Binding.NO_SUPERINTERFACES;
+	this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;
 	this.typeVariables = Binding.NO_TYPE_VARIABLES;
 	this.memberTypes = Binding.NO_MEMBER_TYPES;
 	this.fields = Binding.NO_FIELDS;

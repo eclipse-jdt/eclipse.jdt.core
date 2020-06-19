@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -97,6 +101,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected ReferenceBinding superclass;
 	protected ReferenceBinding enclosingType;
 	protected ReferenceBinding[] superInterfaces;
+	protected ReferenceBinding[] permittedSubtypes;
 	protected FieldBinding[] fields;
 	protected MethodBinding[] methods;
 	protected ReferenceBinding[] memberTypes;
@@ -261,6 +266,7 @@ public BinaryTypeBinding(BinaryTypeBinding prototype) {
 	this.superclass = prototype.superclass;
 	this.enclosingType = prototype.enclosingType;
 	this.superInterfaces = prototype.superInterfaces;
+	this.permittedSubtypes = prototype.permittedSubtypes;
 	this.fields = prototype.fields;
 	this.methods = prototype.methods;
 	this.memberTypes = prototype.memberTypes;
@@ -442,6 +448,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
 		this.typeVariables = Binding.NO_TYPE_VARIABLES;
 		this.superInterfaces = Binding.NO_SUPERINTERFACES;
+		this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;
 
 		// must retrieve member types in case superclass/interfaces need them
 		this.memberTypes = Binding.NO_MEMBER_TYPES;
@@ -526,6 +533,19 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 					this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 				}
 			}
+
+			this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;
+			char[][] permittedSubtypeNames = binaryType.getPermittedSubtypeNames();
+			if (permittedSubtypeNames != null) {
+				int size = permittedSubtypeNames.length;
+				if (size > 0) {
+					this.permittedSubtypes = new ReferenceBinding[size];
+					for (short i = 0; i < size; i++)
+						// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
+						this.permittedSubtypes[i] = this.environment.getTypeFromConstantPoolName(permittedSubtypeNames[i], 0, -1, false, missingTypeNames, toplevelWalker.toSupertype(i, superclassName));
+					this.extendedTagBits |= ExtendedTagBits.HasUnresolvedPermittedSubtypes;
+				}
+			}
 		} else {
 			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
 			this.superclass = (ReferenceBinding) this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames,
@@ -544,6 +564,20 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				types.toArray(this.superInterfaces);
 				this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 			}
+
+			this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;
+			if (!wrapper.atEnd()) {
+				// attempt to find each permitted type if it exists in the cache (otherwise - resolve it when requested)
+				java.util.ArrayList types = new java.util.ArrayList(2);
+				short rank = 0;
+				do {
+					types.add(this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames, toplevelWalker.toSupertype(rank++, wrapper.peekFullType())));
+				} while (!wrapper.atEnd());
+				this.permittedSubtypes = new ReferenceBinding[types.size()];
+				types.toArray(this.permittedSubtypes);
+				this.extendedTagBits |= ExtendedTagBits.HasUnresolvedPermittedSubtypes;
+			}
+
 		}
 		boolean canUseNullTypeAnnotations = this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled && this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8;
 		if (canUseNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
@@ -552,6 +586,12 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			} else {
 				for (TypeBinding ifc : this.superInterfaces) {
 					if (ifc.hasNullTypeAnnotations()) {
+						this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
+						break;
+					}
+				}
+				for (TypeBinding permsub : this.permittedSubtypes) {
+					if (permsub.hasNullTypeAnnotations()) {
 						this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 						break;
 					}
@@ -1267,6 +1307,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 				refScope.recordTypeReference(this.superclass);
 			return this.superclass.getExactMethod(selector, argumentTypes, refScope);
 		}
+		// NOTE: not adding permitted types here since the search is up the hierarchy while permitted ones are down.
 	}
 	return null;
 }
@@ -1627,6 +1668,12 @@ private boolean isPrototype() {
 @Override
 public boolean isRecord() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
+}
+
+@Override
+public boolean isSealed() {
+	ReferenceBinding[] permittedSubTypes = permittedTypes();
+	return !(permittedSubTypes == null || permittedSubTypes == Binding.NO_PERMITTEDTYPES);
 }
 
 @Override
@@ -2199,6 +2246,16 @@ public ReferenceBinding[] superInterfaces() {
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;
 }
+//NOTE: permitted subtypes of binary types are resolved when needed
+@Override
+public ReferenceBinding[] permittedTypes() {
+
+	if (!isPrototype()) {
+		return this.permittedSubtypes = this.prototype.permittedTypes();
+	}
+	// Note: unlike for superinterfaces() hierarchy check not required here since these are subtypes
+	return this.permittedSubtypes;
+}
 @Override
 public TypeVariableBinding[] typeVariables() {
 
@@ -2265,6 +2322,19 @@ public String toString() {
 		}
 	} else {
 		buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
+	}
+
+	if (this.permittedSubtypes != null) {
+		if (this.permittedSubtypes != Binding.NO_PERMITTEDTYPES) {
+			buffer.append("\n\tpermits : "); //$NON-NLS-1$
+			for (int i = 0, length = this.permittedSubtypes.length; i < length; i++) {
+				if (i  > 0)
+					buffer.append(", "); //$NON-NLS-1$
+				buffer.append((this.permittedSubtypes[i] != null) ? this.permittedSubtypes[i].debugName() : "NULL TYPE"); //$NON-NLS-1$
+			}
+		}
+	} else {
+		buffer.append("NULL PERMITTEDSUBTYPES"); //$NON-NLS-1$
 	}
 
 	if (this.enclosingType != null) {

@@ -1523,7 +1523,7 @@ public final boolean isNonSealed() {
 /**
  * Answer true if the receiver has sealed modifier
  */
-public final boolean isSealed() {
+public boolean isSealed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
 }
 

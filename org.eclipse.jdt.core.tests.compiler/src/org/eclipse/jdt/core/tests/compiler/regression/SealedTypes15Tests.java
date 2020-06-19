@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -1352,5 +1354,55 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"	                ^\n" +
 				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 				"----------\n");
+	}
+	public void testBug564047_001() throws CoreException, IOException {
+		String outputDirectory = Util.getOutputDirectory();
+		String lib1Path = outputDirectory + File.separator + "lib1.jar";
+		try {
+		Util.createJar(
+				new String[] {
+					"p/Y.java",
+					"package p;\n" +
+					"public sealed class Y permits Z{}",
+					"p/Z.java",
+					"package p;\n" +
+					"public final class Z extends Y{}",
+				},
+				lib1Path,
+				JavaCore.VERSION_15,
+				true);
+		String[] libs = getDefaultClassPaths();
+		int len = libs.length;
+		System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
+		libs[len] = lib1Path;
+		this.runNegativeTest(
+				new String[] {
+					"src/p/X.java",
+					"package p;\n" +
+					"public class X extends Y {\n" +
+					"  public static void main(String[] args){\n" +
+					"     System.out.println(0);\n" +
+					"  }\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in src\\p\\X.java (at line 2)\n" +
+				"	public class X extends Y {\n" +
+				"	                       ^\n" +
+				"The class X with a sealed direct superclass or a sealed direct superinterface Y should be declared either final, sealed, or non-sealed\n" +
+				"----------\n" +
+				"2. ERROR in src\\p\\X.java (at line 2)\n" +
+				"	public class X extends Y {\n" +
+				"	                       ^\n" +
+				"The type X extending a sealed class Y should be a permitted subtype of Y\n" +
+				"----------\n",
+				libs,
+		        true);
+		} catch (IOException e) {
+			System.err.println("could not write to current working directory ");
+		} finally {
+			new File(lib1Path).delete();
+		}
+
 	}
 }
