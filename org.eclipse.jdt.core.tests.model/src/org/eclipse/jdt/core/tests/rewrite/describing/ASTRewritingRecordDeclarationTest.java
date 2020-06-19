@@ -39,8 +39,6 @@ import junit.framework.Test;
 
 public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
-	private static final String PROJECT = "P";
-
 	public ASTRewritingRecordDeclarationTest(String name) {
 		super(name, 14);
 	}
