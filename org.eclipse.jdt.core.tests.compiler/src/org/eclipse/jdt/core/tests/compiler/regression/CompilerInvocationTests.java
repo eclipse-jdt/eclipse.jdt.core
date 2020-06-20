@@ -1283,7 +1283,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SealedDisAllowedSealedModifier", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedDisAllowedModifierInLocalClass", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedLocalDirectSuperTypeSealed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedAttemptToInstantiateSealed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SealedAnonymousClassCannotExtendSealedType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedAnnotationTypeDeclarationCannotHavePermittedTypes", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedDisAllowedNonSealedModifierInInterface", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
@@ -2338,7 +2338,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SealedDisAllowedSealedModifier", SKIP);
 	    expectedProblemAttributes.put("SealedDisAllowedModifierInLocalClass", SKIP);
 	    expectedProblemAttributes.put("SealedLocalDirectSuperTypeSealed", SKIP);
-	    expectedProblemAttributes.put("SealedAttemptToInstantiateSealed", SKIP);
+	    expectedProblemAttributes.put("SealedAnonymousClassCannotExtendSealedType", SKIP);
 	    expectedProblemAttributes.put("SealedAnnotationTypeDeclarationCannotHavePermittedTypes", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();

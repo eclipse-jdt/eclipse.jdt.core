@@ -2406,10 +2406,10 @@ void setSourceStart(int sourceStart);
 	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1867;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedAttemptToInstantiateSealed = PreviewRelated + 1868;
+	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1868;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedAnnotationTypeDeclarationCannotHavePermittedTypes = PreviewRelated + 1869;
+	int SealedAnnotationTypeDeclarationCannotHavePermittedTypes = PreviewRelated + 1899;
 	/* Java15 errors - end */
 
 	}

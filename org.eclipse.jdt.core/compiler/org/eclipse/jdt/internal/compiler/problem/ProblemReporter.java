@@ -12047,13 +12047,15 @@ public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReferen
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
-
-public void sealedAttemptToInstantiateSealed(SourceTypeBinding type, ASTNode node) {
+public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, TypeBinding type) {
 	if (!this.options.enablePreviewFeatures)
 		return;
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedAttemptToInstantiateSealed, new String[] { name }, new String[] { name },
-			node.sourceStart, node.sourceEnd);
+	this.handle(
+			IProblem.SealedAnonymousClassCannotExtendSealedType,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			reference.sourceStart,
+			reference.sourceEnd);
 }
 public void sealedAnnotationTypeDeclarationCannotHavePermittedTypes(TypeDeclaration typeDeclaration) {
 	this.handle(

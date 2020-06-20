@@ -49,9 +49,9 @@ public interface ExtraCompilerModifiers { // modifier constant
 											  // generally set when actual usage has been detected
 											  // or, (b) when member of a private class is exposed via a non-private subclass
 											  //     see https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
-	final int AccSealed = ASTNode.Bit28; // for class/interface
 	final int AccVisibilityMASK = ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate;
 
+	final int AccSealed = ASTNode.Bit29; // used for class/interface to set sealed
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one
 	final int AccImplementing = ASTNode.Bit30; // record fact a method implements another one (it is concrete and overrides an abstract one)
 	final int AccGenericSignature = ASTNode.Bit31; // record fact a type/method/field involves generics in its signature (and need special signature attr)

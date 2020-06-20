@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564191"};
+//		TESTS_NAMES = new String[] { "testBug564492"};
 	}
 
 	public static Class<?> testClass() {
@@ -1404,5 +1404,90 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			new File(lib1Path).delete();
 		}
 
+	}
+	public void testBug564492_001() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     new Y(){};\n" +
+				"  }\n"+
+				"}\n"+
+				"sealed class Y{}\n"+
+				"final class Z extends Y {\n"+
+			"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new Y(){};\n" +
+			"	    ^\n" +
+			"An anonymous class cannot subclass a sealed type Y\n" +
+			"----------\n");
+	}
+	public void testBug564492_002() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X  {\n"+
+				"   public static void main(String[] args) {\n"+
+				"        IY y = new IY(){};\n"+
+				"   }\n"+
+				"}\n"+
+				"sealed interface I {}\n"+
+				"sealed interface IY extends I {}\n"+
+				"final class Z implements IY{}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	IY y = new IY(){};\n" +
+			"	           ^^\n" +
+			"A local class new IY(){} cannot have a sealed direct superclass or a sealed direct superinterface IY\n" +
+			"----------\n");
+	}
+	public void testBug564492_003() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public sealed class X permits A.Y {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               new A.Y() {};\n"+
+				"       }\n"+
+				"}\n"+
+				" \n"+
+				"class A {\n"+
+				"       static sealed class Y extends X permits Z {}\n"+
+				"       final class Z extends Y{}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new A.Y() {};\n" +
+			"	    ^^^\n" +
+			"An anonymous class cannot subclass a sealed type A.Y\n" +
+			"----------\n");
+	}
+	public void testBug564492_004() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public  class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               new A.IY() {};\n"+
+				"       }\n"+
+				"}\n"+
+				" \n"+
+				"class A {\n"+
+				"       sealed interface I permits IY{}\n"+
+				"       sealed interface IY extends I permits Z {}\n"+
+				"       final class Z implements IY{}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new A.IY() {};\n" +
+			"	    ^^^^\n" +
+			"A local class new IY(){} cannot have a sealed direct superclass or a sealed direct superinterface A.IY\n" +
+			"----------\n");
 	}
 }
