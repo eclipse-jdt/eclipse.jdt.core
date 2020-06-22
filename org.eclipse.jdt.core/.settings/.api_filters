@@ -24,6 +24,12 @@
                 <message_argument value="2098912"/>
             </message_arguments>
         </filter>
+        <filter comment="Record preview 2 changes" id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCanonicalConstructorShouldBePublic"/>
+            </message_arguments>
+        </filter>
         <filter id="1209008130">
             <message_arguments>
                 <message_argument value="3.23 BETA_JAVA15"/>

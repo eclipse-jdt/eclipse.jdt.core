@@ -2279,7 +2279,7 @@ void setSourceStart(int sourceStart);
 	int RecordCanonicalConstructorHasThrowsClause = PreviewRelated + 1735;
 	/** @since 3.22
 	 * @noreference preview feature error */
-	int RecordCanonicalConstructorShouldBePublic = PreviewRelated + 1736;
+	int RecordCanonicalConstructorVisibilityReduced = PreviewRelated + 1736;
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordMultipleCanonicalConstructors = PreviewRelated + 1737;

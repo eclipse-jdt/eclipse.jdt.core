@@ -1237,7 +1237,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("RecordCanonicalConstructorShouldBePublic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorVisibilityReduced", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCompactConstructorHasReturnStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordDuplicateComponent", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2281,7 +2281,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", SKIP);
 	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", SKIP);
-	    expectedProblemAttributes.put("RecordCanonicalConstructorShouldBePublic", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorVisibilityReduced", SKIP);
 	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", SKIP);
 	    expectedProblemAttributes.put("RecordCompactConstructorHasReturnStatement", SKIP);
 	    expectedProblemAttributes.put("RecordDuplicateComponent", SKIP);

@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug563178"};
+//		TESTS_NAMES = new String[] { "testBug563183"};
 	}
 
 	public static Class<?> testClass() {
@@ -433,11 +433,11 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	private Point {\n" +
 			"	        ^^^^^\n" +
-			"The canonical constructor Point of a record declaration must be declared public.\n" +
+			"Cannot reduce the visibility of a canonical constructor Point from that of the record\n" +
 			"----------\n");
 	}
 	public void testBug550750_020() {
-		this.runNegativeTest(
+		this.runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n"+
@@ -453,12 +453,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	protected Point {\n" +
-			"	          ^^^^^\n" +
-			"The canonical constructor Point of a record declaration must be declared public.\n" +
-			"----------\n");
+			"0");
 	}
 	public void testBug550750_021() {
 		runConformTest(
@@ -1116,7 +1111,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug553152_009() {
-		this.runNegativeTest(
+		this.runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n"+
@@ -1132,12 +1127,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	Point(Integer myInt, int myZ) {\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The canonical constructor Point of a record declaration must be declared public.\n" +
-			"----------\n");
+			"0");
 	}
 	public void testBug553152_010() {
 		this.runNegativeTest(
@@ -3816,24 +3806,453 @@ public void testBug563178_001() {
 		"A record component x cannot have modifiers\n" +
 		"----------\n");
 }
-public void testBug563178_002() {
-	this.runNegativeTest(
+public void testBug563183_001() {
+	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X {\n"+
+			"public record X() {\n"+
+			"  public X() {}\n"+
 			"  public static void main(String[] args){\n"+
 			"     System.out.println(0);\n" +
 			"  }\n"+
-			"}\n"+
-			"record Point(final abstract int x, int y){\n"+
-		"}",
+			"}",
+		},
+		"0");
+}
+public void testBug563183_002() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  public X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_003() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  protected X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	record Point(final abstract int x, int y){\n" +
-		"	                                ^\n" +
-		"A record component x cannot have modifiers\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	protected X() {}\n" +
+		"	          ^^^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 		"----------\n");
+}
+public void testBug563183_004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  protected X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	protected X {}\n" +
+		"	          ^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_005() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  /*package */ X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	/*package */ X() {}\n" +
+		"	             ^^^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_006() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  /*package */ X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	/*package */ X {}\n" +
+		"	             ^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_007() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  private X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private X() {}\n" +
+		"	        ^^^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X() {\n"+
+			"  private X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private X {}\n" +
+		"	        ^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_009() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    public R() {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_010() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    public R {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_011() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    protected R() {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_012() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    protected R {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_013() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    /*package */ R() {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	/*package */ R() {}\n" +
+		"	             ^^^\n" +
+		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_014() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    /*package */ R {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	/*package */ R {}\n" +
+		"	             ^\n" +
+		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_015() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    private R() {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	private R() {}\n" +
+		"	        ^^^\n" +
+		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_016() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  protected record R() {\n"+
+			"    private R {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	private R {}\n" +
+		"	        ^\n" +
+		"Cannot reduce the visibility of a canonical constructor R from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_017() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/*package */ record X() {\n"+
+			"  public X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_018() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/*package */ record X() {\n"+
+			"  public X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_019() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"record X() {\n"+
+			"  protected X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_020() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"record X() {\n"+
+			"  protected X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_021() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			" record X() {\n"+
+			"  /*package */ X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_022() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			" record X() {\n"+
+			"  /*package */ X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_023() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"record X() {\n"+
+			"  private X() {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private X() {}\n" +
+		"	        ^^^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_024() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"record X() {\n"+
+			"  private X {}\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	private X {}\n" +
+		"	        ^\n" +
+		"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+		"----------\n");
+}
+public void testBug563183_025() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  private record R() {\n"+
+			"    public R() {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_026() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  private record R() {\n"+
+			"    protected R {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_027() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  private record R() {\n"+
+			"    /* package */ R() {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
+public void testBug563183_028() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  private record R() {\n"+
+			"    private R {}\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
 }
 
 }

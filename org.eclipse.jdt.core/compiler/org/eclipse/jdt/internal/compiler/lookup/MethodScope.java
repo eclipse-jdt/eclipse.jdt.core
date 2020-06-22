@@ -8,7 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors:
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
@@ -153,9 +156,8 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 		// must check the parse node explicitly
 		problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) this.referenceContext);
 	} else if (this.referenceContext instanceof CompactConstructorDeclaration) {
-		if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccPublic) == 0) {
-			problemReporter().recordCanonicalConstructorNotPublic((AbstractMethodDeclaration) this.referenceContext);
-		}
+//		if (!SourceTypeBinding.isAtleastAsAccessibleAsRecord(methodBinding))
+//			problemReporter().recordCanonicalConstructorVisibilityReduced((AbstractMethodDeclaration) this.referenceContext);
 	}
 
 	// check for incompatible modifiers in the visibility bits, isolate the visibility bits

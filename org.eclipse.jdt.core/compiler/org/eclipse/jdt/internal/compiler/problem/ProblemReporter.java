@@ -11592,11 +11592,11 @@ public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
 		methodDeclaration.sourceStart,
 		methodDeclaration.sourceEnd);
 }
-public void recordCanonicalConstructorNotPublic(AbstractMethodDeclaration methodDecl) {
+public void recordCanonicalConstructorVisibilityReduced(AbstractMethodDeclaration methodDecl) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.RecordCanonicalConstructorShouldBePublic,
+		IProblem.RecordCanonicalConstructorVisibilityReduced,
 		new String[] {
 				new String(methodDecl.selector)
 			},
@@ -11705,16 +11705,6 @@ public void recordCanonicalConstructorShouldNotBeGeneric(AbstractMethodDeclarati
 		return;
 	this.handle(
 		IProblem.RecordCanonicalConstructorShouldNotBeGeneric,
-		new String[] { new String(methodDecl.selector)},
-		new String[] { new String(methodDecl.selector)},
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
-}
-public void recordCanonicalConstructorShouldBePublic(MethodDeclaration methodDecl) {
-	if (!this.options.enablePreviewFeatures)
-		return;
-	this.handle(
-		IProblem.RecordCanonicalConstructorShouldBePublic,
 		new String[] { new String(methodDecl.selector)},
 		new String[] { new String(methodDecl.selector)},
 		methodDecl.sourceStart,

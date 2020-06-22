@@ -2358,11 +2358,27 @@ public MethodBinding[] methods() {
 	return this.methods;
 }
 
+static boolean isAtleastAsAccessibleAsRecord(MethodBinding canonicalConstructor) {
+	ReferenceBinding enclosingRecord = canonicalConstructor.declaringClass;
+	if (enclosingRecord.isPublic())
+		return canonicalConstructor.isPublic();
+
+	if (enclosingRecord.isProtected())
+		return canonicalConstructor.isPublic() || canonicalConstructor.isProtected();
+
+	if (enclosingRecord.isPrivate())
+		return true;
+
+	/* package visibility */
+	return !canonicalConstructor.isPrivate();
+}
+
 private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
 
 	AbstractMethodDeclaration methodDecl = explicitCanonicalConstructor.sourceMethod();
-	if (!explicitCanonicalConstructor.isPublic())
-		this.scope.problemReporter().recordCanonicalConstructorNotPublic(methodDecl);
+
+	if (!SourceTypeBinding.isAtleastAsAccessibleAsRecord(explicitCanonicalConstructor))
+		this.scope.problemReporter().recordCanonicalConstructorVisibilityReduced(methodDecl);
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
 	if (typeParameters != null && typeParameters.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(methodDecl);
