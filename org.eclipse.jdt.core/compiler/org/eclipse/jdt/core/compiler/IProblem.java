@@ -2385,31 +2385,19 @@ void setSourceStart(int sourceStart);
 	int SealedSealedTypeMissingPermits = PreviewRelated + 1860;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedEnumHasDisallowedModifiers = PreviewRelated + 1861;
+	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1861;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1862;
+	int SealedDisAllowedNonSealedModifierInInterface = PreviewRelated + 1862;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedDisAllowedNonSealedModifierInInterface = PreviewRelated + 1863;
+	int SealedNotDirectSuperInterface = PreviewRelated + 1863;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedNotDirectSuperInterface = PreviewRelated + 1864;
+	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1864;
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
-	int SealedDisAllowedSealedModifier = PreviewRelated + 1865;
-	/** @since 3.22 BETA_JAVA15
-	 * @noreference preview feature error */
-	int SealedDisAllowedModifierInLocalClass = PreviewRelated +1866;
-	/** @since 3.22 BETA_JAVA15
-	 * @noreference preview feature error */
-	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1867;
-	/** @since 3.22 BETA_JAVA15
-	 * @noreference preview feature error */
-	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1868;
-	/** @since 3.22 BETA_JAVA15
-	 * @noreference preview feature error */
-	int SealedAnnotationTypeDeclarationCannotHavePermittedTypes = PreviewRelated + 1899;
+	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
 	/* Java15 errors - end */
 
 	}

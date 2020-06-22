@@ -1270,22 +1270,12 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfModule", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfPackage", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedSealedTypeMissingPermits", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedEnumHasDisallowedModifiers", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedInterfaceIsSealedAndNonSealed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedInterfaceMissingSealedNonSealedModifier", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedSuperInterfaceDoesNotPermit", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedMissingSealedModifier", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedDuplicateTypeInPermits", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SealedDisAllowedNonSealedModifierInInterface", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedNotDirectSuperInterface", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfModule", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfPackage", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedSealedTypeMissingPermits", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedDisAllowedSealedModifier", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedDisAllowedModifierInLocalClass", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedLocalDirectSuperTypeSealed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedAnonymousClassCannotExtendSealedType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedAnnotationTypeDeclarationCannotHavePermittedTypes", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SealedDisAllowedNonSealedModifierInInterface", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2324,22 +2314,12 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfModule", SKIP);
 	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfPackage", SKIP);
 	    expectedProblemAttributes.put("SealedSealedTypeMissingPermits", SKIP);
-	    expectedProblemAttributes.put("SealedEnumHasDisallowedModifiers", SKIP);
 	    expectedProblemAttributes.put("SealedInterfaceIsSealedAndNonSealed", SKIP);
-	    expectedProblemAttributes.put("SealedInterfaceMissingSealedNonSealedModifier", SKIP);
 	    expectedProblemAttributes.put("SealedDisAllowedNonSealedModifierInInterface", SKIP);
 	    expectedProblemAttributes.put("SealedSuperInterfaceDoesNotPermit", SKIP);
-	    expectedProblemAttributes.put("SealedMissingSealedModifier", SKIP);
-	    expectedProblemAttributes.put("SealedDuplicateTypeInPermits", SKIP);
 	    expectedProblemAttributes.put("SealedNotDirectSuperInterface", SKIP);
-	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfModule", SKIP);
-	    expectedProblemAttributes.put("SealedPermittedTypeOutsideOfPackage", SKIP);
-	    expectedProblemAttributes.put("SealedSealedTypeMissingPermits", SKIP);
-	    expectedProblemAttributes.put("SealedDisAllowedSealedModifier", SKIP);
-	    expectedProblemAttributes.put("SealedDisAllowedModifierInLocalClass", SKIP);
 	    expectedProblemAttributes.put("SealedLocalDirectSuperTypeSealed", SKIP);
 	    expectedProblemAttributes.put("SealedAnonymousClassCannotExtendSealedType", SKIP);
-	    expectedProblemAttributes.put("SealedAnnotationTypeDeclarationCannotHavePermittedTypes", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

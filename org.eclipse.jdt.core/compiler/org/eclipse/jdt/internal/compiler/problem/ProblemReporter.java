@@ -11971,14 +11971,6 @@ public void sealedSealedTypeMissingPermits(SourceTypeBinding type, ASTNode node)
 			node.sourceEnd);
 }
 
-public void sealedEnumHasDisallowedModifiers(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedEnumHasDisallowedModifiers, new String[] { name }, new String[] { name },
-			node.sourceStart, node.sourceEnd);
-}
-
 public void sealedInterfaceIsSealedAndNonSealed(SourceTypeBinding type, ASTNode node) {
 	if (!this.options.enablePreviewFeatures)
 		return;
@@ -12017,22 +12009,6 @@ public void sealedNotDirectSuperInterface(ReferenceBinding type, TypeReference r
 		reference.sourceEnd);
 }
 
-public void sealedDisAllowedSealedModifier(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedDisAllowedSealedModifier, new String[] { name }, new String[] { name }, node.sourceStart,
-			node.sourceEnd);
-}
-
-public void sealedDisAllowedModifierInLocalClass(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
-	String name = new String(type.sourceName());
-	this.handle(IProblem.SealedDisAllowedModifierInLocalClass, new String[] { name }, new String[] { name },
-			node.sourceStart, node.sourceEnd);
-}
-
 public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;
@@ -12056,13 +12032,5 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			new String[] {new String(type.shortReadableName())},
 			reference.sourceStart,
 			reference.sourceEnd);
-}
-public void sealedAnnotationTypeDeclarationCannotHavePermittedTypes(TypeDeclaration typeDeclaration) {
-	this.handle(
-		IProblem.SealedAnnotationTypeDeclarationCannotHavePermittedTypes,
-		NoArgument,
-		NoArgument,
-		typeDeclaration.sourceStart,
-		typeDeclaration.sourceEnd);
 }
 }
