@@ -2343,6 +2343,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordComponentsCannotHaveModifiers= PreviewRelated + 1757;
+	/** @since 3.22
+	 * @noreference preview feature error */
+	int RecordIllegalParameterNameInCanonicalConstructor = PreviewRelated + 1758;
 	/* records - end */
 	/* instanceof pattern: */
 	/** @since 3.22

@@ -2373,6 +2373,22 @@ static boolean isAtleastAsAccessibleAsRecord(MethodBinding canonicalConstructor)
 	return !canonicalConstructor.isPrivate();
 }
 
+private void checkCanonicalConstructorParameterNames(MethodBinding explicitCanonicalConstructor,
+		AbstractMethodDeclaration methodDecl) {
+	int l = explicitCanonicalConstructor.parameters != null ? explicitCanonicalConstructor.parameters.length : 0;
+	if (l == 0) return;
+	ReferenceBinding enclosingRecord = explicitCanonicalConstructor.declaringClass;
+	assert enclosingRecord.isRecord();
+	assert enclosingRecord instanceof SourceTypeBinding;
+	SourceTypeBinding recordBinding = (SourceTypeBinding) enclosingRecord;
+	RecordComponentBinding[] comps = recordBinding.components();
+	Argument[] args = methodDecl.arguments;
+	for (int i = 0; i < l; ++i) {
+		if (!CharOperation.equals(args[i].name, comps[i].name))
+			this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(comps[i], args[i]);
+	}
+}
+
 private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
 
 	AbstractMethodDeclaration methodDecl = explicitCanonicalConstructor.sourceMethod();
@@ -2384,6 +2400,7 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 		this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(methodDecl);
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
+	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
 	explicitCanonicalConstructor.tagBits |= TagBits.IsCanonicalConstructor;
 	ASTVisitor visitor = new ASTVisitor() {
 		boolean isInsideCCD = methodDecl instanceof CompactConstructorDeclaration;

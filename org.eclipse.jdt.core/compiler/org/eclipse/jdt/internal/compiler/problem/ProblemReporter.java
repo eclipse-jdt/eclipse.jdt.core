@@ -193,6 +193,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBindin
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -11823,6 +11824,16 @@ public void recordComponentsCannotHaveModifiers(RecordComponent comp) {
 		arguments,
 		comp.sourceStart,
 		comp.sourceEnd);
+}
+public void recordIllegalParameterNameInCanonicalConstructor(RecordComponentBinding comp, Argument arg) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordIllegalParameterNameInCanonicalConstructor,
+		new String[] {new String(arg.name), new String(comp.name)},
+			new String[] {new String(arg.name), new String(comp.name)},
+		arg.sourceStart,
+		arg.sourceEnd);
 }
 
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {

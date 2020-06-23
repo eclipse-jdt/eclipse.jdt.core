@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug563183"};
+//		TESTS_NAMES = new String[] { "testBug563184"};
 	}
 
 	public static Class<?> testClass() {
@@ -4254,5 +4254,39 @@ public void testBug563183_028() {
 		},
 		"0");
 }
-
+public void testBug563184_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"record X(int angel) {\n"+
+			"  X(int devil) {\n"+
+			"     this.angel = devil;\n" +
+			"  }\n"+
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	X(int devil) {\n" +
+		"	      ^^^^^\n" +
+		"Illegal parameter name devil in canonical constructor, expected angel, the corresponding component name\n" +
+		"----------\n");
+}
+public void testBug563184_002() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"record X(int myInt) {\n"+
+			"  X(int myInt) {\n"+
+			"     this.myInt = myInt;\n" +
+			"  }\n"+
+			"  X(int i, int j) {\n"+
+			"    this(i);\n"+
+			"  }\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}",
+		},
+		"0");
+}
 }
