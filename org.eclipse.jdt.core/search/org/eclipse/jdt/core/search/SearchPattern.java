@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1930,6 +1934,9 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *     			<tr>
  *         		<td>{@link IJavaSearchConstants#METHOD_REFERENCE_EXPRESSION METHOD_REFERENCE_EXPRESSION}
  *         		<td>Return only method reference expressions (e.g. <code>A :: foo</code>).
+ *         		<tr>
+ *         		<td>{@link IJavaSearchConstants#PERMITTYPE_TYPE_REFERENCE PERMITTYPE_TYPE_REFERENCE}
+ *         		<td>Return only type references used as a permit type.
  * 			</table>
  * 	</li>
  *	</ul>
