@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564492"};
+//		TESTS_NAMES = new String[] { "testBug564498_1"};
 	}
 
 	public static Class<?> testClass() {
@@ -1489,5 +1489,146 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	    ^^^^\n" +
 			"A local class new IY(){} cannot have a sealed direct superclass or a sealed direct superinterface A.IY\n" +
 			"----------\n");
+	}
+	public void testBug564498_1() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"public sealed class X permits A.Y {\n" +
+					"	public static void main(String[] args) {}\n" +
+					"}\n" +
+					"class A {\n" +
+					"	sealed class Y extends X {\n" +
+					"		final class SubInnerY extends Y {}\n" +
+					"	} \n" +
+					"	final class Z extends Y {}\n" +
+					"}",
+				},
+				"");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #27 p1/A$Y$SubInnerY,\n" +
+					"   #32 p1/A$Z\n" +
+					"}";
+			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
+			expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #21 p1/A$Y\n";
+			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug564498_2() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"public sealed class X permits A.Y {\n" +
+					"	public static void main(String[] args) {}\n" +
+					"}\n" +
+					"class A {\n" +
+					"	sealed class Y extends X {} \n" +
+					"	final class Z extends Y {}\n" +
+					"   final class SubY extends Y {}" +
+					"}",
+				},
+				"");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #27 p1/A$SubY,\n" +
+					"   #29 p1/A$Z\n" +
+					"}";
+			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
+			expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #21 p1/A$Y\n";
+			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug564498_3() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"public sealed class X permits A.Y {\n" +
+					"	public static void main(String[] args) {}\n" +
+					"}\n" +
+					"class A {\n" +
+					"	sealed class Y extends X {\n" +
+					"		final class SubInnerY extends Y {}\n" +
+					"	} \n" +
+					"	final class Z extends Y {}\n" +
+					"   final class SubY extends Y {}" +
+					"}",
+				},
+				"");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #27 p1/A$Y$SubInnerY,\n" +
+					"   #32 p1/A$SubY,\n" +
+					"   #34 p1/A$Z\n";
+			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug564498_4() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"public sealed class X permits A.Y {\n" +
+					"	public static void main(String[] args) {}\n" +
+					"}\n" +
+					"class A {\n" +
+					"	sealed class Y extends X permits Y.SubInnerY {\n" +
+					"		final class SubInnerY extends Y {}\n" +
+					"	} \n" +
+					"}",
+				},
+				"");
+			String expectedOutput =
+					"PermittedSubclasses:\n" +
+					"   #27 p1/A$Y$SubInnerY\n";
+			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	// Reject references of membertype without qualifier of enclosing type in permits clause
+	public void testBug564498_5() throws IOException, ClassFormatException {
+		runNegativeTest(
+				new String[] {
+					"p1/X.java",
+					"package p1;\n"+
+					"public sealed class X permits A.Y {\n" +
+					"	public static void main(String[] args) {}\n" +
+					"}\n" +
+					"class A {\n" +
+					"	sealed class Y extends X permits SubInnerY {\n" +
+					"		final class SubInnerY extends Y {}\n" +
+					"	} \n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in p1\\X.java (at line 6)\n" +
+				"	sealed class Y extends X permits SubInnerY {\n" +
+				"	                                 ^^^^^^^^^\n" +
+				"SubInnerY cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. ERROR in p1\\X.java (at line 7)\n" +
+				"	final class SubInnerY extends Y {}\n" +
+				"	                              ^\n" +
+				"The type SubInnerY extending a sealed class A.Y should be a permitted subtype of A.Y\n" +
+				"----------\n");
+	}
+	// accept references of membertype without qualifier of enclosing type in permits clause
+	// provided it is imported
+	public void testBug564498_6() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+						"p1/X.java",
+						"package p1;\n"+
+						"import p1.Y.Z;\n" +
+						"public class X {\n" +
+						"	public static void main(String[] args) {}\n" +
+						"}\n" +
+						"sealed class Y permits Z {\n" +
+						"	final class Z extends Y {}\n" +
+						"}",
+				},
+				"");
 	}
 }

@@ -368,7 +368,7 @@ void connectTypeHierarchy() {
 	// Wait for all hierarchy information to be built before
 	// checking on permitted types
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].scope.connectPermittedTypes();
+		this.topLevelTypes[i].scope.connectImplicitPermittedTypes();
 }
 void faultInImports() {
 	if (this.tempImports != null)
