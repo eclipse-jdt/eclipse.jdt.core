@@ -70,6 +70,8 @@ public class MethodScope extends BlockScope {
 	// remember suppressed warning re missing 'default:' to give hints on possibly related flow problems
 	public boolean hasMissingSwitchDefault; // TODO(stephan): combine flags to a bitset?
 
+	public boolean isCompactConstructorScope = false;
+
 	static {
 		if (Boolean.getBoolean("jdt.flow.test.extra")) { //$NON-NLS-1$
 			baseAnalysisIndex = 64;

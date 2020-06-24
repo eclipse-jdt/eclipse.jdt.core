@@ -437,7 +437,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug550750_020() {
-		this.runConformTest(
+		this.runNegativeTest(
 				new String[] {
 						"X.java",
 						"public class X {\n"+
@@ -453,26 +453,17 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n" +
 						"interface I {}\n"
 				},
-			"0");
-	}
-	public void testBug550750_021() {
-		runConformTest(
-				new String[] {
-						"X.java",
-						"public class X {\n"+
-						"  public static void main(String[] args){\n"+
-						"     System.out.println(0);\n" +
-						"  }\n"+
-						"}\n"+
-						"record Point(int myInt, char myChar) implements I {\n"+
-						"  public Point {\n"+
-						"     this.myInt = myInt;\n" +
-						"     this.myChar = myChar;\n" +
-						"  }\n"+
-						"}\n" +
-						"interface I {}\n"
-				},
-			"0");
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	this.myInt = myInt;\n" +
+				"	^^^^^^^^^^\n" +
+				"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	this.myChar = myChar;\n" +
+				"	^^^^^^^^^^^\n" +
+				"Illegal explicit assignment of a final field myChar in compact constructor\n" +
+				"----------\n");
 	}
 	public void testBug550750_022() {
 		this.runNegativeTest(
@@ -632,6 +623,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	static final int z;\n" +
 			"	                 ^\n" +
 			"The blank final field z may not have been initialized\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	this.myInt = myInt;\n" +
+			"	^^^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	this.myZ = myZ;\n" +
+			"	^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
 			"----------\n");
 	}
 	public void testBug550750_028() {
@@ -1104,7 +1105,17 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	       ^^^^^\n" +
 			"Duplicate method Point(Integer, int) in type Point\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	this.myInt = 0;\n" +
+			"	^^^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	this.myZ = 0;\n" +
+			"	^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 11)\n" +
 			"	public Point(Integer myInt, int myZ) {\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Duplicate method Point(Integer, int) in type Point\n" +
@@ -1375,25 +1386,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The accessor method must not be static\n" +
 			"----------\n");
 	}
-public void testBug553153_01() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				"  public static void main(String[] args){\n"+
-				"     System.out.println(0);\n" +
-				"  }\n"+
-				"}\n"+
-				"record Point(int myInt, char myChar) implements I {\n"+
-				"  public Point {\n"+
-				"     this.myInt = myInt;\n" +
-				"  }\n"+
-				"}\n" +
-				"interface I {}\n"
-			},
-			"0");
-	}
-	public void testBug553153_002() {
+public void testBug553153_002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1412,10 +1405,20 @@ public void testBug553153_01() {
 				"interface I {}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	public Point {\n" +
-		"	       ^^^^^\n" +
-		"The blank final field myChar may not have been initialized\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	this.myInt = myInt;\n" +
+		"	^^^^^^^^^^\n" +
+		"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	if (this.myInt > 0)  // conditional assignment\n" +
+		"	         ^^^^^\n" +
+		"The blank final field myInt may not have been initialized\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	this.myChar = myChar;\n" +
+		"	^^^^^^^^^^^\n" +
+		"Illegal explicit assignment of a final field myChar in compact constructor\n" +
 		"----------\n");
 }
 public void testBug553153_003() {
@@ -1430,7 +1433,6 @@ public void testBug553153_003() {
 			"record Point(int myInt, char myChar) implements I {\n"+
 			"  static int f;\n"+
 			"  public Point {\n"+
-			"     this.myInt = myInt;\n" +
 			"  }\n"+
 			"}\n" +
 			"interface I {}\n"
@@ -4288,5 +4290,20 @@ public void testBug563184_002() {
 			"}",
 		},
 		"0");
+}
+public void testBug562637_001() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public record X(int i) {\n"+
+			"    public X {\n"+
+			"            i = i/2;\n"+
+			"    }\n"+
+			"    public static void main(String[] args) {\n"+
+			"            System.out.println(new X(10).i());\n"+
+			"    }\n"+
+			"}",
+		},
+		"5");
 }
 }

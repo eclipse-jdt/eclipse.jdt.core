@@ -1260,6 +1260,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordCannotDefineRecordInLocalType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordComponentsCannotHaveModifiers", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordIllegalParameterNameInCanonicalConstructor", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordIllegalExplicitFinalFieldAssignInCompactConstructor", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedMissingClassModifier", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedDisAllowedNonSealedModifierInClass", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedSuperClassDoesNotPermit", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2305,6 +2306,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordCannotDefineRecordInLocalType",SKIP);
 	    expectedProblemAttributes.put("RecordComponentsCannotHaveModifiers",SKIP);
 	    expectedProblemAttributes.put("RecordIllegalParameterNameInCanonicalConstructor",SKIP);
+	    expectedProblemAttributes.put("RecordIllegalExplicitFinalFieldAssignInCompactConstructor",SKIP);
 	    expectedProblemAttributes.put("SealedMissingClassModifier", SKIP);
 	    expectedProblemAttributes.put("SealedDisAllowedNonSealedModifierInClass", SKIP);
 	    expectedProblemAttributes.put("SealedSuperClassDoesNotPermit", SKIP);

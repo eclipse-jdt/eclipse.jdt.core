@@ -203,27 +203,8 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			&& (this.constructorCall.accessMode != ExplicitConstructorCall.This)) {
 			flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
 			FieldBinding[] fields = this.binding.declaringClass.fields();
-			for (int i = 0, count = fields.length; i < count; i++) {
-				FieldBinding field = fields[i];
-				checkAndGenerateFieldAssignment(initializerFlowContext, flowInfo, field);
-				if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
-					if (field.isFinal()) {
-						this.scope.problemReporter().uninitializedBlankFinalField(
-								field,
-								((this.bits & ASTNode.IsDefaultConstructor) != 0)
-									? (ASTNode) this.scope.referenceType().declarationOf(field.original())
-									: this);
-					} else if (field.isNonNull() || field.type.isFreeTypeVariable()) {
-						FieldDeclaration fieldDecl = this.scope.referenceType().declarationOf(field.original());
-						if (!isValueProvidedUsingAnnotation(fieldDecl))
-							this.scope.problemReporter().uninitializedNonNullField(
-								field,
-								((this.bits & ASTNode.IsDefaultConstructor) != 0)
-									? (ASTNode) fieldDecl
-									: this);
-					}
-				}
-			}
+			checkAndGenerateFieldAssignment(initializerFlowContext, flowInfo, fields);
+			doFieldReachAnalysis(flowInfo, fields);
 		}
 		// check unreachable catch blocks
 		constructorContext.complainIfUnusedExceptionHandlers(this);
@@ -234,8 +215,30 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		this.ignoreFurtherInvestigation = true;
 	}
 }
+protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
+	for (int i = 0, count = fields.length; i < count; i++) {
+		FieldBinding field = fields[i];
+		if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
+			if (field.isFinal()) {
+				this.scope.problemReporter().uninitializedBlankFinalField(
+						field,
+						((this.bits & ASTNode.IsDefaultConstructor) != 0)
+							? (ASTNode) this.scope.referenceType().declarationOf(field.original())
+							: this);
+			} else if (field.isNonNull() || field.type.isFreeTypeVariable()) {
+				FieldDeclaration fieldDecl = this.scope.referenceType().declarationOf(field.original());
+				if (!isValueProvidedUsingAnnotation(fieldDecl))
+					this.scope.problemReporter().uninitializedNonNullField(
+						field,
+						((this.bits & ASTNode.IsDefaultConstructor) != 0)
+							? (ASTNode) fieldDecl
+							: this);
+			}
+		}
+	}
+}
 
-protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding field) {
+protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding[] fields) {
 	return;
 }
 boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {

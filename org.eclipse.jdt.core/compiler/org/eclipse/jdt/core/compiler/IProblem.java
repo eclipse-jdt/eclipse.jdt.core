@@ -2346,6 +2346,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordIllegalParameterNameInCanonicalConstructor = PreviewRelated + 1758;
+	/** @since 3.22
+	 * @noreference preview feature error */
+	int RecordIllegalExplicitFinalFieldAssignInCompactConstructor = PreviewRelated + 1759;
 	/* records - end */
 	/* instanceof pattern: */
 	/** @since 3.22

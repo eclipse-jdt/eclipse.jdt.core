@@ -11835,7 +11835,17 @@ public void recordIllegalParameterNameInCanonicalConstructor(RecordComponentBind
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-
+public void recordIllegalExplicitFinalFieldAssignInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String[] arguments = new String[] { new String(field.name) };
+	this.handle(
+		IProblem.RecordIllegalExplicitFinalFieldAssignInCompactConstructor,
+		arguments,
+		arguments,
+		fieldRef.sourceStart,
+		fieldRef.sourceEnd);
+}
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;

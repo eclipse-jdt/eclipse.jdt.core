@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -114,7 +118,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			&& this.receiver.isThis()
 			&& !(this.receiver instanceof QualifiedThisReference)
 			&& ((this.receiver.bits & ASTNode.ParenthesizedMASK) == 0) // (this).x is forbidden
-			&& currentScope.allowBlankFinalFieldAssignment(this.binding)) {
+			&& currentScope.allowBlankFinalFieldAssignment(this.binding)
+			&& !currentScope.methodScope().isCompactConstructorScope) {
 			if (flowInfo.isPotentiallyAssigned(this.binding)) {
 				currentScope.problemReporter().duplicateInitializationOfBlankFinalField(
 					this.binding,
@@ -124,8 +129,11 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			}
 			flowInfo.markAsDefinitelyAssigned(this.binding);
 		} else {
+			if (currentScope.methodScope().isCompactConstructorScope)
+				currentScope.problemReporter().recordIllegalExplicitFinalFieldAssignInCompactConstructor(this.binding, this);
+			else
 			// assigning a final field outside an initializer or constructor or wrong reference
-			currentScope.problemReporter().cannotAssignToFinalField(this.binding, this);
+				currentScope.problemReporter().cannotAssignToFinalField(this.binding, this);
 		}
 	} else if (this.binding.isNonNull() || this.binding.type.isTypeVariable()) {
 		// in a context where it can be assigned?
