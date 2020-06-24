@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
@@ -179,6 +180,60 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		buf.append("        }\n");
 		buf.append("\n");
 		buf.append("}\n");		assertEqualString(preview, buf.toString());
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings("deprecation")
+	public void testRecord_003() throws Exception {
+		if (this.apiLevel != 14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int age) {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // rename first param & last throw statement
+			MethodDeclaration methodDecl1 = ast.newMethodDeclaration();
+			methodDecl1.setName(ast.newSimpleName("age"));
+			methodDecl1.modifiers().addAll(ast.newModifiers( Modifier.PUBLIC));
+			methodDecl1.setReturnType2(ast.newPrimitiveType(PrimitiveType.INT));
+			Block body= ast.newBlock();
+			ReturnStatement returnStatement = ast.newReturnStatement();
+			returnStatement.setExpression(ast.newSimpleName("age"));
+			body.statements().add(returnStatement);
+			methodDecl1.setBody(body);
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.BODY_DECLARATIONS_PROPERTY);
+			listRewrite.insertLast(methodDecl1, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int age) {\n\n");
+		buf.append("    public int age() {\n");
+		buf.append("        return age;\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
 
 		assertEqualString(preview, buf.toString());
 

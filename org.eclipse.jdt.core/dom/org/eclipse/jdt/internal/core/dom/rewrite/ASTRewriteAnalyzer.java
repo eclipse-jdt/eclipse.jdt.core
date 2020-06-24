@@ -1417,6 +1417,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	/*
+	 * Next token is a right parenthesis. Returns the offset after the parenthesis. For incomplete code, return the start offset.
+	 */
+	private int getPosAfterRightParenthesis(int pos) {
+		try {
+			return getPosAfterToken(pos, TerminalTokens.TokenNameRPAREN);
+		} catch (IllegalArgumentException e) {
+			return pos;
+		}
+	}
+
+	/*
 	 * Next token is try keyword. Returns the offset after 'try' keyword. For incomplete code, return the start offset.
 	 */
 	private int getPosAfterTry(int pos) {
@@ -2267,7 +2278,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		// type members
 		// startPos : find position after left brace of type, be aware that bracket might be missing
 		int startIndent= getIndent(node.getStartPosition()) + 1;
-		int startPos= getPosAfterLeftBrace(pos);
+		int startPos= getPosAfterRightParenthesis(pos);
+		startPos= getPosAfterLeftBrace(startPos);
 		rewriteParagraphList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, startPos, startIndent, -1, 2);
 		return false;
 	}
