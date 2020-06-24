@@ -2305,6 +2305,12 @@ public final class AST {
 		if (Modifier.isVolatile(flags)) {
 			result.add(newModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD));
 		}
+		if (Modifier.isSealed(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.SEALED_KEYWORD));
+		}
+		if (Modifier.isNonSealed(flags)) {
+			result.add(newModifier(Modifier.ModifierKeyword.NON_SEALED_KEYWORD));
+		}
 		return result;
 	}
 

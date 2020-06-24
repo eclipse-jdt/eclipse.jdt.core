@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -209,6 +213,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		if (Modifier.isTransient(modifiers)) {
 			this.buffer.append("transient ");//$NON-NLS-1$
+		}
+		if (Modifier.isSealed(modifiers)) {
+			this.buffer.append("sealed ");//$NON-NLS-1$
+		}
+		if (Modifier.isNonSealed(modifiers)) {
+			this.buffer.append("non-sealed ");//$NON-NLS-1$
 		}
 	}
 
@@ -1799,6 +1809,19 @@ public class NaiveASTFlattener extends ASTVisitor {
 			if (!node.superInterfaceTypes().isEmpty()) {
 				this.buffer.append(node.isInterface() ? "extends " : "implements ");//$NON-NLS-2$//$NON-NLS-1$
 				for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
+					t.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(", ");//$NON-NLS-1$
+					}
+				}
+				this.buffer.append(" ");//$NON-NLS-1$
+			}
+		}
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED)) {
+			if (!node.permittedTypes().isEmpty()) {
+				this.buffer.append("permits ");//$NON-NLS-1$
+				for (Iterator it = node.permittedTypes().iterator(); it.hasNext(); ) {
 					Type t = (Type) it.next();
 					t.accept(this);
 					if (it.hasNext()) {

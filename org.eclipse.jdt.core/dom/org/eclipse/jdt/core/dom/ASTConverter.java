@@ -3299,6 +3299,14 @@ class ASTConverter {
 					}
 			}
 		}
+		org.eclipse.jdt.internal.compiler.ast.TypeReference[] permittedTypes = typeDeclaration.permittedTypes;
+		if (permittedTypes != null) {
+			if (DOMASTUtil.isFeatureSupportedinAST(this.ast, Modifier.SEALED)) {
+				for (int index = 0, length = permittedTypes.length; index < length; index++) {
+					typeDecl.permittedTypes().add(convertType(permittedTypes[index]));
+				}
+			}
+		}
 		buildBodyDeclarations(typeDeclaration, typeDecl, isInterface);
 		if (this.resolveBindings) {
 			recordNodes(typeDecl, typeDeclaration);
@@ -5580,6 +5588,12 @@ class ASTConverter {
 						break;
 					case TerminalTokens.TokenNamedefault:
 						modifier = createModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD);
+						break;
+					case TerminalTokens.TokenNameRestrictedIdentifiersealed:
+						modifier = createModifier(Modifier.ModifierKeyword.SEALED_KEYWORD);
+						break;
+					case TerminalTokens.TokenNamenon_sealed:
+						modifier = createModifier(Modifier.ModifierKeyword.NON_SEALED_KEYWORD);
 						break;
 					case TerminalTokens.TokenNameAT :
 						// we have an annotation
