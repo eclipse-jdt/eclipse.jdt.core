@@ -46,6 +46,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
@@ -322,6 +323,55 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
 		recordComponent = (RecordComponentElement) element;
 		verifyAnnotations(recordComponent, new String[]{});
+		List<ExecutableElement> methodsIn = ElementFilter.methodsIn(enclosedElements);
+		List<String> actualMethodNames = methodsIn.stream().filter((m) -> m.getSimpleName().toString().startsWith("comp"))
+																	.map((m) -> m.getSimpleName().toString())
+																	.collect(Collectors.toList());
+		assertEquals("incorrect method", 5, actualMethodNames.size());
+		for (ExecutableElement method : methodsIn) {
+			if (method.getSimpleName().toString().equals("comp_")) {
+				verifyAnnotations(method, new String[]{});
+				TypeMirror asType = method.asType();
+				verifyAnnotations(asType, new String[]{});
+			} else if (method.getSimpleName().toString().equals("comp2_")) {
+				verifyAnnotations(method, new String[]{"@MyAnnot2()"});
+				TypeMirror asType = method.asType();
+				verifyAnnotations(asType, new String[]{});
+			} else if (method.getSimpleName().toString().equals("comp3_")) {
+				verifyAnnotations(method, new String[]{"@MyAnnot3()"});
+				TypeMirror asType = method.asType();
+				verifyAnnotations(asType, new String[]{});
+			} else if (method.getSimpleName().toString().equals("comp4_")) {
+				verifyAnnotations(method, new String[]{});
+				TypeMirror asType = method.asType();
+				verifyAnnotations(asType, new String[]{});
+			} else if (method.getSimpleName().toString().equals("comp5_")) {
+				verifyAnnotations(method, new String[]{});
+				TypeMirror asType = method.asType();
+				verifyAnnotations(asType, new String[]{});
+			}
+		}
+		methodsIn = ElementFilter.constructorsIn(enclosedElements);
+		assertEquals("incorrect method", 1, methodsIn.size());
+		ExecutableElement m = methodsIn.get(0);
+		verifyAnnotations(m, new String[]{});
+		TypeMirror asType = m.asType();
+		verifyAnnotations(asType, new String[]{});
+		List<? extends VariableElement> parameters = m.getParameters();
+		assertEquals("incorrect parameters", 5, parameters.size());
+		for (VariableElement v : parameters) {
+			if (v.getSimpleName().toString().equals("comp_")) {
+				verifyAnnotations(v, new String[]{"@MyAnnot()"}); // ECJ fails
+			} else if (v.getSimpleName().toString().equals("comp2_")) {
+				verifyAnnotations(v, new String[]{"@MyAnnot2()"});
+			} else if (v.getSimpleName().toString().equals("comp3_")) {
+				verifyAnnotations(v, new String[]{}); // ECJ fails
+			} else if (v.getSimpleName().toString().equals("comp4_")) {
+				verifyAnnotations(v, new String[]{}); // ECJ fails
+			} else if (v.getSimpleName().toString().equals("comp5_")) {
+				verifyAnnotations(v, new String[]{});
+			}
+		}
 	}
 	public void testRecords5() {
 		Map<String, TypeKind> expRecComps = new HashMap<>();

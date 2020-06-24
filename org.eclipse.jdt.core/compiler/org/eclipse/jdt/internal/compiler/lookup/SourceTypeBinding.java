@@ -1293,7 +1293,8 @@ public RecordComponentBinding[] components() {
 					if (rcb.type instanceof TypeVariableBinding ||
 					rcb.type instanceof ParameterizedTypeBinding)
 						smb.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-					smb.returnType = rcb.type;
+					// Don't copy the annotations to the accessor method's return type from record component
+					smb.returnType = rcb.type.unannotated();
 					// add code for implicit canonical constructor argument annotations also
 					for (FieldBinding f : this.fields) {
 						if (f.isRecordComponent() && CharOperation.equals(f.name, rcb.name)) {

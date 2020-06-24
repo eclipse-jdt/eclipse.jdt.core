@@ -1243,7 +1243,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		// TODO: Null Analysis Address via bug 562478?
 
-		recipientTargetMask |= TagBits.AnnotationForTypeUse;
 		List<AnnotationBinding> relevantAnnotations = new ArrayList<>();
 		Annotation[] filteredAnnotations = ASTNode.getRelevantAnnotations(annotations, recipientTargetMask, relevantAnnotations);
 		AnnotationBinding [] recipientAnnotations = relevantAnnotations.toArray(new AnnotationBinding[relevantAnnotations.size()]);

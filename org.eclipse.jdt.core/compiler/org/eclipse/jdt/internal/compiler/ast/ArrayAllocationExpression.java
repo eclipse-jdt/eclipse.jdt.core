@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-@SuppressWarnings({"rawtypes"})
 public class ArrayAllocationExpression extends Expression {
 
 	public TypeReference type;
@@ -230,7 +233,7 @@ public class ArrayAllocationExpression extends Expression {
 		visitor.endVisit(this, scope);
 	}
 
-	public void getAllAnnotationContexts(int targetType, int info, List allTypeAnnotationContexts) {
+	public void getAllAnnotationContexts(int targetType, int info, List<AnnotationContext> allTypeAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allTypeAnnotationContexts);
 		this.type.traverse(collector, (BlockScope) null);
 		if (this.annotationsOnDimensions != null)  {

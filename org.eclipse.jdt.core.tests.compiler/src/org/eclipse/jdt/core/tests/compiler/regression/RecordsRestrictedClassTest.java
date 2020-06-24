@@ -3296,6 +3296,10 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"    RuntimeInvisibleAnnotations: \n" +
 			"      #8 @RCMU(\n" +
 			"      )\n" +
+			"    RuntimeInvisibleTypeAnnotations: \n" +
+			"      #8 @RCMU(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"      )\n" +
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
@@ -3409,9 +3413,11 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
-			"    RuntimeInvisibleAnnotations: \n" +
+			"    RuntimeInvisibleTypeAnnotations: \n" +
 			"      #8 @T(\n" +
-			"      )\n";
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"      )\n" +
+			"  ";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
@@ -3488,10 +3494,11 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 13]\n" +
-			"    RuntimeVisibleAnnotations: \n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
 			"      #8 @T(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
-			"  \n";
+			"  ";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
@@ -3714,7 +3721,11 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"    RuntimeInvisibleAnnotations: \n" +
 			"      #8 @Annot(\n" +
 			"      )\n" +
-			"  \n";
+			"    RuntimeInvisibleTypeAnnotations: \n" +
+			"      #8 @Annot(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"      )\n" +
+			"  ";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
@@ -4306,4 +4317,153 @@ public void testBug562637_001() {
 		},
 		"5");
 }
+	public void testBug563181_01() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n"+
+						"import java.lang.annotation.Target;\n"+
+						"public class X { \n"+
+						"  public static void main(String[] args){}\n"+
+						"}\n"+
+						"record Point(@RCMU int myInt, char myChar) { \n"+
+						"  public int myInt(){\n"+
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}   \n"+
+						"@Target({ ElementType.RECORD_COMPONENT, ElementType.METHOD, ElementType.TYPE_USE})\n"+
+						"@interface RCMU {}\n"
+				},
+				"");
+		String expectedOutput =
+				"  // Method descriptor #25 ()I\n" +
+				"  // Stack: 1, Locals: 1\n" +
+				"  public int myInt();\n" +
+				"    0  aload_0 [this]\n" +
+				"    1  getfield Point.myInt : int [17]\n" +
+				"    4  ireturn\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 8]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 5] local: this index: 0 type: Point\n" +
+				"  \n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug563181_02() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.ElementType;\n"+
+						"import java.lang.annotation.Target;\n"+
+						"public class X { \n"+
+						"  public static void main(String[] args){}\n"+
+						"}\n"+
+						"record Point(@RCMU int myInt, char myChar) {\n"+
+						"  @RCMU public int myInt(){\n"+
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n"+
+						"@Target({ ElementType.RECORD_COMPONENT, ElementType.METHOD, ElementType.TYPE_USE})\n"+
+						"@interface RCMU {}\n"
+				},
+				"");
+		String expectedOutput =
+				"  // Method descriptor #25 ()I\n" +
+				"  // Stack: 1, Locals: 1\n" +
+				"  public int myInt();\n" +
+				"    0  aload_0 [this]\n" +
+				"    1  getfield Point.myInt : int [17]\n" +
+				"    4  ireturn\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 8]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 5] local: this index: 0 type: Point\n" +
+				"    RuntimeInvisibleAnnotations: \n" +
+				"      #8 @RCMU(\n" +
+				"      )\n" +
+				"    RuntimeInvisibleTypeAnnotations: \n" +
+				"      #8 @RCMU(\n" +
+				"        target type = 0x14 METHOD_RETURN\n" +
+				"      )\n" +
+				"  \n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug563181_03() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.*;\n"+
+						"public class X { \n"+
+						"  public static void main(String[] args){}\n"+
+						"}\n"+
+						"record Point(@TypeAnnot @SimpleAnnot int myInt, char myChar) {}\n"+
+						"@Target({ ElementType.RECORD_COMPONENT, ElementType.METHOD})\n"+
+						"@Retention(RetentionPolicy.RUNTIME)\n" +
+						"@interface SimpleAnnot {}\n" +
+						"@Target({ ElementType.RECORD_COMPONENT, ElementType.TYPE_USE})\n"+
+						"@Retention(RetentionPolicy.RUNTIME)\n" +
+						"@interface TypeAnnot {}\n"
+				},
+				"");
+		String expectedOutput =
+				"  // Method descriptor #25 ()I\n" +
+				"  // Stack: 1, Locals: 1\n" +
+				"  public int myInt();\n" +
+				"    0  aload_0 [this]\n" +
+				"    1  getfield Point.myInt : int [17]\n" +
+				"    4  ireturn\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 5]\n" +
+				"    RuntimeVisibleAnnotations: \n" +
+				"      #27 @SimpleAnnot(\n" +
+				"      )\n" +
+				"    RuntimeVisibleTypeAnnotations: \n" +
+				"      #8 @TypeAnnot(\n" +
+				"        target type = 0x14 METHOD_RETURN\n" +
+				"      )\n" +
+				"  \n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug563181_04() throws IOException, ClassFormatException {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.*;\n"+
+						"public class X { \n"+
+						"  public static void main(String[] args){}\n"+
+						"}\n"+
+						"record Point(@TypeAnnot @SimpleAnnot int myInt, char myChar) {\n"+
+						"  @TypeAnnot @SimpleAnnot public int myInt(){\n"+
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n"+
+						"@Target({ ElementType.RECORD_COMPONENT, ElementType.METHOD})\n"+
+						"@Retention(RetentionPolicy.RUNTIME)\n" +
+						"@interface SimpleAnnot {}\n" +
+						"@Target({ ElementType.RECORD_COMPONENT, ElementType.TYPE_USE})\n"+
+						"@Retention(RetentionPolicy.RUNTIME)\n" +
+						"@interface TypeAnnot {}\n"
+				},
+				"");
+		String expectedOutput =
+				" // Method descriptor #25 ()I\n" +
+				"  // Stack: 1, Locals: 1\n" +
+				"  public int myInt();\n" +
+				"    0  aload_0 [this]\n" +
+				"    1  getfield Point.myInt : int [17]\n" +
+				"    4  ireturn\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 7]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 5] local: this index: 0 type: Point\n" +
+				"    RuntimeVisibleAnnotations: \n" +
+				"      #27 @SimpleAnnot(\n" +
+				"      )\n" +
+				"    RuntimeVisibleTypeAnnotations: \n" +
+				"      #8 @TypeAnnot(\n" +
+				"        target type = 0x14 METHOD_RETURN\n" +
+				"      )\n" +
+				"  \n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	}
 }
