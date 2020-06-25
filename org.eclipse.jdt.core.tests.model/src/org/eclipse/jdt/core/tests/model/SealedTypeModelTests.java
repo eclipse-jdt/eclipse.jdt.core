@@ -27,8 +27,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 
@@ -40,8 +42,19 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 //		TESTS_NAMES = new String[] {"test001"};
 	}
 
+	ProblemRequestor problemRequestor;
 	public SealedTypeModelTests(String name) {
 		super(name);
+	}
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
+		this.problemRequestor =  new ProblemRequestor();
+		this.wcOwner = new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+				return SealedTypeModelTests.this.problemRequestor;
+			}
+		};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(AbstractCompilerTest.F_15, SealedTypeModelTests.class);
@@ -57,9 +70,9 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
 			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-					"interface I {}\n" +
-					"public class X implements I {}\n" +
-					"interface Y extends I {}\n";
+									"interface I {}\n" +
+									"public class X implements I {}\n" +
+									"interface Y extends I {}\n";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -78,8 +91,8 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
 			String fileContent =  "sealed interface I permits X, Y {}\n" +
-					"public non-sealed class X implements I {}\n" +
-					"non-sealed interface Y extends I {}\n";
+									"public non-sealed class X implements I {}\n" +
+									"non-sealed interface Y extends I {}\n";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -104,8 +117,8 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
 			String fileContent =  "sealed interface I permits X, Y {}\n" +
-					"public non-sealed class X implements I {}\n" +
-					"non-sealed interface Y extends I {}\n";
+									"public non-sealed class X implements I {}\n" +
+									"non-sealed interface Y extends I {}\n";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -133,8 +146,8 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
 			String fileContent =  "sealed interface I {}\n" +
-					"public non-sealed class X implements I {}\n" +
-					"non-sealed interface Y extends I {}\n";
+									"public non-sealed class X implements I {}\n" +
+									"non-sealed interface Y extends I {}\n";
 
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
@@ -221,8 +234,8 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		String[] permitted = new String[] {"p.X", "p.Y"};
 		try {
 			String[] sources = {
-					"p/X.java",
-					"package p;\n;" +
+							"p/X.java",
+							"package p;\n;" +
 							"sealed interface I {}\n" +
 							"public non-sealed class X implements I {}\n" +
 							"non-sealed interface Y extends I {}\n"
@@ -272,6 +285,108 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			permittedSubtypeNames = type.getPermittedSubtypeNames();
 			assertEquals("incorrect permitted sub types", 0, permittedSubtypeNames.length);
 			assertFalse("modifier should not contain sealed", type.isSealed());
+		}
+		finally {
+			deleteProject("SealedTypes");
+		}
+	}
+	// Test sealed types for reconciler
+	public void test007() throws Exception {
+		String[] permitted = new String[] {"p.X"};
+		try {
+			IJavaProject project = createJavaProject("SealedTypes");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+								  "sealed interface I permits p.X {}\n";
+			createFolder("/SealedTypes/src/p");
+			createFile("/SealedTypes/src/p/I.java", fileContent);
+			fileContent =  "package p;\n" +
+						   "public non-sealed class X implements p.I {}\n";
+			createFile(	"/SealedTypes/src/p/X.java", fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/p/I.java");
+
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = fileContent.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = unit.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n",
+					this.problemRequestor);
+
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			for (IType iType : types) {
+				if (iType.getElementName().equals("I")) {
+					assertTrue("modifier should contain sealed", iType.isSealed());
+					String[] permittedSubtypeNames = iType.getPermittedSubtypeNames();
+					assertEquals("incorrect permitted sub types", permitted.length, permittedSubtypeNames.length);
+					for (int i = 0; i < permitted.length; i++) {
+						assertEquals("incorrect permitted sub type", permitted[i], permittedSubtypeNames[i]);
+					}
+				}
+			}
+		}
+		finally {
+			deleteProject("SealedTypes");
+		}
+	}
+	// Test sealed types for reconciler
+	public void test008() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("SealedTypes");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+								  "sealed interface I permits p.X {}\n";
+			createFolder("/SealedTypes/src/p");
+			createFile(	"/SealedTypes/src/p/I.java", fileContent);
+
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = fileContent.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit("/SealedTypes/src/p/I.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"1. ERROR in /SealedTypes/src/p/I.java (at line 2)\n" +
+					"	sealed interface I permits p.X {}\n" +
+					"	                           ^^^\n" +
+					"p.X cannot be resolved to a type\n" +
+					"----------\n",
+					this.problemRequestor);
+		}
+		finally {
+			deleteProject("SealedTypes");
+		}
+	}
+	// Test sealed types for reconciler
+	public void test009() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("SealedTypes");
+			project.open(null);
+			String fileContent =  "package p;\n" +
+					"sealed interface I permits p.X {}\n";
+			createFolder("/SealedTypes/src/p");
+			createFile(	"/SealedTypes/src/p/I.java", fileContent);
+			fileContent =  "package p;\n" +
+					"public non-sealed class X {}\n";
+			createFile(	"/SealedTypes/src/p/X.java", fileContent);
+
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = fileContent.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit("/SealedTypes/src/p/X.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+							"1. ERROR in /SealedTypes/src/p/X.java (at line 2)\n" +
+							"	public non-sealed class X {}\n" +
+							"	                        ^\n" +
+							"A class X declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
+							"----------\n",
+							this.problemRequestor);
 		}
 		finally {
 			deleteProject("SealedTypes");
