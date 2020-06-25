@@ -1176,7 +1176,10 @@ private void checkPermitsInType() {
 		// Ignore implicitly permitted case
 		return;
 	}
-	for (int i = 0, l = this.permittedTypes.length; i < l; i++) {
+	// In case of errors, be safe.
+	int l = this.permittedTypes.length <= this.scope.referenceContext.permittedTypes.length ?
+			this.permittedTypes.length : this.scope.referenceContext.permittedTypes.length;
+	for (int i = 0; i < l; i++) {
 	    TypeReference permittedTypeRef = this.scope.referenceContext.permittedTypes[i];
 		ReferenceBinding permittedType = this.permittedTypes[i];
 		if (permittedType == null || !permittedType.isValidBinding())

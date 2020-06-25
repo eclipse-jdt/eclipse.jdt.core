@@ -6039,4 +6039,50 @@ public void testBug562637() throws CoreException, IOException, InterruptedExcept
 			deleteProject(project15);
 	}
 }
+public void testBug564613_001() throws CoreException, IOException, InterruptedException {
+	if (!isJRE15) return;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJava15Project("Reconciler_15", new String[] {"src"});
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+		String[] sources = new String[2];
+		char[][] sourceAsArray = new char[2][];
+		createFolder("/Reconciler_15/src/X");
+		sources[0] =
+				"public sealed class X  permits Y Z {} \n" +
+				"final class Y extends X{} \n" +
+				"final class Z extends X{}";
+		createFile(
+			"/Reconciler_15/src/X.java",
+			sources[0]
+		);
+		sourceAsArray[0] = sources[0].toCharArray();
+		waitUntilIndexesReady();
+			// Get first working copy and verify that there's no error
+		this.problemRequestor.initialize(sourceAsArray[0]);
+		this.workingCopy = getCompilationUnit("/Reconciler_15/src/X.java").getWorkingCopy(this.wcOwner, null);
+		try {
+			this.workingCopy.makeConsistent(null);
+			assertProblemsInclude("Unexpected Errors",
+					"----------\n" +
+					"1. ERROR in /Reconciler_15/src/X.java (at line 1)\n" +
+					"	public sealed class X  permits Y Z {} \n" +
+					"	                       ^^^^^^^\n" +
+					"Syntax error on token \"permits\", { expected\n" +
+					"----------\n");
+		} catch (ArrayIndexOutOfBoundsException e) {
+			assertFalse("Failure: AIOOBE thrown", true);
+		}
+
+
+	} finally {
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
 }
