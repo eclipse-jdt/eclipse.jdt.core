@@ -337,7 +337,12 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits {\n" +
 			"	                      ^^^^^^^\n" +
-			"Syntax error on token \"permits\", ClassType expected after this token\n" +
+			"Syntax error on token \"permits\", { expected\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	public sealed class X permits {\n" +
+			"	                              ^\n" +
+			"Syntax error, insert \"}\" to complete Block\n" +
 			"----------\n");
 	}
 	// TODO : Enable after error flag code implemented
@@ -1630,5 +1635,37 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 						"}",
 				},
 				"");
+	}
+	public void testBug564613_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"       public boolean permits( String s ) {\n"+
+				"               return true;\n"+
+				"       }\n"+
+				"       public static void main(String[] args) {\n"+
+				"               boolean b = new X().permits(\"hello\");\n"+
+				"               System.out.println(b ? \"Hello\" : \"World\");\n"+
+				"       }\n"+
+				"}",
+			},
+			"Hello");
+	}
+	public void testBug564613_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public sealed class X permits permits Y, Z {}\n"+
+				"final class Y extends X{}\n" +
+				"final class Z extends X{}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public sealed class X permits permits Y, Z {}\n" +
+			"	                      ^^^^^^^\n" +
+			"Syntax error on token \"permits\", delete this token\n" +
+			"----------\n");
 	}
 }

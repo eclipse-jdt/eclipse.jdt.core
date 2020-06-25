@@ -5049,7 +5049,7 @@ private static class Goal {
 			if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridSealed.add(i);
 			else
-			if ("ClassTypeList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+			if ("PermittedSubclasses".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridPermits.add(i);
 
 		}
@@ -5533,7 +5533,7 @@ private boolean disambiguateYieldWithLookAhead() {
 }
 int disambiguatedRestrictedIdentifierpermits(int restrictedIdentifierToken) {
 	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierpermits)
 		return restrictedIdentifierToken;
 	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
 		return TokenNameIdentifier;

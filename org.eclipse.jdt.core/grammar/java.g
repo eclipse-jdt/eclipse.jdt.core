@@ -225,7 +225,7 @@ Goal ::= '@' TypeAnnotations
 Goal ::= '->' YieldStatement
 -- JSR 360 Restricted
 Goal ::= RestrictedIdentifiersealed Modifiersopt
-Goal ::= RestrictedIdentifierpermits ClassTypeList
+Goal ::= RestrictedIdentifierpermits PermittedSubclasses
 
 /:$readableName Goal:/
 
@@ -2266,6 +2266,10 @@ ClassHeaderPermittedSubclassesopt ::= $empty
 ClassHeaderPermittedSubclassesopt -> ClassHeaderPermittedSubclasses
 /:$readableName ClassHeaderPermittedSubclasses:/
 /:$compliance 15:/
+
+-- Production name hardcoded in parser. Must be ::= and not -> 
+PermittedSubclasses ::= ClassTypeList
+/:$readableName PermittedSubclasses:/
 
 ClassHeaderPermittedSubclasses ::= RestrictedIdentifierpermits ClassTypeList
 /.$putCase consumeClassHeaderPermittedSubclasses(); $break ./
