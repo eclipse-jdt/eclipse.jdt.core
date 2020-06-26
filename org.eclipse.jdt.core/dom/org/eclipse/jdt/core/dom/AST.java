@@ -345,7 +345,6 @@ public final class AST {
 	 */
 	static final int JLS14_INTERNAL = JLS14;
 
-	@SuppressWarnings("unused")
 	/* Used for Java doc only*/
 	private static final int JLS_Latest = JLS14;
 
