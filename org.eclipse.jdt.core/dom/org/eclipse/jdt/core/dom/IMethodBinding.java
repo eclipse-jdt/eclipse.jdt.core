@@ -52,15 +52,16 @@ public interface IMethodBinding extends IBinding {
 	 *
 	 * <p>
 	 * This method returns <code>true</code> for:
+	 * </p>
 	 * <ul>
 	 * <li>compact constructors where the binding
 	 * information was obtained from a Java source file containing a compact constructor
 	 * declaration</li>
 	 * </ul>
 	 *
-	 * </p>
 	 * <p>
 	 * This method returns <code>false</code> for:
+	 * </p>
 	 * <ul>
 	 * <li>methods</li>
 	 * <li>constructors</li>
@@ -68,7 +69,6 @@ public interface IMethodBinding extends IBinding {
 	 * is not possible to determine from a class file whether a constructor is a
 	 * compact constructor or not</li>
 	 * </ul>
-	 * <p>
 	 *
 	 * @return <code>true</code> if this is the binding for a compact constructor
 	 * in a source file and and <code>false</code> otherwise
