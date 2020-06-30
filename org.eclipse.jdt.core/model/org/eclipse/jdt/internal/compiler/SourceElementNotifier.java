@@ -259,6 +259,8 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 		this.visitIfNeeded(methodDeclaration);
 		return;
 	}
+	if ((methodDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsImplicit) != 0)
+		return;
 
 	if (methodDeclaration.isDefaultConstructor()) {
 		if (this.reportReferenceInfo) {
