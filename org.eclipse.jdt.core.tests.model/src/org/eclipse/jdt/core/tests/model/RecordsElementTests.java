@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -116,6 +117,35 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 				comp = recordComponents[1];
 				assertEquals("type should be a record component", IJavaElement.FIELD, comp.getElementType());
 				assertEquals("incorrect element name", "x2", comp.getElementName());
+				IMethod[] methods = types[0].getMethods();
+				assertNotNull("should not be null", methods);
+				assertEquals("Incorret no of methods", 1, methods.length);
+				IMethod iMethod = methods[0];
+				assertEquals("type should be a record component", IJavaElement.METHOD, iMethod.getElementType());
+				assertEquals("incorrect element name", "Point", iMethod.getElementName());
+				String[] parameterNames = iMethod.getParameterNames();
+				assertEquals("parameters not matching", 2, parameterNames.length);
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	public void test004() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("RecordsElement");
+			project.open(null);
+			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
+					"public record Point(int x1, int x2) {\n" +
+					"}\n";
+			createFile(	"/RecordsElement/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			assertTrue("type should be a record", types[0].isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+			IMethod[] methods = types[0].getMethods();
+			assertNotNull("should not be null", methods);
+			assertEquals("Incorret no of methods", 0, methods.length);
 		}
 		finally {
 			deleteProject("RecordsElement");
