@@ -548,6 +548,7 @@ public class BuilderTests extends TestCase {
 			Bug530366Test.class,
 			Bug531382Test.class,
 			Bug549457Test.class,
+			Bug564905Test.class,
 			Bug561287Test.class,
 			Bug562420Test.class,
 			LeakTestsBefore9.class,
