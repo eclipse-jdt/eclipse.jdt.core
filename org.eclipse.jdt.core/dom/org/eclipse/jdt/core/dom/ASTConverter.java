@@ -3303,7 +3303,10 @@ class ASTConverter {
 		if (permittedTypes != null) {
 			if (DOMASTUtil.isFeatureSupportedinAST(this.ast, Modifier.SEALED)) {
 				for (int index = 0, length = permittedTypes.length; index < length; index++) {
-					typeDecl.permittedTypes().add(convertType(permittedTypes[index]));
+					Type convertType = convertType(permittedTypes[index]);
+					if (convertType != null) {
+						typeDecl.permittedTypes().add(convertType);
+					}
 				}
 			}
 		}
