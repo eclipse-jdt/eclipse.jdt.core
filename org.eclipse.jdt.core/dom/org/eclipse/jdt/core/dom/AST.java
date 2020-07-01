@@ -2598,6 +2598,20 @@ public final class AST {
 	}
 
 	/**
+	 * Creates an unparented record declaration node owned by this AST.
+	 * The name of the class is an unspecified, but legal, name;
+	 * no modifiers; no doc comment; no superclass or superinterfaces;
+	 * and an empty record body.
+	 *
+	 * @return a new unparented type declaration node
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS14
+	 * @since 3.23
+	 */
+	public RecordDeclaration newRecordDeclaration() {
+		RecordDeclaration result = new RecordDeclaration(this);
+		return result;
+	}
+	/**
 	 * Creates and returns a new unparented requires directive
 	 * node for an unspecified, but legal, name;
 	 *

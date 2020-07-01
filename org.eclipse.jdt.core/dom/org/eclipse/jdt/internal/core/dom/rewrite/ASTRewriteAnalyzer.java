@@ -2262,7 +2262,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		pos= rewriteOptionalTypeParameters(node, RecordDeclaration.TYPE_PARAMETERS_PROPERTY, pos, Util.EMPTY_STRING, false, true);
 
+		try {
+			pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLPAREN, pos);
+		}catch(CoreException ex) {
+				//ignore
+		}
+
+
 		pos= rewriteNodeList(node, RecordDeclaration.RECORD_COMPONENTS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+
+		try {
+		pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameRPAREN, pos);
+		}catch(CoreException ex) {
+			//ignore
+		}
 
 		// extended interfaces
 		ChildListPropertyDescriptor superInterfaceProperty= RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
@@ -2277,10 +2290,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		// type members
 		// startPos : find position after left brace of type, be aware that bracket might be missing
+
 		int startIndent= getIndent(node.getStartPosition()) + 1;
-		int startPos= getPosAfterRightParenthesis(pos);
-		startPos= getPosAfterLeftBrace(startPos);
-		rewriteParagraphList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, startPos, startIndent, -1, 2);
+		pos = getPosAfterRightParenthesis(pos);
+		pos= getPosAfterLeftBrace(pos);
+		rewriteParagraphList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, pos, startIndent, -1, 2);
 		return false;
 	}
 

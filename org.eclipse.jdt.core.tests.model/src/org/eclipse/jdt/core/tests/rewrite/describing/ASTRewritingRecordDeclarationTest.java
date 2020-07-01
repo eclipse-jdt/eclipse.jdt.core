@@ -27,12 +27,23 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
@@ -63,10 +74,18 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		}
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void testRecord_001() throws Exception {
+	@SuppressWarnings("deprecation")
+	private boolean checkAPILevel() {
 		if (this.apiLevel != 14) {
 			System.err.println("Test "+getName()+" requires a JRE 14");
+			return true;
+		}
+		return false;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_001() throws Exception {
+		if (checkAPILevel()) {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -94,7 +113,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		Block block= methodDecl.getBody();
 		List blockStatements= block.statements();
 		assertTrue("Number of statements not 1", blockStatements.size() == 1);
-		{ // rename first param & last throw statement
+		{ // add record component
 			List recordComponents = record.recordComponents();
 			assertTrue("must be 0 parameters", recordComponents.size() == 0);
 			SingleVariableDeclaration newParam= ast.newSingleVariableDeclaration();
@@ -109,22 +128,20 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 		buf= new StringBuffer();
 		buf.append("package test1;\n");
-		//buf.append("public record C(int param1) {\n");
-		buf.append("public record Cint param1() {\n");
+		buf.append("public record C(int param1) {\n");
 		buf.append("		public C {\n");
 		buf.append("			System.out.println(\"error\");\n");
 		buf.append("		}\n");
 		buf.append("\n");
-		buf.append("}\n");		assertEqualString(preview, buf.toString());
+		buf.append("}\n");
 
 		assertEqualString(preview, buf.toString());
 
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void testRecord_002() throws Exception {
-		if (this.apiLevel != 14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (checkAPILevel()) {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -151,7 +168,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		Block block= methodDecl.getBody();
 		List blockStatements= block.statements();
 		assertTrue("Number of statements not 1", blockStatements.size() == 1);
-		{ // rename first param & last throw statement
+		{ // add new constructor with parameter
 			MethodDeclaration methodDecl1 = ast.newMethodDeclaration();
 			methodDecl1.setConstructor(true);
 			methodDecl1.setName(ast.newSimpleName("C"));
@@ -179,16 +196,14 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		buf.append("        public C(int param1) {\n");
 		buf.append("        }\n");
 		buf.append("\n");
-		buf.append("}\n");		assertEqualString(preview, buf.toString());
+		buf.append("}\n");
 
 		assertEqualString(preview, buf.toString());
 
 	}
 
-	@SuppressWarnings("deprecation")
 	public void testRecord_003() throws Exception {
-		if (this.apiLevel != 14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (checkAPILevel()) {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -233,7 +248,965 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		buf.append("    }\n");
 		buf.append("\n");
 		buf.append("}\n");
+
 		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_004() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(){\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+
+		ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY);
+		SimpleType newInterface= ast.newSimpleType(ast.newSimpleName("A"));
+		listRewrite.insertLast(newInterface, null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() implements A{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testRecord_005() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() implements A{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+
+		ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY);
+		SimpleType newInterface= ast.newSimpleType(ast.newSimpleName("B"));
+		listRewrite.insertLast(newInterface, null);
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() implements A, B{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_006() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int param1){\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // remove record component
+			List recordComponents = record.recordComponents();
+			assertTrue("must be 1 parameters", recordComponents.size() == 1);
+			rewrite.remove((ASTNode)recordComponents.get(0), null);
+
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(){\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_007() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int param1){\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // rename record component
+			List recordComponents = record.recordComponents();
+			assertTrue("must be 1 parameters", recordComponents.size() == 1);
+			SingleVariableDeclaration newParam= astRoot.getAST().newSingleVariableDeclaration();
+			newParam.setType(astRoot.getAST().newPrimitiveType(PrimitiveType.INT));
+			newParam.setName(astRoot.getAST().newSimpleName("param2"));
+			rewrite.replace((SingleVariableDeclaration)recordComponents.get(0), newParam, null);
+
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int param2){\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testRecord_008() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		{ // change record name
+			rewrite.set(type, RecordDeclaration.NAME_PROPERTY, ast.newSimpleName("X"), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record X() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_009() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		{ // add java doc
+			Javadoc javadoc= ast.newJavadoc();
+			TextElement textElem= ast.newTextElement();
+			textElem.setText("Hello");
+			TagElement tagElement= ast.newTagElement();
+			tagElement.fragments().add(textElem);
+			javadoc.tags().add(tagElement);
+			rewrite.set(type, RecordDeclaration.JAVADOC_PROPERTY, javadoc, null);
+		}
+
+		{ // change modifier to private
+			rewrite.remove((ASTNode) type.modifiers().get(0), null);
+			ListRewrite listRewrite= rewrite.getListRewrite(type, RecordDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/**\n");
+		buf.append(" * Hello\n");
+		buf.append(" */\n");
+		buf.append("private record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_010() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/** javadoc comment */\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		{ // remove java doc
+			rewrite.remove(type.getJavadoc(), null);
+		}
+
+		{ // remove modifier
+			rewrite.remove((ASTNode) type.modifiers().get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_011() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/** javadoc comment */\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		{ // replace java doc
+			Javadoc javadoc= ast.newJavadoc();
+			TextElement textElem= ast.newTextElement();
+			textElem.setText("Hello");
+			TagElement tagElement= ast.newTagElement();
+			tagElement.fragments().add(textElem);
+			javadoc.tags().add(tagElement);
+			rewrite.replace(type.getJavadoc(), javadoc, null);
+		}
+
+		{ // add modifier
+			ListRewrite listRewrite= rewrite.getListRewrite(type, RecordDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/**\n");
+		buf.append(" * Hello\n");
+		buf.append(" */\n");
+		buf.append("public final record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_012() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "C");
+		ListRewrite declarations= rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		{ // add record in class
+			RecordDeclaration record = ast.newRecordDeclaration();
+			record.setName(ast.newSimpleName("X"));
+			declarations.insertFirst(record, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {\n");
+		buf.append("\n");
+		buf.append("    record X() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_013() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		ListRewrite declarations= rewrite.getListRewrite(type, RecordDeclaration.BODY_DECLARATIONS_PROPERTY);
+		{ // add record in record
+			RecordDeclaration record = ast.newRecordDeclaration();
+			record.setName(ast.newSimpleName("X"));
+			declarations.insertFirst(record, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("    record X() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_015() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("    record X() {\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		ListRewrite declarations= rewrite.getListRewrite(type, RecordDeclaration.BODY_DECLARATIONS_PROPERTY);
+		{ // remove record from record
+			List types = (List)type.getStructuralProperty(RecordDeclaration.BODY_DECLARATIONS_PROPERTY);
+			declarations.remove((RecordDeclaration)types.get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_0015() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int param1) {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // add record component
+			List recordComponents = record.recordComponents();
+			assertTrue("must be 1 parameter", recordComponents.size() == 1);
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.RECORD_COMPONENTS_PROPERTY);
+			listRewrite.remove((SingleVariableDeclaration)recordComponents.get(0), null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_016() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		MethodDeclaration methodDecl= findMethodDeclaration(record, "C");
+		{ // replace compact constructor
+			MethodDeclaration methodDecl1 = ast.newMethodDeclaration();
+			methodDecl1.setName(ast.newSimpleName("C"));
+			SingleVariableDeclaration newParam= ast.newSingleVariableDeclaration();
+			newParam.setType(ast.newPrimitiveType(PrimitiveType.INT));
+			newParam.setName(ast.newSimpleName("param1"));
+			methodDecl1.parameters().add(newParam);
+			methodDecl1.setConstructor(Boolean.TRUE);
+			methodDecl1.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+			Block body= ast.newBlock();
+			MethodInvocation methodInvocation = ast.newMethodInvocation();
+			QualifiedName name =
+				ast.newQualifiedName(
+				ast.newSimpleName("System"),//$NON-NLS-1$
+				ast.newSimpleName("out"));//$NON-NLS-1$
+			methodInvocation.setExpression(name);
+			methodInvocation.setName(ast.newSimpleName("println")); //$NON-NLS-1$
+			StringLiteral literal = ast.newStringLiteral();
+			literal.setLiteralValue("Hello world");//$NON-NLS-1$
+			methodInvocation.arguments().add(literal);
+			ExpressionStatement expressionStatement = ast.newExpressionStatement(methodInvocation);
+			body.statements().add(expressionStatement);
+			methodDecl1.setBody(body);
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.BODY_DECLARATIONS_PROPERTY);
+			listRewrite.replace(methodDecl, methodDecl1, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("		public C(int param1) {\n");
+		buf.append("            System.out.println(\"Hello world\");\n");
+		buf.append("        }\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_0016() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() implements A{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+
+		{
+			// Remove interface
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY);
+			List interfaces = record.superInterfaceTypes();
+			listRewrite.remove((Type)interfaces.get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(){\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_0017() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() implements A{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+
+		{
+			// change interface
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY);
+			List interfaces = record.superInterfaceTypes();
+			SimpleType newInterface= astRoot.getAST().newSimpleType(astRoot.getAST().newSimpleName("B"));
+			listRewrite.replace((SimpleType)interfaces.get(0), newInterface, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() implements B{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testRecord_0018() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // add var arg property for record component
+			SingleVariableDeclaration newParam= ast.newSingleVariableDeclaration();
+			newParam.setType(ast.newPrimitiveType(PrimitiveType.INT));
+			newParam.setName(ast.newSimpleName("param1"));
+			newParam.setVarargs(Boolean.TRUE);
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.RECORD_COMPONENTS_PROPERTY);
+			listRewrite.insertFirst(newParam, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int... param1) {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_0019() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int... param) {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // remove var arg property of record component
+			rewrite.set((SingleVariableDeclaration) record.recordComponents().get(0), SingleVariableDeclaration.VARARGS_PROPERTY, Boolean.FALSE, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int param) {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_0020() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C(int... param) {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // remove record component with var arg
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.RECORD_COMPONENTS_PROPERTY);
+			listRewrite.remove((SingleVariableDeclaration)record.recordComponents().get(0), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_0021() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // add parameter type
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.TYPE_PARAMETERS_PROPERTY);
+			TypeParameter typeParameter= ast.newTypeParameter();
+			typeParameter.setName(ast.newSimpleName("X"));
+			listRewrite.insertFirst(typeParameter, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C<X>() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_0022() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C<X>() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // remove parameter type
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.TYPE_PARAMETERS_PROPERTY);
+			listRewrite.remove((TypeParameter)record.typeParameters().get(0), null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C () {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_023() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C<X>() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast = astRoot.getAST();
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // change parameter type
+			//rewrite.set((TypeParameter) record.typeParameters().get(0), TypeParameter.NAME_PROPERTY, astRoot.getAST().newSimpleName("Y"), null);
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.TYPE_PARAMETERS_PROPERTY);
+			TypeParameter typeParameter= ast.newTypeParameter();
+			typeParameter.setName(ast.newSimpleName("Y"));
+			listRewrite.replace((TypeParameter)record.typeParameters().get(0), typeParameter, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C<Y>() {\n");
+		buf.append("		public C {\n");
+		buf.append("			System.out.println(\"error\");\n");
+		buf.append("		}\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	public void testRecord_024() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "C");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{ // add compact constructor
+			MethodDeclaration methodDecl1 = ast.newMethodDeclaration();
+			methodDecl1.setName(ast.newSimpleName("C"));
+			methodDecl1.setConstructor(Boolean.TRUE);
+			methodDecl1.setCompactConstructor(Boolean.TRUE);
+			Block body= ast.newBlock();
+			methodDecl1.setBody(body);
+			methodDecl1.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.BODY_DECLARATIONS_PROPERTY);
+			listRewrite.insertFirst(methodDecl1, null);
+
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public record C() {\n");
+		buf.append("\n");
+		buf.append("    public C{}\n");
+		buf.append("\n");
+		buf.append("}\n");
 
 		assertEqualString(preview, buf.toString());
 

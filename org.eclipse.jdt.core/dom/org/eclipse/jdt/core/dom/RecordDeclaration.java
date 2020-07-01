@@ -267,11 +267,11 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		if (property == TYPE_PARAMETERS_PROPERTY) {
 			return typeParameters();
 		}
-		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
-			return superInterfaceTypes();
-		}
 		if (property == RECORD_COMPONENTS_PROPERTY) {
 			return recordComponents();
+		}
+		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
+			return superInterfaceTypes();
 		}
 		if (property == BODY_DECLARATIONS_PROPERTY) {
 			return bodyDeclarations();
@@ -316,10 +316,10 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.typeParameters().addAll(
 				ASTNode.copySubtrees(target, typeParameters()));
-		result.superInterfaceTypes().addAll(
-				ASTNode.copySubtrees(target, superInterfaceTypes()));
 		result.recordComponents().addAll(
 				ASTNode.copySubtrees(target, recordComponents()));
+		result.superInterfaceTypes().addAll(
+				ASTNode.copySubtrees(target, superInterfaceTypes()));
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
@@ -340,8 +340,8 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 			acceptChildren(visitor, this.modifiers);
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, this.typeParameters);
-			acceptChildren(visitor, this.superInterfaceTypes);
 			acceptChildren(visitor, this.recordComponents);
+			acceptChildren(visitor, this.superInterfaceTypes);
 			acceptChildren(visitor, this.bodyDeclarations);
 		}
 		visitor.endVisit(this);
