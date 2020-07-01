@@ -979,5 +979,53 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-
+	// Test the code with error doesn't cause a CCE and
+	// produces a decent recovered AST
+	public void testBug564766() throws JavaModelException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents =
+				"record Foo(int y) {\n" +
+				"    record Bar(int x) {\n" +
+				"        public Bar {\n" +
+				"            c(a.b);\n" +
+				"        }\n" +
+				"    }\n" +
+				"    enum Letter { \n" +
+				"        A\n" +
+				"        private Letter { }\n" +
+				"    }\n" +
+				"}";
+		this.workingCopy = getWorkingCopy("/Converter14/src/Foo.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+					contents,
+					this.workingCopy,
+					false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 3,
+					"a cannot be resolved to a variable\n" +
+					"Syntax error on token \"A\", invalid Modifiers\n" +
+					"Illegal modifier for the enum constant Letter; no modifier is allowed");
+			List types = compilationUnit.types();
+			assertEquals("incorrect child elements", 1, types.size());
+			RecordDeclaration rec = (RecordDeclaration) types.get(0);
+			List bodyDeclarations = rec.bodyDeclarations();
+			assertEquals("Incorrect child elements", 2, bodyDeclarations.size());
+			node = (ASTNode) bodyDeclarations.get(0);
+			assertEquals("Not a compilation unit", ASTNode.RECORD_DECLARATION, node.getNodeType());
+			node = (ASTNode) bodyDeclarations.get(1);
+			assertEquals("Not a compilation unit", ASTNode.ENUM_DECLARATION, node.getNodeType());
+			assertTrue("must be marked as malformed", ((node.getFlags() & ASTNode.MALFORMED) != 0));
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 }

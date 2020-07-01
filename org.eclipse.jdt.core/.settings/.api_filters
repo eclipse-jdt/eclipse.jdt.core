@@ -299,6 +299,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/RecordDeclaration.java" type="org.eclipse.jdt.core.dom.RecordDeclaration">
+        <filter comment="method not needed" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.RecordDeclaration"/>
+                <message_argument value="getTypes()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/SimpleName.java" type="org.eclipse.jdt.core.dom.SimpleName">
         <filter id="576778288">
             <message_arguments>

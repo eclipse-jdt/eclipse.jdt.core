@@ -4809,8 +4809,11 @@ class ASTConverter {
 			}
 			if (currentNode instanceof TypeDeclaration
 				|| currentNode instanceof EnumDeclaration
-				|| currentNode instanceof AnnotationTypeDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) this.ast.getBindingResolver().getCorrespondingNode(currentNode);
+				|| currentNode instanceof AnnotationTypeDeclaration
+				|| currentNode instanceof RecordDeclaration) {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl =
+						(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration)
+						this.ast.getBindingResolver().getCorrespondingNode(currentNode);
 				if ((initializer.getModifiers() & Modifier.STATIC) != 0) {
 					return typeDecl.staticInitializerScope;
 				} else {

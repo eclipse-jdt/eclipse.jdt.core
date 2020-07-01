@@ -448,36 +448,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		return methods;
 	}
 
-	/**
-	 * Returns the ordered list of member type declarations of this type
-	 * declaration.
-	 * <p>
-	 * This convenience method returns this node's body declarations
-	 * with non-types filtered out. Unlike <code>bodyDeclarations</code>,
-	 * this method does not return a live result.
-	 * </p>
-	 *
-	 * @return the (possibly empty) list of member type declarations
-	 */
-	public RecordDeclaration[] getTypes() {
-		List bd = bodyDeclarations();
-		int typeCount = 0;
-		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			if (it.next() instanceof RecordDeclaration) {
-				typeCount++;
-			}
-		}
-		RecordDeclaration[] memberTypes = new RecordDeclaration[typeCount];
-		int next = 0;
-		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			Object decl = it.next();
-			if (decl instanceof RecordDeclaration) {
-				memberTypes[next++] = (RecordDeclaration) decl;
-			}
-		}
-		return memberTypes;
-	}
-
 	@Override
 	ITypeBinding internalResolveBinding() {
 		return this.ast.getBindingResolver().resolveType(this);
