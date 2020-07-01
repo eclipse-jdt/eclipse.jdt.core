@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -139,6 +140,46 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 				"public record X(@MyAnnotation int value){\n"+
 				"}\n";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
+	}
+
+	/*
+	 * Import should not be added in the default package
+	 */
+	public void testBug563375_2() throws Exception {
+		String contents = ""+
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		var i_S = i_s();\n" +
+			"		System.out.println(i_S.i + i_S.s);\n" +
+			"		}\n" +
+			"	\n" +
+			"	static record I_S(int i, String s) {}\n" +
+			"	\n" +
+			"	private static I_S i_s() {\n" +
+			"		return new I_S(1, \"abc\");\n" +
+			"	}\n" +
+			"}";
+		createFile("/" + PROJECT + "/src/X.java", contents);
+
+		ICompilationUnit cu= getCompilationUnit("/" + PROJECT + "/src/X.java");
+		ASTParser parser = ASTParser.newParser(getJLS14());
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+
+
+		TypeDeclaration clazz= (TypeDeclaration) astRoot.types().get(0);
+		ITypeBinding binding= clazz.resolveBinding();
+		ITypeBinding recBinding= binding.getDeclaredTypes()[0];
+		assertNotNull(recBinding);
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		cu = getCompilationUnit("/" + PROJECT + "/src/X.java");
+		rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		String actualType = rewrite.addImport(recBinding);
+		assertEquals("X.I_S", actualType);
+		apply(rewrite);
+		assertEquals(0, cu.getImports().length);
 	}
 
 	protected void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {

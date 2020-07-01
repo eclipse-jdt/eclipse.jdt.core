@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 IBM Corporation and others.
+ * Copyright (c) 2014, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -846,5 +846,44 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	public void testBug513869() throws Exception {
 		Type actualType = runTest426094andGetType(0, true);
 		assertEquals(this.bug426094TestInput[0][1], actualType.toString());
+	}
+
+	/*
+	 * Import should not be added in the default package
+	 */
+	public void testBug563375() throws Exception {
+		String contents = ""+
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		var i_S = i_s();\n" +
+				"		System.out.println(i_S.toString());\n" +
+				"		}\n" +
+				"	\n" +
+				"	static class I_S {}\n" +
+				"	\n" +
+				"	private static I_S i_s() {\n" +
+				"		return new I_S();\n" +
+				"	}\n" +
+				"}";
+		createFile("/" + PROJECT + "/src/X.java", contents);
+
+		ICompilationUnit cu= getCompilationUnit("/" + PROJECT + "/src/X.java");
+		ASTParser parser = ASTParser.newParser(getJLS8());
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+
+		TypeDeclaration clazz= (TypeDeclaration) astRoot.types().get(0);
+		ITypeBinding binding= clazz.resolveBinding();
+		ITypeBinding iBinding= binding.getDeclaredTypes()[0];
+		assertNotNull(iBinding);
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		cu = getCompilationUnit("/" + PROJECT + "/src/X.java");
+		rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		String actualType = rewrite.addImport(iBinding);
+		assertEquals("X.I_S", actualType);
+		apply(rewrite);
+		assertEquals(0, cu.getImports().length);
 	}
 }
