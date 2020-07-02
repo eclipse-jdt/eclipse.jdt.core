@@ -61,6 +61,7 @@ public class AbstractCompilerTest extends TestCase {
 	protected boolean enableAPT = false;
 	protected boolean enablePreview = false;
 	protected static boolean isJRE9Plus = false; // Stop gap, so tests need not be run at 9, but some tests can be adjusted for JRE 9
+	protected static boolean isJRE10Plus = false;
 	protected static boolean isJRE11Plus = false;
 	protected static boolean isJRE12Plus = false;
 	protected static boolean isJRE13Plus = false;
@@ -480,8 +481,8 @@ public class AbstractCompilerTest extends TestCase {
 			isJRE13Plus = isJRE14Plus || CompilerOptions.VERSION_13.equals(specVersion);
 			isJRE12Plus = isJRE13Plus || CompilerOptions.VERSION_12.equals(specVersion);
 			isJRE11Plus = isJRE12Plus || CompilerOptions.VERSION_11.equals(specVersion);
-			isJRE9Plus = isJRE11Plus || CompilerOptions.VERSION_9.equals(specVersion)
-					||	CompilerOptions.VERSION_10.equals(specVersion);
+			isJRE10Plus = isJRE11Plus || CompilerOptions.VERSION_10.equals(specVersion);
+			isJRE9Plus = isJRE10Plus || CompilerOptions.VERSION_9.equals(specVersion);
 			initReflectionVersion();
 			String compliances = System.getProperty("compliance");
 			if (compliances != null) {
@@ -500,19 +501,26 @@ public class AbstractCompilerTest extends TestCase {
 					} else if (CompilerOptions.VERSION_1_8.equals(compliance)) {
 						possibleComplianceLevels |= F_1_8;
 					} else if (CompilerOptions.VERSION_9.equals(compliance)) {
-						possibleComplianceLevels |= F_9;
+						if (isJRE9Plus)
+							possibleComplianceLevels |= F_9;
 					} else if (CompilerOptions.VERSION_10.equals(compliance)) {
-						possibleComplianceLevels |= F_10;
+						if (isJRE10Plus)
+							possibleComplianceLevels |= F_10;
 					} else if (CompilerOptions.VERSION_11.equals(compliance)) {
-						possibleComplianceLevels |= F_11;
+						if (isJRE11Plus)
+							possibleComplianceLevels |= F_11;
 					} else if (CompilerOptions.VERSION_12.equals(compliance)) {
-						possibleComplianceLevels |= F_12;
+						if (isJRE12Plus)
+							possibleComplianceLevels |= F_12;
 					} else if (CompilerOptions.VERSION_13.equals(compliance)) {
-						possibleComplianceLevels |= F_13;
+						if (isJRE13Plus)
+							possibleComplianceLevels |= F_13;
 					} else if (CompilerOptions.VERSION_14.equals(compliance)) {
-						possibleComplianceLevels |= F_14;
+						if (isJRE14Plus)
+							possibleComplianceLevels |= F_14;
 					} else if (CompilerOptions.VERSION_15.equals(compliance)) {
-						possibleComplianceLevels |= F_15;
+						if (isJRE15Plus)
+							possibleComplianceLevels |= F_15;
 					} else {
 						System.out.println("Ignoring invalid compliance (" + compliance + ")");
 						System.out.print("Use one of ");
