@@ -124,7 +124,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				scope.problemReporter().varIsNotAllowedHere(this);
 			}
 		}
-		TypeDeclaration.checkAndFlagRecordNameErrors(this.name, this, scope);
+		TypeDeclaration.checkAndFlagType15NameErrors(this.name, this, scope);
 	}
 
 	@Override

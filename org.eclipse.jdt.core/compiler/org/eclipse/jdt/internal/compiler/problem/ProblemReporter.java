@@ -12044,4 +12044,13 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			reference.sourceStart,
 			reference.sourceEnd);
 }
+public void sealedPermitsIsReservedTypeName(ASTNode node) {
+	this.handle(
+		IProblem.SealedPermitsIsReservedTypeName,
+		NoArgument,
+		NoArgument,
+		this.options.enablePreviewFeatures ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning,
+		node.sourceStart,
+		node.sourceEnd);
+}
 }

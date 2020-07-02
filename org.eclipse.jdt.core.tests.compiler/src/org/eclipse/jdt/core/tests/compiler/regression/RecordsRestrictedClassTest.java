@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug563184"};
+//		TESTS_NAMES = new String[] { "testBug550750"};
 	}
 
 	public static Class<?> testClass() {
@@ -728,7 +728,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-	public void _testBug550750_032() {
+	public void testBug550750_032() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -745,7 +745,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void _testBug550750_033() {
+	public void testBug550750_033() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -762,7 +762,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void _testBug550750_034() {
+	public void testBug550750_034() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -778,9 +778,14 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	public <record> void foo(record args){}\n" +
 			"	        ^^^^^^\n" +
 			"Record is a restricted identifier and hence not a valid type name\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	public <record> void foo(record args){}\n" +
+			"	                         ^^^^^^\n" +
+			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void _testBug550750_035() {
+	public void testBug550750_035() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -795,15 +800,10 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	public void foo(record args){}\n" +
 			"	                ^^^^^^\n" +
-			"record cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	public void foo(record args){}\n" +
-			"	                ^^^^^^\n" +
 			"Record is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
-	public void _testBug550750_036() {
+	public void testBug550750_036() {
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -824,11 +824,6 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"This lambda expression refers to the missing type record\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
-			"	I lambda = (record r) -> {};\n" +
-			"	            ^^^^^^\n" +
-			"record cannot be resolved to a type\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
 			"	I lambda = (record r) -> {};\n" +
 			"	            ^^^^^^\n" +
 			"Record is a restricted identifier and hence not a valid type name\n" +

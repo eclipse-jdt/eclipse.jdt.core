@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564498_1"};
+//		TESTS_NAMES = new String[] { "testBug564638"};
 	}
 
 	public static Class<?> testClass() {
@@ -1666,5 +1666,1728 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	                      ^^^^^^^\n" +
 			"Syntax error on token \"permits\", delete this token\n" +
 			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_001() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class permits {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class permits {\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type permits\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class permits {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class permits {\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type permits\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_003() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  permits p;\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+				"permits.java",
+				"public class permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	permits p;\n" +
+			"	^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in permits.java (at line 1)\n" +
+			"	public class permits {\n" +
+			"	             ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  permits p;\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+				"permits.java",
+				"public class permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	permits p;\n" +
+			"	^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in permits.java (at line 1)\n" +
+			"	public class permits {\n" +
+			"	             ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_005() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X<permits> {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X<permits> {\n" +
+			"	        ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X<permits>\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X<permits> {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X<permits> {\n" +
+			"	        ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X<permits>\n" +
+			"----------\n");
+	}
+	public void testBug564638_007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X extends permits {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"class permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X extends permits {\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	class permits {\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_008() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X extends permits {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"class permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X extends permits {\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	class permits {\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_009() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X implements permits {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X implements permits {\n" +
+			"	                   ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	interface permits {\n" +
+			"	          ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_010() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X implements permits {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X implements permits {\n" +
+			"	                   ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	interface permits {\n" +
+			"	          ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_011() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X extends permits {\n"+
+				"  default void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	interface X extends permits {\n" +
+			"	                    ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	interface permits {\n" +
+			"	          ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_012() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X extends permits {\n"+
+				"  default void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface permits {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	interface X extends permits {\n" +
+			"	                    ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	interface permits {\n" +
+			"	          ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_013() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X extends {\n"+
+				"  permits foo() {\n" +
+				"    Zork();\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X extends {\n" +
+			"	        ^^^^^^^\n" +
+			"Syntax error on token \"extends\", Type expected after this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	permits foo() {\n" +
+			"	^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_014() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  permits foo() {\n" +
+				"    Zork();\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	permits foo() {\n" +
+			"	^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	permits foo() {\n" +
+			"	^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_015() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X  {\n"+
+				"  void foo() throws permits{\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo() throws permits{\n" +
+			"	                  ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_016() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  void foo() throws permits{\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	void foo() throws permits{\n" +
+			"	                  ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	void foo() throws permits{\n" +
+			"	                  ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_017() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X <T extends permits> {\n"+
+				"  <T> void foo(T extends permits) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends permits> {\n" +
+			"	                   ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends permits> {\n" +
+			"	                            ^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 2)\n" +
+			"	<T> void foo(T extends permits) {\n" +
+			"	 ^\n" +
+			"The type parameter T is hiding the type T\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 2)\n" +
+			"	<T> void foo(T extends permits) {\n" +
+			"	               ^^^^^^^\n" +
+			"Syntax error on token \"extends\", delete this token\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_018() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X <T extends permits>{\n"+
+				"  <T> void foo(T extends permits) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X <T extends permits>{\n" +
+			"	                   ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends permits>{\n" +
+			"	                   ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends permits>{\n" +
+			"	                           ^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 2)\n" +
+			"	<T> void foo(T extends permits) {\n" +
+			"	 ^\n" +
+			"The type parameter T is hiding the type T\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 2)\n" +
+			"	<T> void foo(T extends permits) {\n" +
+			"	               ^^^^^^^\n" +
+			"Syntax error on token \"extends\", delete this token\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 5)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_019() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"enum X {\n"+
+				"  ONE(1);\n" +
+				"  private final permits p;\n" +
+				"  X(int p) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	private final permits p;\n" +
+			"	              ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_020() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"enum X {\n"+
+				"  ONE(1);\n" +
+				"  private final permits p;\n" +
+				"  X(int p) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	private final permits p;\n" +
+			"	              ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	private final permits p;\n" +
+			"	              ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_021() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    I i = (permits p)-> {};\n" +
+//				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  void apply(Object o);\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	I i = (permits p)-> {};\n" +
+			"	      ^^^^^^^^^^^^^\n" +
+			"This lambda expression refers to the missing type permits\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	I i = (permits p)-> {};\n" +
+			"	       ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_022() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    I i = (permits p)-> {};\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  void apply(Object o);\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	I i = (permits p)-> {};\n" +
+			"	      ^^^^^^^^^^^^^\n" +
+			"This lambda expression refers to the missing type permits\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	I i = (permits p)-> {};\n" +
+			"	       ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	I i = (permits p)-> {};\n" +
+			"	       ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_023() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(permits this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_024() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(permits this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_025() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(permits this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_026() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(permits this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_027() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  class permits {\n"+
+				"     public void foo(permits this) {}\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	class permits {\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_028() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  class permits {\n"+
+				"     public void foo(permits this) {}\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	class permits {\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	public void foo(permits this) {}\n" +
+			"	                ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_029() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    permits p;\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	permits p;\n" +
+			"	^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_030() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    permits p;\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	permits p;\n" +
+			"	^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	permits p;\n" +
+			"	^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_031() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    for (permits i = 0; i < 10; ++i) {} \n" +
+				"  }\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (permits i = 0; i < 10; ++i) {} \n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_032() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    for (permits i = 0; i < 10; ++i) {} \n" +
+				"  }\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	for (permits i = 0; i < 10; ++i) {} \n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	for (permits i = 0; i < 10; ++i) {} \n" +
+			"	     ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_033() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(permits[] args) {\n" +
+				"    for (permits p : args) {} \n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public static void main(permits[] args) {\n" +
+			"	                        ^^^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	for (permits p : args) {} \n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_034() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(permits[] args) {\n" +
+				"    for (permits p : args) {} \n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	public static void main(permits[] args) {\n" +
+			"	                        ^^^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public static void main(permits[] args) {\n" +
+			"	                        ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 3)\n" +
+			"	for (permits p : args) {} \n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 3)\n" +
+			"	for (permits p : args) {} \n" +
+			"	     ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_035() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (permits y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (Exception e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	try (permits y = new Y()) {\n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_036() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (permits y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (Exception e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	try (permits y = new Y()) {\n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	try (permits y = new Y()) {\n" +
+			"	     ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_037() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (Y y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (permits e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	} catch (permits e) {\n" +
+			"	         ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_038() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (Y y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (permits e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	} catch (permits e) {\n" +
+			"	         ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	} catch (permits e) {\n" +
+			"	         ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_039() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X(permits p) {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X(permits p) {\n" +
+			"	^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	record X(permits p) {\n" +
+			"	         ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_040() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X(permits p) {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X(permits p) {\n" +
+			"	^^^^^^\n" +
+			"record is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_041() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"               <permits>this(t);\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	<permits>this(t);\n" +
+			"	 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	<permits>this(t);\n" +
+			"	         ^^^^^^^^\n" +
+			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_042() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"               <permits>this(t);\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	<permits>this(t);\n" +
+			"	 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	<permits>this(t);\n" +
+			"	 ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	<permits>this(t);\n" +
+			"	         ^^^^^^^^\n" +
+			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_043() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"           new <permits>X(t).foo();\n"+
+				"       }\n"+
+				"       public void foo() {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	new <permits>X(t).foo();\n" +
+			"	^^^^^^^^^^^^^^^^^\n" +
+			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	new <permits>X(t).foo();\n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_044() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"           new <permits>X(t).foo();\n"+
+				"       }\n"+
+				"       public void foo() {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	new <permits>X(t).foo();\n" +
+			"	^^^^^^^^^^^^^^^^^\n" +
+			"The parameterized constructor <permits>X(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	new <permits>X(t).foo();\n" +
+			"	     ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	new <permits>X(t).foo();\n" +
+			"	     ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_045() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new X();\n"+
+				"               x.<permits>foo(0);\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	x.<permits>foo(0);\n" +
+			"	   ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	x.<permits>foo(0);\n" +
+			"	           ^^^\n" +
+			"The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_046() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new X();\n"+
+				"               x.<permits>foo(0);\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	x.<permits>foo(0);\n" +
+			"	   ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	x.<permits>foo(0);\n" +
+			"	   ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	x.<permits>foo(0);\n" +
+			"	           ^^^\n" +
+			"The parameterized method <permits>foo(permits) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_047() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new permits();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	X x = new permits();\n" +
+			"	          ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_048() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new permits();\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	X x = new permits();\n" +
+			"	          ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	X x = new permits();\n" +
+			"	          ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_049() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public X() {\n"+
+				"               new permits() {\n"+
+				"                       @Override\n"+
+				"                       void foo() {}\n"+
+				"               }.foo();\n"+
+				"       }\n"+
+				"}\n"+
+				"abstract class permits {\n"+
+				"       abstract void foo();\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new permits() {\n" +
+			"	    ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	abstract class permits {\n" +
+			"	               ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_050() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public X() {\n"+
+				"       new permits() {\n"+
+				"          @Override\n"+
+				"          void foo() {\n"+
+				"            Zork();\n"+
+				"          }\n"+
+				"       }.foo();\n"+
+				"       }\n"+
+				"}\n"+
+				"abstract class permits {\n"+
+				"       abstract void foo();\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	new permits() {\n" +
+			"	    ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type new permits(){}\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 11)\n" +
+			"	abstract class permits {\n" +
+			"	               ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_051() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public X() {\n"+
+				"    Object[] p = new permits[10];\n"+
+			    "  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Object[] p = new permits[10];\n" +
+			"	                 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_052() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public X() {\n"+
+				"    Object[] p = new permits[10];\n"+
+			    "  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	Object[] p = new permits[10];\n" +
+			"	                 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Object[] p = new permits[10];\n" +
+			"	                 ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_053() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   new X().foo((permits) null);\n"+
+				" }\n"+
+				" private void foo(permits o) {}\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((permits) null);\n" +
+			"	        ^^^\n" +
+			"The method foo(permits) from the type X refers to the missing type permits\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((permits) null);\n" +
+			"	             ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	private void foo(permits o) {}\n" +
+			"	                 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_054() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   new X().foo((permits) null);\n"+
+				" }\n"+
+				" private void foo(permits o) {}\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((permits) null);\n" +
+			"	        ^^^\n" +
+			"The method foo(permits) from the type X refers to the missing type permits\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	new X().foo((permits) null);\n" +
+			"	             ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((permits) null);\n" +
+			"	             ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 5)\n" +
+			"	private void foo(permits o) {}\n" +
+			"	                 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	private void foo(permits o) {}\n" +
+			"	                 ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_055() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" private void foo(Object o) {\n"+
+				"   if (o instanceof permits) {}\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (o instanceof permits) {}\n" +
+			"	                 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_056() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" private void foo(Object o) {\n"+
+				"   if (o instanceof permits) {}\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	if (o instanceof permits) {}\n" +
+			"	                 ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	if (o instanceof permits) {}\n" +
+			"	                 ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638_057() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   @SuppressWarnings(\"unused\")\n"+
+				"   I i = permits :: new;\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class permits{}\n" +
+				"interface I {\n"+
+				" Object gen();\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	class permits{}\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638_058() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   @SuppressWarnings(\"unused\")\n"+
+				"   I i = permits :: new;\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class permits{}\n" +
+				"interface I {\n"+
+				" Object gen();\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" +
+			"	class permits{}\n" +
+			"	      ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
 	}
 }

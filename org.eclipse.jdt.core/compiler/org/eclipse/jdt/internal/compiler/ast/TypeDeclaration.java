@@ -312,12 +312,24 @@ public void analyseCode(CompilationUnitScope unitScope) {
 	}
 }
 
-public static void checkAndFlagRecordNameErrors(char[] typeName, ASTNode node, Scope skope) {
+/**
+ * returns true if an error is flagged, false if either no error was flagged
+ * or only a warning was flagged.
+ */
+public static boolean checkAndFlagType15NameErrors(char[] typeName, ASTNode node, Scope skope) {
+	boolean isPreviewEnabled = skope.compilerOptions().enablePreviewFeatures;
 	if (CharOperation.equals(typeName, TypeConstants.RECORD_RESTRICTED_IDENTIFIER)) {
-		if (skope.compilerOptions().sourceLevel == ClassFileConstants.JDK14) {
+		if (skope.compilerOptions().sourceLevel >= ClassFileConstants.JDK15) {
 				skope.problemReporter().recordIsAReservedTypeName(node);
+				return isPreviewEnabled;
+		}
+	} else if (CharOperation.equals(typeName, TypeConstants.PERMITS)) {
+		if (skope.compilerOptions().sourceLevel >= ClassFileConstants.JDK15) {
+			skope.problemReporter().sealedPermitsIsReservedTypeName(node);
+			return isPreviewEnabled;
 		}
 	}
+	return false;
 }
 
 /**
@@ -1309,7 +1321,7 @@ public void resolve() {
 				this.scope.problemReporter().varIsReservedTypeName(this);
 			}
 		}
-		TypeDeclaration.checkAndFlagRecordNameErrors(this.name, this, this.scope);
+		TypeDeclaration.checkAndFlagType15NameErrors(this.name, this, this.scope);
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0

@@ -536,17 +536,16 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 			}
 		}
 	}
-	boolean hasError;
+	boolean hasError = false;
 	TypeBinding type = this.resolvedType = getTypeBinding(scope);
 	if (type == null) {
 		return null; // detected cycle while resolving hierarchy
 	} else if ((hasError = !type.isValidBinding()) == true) {
 		if (this.isTypeNameVar(scope)) {
 			reportVarIsNotAllowedHere(scope);
-		} else {
+		} else if (!TypeDeclaration.checkAndFlagType15NameErrors(getTypeName(0), this, scope)) {
 			reportInvalidType(scope);
 		}
-		TypeDeclaration.checkAndFlagRecordNameErrors(getTypeName(0), this, scope);
 		switch (type.problemId()) {
 			case ProblemReasons.NotFound :
 			case ProblemReasons.NotVisible :
@@ -557,6 +556,8 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 			default :
 				return null;
 		}
+	} else { // check anyway - to cover a illegally declared "permits" type
+		TypeDeclaration.checkAndFlagType15NameErrors(getTypeName(0), this, scope);
 	}
 	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
 		scope.problemReporter().cannotAllocateVoidArray(this);

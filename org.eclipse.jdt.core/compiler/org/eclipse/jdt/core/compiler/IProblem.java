@@ -2404,6 +2404,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedPermitsIsReservedTypeName = PreviewRelated + 1866;
 	/* Java15 errors - end */
 
 	}
