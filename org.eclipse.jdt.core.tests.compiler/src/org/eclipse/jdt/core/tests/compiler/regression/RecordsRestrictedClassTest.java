@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565104"};
+//		TESTS_NAMES = new String[] { "testBug564672"};
 	}
 
 	public static Class<?> testClass() {
@@ -742,7 +742,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	class record {\n" +
 			"	      ^^^^^^\n" +
-			"Record is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_033() {
@@ -759,7 +759,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	class X<record> {\n" +
 			"	        ^^^^^^\n" +
-			"Record is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_034() {
@@ -777,12 +777,12 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	public <record> void foo(record args){}\n" +
 			"	        ^^^^^^\n" +
-			"Record is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is a restricted identifier and hence not a valid type name\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	public <record> void foo(record args){}\n" +
 			"	                         ^^^^^^\n" +
-			"Record is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_035() {
@@ -800,7 +800,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	public void foo(record args){}\n" +
 			"	                ^^^^^^\n" +
-			"Record is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_036() {
@@ -826,7 +826,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 4)\n" +
 			"	I lambda = (record r) -> {};\n" +
 			"	            ^^^^^^\n" +
-			"Record is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is a restricted identifier and hence not a valid type name\n" +
 			"----------\n");
 	}
 	public void testBug550750_037() {
@@ -4646,4 +4646,1248 @@ public void testBug562637_001() {
 				},
 			"10");
 	}
+
+public void testBug564672_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n" +
+			"class record {}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	class record {}\n" +
+		"	      ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_002() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_003() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X implements record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"interface record {}\n;" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	interface record {}\n" +
+		"	          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X implements record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_005() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"  class record {}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	class record {}\n" +
+		"	      ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_006() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_007() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	interface record {}\n" +
+		"	          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_008() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_009() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Y extends record {\n"+
+			"}\n" +
+			"interface record {}\n" +
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	interface record {}\n" +
+		"	          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_010() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Y extends record {\n"+
+			"}\n" +
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_011() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	interface record {}\n" +
+		"	          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_012() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_013() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"  class record {}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	class record {}\n" +
+		"	      ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_014() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_015() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	interface record {}\n" +
+		"	          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_016() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_017() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	interface record {}\n" +
+		"	          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_018() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_019() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static record a(int i, int j) {\n" +
+			"		record r=new record(i,j);\n" +
+			"		return r;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
+		"	^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
+		"	             ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	return r;\n" +
+		"	^^^^^^\n" +
+		"Syntax error on token \"return\", byte expected\n" +
+		"----------\n");
+}
+public void testBug564672_020() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	class record {};\n" +
+			"	static record a(int i, int j) {\n" +
+			"		record r=new record();\n" +
+			"		return r;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class record {};\n" +
+		"	      ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	record r=new record();\n" +
+		"	^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	record r=new record();\n" +
+		"	             ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 5)\n" +
+		"	return r;\n" +
+		"	^^^^^^\n" +
+		"Syntax error on token \"return\", byte expected\n" +
+			"----------\n");
+}
+public void testBug564672_021() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	interface IPoint {\n" +
+			"	}\n" +
+			"	record Point(int x, int y) implements IPoint {}\n" +
+			"	static IPoint a(int i, int j) {\n" +
+			"		Point record=new Point(i,j);\n" +
+			"		return record;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(a(5,10));\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"Point[x=5, y=10]");
+}
+public void testBug564672_022() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	record R(int i){} \n" +
+			"	interface IPoint {\n" +
+			"		record a(int i) {\n" +
+			"       	System.out.println(0);\n" +
+			"           return new R(i);\n" +
+			"		}\n" +
+			"	}\n" +
+			"	record Point(int x, int y) implements IPoint {}\n" +
+			"	static IPoint a(int i, int j) {\n" +
+			"		Point record=new Point(i,j);\n" +
+			"		record.a(1);\n" +
+			"		return record;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	System.out.println(0);\n" +
+		"	          ^\n" +
+		"Syntax error on token \".\", @ expected after this token\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	System.out.println(0);\n" +
+		"           return new R(i);\n" +
+		"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error on tokens, delete these tokens\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 6)\n" +
+		"	return new R(i);\n" +
+		"	              ^\n" +
+		"Syntax error, insert \")\" to complete SingleMemberAnnotation\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 6)\n" +
+		"	return new R(i);\n" +
+		"	              ^\n" +
+		"Syntax error, insert \"SimpleName\" to complete QualifiedName\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 6)\n" +
+		"	return new R(i);\n" +
+		"	              ^\n" +
+		"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 6)\n" +
+		"	return new R(i);\n" +
+		"	              ^\n" +
+		"Syntax error, insert \")\" to complete MethodDeclaration\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 11)\n" +
+		"	Point record=new Point(i,j);\n" +
+		"	             ^^^^^^^^^^^^^^\n" +
+		"The constructor X.Point(int, int) is undefined\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 12)\n" +
+		"	record.a(1);\n" +
+		"	       ^\n" +
+		"The method a(int) is undefined for the type X.Point\n" +
+		"----------\n");
+}
+public void testBug564672_023() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	interface IPoint {\n" +
+			"	}\n" +
+			"	record Point(int x, int y) implements IPoint {}\n" +
+			"	static IPoint a(int i, int j) throws record{\n" +
+			"		Point record=new Point(i,j);\n" +
+			"		return record;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	static IPoint a(int i, int j) throws record{\n" +
+		"	                                     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_024() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	X() throws record {} \n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	X() throws record {} \n" +
+		"	           ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_025() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n" +
+			"	int a() throws record; \n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	int a() throws record; \n" +
+		"	               ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_026() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;" +
+			"public class X {\n" +
+			"	List<record> R = new List<record>();\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	List<record> R = new List<record>();\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	List<record> R = new List<record>();\n" +
+		"	                     ^^^^\n" +
+		"Cannot instantiate the type List<record>\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 2)\n" +
+		"	List<record> R = new List<record>();\n" +
+		"	                          ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_027() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I<S> {\n" +
+			"	void print(S arg);\n" +
+			"}\n" +
+			"public class X implements I<record>{\n" +
+			"	void print(record arg){\n" +
+			"		System.out.println(arg);\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	public class X implements I<record>{\n" +
+		"	             ^\n" +
+		"The type X must implement the inherited abstract method I<record>.print(record)\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	public class X implements I<record>{\n" +
+		"	                            ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 5)\n" +
+		"	void print(record arg){\n" +
+		"	           ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_028() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<record> {\n" +
+			"	void equal(record R) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class Y<record> {\n" +
+		"	        ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	void equal(record R) {}\n" +
+		"	           ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_029() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<record> {\n" +
+			"	Y(record R) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class Y<record> {\n" +
+		"	        ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
+		"	Y(record R) {}\n" +
+		"	  ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_030() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static record i= 0;\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	static record i= 0;\n" +
+		"	       ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_031() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	record i=0;\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	record i=0;\n" +
+		"	^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_032() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static int sum(record i, int param){\n" +
+			"		return 1;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	static int sum(record i, int param){\n" +
+		"	               ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_033() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	X(record i, int param){\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	X(record i, int param){\n" +
+		"	  ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_034() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	int sum(record i, int num);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	int sum(record i, int num);\n" +
+		"	        ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_035() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Greetings {\n" +
+				"  void greet(String head, String tail);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    Greetings g = (record, y) -> {\n" +
+				"      System.out.println(record + y);\n" +
+				"    };\n" +
+				"    g.greet(\"Hello, \", \"World!\");\n" +
+				"  }\n" +
+				"}\n",
+			},
+			"Hello, World!"
+			);
+}
+public void testBug564672_036() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" +
+			"	int sum(record this, int i, int num) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	int sum(record this, int i, int num) {}\n" +
+		"	        ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_037() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static record i;\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	static record i;\n" +
+		"	       ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_038() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		for (record i = 0; i<10; i++) {\n" +
+			"			System.out.println(0);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	for (record i = 0; i<10; i++) {\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_039() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int rec[] = {1,2,3,4,5,6,7,8,9};\n" +
+			"		for (record i: rec) {\n" +
+			"			System.out.println(0);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	for (record i: rec) {\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	for (record i: rec) {\n" +
+		"	               ^^^\n" +
+		"Type mismatch: cannot convert from element type int to record\n" +
+		"----------\n");
+}
+public void testBug564672_040() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try (record i = 0){\n" +
+			"		}\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	try (record i = 0){\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_041() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try{\n" +
+			"		}\n" +
+			"		catch (record e) {}\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	catch (record e) {}\n" +
+		"	       ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_042() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"record Point(record x, int i) { }\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	record Point(record x, int i) { }\n" +
+		"	^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 1)\n" +
+		"	record Point(record x, int i) { }\n" +
+		"	             ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_043() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Point {\n" +
+			"	<T> Point(T i) {\n" +
+			"	}\n" +
+			"	Point (int i, int j) {\n" +
+			"		<record> this(null);\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	<record> this(null);\n" +
+		"	 ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	<record> this(null);\n" +
+		"	         ^^^^^^^^^^^\n" +
+		"The constructor Point(record) refers to the missing type record\n" +
+		"----------\n");
+}
+public void testBug564672_044() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Point {\n" +
+			"	<T> Point(T i) {\n" +
+			"	}\n" +
+			"}\n" +
+			"class PointEx extends Point {\n" +
+			"	PointEx (int i, int j) {\n" +
+			"		<record> super(null);\n" +
+			"	}\n;" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	<record> super(null);\n" +
+		"	 ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	<record> super(null);\n" +
+		"	         ^^^^^^^^^^^^\n" +
+		"The constructor Point(record) refers to the missing type record\n" +
+		"----------\n");
+}
+public void testBug564672_045() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" +
+			"	void m1() {} \n" +
+			"	void m2() {\n" +
+			"		this.<record>m1();" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	this.<record>m1();	}\n" +
+		"	      ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 4)\n" +
+		"	this.<record>m1();	}\n" +
+		"	      ^^^^^^\n" +
+		"Unused type arguments for the non generic method m1() of type Y; it should not be parameterized with arguments <record>\n" +
+		"----------\n");
+}
+public void testBug564672_046() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y{\n" +
+			"	void a() {\n" +
+			"		System.out.println(\"1\");\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new <record>Y().a();\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	new <record>Y().a();\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 8)\n" +
+		"	new <record>Y().a();\n" +
+		"	     ^^^^^^\n" +
+		"Unused type arguments for the non generic constructor Y() of type Y; it should not be parameterized with arguments <record>\n" +
+		"----------\n");
+}
+public void testBug564672_047() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Y{}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new <record>Y() {\n" +
+			"			void a() {\n" +
+			"				System.out.println(\"1\");\n" +
+			"			}\n" +
+			"		}.a();\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	new <record>Y() {\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	new <record>Y() {\n" +
+		"	     ^^^^^^\n" +
+		"Unused type arguments for the non generic constructor Object() of type Object; it should not be parameterized with arguments <record>\n" +
+		"----------\n");
+}
+public void testBug564672_048() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y{}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new <record>Y() {\n" +
+			"			void a() {\n" +
+			"				System.out.println(\"1\");\n" +
+			"			}\n" +
+			"		}.a();\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	new <record>Y() {\n" +
+		"	     ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	new <record>Y() {\n" +
+		"	     ^^^^^^\n" +
+		"Unused type arguments for the non generic constructor Y() of type Y; it should not be parameterized with arguments <record>\n" +
+		"----------\n");
+}
+public void testBug564672_049() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		record[] y= new record[3]; \n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	record[] y= new record[3]; \n" +
+		"	^^^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	record[] y= new record[3]; \n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_050() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s=\"Hello\";\n" +
+			"		record y= (record)s; \n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	record y= (record)s; \n" +
+		"	^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	record y= (record)s; \n" +
+		"	           ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_051() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		String s=\"Hello\";\n" +
+			"		if (s instanceof record) { \n" +
+			"			System.out.println(1);\n" +
+			"		}\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	if (s instanceof record) { \n" +
+		"	                 ^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
+public void testBug564672_052() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<String> messages = Arrays.asList(\"hello\", \"baeldung\", \"readers!\");\n" +
+			"		messages.forEach(record::length);\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	messages.forEach(record::length);\n" +
+		"	                 ^^^^^^\n" +
+		"record cannot be resolved\n" +
+		"----------\n");
+}
+public void testBug564672_053() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<String> messages = Arrays.asList(\"hello\", \"baeldung\", \"readers!\");\n" +
+			"		messages.stream().map(record::new).toArray(record[]::new);\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	messages.stream().map(record::new).toArray(record[]::new);\n" +
+		"	                      ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	messages.stream().map(record::new).toArray(record[]::new);\n" +
+		"	                                           ^^^^^^^^\n" +
+		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"----------\n");
+}
 }
