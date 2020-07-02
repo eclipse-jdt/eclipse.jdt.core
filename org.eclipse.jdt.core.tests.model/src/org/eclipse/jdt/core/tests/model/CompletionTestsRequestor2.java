@@ -23,8 +23,10 @@ import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
+import org.eclipse.jdt.internal.codeassist.impl.RestrictedIdentifiers;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -345,8 +347,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER :
 				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				break;
-			case CompletionProposal.KEYWORD :
-				buffer.append("KEYWORD"); //$NON-NLS-1$
+			case CompletionProposal.KEYWORD :{
+				if(CharOperation.equals(proposal.getCompletion(), RestrictedIdentifiers.RECORD))
+						buffer.append("RESTRICTED_IDENTIFIER");
+					else
+						buffer.append("KEYWORD"); //$NON-NLS-1$
+			}
 				break;
 			case CompletionProposal.LABEL_REF :
 				buffer.append("LABEL_REF"); //$NON-NLS-1$
