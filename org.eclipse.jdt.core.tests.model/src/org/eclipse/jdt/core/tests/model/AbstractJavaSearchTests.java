@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Vector;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
@@ -73,7 +72,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 	static protected final int SHOW_JAR_FILE			= 0x0400;
 
 	public static class ConstructorDeclarationsCollector implements IRestrictedAccessConstructorRequestor {
-		Vector results = new Vector();
+		List<String> results = new ArrayList<>();
 
 		public void acceptConstructor(
 				int modifiers,
@@ -136,7 +135,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				buffer.append('*');
 			}
 
-			this.results.addElement(buffer.toString());
+			this.results.add(buffer.toString());
 		}
 
 		@Override
@@ -165,7 +164,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		buffer.append(c);
 	}
 	public static class MethodDeclarationsCollector implements IRestrictedAccessMethodRequestor {
-		Vector results = new Vector();
+		List<String> results = new ArrayList<>();
 
 		@Override
 		public void acceptMethod(
@@ -225,7 +224,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				if (parameterCount > 1 && i < parameterCount - 1) buffer.append(',');
 			}
 			buffer.append(')');
-			this.results.addElement(buffer.toString());
+			this.results.add(buffer.toString());
 		}
 		private char[] getTypeErasure(char[] typeName) {
 			int index;

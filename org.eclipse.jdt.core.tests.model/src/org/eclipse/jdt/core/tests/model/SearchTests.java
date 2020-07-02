@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,8 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -38,7 +39,6 @@ import junit.framework.Test;
 /*
  * Test indexing support.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class SearchTests extends ModifyingResourceTests implements IJavaSearchConstants {
 	/*
 	 * Empty jar contents.
@@ -78,7 +78,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 	}
 	public static class SearchMethodNameRequestor extends MethodNameRequestor {
-		Vector results = new Vector<>();
+		List<String> results = new ArrayList<>();
 		@Override
 		public void acceptMethod(
 				char[] methodName,
@@ -136,7 +136,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 				if (parameterCount > 1 && i < parameterCount - 1) buffer.append(',');
 			}
 			buffer.append(')');
-			this.results.addElement(buffer.toString());
+			this.results.add(buffer.toString());
 		}
 		static void checkAndAddtoBuffer(StringBuffer buffer, char[] precond, char c) {
 			if (precond == null || precond.length == 0) return;
@@ -162,14 +162,14 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 	}
 	public static class SearchTypeNameRequestor extends TypeNameRequestor {
-		Vector results = new Vector();
+		List<String> results = new ArrayList<>();
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 			char[] typeName =
 				CharOperation.concat(
 					CharOperation.concatWith(enclosingTypeNames, '$'),
 					simpleTypeName,
 					'$');
-			this.results.addElement(new String(CharOperation.concat(packageName, typeName, '.')));
+			this.results.add(new String(CharOperation.concat(packageName, typeName, '.')));
 		}
 		public String toString(){
 			int length = this.results.size();
