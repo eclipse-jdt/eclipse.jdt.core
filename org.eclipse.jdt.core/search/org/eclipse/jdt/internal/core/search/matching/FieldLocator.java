@@ -332,12 +332,6 @@ public int resolveLevel(ASTNode possiblelMatchingNode) {
 @Override
 public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
-	if( binding instanceof LocalVariableBinding) {
-		// for matching the component in constructor of a record
-		if ( ((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof CompactConstructorDeclaration) {
-			return matchLocal((LocalVariableBinding) binding, true);
-		}
-	}
 	if (!(binding instanceof FieldBinding)) return IMPOSSIBLE_MATCH;
 
 	return matchField((FieldBinding) binding, true);
