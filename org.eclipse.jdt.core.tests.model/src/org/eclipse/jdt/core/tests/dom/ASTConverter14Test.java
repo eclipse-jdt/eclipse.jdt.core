@@ -731,8 +731,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			"		}\n" +
 			"\n" +
 			"		public X(int a) {\n" +
-			"			this.param1 = 6;\n" +
-			"			this.param2 = 16;\n" +
+			"			this(6, 16);\n" +
 			"			a = 6;\n" +
 			"		}\n" +
 			"}\n";
@@ -938,7 +937,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 				"   public X {\n" +
 				"   \n}\n" +
 				"   public X(String str) {\n" +
-				"		this.lo = (str != null) ? str.length() : 0;\n" +
+				"		this((str != null) ? str.length() : 0);\n" +
 				"   \n}\n" +
 				"	public int abc() {\n" +
 				"		return this.lo;\n" +

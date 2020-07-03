@@ -2332,6 +2332,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordCannotDefineRecordInLocalType= PreviewRelated + 1756;
+	/** @since 3.23
+	 * @noreference preview feature error */
+	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= PreviewRelated + 1757;
 	/* records - end */
 	/* instanceof pattern: */
 	/** @since 3.22
