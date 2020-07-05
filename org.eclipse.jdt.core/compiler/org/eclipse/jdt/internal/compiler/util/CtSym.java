@@ -38,8 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * The only documentation known seem to be the current implementation of
  * com.sun.tools.javac.platform.JDKPlatformProvider and probably some JDK build tools that construct ct.sym file. Root
- * directories inside the file are somehow related to the Java release number, encoded as hex (if they contain release
- * number as hex).
+ * directories inside the file are somehow related to the Java release number, encoded as single digit or letter (single
+ * digits for releases 7 to 9, capital letters for 10 and higher).
  * <p>
  * If a release directory contains "system-modules" file, it is a flag that this release files are not inside ct.sym
  * file because it is the current release, and jrt file system should be used instead.
@@ -77,6 +77,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class CtSym {
 
+	/**
+	 * 'B' is code for Java 11, see {@link #getReleaseCode(String)}.
+	 */
+	private static final char JAVA_11 = 'B';
+
 	public static final boolean DISABLE_CACHE = Boolean.getBoolean("org.eclipse.jdt.disable_CTSYM_cache"); //$NON-NLS-1$
 
 	static boolean VERBOSE = false;
@@ -97,14 +102,14 @@ public class CtSym {
 	private boolean isJRE12Plus;
 
 	/**
-	 * Paths of all root directories, per release (as hex number). e.g. in JDK 11, Java 10 mapping looks like A -> [A,
+	 * Paths of all root directories, per release (versions encoded). e.g. in JDK 11, Java 10 mapping looks like A -> [A,
 	 * A-modules, A789, A9] but to have more fun, in JDK 14, same mapping looks like A -> [A, AB, ABC, ABCD]
 	 */
 	private final Map<String, List<Path>> releaseRootPaths = new ConcurrentHashMap<>();
 
 	/**
-	 * All paths that exist in all release root directories, per release (as hex number). The first key is release
-	 * number in hex. The second key is the "full qualified binary name" of the class (without module name and
+	 * All paths that exist in all release root directories, per release (versions encoded). The first key is release
+	 * code. The second key is the "full qualified binary name" of the class (without module name and
 	 * with .sig suffix). The value is the full path of the corresponding signature file in the ct.sym file.
 	 */
 	private final Map<String, Map<String, Path>> allReleasesPaths = new ConcurrentHashMap<>();
@@ -166,28 +171,23 @@ public class CtSym {
 	}
 
 	/**
-	 * @param releaseInHex
-	 *            major JDK version segment as hex number (8, 9, A, etc)
+	 * @param releaseCode
+	 *            major JDK version segment as version code (8, 9, A, etc)
 	 * @return set with all root paths related to given release in ct.sym file
 	 */
-	public List<Path> releaseRoots(String releaseInHex) {
-		List<Path> list = this.releaseRootPaths.computeIfAbsent(releaseInHex, x -> {
+	public List<Path> releaseRoots(String releaseCode) {
+		List<Path> list = this.releaseRootPaths.computeIfAbsent(releaseCode, x -> {
 			List<Path> rootDirs = new ArrayList<>();
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.root)) {
 				for (final Path subdir : stream) {
 					String rel = subdir.getFileName().toString();
 					if (rel.contains("-")) { //$NON-NLS-1$
-						// Ignore META-INF etc. We are only interested in A-F 0-9
+						// Ignore META-INF etc. We are only interested in A-Z 0-9
 						continue;
 					}
-					// Line below looks crazy. Latest with release 24 (hex 18)
-					// we will find "8" release paths inside all release 24 related
-					// directories and with release 26 (hex 1A) we will match "10" release
-					// paths inside release 24 directories. I can't believe this is sane.
-					// But looks like similar code is in
 					// com.sun.tools.javac.platform.JDKPlatformProvider.PlatformDescriptionImpl.getFileManager()
 					// https://github.com/openjdk/jdk/blob/master/src/jdk.compiler/share/classes/com/sun/tools/javac/platform/JDKPlatformProvider.java
-					if (rel.contains(releaseInHex)) {
+					if (rel.contains(releaseCode)) {
 						rootDirs.add(subdir);
 					} else {
 						continue;
@@ -212,21 +212,21 @@ public class CtSym {
 	 * <p>
 	 * java/io/Reader.sig -> /8769/java/io/Reader.sig
 	 *
-	 * @param releaseInHex release number in hex
+	 * @param releaseCode release number encoded (7,8,9,A,B...)
 	 * @param qualifiedSignatureFileName signature file name (without module)
 	 * @param moduleName
 	 * @return corresponding path in ct.sym file system or null if not found
 	 */
-	public Path getFullPath(String releaseInHex, String qualifiedSignatureFileName, String moduleName) {
+	public Path getFullPath(String releaseCode, String qualifiedSignatureFileName, String moduleName) {
 		String sep = this.fs.getSeparator();
 		if (DISABLE_CACHE) {
-			List<Path> releaseRoots = releaseRoots(releaseInHex);
+			List<Path> releaseRoots = releaseRoots(releaseCode);
 			for (Path rroot : releaseRoots) {
 				// Calculate file path
 				Path p = null;
 				if (isJRE12Plus()) {
 					if (moduleName == null) {
-						moduleName = getModuleInJre12plus(releaseInHex, qualifiedSignatureFileName);
+						moduleName = getModuleInJre12plus(releaseCode, qualifiedSignatureFileName);
 					}
 					p = rroot.resolve(moduleName + sep + qualifiedSignatureFileName);
 				} else {
@@ -246,14 +246,14 @@ public class CtSym {
 			}
 			return null;
 		}
-		Map<String, Path> releasePaths = getCachedReleasePaths(releaseInHex);
+		Map<String, Path> releasePaths = getCachedReleasePaths(releaseCode);
 		Path path;
 		if(moduleName != null) {
 			// Without this, org.eclipse.jdt.core.tests.model.ModuleBuilderTests.testConvertToModule() fails on 12+ JRE
 			path = releasePaths.get(moduleName + sep + qualifiedSignatureFileName);
 
 			// Special handling of broken module shema in java 11 for compilation with --release 10
-			if(path == null && !this.isJRE12Plus() && "A".equals(releaseInHex)){ //$NON-NLS-1$
+			if(path == null && !this.isJRE12Plus() && "A".equals(releaseCode)){ //$NON-NLS-1$
 				path = releasePaths.get(qualifiedSignatureFileName);
 			}
 		} else {
@@ -269,11 +269,11 @@ public class CtSym {
 		return path;
 	}
 
-	private String getModuleInJre12plus(String releaseInHex, String qualifiedSignatureFileName) {
+	private String getModuleInJre12plus(String releaseCode, String qualifiedSignatureFileName) {
 		if (DISABLE_CACHE) {
-			return findModuleForFileInJre12plus(releaseInHex, qualifiedSignatureFileName);
+			return findModuleForFileInJre12plus(releaseCode, qualifiedSignatureFileName);
 		}
-		Map<String, Path> releasePaths = getCachedReleasePaths(releaseInHex);
+		Map<String, Path> releasePaths = getCachedReleasePaths(releaseCode);
 		Path path = releasePaths.get(qualifiedSignatureFileName);
 		if (path != null && path.getNameCount() > 2) {
 			// First segment is release, second: module
@@ -282,8 +282,8 @@ public class CtSym {
 		return null;
 	}
 
-	private String findModuleForFileInJre12plus(String releaseInHex, String qualifiedSignatureFileName) {
-		for (Path rroot : releaseRoots(releaseInHex)) {
+	private String findModuleForFileInJre12plus(String releaseCode, String qualifiedSignatureFileName) {
+		for (Path rroot : releaseRoots(releaseCode)) {
 			try (DirectoryStream<Path> stream = Files.newDirectoryStream(rroot)) {
 				for (final Path subdir : stream) {
 					Path p = subdir.resolve(qualifiedSignatureFileName);
@@ -313,9 +313,9 @@ public class CtSym {
 	 * <p>
 	 * before 12: javax/net/ssl/SSLSocketFactory.sig -> /89ABC/java.base/javax/net/ssl/SSLSocketFactory.sig
 	 */
-	private Map<String, Path> getCachedReleasePaths(String releaseInHex) {
-		Map<String, Path> result = this.allReleasesPaths.computeIfAbsent(releaseInHex, x -> {
-			List<Path> roots = releaseRoots(releaseInHex);
+	private Map<String, Path> getCachedReleasePaths(String releaseCode) {
+		Map<String, Path> result = this.allReleasesPaths.computeIfAbsent(releaseCode, x -> {
+			List<Path> roots = releaseRoots(releaseCode);
 			Map<String, Path> allReleaseFiles = new HashMap<>(4999);
 			for (Path start : roots) {
 				try {
@@ -361,17 +361,18 @@ public class CtSym {
 	}
 
 	private boolean isCurrentRelease12plus() throws IOException {
-		try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.root)) {
+		// ignore everything that is not one character (Java release code is one character plus separator)
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.root, p -> p.toString().length() == 2)) {
 			for (final Path subdir : stream) {
 				String rel = JRTUtil.sanitizedFileName(subdir);
-				if (rel.contains("-")) { //$NON-NLS-1$
+				if (rel.length() != 1) {
 					continue;
 				}
 				try {
-					int version = Integer.parseInt(rel, 16);
+					char releaseCode = rel.charAt(0);
 					// If a release directory contains "system-modules" file, it is a flag
 					// that this is the *current* release
-					if (version > 11 && Files.exists(this.fs.getPath(rel, "system-modules"))) { //$NON-NLS-1$
+					if (releaseCode > JAVA_11 && Files.exists(this.fs.getPath(rel, "system-modules"))) { //$NON-NLS-1$
 						return true;
 					}
 				} catch (NumberFormatException e) {
@@ -409,4 +410,24 @@ public class CtSym {
 		sb.append("]"); //$NON-NLS-1$
 		return sb.toString();
 	}
+
+	/**
+	 * Tries to translate numeric Java version to the corresponding release "code".
+	 * <ul>
+	 * <li>7, 8 and 9 are just returned "as is"
+	 * <li>versions up from 10 are returned as upper letters starting with "A", so 10 is "A", 11 is "B" and so on.
+	 * </ul>
+	 *
+	 * @param release
+	 *            release version as number (8, 9, 10, ...)
+	 * @return the "code" used by ct.sym for given Java version
+	 */
+	public static String getReleaseCode(String release) {
+		int numericVersion = Integer.parseInt(release);
+		if(numericVersion < 10) {
+			return String.valueOf(numericVersion);
+		}
+		return String.valueOf((char) ('A' + (numericVersion - 10)));
+	}
+
 }
