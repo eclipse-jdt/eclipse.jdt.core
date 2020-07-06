@@ -11846,7 +11846,7 @@ public void recordIllegalExplicitFinalFieldAssignInCompactConstructor(FieldBindi
 		fieldRef.sourceStart,
 		fieldRef.sourceEnd);
 }
-private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
+private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String name = new String(type.sourceName());
@@ -11857,15 +11857,15 @@ private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeRefe
 		problem,
 		new String[] {superTypeFullName, name},
 		new String[] {superTypeShortName, name},
-		superclass.sourceStart,
-		superclass.sourceEnd);
+		typeDecl.sourceStart,
+		typeDecl.sourceEnd);
 }
 
-public void sealedMissingClassModifier(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
-	sealedMissingModifier(IProblem.SealedMissingClassModifier, type, superclass, superTypeBinding);
+public void sealedMissingClassModifier(SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
+	sealedMissingModifier(IProblem.SealedMissingClassModifier, type, typeDecl, superTypeBinding);
 }
-public void sealedMissingInterfaceModifier(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
-	sealedMissingModifier(IProblem.SealedMissingInterfaceModifier, type, superclass, superTypeBinding);
+public void sealedMissingInterfaceModifier(SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
+	sealedMissingModifier(IProblem.SealedMissingInterfaceModifier, type, typeDecl, superTypeBinding);
 }
 public void sealedDisAllowedNonSealedModifierInClass(SourceTypeBinding type, TypeDeclaration typeDecl) {
 	if (!this.options.enablePreviewFeatures)

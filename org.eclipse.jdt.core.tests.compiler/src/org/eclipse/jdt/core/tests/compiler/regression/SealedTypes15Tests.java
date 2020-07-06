@@ -423,7 +423,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in p1\\X.java (at line 5)\n" +
 			"	class Z extends X{}\n" +
-			"	                ^\n" +
+			"	      ^\n" +
 			"The class Z with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n" +
 			"3. ERROR in p1\\X.java (at line 5)\n" +
@@ -460,7 +460,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	class Y implements X{}\n" +
-			"	                   ^\n" +
+			"	      ^\n" +
 			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
@@ -487,7 +487,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"3. ERROR in p1\\X.java (at line 4)\n" +
 			"	class Y implements X{}\n" +
-			"	                   ^\n" +
+			"	      ^\n" +
 			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
@@ -507,7 +507,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in X.java (at line 3)\n" +
 			"	class Y extends X {}\n" +
-			"	                ^\n" +
+			"	      ^\n" +
 			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
@@ -528,7 +528,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in p1\\X.java (at line 4)\n" +
 			"	class Y extends X {}\n" +
-			"	                ^\n" +
+			"	      ^\n" +
 			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n");
 	}
@@ -562,7 +562,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in p1\\X.java (at line 4)\n" +
 			"	class Y implements X{}\n" +
-			"	                   ^\n" +
+			"	      ^\n" +
 			"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 			"----------\n" +
 			"----------\n" +
@@ -649,7 +649,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	interface Y extends X {}\n" +
-			"	                    ^\n" +
+			"	          ^\n" +
 			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
 			"----------\n");
 	}
@@ -668,13 +668,13 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in p1\\X.java (at line 4)\n" +
 			"	interface Y extends X{}\n" +
-			"	                    ^\n" +
+			"	          ^\n" +
 			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
 			"----------\n" +
 			"----------\n" +
 			"1. ERROR in p2\\Y.java (at line 2)\n" +
 			"	public interface Y extends p1.X{}\n" +
-			"	                           ^^^^\n" +
+			"	                 ^\n" +
 			"The interface Y with a sealed direct superinterface X should be declared either sealed or non-sealed\n" +
 			"----------\n" +
 			"2. ERROR in p2\\Y.java (at line 2)\n" +
@@ -1282,7 +1282,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in p1\\X.java (at line 3)\n" +
 				"	class Y extends X {}\n" +
-				"	                ^\n" +
+				"	      ^\n" +
 				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 				"----------\n");
 	}
@@ -1355,7 +1355,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in p1\\Y.java (at line 2)\n" +
 				"	class Y extends X {\n" +
-				"	                ^\n" +
+				"	      ^\n" +
 				"The class Y with a sealed direct superclass or a sealed direct superinterface X should be declared either final, sealed, or non-sealed\n" +
 				"----------\n");
 	}
@@ -1392,7 +1392,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in src\\p\\X.java (at line 2)\n" +
 				"	public class X extends Y {\n" +
-				"	                       ^\n" +
+				"	             ^\n" +
 				"The class X with a sealed direct superclass or a sealed direct superinterface Y should be declared either final, sealed, or non-sealed\n" +
 				"----------\n" +
 				"2. ERROR in src\\p\\X.java (at line 2)\n" +

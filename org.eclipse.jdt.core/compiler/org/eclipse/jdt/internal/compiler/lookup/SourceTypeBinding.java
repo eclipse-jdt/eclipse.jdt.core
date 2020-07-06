@@ -1151,9 +1151,9 @@ private void checkPermitsInType() {
 	if (foundSealedSuperTypeOrInterface) {
 		if (!(this.isFinal() || this.isSealed() || this.isNonSealed())) {
 			if (this.isClass())
-				this.scope.problemReporter().sealedMissingClassModifier(this, sealedEntry.getKey(), sealedEntry.getValue());
+				this.scope.problemReporter().sealedMissingClassModifier(this, typeDecl, sealedEntry.getValue());
 			else if (this.isInterface())
-				this.scope.problemReporter().sealedMissingInterfaceModifier(this, sealedEntry.getKey(), sealedEntry.getValue());
+				this.scope.problemReporter().sealedMissingInterfaceModifier(this, typeDecl, sealedEntry.getValue());
 		}
 		List<SourceTypeBinding> typesInCU = collectAllTypeBindings(typeDecl, this.scope.compilationUnitScope());
 		if (typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
