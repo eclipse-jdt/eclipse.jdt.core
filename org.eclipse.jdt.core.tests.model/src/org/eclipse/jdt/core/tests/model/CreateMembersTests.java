@@ -220,4 +220,52 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+
+	public void testBug565015_1() throws JavaModelException {
+		IJavaProject javaProject = getJavaProject("CreateMembers");
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		try {
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "OuterRecord.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createType("record Point() {}", null, true, null);
+			String expectedSource =
+					"public record OuterRecord() {\n" +
+					"\n" +
+					"	record Point() {}\n" +
+					"}";
+			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testBug565015_2() throws JavaModelException {
+		IJavaProject javaProject = getJavaProject("CreateMembers");
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		try {
+			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "testBug565015", "PkgRecord.java");
+			assertNotNull("No compilation unit", compilationUnit);
+			IType[] types = compilationUnit.getTypes();
+			assertNotNull("No types", types);
+			assertEquals("Wrong size", 1, types.length);
+			IType type = types[0];
+			type.createType("record Point() {}", null, true, null);
+			String expectedSource =
+					"package testBug565015;\n" +
+					"\n" +
+					"public record PkgRecord() {\n" +
+					"\n" +
+					"	record Point() {}\n" +
+					"}";
+			assertSourceEquals("Unexpected source", expectedSource, compilationUnit.getSource());
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 }
