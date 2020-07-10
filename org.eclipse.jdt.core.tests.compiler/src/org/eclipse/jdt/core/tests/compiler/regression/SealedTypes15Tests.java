@@ -3390,4 +3390,1727 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			options
 		);
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_001() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class sealed {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class sealed {\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type sealed\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class sealed {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class sealed {\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type sealed\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_003() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  sealed p;\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+				"sealed.java",
+				"public class sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	sealed p;\n" +
+			"	^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. WARNING in sealed.java (at line 1)\n" +
+			"	public class sealed {\n" +
+			"	             ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  sealed p;\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+				"sealed.java",
+				"public class sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	sealed p;\n" +
+			"	^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in sealed.java (at line 1)\n" +
+			"	public class sealed {\n" +
+			"	             ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_005() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X<sealed> {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X<sealed> {\n" +
+			"	        ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X<sealed>\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X<sealed> {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X<sealed> {\n" +
+			"	        ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X<sealed>\n" +
+			"----------\n");
+	}
+	public void testBug564638b_007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X extends sealed {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"class sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X extends sealed {\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	class sealed {\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_008() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X extends sealed {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"class sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X extends sealed {\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	class sealed {\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_009() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X implements sealed {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X implements sealed {\n" +
+			"	                   ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	interface sealed {\n" +
+			"	          ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_010() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X implements sealed {\n"+
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X implements sealed {\n" +
+			"	                   ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	interface sealed {\n" +
+			"	          ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_011() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X extends sealed {\n"+
+				"  default void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	interface X extends sealed {\n" +
+			"	                    ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	interface sealed {\n" +
+			"	          ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_012() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X extends sealed {\n"+
+				"  default void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface sealed {\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	interface X extends sealed {\n" +
+			"	                    ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	interface sealed {\n" +
+			"	          ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_013() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X extends {\n"+
+				"  sealed foo() {\n" +
+				"    Zork();\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X extends {\n" +
+			"	        ^^^^^^^\n" +
+			"Syntax error on token \"extends\", Type expected after this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	sealed foo() {\n" +
+			"	^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_014() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  sealed foo() {\n" +
+				"    Zork();\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	sealed foo() {\n" +
+			"	^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	sealed foo() {\n" +
+			"	^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_015() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X  {\n"+
+				"  void foo() throws sealed{\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	void foo() throws sealed{\n" +
+			"	                  ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_016() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  void foo() throws sealed{\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	void foo() throws sealed{\n" +
+			"	                  ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	void foo() throws sealed{\n" +
+			"	                  ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_017() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X <T extends sealed> {\n"+
+				"  <T> void foo(T extends sealed) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends sealed> {\n" +
+			"	                   ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends sealed> {\n" +
+			"	                           ^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 2)\n" +
+			"	<T> void foo(T extends sealed) {\n" +
+			"	 ^\n" +
+			"The type parameter T is hiding the type T\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 2)\n" +
+			"	<T> void foo(T extends sealed) {\n" +
+			"	               ^^^^^^^\n" +
+			"Syntax error on token \"extends\", delete this token\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_018() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X <T extends sealed>{\n"+
+				"  <T> void foo(T extends sealed) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	class X <T extends sealed>{\n" +
+			"	                   ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends sealed>{\n" +
+			"	                   ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	class X <T extends sealed>{\n" +
+			"	                          ^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 2)\n" +
+			"	<T> void foo(T extends sealed) {\n" +
+			"	 ^\n" +
+			"The type parameter T is hiding the type T\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 2)\n" +
+			"	<T> void foo(T extends sealed) {\n" +
+			"	               ^^^^^^^\n" +
+			"Syntax error on token \"extends\", delete this token\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 5)\n" +
+			"	}\n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_019() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"enum X {\n"+
+				"  ONE(1);\n" +
+				"  private final sealed p;\n" +
+				"  X(int p) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	private final sealed p;\n" +
+			"	              ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_020() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"enum X {\n"+
+				"  ONE(1);\n" +
+				"  private final sealed p;\n" +
+				"  X(int p) {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	private final sealed p;\n" +
+			"	              ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	private final sealed p;\n" +
+			"	              ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_021() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    I i = (sealed p)-> {};\n" +
+//				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  void apply(Object o);\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	I i = (sealed p)-> {};\n" +
+			"	      ^^^^^^^^^^^^\n" +
+			"This lambda expression refers to the missing type sealed\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	I i = (sealed p)-> {};\n" +
+			"	       ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_022() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    I i = (sealed p)-> {};\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}\n" +
+				"interface I {\n" +
+				"  void apply(Object o);\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	I i = (sealed p)-> {};\n" +
+			"	      ^^^^^^^^^^^^\n" +
+			"This lambda expression refers to the missing type sealed\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	I i = (sealed p)-> {};\n" +
+			"	       ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	I i = (sealed p)-> {};\n" +
+			"	       ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_023() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(sealed this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_024() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(sealed this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_025() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(sealed this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_026() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public void foo(sealed this) {}\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_027() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  class sealed {\n"+
+				"     public void foo(sealed this) {}\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	class sealed {\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_028() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  class sealed {\n"+
+				"     public void foo(sealed this) {}\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	class sealed {\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	public void foo(sealed this) {}\n" +
+			"	                ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_029() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    sealed p;\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	sealed p;\n" +
+			"	^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_030() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    sealed p;\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	sealed p;\n" +
+			"	^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	sealed p;\n" +
+			"	^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_031() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    for (sealed i = 0; i < 10; ++i) {} \n" +
+				"  }\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (sealed i = 0; i < 10; ++i) {} \n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_032() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n" +
+				"    for (sealed i = 0; i < 10; ++i) {} \n" +
+				"  }\n" +
+				"  void foo() {\n" +
+				"    Zork();\n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	for (sealed i = 0; i < 10; ++i) {} \n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	for (sealed i = 0; i < 10; ++i) {} \n" +
+			"	     ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_033() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(sealed[] args) {\n" +
+				"    for (sealed p : args) {} \n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public static void main(sealed[] args) {\n" +
+			"	                        ^^^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	for (sealed p : args) {} \n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_034() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(sealed[] args) {\n" +
+				"    for (sealed p : args) {} \n" +
+				"  }\n" +
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	public static void main(sealed[] args) {\n" +
+			"	                        ^^^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public static void main(sealed[] args) {\n" +
+			"	                        ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 3)\n" +
+			"	for (sealed p : args) {} \n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 3)\n" +
+			"	for (sealed p : args) {} \n" +
+			"	     ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_035() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (sealed y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (Exception e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	try (sealed y = new Y()) {\n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_036() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (sealed y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (Exception e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	try (sealed y = new Y()) {\n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	try (sealed y = new Y()) {\n" +
+			"	     ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_037() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (Y y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (sealed e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	} catch (sealed e) {\n" +
+			"	         ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_038() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"               try (Y y = new Y()) {\n"+
+				"                       \n"+
+				"               } catch (sealed e) {\n"+
+				"                       e.printStackTrace();\n"+
+				"               } finally {\n"+
+				"                       \n"+
+				"               }\n"+
+				"       }\n"+
+				"}\n"+
+				"class Y implements AutoCloseable {\n"+
+				"       @Override\n"+
+				"       public void close() throws Exception {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	} catch (sealed e) {\n" +
+			"	         ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	} catch (sealed e) {\n" +
+			"	         ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_039() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X(sealed p) {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X(sealed p) {\n" +
+			"	^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	record X(sealed p) {\n" +
+			"	         ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_040() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X(sealed p) {\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X(sealed p) {\n" +
+			"	^^^^^^\n" +
+			"record is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_041() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"               <sealed>this(t);\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	<sealed>this(t);\n" +
+			"	 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	<sealed>this(t);\n" +
+			"	        ^^^^^^^^\n" +
+			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_042() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"               <sealed>this(t);\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	<sealed>this(t);\n" +
+			"	 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	<sealed>this(t);\n" +
+			"	 ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	<sealed>this(t);\n" +
+			"	        ^^^^^^^^\n" +
+			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_043() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"           new <sealed>X(t).foo();\n"+
+				"       }\n"+
+				"       public void foo() {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	new <sealed>X(t).foo();\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	new <sealed>X(t).foo();\n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_044() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> X(T t) {}\n"+
+				"       \n"+
+				"       public X(int t, char c) {\n"+
+				"           new <sealed>X(t).foo();\n"+
+				"       }\n"+
+				"       public void foo() {}\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	new <sealed>X(t).foo();\n" +
+			"	^^^^^^^^^^^^^^^^\n" +
+			"The parameterized constructor <sealed>X(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	new <sealed>X(t).foo();\n" +
+			"	     ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	new <sealed>X(t).foo();\n" +
+			"	     ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_045() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new X();\n"+
+				"               x.<sealed>foo(0);\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	x.<sealed>foo(0);\n" +
+			"	   ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	x.<sealed>foo(0);\n" +
+			"	          ^^^\n" +
+			"The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_046() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new X();\n"+
+				"               x.<sealed>foo(0);\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	x.<sealed>foo(0);\n" +
+			"	   ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	x.<sealed>foo(0);\n" +
+			"	   ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	x.<sealed>foo(0);\n" +
+			"	          ^^^\n" +
+			"The parameterized method <sealed>foo(sealed) of type X is not applicable for the arguments (Integer)\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_047() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new sealed();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	X x = new sealed();\n" +
+			"	          ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_048() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public <T> void foo(T t) {}\n"+
+				"       \n"+
+				"       public X() {\n"+
+				"               X x = new sealed();\n"+
+				"       }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	X x = new sealed();\n" +
+			"	          ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	X x = new sealed();\n" +
+			"	          ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_049() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public X() {\n"+
+				"               new sealed() {\n"+
+				"                       @Override\n"+
+				"                       void foo() {}\n"+
+				"               }.foo();\n"+
+				"       }\n"+
+				"}\n"+
+				"abstract class sealed {\n"+
+				"       abstract void foo();\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new sealed() {\n" +
+			"	    ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	abstract class sealed {\n" +
+			"	               ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_050() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public X() {\n"+
+				"       new sealed() {\n"+
+				"          @Override\n"+
+				"          void foo() {\n"+
+				"            Zork();\n"+
+				"          }\n"+
+				"       }.foo();\n"+
+				"       }\n"+
+				"}\n"+
+				"abstract class sealed {\n"+
+				"       abstract void foo();\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	new sealed() {\n" +
+			"	    ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type new sealed(){}\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 11)\n" +
+			"	abstract class sealed {\n" +
+			"	               ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_051() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public X() {\n"+
+				"    Object[] p = new sealed[10];\n"+
+			    "  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Object[] p = new sealed[10];\n" +
+			"	                 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_052() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public X() {\n"+
+				"    Object[] p = new sealed[10];\n"+
+			    "  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	Object[] p = new sealed[10];\n" +
+			"	                 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	Object[] p = new sealed[10];\n" +
+			"	                 ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_053() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   new X().foo((sealed) null);\n"+
+				" }\n"+
+				" private void foo(sealed o) {}\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((sealed) null);\n" +
+			"	        ^^^\n" +
+			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((sealed) null);\n" +
+			"	             ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	private void foo(sealed o) {}\n" +
+			"	                 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_054() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   new X().foo((sealed) null);\n"+
+				" }\n"+
+				" private void foo(sealed o) {}\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((sealed) null);\n" +
+			"	        ^^^\n" +
+			"The method foo(sealed) from the type X refers to the missing type sealed\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 3)\n" +
+			"	new X().foo((sealed) null);\n" +
+			"	             ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	new X().foo((sealed) null);\n" +
+			"	             ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 5)\n" +
+			"	private void foo(sealed o) {}\n" +
+			"	                 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	private void foo(sealed o) {}\n" +
+			"	                 ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_055() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" private void foo(Object o) {\n"+
+				"   if (o instanceof sealed) {}\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (o instanceof sealed) {}\n" +
+			"	                 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_056() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" private void foo(Object o) {\n"+
+				"   if (o instanceof sealed) {}\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	if (o instanceof sealed) {}\n" +
+			"	                 ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	if (o instanceof sealed) {}\n" +
+			"	                 ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug564638b_057() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   @SuppressWarnings(\"unused\")\n"+
+				"   I i = sealed :: new;\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class sealed{}\n" +
+				"interface I {\n"+
+				" Object gen();\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	class sealed{}\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n");
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug564638b_058() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   @SuppressWarnings(\"unused\")\n"+
+				"   I i = sealed :: new;\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class sealed{}\n" +
+				"interface I {\n"+
+				" Object gen();\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 8)\n" +
+			"	class sealed{}\n" +
+			"	      ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a reserved type word in Java 15 with preview enabled\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
 }

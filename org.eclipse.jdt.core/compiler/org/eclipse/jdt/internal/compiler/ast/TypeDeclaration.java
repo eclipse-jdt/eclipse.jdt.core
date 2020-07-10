@@ -328,6 +328,11 @@ public static boolean checkAndFlagType15NameErrors(char[] typeName, ASTNode node
 			skope.problemReporter().sealedPermitsIsReservedTypeName(node);
 			return isPreviewEnabled;
 		}
+	} else if (CharOperation.equals(typeName, TypeConstants.SEALED)) {
+		if (skope.compilerOptions().sourceLevel >= ClassFileConstants.JDK15) {
+			skope.problemReporter().sealedSealedIsReservedTypeName(node);
+			return isPreviewEnabled;
+		}
 	}
 	return false;
 }

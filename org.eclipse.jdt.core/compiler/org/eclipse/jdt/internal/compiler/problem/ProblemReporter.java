@@ -12053,4 +12053,13 @@ public void sealedPermitsIsReservedTypeName(ASTNode node) {
 		node.sourceStart,
 		node.sourceEnd);
 }
+public void sealedSealedIsReservedTypeName(ASTNode node) {
+	this.handle(
+		IProblem.SealedSealedIsReservedTypeName,
+		NoArgument,
+		NoArgument,
+		this.options.enablePreviewFeatures ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning,
+		node.sourceStart,
+		node.sourceEnd);
+}
 }

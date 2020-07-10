@@ -2407,6 +2407,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedPermitsIsReservedTypeName = PreviewRelated + 1866;
+	/** @since 3.22 BETA_JAVA15
+	 * @noreference preview feature error */
+	int SealedSealedIsReservedTypeName = PreviewRelated + 1867;
 	/* Java15 errors - end */
 
 	}
