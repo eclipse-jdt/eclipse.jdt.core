@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 IBM Corporation and others.
+ * Copyright (c) 2011, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -39,7 +43,7 @@ import junit.framework.Test;
 public class LambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug540520"};
+//	TESTS_NAMES = new String[] { "test056"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1605,6 +1609,7 @@ public void test055() {
 	    "");
 }
 public void test056() {
+	  String expected = isJRE15Plus ? "Cannot invoke \"Object.getClass()\" because \"x\" is null" : "null";
 	  this.runConformTest(
 	    new String[] {
 	      "X.java",
@@ -1626,7 +1631,7 @@ public void test056() {
 		  "	}\n" +
 		  "}\n"
 	    },
-	    "null");
+	    expected);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=410114, [1.8] CCE when trying to parse method reference expression with inappropriate type arguments
 public void test057() {

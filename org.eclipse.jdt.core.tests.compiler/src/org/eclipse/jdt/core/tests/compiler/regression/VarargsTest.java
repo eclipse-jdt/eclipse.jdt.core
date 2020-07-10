@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -39,7 +43,7 @@ public class VarargsTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test070b" };
+//		TESTS_NAMES = new String[] { "test068" };
 //		TESTS_NUMBERS = new int[] { 61 };
 //		TESTS_RANGE = new int[] { 11, -1 };
 	}
@@ -2702,6 +2706,9 @@ public class VarargsTest extends AbstractComparableTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+
+		String[] bounds = new String[] { "Object","Serializable","Comparable<?>"};
+		String[] bounds15 = new String[] { "Object","Serializable","Comparable<?>", "Constable"};
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2730,7 +2737,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 13)\n" +
 			"	classes = X.asList2(String.class, Boolean.class);\n" +
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" +
+			"Type safety: A generic array of Class<? extends "+intersection(isJRE15Plus ? bounds15 : bounds)+"> is created for a varargs parameter\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
@@ -2738,6 +2745,8 @@ public class VarargsTest extends AbstractComparableTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+		String[] bounds = new String[] { "Object","Serializable","Comparable<?>"};
+		String[] bounds15 = new String[] { "Object","Serializable","Comparable<?>", "Constable"};
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2762,7 +2771,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 14)\n" +
 			"	classes = X.asList2(String.class, Boolean.class);\n" +
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" +
+			"Type safety: A generic array of Class<? extends "+intersection(isJRE15Plus ? bounds15 : bounds)+ "> is created for a varargs parameter\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042

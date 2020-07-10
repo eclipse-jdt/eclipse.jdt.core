@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -56,7 +60,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test1277" };
+//		TESTS_NAMES = new String[] { "test0593" };
 //		TESTS_NUMBERS = new int[] { 470, 627 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -18808,6 +18812,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 	public void test0593() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
+		String bounds = isJRE15Plus ? "Object&Serializable&Comparable<?>&Constable" : "Object&Serializable&Comparable<?>";
 	    String xSource =
 				"import java.util.*;\n" +
 				"public class X {\n" +
@@ -18824,7 +18829,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"1. ERROR in X.java (at line 3)\n" +
 				"	List<Class<?>> classes1 = Arrays.asList(String.class, Boolean.class);\n" +
 				"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<?>>\n" +
+				"Type mismatch: cannot convert from List<Class<? extends " + bounds + ">> to List<Class<?>>\n" +
 				"----------\n",
 				null,
 				true,
