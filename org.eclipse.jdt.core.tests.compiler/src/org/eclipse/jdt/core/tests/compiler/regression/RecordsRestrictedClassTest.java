@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750"};
+//		TESTS_NAMES = new String[] { "testBug565104"};
 	}
 
 	public static Class<?> testClass() {
@@ -3426,7 +3426,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"    )\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  public Point(int myInt, char myChar);\n" +
+			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Record() [14]\n" +
 			"     4  aload_0 [this]\n" +
@@ -3507,7 +3507,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"    )\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  public Point(int myInt, char myChar);\n" +
+			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Record() [14]\n" +
 			"     4  aload_0 [this]\n" +
@@ -3552,7 +3552,7 @@ public void testBug562439_017() throws IOException, ClassFormatException {
 		},
 		"100");
 	String expectedOutput =
-			"  public Point(int myInt, char myChar);\n" +
+			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Record() [14]\n" +
 			"     4  aload_0 [this]\n" +
@@ -3610,7 +3610,7 @@ public void testBug562439_018() throws IOException, ClassFormatException {
 		},
 		"100");
 	String expectedOutput =
-			"  public Point(int myInt, char myChar);\n" +
+			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Record() [14]\n" +
 			"     4  aload_0 [this]\n" +
@@ -3676,7 +3676,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  public Point(int myInt, char myChar);\n" +
+			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Record() [16]\n" +
 			"     4  aload_0 [this]\n" +
@@ -3761,7 +3761,7 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 		},
 		"100");
 	String expectedOutput =
-			"  public Point(int myInt, char myChar);\n" +
+			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  invokespecial java.lang.Record() [14]\n" +
 			"     4  aload_0 [this]\n" +
@@ -4460,5 +4460,69 @@ public void testBug562637_001() {
 				"      )\n" +
 				"  \n";
 		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565104_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				"  public record R() {}\n"+
+				"  public static void main(String[] args){}\n"+
+				"}\n"
+			},
+		"");
+		String expectedOutput =
+				"  // Stack: 1, Locals: 1\n" +
+				"  public X$R();\n" +
+				"    0  aload_0 [this]\n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565104_002() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				"  record R() {}\n"+
+				"  public static void main(String[] args){}\n"+
+				"}\n"
+			},
+		"");
+		String expectedOutput =
+				"  // Stack: 1, Locals: 1\n" +
+				"  X$R();\n" +
+				"    0  aload_0 [this]\n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565104_003() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				"  protected record R() {}\n"+
+				"  public static void main(String[] args){}\n"+
+				"}\n"
+			},
+		"");
+		String expectedOutput =
+				"  // Stack: 1, Locals: 1\n" +
+				"  protected X$R();\n" +
+				"    0  aload_0 [this]\n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565104_004() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X { \n"+
+				"  private record R() {}\n"+
+				"  public static void main(String[] args){}\n"+
+				"}\n"
+			},
+		"");
+		String expectedOutput =
+				"  // Stack: 1, Locals: 1\n" +
+				"  private X$R();\n" +
+				"    0  aload_0 [this]\n";
+		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }

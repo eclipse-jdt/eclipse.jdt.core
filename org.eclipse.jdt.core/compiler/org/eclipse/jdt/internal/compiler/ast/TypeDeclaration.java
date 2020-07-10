@@ -387,9 +387,9 @@ public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExpl
 	ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 	constructor.bits |= ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit;
 	constructor.selector = this.name;
-//	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-	constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
-	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
+	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+//	constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
+//	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
 	constructor.arguments = getArgumentsFromComponents(this.recordComponents);
 
 	constructor.declarationSourceStart = constructor.sourceStart =
