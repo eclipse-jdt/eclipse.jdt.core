@@ -21,7 +21,7 @@ package org.eclipse.jdt.core.util;
  * Description of permitted subclasses attribute as described in the JVM
  * specifications.
  *
- * @since 3.22 BETA_JAVA15
+ * @since 3.23 BETA_JAVA15
  */
 public interface IPermittedSubclassesAttributeEntry {
 

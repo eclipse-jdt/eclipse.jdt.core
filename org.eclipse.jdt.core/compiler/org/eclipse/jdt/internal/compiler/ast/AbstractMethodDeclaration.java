@@ -441,6 +441,10 @@ public abstract class AbstractMethodDeclaration
 		return false;
 	}
 
+	public boolean isCanonicalConstructor() {
+
+		return false;
+	}
 	public boolean isDefaultConstructor() {
 
 		return false;

@@ -492,6 +492,12 @@ public class BasicSearchEngine {
 		boolean isCaseSensitive = (matchRuleType & SearchPattern.R_CASE_SENSITIVE) != 0;
 		if (patternTypeName != null) {
 			boolean isCamelCase = (matchRuleType & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
+
+			if ((matchRuleType & SearchPattern.R_SUBSTRING_MATCH) != 0 && CharOperation.substringMatch(patternTypeName, typeName))
+				return true;
+			if ((matchRuleType & SearchPattern.R_SUBWORD_MATCH) != 0 && CharOperation.subWordMatch(patternTypeName, typeName))
+				return true;
+
 			int matchMode = matchRuleType & JavaSearchPattern.MATCH_MODE_MASK;
 			if (!isCaseSensitive && !isCamelCase) {
 				patternTypeName = CharOperation.toLowerCase(patternTypeName);

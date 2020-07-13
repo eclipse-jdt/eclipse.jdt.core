@@ -144,7 +144,7 @@ public interface IClassFileReader {
 	 * Answer back the permitted subclasses attribute of this .class file, null if none.
 	 *
 	 * @return the permitted subclasses attribute of this .class file, null if none
-	 * @since 3.22 BETA_JAVA15
+	 * @since 3.23 BETA_JAVA15
 	 */
 	default IPermittedSubclassesAttribute getPermittedSubclassesAttribute() {
 		return null;

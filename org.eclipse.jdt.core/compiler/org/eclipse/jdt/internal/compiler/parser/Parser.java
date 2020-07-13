@@ -3114,6 +3114,7 @@ private void populateCompactConstructor(CompactConstructorDeclaration ccd) {
 	//modifiers
 	ccd.declarationSourceStart = this.intStack[this.intPtr--];
 	ccd.modifiers = this.intStack[this.intPtr--];
+	ccd.modifiers |=  ExtraCompilerModifiers.AccCompactConstructor;
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {

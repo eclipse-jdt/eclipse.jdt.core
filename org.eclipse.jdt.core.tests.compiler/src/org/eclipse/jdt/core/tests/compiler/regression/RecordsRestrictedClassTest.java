@@ -1288,12 +1288,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 12)\n" +
 			"	public Point(Integer myInt) {}\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-			"The blank final field myInt may not have been initialized\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 12)\n" +
-			"	public Point(Integer myInt) {}\n" +
-			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-			"The blank final field myZ may not have been initialized\n" +
+			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
 			"----------\n");
 	}
 	public void testBug553152_016() {
@@ -4524,5 +4519,131 @@ public void testBug562637_001() {
 				"  private X$R();\n" +
 				"    0  aload_0 [this]\n";
 		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug564146_001() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X(int i) {\n"+
+				"  public X() {\n"+
+				"    this.i = 10;\n"+
+				"  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public X() {\n" +
+			"	       ^^^\n" +
+			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"----------\n");
+	}
+	public void testBug564146_002() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X(int i) {\n"+
+				"  public X() {\n"+
+				"    super();\n"+
+				"    this.i = 10;\n"+
+				"  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public X() {\n" +
+			"	       ^^^\n" +
+			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"----------\n");
+	}
+	public void testBug564146_003() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X(int i) {\n"+
+				"  public X(int i) {\n"+
+				"    this.i = 10;\n"+
+				"    Zork();\n"+
+				"  }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug564146_004() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public record X(int i) {\n"+
+					" public X() {\n"+
+					"   this(10);\n"+
+					" }\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(new X().i());\n"+
+					" }\n"+
+					"}"
+				},
+			"10");
+	}
+	public void testBug564146_005() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X() {\n"+
+				" public X(int i) {\n"+
+				"   this(10);\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	this(10);\n" +
+			"	^^^^^^^^^\n" +
+			"Recursive constructor invocation X(int)\n" +
+			"----------\n");
+	}
+	public void testBug564146_006() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X() {\n"+
+				" public X() {\n"+
+				"   System.out.println(10);\n"+
+				"   this(10);\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	this(10);\n" +
+			"	^^^^^^^^^\n" +
+			"The body of a canonical constructor must not contain an explicit constructor call\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	this(10);\n" +
+			"	^^^^^^^^^\n" +
+			"Constructor call must be the first statement in a constructor\n" +
+			"----------\n");
+	}
+	public void testBug564146_007() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public record X(int i) {\n"+
+				" public X() {\n"+
+				"   this(10);\n"+
+				" }\n"+
+				" public X(int i, int k) {\n"+
+				"   this();\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(new X(2, 3).i());\n"+
+				" }\n"+
+				"}"
+				},
+			"10");
 	}
 }

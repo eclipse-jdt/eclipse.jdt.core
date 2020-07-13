@@ -361,7 +361,7 @@ public final class AST {
 	 * up to and including Java SE 15(aka JDK 15).
 	 * </p>
 	 *
-	 * @since 3.22 BETA_JAVA15
+	 * @since 3.23 BETA_JAVA15
 	 */
 	public static final int JLS15 = 15;
 
@@ -2646,6 +2646,20 @@ public final class AST {
 		return result;
 	}
 
+	/**
+	 * Creates an unparented record declaration node owned by this AST.
+	 * The name of the class is an unspecified, but legal, name;
+	 * no modifiers; no doc comment; no superclass or superinterfaces;
+	 * and an empty record body.
+	 *
+	 * @return a new unparented type declaration node
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS14
+	 * @since 3.23
+	 */
+	public RecordDeclaration newRecordDeclaration() {
+		RecordDeclaration result = new RecordDeclaration(this);
+		return result;
+	}
 	/**
 	 * Creates and returns a new unparented requires directive
 	 * node for an unspecified, but legal, name;

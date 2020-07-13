@@ -231,7 +231,6 @@ public class JRTUtil {
 class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 
 	final String release;
-	String releaseInHex;
 	private List<Path> releaseRoots = Collections.emptyList();
 	protected Path modulePath;
 	private CtSym ctSym;
@@ -259,14 +258,14 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 	private void initialize(File jdk, String rel) throws IOException {
 		super.initialize(jdk);
 		this.fs = null;// reset and proceed, TODO: this is crude and need to be removed.
-		this.releaseInHex = Integer.toHexString(Integer.parseInt(this.release)).toUpperCase();
+		String releaseCode = CtSym.getReleaseCode(this.release);
 		this.ctSym = JRTUtil.getCtSym(Paths.get(this.jdkHome));
 		this.fs = this.ctSym.getFs();
-		if (!Files.exists(this.fs.getPath(this.releaseInHex))
-				|| Files.exists(this.fs.getPath(this.releaseInHex, "system-modules"))) { //$NON-NLS-1$
+		if (!Files.exists(this.fs.getPath(releaseCode))
+				|| Files.exists(this.fs.getPath(releaseCode, "system-modules"))) { //$NON-NLS-1$
 			this.fs = null;
 		}
-		this.releaseRoots = this.ctSym.releaseRoots(this.releaseInHex);
+		this.releaseRoots = this.ctSym.releaseRoots(releaseCode);
 	}
 
 	@Override

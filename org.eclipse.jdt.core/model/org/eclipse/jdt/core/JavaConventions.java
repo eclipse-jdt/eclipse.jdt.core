@@ -484,7 +484,7 @@ public final class JavaConventions {
 	 * @see JavaCore#VERSION_1_7
 	 * @see JavaCore#VERSION_1_8
 	 * @see JavaCore#VERSION_9
-	 * @deprecated
+	 * @deprecated Use {@link #validateJavaTypeName(String id, String sourceLevel, String complianceLevel, String previewEnabled)} instead
 	 */
 	public static IStatus validateJavaTypeName(String name, String sourceLevel, String complianceLevel) {
 		return internalValidateJavaTypeName(name, sourceLevel, complianceLevel, null);
@@ -500,7 +500,7 @@ public final class JavaConventions {
 	 * {@link JavaCore} class. The constants are named <code>JavaCore#VERSION_1_x</code>, x being set
 	 * between '1' and '8'.
 	 * </p>
-	 * <p>The preview flag should be one of <code>JavaCore.ENABLED</code>, <code>JavaCore#DISABLED</code> or null.
+	 * <p>The preview flag should be one of {@link JavaCore#ENABLED}, {@link JavaCore#DISABLED} or null.
 	 *  When null is passed, the preview is considered to be disabled.
 	 * </p>
 	 *

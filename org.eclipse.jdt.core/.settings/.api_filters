@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="3.22.100"/>
-                <message_argument value="3.22.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -28,13 +20,6 @@
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
                 <message_argument value="RecordCanonicalConstructorShouldBePublic"/>
-            </message_arguments>
-        </filter>
-        <filter id="1209008130">
-            <message_arguments>
-                <message_argument value="3.23 BETA_JAVA15"/>
-                <message_argument value="3.22 BETA_JAVA15"/>
-                <message_argument value="FeatureNotSupported"/>
             </message_arguments>
         </filter>
     </resource>
@@ -189,6 +174,14 @@
             <message_arguments>
                 <message_argument value="Name"/>
                 <message_argument value="QualifiedName"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/RecordDeclaration.java" type="org.eclipse.jdt.core.dom.RecordDeclaration">
+        <filter comment="method not needed" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.RecordDeclaration"/>
+                <message_argument value="getTypes()"/>
             </message_arguments>
         </filter>
     </resource>

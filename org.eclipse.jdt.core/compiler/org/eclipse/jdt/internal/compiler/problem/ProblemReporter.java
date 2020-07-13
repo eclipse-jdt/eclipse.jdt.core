@@ -11846,6 +11846,14 @@ public void recordIllegalExplicitFinalFieldAssignInCompactConstructor(FieldBindi
 		fieldRef.sourceStart,
 		fieldRef.sourceEnd);
 }
+public void recordMissingExplicitConstructorCallInNonCanonicalConstructor(ASTNode location) {
+	this.handle(
+		IProblem.RecordMissingExplicitConstructorCallInNonCanonicalConstructor,
+		NoArgument,
+		NoArgument,
+		location.sourceStart,
+		location.sourceEnd);
+}
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;

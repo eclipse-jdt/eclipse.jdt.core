@@ -257,7 +257,9 @@ public abstract class SearchPattern {
 		| R_PATTERN_MATCH
 		| R_REGEXP_MATCH
 		| R_CAMELCASE_MATCH
-		| R_CAMELCASE_SAME_PART_COUNT_MATCH;
+		| R_CAMELCASE_SAME_PART_COUNT_MATCH
+		| R_SUBSTRING_MATCH
+		| R_SUBWORD_MATCH;
 
 	private int matchRule;
 
@@ -2534,6 +2536,18 @@ public boolean matchesName(char[] pattern, char[] name) {
 		boolean sameLength = pattern.length == name.length;
 		boolean canBePrefix = name.length >= pattern.length;
 		boolean matchFirstChar = !isCaseSensitive || emptyPattern || (name.length > 0 &&  pattern[0] == name[0]);
+
+		if ((matchMode & R_SUBSTRING_MATCH) != 0) {
+			if (CharOperation.substringMatch(pattern, name))
+				return true;
+			matchMode &= ~R_SUBSTRING_MATCH;
+		}
+		if ((matchMode & SearchPattern.R_SUBWORD_MATCH) != 0) {
+			if (CharOperation.subWordMatch(pattern, name))
+				return true;
+			matchMode &= ~SearchPattern.R_SUBWORD_MATCH;
+		}
+
 		switch (matchMode) {
 			case R_EXACT_MATCH :
 				if (sameLength && matchFirstChar) {

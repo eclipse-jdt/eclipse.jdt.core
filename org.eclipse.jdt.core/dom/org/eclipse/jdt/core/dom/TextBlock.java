@@ -67,7 +67,7 @@ public class TextBlock extends Expression {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.22
+	 * @since 3.23
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -146,7 +146,7 @@ public class TextBlock extends Expression {
 	 *
 	 * @return the string literal token, including enclosing double
 	 *    quotes and embedded escapes
-	 * @since 3.22
+	 * @since 3.23
 	 */
 	public String getEscapedValue() {
 		return this.escapedValue;
@@ -166,7 +166,7 @@ public class TextBlock extends Expression {
 	 * @param token the string literal token, including enclosing double
 	 *    quotes and embedded escapes
 	 * @exception IllegalArgumentException if the argument is incorrect
-	 * @since 3.22
+	 * @since 3.23
 	 */
 	public void setEscapedValue(String token) {
 		// update internalSetEscapedValue(String) if this is changed
@@ -218,7 +218,7 @@ public class TextBlock extends Expression {
 	 *
 	 * @return the string value without enclosing triple quotes
 	 * @exception IllegalArgumentException if the literal value cannot be converted
-	 * @since 3.22
+	 * @since 3.23
 	 */
 	public String getLiteralValue() {
 		char[] escaped = getEscapedValue().toCharArray();

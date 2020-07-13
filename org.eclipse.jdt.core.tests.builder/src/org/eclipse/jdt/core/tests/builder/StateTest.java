@@ -120,6 +120,13 @@ public class StateTest extends BuilderTests {
 		State readState = JavaBuilder.readState(project, new DataInputStream(new ByteArrayInputStream(bytes)));
 		Map<String, ReferenceCollection> readReferences = readState.getReferences();
 		assertEqualLookupTables(savedState.getReferences(), readReferences);
+		assertEqualTypeLocators(savedState.typeLocators, readState.typeLocators);
+	}
+
+	private void assertEqualTypeLocators(Map<String, String> tl1, Map<String, String> tl2) {
+		assertEquals(tl1.size(), tl2.size());
+		assertEquals(tl1.toString(), tl2.toString());
+
 	}
 
 	private void assertEqualLookupTables(Map<String, ReferenceCollection> expectation, Map<String, ReferenceCollection> actual) {

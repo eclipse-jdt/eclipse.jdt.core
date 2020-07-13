@@ -153,7 +153,7 @@ public boolean isKnownPackage(String qualifiedPackageName) {
 		LinkedHashSet<String> names = new LinkedHashSet<>(this.typeLocators.size());
 		Set<Entry<String, String>> keyTable = this.typeLocators.entrySet();
 		for (Entry<String, String> entry : keyTable) {
-			String packageName = entry.getValue(); // is a type name of the form p1/p2/A
+			String packageName = entry.getKey(); // is a type name of the form p1/p2/A
 			int last = packageName.lastIndexOf('/');
 			packageName = last == -1 ? null : packageName.substring(0, last);
 			while (packageName != null && !names.contains(packageName)) {
@@ -756,7 +756,7 @@ void write(DataOutputStream out) throws IOException {
 			String value = entry.getValue();
 			if (key != null) {
 				length--;
-				out.writeUTF(value);
+				out.writeUTF(key);
 				Integer index = (Integer) internedTypeLocators.get(value);
 				out.writeInt(index.intValue());
 			}

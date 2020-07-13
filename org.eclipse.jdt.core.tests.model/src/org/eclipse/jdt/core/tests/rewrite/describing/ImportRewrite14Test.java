@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -67,13 +68,13 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "14");
+		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "15");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
-		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
 		proj.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, String.valueOf(99));
 
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(1));
@@ -88,8 +89,8 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 	/**
 	 * @deprecated uses deprecated AST level
 	 */
-	protected static int getJLS14() {
-		return AST.JLS14;
+	protected static int getJLS15() {
+		return AST.JLS15;
 	}
 	@Override
 	protected void tearDown() throws Exception {
@@ -100,7 +101,7 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 	/*
 	 * typeBinding shows "int value" rather than "@MyAnnotation int value"
 	 */
-	public void _test001() throws Exception {
+	public void test001() throws Exception {
 		String contents = "package pack1;\n" +
 				"import pack2.MyAnnotation;\n" +
 				"public record X(@MyAnnotation int value){\n" +
@@ -112,7 +113,7 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/MyAnnotation.java", contents);
 
-		ASTParser parser = ASTParser.newParser(getJLS14());
+		ASTParser parser = ASTParser.newParser(getJLS15());
 		parser.setSource(getCompilationUnit("/" + PROJECT + "/src/pack2/MyAnnotation.java"));
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -138,12 +139,50 @@ public class ImportRewrite14Test extends AbstractJavaModelTests {
 		assertTrue(actualType.isPrimitiveType());
 		apply(rewrite);
 		String contentsA = "package pack1;\n" +
-				"\n" +
 				"import pack2.MyAnnotation;\n" +
-				"\n" +
 				"public record X(@MyAnnotation int value){\n"+
 				"}\n";
 		assertEqualStringIgnoreDelim(cu.getSource(), contentsA);
+	}
+
+	/*
+	 * Import should not be added in the default package
+	 */
+	public void testBug563375_2() throws Exception {
+		String contents = ""+
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		var i_S = i_s();\n" +
+			"		System.out.println(i_S.i + i_S.s);\n" +
+			"		}\n" +
+			"	\n" +
+			"	static record I_S(int i, String s) {}\n" +
+			"	\n" +
+			"	private static I_S i_s() {\n" +
+			"		return new I_S(1, \"abc\");\n" +
+			"	}\n" +
+			"}";
+		createFile("/" + PROJECT + "/src/X.java", contents);
+
+		ICompilationUnit cu= getCompilationUnit("/" + PROJECT + "/src/X.java");
+		ASTParser parser = ASTParser.newParser(getJLS15());
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+
+
+		TypeDeclaration clazz= (TypeDeclaration) astRoot.types().get(0);
+		ITypeBinding binding= clazz.resolveBinding();
+		ITypeBinding recBinding= binding.getDeclaredTypes()[0];
+		assertNotNull(recBinding);
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		cu = getCompilationUnit("/" + PROJECT + "/src/X.java");
+		rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		String actualType = rewrite.addImport(recBinding);
+		assertEquals("X.I_S", actualType);
+		apply(rewrite);
+		assertEquals(0, cu.getImports().length);
 	}
 
 	protected void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {

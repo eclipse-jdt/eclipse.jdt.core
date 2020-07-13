@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
@@ -57,8 +58,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 
 	// Enables the tests to run individually
 	@Override
-	protected Map getCompilerOptions() {
-		Map defaultOptions = super.getCompilerOptions();
+	protected Map<String, String> getCompilerOptions() {
+		Map<String, String> defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
@@ -6942,5 +6943,25 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			assertEquals("Base.Static.@A2 Static2<@B1 Exception>.@A3 Middle1.@A4 Middle2<@B2 Class<@C1 Object @C2 []> @B3 []>.@A5 Middle3.@A6 GenericInner<@B4 String> @A7 [] @A8 []",
 					new String(methods3[0].parameters[0].annotatedDebugName()));
 	}
-}
 
+	public void testBug594561_ParameterizedTypeAnnotations() {
+		runConformTest(new String[] {
+			"p/C.java",
+			"package p;" +
+			"@Deprecated\n" +
+			"abstract class A<T> {}\n" +
+			"class C extends A<String> {}\n",
+		});
+
+		Requestor requestor = new Requestor(false, null, false, false);
+		Map<String, String> customOptions = getCompilerOptions(); customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(), new CompilerOptions(customOptions), requestor, getProblemFactory());
+
+		ReferenceBinding type = compiler.lookupEnvironment.askForType(new char[][] {"p".toCharArray(), "C".toCharArray()}, compiler.lookupEnvironment.UnNamedModule);
+		assertNotNull(type);
+
+		AnnotationBinding[] annos = type.superclass().getAnnotations();
+		assertEquals(1, annos.length);
+		assertEquals("java.lang.Deprecated", annos[0].getAnnotationType().debugName());
+	}
+}

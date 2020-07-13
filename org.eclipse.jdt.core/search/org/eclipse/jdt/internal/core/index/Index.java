@@ -52,7 +52,9 @@ static final int MATCH_RULE_INDEX_MASK =
 	SearchPattern.R_REGEXP_MATCH |
 	SearchPattern.R_CASE_SENSITIVE |
 	SearchPattern.R_CAMELCASE_MATCH |
-	SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH;
+	SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH |
+	SearchPattern.R_SUBSTRING_MATCH |
+	SearchPattern.R_SUBWORD_MATCH;
 
 public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	if (pattern == null) return true;
@@ -60,6 +62,17 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 	int wordLength = word.length;
 	if (patternLength == 0) return matchRule != SearchPattern.R_EXACT_MATCH;
 	if (wordLength == 0) return (matchRule & SearchPattern.R_PATTERN_MATCH) != 0 && patternLength == 1 && pattern[0] == '*';
+
+	if ((matchRule & SearchPattern.R_SUBSTRING_MATCH) != 0) {
+		if (CharOperation.substringMatch(pattern, word))
+			return true;
+		matchRule &= ~SearchPattern.R_SUBSTRING_MATCH;
+	}
+	if ((matchRule & SearchPattern.R_SUBWORD_MATCH) != 0) {
+		if (CharOperation.subWordMatch(pattern, word))
+			return true;
+		matchRule &= ~SearchPattern.R_SUBWORD_MATCH;
+	}
 
 	// need to mask some bits of pattern rule (bug 79790)
 	switch(matchRule & MATCH_RULE_INDEX_MASK) {

@@ -271,11 +271,11 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		if (property == TYPE_PARAMETERS_PROPERTY) {
 			return typeParameters();
 		}
-		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
-			return superInterfaceTypes();
-		}
 		if (property == RECORD_COMPONENTS_PROPERTY) {
 			return recordComponents();
+		}
+		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
+			return superInterfaceTypes();
 		}
 		if (property == BODY_DECLARATIONS_PROPERTY) {
 			return bodyDeclarations();
@@ -320,10 +320,10 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.typeParameters().addAll(
 				ASTNode.copySubtrees(target, typeParameters()));
-		result.superInterfaceTypes().addAll(
-				ASTNode.copySubtrees(target, superInterfaceTypes()));
 		result.recordComponents().addAll(
 				ASTNode.copySubtrees(target, recordComponents()));
+		result.superInterfaceTypes().addAll(
+				ASTNode.copySubtrees(target, superInterfaceTypes()));
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
@@ -344,8 +344,8 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 			acceptChildren(visitor, this.modifiers);
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, this.typeParameters);
-			acceptChildren(visitor, this.superInterfaceTypes);
 			acceptChildren(visitor, this.recordComponents);
+			acceptChildren(visitor, this.superInterfaceTypes);
 			acceptChildren(visitor, this.bodyDeclarations);
 		}
 		visitor.endVisit(this);
@@ -450,36 +450,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 			}
 		}
 		return methods;
-	}
-
-	/**
-	 * Returns the ordered list of member type declarations of this type
-	 * declaration.
-	 * <p>
-	 * This convenience method returns this node's body declarations
-	 * with non-types filtered out. Unlike <code>bodyDeclarations</code>,
-	 * this method does not return a live result.
-	 * </p>
-	 *
-	 * @return the (possibly empty) list of member type declarations
-	 */
-	public RecordDeclaration[] getTypes() {
-		List bd = bodyDeclarations();
-		int typeCount = 0;
-		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			if (it.next() instanceof RecordDeclaration) {
-				typeCount++;
-			}
-		}
-		RecordDeclaration[] memberTypes = new RecordDeclaration[typeCount];
-		int next = 0;
-		for (Iterator it = bd.listIterator(); it.hasNext(); ) {
-			Object decl = it.next();
-			if (decl instanceof RecordDeclaration) {
-				memberTypes[next++] = (RecordDeclaration) decl;
-			}
-		}
-		return memberTypes;
 	}
 
 	@Override

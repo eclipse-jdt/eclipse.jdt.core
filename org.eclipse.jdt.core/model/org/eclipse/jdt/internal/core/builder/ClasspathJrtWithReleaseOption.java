@@ -49,7 +49,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	static String MODULE_INFO = "module-info.sig"; //$NON-NLS-1$
 
 	final String release;
-	String releaseInHex;
+	String releaseCode;
 	/**
 	 * Null for releases without ct.sym file or for releases matching current one
 	 */
@@ -106,24 +106,23 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	 * @see CtSym
 	 */
 	protected void initialize() throws CoreException {
-		this.releaseInHex = Integer.toHexString(Integer.parseInt(this.release)).toUpperCase();
+		this.releaseCode = CtSym.getReleaseCode(this.release);
 		this.fs = this.ctSym.getFs();
 		this.releasePath = this.ctSym.getRoot();
-		Path modPath = this.fs.getPath(this.releaseInHex + (this.ctSym.isJRE12Plus() ? "" : "-modules")); //$NON-NLS-1$ //$NON-NLS-2$
+		Path modPath = this.fs.getPath(this.releaseCode + (this.ctSym.isJRE12Plus() ? "" : "-modules")); //$NON-NLS-1$ //$NON-NLS-2$
 		if (Files.exists(modPath)) {
 			this.modulePath = modPath;
 			this.modPathString = this.zipFilename + "|"+ modPath.toString(); //$NON-NLS-1$
 		}
 
-		if (!Files.exists(this.releasePath.resolve(this.releaseInHex))) {
+		if (!Files.exists(this.releasePath.resolve(this.releaseCode))) {
 			Exception e = new IllegalArgumentException("release " + this.release + " is not found in the system"); //$NON-NLS-1$//$NON-NLS-2$
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
 		}
-		if (Files.exists(this.fs.getPath(this.releaseInHex, "system-modules"))) { //$NON-NLS-1$
+		if (Files.exists(this.fs.getPath(this.releaseCode, "system-modules"))) { //$NON-NLS-1$
 			this.fs = null;  // Fallback to default version, all classes are on jrt fs, not here.
 		}
 	}
-
 
 	HashMap<String, SimpleSet> findPackagesInModules() {
 		// In JDK 11 and before, classes are not listed under their respective modules
@@ -181,7 +180,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		}
 		HashMap<String, IModule> cache = ModulesCache.get(this.modPathString);
 		if (cache == null) {
-			List<Path> releaseRoots = this.ctSym.releaseRoots(this.releaseInHex);
+			List<Path> releaseRoots = this.ctSym.releaseRoots(this.releaseCode);
 			for (Path root : releaseRoots) {
 				try {
 					Files.walkFileTree(root, Collections.EMPTY_SET, 2, new FileVisitor<java.nio.file.Path>() {
@@ -238,7 +237,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		if (!isPackage(qualifiedPackageName, moduleName)) {
 			return null; // most common case
 		}
-		List<Path> releaseRoots = this.ctSym.releaseRoots(this.releaseInHex);
+		List<Path> releaseRoots = this.ctSym.releaseRoots(this.releaseCode);
 		try {
 			IBinaryType reader = null;
 			byte[] content = null;
@@ -246,7 +245,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 												qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 			if (!releaseRoots.isEmpty()) {
 				qualifiedBinaryFileName = qualifiedBinaryFileName.replace(".class", ".sig"); //$NON-NLS-1$ //$NON-NLS-2$
-				Path fullPath = this.ctSym.getFullPath(this.releaseInHex, qualifiedBinaryFileName, moduleName);
+				Path fullPath = this.ctSym.getFullPath(this.releaseCode, qualifiedBinaryFileName, moduleName);
 				// If file is known, read it from ct.sym
 				if (fullPath != null) {
 					content = this.ctSym.getFileBytes(fullPath);

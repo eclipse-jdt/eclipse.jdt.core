@@ -502,7 +502,7 @@ public interface IJavaSearchConstants {
 	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
-	 * @since 3.22  BETA_JAVA15
+	 * @since 3.23  BETA_JAVA15
 	 * @noreference permit type reference
 	 * @category limitTo
 	 */

@@ -31,6 +31,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccJustFlag = 0xFFFF;// 16 lower bits
 
 	final int AccDefaultMethod = ASTNode.Bit17;
+	final int AccCompactConstructor = ASTNode.Bit24;
 	// bit18 - use by ClassFileConstants.AccAnnotationDefault
 	final int AccRestrictedAccess = ASTNode.Bit19;
 	final int AccFromClassFile = ASTNode.Bit20;

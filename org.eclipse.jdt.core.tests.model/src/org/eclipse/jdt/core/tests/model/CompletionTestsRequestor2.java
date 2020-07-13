@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.Predicate;
 
 import org.eclipse.jdt.core.CompletionContext;
 import org.eclipse.jdt.core.CompletionProposal;
@@ -51,6 +52,8 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private String assignableType;
 
 	public boolean debug = false;
+
+	private Predicate<CompletionProposal> proposalFilter = x -> true;
 
 	public CompletionTestsRequestor2() {
 		this(false, false);
@@ -96,6 +99,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		this.context = cc;
 	}
 	public void accept(CompletionProposal proposal) {
+		if (!this.proposalFilter.test(proposal))
+			return;
+
 		int length = this.proposals.length;
 		if (++this.proposalsPtr== length) {
 			System.arraycopy(this.proposals, 0, this.proposals = new CompletionProposal[length+PROPOSALS_INCREMENT], 0, length);
@@ -624,6 +630,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	}
 	public void setComputeEnclosingElement(boolean computeEnclosingElement) {
 		this.computeEnclosingElement = computeEnclosingElement;
+	}
+	public void setProposalFilter(Predicate<CompletionProposal> proposalFilter) {
+		this.proposalFilter = proposalFilter;
 	}
 
 	public boolean canUseDiamond(int proposalNo) {

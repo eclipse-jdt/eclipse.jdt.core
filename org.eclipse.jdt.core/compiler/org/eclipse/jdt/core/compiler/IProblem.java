@@ -2277,7 +2277,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorHasThrowsClause = PreviewRelated + 1735;
-	/** @since 3.22
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorVisibilityReduced = PreviewRelated + 1736;
 	/** @since 3.22
@@ -2340,15 +2340,18 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordCannotDefineRecordInLocalType= PreviewRelated + 1756;
-	/** @since 3.22
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int RecordComponentsCannotHaveModifiers= PreviewRelated + 1757;
-	/** @since 3.22
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int RecordIllegalParameterNameInCanonicalConstructor = PreviewRelated + 1758;
-	/** @since 3.22
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int RecordIllegalExplicitFinalFieldAssignInCompactConstructor = PreviewRelated + 1759;
+	/** @since 3.23
+	 * @noreference preview feature error */
+	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= PreviewRelated + 1760;
 	/* records - end */
 	/* instanceof pattern: */
 	/** @since 3.22
@@ -2356,58 +2359,58 @@ void setSourceStart(int sourceStart);
 	int PatternVariableNotInScope = PreviewRelated + 1780;
 
 
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedMissingClassModifier = PreviewRelated + 1850;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedDisAllowedNonSealedModifierInClass = PreviewRelated + 1851;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedSuperClassDoesNotPermit = PreviewRelated + 1852;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedSuperInterfaceDoesNotPermit = PreviewRelated + 1853;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedMissingSealedModifier = PreviewRelated + 1854;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedMissingInterfaceModifier = PreviewRelated + 1855;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedDuplicateTypeInPermits = PreviewRelated + 1856;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedNotDirectSuperClass = PreviewRelated + 1857;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedPermittedTypeOutsideOfModule = PreviewRelated + 1858;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedPermittedTypeOutsideOfPackage = PreviewRelated + 1859;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedSealedTypeMissingPermits = PreviewRelated + 1860;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1861;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedDisAllowedNonSealedModifierInInterface = PreviewRelated + 1862;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedNotDirectSuperInterface = PreviewRelated + 1863;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1864;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedPermitsIsReservedTypeName = PreviewRelated + 1866;
-	/** @since 3.22 BETA_JAVA15
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedSealedIsReservedTypeName = PreviewRelated + 1867;
 	/* Java15 errors - end */
