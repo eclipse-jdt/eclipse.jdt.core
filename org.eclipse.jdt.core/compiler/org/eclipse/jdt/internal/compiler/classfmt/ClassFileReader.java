@@ -102,6 +102,7 @@ private static String printTypeModifiers(int modifiers) {
 	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	if ((modifiers & ExtraCompilerModifiers.AccSealed) != 0) print.print("sealed "); //$NON-NLS-1$
 	print.flush();
 	return out.toString();
 }
@@ -481,6 +482,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						int offset = readOffset + 6;
 						this.permittedSubtypesCount = u2At(offset);
 						if (this.permittedSubtypesCount != 0) {
+							this.accessFlags |= ExtraCompilerModifiers.AccSealed;
 							offset += 2;
 							this.permittedSubtypesNames = new char[this.permittedSubtypesCount][];
 							for (int j = 0; j < this.permittedSubtypesCount; j++) {

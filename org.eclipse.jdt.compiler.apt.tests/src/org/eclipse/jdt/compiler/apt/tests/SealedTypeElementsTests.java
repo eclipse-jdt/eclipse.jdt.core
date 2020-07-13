@@ -77,7 +77,7 @@ public class SealedTypeElementsTests extends TestCase {
 		}
 		if (preview)
 			options.add("--enable-preview");
-		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, false);
+		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, true);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));

@@ -70,11 +70,13 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 		assertNotNull("TypeElement for non sealed type should not be null", nonSealed);
 		assertNotNull("TypeElement for sealed type should not be null", sealed1);
 		Set<Modifier> modifiers = nonSealed.getModifiers();
-		assertTrue("should contain modifier \'non-sealed\'", modifiers.contains(non_Sealed));
+		if (!isBinaryMode)
+			assertTrue("should contain modifier \'non-sealed\'", modifiers.contains(non_Sealed));
 		assertFalse("should not contain modifier \'sealed\'", modifiers.contains(sealed));
 		modifiers = sealed1.getModifiers();
 		assertTrue("should contain modifier \'sealed\'", modifiers.contains(sealed));
-		assertFalse("should not contain modifier \'non-sealed\'", modifiers.contains(non_Sealed));
+		if (!isBinaryMode)
+			assertFalse("should not contain modifier \'non-sealed\'", modifiers.contains(non_Sealed));
 	}
 	// Test getPermittedSubclasses()
 	public void test002() {
