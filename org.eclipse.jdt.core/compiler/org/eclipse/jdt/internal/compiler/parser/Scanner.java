@@ -747,96 +747,100 @@ private char[] normalize(char[] content) {
 // treat all the white space and line endings
 private boolean getLineContent(StringBuilder result, char[] line, int start, int end, boolean merge, boolean lastLine) {
 	int lastPointer = 0;
-	for(int i = start; i < end; i++) {
+	for(int i = start; i < end;) {
 		char c = line[i];
-		if (c == '\\') {
-			if (i < end) {
-				if (lastPointer == i) {
-					lastPointer = i+1;
-				} else {
-					result.append(CharOperation.subarray(line, lastPointer == 0 ? start : lastPointer+1, i));
-				}
-				switch (line[++i]) {
-					case '\\' :
-						result.append('\\');
-						if (i == end)
-							merge = false;
-						//i = lastPointer;
-						lastPointer = i;
-						break;
-					case 's' :
-						result.append(' ');
-						lastPointer = i;
-						break;
-					case 'n' :
-						result.append('\n');
-						lastPointer = i;
-						break;
-					case 'r' :
-						result.append('\r');
-						lastPointer = i;
-						break;
-					case 'f' :
-						result.append('\f');
-						lastPointer = i;
-						break;
-					default :
-						// Direct copy from scanEscapeCharacter
-						int pos = i;
-						char ch = line[pos];
-						int number = ScannerHelper.getHexadecimalValue(ch);
-						if (number >= 0 && number <= 7) {
-							boolean zeroToThreeNot = number > 3;
-							try {
-								if (ScannerHelper.isDigit(ch = line[++pos])) {
-									int digit = ScannerHelper.getHexadecimalValue(ch);
-									if (digit >= 0 && digit <= 7) {
-										number = (number * 8) + digit;
-										if (ScannerHelper.isDigit(ch = line[++pos])) {
-											if (zeroToThreeNot) {
-												// has read \NotZeroToThree OctalDigit Digit --> ignore last character
-											} else {
-												digit = ScannerHelper.getHexadecimalValue(ch);
-												if (digit >= 0 && digit <= 7){ // has read \ZeroToThree OctalDigit OctalDigit
-													number = (number * 8) + digit;
-												} else {
-													// has read \ZeroToThree OctalDigit NonOctalDigit --> ignore last character
-												}
-											}
+		if (c != '\\') {
+			i++;
+			continue;
+		}
+		if (i < end) {
+			if (lastPointer + 1 <= i) {
+				result.append(CharOperation.subarray(line, lastPointer == 0 ? start : lastPointer, i));
+			}
+			char next = line[++i];
+			switch (next) {
+				case '\\' :
+					result.append('\\');
+					if (i == end)
+						merge = false;
+					break;
+				case 's' :
+					result.append(' ');
+					break;
+				case 'b' :
+					result.append('\b');
+					break;
+				case 'n' :
+					result.append('\n');
+					break;
+				case 'r' :
+					result.append('\r');
+					break;
+				case 't' :
+					result.append('\t');
+					break;
+				case 'f' :
+					result.append('\f');
+					break;
+				default :
+					// Direct copy from scanEscapeCharacter
+					int pos = i + 1;
+					int number = ScannerHelper.getHexadecimalValue(next);
+					if (number >= 0 && number <= 7) {
+						boolean zeroToThreeNot = number > 3;
+						try {
+							if (ScannerHelper.isDigit(next = line[pos])) {
+								pos++;
+								int digit = ScannerHelper.getHexadecimalValue(next);
+								if (digit >= 0 && digit <= 7) {
+									number = (number * 8) + digit;
+									if (ScannerHelper.isDigit(next = line[pos])) {
+										pos++;
+										if (zeroToThreeNot) {
+											// has read \NotZeroToThree OctalDigit Digit --> ignore last character
 										} else {
-											// has read \OctalDigit NonDigit--> ignore last character
+											digit = ScannerHelper.getHexadecimalValue(next);
+											if (digit >= 0 && digit <= 7){ // has read \ZeroToThree OctalDigit OctalDigit
+												number = (number * 8) + digit;
+											} else {
+												// has read \ZeroToThree OctalDigit NonOctalDigit --> ignore last character
+											}
 										}
 									} else {
-										// has read \OctalDigit NonOctalDigit--> ignore last character
+										// has read \OctalDigit NonDigit--> ignore last character
 									}
 								} else {
-									// has read \OctalDigit --> ignore last character
+									// has read \OctalDigit NonOctalDigit--> ignore last character
 								}
-							} catch (InvalidInputException e) {
-								// Unlikely as this has already been processed in scanForStringLiteral()
+							} else {
+								// has read \OctalDigit --> ignore last character
 							}
-							if (number < 255) {
-								ch = (char) number;
-								//replaceEscapedChar(result, line, start, end, i, lastPointer, ch);
-							}
-							result.append(ch);
-							lastPointer = i = pos -1;
-						} else {
-							// Dealing with just '\'
-							result.append(c);
-							lastPointer = --i;
+						} catch (InvalidInputException e) {
+							// Unlikely as this has already been processed in scanForStringLiteral()
 						}
-				}
+						if (number < 255) {
+							next = (char) number;
+						}
+						result.append(next);
+						lastPointer = i = pos;
+						continue;
+					} else {
+						// Dealing with just '\'
+						result.append(c);
+						lastPointer = i;
+						continue;
+					}
 			}
+			lastPointer = ++i;
 		}
 	}
 	end = merge ? end : end >= line.length ? end : end + 1;
 	char[] chars = lastPointer == 0 ?
 			CharOperation.subarray(line, start, end) :
-				CharOperation.subarray(line, lastPointer + 1, end);
+				CharOperation.subarray(line, lastPointer, end);
 	// The below check is because CharOperation.subarray tend to return null when the
 	// boundaries produce a zero sized char[]
-	if (chars != null)
+	if (chars != null && chars.length > 0)
 		result.append(chars);
 	return (!merge && !lastLine);
 }
@@ -2123,28 +2127,28 @@ private int scanForStringLiteral() throws InvalidInputException {
 							int oldPos = this.currentPosition - 1;
 							scanEscapeCharacter();
 							switch (this.currentCharacter) {
-								case ' ':
-									if (this.withoutUnicodePtr == 0) {
-										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+//								case ' ':
+//									if (this.withoutUnicodePtr == 0) {
+//										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+//									}
+//									// Kludge, retain the '\' and also
+//									// when scanEscapeCharacter reads space in form of \040 and
+//									// set the next character to 's'
+//									// so, we get an escaped scape, i.e. \s, which will later be
+//									// replaced by space
+//									unicodeStore('\\');
+//									this.currentCharacter = 's';
+//									break;
+								default:
+									if (ScannerHelper.isWhitespace(this.currentCharacter)) {
+										if (this.withoutUnicodePtr == 0) {
+											unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+										}
+										unicodeStore('\\');
+										this.currentPosition = oldPos;
+										this.currentCharacter = this.source[this.currentPosition];
+										break outer;
 									}
-									// Kludge, retain the '\' and also
-									// when scanEscapeCharacter reads space in form of \040 and
-									// set the next character to 's'
-									// so, we get an escaped scape, i.e. \s, which will later be
-									// replaced by space
-									unicodeStore('\\');
-									this.currentCharacter = 's';
-									break;
-								case '\r':
-								case '\n':
-									if (this.withoutUnicodePtr == 0) {
-										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
-									}
-									unicodeStore('\\');
-									this.currentPosition = oldPos;
-									this.currentCharacter = this.source[this.currentPosition];
-									break outer;
-
 							}
 					}
 					if (this.withoutUnicodePtr != 0) {

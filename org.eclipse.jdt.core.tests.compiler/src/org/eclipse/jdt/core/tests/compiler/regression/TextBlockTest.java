@@ -37,7 +37,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "testCompliances_14" };
+//		TESTS_NAMES = new String[] { "testCompliances_13" };
 	}
 
 	public static Class<?> testClass() {
@@ -57,13 +57,15 @@ public class TextBlockTest extends AbstractRegressionTest {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.DISABLED : CompilerOptions.DISABLED);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
-		runConformTest(testFiles, expectedOutput, customOptions, vmArguments, new JavacTestOptions("-source 14 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, customOptions, vmArguments, new JavacTestOptions("-source 15 "));
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
+		runConformTest(true, testFiles, null, expectedOutput, null, new JavacTestOptions("-source 15"));
 	}
 	public void test001() {
 		runNegativeTest(
@@ -645,6 +647,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	}
 	public void test024() {
 		runConformTest(
+				true,
 				new String[] {
 						"Main.java",
 						"@SuppressWarnings(\"preview\")\n" +
@@ -672,6 +675,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"	}\n" +
 						"}"
 				},
+				null,
 				"public class XYZ {\n" +
 				"	public static String textb = \"\"\"\n" +
 				"			abc\\\"\"\"def\"\n" +
@@ -680,7 +684,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"		System.out.println(textb);\n" +
 				"	}\n" +
 				"}",
-				null);
+				null,
+				JavacTestOptions.DEFAULT);
 	}
 	public void test025() {
 		runNegativeTest(
@@ -1248,6 +1253,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 		copy.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
 		copy.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
 		copy.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+		copy.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		runNegativeTest(
 				new String[] {
 						"X.java",
@@ -1268,6 +1274,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"----------\n",
 				null,
 				true,
+				new String[] {"-source 14 "},
 				copy);
 	}
 	public void testBug562460() {
@@ -1283,7 +1290,86 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}\n"
 				},
 				"true",
-				getCompilerOptions(),
-				new String[] {"--enable-preview"});
+				getCompilerOptions());
+	}
+	public void testCompliances_15() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						"	\\baa\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		print(textb.toCharArray());\n" +
+						"	}\n" +
+						"   private static void print(char[] val) {\n" +
+						"        for (char c : val) {\n" +
+						"            System.out.print((int)c + \",\");\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"8,97,97,",
+				getCompilerOptions());
+	}
+	public void testCompliances_16() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						"	\\baa\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		print(textb.toCharArray());\n" +
+						"	}\n" +
+						"   private static void print(char[] val) {\n" +
+						"        for (char c : val) {\n" +
+						"            System.out.print((int)c + \",\");\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"8,97,97,",
+				getCompilerOptions());
+	}
+	public void testCompliances_17() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						"\\t\\baa\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		print(textb.toCharArray());\n" +
+						"	}\n" +
+						"   private static void print(char[] val) {\n" +
+						"        for (char c : val) {\n" +
+						"            System.out.print((int)c + \",\");\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"9,8,97,97,",
+				getCompilerOptions());
+	}
+	public void testCompliances_18() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						"\\013\\baa\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		print(textb.toCharArray());\n" +
+						"	}\n" +
+						"   private static void print(char[] val) {\n" +
+						"        for (char c : val) {\n" +
+						"            System.out.print((int)c + \",\");\n" +
+						"        }\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"11,8,97,97,",
+				getCompilerOptions());
 	}
 }
