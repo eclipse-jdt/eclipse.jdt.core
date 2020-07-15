@@ -400,6 +400,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public IFieldInfo[] getFieldInfos() {
 		return this.fields;
 	}
+	/*
+	 * @see IClassFileReader#getFieldInfos()
+	 */
 
 	/**
 	 * @see IClassFileReader#getFieldsCount()

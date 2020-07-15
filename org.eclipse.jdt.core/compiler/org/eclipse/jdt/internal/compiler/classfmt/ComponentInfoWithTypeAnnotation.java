@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 public final class ComponentInfoWithTypeAnnotation extends ComponentInfoWithAnnotation {
 	private TypeAnnotationInfo[] typeAnnotations;
 
-ComponentInfoWithTypeAnnotation(ComponentInfo info, AnnotationInfo[] annos, TypeAnnotationInfo[] typeAnnos) {
+ComponentInfoWithTypeAnnotation(RecordComponentInfo info, AnnotationInfo[] annos, TypeAnnotationInfo[] typeAnnos) {
 	super(info, annos);
 	this.typeAnnotations = typeAnnos;
 }

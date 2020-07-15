@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,7 +21,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
-import org.eclipse.jdt.internal.compiler.env.IComponent;
+import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 /*
@@ -26,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
  * it is too early to disturb the field_info code. To be done if this gets standardized.
  */
 @SuppressWarnings("rawtypes")
-public class ComponentInfo extends ClassFileStruct implements IComponent, Comparable {
+public class RecordComponentInfo extends ClassFileStruct implements IRecordComponent, Comparable {
 	protected int attributeBytes;
 	protected char[] descriptor;
 	protected char[] name;
@@ -35,8 +40,8 @@ public class ComponentInfo extends ClassFileStruct implements IComponent, Compar
 	protected long tagBits;
 	protected long version;
 
-public static ComponentInfo createComponent(byte classFileBytes[], int offsets[], int offset, long version) {
-	ComponentInfo componentInfo = new ComponentInfo(classFileBytes, offsets, offset, version);
+public static RecordComponentInfo createComponent(byte classFileBytes[], int offsets[], int offset, long version) {
+	RecordComponentInfo componentInfo = new RecordComponentInfo(classFileBytes, offsets, offset, version);
 
 	int attributesCount = componentInfo.u2At(4);
 	int readOffset = 6;
@@ -104,7 +109,7 @@ public static ComponentInfo createComponent(byte classFileBytes[], int offsets[]
  * @param offset int
  * @param version class file version
  */
-protected ComponentInfo (byte classFileBytes[], int offsets[], int offset, long version) {
+protected RecordComponentInfo (byte classFileBytes[], int offsets[], int offset, long version) {
 	super(classFileBytes, offsets, offset);
 	this.signatureUtf8Offset = -1;
 	this.version = version;
@@ -156,14 +161,14 @@ TypeAnnotationInfo[] decodeTypeAnnotations(int offset, boolean runtimeVisible) {
 
 @Override
 public int compareTo(Object o) {
-	return new String(getName()).compareTo(new String(((ComponentInfo) o).getName()));
+	return new String(getName()).compareTo(new String(((RecordComponentInfo) o).getName()));
 }
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof ComponentInfo)) {
+	if (!(o instanceof RecordComponentInfo)) {
 		return false;
 	}
-	return CharOperation.equals(getName(), ((ComponentInfo) o).getName());
+	return CharOperation.equals(getName(), ((RecordComponentInfo) o).getName());
 }
 @Override
 public int hashCode() {
@@ -265,5 +270,17 @@ protected void toStringContent(StringBuffer buffer) {
 		.append(' ')
 		.append('}')
 		.toString();
+}
+
+@Override
+public Constant getConstant() {
+	// Doesn't really apply to a record component.
+	return null;
+}
+
+@Override
+public int getModifiers() {
+	// Doesn't really apply to a record component.
+	return 0;
 }
 }

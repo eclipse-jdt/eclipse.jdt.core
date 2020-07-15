@@ -246,30 +246,29 @@ public void enterConstructor(MethodInfo methodInfo) {
 	enterAbtractMethod(methodInfo);
 }
 public void enterField(FieldInfo fieldInfo) {
-	this.currentType.addField(
-		this.currentField =
-			new SourceField(
-				fieldInfo.declarationStart,
-				fieldInfo.modifiers,
-				fieldInfo.type,
-				fieldInfo.name,
-				fieldInfo.nameSourceStart,
-				fieldInfo.nameSourceEnd,
-				this.source));
-
-}
-public void enterRecordComponent(RecordComponentInfo compInfo) {
-	this.currentType.addRecordComponent(
-		this.currentRecordComp =
-			new SourceField(
-					compInfo.declarationStart,
-					compInfo.modifiers,
-					compInfo.type,
-					compInfo.name,
-					compInfo.nameSourceStart,
-					compInfo.nameSourceEnd,
-					this.source));
-
+	if (fieldInfo.isRecordComponent) {
+		this.currentType.addRecordComponent(
+				this.currentRecordComp =
+					new SourceField(
+							fieldInfo.declarationStart,
+							fieldInfo.modifiers,
+							fieldInfo.type,
+							fieldInfo.name,
+							fieldInfo.nameSourceStart,
+							fieldInfo.nameSourceEnd,
+							this.source));
+	} else {
+		this.currentType.addField(
+				this.currentField =
+				new SourceField(
+						fieldInfo.declarationStart,
+						fieldInfo.modifiers,
+						fieldInfo.type,
+						fieldInfo.name,
+						fieldInfo.nameSourceStart,
+						fieldInfo.nameSourceEnd,
+						this.source));
+	}
 }
 public void enterInitializer(int declarationSourceStart, int modifiers) {
 	this.currentType.addField(

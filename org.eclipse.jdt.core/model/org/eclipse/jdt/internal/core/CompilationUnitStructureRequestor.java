@@ -243,7 +243,7 @@ protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
 	String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
 	return new SourceField(parent, fieldName);
 }
-protected SourceField createRecordComponent(JavaElement parent, RecordComponentInfo compInfo) {
+protected SourceField createRecordComponent(JavaElement parent, FieldInfo compInfo) {
 	String name = JavaModelManager.getJavaModelManager().intern(new String(compInfo.name));
 	SourceField field = new SourceField(parent, name) {
 		@Override
@@ -359,7 +359,11 @@ public void enterField(FieldInfo fieldInfo) {
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	SourceField handle = null;
 	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		handle = createField(parentHandle, fieldInfo);
+		if (fieldInfo.isRecordComponent) {
+			handle = createRecordComponent(parentHandle, fieldInfo);
+		} else {
+			handle = createField(parentHandle, fieldInfo);
+		}
 	}
 	else {
 		Assert.isTrue(false); // Should not happen
@@ -440,6 +444,7 @@ private SourceMethodElementInfo createMethodInfo(MethodInfo methodInfo, SourceMe
 	} else {
 		info = elements.length == 0 ? new SourceMethodInfo() : new SourceMethodWithChildrenInfo(elements);
 	}
+	info.isCanonicalConstructor = methodInfo.isCanonicalConstr;
 	info.setSourceRangeStart(methodInfo.declarationStart);
 	int flags = methodInfo.modifiers;
 	info.setNameSourceStart(methodInfo.nameSourceStart);
@@ -735,7 +740,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 @Override
 public void exitRecordComponent(int declarationEnd, int declarationSourceEnd) {
 	JavaElement handle = (JavaElement) this.handleStack.peek();
-	RecordComponentInfo compInfo = (RecordComponentInfo) this.infoStack.peek();
+	FieldInfo compInfo = (FieldInfo) this.infoStack.peek();
 	IJavaElement[] elements = getChildren(compInfo);
 	SourceFieldElementInfo info = elements.length == 0 ? new SourceFieldElementInfo() : new SourceFieldWithChildrenInfo(elements);
 	info.isRecordComponent = true;
@@ -951,24 +956,5 @@ protected Object getMemberValue(org.eclipse.jdt.internal.core.MemberValuePair me
 		memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
 		return null;
 	}
-}
-@Override
-public void enterRecordComponent(RecordComponentInfo recordComponentInfo) {
-	TypeInfo parentInfo = (TypeInfo) this.infoStack.peek();
-	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	SourceField handle = null;
-	if (parentHandle.getElementType() == IJavaElement.TYPE) {
-		handle = createRecordComponent(parentHandle, recordComponentInfo);
-	}
-	else {
-		Assert.isTrue(false); // Should not happen
-	}
-	resolveDuplicates(handle);
-
-	addToChildren(parentInfo, handle);
-	parentInfo.childrenCategories.put(handle, recordComponentInfo.categories);
-
-	this.infoStack.push(recordComponentInfo);
-	this.handleStack.push(handle);
 }
 }

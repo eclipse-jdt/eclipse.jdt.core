@@ -66,6 +66,11 @@ char[] getEnclosingTypeName();
 
 IBinaryField[] getFields();
 /**
+ * Answer the receiver's record components or null if the array is empty.
+ */
+
+IRecordComponent[] getRecordComponents();
+/**
  * Answer the module to which this type belongs.
  * {@code null} if the type is associated to the unnamed module.
  *
@@ -164,6 +169,12 @@ boolean isAnonymous();
  * false otherwise
  */
 boolean isLocal();
+
+/**
+ * Answer true if the receiver is a record.
+ * false otherwise
+ */
+boolean isRecord();
 
 /**
  * Answer true if the receiver is a member class.

@@ -180,10 +180,6 @@ public class SourceElementRequestorAdapter implements ISourceElementRequestor {
 	}
 
 	@Override
-	public void enterRecordComponent(RecordComponentInfo recordComponentInfo) {
-		// default implementation: do nothing
-	}
-	@Override
 	public void enterType(TypeInfo typeInfo) {
 		// default implementation: do nothing
 	}

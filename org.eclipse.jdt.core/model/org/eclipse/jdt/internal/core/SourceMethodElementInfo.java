@@ -49,6 +49,8 @@ public abstract class SourceMethodElementInfo extends AnnotatableInfo implements
 	 */
 	protected ITypeParameter[] typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
 
+	protected boolean isCanonicalConstructor;
+
 @Override
 public char[][] getArgumentNames() {
 	return this.argumentNames;
@@ -86,6 +88,9 @@ public char[][] getTypeParameterNames() {
 }
 @Override
 public abstract boolean isConstructor();
+public boolean isCanonicalConstructor() {
+	return this.isCanonicalConstructor;
+}
 public abstract boolean isAnnotationMethod();
 protected void setArgumentNames(char[][] names) {
 	this.argumentNames = names;

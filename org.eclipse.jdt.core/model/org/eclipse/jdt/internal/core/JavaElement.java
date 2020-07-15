@@ -446,7 +446,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			for (int i = children.length-1; i >= 0; i--) {
 				IJavaElement aChild = children[i];
 				if (aChild instanceof SourceRefElement) {
-					SourceRefElement child = (SourceRefElement) children[i];
+					SourceRefElement child = (SourceRefElement) aChild;
 					ISourceRange range = child.getSourceRange();
 					int start = range.getOffset();
 					int end = start + range.getLength();

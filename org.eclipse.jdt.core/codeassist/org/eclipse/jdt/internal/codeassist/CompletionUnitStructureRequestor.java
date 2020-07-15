@@ -94,7 +94,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
 		String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
 		AssistSourceField field = new AssistSourceField(parent, fieldName, this.bindingCache, this.newElements);
-		FieldDeclaration decl = (fieldInfo.node);
+		FieldDeclaration decl = (FieldDeclaration) (fieldInfo.node);
 		if (decl.binding != null) {
 			this.bindingCache.put(field, decl.binding);
 			this.elementCache.put(decl.binding, field);
@@ -104,7 +104,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 		return field;
 	}
 	@Override
-	protected SourceField createRecordComponent(JavaElement parent, RecordComponentInfo compInfo) {
+	protected SourceField createRecordComponent(JavaElement parent, FieldInfo compInfo) {
 		String compName = JavaModelManager.getJavaModelManager().intern(new String(compInfo.name));
 		SourceField comp = new AssistSourceField(parent, compName, this.bindingCache, this.newElements) {
 			@Override
@@ -112,7 +112,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 				return true;
 			}
 		};
-		RecordComponent decl = (compInfo.node);
+		RecordComponent decl = (RecordComponent) (compInfo.node);
 		if (decl.binding != null) {
 			this.bindingCache.put(compName, decl.binding);
 			this.elementCache.put(decl.binding, compName);

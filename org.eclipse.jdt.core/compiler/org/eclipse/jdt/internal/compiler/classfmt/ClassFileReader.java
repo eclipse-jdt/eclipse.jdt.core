@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -90,7 +91,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[][] nestMembers;
 	private boolean isRecord;
 	private int recordComponentsCount;
-	private ComponentInfo[] recordComponents;
+	private RecordComponentInfo[] recordComponents;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -521,9 +522,9 @@ private void decodeRecords(int readOffset, char[] attributeName) {
 		this.recordComponentsCount = u2At(offset);
 		if (this.recordComponentsCount != 0) {
 			offset += 2;
-			this.recordComponents = new ComponentInfo[this.recordComponentsCount];
+			this.recordComponents = new RecordComponentInfo[this.recordComponentsCount];
 			for (int j = 0; j < this.recordComponentsCount; j++) {
-				ComponentInfo component = ComponentInfo.createComponent(this.reference, this.constantPoolOffsets, offset, this.version);
+				RecordComponentInfo component = RecordComponentInfo.createComponent(this.reference, this.constantPoolOffsets, offset, this.version);
 				this.recordComponents[j] = component;
 				offset += component.sizeInBytes();
 			}
@@ -1452,7 +1453,13 @@ public String toString() {
 	return out.toString();
 }
 
+@Override
 public boolean isRecord() {
 	return this.isRecord;
+}
+
+@Override
+public IRecordComponent[] getRecordComponents() {
+	return this.recordComponents;
 }
 }

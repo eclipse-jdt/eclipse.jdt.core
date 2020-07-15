@@ -915,24 +915,6 @@ public class SourceMapper
 			addCategories(field, fieldInfo.categories);
 		}
 	}
-	/**
-	 * @see ISourceElementRequestor
-	 */
-	@Override
-	public void enterRecordComponent(RecordComponentInfo compInfo) {
-		if (this.typeDepth >= 0) {
-			this.memberDeclarationStart[this.typeDepth] = compInfo.declarationStart;
-			this.memberNameRange[this.typeDepth] =
-				new SourceRange(compInfo.nameSourceStart, compInfo.nameSourceEnd - compInfo.nameSourceStart + 1);
-			String fieldName = new String(compInfo.name);
-			this.memberName[this.typeDepth] = fieldName;
-
-			// categories
-			IType currentType = this.types[this.typeDepth];
-			IField field = currentType.getRecordComponent(fieldName);
-			addCategories(field, compInfo.categories);
-		}
-	}
 
 	/**
 	 * @see ISourceElementRequestor
