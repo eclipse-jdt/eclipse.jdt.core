@@ -8862,6 +8862,14 @@ public void testBug185452() throws CoreException {
 		"lib/b89848 b89848\n" +
 		"lib/b95152.jar  [No source]\n" +
 		"lib/b95152.jar b95152 [No source]\n" +
+		"lib/permit_reference_in_nonsource_jar.jar  [No source]\n" +
+		"lib/permit_reference_in_nonsource_jar.jar pack [No source]\n" +
+		"lib/permit_reference_in_source_jar.jar  [No source]\n" +
+		"lib/permit_reference_in_source_jar.jar pack [No source]\n" +
+		"lib/record_reference_in_nonsource_jar.jar  [No source]\n" +
+		"lib/record_reference_in_nonsource_jar.jar pack [No source]\n" +
+		"lib/record_reference_in_source_jar.jar  [No source]\n" +
+		"lib/record_reference_in_source_jar.jar pack [No source]\n" +
 		"lib/test75816.jar  [No source]\n" +
 		"lib/test81556.jar  [No source]\n" +
 		"lib/test81556.jar b81556 [No source]\n" +

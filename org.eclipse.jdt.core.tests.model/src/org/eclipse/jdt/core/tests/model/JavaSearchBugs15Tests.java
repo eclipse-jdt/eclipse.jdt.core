@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -1322,26 +1323,83 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 				project1.open(null);
 				createFolder("/JavaSearchBugs15/src/pack11");
 				String fileContent = "package pack11;\n" +
-						"public sealed class X11 permits X12{\n" +
+						"public sealed class X11_ permits X12_{\n" +
 						"}\n";
 				String fileContent2 = "package pack11;\n" +
-						"final public class /*here*/X12 extends X11 {\n" +
+						"final public class /*here*/X12_ extends X11_ {\n" +
 						"}\n";
 
-				createFile("/JavaSearchBugs15/src/pack11/X11.java", fileContent);
-				createFile("/JavaSearchBugs15/src/pack11/X12.java",fileContent2);
-				ICompilationUnit unit = getCompilationUnit("/JavaSearchBugs15/src/pack11/X12.java");
-				String x11 = "/*here*/X12";
+				createFile("/JavaSearchBugs15/src/pack11/X11_.java", fileContent);
+				createFile("/JavaSearchBugs15/src/pack11/X12_.java",fileContent2);
+				ICompilationUnit unit = getCompilationUnit("/JavaSearchBugs15/src/pack11/X12_.java");
+				String x11 = "/*here*/X12_";
 				int start = fileContent2.indexOf(x11);
 				IJavaElement[] elements = unit.codeSelect(start, x11.length());
 				assertTrue(elements.length ==1);
 				IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 				search(elements[0].getElementName(), TYPE, PERMITTYPE_TYPE_REFERENCE, EXACT_RULE, scope);
-				assertSearchResults("src/pack11/X11.java pack11.X11 [X12] EXACT_MATCH");
+				assertSearchResults("src/pack11/X11_.java pack11.X11_ [X12_] EXACT_MATCH");
 			} finally {
 				deleteProject(project1);
 			}
 		}
+	  public void testRecordReferenceInNonSourceJar() throws CoreException {
+
+		 		IType typeRecord = getClassFile("JavaSearchBugs", "lib/record_reference_in_nonsource_jar.jar", "pack", "rr.class").getType();//record
+		 		search(
+		 			typeRecord,
+		 			ALL_OCCURRENCES,
+		 			getJavaSearchScope(),
+		 			this.resultCollector);
+		 		assertSearchResults(
+		 			"lib/record_reference_in_nonsource_jar.jar pack.rr [No source] EXACT_MATCH",
+		 			this.resultCollector);
+		 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=565180 ( reason for 1 result instead of 3)
+		}
+
+	 	public void testRecordReferenceInSourceJar() throws CoreException {
+
+	 		IType typeRecord = getClassFile("JavaSearchBugs", "lib/record_reference_in_source_jar.jar", "pack", "rr2.class").getType();//record
+	 		search(
+	 			typeRecord,
+	 			ALL_OCCURRENCES,
+	 			getJavaSearchScope(),
+	 			this.resultCollector);
+	 		assertSearchResults(
+	 				"lib/record_reference_in_source_jar.jar pack.c1.ob EXACT_MATCH\n" +
+	 				"lib/record_reference_in_source_jar.jar pack.c1.ob EXACT_MATCH\n" +
+	 				"lib/record_reference_in_source_jar.jar pack.rr2 EXACT_MATCH",
+	 			this.resultCollector);
+	 	}
+
+	 	public void testPermitReferenceInNonSourceJar() throws CoreException {
+
+	 		IType myClass = getClassFile("JavaSearchBugs", "lib/permit_reference_in_nonsource_jar.jar", "pack", "PermitClass.class").getType();
+	 		search(
+	 			myClass,
+	 			ALL_OCCURRENCES,
+	 			getJavaSearchScope(),
+	 			this.resultCollector);
+	 		assertSearchResults(
+	 				"lib/permit_reference_in_nonsource_jar.jar pack.PermitClass [No source] EXACT_MATCH",
+	 			this.resultCollector);
+
+	 	}
+
+	 	public void testPermitReferenceInSourceJar() throws CoreException {
+
+	 		IType myClass = getClassFile("JavaSearchBugs", "lib/permit_reference_in_source_jar.jar", "pack", "PermitClass2.class").getType();
+	 		search(
+	 			myClass,
+	 			ALL_OCCURRENCES,
+	 			getJavaSearchScope(),
+	 			this.resultCollector);
+	 		assertSearchResults(
+	 				"lib/permit_reference_in_source_jar.jar pack.MyClass2 EXACT_MATCH\n" +
+	 				"lib/permit_reference_in_source_jar.jar pack.PermitClass2 EXACT_MATCH",
+	 			this.resultCollector);
+
+	 	}
 
 
 }
