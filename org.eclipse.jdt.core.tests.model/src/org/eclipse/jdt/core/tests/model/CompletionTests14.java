@@ -341,4 +341,50 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("", requestor.getResults());
 	}
+	public void testBug564828_1() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public reco {\n" +
+				"}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "reco";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"record[RESTRICTED_IDENTIFIER]{record, null, null, record, null, 49}",
+				requestor.getResults());
+
+	}
+
+	//check if local variable record shows up
+	public void testBug564828_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+				"private void method(){\n" +
+				"int record;\n" +
+				"{\n" +
+				" /*here*/rec\n" +
+				"}\n" +
+				"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/*here*/rec";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Record[TYPE_REF]{Record, java.lang, Ljava.lang.Record;, null, null, 42}\n"+
+				"record[LOCAL_VARIABLE_REF]{record, null, I, record, null, 52}",
+				requestor.getResults());
+
+	}
 }
