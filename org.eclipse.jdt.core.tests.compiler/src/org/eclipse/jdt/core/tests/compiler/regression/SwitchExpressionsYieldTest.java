@@ -5417,4 +5417,22 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10");
 	}
+	public void testBug547193_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  public static void main(String[] args) {\n"+
+				"    System.out.println(switch (0) {default -> {\n"+
+				"      try {\n"+
+				"        yield 1;\n"+
+				"      } catch (Exception ex) {\n"+
+				"        yield 2;\n"+
+				"      }\n"+
+				"    }});\n"+
+				"  }\n"+
+				"}"
+			},
+			"1");
+	}
 }
