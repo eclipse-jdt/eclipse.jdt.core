@@ -1609,6 +1609,11 @@ public void testSubword_caps_boundaries2() {
 	int[] regions = SearchPattern.getMatchingRegions("ini", name, SearchPattern.R_SUBWORD_MATCH);
 	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
 }
+public void testSubword_caps_boundaries3() {
+	String name = "CASE_INSENSITIVE_ORDER";
+	int[] regions = SearchPattern.getMatchingRegions("sensitive", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
+}
 public void testSubword_caps_backtracking() {
 	String name = "LIST_LISTENER";
 	int[] regions = SearchPattern.getMatchingRegions("listener", name, SearchPattern.R_SUBWORD_MATCH);
@@ -1618,5 +1623,25 @@ public void testSubword_snakeCase() {
 	String name = "add_list_listener";
 	int[] regions = SearchPattern.getMatchingRegions("addlistener", name, SearchPattern.R_SUBWORD_MATCH);
 	assertEquals("Unexpected matching regions", "[add]_list_[listener]", printRegions(name, regions));
+}
+public void testSubword_mixedCamelCase1() {
+	String name = "IImportWizard";
+	int[] regions = SearchPattern.getMatchingRegions("import", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "I[Import]Wizard", printRegions(name, regions));
+}
+public void testSubword_mixedCamelCase2() {
+	String name = "HTMLTable";
+	int[] regions = SearchPattern.getMatchingRegions("table", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "HTML[Table]", printRegions(name, regions));
+}
+public void testSubword_mixedCamelCase3() {
+	String name = "CustomHTMLTable";
+	int[] regions = SearchPattern.getMatchingRegions("table", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "CustomHTML[Table]", printRegions(name, regions));
+}
+public void testSubword_mixedCamelCase4() {
+	String name = "ImportHTML";
+	int[] regions = SearchPattern.getMatchingRegions("html", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "Import[HTML]", printRegions(name, regions));
 }
 }

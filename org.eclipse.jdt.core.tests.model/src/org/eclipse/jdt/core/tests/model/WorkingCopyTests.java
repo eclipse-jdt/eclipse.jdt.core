@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.Test;
 
@@ -27,8 +28,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.team.core.RepositoryProvider;
 
 
-
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class WorkingCopyTests extends ModifyingResourceTests {
 	ICompilationUnit cu = null;
 	ICompilationUnit copy = null;
@@ -462,14 +461,14 @@ public void testGetPrimaryInnerType() {
 	assertTrue("Element is not a method", primary instanceof IType);
 	assertTrue("Element should exist", primary.exists());
 
-	Vector hierarchy = new Vector(5);
+	List<IJavaElement> hierarchy = new ArrayList<>(5);
 	IJavaElement parent= primary.getParent();
 	while (parent.getElementType() > IJavaElement.COMPILATION_UNIT) {
-		hierarchy.addElement(parent);
+		hierarchy.add(parent);
 		parent = parent.getParent();
 	}
-	hierarchy.addElement(parent);
-	assertTrue("Compilation Unit should not be a working copy", !((ICompilationUnit)hierarchy.lastElement()).isWorkingCopy());
+	hierarchy.add(parent);
+	assertTrue("Compilation Unit should not be a working copy", !((ICompilationUnit)hierarchy.get(hierarchy.size() - 1)).isWorkingCopy());
 }
 /**
  * Ensures that the primary method can be retrieved.

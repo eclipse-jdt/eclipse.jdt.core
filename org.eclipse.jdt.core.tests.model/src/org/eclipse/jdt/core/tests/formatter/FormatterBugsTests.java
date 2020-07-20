@@ -13059,7 +13059,7 @@ public void testBug220713() {
 /**
  * https://bugs.eclipse.org/558421 [formatter] Generate getter/setter creates unnecessary blank line
  */
-public void testBug() {
+public void testBug558421() {
 	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 1;
 	String source =
 		"public int getA() {\n" +
@@ -13193,6 +13193,37 @@ public void testBug563487c() {
 		"			bbbbbb();\n" +
 		"		});\n" +
 		"}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/565053 - [formatter] Parenthesis in "separate lines if wrapped": wrapping disruptions
+ */
+public void testBug565053a() {
+	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
+	this.formatterPrefs.page_width = 92;
+	formatSource(
+		"class Example {\n" +
+		"\n" +
+		"	List SUPPORTED_THINGS = asList(\n" +
+		"			new Thing(\n" +
+		"					\"rocodileaaadasgasgasgasgasgasgaaaaasgsgasgasgasgasfafghasfaa aaadad\"\n" +
+		"			), \"new Thing()\"\n" +
+		"	);\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/565053 - [formatter] Parenthesis in "separate lines if wrapped": wrapping disruptions
+ */
+public void testBug565053b() {
+	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
+	this.formatterPrefs.page_width = 100;
+	formatSource(
+		"class Example {\n" +
+		"\n" +
+		"	List SUPPORTED_THINGS = asList(\n" +
+		"			new Thing(\"rocodileaaadasgasgasgasgasgasgaaaaasgsgasgasgasgasfafghasfaa aaadad\")\n" +
+		"			\"new Thing()\"\n" +
+		"	);\n" +
 		"}");
 }
 }
