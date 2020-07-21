@@ -14,8 +14,11 @@
 package org.eclipse.jdt.internal.codeassist.impl;
 
 public interface RestrictedIdentifiers {
-	int COUNT = 1;
+	int COUNT = 4;
 
-    char[] RECORD = "record".toCharArray();//$NON-NLS-1$
+	char[] RECORD = "record".toCharArray();//$NON-NLS-1$
+	char[] SEALED = "sealed".toCharArray();//$NON-NLS-1$
+	char[] NON_SEALED = "non-sealed".toCharArray();//$NON-NLS-1$
+	char[] PERMITS = "permits".toCharArray();//$NON-NLS-1$
 
 }

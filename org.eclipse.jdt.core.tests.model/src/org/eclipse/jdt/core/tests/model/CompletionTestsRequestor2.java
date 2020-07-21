@@ -348,7 +348,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				break;
 			case CompletionProposal.KEYWORD :{
-				if(CharOperation.equals(proposal.getCompletion(), RestrictedIdentifiers.RECORD))
+				if(isRestrictedIdentifier(proposal.getCompletion()))
 						buffer.append("RESTRICTED_IDENTIFIER");
 					else
 						buffer.append("KEYWORD"); //$NON-NLS-1$
@@ -528,6 +528,18 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		return buffer;
 	}
 
+	private boolean isRestrictedIdentifier(char[] completion) {
+		if(CharOperation.equals(completion, RestrictedIdentifiers.RECORD))
+			return true;
+		if(CharOperation.equals(completion, RestrictedIdentifiers.SEALED))
+			return true;
+		if(CharOperation.equals(completion, RestrictedIdentifiers.NON_SEALED))
+			return true;
+		if(CharOperation.equals(completion, RestrictedIdentifiers.PERMITS))
+			return true;
+
+		return false;
+	}
 	protected CompletionProposal[] quickSort(CompletionProposal[] collection, int left, int right) {
 		int original_left = left;
 		int original_right = right;
