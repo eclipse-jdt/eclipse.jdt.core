@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564672"};
+//		TESTS_NAMES = new String[] { "testBug564672b"};
 	}
 
 	public static Class<?> testClass() {
@@ -5850,7 +5850,7 @@ public void testBug564672_052() {
 			"\n" +
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
-			"		List<String> messages = Arrays.asList(\"hello\", \"baeldung\", \"readers!\");\n" +
+			"		List<String> messages = Arrays.asList(\"hello\", \"java\", \"testers!\");\n" +
 			"		messages.forEach(record::length);\n" +
 			"		System.out.println(0);\n" +
 			"	}\n" +
@@ -5872,7 +5872,7 @@ public void testBug564672_053() {
 			"\n" +
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
-			"		List<String> messages = Arrays.asList(\"hello\", \"baeldung\", \"readers!\");\n" +
+			"		List<String> messages = Arrays.asList(\"hello\", \"java\", \"testers!\");\n" +
 			"		messages.stream().map(record::new).toArray(record[]::new);\n" +
 			"		System.out.println(0);\n" +
 			"	}\n" +
@@ -5889,5 +5889,1202 @@ public void testBug564672_053() {
 		"	                                           ^^^^^^^^\n" +
 		"\'record\' is a restricted identifier and hence not a valid type name\n" +
 		"----------\n");
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_001() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X extends record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n" +
+			"class record {}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_002() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X extends record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X extends record {\n" +
+		"	                ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_003() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X implements record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"interface record {}\n;"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_004() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X implements record {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	class X implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_005() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"  class record {}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_006() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_007() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_008() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_009() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Y extends record {\n"+
+			"}\n" +
+			"interface record {}\n" +
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_010() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface Y extends record {\n"+
+			"}\n" +
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_011() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_012() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_013() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Z {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"  class record {}\n" +
+			"}\n" +
+			"class X {\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_014() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  class Y extends record {\n"+
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_015() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Z {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"}\n" +
+			"class X {\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_016() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  class Y implements record {\n"+
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_017() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Z {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"  interface record {}\n" +
+			"}\n" +
+			"class X {\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_018() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface X {\n"+
+			"  interface Y extends record {\n"+
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_019() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static record a(int i, int j) {\n" +
+			"		record r=new record(i,j);\n" +
+			"		return r;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	static record a(int i, int j) {\n" +
+		"	       ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
+		"	^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
+		"	             ^^^^^^\n" +
+		"record cannot be resolved to a type\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_020() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	class record {}\n" +
+			"\n" +
+			"	static record a(int i, int j) {\n" +
+			"		record r = new X().new record();\n" +
+			"		return r;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_021() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	X() throws record {} \n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record extends Exception {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_022() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Y {\n" +
+			"	int a() throws record;\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record extends Exception {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_023() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	List<record> R = new ArrayList<record>();\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record{}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_024() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I<S> {\n" +
+			"	void print(S arg);\n" +
+			"}\n" +
+			"\n" +
+			"public class X implements I<record> {\n" +
+			"	public void print(record arg) {\n" +
+			"		System.out.println(arg);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_025() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y<record> {\n" +
+			"	void equal(record R) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_026() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y<record> {\n" +
+			"	Y(record R) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_027() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static record i;\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_028() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	record i = new record(0);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {\n" +
+			"	int i;\n" +
+			"	record (int i) {\n" +
+			"		this.i=i;\n" +
+			"	}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_029() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static int sum(record i, int param) {\n" +
+			"		return 1;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record{}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_030() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	X(record i, int param){\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record{}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_031() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" +
+			"	int sum(record i, int num);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record{}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_032() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"interface Greetings {\n" +
+				"  void greet(String head, String tail);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    Greetings g = (record, y) -> {\n" +
+				"      System.out.println(record + y);\n" +
+				"    };\n" +
+				"    g.greet(\"Hello, \", \"World!\");\n" +
+				"  }\n" +
+				"}\n",
+			},
+			"Hello, World!",
+			options
+		);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_033() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record {\n" +
+			"	int sum(record this, int i, int num) {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_034() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static Rec record;\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class Rec {}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_035() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int rec[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" +
+			"		String s=\"\";\n" +
+			"		List <record> recList= new ArrayList<>();\n" +
+			"		for (int i:rec) {\n" +
+			"			recList.add(new record(i));\n" +
+			"		}\n" +
+			"		for (Iterator<record> i =recList.iterator(); i.hasNext();) {\n" +
+			"			s=s+i.next()+\" \";\n" +
+			"		}\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record {\n" +
+			"	int i;\n" +
+			"	record (int i) {\n" +
+			"		this.i=i;\n" +
+			"	}\n" +
+			"	public String toString (){\n" +
+			"		return Integer.toString(i);\n" +
+			"	}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_036() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		int rec[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };\n" +
+			"		String s=\"\";\n" +
+			"		List <record> recList= new ArrayList<>();\n" +
+			"		for (int i:rec) {\n" +
+			"			recList.add(new record(i));\n" +
+			"		}\n" +
+			"		for (record i : recList) {\n" +
+			"			s=s+i+\" \";\n" +
+			"		}\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record {\n" +
+			"	int i;\n" +
+			"	record (int i) {\n" +
+			"		this.i=i;\n" +
+			"	}\n" +
+			"	public String toString (){\n" +
+			"		return Integer.toString(i);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_037() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try (record i = new record (0)){\n" +
+			"		} catch (Exception e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record implements AutoCloseable{\n" +
+			"	int i;\n" +
+			"	record (int i) {\n" +
+			"		this.i=i;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public void close() throws Exception {}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_038() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			throw new record();\n" +
+			"		} catch (record e) {\n" +
+			"			System.out.println(\"0\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record extends Exception {\n" +
+			"	private static final long serialVersionUID = 1L;\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_039() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"record Point(record x, int i) { }\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	record Point(record x, int i) { }\n" +
+		"	^^^^^^\n" +
+		"record is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_040() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Point {\n" +
+			"	<T> Point(T i) {\n" +
+			"	}\n" +
+			"	Point (int i, int j) {\n" +
+			"		<record> this(null);\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_041() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Point {\n" +
+			"	<T> Point(T i) {\n" +
+			"	}\n" +
+			"}\n" +
+			"class PointEx extends Point {\n" +
+			"	PointEx (int i, int j) {\n" +
+			"		<record> super(null);\n" +
+			"	}\n;" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_042() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y {\n" +
+			"	<T> void m1() {} \n" +
+			"	void m2() {\n" +
+			"		this.<record>m1();" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_043() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y{\n" +
+			"	<T> Y() {}\n" +
+			"	void a() {\n" +
+			"		System.out.println(\"1\");\n" +
+			"	}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new <record>Y().a();\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"1",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_044() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface Y{\n" +
+			"}\n" +
+			"\n" +
+			"class Z implements Y {\n" +
+			"	<T> Z() {\n" +
+			"		\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new <record>Z() {\n" +
+			"			void a() {\n" +
+			"				System.out.println(\"1\");\n" +
+			"			}\n" +
+			"		}.a();\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"1",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_045() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"class Y{" +
+			"	<T> Y() {\n" +
+			"	}" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new <record>Y() {\n" +
+			"			void a() {\n" +
+			"				System.out.println(\"1\");\n" +
+			"			}\n" +
+			"		}.a();\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}"
+		},
+		"1",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_046() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		record[] y= new record[3]; \n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}" +
+			"class record {}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_047() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StrRec s = new StrRec(\"Hello\");\n" +
+			"		record y = (record) s;\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"class record {\n" +
+			"}\n" +
+			"\n" +
+			"class StrRec extends record {\n" +
+			"	String s;\n" +
+			"\n" +
+			"	StrRec(String s) {\n" +
+			"		this.s = s;\n" +
+			"	}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_048() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		StrRec s=new StrRec(\"Hello\");\n" +
+			"		if (s instanceof record) { \n" +
+			"			System.out.println(1);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {}\n" +
+			"\n" +
+			"class StrRec extends record {\n" +
+			"	String s;\n" +
+			"\n" +
+			"	StrRec(String s) {\n" +
+			"		this.s = s;\n" +
+			"	}\n" +
+			"}"
+		},
+		"1",
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testBug564672b_049() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		List<String> messages = Arrays.asList(\"hello\", \"java\", \"testers!\");\n" +
+			"		\n" +
+			"		messages.stream().map(record::new).toArray(record[]::new);;\n" +
+			"		System.out.println(0);\n" +
+			"	}\n" +
+			"}\n" +
+			"class record {\n" +
+			"	String s;\n" +
+			"\n" +
+			"	record(String s) {\n" +
+			"		this.s = s;\n" +
+			"	}\n" +
+			"}"
+		},
+		"0",
+		options
+	);
 }
 }
