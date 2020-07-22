@@ -313,31 +313,6 @@ public void analyseCode(CompilationUnitScope unitScope) {
 }
 
 /**
- * returns true if an error is flagged, false if either no error was flagged
- * or only a warning was flagged.
- */
-public static boolean checkAndFlagType15NameErrors(char[] typeName, ASTNode node, Scope skope) {
-	boolean isPreviewEnabled = skope.compilerOptions().enablePreviewFeatures;
-	if (CharOperation.equals(typeName, TypeConstants.RECORD_RESTRICTED_IDENTIFIER)) {
-		if (skope.compilerOptions().sourceLevel >= ClassFileConstants.JDK15) {
-				skope.problemReporter().recordIsAReservedTypeName(node);
-				return isPreviewEnabled;
-		}
-	} else if (CharOperation.equals(typeName, TypeConstants.PERMITS)) {
-		if (skope.compilerOptions().sourceLevel >= ClassFileConstants.JDK15) {
-			skope.problemReporter().sealedPermitsIsReservedTypeName(node);
-			return isPreviewEnabled;
-		}
-	} else if (CharOperation.equals(typeName, TypeConstants.SEALED)) {
-		if (skope.compilerOptions().sourceLevel >= ClassFileConstants.JDK15) {
-			skope.problemReporter().sealedSealedIsReservedTypeName(node);
-			return isPreviewEnabled;
-		}
-	}
-	return false;
-}
-
-/**
  * Check for constructor vs. method with no return type.
  * Answers true if at least one constructor is defined
  */
@@ -1326,7 +1301,7 @@ public void resolve() {
 				this.scope.problemReporter().varIsReservedTypeName(this);
 			}
 		}
-		TypeDeclaration.checkAndFlagType15NameErrors(this.name, this, this.scope);
+		this.scope.problemReporter().validateRestrictedKeywords(this.name, this);
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0

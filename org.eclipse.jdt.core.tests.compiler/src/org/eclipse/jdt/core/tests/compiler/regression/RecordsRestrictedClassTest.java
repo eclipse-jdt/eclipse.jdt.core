@@ -742,7 +742,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	class record {\n" +
 			"	      ^^^^^^\n" +
-			"\'record\' is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 			"----------\n");
 	}
 	public void testBug550750_033() {
@@ -759,7 +759,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	class X<record> {\n" +
 			"	        ^^^^^^\n" +
-			"\'record\' is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 			"----------\n");
 	}
 	public void testBug550750_034() {
@@ -777,12 +777,12 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	public <record> void foo(record args){}\n" +
 			"	        ^^^^^^\n" +
-			"\'record\' is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	public <record> void foo(record args){}\n" +
 			"	                         ^^^^^^\n" +
-			"\'record\' is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 			"----------\n");
 	}
 	public void testBug550750_035() {
@@ -800,7 +800,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	public void foo(record args){}\n" +
 			"	                ^^^^^^\n" +
-			"\'record\' is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 			"----------\n");
 	}
 	public void testBug550750_036() {
@@ -826,7 +826,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 4)\n" +
 			"	I lambda = (record r) -> {};\n" +
 			"	            ^^^^^^\n" +
-			"\'record\' is a restricted identifier and hence not a valid type name\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 			"----------\n");
 	}
 	public void testBug550750_037() {
@@ -2383,7 +2383,7 @@ public void testBug558718_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
 		"	^^^^^^\n" +
-		"record is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 		"----------\n",
 		null,
 		true,
@@ -2404,7 +2404,7 @@ public void testBug558718_002() {
 	"1. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
 	"	^^^^^^\n" +
-	"Syntax error on token \"record\", @ expected\n" +
+	"The preview feature Records is only available with source level 15 and above\n" +
 	"----------\n" +
 	"2. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
@@ -4662,12 +4662,12 @@ public void testBug564672_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class X extends record {\n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	class record {}\n" +
 		"	      ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_002() {
@@ -4684,7 +4684,7 @@ public void testBug564672_002() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class X extends record {\n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_003() {
@@ -4702,12 +4702,12 @@ public void testBug564672_003() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class X implements record {\n" +
 		"	                   ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
 		"	interface record {}\n" +
 		"	          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_004() {
@@ -4724,7 +4724,7 @@ public void testBug564672_004() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class X implements record {\n" +
 		"	                   ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_005() {
@@ -4744,12 +4744,12 @@ public void testBug564672_005() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	class record {}\n" +
 		"	      ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_006() {
@@ -4768,7 +4768,7 @@ public void testBug564672_006() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_007() {
@@ -4788,12 +4788,12 @@ public void testBug564672_007() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	interface record {}\n" +
 		"	          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_008() {
@@ -4812,7 +4812,7 @@ public void testBug564672_008() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_009() {
@@ -4832,12 +4832,12 @@ public void testBug564672_009() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	interface record {}\n" +
 		"	          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_010() {
@@ -4856,7 +4856,7 @@ public void testBug564672_010() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_011() {
@@ -4876,12 +4876,12 @@ public void testBug564672_011() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	interface record {}\n" +
 		"	          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_012() {
@@ -4900,7 +4900,7 @@ public void testBug564672_012() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_013() {
@@ -4917,12 +4917,12 @@ public void testBug564672_013() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	class record {}\n" +
 		"	      ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_014() {
@@ -4938,7 +4938,7 @@ public void testBug564672_014() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_015() {
@@ -4955,12 +4955,12 @@ public void testBug564672_015() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	interface record {}\n" +
 		"	          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_016() {
@@ -4976,7 +4976,7 @@ public void testBug564672_016() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_017() {
@@ -4993,12 +4993,12 @@ public void testBug564672_017() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	interface record {}\n" +
 		"	          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_018() {
@@ -5014,7 +5014,7 @@ public void testBug564672_018() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_019() {
@@ -5035,12 +5035,12 @@ public void testBug564672_019() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
 		"	^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
 		"	             ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 4)\n" +
 		"	return r;\n" +
@@ -5067,17 +5067,17 @@ public void testBug564672_020() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	class record {};\n" +
 		"	      ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	record r=new record();\n" +
 		"	^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 4)\n" +
 		"	record r=new record();\n" +
 		"	             ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"4. ERROR in X.java (at line 5)\n" +
 		"	return r;\n" +
@@ -5191,7 +5191,7 @@ public void testBug564672_023() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	static IPoint a(int i, int j) throws record{\n" +
 		"	                                     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_024() {
@@ -5209,7 +5209,7 @@ public void testBug564672_024() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	X() throws record {} \n" +
 		"	           ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_025() {
@@ -5224,7 +5224,7 @@ public void testBug564672_025() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	int a() throws record; \n" +
 		"	               ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_026() {
@@ -5243,7 +5243,7 @@ public void testBug564672_026() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	List<record> R = new List<record>();\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	List<record> R = new List<record>();\n" +
@@ -5253,7 +5253,7 @@ public void testBug564672_026() {
 		"3. ERROR in X.java (at line 2)\n" +
 		"	List<record> R = new List<record>();\n" +
 		"	                          ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_027() {
@@ -5281,12 +5281,12 @@ public void testBug564672_027() {
 		"2. ERROR in X.java (at line 4)\n" +
 		"	public class X implements I<record>{\n" +
 		"	                            ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 5)\n" +
 		"	void print(record arg){\n" +
 		"	           ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_028() {
@@ -5306,12 +5306,12 @@ public void testBug564672_028() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class Y<record> {\n" +
 		"	        ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	void equal(record R) {}\n" +
 		"	           ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_029() {
@@ -5331,12 +5331,12 @@ public void testBug564672_029() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class Y<record> {\n" +
 		"	        ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 2)\n" +
 		"	Y(record R) {}\n" +
 		"	  ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_030() {
@@ -5354,7 +5354,7 @@ public void testBug564672_030() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	static record i= 0;\n" +
 		"	       ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_031() {
@@ -5374,7 +5374,7 @@ public void testBug564672_031() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	record i=0;\n" +
 		"	^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_032() {
@@ -5394,7 +5394,7 @@ public void testBug564672_032() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	static int sum(record i, int param){\n" +
 		"	               ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_033() {
@@ -5413,7 +5413,7 @@ public void testBug564672_033() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	X(record i, int param){\n" +
 		"	  ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_034() {
@@ -5433,7 +5433,7 @@ public void testBug564672_034() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	int sum(record i, int num);\n" +
 		"	        ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_035() {
@@ -5472,7 +5472,7 @@ public void testBug564672_036() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	int sum(record this, int i, int num) {}\n" +
 		"	        ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_037() {
@@ -5490,7 +5490,7 @@ public void testBug564672_037() {
 		"1. ERROR in X.java (at line 2)\n" +
 		"	static record i;\n" +
 		"	       ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_038() {
@@ -5509,7 +5509,7 @@ public void testBug564672_038() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	for (record i = 0; i<10; i++) {\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_039() {
@@ -5529,7 +5529,7 @@ public void testBug564672_039() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	for (record i: rec) {\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	for (record i: rec) {\n" +
@@ -5553,7 +5553,7 @@ public void testBug564672_040() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	try (record i = 0){\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_041() {
@@ -5573,7 +5573,7 @@ public void testBug564672_041() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	catch (record e) {}\n" +
 		"	       ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_042() {
@@ -5596,7 +5596,7 @@ public void testBug564672_042() {
 		"2. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
 		"	             ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_043() {
@@ -5620,7 +5620,7 @@ public void testBug564672_043() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	<record> this(null);\n" +
 		"	 ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 5)\n" +
 		"	<record> this(null);\n" +
@@ -5651,7 +5651,7 @@ public void testBug564672_044() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	<record> super(null);\n" +
 		"	 ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	<record> super(null);\n" +
@@ -5679,7 +5679,7 @@ public void testBug564672_045() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	this.<record>m1();	}\n" +
 		"	      ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 4)\n" +
 		"	this.<record>m1();	}\n" +
@@ -5707,7 +5707,7 @@ public void testBug564672_046() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	new <record>Y().a();\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 8)\n" +
 		"	new <record>Y().a();\n" +
@@ -5736,7 +5736,7 @@ public void testBug564672_047() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	new <record>Y() {\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 5)\n" +
 		"	new <record>Y() {\n" +
@@ -5765,7 +5765,7 @@ public void testBug564672_048() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	new <record>Y() {\n" +
 		"	     ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 5)\n" +
 		"	new <record>Y() {\n" +
@@ -5788,12 +5788,12 @@ public void testBug564672_049() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	record[] y= new record[3]; \n" +
 		"	^^^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	record[] y= new record[3]; \n" +
 		"	                ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_050() {
@@ -5812,12 +5812,12 @@ public void testBug564672_050() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	record y= (record)s; \n" +
 		"	^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	record y= (record)s; \n" +
 		"	           ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_051() {
@@ -5838,7 +5838,7 @@ public void testBug564672_051() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	if (s instanceof record) { \n" +
 		"	                 ^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 public void testBug564672_052() {
@@ -5887,7 +5887,7 @@ public void testBug564672_053() {
 		"2. ERROR in X.java (at line 7)\n" +
 		"	messages.stream().map(record::new).toArray(record[]::new);\n" +
 		"	                                           ^^^^^^^^\n" +
-		"\'record\' is a restricted identifier and hence not a valid type name\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -5921,6 +5921,11 @@ public void testBug564672b_002() {
 			"  }\n"+
 			"}\n"
 		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	class X extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class X extends record {\n" +
@@ -5964,7 +5969,12 @@ public void testBug564672b_004() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	class X implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 1)\n" +
 		"	class X implements record {\n" +
 		"	                   ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6010,7 +6020,12 @@ public void testBug564672b_006() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6056,7 +6071,12 @@ public void testBug564672b_008() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6102,7 +6122,12 @@ public void testBug564672b_010() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
+		"1. WARNING in X.java (at line 1)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 1)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6148,7 +6173,12 @@ public void testBug564672b_012() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6193,7 +6223,12 @@ public void testBug564672b_014() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	class Y extends record {\n" +
+		"	                ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6238,7 +6273,12 @@ public void testBug564672b_016() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	class Y implements record {\n" +
+		"	                   ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6283,7 +6323,12 @@ public void testBug564672b_018() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	interface Y extends record {\n" +
+		"	                    ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6311,17 +6356,32 @@ public void testBug564672b_019() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	static record a(int i, int j) {\n" +
+		"	       ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 2)\n" +
 		"	static record a(int i, int j) {\n" +
 		"	       ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"3. WARNING in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
+		"	^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
 		"	^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 3)\n" +
+		"5. WARNING in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
+		"	             ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
 		"	             ^^^^^^\n" +
 		"record cannot be resolved to a type\n" +
@@ -6815,7 +6875,12 @@ public void testBug564672b_039() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
 		"	^^^^^^\n" +
-		"record is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 7)\n" +
+		"	class record {}\n" +
+		"	      ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
 		"----------\n",
 		null,
 		true,

@@ -61,7 +61,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -4537,15 +4537,7 @@ private void consumeTypeTestPattern() {
 	type = getTypeReference(this.intStack[this.intPtr--]); //getTypeReference(0); // no type dimension
 	local.declarationSourceStart = type.sourceStart;
 	local.type = type;
-	if (!this.parsingJava15Plus) {
-		problemReporter().previewFeatureNotSupported(type.sourceStart, local.declarationEnd, "Instanceof Pattern", CompilerOptions.VERSION_15); //$NON-NLS-1$
-	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().previewFeatureNotEnabled(type.sourceStart, local.declarationEnd, "Instanceof Pattern"); //$NON-NLS-1$
-	} else {
-		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemReporter().previewFeatureUsed(type.sourceStart, local.declarationEnd);
-		}
-	}
+	problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart, local.declarationEnd);
 	local.modifiers |= ClassFileConstants.AccFinal;
 	pushOnPatternStack(local);
 }
@@ -9811,9 +9803,7 @@ protected void consumeStaticOnly() {
 	}
 }
 protected void consumeTextBlock() {
-	if (!this.parsingJava15Plus) {
-		problemReporter().featureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_15); //$NON-NLS-1$
-	}
+	problemReporter().validateJavaFeatureSupport(JavaFeature.TEXT_BLOCKS, this.scanner.startPosition, this.scanner.currentPosition - 1);
 	char[] textBlock2 = this.scanner.getCurrentTextBlock();
 	TextBlock textBlock;
 	if (this.recordStringLiterals &&
@@ -10869,13 +10859,7 @@ protected void consumeRecordDeclaration() {
 
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	this.recordNestedMethodLevels.remove(typeDecl);
-	if (!this.options.enablePreviewFeatures){
-		problemReporter().previewFeatureNotEnabled(typeDecl.sourceStart, typeDecl.sourceEnd, "Records"); //$NON-NLS-1$
-	} else {
-		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemReporter().previewFeatureUsed(typeDecl.sourceStart, typeDecl.sourceEnd);
-		}
-	}
+	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORDS, typeDecl.sourceStart, typeDecl.sourceEnd);
 	//convert constructor that do not have the type's name into methods
 	ConstructorDeclaration cd = typeDecl.getConstructor(this);
 	if (cd == null) {

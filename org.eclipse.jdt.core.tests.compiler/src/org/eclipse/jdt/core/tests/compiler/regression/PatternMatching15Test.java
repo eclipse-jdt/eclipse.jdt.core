@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -88,7 +92,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"The preview feature Instanceof Pattern is only available with source level 15 and above\n" +
+				"The preview feature Pattern Matching in instanceof Expressions is only available with source level 15 and above\n" +
 				"----------\n",
 				null,
 				true,
@@ -141,7 +145,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"Instanceof Pattern is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+				"Pattern Matching in instanceof Expressions is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 				"----------\n",
 				/* omit one arg to directly call super method without JAVA_OPTIONS */
 				null,

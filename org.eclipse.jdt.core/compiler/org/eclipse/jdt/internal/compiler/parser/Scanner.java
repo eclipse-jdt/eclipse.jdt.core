@@ -5415,7 +5415,7 @@ int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierrecord)
 		return restrictedIdentifierToken;
-	if (this.sourceLevel < ClassFileConstants.JDK14 || !this.previewEnabled)
+	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
 		return TokenNameIdentifier;
 
 	return disambiguaterecordWithLookAhead() ?

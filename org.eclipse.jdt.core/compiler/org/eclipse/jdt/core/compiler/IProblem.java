@@ -2295,9 +2295,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordInstanceInitializerBlockInRecord = PreviewRelated + 1741;
-	/** @since 3.22
+	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
-	int RecordIsAReservedTypeName = PreviewRelated + 1742;
+	int RestrictedTypeName = PreviewRelated + 1742;
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordIllegalAccessorReturnType = PreviewRelated + 1743;
@@ -2407,12 +2407,6 @@ void setSourceStart(int sourceStart);
 	/** @since 3.23 BETA_JAVA15
 	 * @noreference preview feature error */
 	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
-	/** @since 3.23 BETA_JAVA15
-	 * @noreference preview feature error */
-	int SealedPermitsIsReservedTypeName = PreviewRelated + 1866;
-	/** @since 3.23 BETA_JAVA15
-	 * @noreference preview feature error */
-	int SealedSealedIsReservedTypeName = PreviewRelated + 1867;
 	/* Java15 errors - end */
 
 	}

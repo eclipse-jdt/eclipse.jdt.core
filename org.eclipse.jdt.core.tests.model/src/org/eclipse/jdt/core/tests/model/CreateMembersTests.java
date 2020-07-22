@@ -45,7 +45,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setUpJavaProject("CreateMembers", "14");
+		setUpJavaProject("CreateMembers", "15");
 	}
 	@Override
 	public void tearDownSuite() throws Exception {

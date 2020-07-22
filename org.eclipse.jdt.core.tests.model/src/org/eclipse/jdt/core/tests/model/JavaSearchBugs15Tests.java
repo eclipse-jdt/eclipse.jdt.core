@@ -872,6 +872,7 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		try {
 			Map<String, String> options = project1.getOptions(false);
 			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
 			project1.setOptions(options);
 			project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			project1.open(null);

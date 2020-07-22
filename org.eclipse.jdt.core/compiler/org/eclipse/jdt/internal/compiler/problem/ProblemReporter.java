@@ -173,6 +173,8 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -233,7 +235,6 @@ public class ProblemReporter extends ProblemHandler {
 	private static String SEALED = "sealed"; //$NON-NLS-1$
 	private static String RESTRICTED_IDENTIFIER_PERMITS = "RestrictedIdentifierpermits"; //$NON-NLS-1$
 	private static String PERMITS = "permits"; //$NON-NLS-1$
-	private static String PREVIEW_KEYWORD_NON_SEALED = "non-sealed"; //$NON-NLS-1$
 
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	super(policy, options, problemFactory);
@@ -8260,30 +8261,10 @@ private boolean handleSyntaxErrorOnNewTokens(
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken) {
-	boolean val = false;
-	String[] rIdents = {RESTRICTED_IDENTIFIER_RECORD, RESTRICTED_IDENTIFIER_SEALED, RESTRICTED_IDENTIFIER_PERMITS, PREVIEW_KEYWORD_NON_SEALED};
-	String[] rNames = {RECORD, SEALED, PERMITS, PREVIEW_KEYWORD_NON_SEALED};
 	if (isIdentifier(currentKind)) {
-		String eTokenName = new String(errorTokenSource);
-		String origExpectedToken = expectedToken;
-		expectedToken = replaceIfSynthetic(expectedToken);
-		if (isIdentifier(currentKind)) {
-			for (int i = 0, l = rIdents.length; i < l; ++i) {
-				String rIdent = rIdents[i];
-				String rName = rNames[i];
-				if (rIdent.equals(origExpectedToken) && rName.equals(eTokenName)) {
-					if (this.options.sourceLevel < ClassFileConstants.JDK15) {
-						previewFeatureNotSupported(start, end, rName, CompilerOptions.VERSION_15);
-						val = true;
-					} else if (!this.options.enablePreviewFeatures) {
-						previewFeatureNotEnabled(start, end, rName);
-						val = true;
-					}
-				}
-			}
-		}
+		return validateRestrictedKeywords(errorTokenSource, start, end, true);
 	}
-	return val;
+	return false;
 }
 private void handleSyntaxError(
 	int id,
@@ -9559,15 +9540,8 @@ public void problemNotAnalysed(Expression token, String optionKey) {
 		token.sourceStart,
 		token.sourceEnd);
 }
-public void previewFeatureNotEnabled(int sourceStart, int sourceEnd, String featureName) {
-	String[] args = new String[] {featureName};
-	this.handle(
-			IProblem.PreviewFeatureDisabled,
-			args,
-			args,
-			sourceStart,
-			sourceEnd);
-}
+// Try not to use this. Ideally, this should only be invoked through
+// validateJavaFeatureSupport()
 public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 	this.handle(
 			IProblem.PreviewFeatureUsed,
@@ -9576,23 +9550,60 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 			sourceStart,
 			sourceEnd);
 }
-public void previewFeatureNotSupported(int sourceStart, int sourceEnd, String featureName, String sourceLevel) {
-	String[] args = new String[] {featureName, sourceLevel};
-	this.handle(
-			IProblem.PreviewFeatureNotSupported,
-			args,
-			args,
-			sourceStart,
-			sourceEnd);
+//Returns true if the problem is handled and reported (only errors considered and not warnings)
+public boolean validateRestrictedKeywords(char[] name, int start, int end, boolean reportSyntaxError) {
+	boolean isPreviewEnabled = this.options.enablePreviewFeatures;
+	for (JavaFeature feature : JavaFeature.values()) {
+		char[][] restrictedKeywords = feature.getRestrictedKeywords();
+		for (char[] k : restrictedKeywords) {
+			if (CharOperation.equals(name, k)) {
+				if (reportSyntaxError) {
+					return validateJavaFeatureSupport(feature, start, end);
+				} else {
+					if (feature.isPreview()) {
+						int severity = isPreviewEnabled ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning;
+						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(feature.getCompliance()), start, end, severity);
+						return isPreviewEnabled;
+					} else {
+						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(feature.getCompliance()), start, end, ProblemSeverities.Error | ProblemSeverities.Fatal);
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
-public void featureNotSupported(int sourceStart, int sourceEnd, String featureName, String sourceLevel) {
-	String[] args = new String[] {featureName, sourceLevel};
-	this.handle(
-			IProblem.FeatureNotSupported,
-			args,
-			args,
-			sourceStart,
-			sourceEnd);
+public boolean validateRestrictedKeywords(char[] name, ASTNode node) {
+	return validateRestrictedKeywords(name, node.sourceStart, node.sourceEnd, false);
+}
+//Returns true if the problem is handled and reported (only errors considered and not warnings)
+public boolean validateJavaFeatureSupport(JavaFeature feature, int sourceStart, int sourceEnd) {
+	boolean versionInRange = feature.getCompliance() <= this.options.sourceLevel;
+	String version = CompilerOptions.versionFromJdkLevel(feature.getCompliance());
+	int problemId = -1;
+	if (feature.isPreview()) {
+		if (!versionInRange) {
+			problemId = IProblem.PreviewFeatureNotSupported;
+		} else if (!this.options.enablePreviewFeatures) {
+			problemId = IProblem.PreviewFeatureDisabled;
+		} else if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
+			problemId = IProblem.PreviewFeatureUsed;
+		}
+	} else if (!versionInRange) {
+		problemId = IProblem.FeatureNotSupported;
+	}
+	if (problemId > -1) {
+		String[] args = new String[] {feature.getName(), version};
+		this.handle(
+				problemId,
+				args,
+				args,
+				sourceStart,
+				sourceEnd);
+		return true;
+	}
+	return false;
 }
 public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 	this.handle(
@@ -11661,15 +11672,14 @@ public void recordInstanceInitializerBlockInRecord(Initializer initializer) {
 		initializer.sourceStart,
 		initializer.sourceEnd);
 }
-public void recordIsAReservedTypeName(ASTNode decl) {
-	if (!this.options.enablePreviewFeatures)
-		return;
+public void restrictedTypeName(char[] name, String compliance, int start, int end, int severity) {
 	this.handle(
-		IProblem.RecordIsAReservedTypeName,
-		NoArgument,
-		NoArgument,
-		decl.sourceStart,
-		decl.sourceEnd);
+		IProblem.RestrictedTypeName,
+		new String[] { new String(name), compliance},
+		new String[] { new String(name), compliance},
+		severity,
+		start,
+		end);
 }
 public void recordIllegalAccessorReturnType(ASTNode returnType, TypeBinding type) {
 	if (!this.options.enablePreviewFeatures)
@@ -12051,23 +12061,5 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			new String[] {new String(type.shortReadableName())},
 			reference.sourceStart,
 			reference.sourceEnd);
-}
-public void sealedPermitsIsReservedTypeName(ASTNode node) {
-	this.handle(
-		IProblem.SealedPermitsIsReservedTypeName,
-		NoArgument,
-		NoArgument,
-		this.options.enablePreviewFeatures ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning,
-		node.sourceStart,
-		node.sourceEnd);
-}
-public void sealedSealedIsReservedTypeName(ASTNode node) {
-	this.handle(
-		IProblem.SealedSealedIsReservedTypeName,
-		NoArgument,
-		NoArgument,
-		this.options.enablePreviewFeatures ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning,
-		node.sourceStart,
-		node.sourceEnd);
 }
 }

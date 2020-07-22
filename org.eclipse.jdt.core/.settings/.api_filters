@@ -22,6 +22,12 @@
                 <message_argument value="RecordCanonicalConstructorShouldBePublic"/>
             </message_arguments>
         </filter>
+        <filter id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIsAReservedTypeName"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/Annotation.java" type="org.eclipse.jdt.core.dom.Annotation">
         <filter id="576725006">

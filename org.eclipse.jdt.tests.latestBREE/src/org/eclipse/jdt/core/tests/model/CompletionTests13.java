@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-@SuppressWarnings("preview")
 public class CompletionTests13 extends AbstractJavaModelCompletionTests {
 
 	static {
