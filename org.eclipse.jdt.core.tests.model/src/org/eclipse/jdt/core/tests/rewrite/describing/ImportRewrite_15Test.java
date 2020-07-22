@@ -43,16 +43,16 @@ import junit.framework.Test;
 
 
 @SuppressWarnings("rawtypes")
-public class ImportRewrite14Test extends AbstractJavaModelTests {
+public class ImportRewrite_15Test extends AbstractJavaModelTests {
 
 
-	private static final Class THIS= ImportRewrite14Test.class;
+	private static final Class THIS= ImportRewrite_15Test.class;
 	private static final String PROJECT = "ImportRewrite14TestProject";
 
 	protected IPackageFragmentRoot sourceFolder;
 
 
-	public ImportRewrite14Test(String name) {
+	public ImportRewrite_15Test(String name) {
 		super(name);
 	}
 

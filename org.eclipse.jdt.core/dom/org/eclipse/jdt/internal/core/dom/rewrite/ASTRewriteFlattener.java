@@ -172,6 +172,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (Modifier.isTransient(modifiers)) {
 			buf.append("transient "); //$NON-NLS-1$
 		}
+		if (Modifier.isSealed(modifiers)) {
+			buf.append("sealed ");//$NON-NLS-1$
+		}
+		if (Modifier.isNonSealed(modifiers)) {
+			buf.append("non-sealed ");//$NON-NLS-1$
+		}
 	}
 
 
@@ -1142,6 +1148,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 		String lead= isInterface ? "extends " : "implements ";  //$NON-NLS-1$//$NON-NLS-2$
 		visitList(node, superInterfaceProperty, String.valueOf(','), lead, Util.EMPTY_STRING);
+
+
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED) && !node.permittedTypes().isEmpty()) {
+				visitList(node, TypeDeclaration.PERMITS_TYPES_PROPERTY, String.valueOf(','), lead, Util.EMPTY_STRING);
+		}
 		this.result.append('{');
 		visitList(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY, null);
 		this.result.append('}');

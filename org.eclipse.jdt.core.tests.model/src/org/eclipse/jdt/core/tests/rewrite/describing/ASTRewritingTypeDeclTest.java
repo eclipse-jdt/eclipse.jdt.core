@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,14 +8,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
-
-import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -33,12 +35,13 @@ import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.Dimension;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -49,6 +52,7 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimplePropertyDescriptor;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StringLiteral;
@@ -61,7 +65,8 @@ import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-import org.eclipse.jdt.core.dom.ITypeBinding;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
@@ -2039,6 +2044,514 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf= new StringBuffer();
 		buf.append("public class Test");
 		assertEqualString(preview, buf.toString());
+	}
+
+	@SuppressWarnings("deprecation")
+	private boolean checkAPILevel(int level) {
+		if (this.apiLevel != level) {
+			System.err.println("Test "+getName()+" requires a JRE " + level);
+			return true;
+		}
+		return false;
+	}
+
+	public void testSealedModifier_001() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // add 1 permits
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					SimpleType newPermits= ast.newSimpleType(ast.newSimpleName("C2"));
+					listRewrite2.insertLast(newPermits, null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1, C2{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+	}
+
+
+	public void testSealedModifier_002() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public sealed class C permits C1, C2 {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		buf.append("final class  C1 extends C{\n");
+		buf.append("\n");
+		buf.append("}\n");
+		buf.append("non-sealed class  C2 extends C{}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // remove permits
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					List permittedTypes = typeC.permittedTypes();
+					listRewrite2.remove((SimpleType)permittedTypes.get(1), null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1 {\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("final class  C1 extends C{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+	}
+
+	public void testSealedModifier_003() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		buf.append("class  C1 extends C{}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // add sealed and permits
+					ListRewrite listRewrite= rewrite.getListRewrite(typeC, TypeDeclaration.MODIFIERS2_PROPERTY);
+					listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.SEALED_KEYWORD), null);
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					SimpleType newPermits= ast.newSimpleType(ast.newSimpleName("C1"));
+					listRewrite2.insertLast(newPermits, null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1 {\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("class  C1 extends C{}\n");
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+	}
+
+	public void testSealedModifier_004() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public sealed class C permits C1{}\n");
+		buf.append("final class  C1 extends C{}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // remove last permit
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					List permittedTypes = typeC.permittedTypes();
+					listRewrite2.remove((SimpleType)permittedTypes.get(0), null);
+
+				// remove sealed
+					ListRewrite listRewrite= rewrite.getListRewrite(typeC, TypeDeclaration.MODIFIERS2_PROPERTY);
+					List modifiers = typeC.modifiers();
+					listRewrite.remove((Modifier)modifiers.get(1), null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class C{}\n");
+			buf.append("final class  C1 extends C{}\n");
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+	}
+
+	public void testSealedModifier_005() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // replace permits
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					List permittedTypes = typeC.permittedTypes();
+					listRewrite2.remove((SimpleType)permittedTypes.get(0), null);
+					SimpleType newPermits= ast.newSimpleType(ast.newSimpleName("C2"));
+					listRewrite2.insertLast(newPermits, null);
+
+			}
+
+			TypeDeclaration typeC1= findTypeDeclaration(astRoot, "C1");
+			{
+				// remove non-sealed
+				ListRewrite listRewrite= rewrite.getListRewrite(typeC1, TypeDeclaration.MODIFIERS2_PROPERTY);
+				List modifiers = typeC1.modifiers();
+				listRewrite.remove((Modifier)modifiers.get(0), null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C2{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("class  C1 extends C{}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+	}
+
+	public void testSealedModifier_006() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C3{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C3 extends C{}\n");
+			buf.append("class  C1{\n");
+			buf.append("final class  C2 extends C{}\n");
+			buf.append("}\n");
+
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // add  permits for inner class
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					SimpleType newPermits= ast.newSimpleType(ast.newQualifiedName(ast.newName("C1"), ast.newSimpleName("C2")));
+					listRewrite2.insertLast(newPermits, null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C3, C1.C2{\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C3 extends C{}\n");
+			buf.append("class  C1{\n");
+			buf.append("final class  C2 extends C{}\n");
+			buf.append("}\n");
+
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
+	}
+
+	public void testSealedModifier_007() throws Exception {
+
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1 //comment\n");
+			buf.append("{\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+
+			{ // add 1 more permits
+
+				ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+				SimpleType newPermits= ast.newSimpleType(ast.newSimpleName("C2"));
+				listRewrite2.insertLast(newPermits, null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C permits C1 //comment\n");
+			buf.append(", C2\n");
+			buf.append("{\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			buf.append("non-sealed class  C2 extends C{}\n");
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testSealedModifier_008() throws Exception {
+
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public class C//comment\n");
+			buf.append("{\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+
+			{ // add 1 permits
+
+				ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+				SimpleType newPermits= ast.newSimpleType(ast.newSimpleName("C1"));
+				listRewrite2.insertLast(newPermits, null);
+
+			}
+			{ // add sealed
+				ListRewrite listRewrite= rewrite.getListRewrite(typeC, TypeDeclaration.MODIFIERS2_PROPERTY);
+				listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.SEALED_KEYWORD), null);
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C//comment\n");
+			buf.append(" permits C1\n");
+			buf.append("{\n");
+			buf.append("}\n");
+			buf.append("non-sealed class  C1 extends C{}\n");
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testSealedModifier_009() throws Exception {
+		if (checkAPILevel(15)) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class C implements B {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		buf.append("class  C1 extends C{}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+
+		String old = this.project1.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			this.project1.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+			AST ast= astRoot.getAST();
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration typeC= findTypeDeclaration(astRoot, "C");
+			{ // add sealed and permits
+					ListRewrite listRewrite= rewrite.getListRewrite(typeC, TypeDeclaration.MODIFIERS2_PROPERTY);
+					listRewrite.insertLast(ast.newModifier(Modifier.ModifierKeyword.SEALED_KEYWORD), null);
+
+					ListRewrite listRewrite2= rewrite.getListRewrite(typeC, TypeDeclaration.PERMITS_TYPES_PROPERTY);
+					SimpleType newPermits= ast.newSimpleType(ast.newSimpleName("C1"));
+					listRewrite2.insertLast(newPermits, null);
+
+			}
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("public sealed class C implements B permits C1 {\n");
+			buf.append("\n");
+			buf.append("}\n");
+			buf.append("class  C1 extends C{}\n");
+
+			assertEqualString(preview, buf.toString());
+		}finally {
+			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+
 	}
 
 }

@@ -1573,6 +1573,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					case TerminalTokens.TokenNamestrictfp: keep= Modifier.isStrictfp(newModifiers); break;
 					case TerminalTokens.TokenNametransient: keep= Modifier.isTransient(newModifiers); break;
 					case TerminalTokens.TokenNamesynchronized: keep= Modifier.isSynchronized(newModifiers); break;
+					case TerminalTokens.TokenNameRestrictedIdentifiersealed: keep= Modifier.isSealed(newModifiers); break;
+					case TerminalTokens.TokenNamenon_sealed: keep= Modifier.isNonSealed(newModifiers); break;
 					default:
 						break loop;
 				}
@@ -1949,6 +1951,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 			pos= rewriteNodeList(node, superInterfaceProperty, pos, keyword, ", "); //$NON-NLS-1$
+		}
+
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED)) {
+			// permits for sealed
+			ChildListPropertyDescriptor permitsProperty= TypeDeclaration.PERMITS_TYPES_PROPERTY;
+
+			RewriteEvent permitsEvent= getEvent(node, permitsProperty);
+			if (permitsEvent == null || permitsEvent.getChangeKind() == RewriteEvent.UNCHANGED) {
+				pos= doVisit(node, permitsProperty, pos);
+			} else {
+				pos= rewriteNodeList(node, permitsProperty, pos, " permits ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 
 		// type members
