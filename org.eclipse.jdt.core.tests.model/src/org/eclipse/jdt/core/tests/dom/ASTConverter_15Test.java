@@ -17,6 +17,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -360,11 +362,64 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord008() throws CoreException {
+	public void testRecord008() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
+		String contents = "import java.lang.annotation.*;\n" +
+				"@Target (ElementType.METHOD)\n" +
+				"@interface MyAnnot {}\n" +
+				"public record X(@MyAnnot int lo) {\n" +
+				"	public int lo() {\n" +
+				"		return this.lo;\n" +
+				"	}\n" +
+				"\n" +
+				"}\n";
+
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+			assertNotEquals("Not a Record Declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+
+
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testRecord009() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String elementType = "package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE,\n" +
+				"    MODULE,\n" +
+				"    RECORD_COMPONENT\n" +
+				"}\n";
+		ICompilationUnit workingCopy2 = getWorkingCopy("/Converter_15/src/java/lang/annotation/ElementType.java", true/*resolve*/);
 		String contents = "import java.lang.annotation.ElementType;\n" +
 				"import java.lang.annotation.Target;\n" +
 				"record X(@MyAnnot int lo) {\n" +
@@ -381,6 +436,9 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		try {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			buildAST(
+					elementType,
+					workingCopy2);
 			ASTNode node = buildAST(
 				contents,
 				this.workingCopy);
@@ -393,25 +451,39 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			List<SingleVariableDeclaration> recordComponents = record.recordComponents();
 			assertEquals("There should be 1 record component", 1, recordComponents.size());
 			SingleVariableDeclaration recordComponent = recordComponents.get(0);
-			assertEquals("Record component name should be lo","lo" , recordComponent.getName().toString());
-			assertEquals("Record component type is int" , "int", recordComponent.getType().toString());
-			IVariableBinding resolveBinding = recordComponent.resolveBinding();
+			SimpleName recordComponentName = recordComponent.getName();
+			assertEquals("Record component name should be lo","lo" , recordComponentName.toString());
+			ITypeBinding resolveTypeBinding = recordComponentName.resolveTypeBinding();
+			assertEquals("Record component type is int" , "int",resolveTypeBinding.getName() );
+			IVariableBinding resolveBinding = (IVariableBinding)recordComponentName.resolveBinding();
 			assertEquals("Record component binding" , true, resolveBinding.isRecordComponent());
-			MarkerAnnotation annotation = (MarkerAnnotation)recordComponent.modifiers().get(0);
-			assertEquals("Record component annotation name should be MyAnnot","@MyAnnot" , annotation.toString());
-			assertEquals("Record component binding should not have annotation",0 , resolveBinding.getAnnotations().length);
-
 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
 
-	public void _testRecord009() throws CoreException {
+	public void _testRecord010() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
 		}
+		String elementType = "package java.lang.annotation;\n" +
+				"public enum ElementType {\n" +
+				"    TYPE,\n" +
+				"    FIELD,\n" +
+				"    METHOD,\n" +
+				"    PARAMETER,\n" +
+				"    CONSTRUCTOR,\n" +
+				"    LOCAL_VARIABLE,\n" +
+				"    ANNOTATION_TYPE,\n" +
+				"    PACKAGE,\n" +
+				"    TYPE_PARAMETER,\n" +
+				"    TYPE_USE,\n" +
+				"    MODULE,\n" +
+				"    RECORD_COMPONENT\n" +
+				"}\n";
+		ICompilationUnit workingCopy2 = getWorkingCopy("/Converter_15/src/java/lang/annotation/ElementType.java", true/*resolve*/);
 		String contents = "import java.lang.annotation.ElementType;\n" +
 				"import java.lang.annotation.Target;\n" +
 				"record X(@MyAnnot int lo) {\n" +
@@ -429,16 +501,16 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		try {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
-			ASTNode node = buildAST(
+			buildAST(
+					elementType,
+					workingCopy2);
+			try {
+				buildAST(
 				contents,
 				this.workingCopy);
-			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-			CompilationUnit compilationUnit = (CompilationUnit) node;
-			assertProblemsSize(compilationUnit, 0);
-			node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
-			assertEquals("Not a Record Declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
-			//RecordDeclaration record = (RecordDeclaration)node;
-			// test for error
+			} catch (Exception ex) {
+				// This can not be compiled
+			}
 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
