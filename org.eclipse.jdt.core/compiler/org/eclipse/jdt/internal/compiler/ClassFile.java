@@ -433,6 +433,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				(this.recordBootstrapMethods != null && !this.recordBootstrapMethods.isEmpty())) {
 			attributesNumber += generateBootstrapMethods(this.bootstrapMethods, this.recordBootstrapMethods);
 		}
+		if (this.targetJDK >= ClassFileConstants.JDK15) {
+			// add record attributes
+			attributesNumber += generatePermittedTypeAttributes();
+		}
 		// Inner class attribute
 		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
 		if (numberOfInnerClasses != 0) {
@@ -471,10 +475,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.targetJDK >= ClassFileConstants.JDK14) {
 			// add record attributes
 			attributesNumber += generateRecordAttributes();
-		}
-		if (this.targetJDK >= ClassFileConstants.JDK15) {
-			// add record attributes
-			attributesNumber += generatePermittedTypeAttributes();
 		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
@@ -2889,8 +2889,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) l;
 
 		for (int i = 0; i < l; i++) {
-			char[] permittedTypeName = permittedTypes[i].constantPoolName();
-			int permittedTypeIndex = this.constantPool.literalIndexForType(permittedTypeName);
+			int permittedTypeIndex = this.constantPool.literalIndexForType(permittedTypes[i]);
 			this.contents[localContentsOffset++] = (byte) (permittedTypeIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) permittedTypeIndex;
 		}

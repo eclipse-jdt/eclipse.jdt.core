@@ -1242,7 +1242,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
 					"   #33 p1/X$Y,\n" +
-					"   #36 p1/X$Z\n" +
+					"   #35 p1/X$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -1264,7 +1264,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
 					"   #33 p1/X$Y,\n" +
-					"   #36 p1/X$Z\n" +
+					"   #35 p1/X$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -1512,8 +1512,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #27 p1/A$Y$SubInnerY,\n" +
-					"   #32 p1/A$Z\n" +
+					"   #24 p1/A$Y$SubInnerY,\n" +
+					"   #26 p1/A$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
@@ -1538,8 +1538,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #27 p1/A$SubY,\n" +
-					"   #29 p1/A$Z\n" +
+					"   #22 p1/A$SubY,\n" +
+					"   #24 p1/A$Z\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
@@ -1566,9 +1566,9 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #27 p1/A$Y$SubInnerY,\n" +
-					"   #32 p1/A$SubY,\n" +
-					"   #34 p1/A$Z\n";
+					"   #24 p1/A$Y$SubInnerY,\n" +
+					"   #26 p1/A$SubY,\n" +
+					"   #28 p1/A$Z\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564498_4() throws IOException, ClassFormatException {
@@ -1588,7 +1588,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #27 p1/A$Y$SubInnerY\n";
+					"   #24 p1/A$Y$SubInnerY\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Reject references of membertype without qualifier of enclosing type in permits clause
@@ -5112,5 +5112,29 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			true,
 			options
 		);
+	}
+	public void testBug565561_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public sealed class X permits Outer.Inner {\n" +
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n" +
+				"class Outer{\n" +
+				"   final class Inner extends X{}\n"+
+				"}",
+			},
+			"0");
+		String expectedOutput =
+			"  Inner classes:\n" +
+			"    [inner class info: #33 Outer$Inner, outer class info: #36 Outer\n" +
+			"     inner name: #38 Inner, accessflags: 16 final]\n" +
+			"\n" +
+			"PermittedSubclasses:\n" +
+			"   #33 Outer$Inner\n" +
+			"}";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }
