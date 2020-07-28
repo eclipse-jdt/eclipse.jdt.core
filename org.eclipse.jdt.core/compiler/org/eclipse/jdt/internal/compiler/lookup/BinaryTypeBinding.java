@@ -2246,13 +2246,15 @@ public ReferenceBinding[] superInterfaces() {
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;
 }
-//NOTE: permitted subtypes of binary types are resolved when needed
 @Override
 public ReferenceBinding[] permittedTypes() {
 
 	if (!isPrototype()) {
 		return this.permittedSubtypes = this.prototype.permittedTypes();
 	}
+	for (int i = this.permittedSubtypes.length; --i >= 0;)
+		this.permittedSubtypes[i] = (ReferenceBinding) resolveType(this.permittedSubtypes[i], this.environment, false);
+
 	// Note: unlike for superinterfaces() hierarchy check not required here since these are subtypes
 	return this.permittedSubtypes;
 }
