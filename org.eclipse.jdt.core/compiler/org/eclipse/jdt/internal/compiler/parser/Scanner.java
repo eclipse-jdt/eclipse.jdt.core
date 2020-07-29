@@ -2050,28 +2050,23 @@ private int scanForStringLiteral() throws InvalidInputException {
 	if (isTextBlock) {
 		try {
 			this.rawStart = this.currentPosition - this.startPosition;
-			int terminators = 0;
 			while (this.currentPosition <= this.eofPosition) {
 				if (this.currentCharacter == '"') {
 					lastQuotePos = this.currentPosition;
 					// look for text block delimiter
 					if (scanForTextBlockClose()) {
-							// Account for just the snippet being passed around
-							// If already at the EOF, bail out.
-						if (this.currentPosition + 2 < this.source.length && this.source[this.currentPosition + 2] == '"') {
-							terminators++;
-							if (terminators > 2)
-								throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
-						} else {
-							this.currentPosition += 2;
-							return TerminalTokens.TokenNameTextBlock;
-						}
+						this.currentPosition += 2;
+						return TerminalTokens.TokenNameTextBlock;
 					}
 					if (this.withoutUnicodePtr != 0) {
 						unicodeStore();
 					}
 				} else {
-					terminators = 0;
+					if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+						if (this.recordLineSeparator) {
+							pushLineSeparator();
+						}
+					}
 				}
 				outer: if (this.currentCharacter == '\\') {
 					switch(this.source[this.currentPosition]) {
