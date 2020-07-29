@@ -753,7 +753,9 @@ public class ClassScope extends Scope {
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic |  ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0
+						|| (modifiers & ExtraCompilerModifiers.AccNonSealed) != 0
+						|| (modifiers & ExtraCompilerModifiers.AccSealed) != 0)
 					problemReporter().illegalModifierForRecord(sourceType);
 			}
 			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
@@ -1188,7 +1190,7 @@ public class ClassScope extends Scope {
 	void connectImplicitPermittedTypes() {
 		TypeDeclaration typeDecl = this.referenceContext;
 		SourceTypeBinding sourceType = typeDecl.binding;
-		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum()) // already handled
+		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum() || sourceType.isRecord()) // already handled
 			return;
 		if (sourceType.isSealed() && (typeDecl.permittedTypes == null ||
 				typeDecl.permittedTypes.length == 0)) {

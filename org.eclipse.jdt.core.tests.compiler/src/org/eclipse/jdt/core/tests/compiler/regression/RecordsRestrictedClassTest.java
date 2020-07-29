@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564672b"};
+//		TESTS_NAMES = new String[] { "testBug565388"};
 	}
 
 	public static Class<?> testClass() {
@@ -7150,6 +7150,34 @@ public void testBug564672b_049() {
 		},
 		"0",
 		options
+	);
+}
+public void testBug565388_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public non-sealed record X() {}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public non-sealed record X() {}\n" +
+		"	                         ^\n" +
+		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
+		"----------\n"
+	);
+}
+public void testBug565388_002() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public sealed record X() {}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 1)\n" +
+		"	public sealed record X() {}\n" +
+		"	                     ^\n" +
+		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
+		"----------\n"
 	);
 }
 }
