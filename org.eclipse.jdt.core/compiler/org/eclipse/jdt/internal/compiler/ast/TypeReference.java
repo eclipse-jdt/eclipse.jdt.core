@@ -543,7 +543,7 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 	} else if ((hasError = !type.isValidBinding()) == true) {
 		if (this.isTypeNameVar(scope)) {
 			reportVarIsNotAllowedHere(scope);
-		} else if (!scope.problemReporter().validateRestrictedKeywords(getTypeName(0), this)) {
+		} else if (!scope.problemReporter().validateRestrictedKeywords(getLastToken(), this)) {
 			reportInvalidType(scope);
 		}
 		switch (type.problemId()) {
@@ -557,7 +557,7 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 				return null;
 		}
 	} else { // check anyway - to cover a illegally declared "permits" type
-		scope.problemReporter().validateRestrictedKeywords(getTypeName(0), this);
+		scope.problemReporter().validateRestrictedKeywords(getLastToken(), this);
 	}
 	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
 		scope.problemReporter().cannotAllocateVoidArray(this);

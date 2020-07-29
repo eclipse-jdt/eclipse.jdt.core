@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564638"};
+//		TESTS_NAMES = new String[] { "testBug565116_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -5136,5 +5136,18 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"   #33 Outer$Inner\n" +
 			"}";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565116_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"permits/X.java",
+				"package permits;\n"+
+				"class X {\n"+
+				"  public static void main(String[] args) {\n"+
+				"    X x = new permits.X();\n"+
+				"  }\n"+
+				"}",
+			},
+			"");
 	}
 }
