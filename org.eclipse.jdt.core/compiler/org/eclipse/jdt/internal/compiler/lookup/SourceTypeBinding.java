@@ -1209,7 +1209,7 @@ private void checkPermitsInType() {
 	}
 	return;
 }
-private List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, CompilationUnitScope unitScope) {
+public List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, CompilationUnitScope unitScope) {
 	class TypeBindingsCollector extends ASTVisitor {
 		List<SourceTypeBinding> types = new ArrayList<>();
 		@Override

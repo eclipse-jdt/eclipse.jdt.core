@@ -39,8 +39,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -1163,48 +1166,23 @@ public class ClassScope extends Scope {
 	}
 	// Call only when we know there's no explicit permits clause and this is a sealed type
 	private void connectImplicitPermittedTypes(SourceTypeBinding sourceType) {
-		List<ReferenceBinding> permitted = null;
-		// And nested types
-		if (sourceType.memberTypes != null) {
-			for (ReferenceBinding subtype : sourceType.memberTypes) {
-				if (!TypeBinding.equalsEquals(subtype, sourceType))
-					if (subtype.findSuperTypeOriginatingFrom(sourceType) != null) {
-						if (permitted == null)
-							permitted = new ArrayList<>();
-						permitted.add(subtype);
-					}
+		List<SourceTypeBinding> types = new ArrayList<>();
+		for (TypeDeclaration typeDecl : this.referenceCompilationUnit().types) {
+			types.addAll(sourceType.collectAllTypeBindings(typeDecl, this.compilationUnitScope()));
+		}
+		Set<ReferenceBinding> permSubTypes = new LinkedHashSet<>();
+		for (ReferenceBinding type : types) {
+			if (!TypeBinding.equalsEquals(type, sourceType) && type.findSuperTypeOriginatingFrom(sourceType) != null) {
+				permSubTypes.add(type);
 			}
 		}
-		// Siblings
-		ReferenceBinding[] siblings = null;
-		if (sourceType.isMemberType()) {
-			siblings = sourceType.enclosingType().memberTypes();
-		} else {
-			siblings = compilationUnitScope().topLevelTypes;
-		}
-
-		if (siblings != null) {
-			for (ReferenceBinding sibling : siblings) {
-				if (!TypeBinding.equalsEquals(sibling, sourceType)) {
-					if (sibling.findSuperTypeOriginatingFrom(sourceType) != null) {
-						if (permitted == null)
-							permitted = new ArrayList<>();
-						permitted.add(sibling);
-					}
-				}
-			}
-		}
-
-		if (permitted == null || permitted.size() == 0) {
+		if (permSubTypes.size() == 0) {
 			problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
-		} else {
-			ReferenceBinding[] permittedTypeBindings = new ReferenceBinding[permitted.size()];
-			permitted.toArray(permittedTypeBindings);
-			sourceType.setPermittedTypes(permittedTypeBindings);
 			return;
 		}
+		sourceType.setPermittedTypes(permSubTypes.toArray(new ReferenceBinding[0]));
 	}
-	/**
+/**
 	 * @see #connectPermittedTypes()
 	 */
 	void connectImplicitPermittedTypes() {

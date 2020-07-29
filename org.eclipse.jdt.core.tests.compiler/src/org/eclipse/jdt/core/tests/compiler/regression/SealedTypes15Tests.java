@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565116_001"};
+//		TESTS_NAMES = new String[] { "testBug564190_2"};
 	}
 
 	public static Class<?> testClass() {
@@ -1538,8 +1538,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"");
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
-					"   #22 p1/A$SubY,\n" +
-					"   #24 p1/A$Z\n" +
+					"   #22 p1/A$Z,\n" +
+					"   #24 p1/A$SubY\n" +
 					"}";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 			expectedOutput =
@@ -1567,8 +1567,8 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			String expectedOutput =
 					"PermittedSubclasses:\n" +
 					"   #24 p1/A$Y$SubInnerY,\n" +
-					"   #26 p1/A$SubY,\n" +
-					"   #28 p1/A$Z\n";
+					"   #26 p1/A$Z,\n" +
+					"   #28 p1/A$SubY\n";
 			verifyClassFile(expectedOutput, "p1/A$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564498_4() throws IOException, ClassFormatException {
@@ -5149,5 +5149,21 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"}",
 			},
 			"");
+	}
+	public void testBug565638_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed class X {\n"+
+				"  public static void main(String[] args) {\n"+
+				"    System.out.println(0);\n"+
+				"  }\n"+
+				"}\n"+
+				"final class Outer {\n"+
+				"    final class Inner extends X{\n"+
+				"  }\n"+
+				"}",
+			},
+			"0");
 	}
 }
