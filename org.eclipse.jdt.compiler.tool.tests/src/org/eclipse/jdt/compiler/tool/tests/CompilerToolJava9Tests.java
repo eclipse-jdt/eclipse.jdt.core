@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 IBM Corporation and others.
+ * Copyright (c) 2017, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -173,7 +177,6 @@ public class CompilerToolJava9Tests extends TestCase {
 			assertTrue("source version 9 should be supported", sourceVersions.contains(obj));
 		}
 	}
-	// Incomplete tests - fails both with Javac and ECJ
 	public void testGetLocationForModule2() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -541,6 +544,132 @@ public class CompilerToolJava9Tests extends TestCase {
 				fail(cName + ":Should support getLocationForModule()");
 			}
 		}
+	}
+	// Test that non-module folders inside module-path are not considered 
+	// to be automatic modules.
+	public void testBug565748() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = _tmpFolder;
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(new File(modules_directory + File.separator + "source" + File.separator + "SimpleModules" +
+										File.separator + "module.one" + File.separator + "module-info.java"));
+		files.add(new File(modules_directory + File.separator + "source" + File.separator + "SimpleModules" +
+				File.separator + "module.two" + File.separator + "module-info.java"));
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("--module-source-path");
+		options.add(modules_directory + File.separator + "source" + File.separator + "SimpleModules");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+ 		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+ 		// check the classpath location
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+ 		
+ 		// Try using the same outut as module-path and compile the new module (mod.test)
+		manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing input file
+		files = new ArrayList<File>();
+		files.add(new File(modules_directory + File.separator + "bug565748" + File.separator + 
+									"mod.test" + File.separator + "module-info.java"));
+		units = manager.getJavaFileObjectsFromFiles(files);
+		stringWriter = new StringWriter();
+		printWriter = new PrintWriter(stringWriter);
+
+		options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("--module-path");
+		options.add(tmpFolder);
+		options.add("--module-source-path");
+		options.add(modules_directory + File.separator + "bug565748");
+		errBuffer = new ByteArrayOutputStream();
+		err = new PrintWriter(errBuffer);
+		listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+ 		task = compiler.getTask(printWriter, manager, listener, options, null, units);
+		result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+ 		
+ 		// Delete the module-info.class from the previously compiled modules
+ 		// and try compiling the same module mod.test
+ 		File file = new File(tmpFolder + File.separator + "mod.test" + File.separator + "module-info.class");
+ 		file.delete();
+ 		file = new File(tmpFolder + File.separator + "mod.test");
+ 		file.delete();
+ 		file = new File(tmpFolder + File.separator + "module.one" + File.separator + "module-info.class");
+ 		file.delete();
+ 		file = new File(tmpFolder + File.separator + "module.two" + File.separator + "module-info.class");
+ 		file.delete();
+ 		manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+ 		// create new list containing input file
+ 		files = new ArrayList<File>();
+ 		files.add(new File(modules_directory + File.separator + "bug565748" + File.separator + 
+ 				"mod.test" + File.separator + "module-info.java"));
+ 		units = manager.getJavaFileObjectsFromFiles(files);
+ 		stringWriter = new StringWriter();
+ 		printWriter = new PrintWriter(stringWriter);
+
+ 		options = new ArrayList<String>();
+ 		options.add("-d");
+ 		options.add(tmpFolder);
+ 		options.add("--module-path");
+ 		options.add(tmpFolder);
+ 		options.add("--module-source-path");
+ 		options.add(modules_directory + File.separator + "bug565748");
+ 		errBuffer = new ByteArrayOutputStream();
+ 		err = new PrintWriter(errBuffer);
+ 		listener = new CompilerInvocationDiagnosticListener(err) {
+ 			@Override
+ 			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+ 				JavaFileObject source = diagnostic.getSource();
+ 				assertNotNull("No source", source);
+ 				super.report(diagnostic);
+ 			}
+ 		};
+ 		task = compiler.getTask(printWriter, manager, listener, options, null, units);
+ 		result = task.call();
+ 		printWriter.flush();
+ 		printWriter.close();
+ 		if (result.booleanValue()) {
+ 			System.err.println("Compilation should fail: " + stringWriter.getBuffer().toString());
+ 			assertTrue("Compilation did not fail ", false);
+ 		}
 	}
 	public void testGetJavaFileObjects() {
 		if (this.isJREBelow9) return;
