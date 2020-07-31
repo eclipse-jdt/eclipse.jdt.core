@@ -1424,8 +1424,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		Location result = this.locationHandler.getLocation(location, moduleName);
 		if (result == null && location == StandardLocation.CLASS_OUTPUT) {
 			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
-			deriveOutputLocationForModules(moduleName, wrapper.paths);
-			result = getLocationForModule(location, moduleName);
+			// There are cases where we don't have module source path in that case we need to create
+			// classes in default location
+			if (wrapper == null) {
+				result = location;
+			} else {
+				deriveOutputLocationForModules(moduleName, wrapper.paths);
+				result = getLocationForModule(location, moduleName);
+			}
 		} else if (result == null && location == StandardLocation.SOURCE_OUTPUT) {
 			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
 			deriveSourceOutputLocationForModules(moduleName, wrapper.paths);
