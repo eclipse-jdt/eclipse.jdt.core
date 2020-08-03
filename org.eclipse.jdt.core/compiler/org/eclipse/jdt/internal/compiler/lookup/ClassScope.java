@@ -106,6 +106,7 @@ public class ClassScope extends Scope {
 		} else {
 			anonymousType.setSuperClass(supertype);
 			anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+			checkForEnumSealedPreview(supertype, anonymousType);
 			TypeReference typeReference = this.referenceContext.allocation.type;
 			if (typeReference != null) { // no check for enum constant body
 				this.referenceContext.superclass = typeReference;
@@ -138,6 +139,27 @@ public class ClassScope extends Scope {
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
 		anonymousType.verifyMethods(environment().methodVerifier());
+	}
+
+	private void checkForEnumSealedPreview(ReferenceBinding supertype, LocalTypeBinding anonymousType) {
+		if (compilerOptions().sourceLevel < ClassFileConstants.JDK15
+				|| !compilerOptions().enablePreviewFeatures
+				|| !supertype.isEnum()
+				|| !(supertype instanceof SourceTypeBinding))
+			return;
+
+		SourceTypeBinding sourceSuperType = (SourceTypeBinding) supertype;
+		ReferenceBinding[] permTypes = sourceSuperType.permittedTypes();
+		int sz = permTypes == null ? 0 : permTypes.length;
+		if (sz == 0) {
+			permTypes = new ReferenceBinding[] {anonymousType};
+		} else {
+			System.arraycopy(permTypes, 0,
+					permTypes = new ReferenceBinding[sz + 1], 0,
+					sz);
+			permTypes[sz] = anonymousType;
+		}
+		sourceSuperType.setPermittedTypes(permTypes);
 	}
 
 	void buildComponents() {

@@ -1216,22 +1216,26 @@ public List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, 
 		public boolean visit(
 				TypeDeclaration localTypeDeclaration,
 				BlockScope scope1) {
-				this.types.add(localTypeDeclaration.binding);
+				checkAndAddBinding(localTypeDeclaration.binding);
 				return true;
 			}
 			@Override
 			public boolean visit(
 				TypeDeclaration memberTypeDeclaration,
 				ClassScope scope1) {
-				this.types.add(memberTypeDeclaration.binding);
+				checkAndAddBinding(memberTypeDeclaration.binding);
 				return true;
 			}
 			@Override
 			public boolean visit(
 				TypeDeclaration typeDeclaration,
 				CompilationUnitScope scope1) {
-				this.types.add(typeDeclaration.binding);
+				checkAndAddBinding(typeDeclaration.binding);
 				return true; // do nothing by default, keep traversing
+			}
+			private void checkAndAddBinding(SourceTypeBinding stb) {
+				if (stb != null)
+					this.types.add(stb);
 			}
 	}
 	TypeBindingsCollector typeCollector = new TypeBindingsCollector();

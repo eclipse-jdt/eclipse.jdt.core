@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564190_2"};
+//		TESTS_NAMES = new String[] { "testBug565782"};
 	}
 
 	public static Class<?> testClass() {
@@ -5165,5 +5165,103 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"}",
 			},
 			"0");
+	}
+	public void testBug565782_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits X {}\n"+
+				"enum X implements I {\n"+
+				"    ONE {};\n"+
+				"    public static void main(String[] args) {\n"+
+				"        System.out.println(0);\n"+
+				"   }\n"+
+				"}",
+			},
+			"0");
+		String expectedOutput =
+				"PermittedSubclasses:\n" +
+				"   #14 X$1\n" +
+				"}";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565782_002() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits X {}\n"+
+				"public enum X implements I {\n"+
+				"    ONE ;\n"+
+				"    public static void main(String[] args) {\n"+
+				"        System.out.println(0);\n"+
+				"   }\n"+
+				"}",
+			},
+			"0");
+		String expectedOutput =	"public final enum X implements I {\n";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565782_003() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {}\n"+
+				"enum X implements I {\n"+
+				"    ONE {};\n"+
+				"    public static void main(String[] args) {\n"+
+				"        System.out.println(0);\n"+
+				"   }\n"+
+				"}",
+			},
+			"0");
+		String expectedOutput =
+				"PermittedSubclasses:\n" +
+				"   #14 X$1\n" +
+				"}";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565782_004() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {}\n"+
+				"class X {\n"+
+				"	enum E implements I {\n"+
+				"   	ONE {};\n"+
+				"	}\n"+
+				"   public static void main(String[] args) {\n"+
+				"      	System.out.println(0);\n"+
+				"   }\n"+
+				"}",
+			},
+			"0");
+		String expectedOutput =
+				"PermittedSubclasses:\n" +
+				"   #14 X$E$1\n" +
+				"}";
+		verifyClassFile(expectedOutput, "X$E.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565782_005() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits X {}\n"+
+				"enum X implements I {\n"+
+				"    ONE {},\n"+
+				"    TWO {},\n"+
+				"    THREE {};\n"+
+				"    public static void main(String[] args) {\n"+
+				"        System.out.println(0);\n"+
+				"   }\n"+
+				"}",
+			},
+			"0");
+		String expectedOutput =
+				"PermittedSubclasses:\n" +
+				"   #16 X$1,\n" +
+				"   #25 X$2,\n" +
+				"   #31 X$3\n" +
+				"}";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }
