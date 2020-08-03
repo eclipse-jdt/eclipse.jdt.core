@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565388"};
+//		TESTS_NAMES = new String[] { "testBug565786_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -7179,5 +7179,25 @@ public void testBug565388_002() {
 		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
 		"----------\n"
 	);
+}
+public void testBug565786_001() throws IOException, ClassFormatException {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"    public static void main(String[] args) {\n"+
+			"        System.out.println(0);\n"+
+			"   }\n"+
+			"}\n"+
+			"interface I {\n"+
+			"    record R() {}\n"+
+			"}",
+		},
+		"0");
+	String expectedOutput =
+			"  // Method descriptor #6 ()V\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public I$R();\n";
+	verifyClassFile(expectedOutput, "I$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }

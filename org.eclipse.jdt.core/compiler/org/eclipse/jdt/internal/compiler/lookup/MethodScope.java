@@ -120,7 +120,9 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 	if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 		problemReporter().duplicateModifierForMethod(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
 
-	if ((((ConstructorDeclaration) this.referenceContext).bits & ASTNode.IsDefaultConstructor) != 0) {
+	int astNodeBits = ((ConstructorDeclaration) this.referenceContext).bits;
+	if ((astNodeBits & ASTNode.IsDefaultConstructor) != 0
+			||((astNodeBits & ASTNode.IsImplicit) != 0 && (astNodeBits & ASTNode.IsCanonicalConstructor) != 0))  {
 		// certain flags are propagated from declaring class onto constructor
 		final int DECLARING_FLAGS = ClassFileConstants.AccEnum|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
 		final int VISIBILITY_FLAGS = ClassFileConstants.AccPrivate|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
