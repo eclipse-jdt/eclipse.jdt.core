@@ -690,8 +690,9 @@ public class ClassScope extends Scope {
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
 		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
-			boolean flagSealedNonModifiers = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
-					compilerOptions().enablePreviewFeatures &&
+			boolean isPreviewEnabled = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
+					compilerOptions().enablePreviewFeatures;
+			boolean flagSealedNonModifiers = isPreviewEnabled &&
 					(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
@@ -763,6 +764,8 @@ public class ClassScope extends Scope {
 					}
 					modifiers |= ClassFileConstants.AccFinal;
 				}
+				if (isPreviewEnabled && (modifiers & ClassFileConstants.AccFinal) == 0)
+					modifiers |= ExtraCompilerModifiers.AccSealed;
 			}
 		} else if (sourceType.isRecord()) {
 			if (isMemberType) {

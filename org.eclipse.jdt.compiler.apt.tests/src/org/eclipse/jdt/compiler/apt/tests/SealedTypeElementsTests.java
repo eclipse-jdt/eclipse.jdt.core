@@ -60,11 +60,27 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test004() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test003", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "15", "test004", null, "sealed", true);
 	}
 	public void test004Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "15", "test004", null, "sealed", true);
+	}
+	public void test005Src() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Src", null, "sealed", true);
+	}
+	public void test005SrcJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Src", null, "sealed", true);
+	}
+	public void test005Binary() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Binary", null, "sealed", true);
+	}
+	public void test005BinaryJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Binary", null, "sealed", true);
 	}
 
 	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,

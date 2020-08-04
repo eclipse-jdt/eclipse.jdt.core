@@ -125,7 +125,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 
 	@Override
 	public void reportError(String msg) {
-		throw new AssertionFailedError(msg + " isBinary: " + isBinaryMode);
+		throw new AssertionFailedError(msg + " (Binary mode= " + isBinaryMode + ")");
 	}
 	protected String getExceptionStackTrace(Throwable t) {
 		StringBuffer buf = new StringBuffer(t.getMessage());

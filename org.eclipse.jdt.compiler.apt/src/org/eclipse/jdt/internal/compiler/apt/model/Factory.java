@@ -313,7 +313,8 @@ public class Factory {
 						ClassFileConstants.AccPrivate,
 						ClassFileConstants.AccAbstract,
 						ClassFileConstants.AccStatic,
-						ClassFileConstants.AccStrictfp
+						ClassFileConstants.AccStrictfp,
+						ExtraCompilerModifiers.AccSealed,
 					});
 				} else {
 					// enum from source cannot be explicitly abstract
@@ -323,7 +324,8 @@ public class Factory {
 						ClassFileConstants.AccFinal,
 						ClassFileConstants.AccPrivate,
 						ClassFileConstants.AccStatic,
-						ClassFileConstants.AccStrictfp
+						ClassFileConstants.AccStrictfp,
+						ExtraCompilerModifiers.AccSealed,
 					});
 				}
 				break;

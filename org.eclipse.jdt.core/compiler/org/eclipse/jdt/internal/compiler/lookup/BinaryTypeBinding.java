@@ -537,6 +537,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;
 			char[][] permittedSubtypeNames = binaryType.getPermittedSubtypeNames();
 			if (permittedSubtypeNames != null) {
+				this.modifiers |= ExtraCompilerModifiers.AccSealed;
 				int size = permittedSubtypeNames.length;
 				if (size > 0) {
 					this.permittedSubtypes = new ReferenceBinding[size];
@@ -1668,12 +1669,6 @@ private boolean isPrototype() {
 @Override
 public boolean isRecord() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
-}
-
-@Override
-public boolean isSealed() {
-	ReferenceBinding[] permittedSubTypes = permittedTypes();
-	return !(permittedSubTypes == null || permittedSubTypes == Binding.NO_PERMITTEDTYPES);
 }
 
 @Override

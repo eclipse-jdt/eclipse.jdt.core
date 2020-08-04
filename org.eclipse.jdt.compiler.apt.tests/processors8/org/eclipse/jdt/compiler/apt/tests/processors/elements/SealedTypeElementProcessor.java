@@ -26,6 +26,8 @@ import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -36,6 +38,7 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 
 @SupportedAnnotationTypes("*")
+@SupportedSourceVersion(SourceVersion.RELEASE_15)
 public class SealedTypeElementProcessor extends BaseElementProcessor {
 	TypeElement nonSealed = null;
 	TypeElement sealed1 = null;
@@ -45,6 +48,7 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 	Modifier modifierFinal = null;
 	PackageElement topPkg = null;
 	PackageElement topPkg2 = null;
+	PackageElement topPkg3 = null;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -52,6 +56,10 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 	public void testAll() throws AssertionFailedError, IOException {
 		test001();
 		test002();
+		test003();
+		test004();
+		test005Src();
+		test005Binary();
 	}
 	private void fetchElements() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
@@ -64,6 +72,8 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 				topPkg = (PackageElement) (element.getEnclosingElement());
 			} else if ("TopMain2".equals(element.getSimpleName().toString())) {
 				topPkg2 = (PackageElement) (element.getEnclosingElement());
+			} else if ("TopMain3".equals(element.getSimpleName().toString())) {
+				topPkg3 = (PackageElement) (element.getEnclosingElement());
 			}
 		}
 		try {
@@ -239,5 +249,57 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 				break;
 			}
 		}
+	}
+	public void _test005() {
+		fetchElements();
+		assertNotNull("package null", topPkg3);
+		List<? extends Element> enclosedElements = topPkg3.getEnclosedElements();
+		assertEquals("incorrect no of enclosed elements", 1, enclosedElements.size());
+		TypeElement topType = null;
+		for (Element element : enclosedElements) {
+			if (element instanceof TypeElement) {
+				TypeElement temp = (TypeElement) element;
+				if (temp.getQualifiedName().toString().equals("sealed.sub3.TopMain3")) {
+					topType = (TypeElement) element;
+					break;
+				}
+			}
+		}
+		assertNotNull("type should not be null", topType);
+		enclosedElements = topType.getEnclosedElements();
+		assertEquals("incorrect no of enclosed elements", 4, enclosedElements.size());
+		TypeElement sealedIntf = null;
+		TypeElement enumElement = null;
+		for (Element element : enclosedElements) {
+			if (!(element instanceof TypeElement))
+				continue;
+			TypeElement typeEl = (TypeElement) element;
+			Set<Modifier> modifiers = null;
+			if (typeEl.getQualifiedName().toString().equals("sealed.sub3.TopMain3.SealedIntf")) {
+				sealedIntf = typeEl;
+				modifiers = typeEl.getModifiers();
+				assertTrue("should contain modifier sealed", modifiers.contains(sealed));
+				assertFalse("should not contain modifier final", modifiers.contains(modifierFinal));
+				assertTrue("should contain modifier static", modifiers.contains(modifierStatic));
+				assertFalse("should not contain modifier non-sealed", modifiers.contains(non_Sealed));
+			} else if (typeEl.getQualifiedName().toString().equals("sealed.sub3.TopMain3.MyEnum")) {
+				enumElement = typeEl;
+				modifiers = typeEl.getModifiers();
+				assertTrue("should contain modifier sealed", modifiers.contains(sealed));
+				assertFalse("enum should not contain modifier final", modifiers.contains(modifierFinal));
+				assertTrue("should contain modifier static", modifiers.contains(modifierStatic));
+				assertFalse("should not contain modifier non-sealed", modifiers.contains(non_Sealed));
+			}
+		}
+		assertNotNull("type element should not null", sealedIntf);
+		assertNotNull("type element should not null", enumElement);
+	}
+	public void test005Src() {
+		if (this.isBinaryMode) return;
+		_test005();
+	}	
+	public void test005Binary() {
+		if (!this.isBinaryMode) return;
+		_test005();
 	}
 }

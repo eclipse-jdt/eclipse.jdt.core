@@ -888,6 +888,8 @@ public int getModifiers() {
 	} else {
 		modifiers = this.accessFlags;
 	}
+	if (this.permittedSubtypesCount > 0)
+		modifiers |= ExtraCompilerModifiers.AccSealed;
 	return modifiers;
 }
 

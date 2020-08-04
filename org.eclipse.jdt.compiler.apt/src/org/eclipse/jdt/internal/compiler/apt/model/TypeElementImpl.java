@@ -47,7 +47,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
@@ -292,9 +291,6 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		int modifiers = refBinding.modifiers;
 		if (refBinding.isInterface() && refBinding.isNestedType()) {
 			modifiers |= ClassFileConstants.AccStatic;
-		}
-		if (refBinding.permittedTypes().length > 0) {
-			modifiers |= ExtraCompilerModifiers.AccSealed;
 		}
 		
 		return Factory.getModifiers(modifiers, getKind(), refBinding.isBinaryBinding());
