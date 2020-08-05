@@ -1402,5 +1402,319 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 	 	}
 
+	 	public void testAnnotationsInRecords1() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"record X(@MyAnnot int lo) {\n" +
+					"	public int lo() {\n" +
+					"		return this.lo;\n" +
+					"	}\n" +
+					"\n" +
+					"}\n" +
+					"@Target({ElementType.FIELD})\n" +
+					"@interface MyAnnot {}";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("MyAnnot", ANNOTATION_TYPE, ALL_OCCURRENCES);
+				assertSearchResults(
+						"src/X.java X.lo [MyAnnot] EXACT_MATCH\n" +
+						"src/X.java MyAnnot [MyAnnot] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+
+	 	public void testAnnotationsInRecords2() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"record X(@MyAnnot int lo) {\n" +
+					"	public int lo() {\n" +
+					"		return this.lo;\n" +
+					"	}\n" +
+					"\n" +
+					"}\n" +
+					"@Target({ElementType.FIELD})\n" +
+					"@interface MyAnnot {}";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("MyAnnot", ANNOTATION_TYPE, REFERENCES);
+				assertSearchResults("src/X.java X.lo [MyAnnot] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+	 	public void testAnnotationsInRecords3() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"record X(@MyAnnot int lo) {\n" +
+					"	public static @MyAnnot int x;\n" +
+					"	public int lo() {\n" +
+					"		return this.lo;\n" +
+					"	}\n" +
+					"\n" +
+					"}\n" +
+					"@Target({ElementType.RECORD_COMPONENT})\n" +
+					"@interface MyAnnot {}";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("MyAnnot", ANNOTATION_TYPE, REFERENCES);
+				assertSearchResults(
+						"src/X.java X.lo [MyAnnot] EXACT_MATCH\n" +
+						"src/X.java X.x [MyAnnot] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+	 	public void testAnnotationsInRecords4() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "package test1;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"public record X() {\n" +
+					"	static String myObject = \"Foo\";\n" +
+					"	public void foo() {\n" +
+					"		String myString = (@Annot String) myObject;\n" +
+					"		String myString1 = (@Annot1 @Annot String) myObject;\n" +
+					"	}\n" +
+					"}\n" +
+					"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
+					"@interface Annot {}\n" +
+					"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
+					"@interface Annot1 {}\n" +
+					"";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Annot", ANNOTATION_TYPE, REFERENCES);
+
+				assertSearchResults(
+						"src/X.java void X.foo() [Annot] EXACT_MATCH\n" +
+						"src/X.java void X.foo() [Annot] EXACT_MATCH");
+
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+	 	public void testAnnotationsInRecords5() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "package test1;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"public record X() {\n" +
+					"	static String myObject = \"Foo\";\n" +
+					"	public void foo() {\n" +
+					"		String myString = (@Annot String) myObject;\n" +
+					"		String myString1 = (@Annot1 @Annot String) myObject;\n" +
+					"	}\n" +
+					"}\n" +
+					"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
+					"@interface Annot {}\n" +
+					"@java.lang.annotation.Target(value = {ElementType.TYPE_USE})\n" +
+					"@interface Annot1 {}";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Annot", ANNOTATION_TYPE, REFERENCES);
+				assertSearchResults(
+						"src/X.java void X.foo() [Annot] EXACT_MATCH\n" +
+						"src/X.java void X.foo() [Annot] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+	 	public void testAnnotationsInRecords6() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "package test1;\n" +
+					"\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"\n" +
+					"public record X2() {\n" +
+					"	public interface Helper<T> {\n" +
+					"	}\n" +
+					"	public class Foo1<T> implements @Annot_ Helper<T> {\n" +
+					"	}\n" +
+					"	public class Foo2<T> implements @Annot_ @Annot1_ Helper<T> {\n" +
+					"	}\n" +
+					"}\n" +
+					"\n" +
+					"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+					"@interface Annot_ {}\n" +
+					"\n" +
+					"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+					"@interface Annot1_ {}";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Annot_", ANNOTATION_TYPE, REFERENCES);
+				assertSearchResults(
+						"src/X.java X2$Foo1 [Annot_] EXACT_MATCH\n" +
+						"src/X.java X2$Foo2 [Annot_] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+		public void testAnnotationsInRecords7() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents = "package test1;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"public record X3() {\n" +
+					"	public record Helper<T>() {\n" +
+					"	}\n" +
+					"	public record Base() {\n" +
+					"	}\n" +
+					"	public static void UnboundedWildcard1 (Helper<@Annot__ ?> x) {\n" +
+					"	}\n" +
+					"	public static void UnboundedWildcard2 (Helper<@Annot1__ @Annot__ ?> x) {\n" +
+					"	}\n" +
+					"	public static void BoundedWildcard1 (Helper<@Annot__ ? extends Base> x) {\n" +
+					"	}\n" +
+					"	public static void BoundedWildcard2 (Helper<@Annot1__ @Annot__ ? extends Base> x) {\n" +
+					"	}\n" +
+					"}\n" +
+					"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+					"@interface Annot__ {}\n" +
+					"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
+					"@interface Annot1__ {}\n" +
+					"";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Annot__", ANNOTATION_TYPE, REFERENCES);
+				assertSearchResults(
+						"src/X.java void X3.UnboundedWildcard1(Helper<?>) [Annot__] EXACT_MATCH\n" +
+						"src/X.java void X3.UnboundedWildcard2(Helper<?>) [Annot__] EXACT_MATCH\n" +
+						"src/X.java void X3.BoundedWildcard1(Helper<? extends Base>) [Annot__] EXACT_MATCH\n" +
+						"src/X.java void X3.BoundedWildcard2(Helper<? extends Base>) [Annot__] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+
+		public void testAnnotationsInRecords8() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+
+			String contents =  "package test1;\n" +
+					 "import java.lang.annotation.Target;\n" +
+					 "public record X() {\n" +
+					 "	public static void main(String[] args) {\n" +
+					 "		Outer outer = new Outer();\n" +
+					 "		Outer.@Marker1 Inner first = outer.new Inner();\n" +
+					 "		Outer.@Marker2 Inner second = outer.new Inner() ;\n" +
+					 "		Outer.Inner.@Marker1 Deeper deeper = second.new Deeper();\n" +
+					 "		Outer.Inner.Deeper deeper2 =  second.new Deeper();\n" +
+					 "	}\n" + "}\n" + "class Outer {\n" +
+					 "	public class Inner {\n" +
+					 "		public class Deeper {\n" +
+					 "		}\n" +
+					 "	}\n" +
+					 "}\n" +
+					 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					 "@interface Marker {}\n" +
+					 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					 "@interface Marker1 {}\n" +
+					 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+					 "@interface Marker2 {}\n";
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",contents);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Marker1", ANNOTATION_TYPE, REFERENCES);
+				assertSearchResults(
+						"src/X.java void X.main(String[]) [Marker1] EXACT_MATCH\n" +
+						"src/X.java void X.main(String[]) [Marker1] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+
+	 	}
+		// test all occurrences  of annotation of non-source jar with record
+		  public void testAnnnotationInRecordJar() throws CoreException {
+
+		 		IType typeRecord = getClassFile("JavaSearchBugs", "lib/annotation_in_record_jar.jar", "pack", "X99.class").getType();
+		 		search(
+		 			typeRecord,
+		 			ALL_OCCURRENCES,
+		 			getJavaSearchScope(),
+		 			this.resultCollector);
+		 		assertSearchResults(
+		 				"lib/annotation_in_record_jar.jar pack.MyRecord.lo [No source] EXACT_MATCH\n" +
+		 				"lib/annotation_in_record_jar.jar pack.X99 [No source] EXACT_MATCH",
+		 			this.resultCollector);
+		}
+
+		// test all occurrences  of annotation of source jar with record
+		  public void testAnnnotationInRecordSourceJar() throws CoreException {
+
+		 		IType typeRecord = getClassFile("JavaSearchBugs", "lib/annotation_in_record_source_jar.jar", "pack", "X100.class").getType();
+		 		search(
+		 			typeRecord,
+		 			ALL_OCCURRENCES,
+		 			getJavaSearchScope(),
+		 			this.resultCollector);
+		 		assertSearchResults(
+		 				"lib/annotation_in_record_source_jar.jar pack.MyRecord.lo EXACT_MATCH\n" +
+		 						"lib/annotation_in_record_source_jar.jar pack.X100 EXACT_MATCH",
+		 			this.resultCollector);
+		}
+		// test all reference  of annotation of non-source jar with record
+		  public void testAnnnotationJustReferenceInRecordJar() throws CoreException {
+
+		 		IType typeRecord = getClassFile("JavaSearchBugs", "lib/annotation_in_record_jar.jar", "pack", "X99.class").getType();
+		 		search(
+		 			typeRecord,
+		 			REFERENCES,
+		 			getJavaSearchScope(),
+		 			this.resultCollector);
+		 		assertSearchResults(
+		 				"lib/annotation_in_record_jar.jar pack.MyRecord.lo [No source] EXACT_MATCH",
+		 			this.resultCollector);
+		}
+		// test all reference  of annotation of source jar with record
+		  public void testAnnnotationJustReferenceInRecordSourceJar() throws CoreException {
+
+		 		IType typeRecord = getClassFile("JavaSearchBugs", "lib/annotation_in_record_source_jar.jar", "pack", "X100.class").getType();
+		 		search(
+		 			typeRecord,
+		 			REFERENCES,
+		 			getJavaSearchScope(),
+		 			this.resultCollector);
+		 		assertSearchResults(
+		 				"lib/annotation_in_record_source_jar.jar pack.MyRecord.lo EXACT_MATCH",
+		 			this.resultCollector);
+		}
+
 
 }

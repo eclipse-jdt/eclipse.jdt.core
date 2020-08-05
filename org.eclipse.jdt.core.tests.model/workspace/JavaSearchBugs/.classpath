@@ -6,6 +6,8 @@
      <classpathentry kind="lib" path="lib/record_reference_in_source_jar.jar" sourcepath="/JavaSearchBugs/lib/record_reference_in_source_jar.jar"/>
      <classpathentry kind="lib" path="lib/permit_reference_in_nonsource_jar.jar" sourcepath="/JavaSearchBugs/lib/permit_reference_in_nonsource_jar.jar"/>
      <classpathentry kind="lib" path="lib/permit_reference_in_source_jar.jar" sourcepath="/JavaSearchBugs/lib/permit_reference_in_source_jar.jar"/>
+     <classpathentry kind="lib" path="lib/annotation_in_record_jar.jar" sourcepath="/JavaSearchBugs/lib/annotation_in_record_jar.jar"/>
+     <classpathentry kind="lib" path="lib/annotation_in_record_source_jar.jar" sourcepath="/JavaSearchBugs/lib/annotation_in_record_source_jar.jar"/>
 	<classpathentry kind="lib" path="lib/test81556.jar" sourcepath="/JavaSearchBugs/lib/test81556.jar"/>
 	<classpathentry kind="lib" path="lib/test75816.jar" sourcepath="/JavaSearchBugs/lib/test75816.jar"/>
 	<classpathentry kind="lib" path="lib/b86293.jar"/>
