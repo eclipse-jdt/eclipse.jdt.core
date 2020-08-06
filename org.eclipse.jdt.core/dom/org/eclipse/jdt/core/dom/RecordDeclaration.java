@@ -459,7 +459,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	@Override
 	int memSize() {
-		return super.memSize() + 8 * 4;
+		return super.memSize() + 4 * 4;
 	}
 
 	@Override

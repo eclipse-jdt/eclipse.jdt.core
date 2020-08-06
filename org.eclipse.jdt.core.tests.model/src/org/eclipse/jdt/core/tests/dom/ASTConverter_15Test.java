@@ -517,6 +517,97 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
+	public void testRecord011() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents =
+			"public record X() {\n" +
+			"		public X {\n" +
+			"			System.out.println(\"no error\");\n" +
+			"		}\n" +
+			"\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List<AbstractTypeDeclaration> types = compilationUnit.types();
+			assertEquals("No. of Types is not 1", types.size(), 1);
+			AbstractTypeDeclaration type = types.get(0);
+			assertTrue("type not a Record", type instanceof RecordDeclaration);
+			RecordDeclaration recDecl = (RecordDeclaration)type;
+			int startPos = recDecl.getRestrictedIdentifierStartPosition();
+			assertEquals("Start position of 'record' keyword is not 7", startPos, 7);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testClass001() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents =
+			"public class X {\n" +
+			"		public X() {\n" +
+			"			System.out.println(\"no error\");\n" +
+			"		}\n" +
+			"\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List<AbstractTypeDeclaration> types = compilationUnit.types();
+		assertEquals("No. of Types is not 1", types.size(), 1);
+		AbstractTypeDeclaration type = types.get(0);
+		assertTrue("type not a type", type instanceof TypeDeclaration);
+		TypeDeclaration typeDecl = (TypeDeclaration)type;
+		assertTrue("type not a class", !typeDecl.isInterface());
+		int startPos = typeDecl.getRestrictedIdentifierStartPosition();
+		assertEquals("Restricter identifier position for class' is not -1", startPos, -1);
+	}
+
+	public void testInterface001() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents =
+			"public interface X {\n" +
+			"\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List<AbstractTypeDeclaration> types = compilationUnit.types();
+		assertEquals("No. of Types is not 1", types.size(), 1);
+		AbstractTypeDeclaration type = types.get(0);
+		assertTrue("type not a type", type instanceof TypeDeclaration);
+		TypeDeclaration typeDecl = (TypeDeclaration)type;
+		assertTrue("type not an interface", typeDecl.isInterface());
+		int startPos = typeDecl.getRestrictedIdentifierStartPosition();
+		assertEquals("Restricter identifier position for interface' is not -1", startPos, -1);
+	}
+
 	public void testTextBlock001() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
@@ -738,7 +829,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			assertEquals("Not a Type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 			TypeDeclaration type = (TypeDeclaration)node;
 			List modifiers = type.modifiers();
-			assertEquals("Incorrect no of modfiers", 2, modifiers.size());
+			assertEquals("Incorrect no of modifiers", 2, modifiers.size());
 			Modifier modifier = (Modifier) modifiers.get(1);
 			assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.SEALED_KEYWORD, modifier.getKeyword());
 			List permittedTypes = type.permittedTypes();
@@ -788,6 +879,96 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			Modifier modifier = (Modifier) modifiers.get(1);
 			assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.SEALED_KEYWORD, modifier.getKeyword());
 
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testSealed003() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents = "public sealed interface X permits X1{\n" +
+				"\n" +
+				"}\n" +
+				"non-sealed interface X1 extends X {\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List<AbstractTypeDeclaration> types = compilationUnit.types();
+			assertEquals("No. of Types is not 2", types.size(), 2);
+			AbstractTypeDeclaration type = types.get(0);
+			if (!type.getName().getIdentifier().equals("X")) {
+				type = types.get(1);
+			}
+			assertTrue("type not a type", type instanceof TypeDeclaration);
+			TypeDeclaration typeDecl = (TypeDeclaration)type;
+			assertTrue("type not an interface", typeDecl.isInterface());
+			List modifiers = type.modifiers();
+			assertEquals("Incorrect no of modifiers", 2, modifiers.size());
+			Modifier modifier = (Modifier) modifiers.get(1);
+			assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.SEALED_KEYWORD, modifier.getKeyword());
+			int startPos = modifier.getStartPosition();
+			assertEquals("Restricter identifier position for sealed is not 7", startPos, contents.indexOf("sealed"));
+			startPos = typeDecl.getRestrictedIdentifierStartPosition();
+			assertEquals("Restricter identifier position for permits is not 26", startPos, contents.indexOf("permits"));
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testSealed004() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents = "public sealed class X permits X1{\n" +
+				"\n" +
+				"}\n" +
+				"non-sealed class X1 extends X {\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List<AbstractTypeDeclaration> types = compilationUnit.types();
+			assertEquals("No. of Types is not 2", types.size(), 2);
+			AbstractTypeDeclaration type = types.get(0);
+			if (!type.getName().getIdentifier().equals("X")) {
+				type = types.get(1);
+			}
+			assertTrue("type not a type", type instanceof TypeDeclaration);
+			TypeDeclaration typeDecl = (TypeDeclaration)type;
+			assertTrue("type not an class", !typeDecl.isInterface());
+			List modifiers = type.modifiers();
+			assertEquals("Incorrect no of modifiers", 2, modifiers.size());
+			Modifier modifier = (Modifier) modifiers.get(1);
+			assertSame("Incorrect modifier keyword", Modifier.ModifierKeyword.SEALED_KEYWORD, modifier.getKeyword());
+			int startPos = modifier.getStartPosition();
+			assertEquals("Restricter identifier position for sealed is not 7", startPos, contents.indexOf("sealed"));
+			startPos = typeDecl.getRestrictedIdentifierStartPosition();
+			assertEquals("Restricter identifier position for permits is not 26", startPos, contents.indexOf("permits"));
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}

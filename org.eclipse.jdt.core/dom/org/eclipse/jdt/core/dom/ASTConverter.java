@@ -3312,6 +3312,9 @@ class ASTConverter {
 						typeDecl.permittedTypes().add(convertType);
 					}
 				}
+				if (permittedTypes.length > 0) {
+					typeDecl.setRestrictedIdentifierStartPosition(typeDeclaration.restrictedIdentifierStart);
+				}
 			}
 		}
 		buildBodyDeclarations(typeDeclaration, typeDecl, isInterface);

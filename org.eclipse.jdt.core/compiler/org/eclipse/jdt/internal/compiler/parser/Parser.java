@@ -2684,7 +2684,9 @@ private void consumeClassOrRecordHeaderName1(boolean isRecord) {
 	// we want to keep the beginning position but get rid of the end position
 	// it is only used for the ClassLiteralAccess positions.
 	typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
-	typeDecl.restrictedIdentifierStart = typeDecl.declarationSourceStart;
+	if (isRecord) {
+		typeDecl.restrictedIdentifierStart = typeDecl.declarationSourceStart;
+	}
 	this.intPtr--; // remove the end position of the class token
 
 	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
@@ -4745,6 +4747,7 @@ private void populatePermittedTypes() {
 	//permitted types
 	this.astPtr -= length;
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	typeDecl.restrictedIdentifierStart= this.intStack[this.intPtr--];
 	System.arraycopy(
 		this.astStack,
 		this.astPtr + 1,
@@ -10281,6 +10284,7 @@ protected void consumeToken(int type) {
 		case TokenNameuses:
 		case TokenNameprovides:
 		case TokenNameRestrictedIdentifierYield:
+		case TokenNameRestrictedIdentifierpermits:
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNameswitch :

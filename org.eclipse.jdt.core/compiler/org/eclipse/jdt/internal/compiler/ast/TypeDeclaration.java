@@ -76,7 +76,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int maxFieldCount;
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
-	public int restrictedIdentifierStart; // used only for records
+	public int restrictedIdentifierStart = -1; // used only for record and permits restricted keywords.
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public CompilationResult compilationResult;

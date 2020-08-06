@@ -495,6 +495,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 		if (DOMASTUtil.isFeatureSupportedinAST(this.ast, Modifier.SEALED)) {
 			result.permittedTypes().addAll(
 					ASTNode.copySubtrees(target, permittedTypes()));
+			result.restrictedIdentifierStartPosition = getRestrictedIdentifierStartPosition();
 		}
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
@@ -866,7 +867,8 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	@Override
 	int memSize() {
-		return super.memSize() + 6 * 4;
+		// there are 7 fields that are either int or pointer and one boolean type
+		return super.memSize() + 1 + (7 * 4) ;
 	}
 
 	@Override
@@ -882,6 +884,38 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 			+ (this.superInterfaceTypes == null ? 0 : this.superInterfaceTypes.listSize())
 			+ (this.permittedTypes == null ? 0 : this.permittedTypes.listSize())
 			+ this.bodyDeclarations.listSize();
+	}
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 */
+	private int restrictedIdentifierStartPosition = -1;
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 *
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
+		if (restrictedIdentifierStartPosition < 0) {
+			throw new IllegalArgumentException();
+		}
+		// restrictedIdentifierStartPosition is not considered a structural property
+		// but we protect it nevertheless
+		checkModifiable();
+		this.restrictedIdentifierStartPosition = restrictedIdentifierStartPosition;
+	}
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 *
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public int getRestrictedIdentifierStartPosition() {
+		return this.restrictedIdentifierStartPosition;
 	}
 }
 
