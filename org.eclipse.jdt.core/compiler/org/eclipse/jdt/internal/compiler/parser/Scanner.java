@@ -111,6 +111,7 @@ public class Scanner implements TerminalTokens {
 
 	public boolean fakeInModule = false;
 	boolean inCase = false;
+	boolean inCondition = false;
 	/* package */ int yieldColons = -1;
 	boolean breakPreviewAllowed = false;
 	/**
@@ -1433,9 +1434,19 @@ private void updateCase(int token) {
 	if (token == TokenNamecase) {
 		this.inCase = true;
 		this.breakPreviewAllowed = true;
+	} else if (this.inCase) {
+		// This is for cases like this: case j != 1 ? 2 : (j == 2 ? 4 : 5) ->  true;
+		// Turn off the inCase until we are past the ':' that belongs to the ConditionalExpression
+		if (token == TokenNameQUESTION) {
+			this.inCondition = true;
+		} else if (this.inCondition) {
+			if (token == TokenNameCOLON) {
+				this.inCondition = false;
+			}
+		} else if (token == TokenNameCOLON || token == TokenNameARROW) {
+			this.inCase = false;
+		}
 	}
-	if (token == TokenNameCOLON || token == TokenNameARROW)
-		this.inCase = false;
 }
 public int getNextToken() throws InvalidInputException {
 

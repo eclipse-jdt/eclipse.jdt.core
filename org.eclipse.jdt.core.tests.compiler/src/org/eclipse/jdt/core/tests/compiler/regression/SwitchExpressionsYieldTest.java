@@ -5435,4 +5435,105 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	public void testBug565844_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case j != 1 ? 2 : 3 ->  true;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void testBug565844_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 2;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case j != 1 ? 2 : (j == 2 ? 4 : 5) ->  true;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"true");
+	}
+	public void testBug565844_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case j != 1 ? 2 : 3 ->  {\n" +
+					"    						yield true;\n" +
+					"    					}\n" +
+					"    				default -> { yield false;}\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void testBug565844_4() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case j != 1 ? 2 : 3 :  {\n" +
+					"    						yield true;\n" +
+					"    					}\n" +
+					"    				default : { yield false;}\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void testBug565844_5() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case j != 1 ? 2 : 3 ->  {\n" +
+					"    						yield true;\n" +
+					"    					}\n" +
+					"    				default -> { yield false;}\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case j != 1 ? 2 : 3 ->  {\n" +
+				"	     ^^^^^^^^^^^^^^\n" +
+				"case expressions must be constant expressions\n" +
+				"----------\n");
+	}
 }
