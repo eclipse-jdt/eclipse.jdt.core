@@ -1352,6 +1352,27 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"one",
 				options);
 	}
+	public void test024b() {
+		Map<String, String> options = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X24a.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X24a {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" +
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		for (;!(o instanceof String s);) {\n" +
+						"			 throw new IllegalArgumentException();\n" +
+						"		}\n" +
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"one",
+				options);
+	}
 	/*
 	 * It's not a problem to define the same var in two operands of a binary expression,
 	 * but then it is not in scope below.
@@ -1757,7 +1778,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	/*
 	 * Failing with VerifyError
 	 */
-	public void _test039() {
+	public void test039() {
 		runConformTest(
 				new String[] {
 						"X39.java",
@@ -2046,7 +2067,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				compilerOptions);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
-	public void _test051() {
+	public void test051() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
 		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
@@ -2643,6 +2664,73 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"",
 				null,
 				true,
+				compilerOptions);
+	}
+	public void test059() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" static int count;\n"+
+						" public static void main(String[] args) {\n"+
+						"   int i = 10;\n"+
+						"   if (foo() instanceof String s) {\n"+
+						"     ++i;\n"+
+						"   }\n"+
+						"   System.out.println(\"count:\"+X.count+\" i:\"+i);\n"+
+						" }\n"+
+						" public static Object foo() {\n"+
+						"   ++X.count;\n"+
+						"   return new Object();\n"+
+						" }  \n"+
+						"}",
+				},
+				"count:1 i:10",
+				compilerOptions);
+	}
+	public void test060() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" static int count;\n"+
+						" public static void main(String[] args) {\n"+
+						"   int i = 10;\n"+
+						"   if (foo() instanceof String s) {\n"+
+						"     ++i;\n"+
+						"   }\n"+
+						"   System.out.println(\"count:\"+X.count+\" i:\"+i);\n"+
+						" }\n"+
+						" public static Object foo() {\n"+
+						"   ++X.count;\n"+
+						"   return new String(\"hello\");\n"+
+						" }  \n"+
+						"}",
+				},
+				"count:1 i:11",
+				compilerOptions);
+	}
+	public void test061() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" static int count;\n"+
+						" static String STR = \"FAIL\";\n"+
+						" @SuppressWarnings(\"preview\")\n"+
+						" public static void main(String[] args) {\n"+
+						"   if ( switch(STR) {\n"+
+						"       default -> \"PASS\";\n"+
+						"       } instanceof String s) {\n"+
+						"     System.out.println(s);\n"+
+						"   }\n"+
+						" }\n"+
+						"}",
+				},
+				"PASS",
 				compilerOptions);
 	}
 }

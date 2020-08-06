@@ -118,6 +118,7 @@ public class Scanner implements TerminalTokens {
 
 	public boolean fakeInModule = false;
 	boolean inCase = false;
+	boolean inCondition = false;
 	/* package */ int yieldColons = -1;
 	boolean breakPreviewAllowed = false;
 	/**
@@ -1447,9 +1448,19 @@ private void updateCase(int token) {
 	if (token == TokenNamecase) {
 		this.inCase = true;
 		this.breakPreviewAllowed = true;
+	} else if (this.inCase) {
+		// This is for cases like this: case j != 1 ? 2 : (j == 2 ? 4 : 5) ->  true;
+		// Turn off the inCase until we are past the ':' that belongs to the ConditionalExpression
+		if (token == TokenNameQUESTION) {
+			this.inCondition = true;
+		} else if (this.inCondition) {
+			if (token == TokenNameCOLON) {
+				this.inCondition = false;
+			}
+		} else if (token == TokenNameCOLON || token == TokenNameARROW) {
+			this.inCase = false;
+		}
 	}
-	if (token == TokenNameCOLON || token == TokenNameARROW)
-		this.inCase = false;
 }
 public int getNextToken() throws InvalidInputException {
 
@@ -2064,28 +2075,23 @@ private int scanForStringLiteral() throws InvalidInputException {
 	if (isTextBlock) {
 		try {
 			this.rawStart = this.currentPosition - this.startPosition;
-			int terminators = 0;
 			while (this.currentPosition <= this.eofPosition) {
 				if (this.currentCharacter == '"') {
 					lastQuotePos = this.currentPosition;
 					// look for text block delimiter
 					if (scanForTextBlockClose()) {
-							// Account for just the snippet being passed around
-							// If already at the EOF, bail out.
-						if (this.currentPosition + 2 < this.source.length && this.source[this.currentPosition + 2] == '"') {
-							terminators++;
-							if (terminators > 2)
-								throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
-						} else {
-							this.currentPosition += 2;
-							return TerminalTokens.TokenNameTextBlock;
-						}
+						this.currentPosition += 2;
+						return TerminalTokens.TokenNameTextBlock;
 					}
 					if (this.withoutUnicodePtr != 0) {
 						unicodeStore();
 					}
 				} else {
-					terminators = 0;
+					if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
+						if (this.recordLineSeparator) {
+							pushLineSeparator();
+						}
+					}
 				}
 				outer: if (this.currentCharacter == '\\') {
 					switch(this.source[this.currentPosition]) {

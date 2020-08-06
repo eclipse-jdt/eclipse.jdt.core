@@ -860,6 +860,127 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertTrue("delete failed", inputFile.delete());
 	}
 
+	public void testCompilerOneModuleWithEclipseCompiler() {
+		String tmpFolder = System.getProperty("java.io.tmpdir") + "/src/java";
+		File tempDir= new File(tmpFolder + "/bar");
+		tempDir.mkdirs();
+		File inputFile1 = new File(tmpFolder, "module-info.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile1));
+			writer.write(
+				"module bar {\n" + 
+				"    exports bar;\n" + 
+				"}\n");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		File inputFile2 = new File(tmpFolder + "/bar", "Library.java");
+		writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile2));
+			writer.write(
+				"package bar;\n" + 
+				"public class Library { /**/ }\n");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
+			@Override
+			public FileObject getFileForInput(Location location, String packageName, String relativeName)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				}
+				return super.getFileForInput(location, packageName, relativeName);
+			}
+			@Override
+			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create java file for input : " + className + " in location " + location);
+				}
+				return super.getJavaFileForInput(location, className, kind);
+			}
+			@Override
+			public JavaFileObject getJavaFileForOutput(Location location,
+					String className,
+					Kind kind,
+					FileObject sibling) throws IOException {
+
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
+				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
+				return javaFileForOutput;
+			}
+		};
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile1);
+		files.add(inputFile2);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder + "/target/classes");
+ 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
+ 		// check the classpath location
+ 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+ 		ClassFileReader reader = null;
+ 		try {
+			reader = ClassFileReader.read(new File(tmpFolder + "/target/classes", "module-info.class"), true);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+ 		try {
+			reader = ClassFileReader.read(new File(tmpFolder + "/target/classes", "bar/Library.class"), true);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+		// check that the .class file exist for module-info.class and library.class
+		assertTrue("delete failed", inputFile1.delete());
+		assertTrue("delete failed", inputFile2.delete());
+	}
+
 	// Test that JavaFileManager#inferBinaryName returns null for invalid file
 	public void testInferBinaryName() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
