@@ -110,7 +110,7 @@ public class Scanner implements TerminalTokens {
 	public boolean wasAcr = false;
 
 	public boolean fakeInModule = false;
-	boolean inCase = false;
+	int caseStartPosition = -1;
 	boolean inCondition = false;
 	/* package */ int yieldColons = -1;
 	boolean breakPreviewAllowed = false;
@@ -265,6 +265,7 @@ public Scanner(
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.previewEnabled = isPreviewEnabled;
+	this.caseStartPosition = -1;
 	if (taskTags != null) {
 		int taskTagsLength = taskTags.length;
 		int length = taskTagsLength;
@@ -1432,20 +1433,8 @@ public void ungetToken(int unambiguousToken) {
 }
 private void updateCase(int token) {
 	if (token == TokenNamecase) {
-		this.inCase = true;
+		this.caseStartPosition = this.startPosition;
 		this.breakPreviewAllowed = true;
-	} else if (this.inCase) {
-		// This is for cases like this: case j != 1 ? 2 : (j == 2 ? 4 : 5) ->  true;
-		// Turn off the inCase until we are past the ':' that belongs to the ConditionalExpression
-		if (token == TokenNameQUESTION) {
-			this.inCondition = true;
-		} else if (this.inCondition) {
-			if (token == TokenNameCOLON) {
-				this.inCondition = false;
-			}
-		} else if (token == TokenNameCOLON || token == TokenNameARROW) {
-			this.inCase = false;
-		}
 	}
 }
 public int getNextToken() throws InvalidInputException {
@@ -4959,6 +4948,7 @@ private static class Goal {
 	static int VarargTypeAnnotationsRule  = 0;
 	static int BlockStatementoptRule = 0;
 	static int YieldStatementRule = 0;
+	static int SwitchLabelCaseLhsRule = 0;
 
 	static Goal LambdaParameterListGoal;
 	static Goal IntersectionCastGoal;
@@ -4966,6 +4956,7 @@ private static class Goal {
 	static Goal ReferenceExpressionGoal;
 	static Goal BlockStatementoptGoal;
 	static Goal YieldStatementGoal;
+	static Goal SwitchLabelCaseLhsGoal;
 
 	static {
 
@@ -4987,6 +4978,9 @@ private static class Goal {
 			else
 			if ("YieldStatement".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				YieldStatementRule = i;
+			else
+			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				SwitchLabelCaseLhsRule = i;
 
 		}
 
@@ -4996,6 +4990,7 @@ private static class Goal {
 		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
 		BlockStatementoptGoal =    new Goal(TokenNameLBRACE, new int [0], BlockStatementoptRule);
 		YieldStatementGoal =       new Goal(TokenNameARROW, new int [0], YieldStatementRule);
+		SwitchLabelCaseLhsGoal =   new Goal(TokenNameARROW, new int [0], SwitchLabelCaseLhsRule);
 	}
 
 
@@ -5189,6 +5184,7 @@ protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now
 		case TokenNamefor:
 		case TokenNamesynchronized:
 		case TokenNametry:
+		case TokenNamedefault:
 			return false; // not a viable prefix for cast or lambda.
 		default:
 			return this.activeParser.atConflictScenario(TokenNameLPAREN);
@@ -5472,12 +5468,34 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 	}
 	return token;
 }
+private VanguardScanner getNewVanguardScanner(char[] src) {
+	VanguardScanner vs = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
+	vs.setSource(src);
+	vs.resetTo(0, src.length, isInModuleDeclaration(), this.scanContext);
+	return vs;
+}
+private VanguardParser getNewVanguardParser(char[] src) {
+	VanguardScanner vs = getNewVanguardScanner(src);
+	VanguardParser vp = new VanguardParser(vs);
+	vs.setActiveParser(vp);
+	return vp;
+}
 int disambiguatedToken(int token) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameARROW  && this.inCase) {
-		this.nextToken = TokenNameARROW;
-		this.inCase = false;
-		return TokenNameBeginCaseExpr;
+	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr()) {
+		assert this.caseStartPosition < this.startPosition;
+		int nSz = this.startPosition - this.caseStartPosition;
+		// add fake token of TokenNameCOLON, call vanguard on this modified source
+		// TODO: Inefficient method due to redoing of the same source, investigate alternate
+		// Can we do a dup of parsing/check the transition of the state?
+		String s = new String(this.source, this.caseStartPosition, nSz);
+		String modSource = s.concat(new String(new char[] {':'}));
+		char[] nSource = modSource.toCharArray();
+		VanguardParser vp = getNewVanguardParser(nSource);
+		if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
+			this.nextToken = TokenNameARROW;
+			return TokenNameBeginCaseExpr;
+		}
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			this.nextToken = TokenNameLPAREN;
@@ -5506,6 +5524,11 @@ int disambiguatedToken(int token) {
 	return token;
 }
 
+private boolean mayBeAtCaseLabelExpr() {
+	if (this.lookBack[1] == TokenNamedefault || this.caseStartPosition <= 0)
+		return false;
+	return true;
+}
 protected boolean isAtAssistIdentifier() {
 	return false;
 }
@@ -5585,6 +5608,7 @@ public int fastForward(Statement unused) {
 			case TokenNameLBRACE:
 			case TokenNameAT:
 			case TokenNameBeginLambda:
+			case TokenNameBeginCaseExpr:
 			case TokenNameAT308:
 			case TokenNameRestrictedIdentifierYield: // can be in FOLLOW of Block
 				if(getVanguardParser().parse(Goal.BlockStatementoptGoal) == VanguardParser.SUCCESS)
