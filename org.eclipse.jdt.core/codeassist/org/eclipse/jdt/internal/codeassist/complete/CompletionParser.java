@@ -2574,15 +2574,27 @@ protected void consumeClassHeaderExtends() {
 			RecoveredType recoveredType = (RecoveredType)this.currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredType.foundOpeningBrace) {
+				char[][] keywords = new char[2][];
+				int count = 0;
 				TypeDeclaration type = recoveredType.typeDeclaration;
 				if(type.superInterfaces == null) {
-					type.superclass = new CompletionOnKeyword1(
+					keywords[count++] = Keywords.IMPLEMENTS;
+				}
+				if (this.options.enablePreviewFeatures) {
+					boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
+					if (sealed)
+						keywords[count++] = RestrictedIdentifiers.PERMITS;
+				}
+				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+				if(count > 0) {
+					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
 						this.identifierStack[ptr],
 						this.identifierPositionStack[ptr],
-						Keywords.IMPLEMENTS);
+						keywords);
+					type.superclass = completionOnKeyword;
 					type.superclass.bits |= ASTNode.IsSuperType;
-					this.assistNode = type.superclass;
-					this.lastCheckPoint = type.superclass.sourceEnd + 1;
+					this.assistNode = completionOnKeyword;
+					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 				}
 			}
 		}

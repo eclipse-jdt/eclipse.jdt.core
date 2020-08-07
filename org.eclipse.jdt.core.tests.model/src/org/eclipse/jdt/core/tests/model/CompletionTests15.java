@@ -202,4 +202,21 @@ public class CompletionTests15 extends AbstractJavaModelCompletionTests {
 
 	}
 
+	// check if permit content if the class has extends
+	public void test010() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
+				"public sealed  class X extends Object per Y{\n" + " public static void main(String[] args){\n"
+						+ "    System.out.println(100);\n}\n}\n" + "	final class Y extends X {}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "per";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("permits[RESTRICTED_IDENTIFIER]{permits, null, null, permits, null, 49}", requestor.getResults());
+
+	}
+
 }
