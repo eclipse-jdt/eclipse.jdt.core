@@ -75,6 +75,11 @@ public enum JavaFeature {
 	public char[][] getRestrictedKeywords() {
 		return this.restrictedKeywords;
 	}
+	public boolean isSupported(CompilerOptions options) {
+		if (this.isPreview)
+			return options.enablePreviewFeatures;
+		return this.getCompliance() <= options.sourceLevel;
+	}
 
 	JavaFeature(long compliance, String name, char[][] restrictedKeywords, boolean isPreview) {
         this.compliance = compliance;
