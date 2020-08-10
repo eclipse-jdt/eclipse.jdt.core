@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -2069,32 +2073,38 @@ private int getImplicitCanonicalConstructor() {
 	}
 	return -1;
 }
-private MethodBinding[] checkAndGetExplicitCanonicalConstructors() {
-	List<MethodBinding> ec = new ArrayList<>();
-	if (!this.isRecordDeclaration)
-		return ec.toArray(new MethodBinding[0]);
-
+private void checkAndGetExplicitCanonicalConstructors() {
 	RecordComponentBinding[] recComps = this.components;
 	int nRecordComponents = recComps.length;
-	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
-		for (MethodBinding method : this.methods) {
-			if (!method.isConstructor() || (method.tagBits & TagBits.isImplicit) != 0
-					|| method.parameters.length != nRecordComponents)
-				continue;
-			boolean isEC = true;
-			for (int j = 0; j < nRecordComponents; ++j) {
-				if (TypeBinding.notEquals(method.parameters[j], recComps[j].type)) {
-					isEC = false;
-					break;
-				}
-			}
-			if (isEC) {
-				ec.add(method);
-				checkRecordCanonicalConstructor(method);
+	MethodBinding implicitCanConstr = null;
+	MethodBinding explictCanConstr = null;
+	for (MethodBinding method : this.methods) {
+		if (!method.isConstructor())
+			continue;
+		if ((method.tagBits & TagBits.isImplicit) != 0) {
+			implicitCanConstr = method;
+			continue;
+		}
+		if (method.parameters.length != nRecordComponents)
+			continue;
+		boolean isEC = true;
+		for (int j = 0; j < nRecordComponents; ++j) {
+			if (TypeBinding.notEquals(method.parameters[j], recComps[j].type)) {
+				isEC = false;
+				break;
 			}
 		}
+		if (isEC) {
+			checkRecordCanonicalConstructor(method);
+			// Just exit after sighting the first explicit canonical constructor,
+			// because there can only be one.
+			explictCanConstr = method;
+			break;
+		}
 	}
-	return ec.toArray(new MethodBinding[0]);
+	if (explictCanConstr == null && implicitCanConstr != null) {
+		checkAndFlagHeapPollution(implicitCanConstr, implicitCanConstr.sourceMethod());
+	}
 }
 private int getImplicitMethod(char[] name) {
 	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
@@ -2158,9 +2168,12 @@ public MethodBinding[] methods() {
 		// find & report collision cases
 		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
-		int recordCanonIndex = getImplicitCanonicalConstructor();
-		computeRecordComponents();
-		checkAndGetExplicitCanonicalConstructors();
+		int recordCanonIndex = -1;
+		if (this.isRecordDeclaration) {
+			recordCanonIndex = getImplicitCanonicalConstructor();
+			computeRecordComponents();
+			checkAndGetExplicitCanonicalConstructors();
+		}
 		int recordEqualsIndex = getImplicitMethod(TypeConstants.EQUALS);
 
 		for (int i = 0, length = this.methods.length; i < length; i++) {
@@ -2728,10 +2741,8 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 					&& !(sourceLevel >= ClassFileConstants.JDK9 && method.isPrivate())) {
 				methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
 			}
-		} else if (method.parameters != null && method.parameters.length > 0 && method.isVarargs()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
-			if (!method.parameters[method.parameters.length - 1].isReifiable()) {
-				methodDecl.scope.problemReporter().possibleHeapPollutionFromVararg(methodDecl.arguments[methodDecl.arguments.length - 1]);
-			}
+		} else if ((method.tagBits & TagBits.IsCanonicalConstructor) == 0) {
+			checkAndFlagHeapPollution(method, methodDecl);
 		}
 	}
 
@@ -2826,6 +2837,14 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		ExternalAnnotationSuperimposer.annotateMethodBinding(method, this.externalAnnotationProvider, this.environment);
 	}
 	return method;
+}
+
+private void checkAndFlagHeapPollution(MethodBinding method, AbstractMethodDeclaration methodDecl) {
+	if (method.parameters != null && method.parameters.length > 0 && method.isVarargs()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
+		if (!method.parameters[method.parameters.length - 1].isReifiable()) {
+				methodDecl.scope.problemReporter().possibleHeapPollutionFromVararg(methodDecl.arguments[methodDecl.arguments.length - 1]);
+		}
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=391108
 private static void rejectTypeAnnotatedVoidMethod(AbstractMethodDeclaration methodDecl) {
@@ -3455,7 +3474,7 @@ public MethodBinding getRecordComponentAccessor(char[] name) {
 	return accessor;
 }
 public void computeRecordComponents() {
-	if (!this.isRecordDeclaration || this.implicitComponentFields != null)
+	if (this.implicitComponentFields != null)
 		return;
 	RecordComponent[] recComps = this.scope.referenceContext.recordComponents;
 	List<FieldBinding> list = new ArrayList<>();

@@ -63,9 +63,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions());
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedOutputString = expectedOutput;
@@ -7199,5 +7198,187 @@ public void testBug565786_001() throws IOException, ClassFormatException {
 			"  // Stack: 1, Locals: 1\n" +
 			"  public I$R();\n";
 	verifyClassFile(expectedOutput, "I$R.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// Test that without an explicit canonical constructor, we
+// report the warning on the record type.
+public void testBug563182_01() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	record Point<T> (T ... args) { // 1\n" +
+		"	                       ^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter args\n" +
+		"----------\n",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
+}
+//Test that in presence of an explicit canonical constructor that is NOT annotated with @SafeVarargs,
+// we don't report the warning on the record type but report on the explicit canonical constructor
+public void testBug563182_02() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"		Point(T ... args) { // 2\n" +
+			"			this.args = args;\n" +
+			"		}\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	Point(T ... args) { // 2\n" +
+		"	            ^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter args\n" +
+		"----------\n",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
+}
+//Test that in presence of an explicit canonical constructor that IS annotated with @SafeVarargs,
+//we don't report the warning on neither the record type nor the explicit canonical constructor
+public void testBug563182_03() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"		@SafeVarargs\n" +
+			"		Point(T ... args) { // 2\n" +
+			"			this.args = args;\n" +
+			"		}\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
+}
+//Test that in presence of a compact canonical constructor that is NOT annotated with @SafeVarargs,
+//we don't report the warning on the compact canonical constructor but report on the record type
+public void testBug563182_04() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"		Point { // 2\n" +
+			"		}\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	record Point<T> (T ... args) { // 1\n" +
+		"	                       ^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter args\n" +
+		"----------\n",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
+}
+//Test that in presence of a compact canonical constructor that IS annotated with @SafeVarargs,
+//we don't report the warning on neither the record type nor the compact canonical constructor
+public void testBug563182_05() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"		@SafeVarargs\n" +
+			"		Point { // 2\n" +
+			"		}\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
+}
+//Test that in presence of a non-canonical constructor that is annotated with @SafeVarargs,
+//we don't report the warning on the non-canonical constructor but report on the record type
+public void testBug563182_06() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"		@SafeVarargs\n" +
+			"		Point (String s, T ... t) {\n" +
+			"			this(t);\n" +
+			"		}\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	record Point<T> (T ... args) { // 1\n" +
+		"	                       ^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter args\n" +
+		"----------\n",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
+}
+//Test that in presence of a non-canonical constructor that is NOT annotated with @SafeVarargs,
+//we don't report the warning on the non-canonical constructor but report on the record type
+public void testBug563182_07() {
+	Map<String, String> customOptions = getCompilerOptions();
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X<T> {\n" +
+			"	record Point<T> (T ... args) { // 1\n" +
+			"		Point (String s, T ... t) {\n" +
+			"			this(t);\n" +
+			"		}\n" +
+			"	}\n" +
+			"   public static void main(String[] args) {}\n"+
+			"}\n",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 2)\n" +
+		"	record Point<T> (T ... args) { // 1\n" +
+		"	                       ^^^^\n" +
+		"Type safety: Potential heap pollution via varargs parameter args\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 3)\n" +
+		"	Point (String s, T ... t) {\n" +
+		"	                       ^\n" +
+		"Type safety: Potential heap pollution via varargs parameter t\n" +
+		"----------\n",
+		null,
+		true,
+		new String[] {"--enable-preview"},
+		customOptions);
 }
 }
