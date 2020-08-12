@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM Corporation and others.
+ * Copyright (c) 2006, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -961,16 +961,15 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
  			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
  		}
- 		ClassFileReader reader = null;
  		try {
-			reader = ClassFileReader.read(new File(tmpFolder + "/target/classes", "module-info.class"), true);
+			ClassFileReader.read(new File(tmpFolder + "/target/classes", "module-info.class"), true);
 		} catch (ClassFormatException e) {
 			assertTrue("Should not happen", false);
 		} catch (IOException e) {
 			assertTrue("Should not happen", false);
 		}
  		try {
-			reader = ClassFileReader.read(new File(tmpFolder + "/target/classes", "bar/Library.class"), true);
+			ClassFileReader.read(new File(tmpFolder + "/target/classes", "bar/Library.class"), true);
 		} catch (ClassFormatException e) {
 			assertTrue("Should not happen", false);
 		} catch (IOException e) {

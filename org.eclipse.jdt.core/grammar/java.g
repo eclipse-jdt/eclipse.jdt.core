@@ -223,6 +223,7 @@ Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 Goal ::= '@' TypeAnnotations
 -- JSR 354 Reconnaissance mission.
 Goal ::= '->' YieldStatement
+Goal ::= '->' SwitchLabelCaseLhs
 -- JSR 360 Restricted
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedSubclasses
@@ -2198,8 +2199,8 @@ Expressionopt ::= $empty
 Expressionopt -> Expression
 /:$readableName Expression:/
 
-ConstantExpressions -> Expression
-ConstantExpressions ::= ConstantExpressions ',' Expression
+ConstantExpressions -> ConstantExpression
+ConstantExpressions ::= ConstantExpressions ',' ConstantExpression
 /.$putCase consumeConstantExpressions(); $break ./
 /:$readableName ConstantExpressions:/
 

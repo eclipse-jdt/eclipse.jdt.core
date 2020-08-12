@@ -26,7 +26,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug545567_14" };
+//		TESTS_NAMES = new String[] { "testBug565844_yy" };
 	}
 
 	public static Class<?> testClass() {
@@ -5435,7 +5435,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
-	public void testBug565844_1() {
+	public void testBug565844_01() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -5453,7 +5453,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
-	public void testBug565844_2() {
+	public void testBug565844_02() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -5471,7 +5471,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"true");
 	}
-	public void testBug565844_3() {
+	public void testBug565844_03() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -5491,7 +5491,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
-	public void testBug565844_4() {
+	public void testBug565844_04() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -5511,7 +5511,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"false");
 	}
-	public void testBug565844_5() {
+	public void testBug565844_05() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -5535,5 +5535,136 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	     ^^^^^^^^^^^^^^\n" +
 				"case expressions must be constant expressions\n" +
 				"----------\n");
+	}
+	public void testBug565844_06() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case j != 1 ? ( j != 1 ? 2: 3 ) : 3 -> false;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void testBug565844_07() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"       void foo() {\n"+
+					"               Object value2 = switch(1) {\n"+
+					"                       case AAABBB -> 1;\n"+
+					"                               (I)()->();\n"+
+					"                       default -> 0;\n"+
+					"               };\n"+
+					"       }\n"+
+					"}\n"+
+					"interface I {\n"+
+					"       void apply();\n"+
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case AAABBB -> 1;\n" +
+				"	                ^\n" +
+				"Syntax error on token \";\", case expected after this token\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	(I)()->();\n" +
+				"	  ^^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 6)\n" +
+				"	(I)()->();\n" +
+				"	        ^\n" +
+				"Syntax error, insert \")\" to complete Expression\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 6)\n" +
+				"	(I)()->();\n" +
+				"	        ^\n" +
+				"Syntax error, insert \":\" to complete SwitchLabel\n" +
+				"----------\n");
+	}
+	public void _testBug565844SwitchConst_07() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case switch(1) {default -> 2;} -> false;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void _testBug565844SwitchConst_08() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case switch(1) {case 1 -> 2; default -> 0;} -> false;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void _testBug565844SwitchConst_09() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case switch(1) {default -> 2;}, switch(2) {default -> 3;}  -> false;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
+	}
+	public void _testBug565844SwitchConst_10() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public final static int j = 5;\n" +
+					"    public static void main(String argv[]) {\n" +
+					"    	boolean b = \n" +
+					"    			switch (j) {\n" +
+					"    				case switch(1) {case 1 -> 2; default -> 0;}," +
+					" 							switch(2) {case 1 -> 3; default -> 4;}  -> false;\n" +
+					"    				default -> false;\n" +
+					"    			}; \n" +
+					"    	System.out.println(b);\n" +
+					"    }\n"+
+					"}"
+				},
+				"false");
 	}
 }
