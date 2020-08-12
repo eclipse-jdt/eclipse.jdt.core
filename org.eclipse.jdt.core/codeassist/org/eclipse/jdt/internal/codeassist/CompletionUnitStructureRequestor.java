@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.core.AnnotatableInfo;
@@ -112,7 +111,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 				return true;
 			}
 		};
-		RecordComponent decl = (RecordComponent) (compInfo.node);
+		FieldDeclaration decl = (FieldDeclaration) (compInfo.node);
 		if (decl.binding != null) {
 			this.bindingCache.put(compName, decl.binding);
 			this.elementCache.put(decl.binding, compName);
