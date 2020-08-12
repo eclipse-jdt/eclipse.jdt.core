@@ -1226,6 +1226,10 @@ protected void checkAndSetModifiers(int flag){
 	if (this.currentElement != null) {
 		this.currentElement.addModifier(flag, this.modifiersSourceStart);
 	}
+	if (flag == ExtraCompilerModifiers.AccSealed || flag == ExtraCompilerModifiers.AccNonSealed) {
+		problemReporter().validateJavaFeatureSupport(JavaFeature.SEALED_CLASSES, this.scanner.startPosition,
+				this.scanner.currentPosition - 1);
+	}
 }
 public void checkComment() {
 
@@ -10298,7 +10302,6 @@ protected void consumeToken(int type) {
 		case TokenNamebreak :
 		case TokenNamecontinue :
 		case TokenNamereturn :
-//		case TokenNamecase :
 		case TokenNamemodule:
 		case TokenNamerequires:
 		case TokenNameexports:
@@ -10306,7 +10309,10 @@ protected void consumeToken(int type) {
 		case TokenNameuses:
 		case TokenNameprovides:
 		case TokenNameRestrictedIdentifierYield:
+			pushOnIntStack(this.scanner.startPosition);
+			break;
 		case TokenNameRestrictedIdentifierpermits:
+			problemReporter().validateJavaFeatureSupport(JavaFeature.SEALED_CLASSES, this.scanner.startPosition,this.scanner.currentPosition - 1);
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamecase :

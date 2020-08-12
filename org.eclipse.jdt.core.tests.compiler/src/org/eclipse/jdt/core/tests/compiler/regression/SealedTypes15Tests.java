@@ -35,7 +35,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565782"};
+//		TESTS_NAMES = new String[] { "testBug565847_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -5263,5 +5263,50 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"   #31 X$3\n" +
 				"}";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug565847_001() {
+		Map<String, String> options =getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public sealed class X  permits Y {" +
+				"Zork();\n" +
+				"}\n" +
+				"final class  Y extends X{}\n" +
+				"sealed interface I{}\n" +
+				"final class Z implements I{}",
+			},
+			"----------\n" +
+					"1. WARNING in X.java (at line 1)\n" +
+					"	public sealed class X  permits Y {Zork();\n" +
+					"	       ^^^^^^\n" +
+					"You are using a preview language feature that may or may not be supported in a future release\n" +
+					"----------\n" +
+					"2. WARNING in X.java (at line 1)\n" +
+					"	public sealed class X  permits Y {Zork();\n" +
+					"	                       ^^^^^^^\n" +
+					"You are using a preview language feature that may or may not be supported in a future release\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 1)\n" +
+					"	public sealed class X  permits Y {Zork();\n" +
+					"	                                  ^^^^^^\n" +
+					"Return type for the method is missing\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 1)\n" +
+					"	public sealed class X  permits Y {Zork();\n" +
+					"	                                  ^^^^^^\n" +
+					"This method requires a body instead of a semicolon\n" +
+					"----------\n" +
+					"5. WARNING in X.java (at line 4)\n" +
+					"	sealed interface I{}\n" +
+					"	^^^^^^\n" +
+					"You are using a preview language feature that may or may not be supported in a future release\n" +
+					"----------\n",
+			null,
+			true,
+			options
+		);
 	}
 }
