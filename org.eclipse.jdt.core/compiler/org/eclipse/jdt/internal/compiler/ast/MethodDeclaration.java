@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -279,7 +283,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		// check @Override annotation
 		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
-			if (this.binding == null) break checkOverride;
+			// For a record component accessor method, don't bother with checking for override (JLS 15 9.6.4.4)
+			if (this.binding == null || recordComponent != null) break checkOverride;
 			long complianceLevel = compilerOptions.complianceLevel;
 			if (complianceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;

@@ -7381,4 +7381,88 @@ public void testBug563182_07() {
 		new String[] {"--enable-preview"},
 		customOptions);
 }
+	public void testBug563186_01() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  private record Point(int myInt){\n"+
+					"  	 @Override\n" +
+					"  	 public int myInt(){\n"+
+					"      return this.myInt;\n" +
+					"    }\n"+
+					"  }\n"+
+					"    public static void main(String[] args) {\n"+
+					"        System.out.println(0);\n"+
+					"   }\n"+
+					"}\n"
+				},
+			 "0");
+	}
+	public void testBug563186_02() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  private record Point(int myInt){\n"+
+					"  	 public int myInt(){\n"+
+					"      return this.myInt;\n" +
+					"    }\n"+
+					"  }\n"+
+					"    public static void main(String[] args) {\n"+
+					"        System.out.println(0);\n"+
+					"   }\n"+
+					"}\n"
+				},
+			 "0");
+	}
+	public void testBug563186_03() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  private record Point(int myInt){\n"+
+					"  	 @Override\n" +
+					"  	 public int myInt(int i){\n"+
+					"      return this.myInt;\n" +
+					"    }\n"+
+					"  }\n"+
+					"    public static void main(String[] args) {\n"+
+					"        System.out.println(0);\n"+
+					"   }\n"+
+					"}\n"
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	private record Point(int myInt){\n" +
+				"	               ^^^^^\n" +
+				"The type X.Point is never used locally\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	public int myInt(int i){\n" +
+				"	           ^^^^^^^^^^^^\n" +
+				"The method myInt(int) of type X.Point must override or implement a supertype method\n" +
+				"----------\n",
+				null,
+				true,
+				new String[] {"--enable-preview"},
+				getCompilerOptions());
+	}
+	public void testBug563186_04() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  private record Point(int myInt){\n"+
+					"  	 public int myInt(int i){\n"+
+					"      return this.myInt;\n" +
+					"    }\n"+
+					"  }\n"+
+					"    public static void main(String[] args) {\n"+
+					"        System.out.println(0);\n"+
+					"   }\n"+
+					"}\n"
+				},
+			 "0");
+	}
 }
