@@ -7465,4 +7465,136 @@ public void testBug563182_07() {
 				},
 			 "0");
 	}
+	public void testBug565732_01() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public record X {\n" +
+					"} "
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public record X {\n" +
+				"	              ^\n" +
+				"Syntax error, insert \"RecordHeader\" to complete RecordHeaderPart\n" +
+				"----------\n",
+				null,
+				true,
+				new String[] {"--enable-preview"},
+				getCompilerOptions());
+	}
+	public void testBug565732_02() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public record X<T> {\n" +
+					"} "
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public record X<T> {\n" +
+				"	                 ^\n" +
+				"Syntax error, insert \"RecordHeader\" to complete RecordHeaderPart\n" +
+				"----------\n",
+				null,
+				true,
+				new String[] {"--enable-preview"},
+				getCompilerOptions());
+	}
+	// Test that a record without any record components was indeed compiled
+	// to be a record at runtime
+	public void testBug565732_03() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public record X() {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(X.class.getSuperclass().getName());\n" +
+					"	}\n" +
+					"}"
+				},
+			 "java.lang.Record");
+	}
+	// Test that a record without any record components was indeed compiled
+	// to be a record at runtime
+	public void testBug565732_04() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public record X<T>() {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(X.class.getSuperclass().getName());\n" +
+					"	}\n" +
+					"}"
+				},
+			 "java.lang.Record");
+	}
+	// Test that a "record" can be used as a method name and invoked inside a record
+	public void testBug565732_05() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public record X<T>() {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		record();\n" +
+					"	}\n" +
+					"	public static void record() {\n" +
+					"		System.out.println(\"record()\");\n" +
+					"	}\n" +
+					"}"
+				},
+			 "record()");
+	}
+	// Test that a "record" can be used as a label and invoked inside a record
+	public void testBug565732_06() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public record X<T>() {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		boolean flag = true;\n" +
+					"		record: {\n" +
+					"			if (flag) {\n" +
+					"				System.out.println(\"record:\");\n" +
+					"				flag = false;\n" +
+					"				break record;\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+				},
+			 "record:");
+	}
+	public void testBug565732_07() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	record R {};\n" +
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	record R {};\n" +
+				"	       ^\n" +
+				"Syntax error, insert \"RecordHeader\" to complete RecordHeaderPart\n" +
+				"----------\n",
+				null,
+				true,
+				new String[] {"--enable-preview"},
+				getCompilerOptions());
+	}
+	public void testBug565732_08() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(R.class.getSuperclass().getName());\n" +
+					"	}\n" +
+					"	record R() {};\n" +
+					"}"
+				},
+			 "java.lang.Record");
+	}
 }

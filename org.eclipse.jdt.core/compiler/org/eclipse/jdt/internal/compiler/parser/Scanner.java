@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -5417,7 +5418,7 @@ int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierrecord)
 		return restrictedIdentifierToken;
-	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
+	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
 		return TokenNameIdentifier;
 
 	return disambiguaterecordWithLookAhead() ?
@@ -5459,6 +5460,11 @@ private boolean disambiguaterecordWithLookAhead() {
 		if (lookAhead1 == TokenNameIdentifier) {
 			int lookAhead2 = this.vanguardScanner.getNextToken();
 			lookAhead2 = lookAhead2 == TokenNameLESS ? getNextTokenAfterTypeParameterHeader() : lookAhead2;
+			if (lookAhead2 == TokenNameLBRACE) {
+				// record X {} is considered a record (albeit illegal),
+				// This is so that we can issue an appropriate syntax error
+				return true;
+			}
 			return lookAhead2 == TokenNameLPAREN;
 		}
 	} catch (InvalidInputException e) {

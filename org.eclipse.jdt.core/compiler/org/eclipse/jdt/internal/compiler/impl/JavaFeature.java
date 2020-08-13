@@ -80,6 +80,11 @@ public enum JavaFeature {
 			return options.enablePreviewFeatures;
 		return this.getCompliance() <= options.sourceLevel;
 	}
+	public boolean isSupported(long comp, boolean preview) {
+		if (this.isPreview)
+			return preview;
+		return this.getCompliance() <= comp;
+	}
 
 	JavaFeature(long compliance, String name, char[][] restrictedKeywords, boolean isPreview) {
         this.compliance = compliance;
