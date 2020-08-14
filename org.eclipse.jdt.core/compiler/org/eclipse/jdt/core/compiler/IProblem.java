@@ -2352,6 +2352,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.23
 	 * @noreference preview feature error */
 	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= PreviewRelated + 1760;
+	/** @since 3.23
+	 * @noreference preview feature error */
+	int RecordIllegalStaticModifierForLocalClassOrInterface = PreviewRelated + 1761;
 	/* records - end */
 	/* instanceof pattern: */
 	/** @since 3.22

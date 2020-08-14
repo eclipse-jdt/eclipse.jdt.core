@@ -11864,6 +11864,15 @@ public void recordMissingExplicitConstructorCallInNonCanonicalConstructor(ASTNod
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void recordIllegalStaticModifierForLocalClassOrInterface(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.RecordIllegalStaticModifierForLocalClassOrInterface,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;

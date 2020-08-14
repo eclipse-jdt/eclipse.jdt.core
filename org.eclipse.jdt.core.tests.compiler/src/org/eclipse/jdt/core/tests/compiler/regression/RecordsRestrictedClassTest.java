@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565786_001"};
+//		TESTS_NAMES = new String[] { "testBug566063"};
 	}
 
 	public static Class<?> testClass() {
@@ -2327,7 +2327,7 @@ public void testBug560893_006() {
 				"X.java",
 				"class X {\n"+
 				"       public static void main(String[] args) {\n"+
-				"           static record R(int x, int y) {}\n"+
+				"           record R(int x, int y) {}\n"+
 				"           R r =  new R(100,200);\n"+
 				"           System.out.println(r.x());\n"+
 				"       }\n"+
@@ -7597,8 +7597,8 @@ public void testBug563182_07() {
 				},
 			 "java.lang.Record");
 	}
-public void testBug565830_01() {
-	runConformTest(
+	public void testBug565830_01() {
+		runConformTest(
 		new String[] {
 			"X.java",
 			"class X {\n"+
@@ -7620,5 +7620,113 @@ public void testBug565830_01() {
 			"}",
 		},
 		"private final int X$1Bar.x");
+	}
+public void testBug566063_001() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    void bar() throws Exception {\n"+
+				"        enum E {\n"+
+				"               ONE,\n"+
+				"               TWO\n"+
+				"        }\n"+
+				"        interface I {}\n"+
+				"        record Bar(E x) implements I{}\n"+
+				"        E e = new Bar(E.ONE).x();\n"+
+				"        System.out.println(e);\n"+
+				"    }\n"+
+				"    public static void main(String[] args) throws Exception {\n"+
+				"       new X().bar();\n"+
+				"    }\n"+
+				"}"
+			},
+		 "ONE");
+}
+public void testBug566063_002() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    void bar() throws Exception {\n"+
+				"        static enum E {\n"+
+				"               ONE,\n"+
+				"               TWO\n"+
+				"        }\n"+
+				"        interface I {}\n"+
+				"        record Bar(E x) implements I{}\n"+
+				"        E e = new Bar(E.ONE).x();\n"+
+				"        System.out.println(e);\n"+
+				"    }\n"+
+				"    public static void main(String[] args) throws Exception {\n"+
+				"       new X().bar();\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	static enum E {\n" +
+			"	            ^\n" +
+			"A local interface, enum or record E is implicitly static; cannot have explicit static declaration\n" +
+			"----------\n");
+}
+public void testBug566063_003() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    void bar() throws Exception {\n"+
+				"        static enum E {\n"+
+				"               ONE,\n"+
+				"               TWO\n"+
+				"        }\n"+
+				"        interface I {}\n"+
+				"        static record Bar(E x) implements I{}\n"+
+				"        E e = new Bar(E.ONE).x();\n"+
+				"        System.out.println(e);\n"+
+				"    }\n"+
+				"    public static void main(String[] args) throws Exception {\n"+
+				"       new X().bar();\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	static enum E {\n" +
+			"	            ^\n" +
+			"A local interface, enum or record E is implicitly static; cannot have explicit static declaration\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	static record Bar(E x) implements I{}\n" +
+			"	              ^^^\n" +
+			"A local interface, enum or record Bar is implicitly static; cannot have explicit static declaration\n" +
+			"----------\n");
+}
+public void testBug566063_004() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    void bar() throws Exception {\n"+
+				"        enum E {\n"+
+				"               ONE,\n"+
+				"               TWO\n"+
+				"        }\n"+
+				"        static interface I {}\n"+
+				"        record Bar(E x) implements I{}\n"+
+				"        E e = new Bar(E.ONE).x();\n"+
+				"        System.out.println(e);\n"+
+				"    }\n"+
+				"    public static void main(String[] args) throws Exception {\n"+
+				"       new X().bar();\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	static interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the interface I; only public & abstract are permitted\n" +
+			"----------\n");
 }
 }

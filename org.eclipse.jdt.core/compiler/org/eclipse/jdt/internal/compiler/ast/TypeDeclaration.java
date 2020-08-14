@@ -95,7 +95,6 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	// 14 Records preview support
 	public RecordComponent[] recordComponents;
 	public int nRecordComponents;
-	public boolean isLocalRecord;
 	public static Set<String> disallowedComponentNames;
 
 	// 15 Sealed Type preview support

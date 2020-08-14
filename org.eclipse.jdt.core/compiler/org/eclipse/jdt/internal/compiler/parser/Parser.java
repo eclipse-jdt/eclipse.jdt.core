@@ -973,6 +973,7 @@ protected boolean parsingJava8Plus;
 protected boolean parsingJava9Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
+protected boolean previewEnabled;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
 private boolean haltOnSyntaxError = false;
@@ -997,6 +998,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
 	this.parsingJava15Plus = this.options.sourceLevel >= ClassFileConstants.JDK15;
+	this.previewEnabled = this.options.sourceLevel == ClassFileConstants.getLatestJDKLevel() && this.options.enablePreviewFeatures;
 	this.astLengthStack = new int[50];
 	this.patternLengthStack = new int[20];
 	this.expressionLengthStack = new int[30];
@@ -4875,6 +4877,13 @@ protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
 }
 protected void consumeInvalidEnumDeclaration() {
 	// BlockStatement ::= EnumDeclaration
+	if (this.previewEnabled) {
+		 /* JLS 15 Local Static Interfaces and Enum Classes - Records preview - Sec 6.1
+		  * A local class or interface (14.3), declared in one of the following: A class declaration, An enum declaration,
+		  * An interface declaration
+		  */
+		return;
+	}
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -4885,6 +4894,13 @@ protected void consumeInvalidEnumDeclaration() {
 protected void consumeInvalidInterfaceDeclaration() {
 	// BlockStatement ::= InvalidInterfaceDeclaration
 	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
+	if (this.previewEnabled) {
+		 /* JLS 15 Local Static Interfaces and Enum Classes - Records preview - Sec 6.1
+		  * A local class or interface (14.3), declared in one of the following: A class declaration, An enum declaration,
+		  * An interface declaration
+		  */
+		return;
+	}
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -10917,9 +10933,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 	this.astPtr -= length;
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	int nestedMethodLevel = this.nestedMethod[this.nestedType];
-	typeDecl.isLocalRecord = nestedMethodLevel > 0;
-	if (typeDecl.isLocalRecord)
-		typeDecl.modifiers |= ClassFileConstants.AccStatic; // JLS 14 Sec 14.3
 	this.recordNestedMethodLevels.put(typeDecl, new Integer[] {this.nestedType, nestedMethodLevel});
 	this.astStack[this.astPtr] = typeDecl;
 //	rd.sourceEnd = 	this.rParenPos;

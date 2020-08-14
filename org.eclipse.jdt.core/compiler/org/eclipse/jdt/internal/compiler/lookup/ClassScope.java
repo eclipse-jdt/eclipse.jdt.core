@@ -564,6 +564,8 @@ public class ClassScope extends Scope {
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
+		boolean isPreviewEnabled = compilerOptions().sourceLevel == ClassFileConstants.getLatestJDKLevel() &&
+				compilerOptions().enablePreviewFeatures;
 		if (sourceType.isRecord()) {
 			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
 			modifiers |= ClassFileConstants.AccFinal;
@@ -592,14 +594,26 @@ public class ClassScope extends Scope {
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
-				problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
-				sourceType.modifiers = 0;
-				return;
+				if (!isPreviewEnabled) {
+					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
+					sourceType.modifiers = 0;
+					return;
+				}
+				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+					return;
+				}
+				modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isRecord()) {
 				if (enclosingType != null && enclosingType.isLocalType()) {
 					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
 					return;
 				}
+				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+					return;
+				}
+				modifiers |= ClassFileConstants.AccStatic;
 			}
 			if (sourceType.isAnonymousType()) {
 				if (compilerOptions().complianceLevel < ClassFileConstants.JDK9)
@@ -681,6 +695,12 @@ public class ClassScope extends Scope {
 					else
 						problemReporter().illegalModifierForInterface(sourceType);
 				}
+				if (isPreviewEnabled && sourceType.isLocalType()) {
+//					if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+//						problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+//					}
+					modifiers |= ClassFileConstants.AccStatic;
+				}
 			}
 			/*
 			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
@@ -690,8 +710,6 @@ public class ClassScope extends Scope {
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
 		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
-			boolean isPreviewEnabled = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
-					compilerOptions().enablePreviewFeatures;
 			boolean flagSealedNonModifiers = isPreviewEnabled &&
 					(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 			// detect abnormal cases for enums
