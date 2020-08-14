@@ -5,8 +5,12 @@
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
- *
+ * 
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -88,6 +92,9 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_14) != 0) {
 			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTestForRecord.class, ClassFileConstants.JDK14));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_15) != 0) {
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_15.class, ClassFileConstants.JDK15));
 		}
 		return testSuite;
 	}

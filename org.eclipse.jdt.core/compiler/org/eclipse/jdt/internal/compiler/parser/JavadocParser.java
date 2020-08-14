@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -28,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocArraySingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
@@ -345,6 +350,43 @@ public class JavadocParser extends AbstractCommentParser {
 			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
 		}
 		return typeRef;
+	}
+
+	protected JavadocModuleReference createModuleReference(int moduleRefTokenCount) {
+		JavadocModuleReference moduleRef = null;
+		char[][] tokens = new char[moduleRefTokenCount][];
+		System.arraycopy(this.identifierStack, 0, tokens, 0, moduleRefTokenCount);
+		long[] positions = new long[moduleRefTokenCount];
+		System.arraycopy(this.identifierPositionStack, 0, positions, 0, moduleRefTokenCount);
+		moduleRef = new JavadocModuleReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+		return moduleRef;
+	}
+
+	@Override
+	protected Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount) {
+		JavadocModuleReference moduleRef= createModuleReference(moduleRefTokenCount);
+
+		TypeReference typeRef = null;
+		int size = this.identifierLengthStack[this.identifierLengthPtr];
+		int newSize= size-moduleRefTokenCount;
+		if (newSize == 1) { // Single Type ref
+			typeRef = new JavadocSingleTypeReference(
+						this.identifierStack[this.identifierPtr],
+						this.identifierPositionStack[this.identifierPtr],
+						this.tagSourceStart,
+						this.tagSourceEnd);
+		} else if (newSize > 1) { // Qualified Type ref
+			char[][] tokens = new char[newSize][];
+			System.arraycopy(this.identifierStack, this.identifierPtr - newSize + 1, tokens, 0, newSize);
+			long[] positions = new long[newSize];
+			System.arraycopy(this.identifierPositionStack, this.identifierPtr - newSize + 1, positions, 0, newSize);
+			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+		} else {
+			this.lastIdentifierEndPosition++;
+		}
+
+		moduleRef.setTypeReference(typeRef);
+		return moduleRef;
 	}
 
 	/*

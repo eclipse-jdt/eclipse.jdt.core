@@ -1225,6 +1225,8 @@ void setSourceStart(int sourceStart);
 	int JavadocInvalidProvidesClassName = Javadoc + Internal + 1808;
 	/** @since 3.20 */
 	int JavadocInvalidProvidesClass = Javadoc + Internal + 1809;
+	/** @since 3.23 */
+	int JavadocInvalidModuleQualification = Javadoc + Internal + 1810;
 
 	/**
 	 * Generics

@@ -6,11 +6,11 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * SPDX-License-Identifier: EPL-2.0
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- *
- * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -489,6 +489,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected Object createReturnStatement() { return null; }
 	protected abstract void createTag();
 	protected abstract Object createTypeReference(int primitiveToken);
+	protected abstract Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount);
 
 	private int getIndexPosition() {
 		if (this.index > this.lineEnd) {
@@ -1070,6 +1071,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 	}
 
+	private boolean isTokenModule(int token, int moduleRefTokenCount) {
+		return ((token == TerminalTokens.TokenNameDIVIDE)
+				&& (moduleRefTokenCount > 0));
+	}
+
 	/*
 	 * Parse a qualified name and built a type reference if the syntax is valid.
 	 */
@@ -1084,8 +1090,20 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Scan tokens
 		int primitiveToken = -1;
 		int parserKind = this.kind & PARSER_KIND;
+		int prevToken = TerminalTokens.TokenNameNotAToken;
+		int curToken = TerminalTokens.TokenNameNotAToken;
+		int moduleRefTokenCount = 0;
+		boolean lookForModule = false;
+		boolean parsingJava15Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK15 : false;
 		nextToken : for (int iToken = 0; ; iToken++) {
+			if (iToken == 0) {
+				lookForModule = false;
+				prevToken = TerminalTokens.TokenNameNotAToken;
+			} else {
+				prevToken = curToken;
+			}
 			int token = readTokenSafely();
+			curToken= token;
 			switch (token) {
 				case TerminalTokens.TokenNameIdentifier :
 					if (((iToken & 1) != 0)) { // identifiers must be odd tokens
@@ -1093,6 +1111,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					}
 					pushIdentifier(iToken == 0, false);
 					consumeToken();
+					if (parsingJava15Plus && getChar() == '/' ) {
+						lookForModule = true;
+					}
 					break;
 
 				case TerminalTokens.TokenNameRestrictedIdentifierYield:
@@ -1164,6 +1185,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					}
 					// Fall through default case to verify that we do not leave on a dot
 					//$FALL-THROUGH$
+				case TerminalTokens.TokenNameDIVIDE:
+					if (parsingJava15Plus && lookForModule) {
+						if (((iToken & 1) == 0) && (moduleRefTokenCount > 0)) { // '/' must be even token
+							throw new InvalidInputException();
+						}
+						moduleRefTokenCount = (iToken+1) / 2;
+						consumeToken();
+						lookForModule = false;
+						break;
+					} // else fall through
+					// Note: Add other cases before this case.
+					//$FALL-THROUGH$
 				default :
 					if (iToken == 0) {
 						if (this.identifierPtr>=0) {
@@ -1171,11 +1204,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						return null;
 					}
-					if ((iToken & 1) == 0) { // cannot leave on a dot
+					if ((iToken & 1) == 0 && !isTokenModule(prevToken, moduleRefTokenCount)) { // cannot leave on a dot
 						switch (parserKind) {
 							case COMPLETION_PARSER:
 								if (this.identifierPtr>=0) {
 									this.lastIdentifierEndPosition = (int) this.identifierPositionStack[this.identifierPtr];
+								}
+								if (moduleRefTokenCount > 0) {
+									return syntaxRecoverModuleQualifiedName(primitiveToken, moduleRefTokenCount);
 								}
 								return syntaxRecoverQualifiedName(primitiveToken);
 							case DOM_PARSER:
@@ -1201,6 +1237,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		if (this.identifierPtr>=0) {
 			this.lastIdentifierEndPosition = (int) this.identifierPositionStack[this.identifierPtr];
+		}
+		if (moduleRefTokenCount > 0) {
+			return createModuleTypeReference(primitiveToken, moduleRefTokenCount);
 		}
 		return createTypeReference(primitiveToken);
 	}
@@ -1553,6 +1592,32 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	/*
+	 * get current character.
+	 * Warning: scanner position is unchanged using this method!
+	 */
+	private char getChar() {
+		int indexVal = this.index;
+		char c = this.source[indexVal++];
+		if (c == '\\' && this.source[indexVal] == 'u') {
+			int c1, c2, c3, c4;
+			int pos = indexVal;
+			indexVal++;
+			while (this.source[indexVal] == 'u')
+				indexVal++;
+			if (!(((c1 = ScannerHelper.getHexadecimalValue(this.source[indexVal++])) > 15 || c1 < 0)
+					|| ((c2 = ScannerHelper.getHexadecimalValue(this.source[indexVal++])) > 15 || c2 < 0)
+					|| ((c3 = ScannerHelper.getHexadecimalValue(this.source[indexVal++])) > 15 || c3 < 0)
+					|| ((c4 = ScannerHelper.getHexadecimalValue(this.source[indexVal++])) > 15 || c4 < 0))) {
+				c = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+			} else {
+				// TODO (frederic) currently reset to previous position, perhaps signal a syntax error would be more appropriate
+				indexVal = pos;
+			}
+		}
+		return c;
+	}
+
+	/*
 	 * Read token only if previous was consumed
 	 */
 	protected int readToken() throws InvalidInputException {
@@ -1632,6 +1697,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Entry point for recovery on invalid syntax
 	 */
 	protected Object syntaxRecoverQualifiedName(int primitiveToken) throws InvalidInputException {
+		// do nothing, just an entry point for recovery
+		return null;
+	}
+
+	/*
+	 * Entry point for recovery on invalid syntax
+	 */
+	protected Object syntaxRecoverModuleQualifiedName(int primitiveToken, int moduleTokenCount) throws InvalidInputException {
 		// do nothing, just an entry point for recovery
 		return null;
 	}

@@ -614,6 +614,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.JavadocHiddenReference:
 		case IProblem.JavadocMissingTagDescription:
 		case IProblem.JavadocInvalidSeeUrlReference:
+		case IProblem.JavadocInvalidModuleQualification:	
 			return CompilerOptions.InvalidJavadoc;
 
 		case IProblem.JavadocMissingParamTag:
@@ -5547,6 +5548,11 @@ public void javadocInvalidField(FieldReference fieldRef, Binding fieldBinding, T
 public void javadocInvalidMemberTypeQualification(int sourceStart, int sourceEnd, int modifiers){
 	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
 		this.handle(IProblem.JavadocInvalidMemberTypeQualification, NoArgument, NoArgument, sourceStart, sourceEnd);
+	}
+}
+public void javadocInvalidModuleQualification(int sourceStart, int sourceEnd, int modifiers){
+	if (javadocVisibility(this.options.reportInvalidJavadocTagsVisibility, modifiers)) {
+		this.handle(IProblem.JavadocInvalidModuleQualification, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
 /*

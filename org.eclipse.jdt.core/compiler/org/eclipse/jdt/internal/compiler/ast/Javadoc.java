@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -476,6 +480,22 @@ public class Javadoc extends ASTNode {
 		if (!hasProblems && (reference instanceof JavadocSingleTypeReference || reference instanceof JavadocQualifiedTypeReference) && reference.resolvedType instanceof ReferenceBinding) {
 			ReferenceBinding resolvedType = (ReferenceBinding) reference.resolvedType;
 			verifyTypeReference(reference, reference, scope, source15, resolvedType, resolvedType.modifiers);
+		}
+
+		if (!hasProblems && (reference instanceof JavadocModuleReference)) {
+			JavadocModuleReference ref= (JavadocModuleReference)reference;
+			ref.resolve(scope);
+			ModuleReference mRef = ref.getModuleReference();
+			if (mRef != null) {
+				ModuleBinding mType = mRef.binding;
+				if (verifyModuleReference(reference, reference, scope, source15, mType, mType.modifiers)) {
+					TypeReference tRef= ref.getTypeReference();
+					if ((tRef instanceof JavadocSingleTypeReference || tRef instanceof JavadocQualifiedTypeReference) && tRef.resolvedType instanceof ReferenceBinding) {
+						ReferenceBinding resolvedType = (ReferenceBinding) tRef.resolvedType;
+						verifyTypeReference(reference, reference, scope, source15, resolvedType, resolvedType.modifiers);
+					}
+				}
+			}
 		}
 
 		// Verify that message reference are not used for @value tags
@@ -1141,6 +1161,40 @@ public class Javadoc extends ASTNode {
 				}
 			}
 		}
+	}
+
+	private boolean verifyModuleReference(Expression reference, Expression typeReference, Scope scope, boolean source15, ModuleBinding moduleType, int modifiers) {
+		boolean bindingFound = false;
+		if (moduleType!= null && moduleType.isValidBinding()) {
+			int scopeModifiers = -1;
+
+			ModuleBinding mBinding = scope.module();
+
+			if (mBinding == null) {
+				scope.problemReporter().javadocInvalidModuleQualification(typeReference.sourceStart, typeReference.sourceEnd, scopeModifiers);
+				return bindingFound;
+			}
+
+			if (mBinding.equals(moduleType)) {
+				bindingFound = true;
+			} else {
+				ModuleBinding[] bindings = mBinding.getAllRequiredModules();
+				for (ModuleBinding binding : bindings) {
+					if (moduleType.equals(binding)) {
+						bindingFound = true;
+						break;
+					}
+				}
+			}
+
+			if (!bindingFound) {
+				if (!canBeSeen(scope.problemReporter().options.reportInvalidJavadocTagsVisibility, moduleType.modifiers)) {
+					scope.problemReporter().javadocHiddenReference(typeReference.sourceStart, typeReference.sourceEnd, scope, moduleType.modifiers);
+					return bindingFound;
+				}
+			}
+		}
+		return bindingFound;
 	}
 
 	@Override
