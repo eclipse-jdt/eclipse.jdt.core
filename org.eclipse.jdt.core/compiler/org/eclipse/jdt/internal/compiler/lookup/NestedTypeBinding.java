@@ -77,9 +77,14 @@ public SyntheticArgumentBinding addSyntheticArgument(LocalVariableBinding actual
 
 /* Add a new synthetic argument for <enclosingType>.
 * Answer the new argument or the existing argument if one already existed.
+* Do not add if this is static (eg. nested records)
 */
 public SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding targetEnclosingType) {
 	if (!isPrototype()) throw new IllegalStateException();
+	if (isStatic()) {
+		assert this.isRecord();// a local record is implicitly static; no other local type can be static
+		return null;
+	}
 	SyntheticArgumentBinding synthLocal = null;
 	if (this.enclosingInstances == null) {
 		synthLocal = new SyntheticArgumentBinding(targetEnclosingType);
