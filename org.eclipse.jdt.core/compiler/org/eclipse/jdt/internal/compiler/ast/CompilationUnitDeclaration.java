@@ -174,6 +174,7 @@ public void cleanUp() {
 		classFile.referenceBinding = null;
 		classFile.innerClassesBindings = null;
 		classFile.bootstrapMethods = null;
+		classFile.recordBootstrapMethods = null;
 		classFile.missingTypes = null;
 		classFile.visitedTypes = null;
 	}

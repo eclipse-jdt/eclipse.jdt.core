@@ -3922,21 +3922,4 @@ public void testBug565830_01() {
 		},
 		"private final int X$1Bar.x");
 }
-public void testBug565787_01() {
-	runConformTest(
-		new String[] {
-			"X.java",
-			"public record X(String s)   {\n"+
-			"    public X  {\n"+
-			"        s.codePoints()\n"+
-			"        .forEach(cp -> System.out.println((java.util.function.Predicate<String>) \"\"::equals));\n"+
-			"    }\n"+
-			"    public static void main(String[] args) {\n"+
-			"        X a = new X(\"\");\n"+
-			"        a.equals(a);\n"+
-			"    }\n"+
-			"}",
-		},
-		"");
-}
 }

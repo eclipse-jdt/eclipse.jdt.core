@@ -748,7 +748,7 @@ public void generateCode(ClassFile enclosingClassFile) {
 			}
 		}
 		// generate all synthetic and abstract methods
-		classFile.addSpecialMethods(this);
+		classFile.addSpecialMethods();
 
 		if (this.ignoreFurtherInvestigation) { // trigger problem type generation for code gen errors
 			throw new AbortType(this.scope.referenceCompilationUnit().compilationResult, null);
