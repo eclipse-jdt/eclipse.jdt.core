@@ -146,7 +146,7 @@ public void checkComment() {
 		lastComment = getCommentPtr();
 	}
 
-	if (this.modifiersSourceStart >= 0) {
+	if (this.modifiersSourceStart >= 0 && this.modifiersSourceStart > this.annotationAsModifierSourceStart) {
 		// eliminate comments located after modifierSourceStart if positioned
 		while (lastComment >= 0) {
 			int commentSourceStart = this.scanner.commentStarts[lastComment];
