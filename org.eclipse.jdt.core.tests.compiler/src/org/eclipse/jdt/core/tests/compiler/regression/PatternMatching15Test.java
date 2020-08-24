@@ -28,7 +28,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug562392" };
+//		TESTS_NAMES = new String[] { "test022a" };
 	}
 
 	public static Class<?> testClass() {
@@ -322,12 +322,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X6a.java (at line 8)\n" +
 				"	System.out.print(i);\n" +
 				"	                 ^\n" +
-				"The pattern variable i is not in scope in this location\n" +
+				"i cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X6a.java (at line 11)\n" +
 				"	System.out.print(i);\n" +
 				"	                 ^\n" +
-				"The pattern variable i is not in scope in this location\n" +
+				"i cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -360,12 +360,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X6b.java (at line 8)\n" +
 				"	System.out.print(i);\n" +
 				"	                 ^\n" +
-				"The pattern variable i is not in scope in this location\n" +
+				"i cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X6b.java (at line 11)\n" +
 				"	System.out.print(s);\n" +
 				"	                 ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -395,7 +395,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X6c.java (at line 7)\n" +
 				"	System.out.print(i);\n" +
 				"	                 ^\n" +
-				"The pattern variable i is not in scope in this location\n" +
+				"i cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -425,7 +425,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X6d.java (at line 7)\n" +
 				"	System.out.print(i);\n" +
 				"	                 ^\n" +
-				"The pattern variable i is not in scope in this location\n" +
+				"i cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -455,7 +455,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X7.java (at line 7)\n" +
 				"	System.out.print(i);\n" +
 				"	                 ^\n" +
-				"The pattern variable i is not in scope in this location\n" +
+				"i cannot be resolved to a variable\n" +
 				"----------\n",
 				"X7.java:4: warning: [preview] pattern matching in instanceof is a preview feature and may be removed in a future release.\n" +
 				"		if (obj instanceof Integer i) {\n" +
@@ -576,7 +576,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X11.java (at line 7)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -611,7 +611,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X12.java (at line 11)\n" +
 				"	s = null;\n" +
 				"	^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -642,15 +642,10 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"----------\n" +
-				"1. WARNING in X13.java (at line 7)\n" +
-				"	System.out.println(\"s:\" + s);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Dead code\n" +
-				"----------\n" +
-				"2. ERROR in X13.java (at line 9)\n" +
+				"1. ERROR in X13.java (at line 9)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -680,7 +675,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X14.java (at line 5)\n" +
 				"	System.out.print(\"then:\" + s);\n" +
 				"	                           ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -710,7 +705,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X14a.java (at line 5)\n" +
 				"	System.out.print(\"then:\" + s);\n" +
 				"	                           ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -740,7 +735,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X14b.java (at line 7)\n" +
 				"	System.out.print(\"else:\" + s);\n" +
 				"	                           ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -770,7 +765,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X14c.java (at line 7)\n" +
 				"	System.out.print(\"else:\" + s);\n" +
 				"	                           ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -900,7 +895,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X15b.java (at line 9)\n" +
 				"	System.out.print(s);\n" +
 				"	                 ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -946,7 +941,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X17.java (at line 5)\n" +
 				"	System.out.print(s[0]);\n" +
 				"	                 ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1068,12 +1063,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X21.java (at line 5)\n" +
 				"	System.out.print(s);\n" +
 				"	                 ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X21.java (at line 6)\n" +
 				"	System.out.print(s2);\n" +
 				"	                 ^^\n" +
-				"The pattern variable s2 is not in scope in this location\n" +
+				"s2 cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1125,17 +1120,17 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X22a.java (at line 8)\n" +
 				"	o = s.substring(0, s.length() - 1);\n" +
 				"	    ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n" +
 				"2. ERROR in X22a.java (at line 8)\n" +
 				"	o = s.substring(0, s.length() - 1);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n" +
 				"3. ERROR in X22a.java (at line 9)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				null,
 				true,
@@ -1163,7 +1158,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X22b.java (at line 10)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				null,
 				true,
@@ -1214,12 +1209,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X23.java (at line 7)\n" +
 				"	while (!(o instanceof String s) && s.length() > 0) {\n" +
 				"	                                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n" +
 				"2. ERROR in X23.java (at line 8)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1248,12 +1243,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X23a.java (at line 8)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X23a.java (at line 10)\n" +
 				"	} while (!(o instanceof String s) && s.length() > 0);\n" +
 				"	                                     ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n",
 				"",
 				null,
@@ -1284,12 +1279,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X23b.java (at line 7)\n" +
 				"	while (!(o instanceof String s) && s.length() > 0) {\n" +
 				"	                                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n" +
 				"2. ERROR in X23b.java (at line 8)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1319,12 +1314,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X23c.java (at line 8)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X23c.java (at line 10)\n" +
 				"	}while (!(o instanceof String s) && s.length() > 0);\n" +
 				"	                                    ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n",
 				"",
 				null,
@@ -1398,7 +1393,143 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X25.java (at line 8)\n" +
 				"	System.out.print(\"s:\" + s);\n" +
 				"	                        ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
+	public void test025a() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X25.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X25 {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" +
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		if ( (o instanceof String a) || (! (o instanceof String a)) ) {\n" +
+						"			System.out.print(\"a:\" + a);\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X25.java (at line 8)\n" +
+				"	System.out.print(\"a:\" + a);\n" +
+				"	                        ^\n" +
+				"a cannot be resolved to a variable\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
+	public void test025b() {
+		Map<String, String> options = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X25.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X25 {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" +
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		if ( (o instanceof String a) || (! (o instanceof String a)) ) {\n" +
+						"			System.out.println(\"none\");\n" +
+						"		} else {\n" +
+						"			System.out.print(\"a:\" + a);\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"none",
+				options);
+	}
+	public void test025c() {
+		Map<String, String> options = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X25.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X25 {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\", new Integer(0));\n" +
+						"	}\n" +
+						"  public static void foo(Object o, Object p) {\n" +
+						"		if ( (o instanceof String a) || (! (p instanceof String a)) ) {\n" +
+						"			System.out.println(\"none\");\n" +
+						"		} else {\n" +
+						"			System.out.print(\"a:\" + a);\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"none",
+				options);
+	}
+	/*
+	 * It's not allowed to have two pattern variables with same name in the
+	 * same scope
+	 */
+	public void test026() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X26.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X26 {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\", \"two\");\n" +
+						"	}\n" +
+						"  public static void foo(Object o, Object p) {\n" +
+						"		if ((o instanceof String s) && (p instanceof String s)) {\n" +
+						"			System.out.print(\"s:\" + s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X26.java (at line 7)\n" +
+				"	if ((o instanceof String s) && (p instanceof String s)) {\n" +
+				"	                                                    ^\n" +
+				"Duplicate local variable s\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
+	/*
+	 * It's not allowed to have two pattern variables with same name in the
+	 * same scope
+	 */
+	public void test026a() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X26.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X26 {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\", \"two\");\n" +
+						"	}\n" +
+						"  public static void foo(Object o, Object p) {\n" +
+						"		if ((o instanceof String s) && (!(o instanceof String s))) {\n" +
+						"			System.out.print(\"s:\" + s);\n" +
+						"		}\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X26.java (at line 7)\n" +
+				"	if ((o instanceof String s) && (!(o instanceof String s))) {\n" +
+				"	                                                      ^\n" +
+				"Duplicate local variable s\n" +
 				"----------\n",
 				"",
 				null,
@@ -1409,7 +1540,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	 * It's not a problem to define the same var in two operands of a binary expression,
 	 * but then it is not in scope below.
 	 */
-	public void test026() {
+	public void test026b() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
 				new String[] {
@@ -1430,7 +1561,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X26.java (at line 8)\n" +
 				"	System.out.print(\"s:\" + s);\n" +
 				"	                        ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1518,7 +1649,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X30.java (at line 8)\n" +
 				"	System.out.print(s.charAt(i));\n" +
 				"	                 ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n",
 				"",
 				null,
@@ -1545,17 +1676,17 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X31.java (at line 7)\n" +
 				"	for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {\n" +
 				"	                                               ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X31.java (at line 7)\n" +
 				"	for(int i = 0; !(obj instanceof String[] s) && s.length > 0 && i < s.length; i++) {\n" +
 				"	                                                                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n" +
 				"3. ERROR in X31.java (at line 8)\n" +
 				"	System.out.println(s[i]);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1614,7 +1745,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X33.java (at line 12)\n" +
 				"	res = s.substring(1);\n" +
 				"	      ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved\n" +
 				"----------\n",
 				"",
 				null,
@@ -1684,12 +1815,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X35.java (at line 11)\n" +
 				"	yield s;\n" +
 				"	      ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n" +
 				"2. ERROR in X35.java (at line 14)\n" +
 				"	yield s;\n" +
 				"	      ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -1768,16 +1899,13 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X38.java (at line 10)\n" +
 				"	System.out.println(s);\n" +
 				"	                   ^\n" +
-				"The pattern variable s is not in scope in this location\n" +
+				"s cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
 				true,
 				getCompilerOptions(true));
 	}
-	/*
-	 * Failing with VerifyError
-	 */
 	public void test039() {
 		runConformTest(
 				new String[] {
@@ -1875,7 +2003,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"else_x",
 				getCompilerOptions(true));
 	}
-	public void _test043() {
+	public void test043() {
 		runConformTest(
 				new String[] {
 						"X43.java",
@@ -1888,11 +2016,11 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 						"		class Inner {\n" +
 						"			public boolean foo(Object obj) {\n" +
 						"				if (obj instanceof String s) {\n" +
-						"					// x is shadowed now\n" +
+						"					// s is shadowed now\n" +
 						"					if (!\"foo\".equals(s))\n" +
 						"						return false;\n" +
 						"				}\n" +
-						"				// x is not shadowed\n" +
+						"				// s is not shadowed\n" +
 						"				return \"test\".equals(s);\n" +
 						"			}\n" +
 						"		}\n" +
@@ -1900,7 +2028,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n",
 				},
-				"else_x",
+				"true",
 				getCompilerOptions(true));
 	}
 	public void test044() {
@@ -2731,6 +2859,161 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 						"}",
 				},
 				"PASS",
+				compilerOptions);
+	}
+	public void test062() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" @SuppressWarnings(\"preview\")\n"+
+						" public void foo(Object o) {\n"+
+						"   int len  = (o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n"+
+						" }\n"+
+						"  public int test(FI fi) {\n" +
+						"	  return fi.length(\"\");\n" +
+						"  } \n" +
+						"  interface FI {\n" +
+						"	  public int length(String str);\n" +
+						"  }" +
+						"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	int len  = (o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n" +
+				"	                                          ^\n" +
+				"Lambda expression\'s parameter p cannot redeclare another local variable defined in an enclosing scope. \n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
+	// Same as above, but pattern variable in scope in false of conditional expression
+	public void test063() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" @SuppressWarnings(\"preview\")\n"+
+						" public void foo(Object o) {\n"+
+						"   int len  = !(o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n"+
+						" }\n"+
+						"  public int test(FI fi) {\n" +
+						"	  return fi.length(\"\");\n" +
+						"  } \n" +
+						"  interface FI {\n" +
+						"	  public int length(String str);\n" +
+						"  }" +
+						"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	int len  = !(o instanceof String p) ? test(p -> p.length()) : test(p -> p.length());\n" +
+				"	                                                                   ^\n" +
+				"Lambda expression\'s parameter p cannot redeclare another local variable defined in an enclosing scope. \n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
+	public void test064() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"+
+						" 	public static void main(String argv[]) {\n" +
+						"		System.out.println(new X().foo(\"foo\", \"test\"));\n" +
+						"	}\n" +
+						"	public boolean foo(Object obj, String s) {\n" +
+						"		class Inner {\n" +
+						"			public boolean foo(Object obj) {\n" +
+						"				if (obj instanceof String s) {\n" +
+						"					// s is shadowed now\n" +
+						"					if (\"foo\".equals(s))\n" +
+						"						return false;\n" +
+						"				} else if (obj instanceof String s) { \n" +
+						"				}\n"+
+						"				// s is not shadowed\n" +
+						"				return \"test\".equals(s);\n" +
+						"			}\n" +
+						"		}\n" +
+						"		return new Inner().foo(obj);\n" +
+						"	}" +
+						"}",
+				},
+				"false",
+				compilerOptions);
+	}
+	public void test065() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"+
+						" 	public static void main(String argv[]) {\n"
+						+ "		new X().foo(\"foo\");\n"
+						+ "	}\n"
+						+ "	public void foo(Object o) {\n"
+						+ "		if ((o instanceof String s)) {\n"
+						+ "			System.out.println(\"if:\" + s);\n"
+						+ "		} else {\n"
+						+ "			throw new IllegalArgumentException();\n"
+						+ "		}\n"
+						+ "		System.out.println(\"after:\" + s);\n"
+						+ "	}" +
+						"}",
+				},
+				"if:foo\n" +
+				"after:foo",
+				compilerOptions);
+	}
+	public void test066() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"
+						+ "    protected Object x = \"FIELD X\";\n"
+						+ "    public void f(Object obj, boolean b) {\n"
+						+ "        if ((x instanceof String x)) {\n"
+						+ "            System.out.println(x.toLowerCase());\n"
+						+ "        }\n"
+						+ "    }\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		new X().f(Integer.parseInt(\"1\"), false);\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"field x",
+				compilerOptions);
+	}
+	public void test067() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"
+						+ "    protected String x = \"FIELD X\";\n"
+						+ "    public void f(Object obj, boolean b) {\n"
+						+ "        if ((x instanceof String x) && x.length() > 0) {\n"
+						+ "            System.out.println(x.toLowerCase());\n"
+						+ "        }\n"
+						+ "    }\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		new X().f(Integer.parseInt(\"1\"), false);\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"field x",
 				compilerOptions);
 	}
 }

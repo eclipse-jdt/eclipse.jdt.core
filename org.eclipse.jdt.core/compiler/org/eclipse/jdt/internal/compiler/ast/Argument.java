@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -124,15 +128,7 @@ public class Argument extends LocalDeclaration {
 			final boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && this.hiddenVariableDepth == 0) {
 				if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
-					if ((((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0) {
-						this.duplicateCheckObligation = (flowInfo) -> {
-							if (flowInfo.isDefinitelyAssigned((LocalVariableBinding) existingVariable)) {
-								scope.problemReporter().lambdaRedeclaresArgument(this);
-							}
-						};
-					} else {
-						scope.problemReporter().lambdaRedeclaresArgument(this);
-					}
+					scope.problemReporter().lambdaRedeclaresArgument(this);
 				} else if (scope.referenceContext instanceof CompactConstructorDeclaration) {
 					// skip error reporting - hidden params - already reported in record components
 				} else {

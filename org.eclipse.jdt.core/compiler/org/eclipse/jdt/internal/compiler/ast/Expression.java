@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -791,6 +795,57 @@ public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
 public boolean containsPatternVariable() {
 	return false;
 }
+public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	new ASTVisitor() {
+		LocalVariableBinding[] patternVariablesInScope;
+		@Override
+		public boolean visit(OR_OR_Expression exp, BlockScope skope) {
+			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
+			return true;
+		}
+		@Override
+		public boolean visit(AND_AND_Expression exp, BlockScope skope) {
+			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
+			return true;
+		}
+		@Override
+		public boolean visit(EqualExpression exp, BlockScope skope) {
+			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
+			return true;
+		}
+		@Override
+		public boolean visit(UnaryExpression exp, BlockScope skope) {
+			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
+			return true;
+		}
+		@Override
+		public boolean visit(Argument argument, BlockScope skope) {
+			// Most likely to be a lambda parameter
+			argument.addPatternVariablesWhenTrue(this.patternVariablesInScope);
+			return true;
+		}
+		@Override
+		public boolean visit(
+				QualifiedNameReference nameReference,
+				BlockScope skope) {
+			nameReference.addPatternVariablesWhenTrue(this.patternVariablesInScope);
+			return true;
+		}
+		@Override
+		public boolean visit(
+				SingleNameReference nameReference,
+				BlockScope skope) {
+			nameReference.addPatternVariablesWhenTrue(this.patternVariablesInScope);
+			return true;
+		}
+
+		public void propagatePatternVariablesInScope(LocalVariableBinding[] vars, BlockScope skope) {
+			this.patternVariablesInScope = vars;
+			Expression.this.traverse(this, skope);
+		}
+	}.propagatePatternVariablesInScope(variables, scope);
+}
+
 /**
  * Default generation of a boolean value
  * @param currentScope

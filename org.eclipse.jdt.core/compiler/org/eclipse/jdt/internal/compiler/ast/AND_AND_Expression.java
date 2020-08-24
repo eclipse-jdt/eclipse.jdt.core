@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -272,7 +276,21 @@ public class AND_AND_Expression extends BinaryExpression {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
 		}
 	}
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.left.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
 
+		variables = this.left.getPatternVariablesWhenTrue();
+		this.addPatternVariablesWhenTrue(variables);
+		this.right.addPatternVariablesWhenTrue(variables);
+
+		variables = this.left.getPatternVariablesWhenFalse();
+		this.right.addPatternVariablesWhenFalse(variables);
+
+		this.right.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
+		variables = this.right.getPatternVariablesWhenTrue();
+		this.addPatternVariablesWhenTrue(variables);
+	}
 	@Override
 	public boolean isCompactableOperation() {
 		return false;

@@ -2366,7 +2366,7 @@ void setSourceStart(int sourceStart);
 
 	/* instanceof pattern: */
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 * @deprecated problem no longer generated */
 	int PatternVariableNotInScope = PreviewRelated + 1780;
 
 

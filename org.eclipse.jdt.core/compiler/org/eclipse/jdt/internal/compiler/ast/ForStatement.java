@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -21,10 +25,16 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ForStatement extends Statement {
 
@@ -244,7 +254,6 @@ public class ForStatement extends Statement {
 			this.condition.updateFlowOnBooleanResult(mergedInfo, false);
 		return mergedInfo;
 	}
-
 	/**
 	 * For statement code generation
 	 *
@@ -403,16 +412,13 @@ public class ForStatement extends Statement {
 
 	@Override
 	public void resolve(BlockScope upperScope) {
+		LocalVariableBinding[] patternVariablesInTrueScope = null;
+		LocalVariableBinding[] patternVariablesInFalseScope = null;
+
 		if (this.condition != null && this.condition.containsPatternVariable()) {
-			this.condition.traverse(new ASTVisitor() {
-				@Override
-				public boolean visit(
-						InstanceOfExpression instanceOfExpression,
-						BlockScope sc) {
-					instanceOfExpression.resolvePatternVariable(upperScope);
-					return true; // We want to resolve all pattern variables if any inside the condition
-				}
-			}, upperScope);
+			this.condition.collectPatternVariablesToScope(null, upperScope);
+			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
+			patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
 		}
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
@@ -424,10 +430,15 @@ public class ForStatement extends Statement {
 			this.condition.computeConversion(this.scope, type, type);
 		}
 		if (this.increments != null)
-			for (int i = 0, length = this.increments.length; i < length; i++)
-				this.increments[i].resolve(this.scope);
-		if (this.action != null)
-			this.action.resolve(this.scope);
+			for (int i = 0, length = this.increments.length; i < length; i++) {
+				this.increments[i].resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+			}
+
+		if (this.action != null) {
+			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+			this.action.injectPatternVariablesIfApplicable(patternVariablesInFalseScope, this.scope,
+					(statement) -> { return !statement.breaksOut(null);});
+		}
 	}
 
 	@Override

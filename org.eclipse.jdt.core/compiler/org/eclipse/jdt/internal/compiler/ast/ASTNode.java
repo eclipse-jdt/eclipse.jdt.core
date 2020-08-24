@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
@@ -176,8 +180,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int GenerateCheckcast = Bit7;
 	public static final int UnsafeCast = Bit8;
 
-	// for name references (Java 14 addition - Records preview - Bit18)
-	public static final int RestrictiveFlagMASK = Bit1 | Bit2 | Bit3 | Bit18 ;
+	public static final int RestrictiveFlagMASK = Bit1 | Bit2 | Bit3 ;
 
 	// for local decls
 	public static final int IsTypeElided = Bit2;  // type elided lambda argument.

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2034,8 +2038,7 @@ public abstract class Scope {
 		return typeBinding;
 	}
 
-	public LocalVariableBinding findVariable(char[] variable) {
-
+	public LocalVariableBinding findVariable(char[] variable, InvocationSite invocationSite) {
 		return null;
 	}
 
@@ -2090,7 +2093,7 @@ public abstract class Scope {
 
 							//$FALL-THROUGH$ could duplicate the code below to save a cast - questionable optimization
 						case BLOCK_SCOPE :
-							LocalVariableBinding variableBinding = scope.findVariable(name);
+							LocalVariableBinding variableBinding = scope.findVariable(name, invocationSite);
 							// looks in this scope only
 							if (variableBinding != null) {
 								if (foundField != null && foundField.isValidBinding())
