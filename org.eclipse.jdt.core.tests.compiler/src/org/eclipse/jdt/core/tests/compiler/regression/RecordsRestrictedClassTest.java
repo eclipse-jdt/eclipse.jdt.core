@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug566063"};
+//		TESTS_NAMES = new String[] { "testBug566418_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -7728,5 +7728,42 @@ public void testBug566063_004() {
 			"	                 ^\n" +
 			"Illegal modifier for the interface I; only public & abstract are permitted\n" +
 			"----------\n");
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testBug566418_001() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"public class X {\n"+
+			" static void foo() {\n"+
+			"   record R() {\n"+
+			"     static int create(int lo) {\n"+
+			"       return lo;\n"+
+			"     }\n"+
+			"   }\n"+
+			"   System.out.println(R.create(0));\n"+
+			"   }\n"+
+			"   Zork();\n"+
+			"}",
+		},
+	"----------\n" +
+	"1. ERROR in X.java (at line 10)\n" +
+	"	Zork();\n" +
+	"	^^^^^^\n" +
+	"Return type for the method is missing\n" +
+	"----------\n" +
+	"2. ERROR in X.java (at line 10)\n" +
+	"	Zork();\n" +
+	"	^^^^^^\n" +
+	"This method requires a body instead of a semicolon\n" +
+	"----------\n",
+		null,
+		true,
+		options
+	);
 }
 }

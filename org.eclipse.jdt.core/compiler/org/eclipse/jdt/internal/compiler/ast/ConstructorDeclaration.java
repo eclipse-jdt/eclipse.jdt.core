@@ -104,7 +104,8 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			// otherwise default super constructor exists, so go ahead and complain unused.
 		}
 		// complain unused
-		this.scope.problemReporter().unusedPrivateConstructor(this);
+		if ((this.bits & ASTNode.IsImplicit) == 0)
+			this.scope.problemReporter().unusedPrivateConstructor(this);
 	}
 
 	// check constructor recursion, once all constructor got resolved
