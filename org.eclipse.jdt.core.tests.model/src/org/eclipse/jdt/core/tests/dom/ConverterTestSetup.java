@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -236,6 +240,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setUpJavaProject("Converter13", "13"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter14", "14"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter_15", "15"); //$NON-NLS-1$ //$NON-NLS-2$
+			setUpJavaProject("Converter_15_1", "15"); //$NON-NLS-1$ //$NON-NLS-2$
 			waitUntilIndexesReady(); // needed to find secondary types
 			PROJECT_SETUP = true;
 		}

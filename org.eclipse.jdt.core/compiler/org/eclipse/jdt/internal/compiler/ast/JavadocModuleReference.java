@@ -36,6 +36,8 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 		this.moduleReference = new ModuleReference(sources, pos);
 		this.tagSourceStart = tagStart;
 		this.tagSourceEnd = tagEnd;
+		this.sourceStart = this.moduleReference.sourceStart;
+		this.sourceEnd = this.moduleReference.sourceEnd;
 		this.bits |= ASTNode.InsideJavadoc;
 	}
 
@@ -65,6 +67,9 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 
 	public void setTypeReference(TypeReference typeReference) {
 		this.typeReference = typeReference;
+		if (this.typeReference != null) {
+			this.sourceEnd = this.typeReference.sourceEnd;
+		}
 	}
 
 	public ModuleReference getModuleReference() {
@@ -73,6 +78,8 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 
 	public void setModuleReference(ModuleReference moduleReference) {
 		this.moduleReference = moduleReference;
+		this.sourceStart = this.moduleReference.sourceStart;
+		this.sourceStart = this.moduleReference.sourceEnd;
 	}
 
 	@Override
@@ -80,8 +87,8 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 		if (this.moduleReference != null) {
 			output.append(this.moduleReference.moduleName);
 		}
+		output.append('/');
 		if (this.typeReference != null) {
-			output.append('/');
 			this.typeReference.printExpression(indent, output);
 		}
 		return output;
@@ -91,7 +98,11 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 		return this.moduleReference.resolve(scope);
 	}
 
-	public ModuleBinding resolveModule(BlockScope scope) {
+	private ModuleBinding resolveModule(BlockScope scope) {
+		return this.moduleReference.resolve(scope);
+	}
+
+	private ModuleBinding resolveModule(ClassScope scope) {
 		return this.moduleReference.resolve(scope);
 	}
 
@@ -107,6 +118,8 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 
 	@Override
 	public TypeBinding resolveType(ClassScope classScope) {
+		this.resolveModule(classScope);
+		assert(this.moduleReference.binding != null);
 		if (this.typeReference != null) {
 			return this.typeReference.resolveType(classScope, -1);
 		}

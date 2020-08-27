@@ -150,6 +150,27 @@ public class Javadoc extends ASTNode {
 							}
 						}
 					}
+				} else if (expression instanceof JavadocModuleReference) {
+					JavadocModuleReference modRef = (JavadocModuleReference) expression;
+					if (modRef.typeReference != null) {
+						if (modRef.typeReference.sourceStart == start) {
+							return modRef.typeReference;
+						}
+					}
+				} else if (expression instanceof JavadocFieldReference) {
+					JavadocFieldReference fieldRef = (JavadocFieldReference) expression;
+					if (fieldRef.receiver instanceof JavadocModuleReference) {
+						JavadocModuleReference modRef = (JavadocModuleReference) fieldRef.receiver;
+						if (modRef.sourceStart == start) {
+							return modRef;
+						} else {
+							if (modRef.typeReference != null) {
+								if (modRef.typeReference.sourceStart == start) {
+									return modRef.typeReference;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -487,8 +508,8 @@ public class Javadoc extends ASTNode {
 			ref.resolve(scope);
 			ModuleReference mRef = ref.getModuleReference();
 			if (mRef != null) {
-				ModuleBinding mType = mRef.binding;
-				if (verifyModuleReference(reference, reference, scope, source15, mType, mType.modifiers)) {
+				ModuleBinding mType = mRef.resolve(scope);
+				if (mType != null && verifyModuleReference(reference, reference, scope, source15, mType, mType.modifiers)) {
 					TypeReference tRef= ref.getTypeReference();
 					if ((tRef instanceof JavadocSingleTypeReference || tRef instanceof JavadocQualifiedTypeReference) && tRef.resolvedType instanceof ReferenceBinding) {
 						ReferenceBinding resolvedType = (ReferenceBinding) tRef.resolvedType;

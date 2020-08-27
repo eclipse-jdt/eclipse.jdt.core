@@ -1307,6 +1307,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(ModuleQualifiedName node) {
+		node.getModuleQualifier().accept(this);
+		this.buffer.append("/");//$NON-NLS-1$
+		ASTNode cNode = node.getName();
+		if (cNode != null) {
+			cNode.accept(this);
+		}
+		return false;
+	}
+
+	@Override
 	public boolean visit(QualifiedName node) {
 		node.getQualifier().accept(this);
 		this.buffer.append(".");//$NON-NLS-1$

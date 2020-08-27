@@ -3792,6 +3792,52 @@ protected void runNegativeTest(
 		// javac options
 		javacTestOptions /* javac test options */);
 }
+//runNegativeTest(
+//// test directory preparation
+//new String[] { /* test files */
+//},
+//null /* no test files */,
+//// compiler results
+//"----------\n" + /* expected compiler log */
+//// javac options
+//JavacTestOptions.SKIP /* skip javac tests */);
+//JavacTestOptions.DEFAULT /* default javac test options */);
+//javacTestOptions /* javac test options */);
+protected void runNegativeTest(
+// test directory preparation
+String[] testFiles,
+String[] dependentFiles,
+// compiler results
+String expectedCompilerLog,
+// javac options
+JavacTestOptions javacTestOptions) {
+	runTest(
+			// test directory preparation
+		true /* flush output directory */,
+		testFiles /* test files */,
+		dependentFiles,
+		// compiler options
+		null /* no class libraries */,
+		false,
+		null /* no custom options */,
+		false /* do not perform statements recovery */,
+		null /* no custom requestor */,
+		// compiler results
+		true /* expecting compiler errors */,
+		expectedCompilerLog /* expected compiler log */,
+		// runtime options
+		null,
+		false /* do not force execution */,
+		null /* no vm arguments */,
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		null,
+		null,
+		// javac options
+		javacTestOptions /* javac test options */,
+		Charset.defaultCharset());
+}
 //	runNegativeTest(
 //		// test directory preparation
 //		true /* flush output directory */,

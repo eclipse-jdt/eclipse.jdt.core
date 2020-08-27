@@ -1076,10 +1076,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				&& (moduleRefTokenCount > 0));
 	}
 
+	protected Object parseQualifiedName(boolean reset) throws InvalidInputException {
+		return parseQualifiedName(reset, false);
+	}
+
 	/*
 	 * Parse a qualified name and built a type reference if the syntax is valid.
 	 */
-	protected Object parseQualifiedName(boolean reset) throws InvalidInputException {
+	protected Object parseQualifiedName(boolean reset, boolean allowModule) throws InvalidInputException {
 
 		// Reset identifier stack if requested
 		if (reset) {
@@ -1111,7 +1115,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					}
 					pushIdentifier(iToken == 0, false);
 					consumeToken();
-					if (parsingJava15Plus && getChar() == '/' ) {
+					if (allowModule && parsingJava15Plus && getChar() == '/') {
 						lookForModule = true;
 					}
 					break;
@@ -1187,7 +1191,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					//$FALL-THROUGH$
 				case TerminalTokens.TokenNameDIVIDE:
 					if (parsingJava15Plus && lookForModule) {
-						if (((iToken & 1) == 0) && (moduleRefTokenCount > 0)) { // '/' must be even token
+						if (((iToken & 1) == 0) || (moduleRefTokenCount > 0)) { // '/' must be even token
 							throw new InvalidInputException();
 						}
 						moduleRefTokenCount = (iToken+1) / 2;
@@ -1244,10 +1248,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return createTypeReference(primitiveToken);
 	}
 
+	protected boolean parseReference() throws InvalidInputException {
+		return parseReference(false);
+	}
+
 	/*
 	 * Parse a reference in @see tag
 	 */
-	protected boolean parseReference() throws InvalidInputException {
+	protected boolean parseReference(boolean allowModule) throws InvalidInputException {
 		int currentPosition = this.scanner.currentPosition;
 		try {
 			Object typeRef = null;
@@ -1337,7 +1345,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case TerminalTokens.TokenNameIdentifier :
 						if (typeRef == null) {
 							typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
-							typeRef = parseQualifiedName(true);
+							typeRef = parseQualifiedName(true, allowModule);
 							if (this.abort) return false; // May be aborted by specialized parser
 							break;
 						}

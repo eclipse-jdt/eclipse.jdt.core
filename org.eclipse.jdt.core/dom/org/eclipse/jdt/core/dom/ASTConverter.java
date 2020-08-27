@@ -4859,6 +4859,14 @@ class ASTConverter {
 
 	protected void recordName(Name name, org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode) {
 		if (compilerNode != null) {
+			if (name instanceof ModuleQualifiedName &&
+					compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
+				Name tName = ((ModuleQualifiedName)name).getName();
+				if (tName != null) {
+					recordName(tName, compilerNode);
+					return;
+				}
+			}
 			recordNodes(name, compilerNode);
 			if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 				org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) compilerNode;
@@ -4900,10 +4908,16 @@ class ASTConverter {
 				// Replace qualifier to have all nodes recorded
 				if (memberRef.getQualifier() != null) {
 					org.eclipse.jdt.internal.compiler.ast.TypeReference typeRef = null;
+					org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference modRef = null;
 					if (compilerNode instanceof JavadocFieldReference) {
 						org.eclipse.jdt.internal.compiler.ast.Expression expression = ((JavadocFieldReference)compilerNode).receiver;
 						if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TypeReference) {
 							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
+						} else if (expression instanceof org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference) {
+							modRef = (org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference) expression;
+							if (modRef.typeReference != null) {
+								typeRef = modRef.typeReference;
+							}
 						}
 					}
 					else if (compilerNode instanceof JavadocMessageSend) {
@@ -4912,8 +4926,17 @@ class ASTConverter {
 							typeRef = (org.eclipse.jdt.internal.compiler.ast.TypeReference) expression;
 						}
 					}
+					Name mQual = memberRef.getQualifier();
 					if (typeRef != null) {
-						recordName(memberRef.getQualifier(), typeRef);
+						if (mQual instanceof ModuleQualifiedName
+								&& modRef != null) {
+							ModuleQualifiedName moduleQualifiedName = (ModuleQualifiedName)mQual;
+							recordName(moduleQualifiedName, modRef);
+							recordName(moduleQualifiedName.getModuleQualifier(), modRef.moduleReference);
+							recordName(moduleQualifiedName.getName(), typeRef);
+						} else {
+							recordName(memberRef.getQualifier(), typeRef);
+						}
 					}
 				}
 			} else if (node.getNodeType() == ASTNode.METHOD_REF) {
@@ -4952,8 +4975,12 @@ class ASTConverter {
 						}
 						recordNodes(name, compilerNode);
 					}
+					Name mQual= methodRef.getQualifier();
 					// record name and qualifier
-					if (typeRef != null && methodRef.getQualifier() != null) {
+					if (typeRef != null && mQual != null) {
+						if (mQual instanceof ModuleQualifiedName) {
+							recordName(mQual, javadoc.getNodeStartingAt(mQual.getStartPosition()));
+						}
 						recordName(methodRef.getQualifier(), typeRef);
 					}
 				}
@@ -4987,6 +5014,19 @@ class ASTConverter {
 					node.getNodeType() == ASTNode.QUALIFIED_NAME) {
 				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(node.getStartPosition());
 				recordName((Name) node, compilerNode);
+			} else if (node.getNodeType() == ASTNode.MODULE_QUALIFIED_NAME) {
+				ModuleQualifiedName mqName = (ModuleQualifiedName) node;
+				org.eclipse.jdt.internal.compiler.ast.ASTNode compilerNode = javadoc.getNodeStartingAt(mqName.getStartPosition());
+				recordName(mqName, compilerNode);
+				Name name = mqName.getName();
+				if (name != null) {
+					org.eclipse.jdt.internal.compiler.ast.ASTNode internalNode = javadoc.getNodeStartingAt(name.getStartPosition());
+					recordName(name, internalNode);
+				}
+				if (compilerNode instanceof org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference) {
+					org.eclipse.jdt.internal.compiler.ast.ASTNode internalNode = ((org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference)compilerNode).moduleReference;
+					recordNodes(mqName.getModuleQualifier(), internalNode);
+				}
 			} else if (node.getNodeType() == ASTNode.TAG_ELEMENT) {
 				// resolve member and method references binding
 				recordNodes(javadoc, (TagElement) node);

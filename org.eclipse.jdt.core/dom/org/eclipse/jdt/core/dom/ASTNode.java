@@ -992,6 +992,14 @@ public abstract class ASTNode {
 
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>ModuleQualifiedName</code>.
+	 * @see ModuleQualifiedName
+	 * @since 3.23 BETA_JAVA15
+	 */
+	public static final int MODULE_QUALIFIED_NAME = 103;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type

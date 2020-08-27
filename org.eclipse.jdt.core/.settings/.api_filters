@@ -159,6 +159,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/ModuleQualifiedName.java" type="org.eclipse.jdt.core.dom.ModuleQualifiedName">
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="Name"/>
+                <message_argument value="ModuleQualifiedName"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/Name.java" type="org.eclipse.jdt.core.dom.Name">
         <filter id="576725006">
             <message_arguments>

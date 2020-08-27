@@ -120,6 +120,11 @@ private void acceptJavadocTypeReference(Expression expression) {
 	} else if (expression instanceof JavadocQualifiedTypeReference) {
 		JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) expression;
 		this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+	} else if (expression instanceof JavadocModuleReference) {
+		Expression exp = ((JavadocModuleReference) expression).getTypeReference();
+		if (exp != null) {
+			acceptJavadocTypeReference(exp);
+		}
 	}
 }
 public void addUnknownRef(NameReference nameRef) {
