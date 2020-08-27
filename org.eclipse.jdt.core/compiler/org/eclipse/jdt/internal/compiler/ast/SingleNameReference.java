@@ -1031,12 +1031,7 @@ public TypeBinding resolveType(BlockScope scope) {
 							if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
 								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 						}
-						if (this.actualReceiverType.isRecord() && this.actualReceiverType.isLocalType()) {// JLS 14 Sec 14.3
-							if ((variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
-									(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-								scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
-							}
-						}
+						checkLocalStaticClassVariables(scope, variable);
 						variableType = variable.type;
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant(scope) : Constant.NotAConstant;
 					} else {
@@ -1075,6 +1070,22 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// error scenario
 	return this.resolvedType = reportError(scope);
+}
+
+private void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
+	if (this.actualReceiverType.isStatic() && this.actualReceiverType.isLocalType()) {
+		if ((variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
+				(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+			BlockScope declaringScope = ((LocalVariableBinding) this.binding).declaringScope;
+			MethodScope declaringMethodScope = declaringScope instanceof MethodScope ? (MethodScope)declaringScope :
+				declaringScope.enclosingMethodScope();
+			MethodScope currentMethodScope = scope instanceof MethodScope ? (MethodScope) scope : scope.enclosingMethodScope();
+			ClassScope declaringClassScope = declaringMethodScope != null ? declaringMethodScope.classScope() : null;
+			ClassScope currentClassScope = currentMethodScope != null ? currentMethodScope.classScope() : null;
+			if (declaringClassScope != currentClassScope)
+			scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
+		}
+	}
 }
 
 @Override
