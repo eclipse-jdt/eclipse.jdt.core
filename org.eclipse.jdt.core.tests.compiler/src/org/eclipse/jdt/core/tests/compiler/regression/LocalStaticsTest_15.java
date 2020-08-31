@@ -138,6 +138,8 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			},
 			"0");
 	}
+
+
 	public void testBug566284_002() {
 		runConformTest(
 			new String[] {
@@ -219,5 +221,183 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"Cannot make a static reference to the non-static variable li from a local record\n" +
 			"----------\n"
 			);
+	}
+
+	public void testBug566518_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo() {\n"+
+				"   int f = switch (5) {\n"+
+				"			case 5: {\n"+
+				"				public interface I{\n"+
+				"					\n"+
+				"				}\n"+
+				"				class C implements I{\n"+
+				"					public int j = 5;\n"+
+				"				}\n"+
+				"				\n"+
+				"				yield new C().j;\n"+
+				"			}\n"+
+				"			default:\n"+
+				"				throw new IllegalArgumentException(\"Unexpected value: \" );\n"+
+				"			};\n"+
+				"	System.out.println(f);\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo();\n"+
+				" }\n"+
+				"}"
+			},
+			"5");
+	}
+
+	public void testBug566518_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo() {\n"+
+				"   class F {\n"+
+				"     int create(int lo) {\n"+
+				"       I myI = s -> lo;\n"+
+				"       return myI.bar(0);\n"+
+				"     }\n"+
+				"   }\n"+
+				"   System.out.println(new F().create(0));\n"+
+				"     }\n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo();\n"+
+				" }\n"+
+				"}\n"+
+				"\n"+
+				"interface I {\n"+
+				" int bar(int l);\n"+
+				"}"
+			},
+			"0");
+	}
+
+	public void testBug566518_003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public interface X {\n"+
+				" static void foo() {\n"+
+				"   class F {\n"+
+				"     int create(int lo) {\n"+
+				"       I myI = s -> lo;\n"+
+				"       return myI.bar(0);\n"+
+				"     }\n"+
+				"   }\n"+
+				"   System.out.println(new F().create(0));\n"+
+				"     }\n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo();\n"+
+				" }\n"+
+				"}\n"+
+				"\n"+
+				"interface I {\n"+
+				" int bar(int l);\n"+
+				"}"
+			},
+			"0");
+	}
+
+	public void testBug566518_004() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public interface X {\n"+
+				" static void foo() {\n"+
+				"   interface F {\n"+
+				"     static int create(int lo) {\n"+
+				"       I myI = s -> lo;\n"+
+				"       return myI.bar(0);\n"+
+				"     }\n"+
+				"   }\n"+
+				"   System.out.println(F.create(0));\n"+
+				"     }\n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo();\n"+
+				" }\n"+
+				"}\n"+
+				"\n"+
+				"interface I {\n"+
+				" int bar(int l);\n"+
+				"}"
+			},
+			"0");
+	}
+
+	public void testBug566518_005() {
+		runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static void foo() {\n"+
+					"   int f = switch (5) {\n"+
+					"			case 5: {\n"+
+					"				public interface I{\n"+
+					"					\n"+
+					"				}\n"+
+					"				class C implements I{\n"+
+					"					public int j = 5;\n"+
+					"				}\n"+
+					"				\n"+
+					"				yield new C().j;\n"+
+					"			}\n"+
+					"			default:\n"+
+					"				throw new IllegalArgumentException(\"Unexpected value: \" );\n"+
+					"			};\n"+
+					"	System.out.println(f);\n"+
+					"	class C1 implements I{\n"+
+					"		public int j = 5;\n"+
+					"	}\n"+
+					" }\n"+
+					" public static void main(String[] args) {\n"+
+					"   X.foo();\n"+
+					" }\n"+
+					"}\n"
+			},
+			"----------\n"+
+			"1. ERROR in X.java (at line 18)\n"+
+			"	class C1 implements I{\n"+
+			"	                    ^\n" +
+		    "I cannot be resolved to a type\n"+
+		 	"----------\n"
+			);
+	}
+
+	public void testBug566518_006() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public enum X {\n"+
+				" A, B, C;\n"+
+				" public void foo() {\n"+
+				"   int f = switch (5) {\n"+
+				"			case 5: {\n"+
+				"				public interface I{\n"+
+				"					\n"+
+				"				}\n"+
+				"				class C implements I{\n"+
+				"					public int j = 5;\n"+
+				"				}\n"+
+				"				\n"+
+				"				yield new C().j;\n"+
+				"			}\n"+
+				"			default:\n"+
+				"				throw new IllegalArgumentException(\"Unexpected value: \" );\n"+
+				"			};\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   X x = X.A;\n"+
+				"	System.out.println();\n"+
+				" }\n"+
+				"}"
+			},
+			"");
 	}
 }
