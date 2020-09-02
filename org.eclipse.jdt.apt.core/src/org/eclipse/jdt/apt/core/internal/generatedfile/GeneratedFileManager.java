@@ -37,6 +37,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.Messages;
@@ -533,6 +534,15 @@ public class GeneratedFileManager
 
 				// Create the package fragment in the Java Model.  This creates all needed parent folders.
 				IPackageFragment pkgFrag = _CUHELPER.createPackageFragment(pkgName, root, progressMonitor);
+
+				if (pkgFrag == null) {
+					pkgFrag = root.getPackageFragment(pkgName);
+					// Force an error status
+					IStatus validatePath = root.getJavaProject().getProject().getWorkspace().validatePath(null, IResource.FOLDER);
+					String message = "invalid name for package:" + pkgName; //$NON-NLS-1$
+					AptPlugin.log(new CoreException(validatePath), message);
+					return null;
+				}
 
 				// Mark all newly created folders (but not pre-existing ones) as derived.
 				for (IContainer folder : newFolders) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2018 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2020 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -444,6 +444,30 @@ public class FilerTests extends TestBase
 				"package p;\n" +
 				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
 				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Other\")" +
+				"public class Trigger {\n" +
+				"}"
+		);
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+	}
+	public void testBug540765() throws Throwable {
+		if (!canRunJava9()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava9Project(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		IPath root = projPath.append("src");
+		env.addClass(root, null, "module-info", "module example {requires annotations;}");
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"default package\", arg1 = \"Other\")" +
 				"public class Trigger {\n" +
 				"}"
 		);

@@ -1,0 +1,2 @@
+# To force a version qualifier update add the bug here
+Bug 566471 - I20200828-0150 - Comparator Errors Found

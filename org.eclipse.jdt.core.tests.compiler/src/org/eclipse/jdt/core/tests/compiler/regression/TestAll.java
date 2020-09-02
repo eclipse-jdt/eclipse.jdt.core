@@ -199,6 +199,7 @@ public static Test suite() {
 	 since_14.add(RecordsRestrictedClassTest.class);
 	 since_14.add(PatternMatching15Test.class);
 	 since_14.add(JavadocTestForRecord.class);
+	 since_14.add(BatchCompilerTest_14.class);
 
 	 // add 14 specific test here (check duplicates)
 	 ArrayList since_15 = new ArrayList();
