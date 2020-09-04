@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -271,6 +272,14 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 		if(type != null) {
 			try {
 				IField[] fields = type.getFields();
+				if (type.isRecord()) {
+					IField[] comps = type.getRecordComponents();
+					if(comps.length > 0) {
+						IField[] f = fields;
+						fields = Arrays.copyOf(f, f.length + comps.length);
+						System.arraycopy(comps, 0, fields, f.length, comps.length);
+					}
+				}
 				for (int i = 0; i < fields.length; i++) {
 					IField field = fields[i];
 					ISourceRange range = field.getNameRange();

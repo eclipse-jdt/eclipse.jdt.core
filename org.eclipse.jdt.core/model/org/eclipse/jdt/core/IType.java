@@ -954,7 +954,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	default IField[] getRecordComponents() throws JavaModelException {
-		return null;
+		return new IField[0];
 	}
 	/**
 	 * Returns the record component with the specified name

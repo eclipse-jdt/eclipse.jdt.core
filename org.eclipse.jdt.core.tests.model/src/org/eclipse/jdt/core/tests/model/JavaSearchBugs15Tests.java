@@ -1716,5 +1716,60 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		 			this.resultCollector);
 		}
 
+			public void test566507_componentSelectAndSearch() throws CoreException {
+				this.workingCopies = new ICompilationUnit[1];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+						"public record Point(int /* here*/comp_) { \n" +
+								"	public Point  {\n" +
+								"	  comp_=11;\n" +
+								"	}\n" +
+								"public void method ( ) {	  \n"+
+								"	  int  compp_=11;\n" +
+								"} \n"+
+								"}\n"
+						);
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "/* here*/comp_";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements.length ==1);
+				assertTrue(elements[0] instanceof SourceField);
+				search(elements[0], REFERENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/X.java Point(int) [comp_] EXACT_MATCH");
+
+			}
+			public void test566507_fieldSelectAndSearch() throws CoreException {
+				this.workingCopies = new ICompilationUnit[1];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+						"public record Point(int /* here*/comp_) { \n" +
+								"	public static int staticF =0;\n" +
+								"	public Point  {\n" +
+								"	  comp_=11;\n" +
+								"	  staticF=11;\n" +
+								"	}\n" +
+								"public void method ( ) {	  \n"+
+								"	  int  compp_=11;\n" +
+								"} \n"+
+								"}\n"
+						);
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "staticF";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements.length ==1);
+				assertTrue(elements[0] instanceof SourceField);
+				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/X.java Point.staticF [staticF] EXACT_MATCH\n" +
+						"src/X.java Point(int) [staticF] EXACT_MATCH");
+
+			}
 
 }
