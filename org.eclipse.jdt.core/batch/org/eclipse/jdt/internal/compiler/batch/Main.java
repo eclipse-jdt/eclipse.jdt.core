@@ -3449,8 +3449,8 @@ public IErrorHandlingPolicy getHandlingPolicy() {
 private void setJavaHome(String javaHome) {
 	File release = new File(javaHome, "release"); //$NON-NLS-1$
 	Properties prop = new Properties();
-	try {
-		prop.load(new FileReader(release));
+	try (FileReader reader = new FileReader(release)) {
+		prop.load(reader);
 		String ver = prop.getProperty("JAVA_VERSION"); //$NON-NLS-1$
 		if (ver != null)
 			ver = ver.replace("\"", "");  //$NON-NLS-1$//$NON-NLS-2$
