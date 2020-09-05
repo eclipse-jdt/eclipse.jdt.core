@@ -23,7 +23,6 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 
@@ -260,10 +259,6 @@ public class CodeFormatterApplication implements IApplication {
 
 	private File[] processCommandLine(String[] argsArray) {
 
-		ArrayList args = new ArrayList();
-		for (int i = 0, max = argsArray.length; i < max; i++) {
-			args.add(argsArray[i]);
-		}
 		int index = 0;
 		final int argCount = argsArray.length;
 
