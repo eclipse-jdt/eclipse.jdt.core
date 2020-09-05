@@ -198,7 +198,10 @@ public class InstanceofExpression extends Expression {
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Type) getRightOperand().clone(target));
 		if (DOMASTUtil.isInstanceofExpressionPatternSupported(target)) {
-			result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+			SingleVariableDeclaration pv = getPatternVariable();
+			if (pv != null) {
+				result.setPatternVariable((SingleVariableDeclaration) pv.clone(target));
+			}
 		}
 		return result;
 	}
