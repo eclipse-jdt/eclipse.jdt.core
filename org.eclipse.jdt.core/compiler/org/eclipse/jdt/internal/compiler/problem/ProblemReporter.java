@@ -614,7 +614,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.JavadocHiddenReference:
 		case IProblem.JavadocMissingTagDescription:
 		case IProblem.JavadocInvalidSeeUrlReference:
-		case IProblem.JavadocInvalidModuleQualification:	
+		case IProblem.JavadocInvalidModuleQualification:
 			return CompilerOptions.InvalidJavadoc;
 
 		case IProblem.JavadocMissingParamTag:
@@ -11874,6 +11874,15 @@ public void recordIllegalStaticModifierForLocalClassOrInterface(SourceTypeBindin
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.RecordIllegalStaticModifierForLocalClassOrInterface,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void localStaticsIllegalVisibilityModifierForInterfaceLocalType(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.LocalStaticsIllegalVisibilityModifierForInterfaceLocalType,
 		arguments,
 		arguments,
 		type.sourceStart(),

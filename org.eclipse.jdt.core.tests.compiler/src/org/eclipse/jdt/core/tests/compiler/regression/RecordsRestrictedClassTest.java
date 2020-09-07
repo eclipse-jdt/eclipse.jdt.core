@@ -7726,7 +7726,7 @@ public void testBug566063_004() {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	static interface I {}\n" +
 			"	                 ^\n" +
-			"Illegal modifier for the interface I; only public & abstract are permitted\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
 			"----------\n");
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })

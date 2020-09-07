@@ -231,7 +231,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 				" static void foo() {\n"+
 				"   int f = switch (5) {\n"+
 				"			case 5: {\n"+
-				"				public interface I{\n"+
+				"				interface I{\n"+
 				"					\n"+
 				"				}\n"+
 				"				class C implements I{\n"+
@@ -339,7 +339,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 					" static void foo() {\n"+
 					"   int f = switch (5) {\n"+
 					"			case 5: {\n"+
-					"				public interface I{\n"+
+					"				interface I{\n"+
 					"					\n"+
 					"				}\n"+
 					"				class C implements I{\n"+
@@ -379,7 +379,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 				" public void foo() {\n"+
 				"   int f = switch (5) {\n"+
 				"			case 5: {\n"+
-				"				public interface I{\n"+
+				"				interface I{\n"+
 				"					\n"+
 				"				}\n"+
 				"				class C implements I{\n"+
@@ -468,6 +468,101 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"	record R(X<T> x) {}\n" +
 			"	           ^\n" +
 			"Cannot make a static reference to the non-static type T\n" +
+		 	"----------\n"
+			);
+	}
+	// 9.1.1/14.3
+	public void testBug566720_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	public interface I {}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	public interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+		 	"----------\n"
+			);
+	}
+	// 9.1.1/14.3
+	public void testBug566720_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	private interface I {}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	private interface I {}\n" +
+			"	                  ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+		 	"----------\n"
+			);
+	}
+	// 9.1.1
+	public void testBug566720_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	protected interface I {}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	protected interface I {}\n" +
+			"	                    ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+		 	"----------\n"
+			);
+	}
+	// 9.1.1
+	public void testBug566720_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	final interface I {}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	final interface I {}\n" +
+			"	                ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+		 	"----------\n"
+			);
+	}
+	// 9.1.1
+	public void testBug566720_005() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	static interface I {}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	static interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
 		 	"----------\n"
 			);
 	}

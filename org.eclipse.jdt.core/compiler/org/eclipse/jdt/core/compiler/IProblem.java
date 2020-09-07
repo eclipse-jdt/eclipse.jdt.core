@@ -2357,7 +2357,13 @@ void setSourceStart(int sourceStart);
 	/** @since 3.23
 	 * @noreference preview feature error */
 	int RecordIllegalStaticModifierForLocalClassOrInterface = PreviewRelated + 1761;
+
+	/** @since 3.23 BETA_JAVA15
+	 * @noreference preview feature error */
+	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = PreviewRelated + 1765;
 	/* records - end */
+
+
 	/* instanceof pattern: */
 	/** @since 3.22
 	 * @noreference preview feature error */

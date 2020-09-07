@@ -687,6 +687,15 @@ public class ClassScope extends Scope {
 					if ((realModifiers & unexpectedModifiers) != 0)
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
+			} else 	if (isPreviewEnabled && sourceType.isLocalType()) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface
+						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
+//				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+//					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+//				}
+				modifiers |= ClassFileConstants.AccStatic;
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
@@ -694,12 +703,6 @@ public class ClassScope extends Scope {
 						problemReporter().illegalModifierForAnnotationType(sourceType);
 					else
 						problemReporter().illegalModifierForInterface(sourceType);
-				}
-				if (isPreviewEnabled && sourceType.isLocalType()) {
-//					if ((modifiers & ClassFileConstants.AccStatic) != 0) {
-//						problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
-//					}
-					modifiers |= ClassFileConstants.AccStatic;
 				}
 			}
 			/*
@@ -709,7 +712,7 @@ public class ClassScope extends Scope {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
-		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
+			} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
 			boolean flagSealedNonModifiers = isPreviewEnabled &&
 					(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 			// detect abnormal cases for enums
