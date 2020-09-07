@@ -2424,6 +2424,8 @@ public ModuleBinding module() {
 public boolean hasEnclosingInstanceContext() {
 	if (isMemberType() && !isStatic())
 		return true;
+	if (isLocalType() && isStatic())
+		return false;
 	MethodBinding enclosingMethod = enclosingMethod();
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();

@@ -33,7 +33,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug566284"};
+//		TESTS_NAMES = new String[] { "testBug566715_003"};
 	}
 
 	public static Class<?> testClass() {
@@ -399,5 +399,76 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 				"}"
 			},
 			"");
+	}
+	// 6.5.5.1
+	public void testBug566715_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				" static void foo() {\n"+
+				"	interface I {\n"+
+				"		X<T> supply();\n"+
+				"	}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n"+
+			"1. WARNING in X.java (at line 3)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	X<T> supply();\n" +
+			"	  ^\n" +
+			"Cannot make a static reference to the non-static type T\n" +
+		 	"----------\n"
+			);
+	}
+	// 6.5.5.1
+	public void testBug566715_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	interface I {\n"+
+				"		X<T> supply();\n"+
+				"	}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n"+
+			"1. WARNING in X.java (at line 3)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	X<T> supply();\n" +
+			"	  ^\n" +
+			"Cannot make a static reference to the non-static type T\n" +
+		 	"----------\n"
+			);
+	}
+	// 6.5.5.1
+	public void testBug566715_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X<T> {\n"+
+				"  void foo() {\n"+
+				"	record R(X<T> x) {}\n"+
+				" }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	record R(X<T> x) {}\n" +
+			"	           ^\n" +
+			"Cannot make a static reference to the non-static type T\n" +
+		 	"----------\n"
+			);
 	}
 }

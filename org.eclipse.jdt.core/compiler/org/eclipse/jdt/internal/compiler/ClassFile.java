@@ -588,8 +588,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (fieldDeclaration.isARecordComponent) {
 						long rcMask = TagBits.AnnotationForField | TagBits.AnnotationForTypeUse;
 						RecordComponent comp = getRecordComponent(fieldBinding.declaringClass, fieldBinding.name);
-						assert comp != null;
-						fieldDeclaration.annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
+						if (comp != null)
+							fieldDeclaration.annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
 					}
 					Annotation[] annotations = fieldDeclaration.annotations;
 					if (annotations != null) {
@@ -4116,21 +4116,22 @@ public class ClassFile implements TypeConstants, TypeIds {
 					// record component (field) accessor method
 					ReferenceBinding declaringClass = methodBinding.declaringClass;
 					RecordComponent comp = getRecordComponent(declaringClass, methodBinding.selector);
-					assert comp != null;
-					Annotation[] annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
-					if (annotations != null) {
-						assert !methodBinding.isConstructor();
-						attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForMethod);
-						// Now type annotations
-						Supplier<List<AnnotationContext>> collector = () -> {
-							List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
-							comp.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
-							return allTypeAnnotationContexts;
-						};
-						attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
-								comp,
-								(node) -> (comp.bits & ASTNode.HasTypeAnnotations) != 0,
-								collector);
+					if (comp != null) {
+						Annotation[] annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
+						if (annotations != null) {
+							assert !methodBinding.isConstructor();
+							attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForMethod);
+							// Now type annotations
+							Supplier<List<AnnotationContext>> collector = () -> {
+								List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
+								comp.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
+								return allTypeAnnotationContexts;
+							};
+							attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
+									comp,
+									(node) -> (comp.bits & ASTNode.HasTypeAnnotations) != 0,
+									collector);
+						}
 					}
 				}
 			}

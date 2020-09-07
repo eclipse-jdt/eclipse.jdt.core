@@ -107,8 +107,10 @@ public class Argument extends LocalDeclaration {
 				assert (sourceTypeBinding.isRecord()); // CHECK: Is this really necessary?
 				sourceTypeBinding.components();
 				RecordComponentBinding recordComponentBinding = sourceTypeBinding.getRecordComponent(this.name);
-				RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
-				return recordComponent.annotations;
+				if (recordComponentBinding != null) {
+					RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
+					return recordComponent.annotations;
+				}
 			}
 		}
 		return null;

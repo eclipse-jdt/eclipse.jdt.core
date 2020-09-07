@@ -67,6 +67,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -920,8 +921,8 @@ public List<MethodBinding> checkAndAddSyntheticRecordComponentAccessors(MethodBi
 	int missingCount = filteredComponents.size();
 	for (int i = 0; i < missingCount; ++i) {
 		RecordComponentBinding rcb = this.getRecordComponent(filteredComponents.get(i).toCharArray());
-		assert rcb != null;
-		implicitMethods.add(addSyntheticRecordComponentAccessor(rcb, i));
+		if (rcb != null)
+			implicitMethods.add(addSyntheticRecordComponentAccessor(rcb, i));
 	}
 	accessors.addAll(implicitMethods);
 	this.recordComponentAccessors = accessors.toArray(new MethodBinding[0]);
@@ -2550,9 +2551,9 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				// copy annotations from record component if applicable
 				if (field.isRecordComponent()) {
 					RecordComponentBinding rcb = getRecordComponent(field.name);
-					assert rcb != null;
-					relevantRecordComponentAnnotations = ASTNode.copyRecordComponentAnnotations(initializationScope,
-							field, rcb.sourceRecordComponent().annotations);
+					if (rcb != null)
+						relevantRecordComponentAnnotations = ASTNode.copyRecordComponentAnnotations(initializationScope,
+								field, rcb.sourceRecordComponent().annotations);
 				}
 			}
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
@@ -3474,15 +3475,13 @@ public MethodBinding getRecordComponentAccessor(char[] name) {
 	return accessor;
 }
 public void computeRecordComponents() {
-	if (this.implicitComponentFields != null)
+	if (!this.isRecord() || this.implicitComponentFields != null)
 		return;
-	RecordComponent[] recComps = this.scope.referenceContext.recordComponents;
+	List<String> recordComponentNames = Stream.of(this.components)
+			.map(arg -> new String(arg.name))
+			.collect(Collectors.toList());
 	List<FieldBinding> list = new ArrayList<>();
-	if (recComps != null && recComps.length > 0 && this.fields != null) {
-		List<String> recordComponentNames = new ArrayList<>(0);
-		recordComponentNames = Arrays.stream(recComps)
-				.map(arg -> new String(arg.name))
-				.collect(Collectors.toList());
+	if (recordComponentNames != null && recordComponentNames.size() > 0 && this.fields != null) {
 		for (String rc : recordComponentNames) {
 			for (FieldBinding f : this.fields) {
 				if (rc.equals(new String(f.name))) {
