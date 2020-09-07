@@ -23,14 +23,18 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -969,6 +973,113 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			assertEquals("Restricter identifier position for sealed is not 7", startPos, contents.indexOf("sealed"));
 			startPos = typeDecl.getRestrictedIdentifierStartPosition();
 			assertEquals("Restricter identifier position for permits is not 26", startPos, contents.indexOf("permits"));
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testRecordConstructor001() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents = "record X(int lo) {\n" +
+				"   public X {\n" +
+				"   \n}\n" +
+				"   public X(String str) {\n" +
+				"		this((str != null) ? str.length() : 0);" +
+				"   \n}\n" +
+				"	public int abc() {\n" +
+				"		return this.lo;\n" +
+				"	}\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+			assertEquals("Not a Type", ASTNode.RECORD_DECLARATION, node.getNodeType());
+			ASTParser parser= ASTParser.newParser(getAST15());
+			parser.setProject(javaProject);
+			IBinding[] bindings = parser.createBindings(new IJavaElement[] { this.workingCopy.findPrimaryType() }, null);
+			IMethodBinding methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[0];
+			assertEquals("compact constructor name", "X", methodBinding.getName());
+			assertTrue("not a Constructor", methodBinding.isConstructor());
+			assertTrue("not a CompactConstructor", methodBinding.isCompactConstructor());
+			assertTrue("not a CanonicalConstructor", methodBinding.isCanonicalConstructor());
+			methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
+			assertEquals("constructor name", "X", methodBinding.getName());
+			assertTrue("not a Constructor", methodBinding.isConstructor());
+			assertFalse("Is CompactConstructor?", methodBinding.isCompactConstructor());
+			assertFalse("Is CanonicalConstructor?", methodBinding.isCanonicalConstructor());
+			methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[2];
+			assertEquals("method name", "abc", methodBinding.getName());
+			assertFalse("Is a Constructor?", methodBinding.isConstructor());
+			assertFalse("Is a CompactConstructor?", methodBinding.isCompactConstructor());
+			assertFalse("Is CanonicalConstructor?", methodBinding.isCanonicalConstructor());
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testRecordConstructor002() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents = "record X(int lo) {\n" +
+				"   public X(int lo) {\n" +
+				"		this.lo = lo;" +
+				"   \n}\n" +
+				"   public X(String str) {\n" +
+				"		this((str != null) ? str.length() : 0);" +
+				"   \n}\n" +
+				"	public int abc() {\n" +
+				"		return this.lo;\n" +
+				"	}\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+			assertEquals("Not a Type", ASTNode.RECORD_DECLARATION, node.getNodeType());
+			ASTParser parser= ASTParser.newParser(getAST15());
+			parser.setProject(javaProject);
+			IBinding[] bindings = parser.createBindings(new IJavaElement[] { this.workingCopy.findPrimaryType() }, null);
+			IMethodBinding methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[0];
+			assertEquals("compact constructor name", "X", methodBinding.getName());
+			assertTrue("not a Constructor", methodBinding.isConstructor());
+			assertTrue("is a CanonicalConstructor", methodBinding.isCanonicalConstructor());
+			assertFalse("is a CompactConstructor", methodBinding.isCompactConstructor());
+			methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
+			assertEquals("constructor name", "X", methodBinding.getName());
+			assertTrue("not a Constructor", methodBinding.isConstructor());
+			assertFalse("Is CanonicalConstructor?", methodBinding.isCanonicalConstructor());
+			assertFalse("Is CompactConstructor?", methodBinding.isCompactConstructor());
+			methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[2];
+			assertEquals("method name", "abc", methodBinding.getName());
+			assertFalse("Is a Constructor?", methodBinding.isConstructor());
+			assertFalse("Is a CanonicalConstructor?", methodBinding.isCompactConstructor());
+			assertFalse("Is a CompactConstructor?", methodBinding.isCompactConstructor());
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}

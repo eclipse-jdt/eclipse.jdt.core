@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -75,6 +79,19 @@ public interface IMethodBinding extends IBinding {
 	 * @noreference
 	 */
 	public boolean isCompactConstructor();
+
+	/**
+	 * Returns whether this binding is for a canonical constructor or not.
+	 *
+	 * <p>
+	 * This method returns <code>true</code> for canonical constructors
+	 * </p>
+	 *
+	 * @return <code>true</code> if this is the binding for a canonical constructor
+	 * and <code>false</code> otherwise
+	 * @noreference
+	 */
+	public boolean isCanonicalConstructor();
 
 	/**
 	 * Returns whether this binding is known to be a compiler-generated
