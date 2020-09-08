@@ -714,4 +714,48 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 		 	"----------\n"
 			);
 	}
+	// 9.6
+	public void testBug564557AnnotInterface_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" void foo() {\n"+
+				"   class I {\n"+
+				"     @interface Annot {\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	@interface Annot {\n" +
+			"	           ^^^^^\n" +
+			"The member annotation Annot can only be defined inside a top-level class or interface or in a static context\n" +
+		 	"----------\n"
+			);
+	}
+	// 9.6
+	public void testBug564557AnnotInterface_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" void foo() {\n"+
+				"   interface I {\n"+
+				"     @interface Annot {\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	@interface Annot {\n" +
+			"	           ^^^^^\n" +
+			"The member annotation Annot can only be defined inside a top-level class or interface or in a static context\n" +
+		 	"----------\n"
+			);
+	}
 }
