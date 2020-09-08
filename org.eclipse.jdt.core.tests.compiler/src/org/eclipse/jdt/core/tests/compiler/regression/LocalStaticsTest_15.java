@@ -758,4 +758,114 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 		 	"----------\n"
 			);
 	}
+	// 9.4 && 15.12.3
+	public void testBug564557MethodInvocation_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" void foo() {\n"+
+				"   Zork();\n"+
+				"   interface I {\n"+
+				"     default void bar() {}\n"+
+				"     default void b1() {\n"+
+				"       class J {\n"+
+				"          void jb2() {\n"+
+				"           bar();\n"+
+				"         }\n"+
+				"       }\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+		 	"----------\n"
+			);
+	}
+	// 9.4 && 15.12.3
+	public void testBug564557MethodInvocation_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" void foo() {\n"+
+				"   interface I {\n"+
+				"     default void bar() {}\n"+
+				"     default void b1() {\n"+
+				"       interface J {\n"+
+				"          default void jb2() {\n"+
+				"           bar();\n"+
+				"         }\n"+
+				"       }\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	default void b1() {\n" +
+			"	             ^^^^\n" +
+			"The method b1() from the type I is never used locally\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	interface J {\n" +
+			"	          ^\n" +
+			"The type J is never used locally\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 8)\n" +
+			"	bar();\n" +
+			"	^^^\n" +
+			"Cannot make a static reference to the non-static method bar() from the type I\n" +
+		 	"----------\n"
+			);
+	}
+	// 13.1
+	public void testBug564557BinaryForm_005() throws Exception {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(\"\");\n"+
+					" }\n"+
+					" void foo() {\n"+
+					"   interface I {\n"+
+					"   }\n"+
+					" }\n"+
+					"}"
+			},
+			"");
+		String expectedOutput = "abstract static interface X$1I {\n";
+		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	// 14.3 for enum
+	public void testBug564557BinaryForm_006() throws Exception {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(\"\");\n"+
+					" }\n"+
+					" void foo() {\n"+
+					"   enum I {\n"+
+					"   }\n"+
+					" }\n"+
+					"}"
+			},
+			"");
+		String expectedOutput = "static final enum X$1I {\n";
+		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
+	}
 }
