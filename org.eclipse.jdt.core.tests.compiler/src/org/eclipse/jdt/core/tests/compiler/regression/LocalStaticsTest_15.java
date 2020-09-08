@@ -641,4 +641,77 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 		 	"----------\n"
 			);
 	}
+	public void testBug566748_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface X<T> {\n"+
+				" int count = 0;\n"+
+				"\n"+
+				" default void doNothing() {}\n"+
+				"\n"+
+				" default void foo1(String s) {\n"+
+				"   int i;\n"+
+				"   interface I {\n"+
+				"     default X<T> bar() {\n"+
+				"       if (count > 0 || i > 0 || s == null)\n"+
+				"         return null;\n"+
+				"       doNothing();\n"+
+				"       return null;\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"\n"+
+				" default void foo2(String s) {\n"+
+				"       try {\n"+
+				"               throw new Exception();\n"+
+				"       } catch (Exception e) {\n"+
+				"               interface I { \n"+
+				"                       default int bar() {\n"+
+				"                         return e != null ? 0 : 1;\n"+
+				"                       }   \n"+
+				"               }   \n"+
+				"                   \n"+
+				"       }   \n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 8)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	default X<T> bar() {\n" +
+			"	          ^\n" +
+			"Cannot make a static reference to the non-static type T\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	if (count > 0 || i > 0 || s == null)\n" +
+			"	                 ^\n" +
+			"Cannot make a static reference to the non-static variable i\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 10)\n" +
+			"	if (count > 0 || i > 0 || s == null)\n" +
+			"	                          ^\n" +
+			"Cannot make a static reference to the non-static variable s\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 12)\n" +
+			"	doNothing();\n" +
+			"	^^^^^^^^^\n" +
+			"Cannot make a static reference to the non-static method doNothing() from the type X<T>\n" +
+			"----------\n" +
+			"6. WARNING in X.java (at line 22)\n" +
+			"	interface I { \n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 24)\n" +
+			"	return e != null ? 0 : 1;\n" +
+			"	       ^\n" +
+			"Cannot make a static reference to the non-static variable e\n" +
+		 	"----------\n"
+			);
+	}
 }
