@@ -2361,7 +2361,7 @@ public void testBug560893_007() {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	System.out.println(li);  // error, local variable\n" +
 		"	                   ^^\n" +
-		"Cannot make a static reference to the non-static variable li from a local record\n" +
+		"Cannot make a static reference to the non-static variable li\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 11)\n" +
 		"	System.out.println(nsi); // error, non-static member\n" +

@@ -208,7 +208,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	System.out.println(li); // error, local variable of method of outer enclosing class\n" +
 			"	                   ^^\n" +
-			"Cannot make a static reference to the non-static variable li from a local record\n" +
+			"Cannot make a static reference to the non-static variable li\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 13)\n" +
 			"	System.out.println(nsi); // error, non-static member\n" +
@@ -218,7 +218,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"3. ERROR in X.java (at line 26)\n" +
 			"	I myI = s -> li; // error - local var of outer class\n" +
 			"	             ^^\n" +
-			"Cannot make a static reference to the non-static variable li from a local record\n" +
+			"Cannot make a static reference to the non-static variable li\n" +
 			"----------\n"
 			);
 	}
@@ -563,6 +563,81 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"	static interface I {}\n" +
 			"	                 ^\n" +
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+		 	"----------\n"
+			);
+	}
+	public void testBug566748_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X<T> {\n"+
+				"        int count;\n"+
+				"        void doNothing() {}\n"+
+				"     void foo1(String s) {\n"+
+				"        int i;\n"+
+				"       interface I {\n"+
+				"               default X<T> bar() {\n"+
+				"                       if (count > 0 || i > 0 || s == null)\n"+
+				"                               return null;\n"+
+				"                       doNothing();\n"+
+				"                               return null;\n"+
+				"               }\n"+
+				"       } \n"+
+				"    }\n"+
+				"     void foo2(String s) {\n"+
+				"       try {\n"+
+				"               throw new Exception();\n"+
+				"       } catch (Exception e) {\n"+
+				"               interface I {\n"+
+				"                       default int bar() {\n"+
+				"                         return e != null ? 0 : 1;\n"+
+				"                       }\n"+
+				"               } \n"+
+				"               \n"+
+				"       }\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 6)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	default X<T> bar() {\n" +
+			"	          ^\n" +
+			"Cannot make a static reference to the non-static type T\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	if (count > 0 || i > 0 || s == null)\n" +
+			"	    ^^^^^\n" +
+			"Cannot make a static reference to the non-static field count\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 8)\n" +
+			"	if (count > 0 || i > 0 || s == null)\n" +
+			"	                 ^\n" +
+			"Cannot make a static reference to the non-static variable i\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 8)\n" +
+			"	if (count > 0 || i > 0 || s == null)\n" +
+			"	                          ^\n" +
+			"Cannot make a static reference to the non-static variable s\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 10)\n" +
+			"	doNothing();\n" +
+			"	^^^^^^^^^\n" +
+			"Cannot make a static reference to the non-static method doNothing() from the type X<T>\n" +
+			"----------\n" +
+			"7. WARNING in X.java (at line 19)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 21)\n" +
+			"	return e != null ? 0 : 1;\n" +
+			"	       ^\n" +
+			"Cannot make a static reference to the non-static variable e\n" +
 		 	"----------\n"
 			);
 	}
