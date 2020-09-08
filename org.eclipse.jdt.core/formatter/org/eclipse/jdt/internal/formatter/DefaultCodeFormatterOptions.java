@@ -119,6 +119,14 @@ public class DefaultCodeFormatterOptions {
 		return options;
 	}
 
+	public int alignment_for_annotations_on_type;
+	public int alignment_for_type_annotations;
+	public int alignment_for_annotations_on_enum_constant;
+	public int alignment_for_annotations_on_field;
+	public int alignment_for_annotations_on_method;
+	public int alignment_for_annotations_on_package;
+	public int alignment_for_annotations_on_parameter;
+	public int alignment_for_annotations_on_local_variable;
 	public int alignment_for_arguments_in_allocation_expression;
 	public int alignment_for_arguments_in_annotation;
 	public int alignment_for_arguments_in_enum_constant;
@@ -552,6 +560,14 @@ public class DefaultCodeFormatterOptions {
 
 	public Map<String, String> getMap() {
 		Map<String, String> options = new HashMap<>();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_TYPE, getAlignment(this.alignment_for_annotations_on_type));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_ANNOTATIONS, getAlignment(this.alignment_for_type_annotations));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_ENUM_CONSTANT, getAlignment(this.alignment_for_annotations_on_enum_constant));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_FIELD, getAlignment(this.alignment_for_annotations_on_field));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_METHOD, getAlignment(this.alignment_for_annotations_on_method));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_PACKAGE, getAlignment(this.alignment_for_annotations_on_package));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_PARAMETER, getAlignment(this.alignment_for_annotations_on_parameter));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_LOCAL_VARIABLE, getAlignment(this.alignment_for_annotations_on_local_variable));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION, getAlignment(this.alignment_for_arguments_in_allocation_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ANNOTATION, getAlignment(this.alignment_for_arguments_in_annotation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ENUM_CONSTANT, getAlignment(this.alignment_for_arguments_in_enum_constant));
@@ -962,6 +978,22 @@ public class DefaultCodeFormatterOptions {
 	}
 
 	public void set(Map<String, String> settings) {
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_TYPE,
+				v -> this.alignment_for_annotations_on_type = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_ANNOTATIONS,
+				v -> this.alignment_for_type_annotations = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_ENUM_CONSTANT,
+				v -> this.alignment_for_annotations_on_enum_constant = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_FIELD,
+				v -> this.alignment_for_annotations_on_field = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_METHOD,
+				v -> this.alignment_for_annotations_on_method = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_PACKAGE,
+				v -> this.alignment_for_annotations_on_package = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_PARAMETER,
+				v -> this.alignment_for_annotations_on_parameter = v);
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_LOCAL_VARIABLE,
+				v -> this.alignment_for_annotations_on_local_variable = v);
 		final Object alignmentForArgumentsInAllocationExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION);
 		if (alignmentForArgumentsInAllocationExpressionOption != null) {
 			try {
@@ -2695,6 +2727,15 @@ public class DefaultCodeFormatterOptions {
 					this.insert_new_line_after_annotation_on_package = insert;
 					this.insert_new_line_after_annotation_on_parameter = insert;
 					this.insert_new_line_after_annotation_on_local_variable = insert;
+					int alignment = insert ? Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT
+							: Alignment.M_NO_ALIGNMENT;
+					this.alignment_for_annotations_on_type = alignment;
+					this.alignment_for_annotations_on_enum_constant = alignment;
+					this.alignment_for_annotations_on_field = alignment;
+					this.alignment_for_annotations_on_method = alignment;
+					this.alignment_for_annotations_on_package = alignment;
+					this.alignment_for_annotations_on_parameter = alignment;
+					this.alignment_for_annotations_on_local_variable = alignment;
 				}
 			}
 		} else { // otherwise use new 3.7 options if available
@@ -2884,6 +2925,14 @@ public class DefaultCodeFormatterOptions {
 	}
 
 	public void setDefaultSettings() {
+		this.alignment_for_annotations_on_type = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_type_annotations = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_annotations_on_enum_constant = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_field = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_method = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_package = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_parameter = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_annotations_on_local_variable = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
 		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_arguments_in_enum_constant = Alignment.M_COMPACT_SPLIT;
@@ -3268,6 +3317,14 @@ public class DefaultCodeFormatterOptions {
 	}
 
 	public void setJavaConventionsSettings() {
+		this.alignment_for_annotations_on_type = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_type_annotations = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_annotations_on_enum_constant = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_field = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_method = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_package = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_annotations_on_parameter = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_annotations_on_local_variable = Alignment.M_FORCE | Alignment.M_ONE_PER_LINE_SPLIT;
 		this.alignment_for_arguments_in_allocation_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_arguments_in_enum_constant = Alignment.M_COMPACT_SPLIT;

@@ -128,6 +128,101 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on enum constant declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_enum_constant"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(true, WRAP_ONE_PER_LINE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_ENUM_CONSTANT = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_enum_constant";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on field declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_field"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(true, WRAP_ONE_PER_LINE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_FIELD = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_field";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on method declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_method"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(true, WRAP_ONE_PER_LINE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_METHOD = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_method";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on package declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_package"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(true, WRAP_ONE_PER_LINE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_PACKAGE = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_package";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on type declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_type"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(true, WRAP_ONE_PER_LINE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_TYPE = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_type";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of type annotations
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_type_annotations"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_TYPE_ANNOTATIONS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_type_annotations";//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on parameter
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_parameter"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_parameter";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of annotations on local variable
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_annotations_on_local_variable"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int)</code> call
+	 *     - default:           createAlignmentValue(true, WRAP_ONE_PER_LINE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int)
+	 * @since 3.24
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ANNOTATIONS_ON_LOCAL_VARIABLE = JavaCore.PLUGIN_ID + ".formatter.alignment_for_annotations_on_local_variable";//$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of arguments in allocation expression
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_arguments_in_allocation_expression"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
@@ -5667,6 +5762,20 @@ public class DefaultCodeFormatterConstants {
 				alignmentValue |= Alignment.M_INDENT_ON_COLUMN;
 		}
 		return String.valueOf(alignmentValue);
+	}
+
+	/**
+	 * Create a new alignment value according to the given values. This must be used to set up
+	 * the alignment options that don't allow for various indent styles.
+	 *
+	 * @param forceSplit the given force value
+	 * @param wrapStyle the given wrapping style
+	 *
+	 * @return the new alignment value
+	 * @since 3.24
+	 */
+	public static String createAlignmentValue(boolean forceSplit, int wrapStyle) {
+		return createAlignmentValue(forceSplit, wrapStyle, INDENT_DEFAULT);
 	}
 
 	/**
