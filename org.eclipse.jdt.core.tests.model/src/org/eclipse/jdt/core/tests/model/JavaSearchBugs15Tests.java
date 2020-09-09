@@ -1772,4 +1772,188 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 
 			}
 
+			public void test566062_001() throws CoreException {
+				this.workingCopies = new ICompilationUnit[2];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
+						"public class /* here*/test { \n" +
+						"	/**\n" +
+						"	 * @see mod.one/pack.test\n" +
+						"	 */\n" +
+						"	public void method ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@link mod.one/pack.test abc}\n" +
+						"	 */\n" +
+						"	public void apply ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@linkplain mod.one/pack.test abc}\n" +
+						"	 */\n" +
+						"	public void evaluate ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"}\n"
+					);
+
+				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+						"import pack.*;\n" +
+						"module mod.one {}");
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "test";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements.length ==1);
+
+				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/pack/test.java pack.test [test] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.method() [pack.test] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH");
+			}
+
+			public void test566062_002() throws CoreException {
+				this.workingCopies = new ICompilationUnit[2];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
+						"public class test { \n" +
+						"	public int /* here*/val;" +
+						"	/**\n" +
+						"	 * @see mod.one/pack.test#val\n" +
+						"	 */\n" +
+						"	public void method ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@link mod.one/pack.test#val abc}\n" +
+						"	 */\n" +
+						"	public void apply ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@linkplain mod.one/pack.test#val abc}\n" +
+						"	 */\n" +
+						"	public void evaluate ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"}\n"
+					);
+
+				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+						"import pack.*;\n" +
+						"module mod.one {}");
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "val";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements.length ==1);
+
+				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/pack/test.java pack.test.val [val] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.method() [val] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.apply() [val] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.evaluate() [val] EXACT_MATCH");
+			}
+
+			public void test566062_003() throws CoreException {
+				this.workingCopies = new ICompilationUnit[2];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
+						"public class test { \n" +
+						"	public void /* here*/setComp ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * @see mod.one/pack.test#setComp()\n" +
+						"	 */\n" +
+						"	public void method ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@link mod.one/pack.test#setComp() setComp}\n" +
+						"	 */\n" +
+						"	public void apply ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@linkplain mod.one/pack.test#setComp() setComp}\n" +
+						"	 */\n" +
+						"	public void evaluate ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"}\n"
+					);
+
+				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+						"import pack.*;\n" +
+						"module mod.one {}");
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "setComp";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements.length ==1);
+
+				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/pack/test.java void pack.test.setComp() [setComp] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.method() [setComp()] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.apply() [setComp()] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.evaluate() [setComp()] EXACT_MATCH");
+			}
+
+			public void test566062_004() throws CoreException {
+				this.workingCopies = new ICompilationUnit[2];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/test.java",
+						"public class /* here*/test { \n" +
+						"	public int /* here*/val;" +
+						"	/**\n" +
+						"	 * @see mod.one/pack.test#apply()\n" +
+						"	 */\n" +
+						"	public void method ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@link mod.one/pack.test abc}\n" +
+						"	 */\n" +
+						"	public void apply ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"	/**\n" +
+						"	 * {@linkplain mod.one/pack.test#val abc}\n" +
+						"	 */\n" +
+						"	public void evaluate ( ) {	  \n"+
+						"		int  compp_=11;\n" +
+						"	} \n"+
+						"}\n"
+					);
+
+				this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+						"import pack.*;\n" +
+						"module mod.one {}");
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "test";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements.length ==1);
+
+				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/pack/test.java pack.test [test] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.method() [pack.test] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH\n"+
+						"src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH");
+			}
 }

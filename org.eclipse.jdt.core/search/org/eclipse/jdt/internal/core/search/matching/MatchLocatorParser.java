@@ -158,6 +158,12 @@ public void checkComment() {
 		if (references != null) {
 			for (int i=0, length=references.length; i < length; i++) {
 				Expression reference = references[i];
+				if (reference instanceof JavadocModuleReference) {
+					JavadocModuleReference modRef = (JavadocModuleReference)reference;
+					if (modRef.typeReference != null) {
+						this.patternLocator.match(modRef.typeReference, this.nodeSet);
+					}
+				}
 				if (reference instanceof TypeReference) {
 					TypeReference typeRef = (TypeReference) reference;
 					this.patternLocator.match(typeRef, this.nodeSet);
@@ -167,6 +173,12 @@ public void checkComment() {
 					if (fieldRef.receiver instanceof TypeReference && !fieldRef.receiver.isThis()) {
 						TypeReference typeRef = (TypeReference) fieldRef.receiver;
 						this.patternLocator.match(typeRef, this.nodeSet);
+					}
+					if (fieldRef.receiver instanceof JavadocModuleReference) {
+						JavadocModuleReference modRef = (JavadocModuleReference)fieldRef.receiver;
+						if (modRef.typeReference != null) {
+							this.patternLocator.match(modRef.typeReference, this.nodeSet);
+						}
 					}
 				} else if (reference instanceof JavadocMessageSend) {
 					JavadocMessageSend messageSend = (JavadocMessageSend) reference;

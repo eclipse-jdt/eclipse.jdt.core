@@ -109,8 +109,8 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 	@Override
 	public TypeBinding resolveType(BlockScope blockScope) {
 		this.resolveModule(blockScope);
-		assert(this.moduleReference.binding != null);
-		if (this.typeReference != null) {
+		if (this.moduleReference.binding != null
+				&& this.typeReference != null) {
 			return this.typeReference.resolveType(blockScope);
 		}
 		return null;
