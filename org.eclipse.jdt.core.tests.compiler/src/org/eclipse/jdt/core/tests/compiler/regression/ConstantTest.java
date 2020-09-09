@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2014 IBM Corporation and others.
+ * Copyright (c) 2003, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1510,6 +1510,99 @@ public void test022() {
 		"-1\n" +
 		"-623195394\n" +
 		"0");
+}
+public void testBug566332_01() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "        String switchVar = \"abc\";\n"
+				+ "        final String caseStr =  true ? \"abc\" : \"def\";\n"
+				+ "        switch (switchVar) {\n"
+				+ "            case caseStr: System.out.println(\"Pass\");\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "} ",
+			},
+			"Pass");
+}
+public void testBug566332_02() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "        String switchVar = \"abc\";\n"
+				+ "        final String caseStr =  false ? \"abc\" : \"def\";\n"
+				+ "        switch (switchVar) {\n"
+				+ "            case caseStr: System.out.println(\"Pass\");\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "} ",
+			},
+			"");
+}
+public void testBug566332_03() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "        boolean b = true;\n"
+				+ "        String switchVar = \"abc\";\n"
+				+ "        final String caseStr =  b ? \"abc\" : \"def\";\n"
+				+ "        switch (switchVar) {\n"
+				+ "            case caseStr: System.out.println(\"Pass\");\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "} ",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case caseStr: System.out.println(\"Pass\");\n" +
+			"	     ^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n");
+}
+// Same as testBug566332_01(), but without the variable being final
+public void testBug566332_04() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "        String switchVar = \"abc\";\n"
+				+ "        String caseStr =  true ? \"abc\" : \"def\";\n"
+				+ "        switch (switchVar) {\n"
+				+ "            case caseStr: System.out.println(\"Pass\");\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "} ",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	String caseStr =  true ? \"abc\" : \"def\";\n" +
+			"	                                 ^^^^^\n" +
+			"Dead code\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	case caseStr: System.out.println(\"Pass\");\n" +
+			"	     ^^^^^^^\n" +
+			"case expressions must be constant expressions\n" +
+			"----------\n");
 }
 public static Class testClass() {
 	return ConstantTest.class;

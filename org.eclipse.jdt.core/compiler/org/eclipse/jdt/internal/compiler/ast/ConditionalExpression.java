@@ -510,6 +510,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			if (this.originalValueIfFalseType == null || !this.originalValueIfFalseType.isValidBinding())
 				return this.resolvedType = null;
 		}
+		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
+		Constant condConstant, trueConstant, falseConstant;
+		if ((condConstant = this.condition.constant) != Constant.NotAConstant
+			&& (trueConstant = this.valueIfTrue.constant) != Constant.NotAConstant
+			&& (falseConstant = this.valueIfFalse.constant) != Constant.NotAConstant) {
+			// all terms are constant expression so we can propagate the constant
+			// from valueIFTrue or valueIfFalse to the receiver constant
+			this.constant = condConstant.booleanValue() ? trueConstant : falseConstant;
+		}
 		if (isPolyExpression()) {
 			if (this.expectedType == null || !this.expectedType.isProperType(true)) {
 				return new PolyTypeBinding(this);
@@ -554,15 +563,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 						valueIfFalseType = unboxedIfFalseType;
 					}
 			}
-		}
-		// Propagate the constant value from the valueIfTrue and valueIFFalse expression if it is possible
-		Constant condConstant, trueConstant, falseConstant;
-		if ((condConstant = this.condition.constant) != Constant.NotAConstant
-			&& (trueConstant = this.valueIfTrue.constant) != Constant.NotAConstant
-			&& (falseConstant = this.valueIfFalse.constant) != Constant.NotAConstant) {
-			// all terms are constant expression so we can propagate the constant
-			// from valueIFTrue or valueIfFalse to the receiver constant
-			this.constant = condConstant.booleanValue() ? trueConstant : falseConstant;
 		}
 		if (TypeBinding.equalsEquals(valueIfTrueType, valueIfFalseType)) { // harmed the implicit conversion
 			this.valueIfTrue.computeConversion(scope, valueIfTrueType, this.originalValueIfTrueType);
