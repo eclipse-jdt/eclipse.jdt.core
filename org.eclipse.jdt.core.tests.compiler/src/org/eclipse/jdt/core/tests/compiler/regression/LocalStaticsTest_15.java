@@ -868,4 +868,67 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 		String expectedOutput = "static final enum X$1I {\n";
 		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	// 15.8.3
+	public void testBug564557thisInStatic_007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" void foo() {\n"+
+				"   interface I {\n"+
+				"     int count = 0;\n"+
+				"     static void bar() {\n"+
+				"       int i = this.count;\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	int count = 0;\n" +
+			"	    ^^^^^\n" +
+			"The value of the field I.count is not used\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	int i = this.count;\n" +
+			"	        ^^^^\n" +
+			"Cannot use this in a static context\n" +
+		 	"----------\n"
+			);
+	}
+	// 15.8.3
+	public void testBug564557thisInStatic_008() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" int count = 0;\n"+
+				" void foo() {\n"+
+				"   interface I {\n"+
+				"     static void bar() {\n"+
+				"       int i = X.this.count;\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	interface I {\n" +
+			"	          ^\n" +
+			"The type I is never used locally\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	int i = X.this.count;\n" +
+			"	        ^^^^^^\n" +
+			"No enclosing instance of the type X is accessible in scope\n" +
+		 	"----------\n"
+			);
+	}
 }
