@@ -910,7 +910,7 @@ public List<MethodBinding> checkAndAddSyntheticRecordComponentAccessors(MethodBi
 		accessors = Arrays.stream(methodBindings)
 				.filter(m -> m.selector != null && m.selector.length > 0)
 				.filter(m -> filteredComponents.contains(new String(m.selector)))
-				.filter(m -> m.parameters == null || m.parameters.length == 0)
+				.filter(m -> m.parameterNames == null || m.parameterNames.length == 0)
 				.collect(Collectors.toList());
 
 		List<String> candidates = accessors.stream()

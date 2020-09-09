@@ -7783,4 +7783,103 @@ public void testBug565787_01() {
 		},
 		"");
 }
+public void testBug566554_01() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class Main {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		final Margin margins = new Margin(0);\n" +
+			"		System.out.println(margins.left()); \n" +
+			"	}\n" +
+			"}\n" +
+			"record Margin(int left) {\n" +
+			"	public Margin left(int value) {\n" +
+			"		return new Margin(value);\n" +
+			"	}\n" +
+			"	public String toString() {\n" +
+			"		return \"Margin[left=\" + this.left + \"]\";\n" +
+			"	}\n" +
+			"}",
+		},
+		"0");
+}
+public void testBug566554_02() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class Main {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		final Margin margins = new Margin(0);\n" +
+			"		System.out.println(margins.left()); \n" +
+			"	}\n" +
+			"}\n" +
+			"record Margin(int left) {\n" +
+			"	public Margin left(int value) {\n" +
+			"		return new Margin(value);\n" +
+			"	}\n" +
+			"	public int left() {\n" +
+			"		return this.left;\n" +
+			"	}\n" +
+			"	public String toString() {\n" +
+			"		return \"Margin[left=\" + this.left + \"]\";\n" +
+			"	}\n" +
+			"}",
+		},
+		"0");
+}
+public void testBug566554_03() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class Main {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		final Margin margins = new Margin(0);\n" +
+			"		System.out.println(margins.left(0)); \n" +
+			"	}\n" +
+			"}\n" +
+			"record Margin(int left) {\n" +
+			"	public Margin left(int value) {\n" +
+			"		return new Margin(value);\n" +
+			"	}\n" +
+			"	public int left() {\n" +
+			"		return this.left;\n" +
+			"	}\n" +
+			"	public String toString() {\n" +
+			"		return \"Margin[left=\" + this.left + \"]\";\n" +
+			"	}\n" +
+			"}",
+		},
+		"Margin[left=0]");
+}
+public void testBug566554_04() {
+	runNegativeTest(
+		new String[] {
+			"Main.java",
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class Main {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		final Margin margins = new Margin(0);\n" +
+			"		int l = margins.left(0); \n" +
+			"	}\n" +
+			"}\n" +
+			"record Margin(int left) {\n" +
+			"	public Margin left(int value) {\n" +
+			"		return new Margin(value);\n" +
+			"	}\n" +
+			"	public int left() {\n" +
+			"		return this.left;\n" +
+			"	}\n" +
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in Main.java (at line 5)\n" +
+		"	int l = margins.left(0); \n" +
+		"	        ^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from Margin to int\n" +
+		"----------\n");
+}
 }
