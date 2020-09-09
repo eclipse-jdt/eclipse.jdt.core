@@ -37,6 +37,8 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -791,16 +793,57 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				CompilationUnit compilationUnit = (CompilationUnit) node;
 				assertProblemsSize(compilationUnit, 0);
 				node = getASTNode(compilationUnit, 0, 0, 0);
-				assertEquals("Text block statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_STATEMENT);
-				List fragments = ((VariableDeclarationStatement) node).fragments();
-				assertEquals("Incorrect no of fragments", 1, fragments.size());
-				node = (ASTNode) fragments.get(0);
-				assertEquals("Switch statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_FRAGMENT);
-				VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
-				Expression initializer = fragment.getInitializer();
-				assertTrue("Initializer is not a TextBlock", initializer instanceof TextBlock);
-				ITypeBinding binding = initializer.resolveTypeBinding();
-				assertNotNull("No binding", binding);
+				assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+				IfStatement ifStatement = (IfStatement) node;
+				Expression expression = ifStatement.getExpression();
+				checkSourceRange(expression, "o instanceof String s", contents);
+				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+				SingleVariableDeclaration var = instanceofExpression.getPatternVariable();
+				checkSourceRange(var, "String s", contents);
+			}finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+	}
+
+	public void _testPatternInstanceOfExpression002() throws JavaModelException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents =
+				"public class X {\n" +
+						"	public String test001(Object o) {\n" +
+						"		if (o instanceof String){\n" +
+						"    		String s = (String)o;\n" +
+						"    		System.out.println(s);\n" +
+						"			return s;\n" +
+						"		}\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}" ;
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+				ASTNode node = buildAST(
+						contents,
+						this.workingCopy);
+				assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+				CompilationUnit compilationUnit = (CompilationUnit) node;
+				assertProblemsSize(compilationUnit, 0);
+				node = getASTNode(compilationUnit, 0, 0, 0);
+				assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+				IfStatement ifStatement = (IfStatement) node;
+				Expression expression = ifStatement.getExpression();
+				checkSourceRange(expression, "o instanceof String", contents);
+				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+				SingleVariableDeclaration var = instanceofExpression.getPatternVariable();
+				assertNull(var);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
