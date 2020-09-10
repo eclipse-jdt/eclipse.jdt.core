@@ -1335,7 +1335,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		"Nested Record is (implicitly) static and hence enclosing type should be static\n" +
 		"----------\n");
 	}
-	public void _testBug553152_018() {
+	public void testBug553152_018() {
 		runConformTest(
 				new String[] {
 						"X.java",

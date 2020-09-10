@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 GK Software SE and others.
+ * Copyright (c) 2011, 2020 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5616,8 +5616,8 @@ public void testBug542707_001() {
 		"----------\n",
 		options);
 }
-public void _testBug542707_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK14) return; // uses switch expression
+public void testBug542707_002() {
+	if (this.complianceLevel < ClassFileConstants.JDK15) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);

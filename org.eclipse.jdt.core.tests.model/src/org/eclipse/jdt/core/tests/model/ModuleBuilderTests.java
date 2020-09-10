@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2019 IBM Corporation and others.
+ * Copyright (c) 2016, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6294,8 +6294,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
-	public void _testBug526054() throws Exception {
-		if (!isJRE9) return;
+	public void testBug526054() throws Exception {
+		// JDK 15 has removed the only module that was not part of module default root module jdk.rmic.
+		// Hence, we no longer need this test for JDK 15 and above.
+		if (!isJRE9 || isJRE15) return;
 		ClasspathJrt.resetCaches();
 		try {
 			// jdk.rmic is not be visible to code in an unnamed module, but using requires we can see the module.
@@ -6344,7 +6346,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
-	public void _testBug526054b() throws Exception {
+	public void testBug526054b() throws Exception {
+		// JDK 15 has removed the only module that was not part of module default root module jdk.rmic.
+		// Hence, we no longer need this test for JDK 15 and above.
+		if (!isJRE9 || isJRE15) return;
 		ClasspathJrt.resetCaches();
 		try {
 			// one project can see jdk.rmic/sun.rmi.rmic
