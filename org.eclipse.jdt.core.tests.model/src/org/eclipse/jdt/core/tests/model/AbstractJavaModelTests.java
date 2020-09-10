@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
@@ -301,6 +302,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		public int compare(Object a, Object b) {
         			IJavaElementDelta deltaA = (IJavaElementDelta)a;
         			IJavaElementDelta deltaB = (IJavaElementDelta)b;
+        			// Make sure JRT elements and other external JAR elements always
+        			// come in the same position with respect to other kind. These two
+        			// kinds usually come from two entirely different locations which makes
+        			// the sorting by path unpredictable.
+        			boolean isAFromJRT = deltaA.getElement() instanceof JrtPackageFragmentRoot;
+        			boolean isBFromJRT = deltaB.getElement() instanceof JrtPackageFragmentRoot;
+        			int result = 0;
+        			if (isAFromJRT) {
+        				if (!isBFromJRT) {
+        					result = 1;
+        				}
+        			} else if (isBFromJRT) {
+        				result = -1;
+        			}
+        			if (result != 0)
+        				return result;
         			return toString(deltaA).compareTo(toString(deltaB));
         		}
         		private String toString(IJavaElementDelta delta) {
