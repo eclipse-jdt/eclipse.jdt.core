@@ -38,7 +38,7 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeMirror;
 
 @SupportedAnnotationTypes("*")
-@SupportedSourceVersion(SourceVersion.RELEASE_15)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class SealedTypeElementProcessor extends BaseElementProcessor {
 	TypeElement nonSealed = null;
 	TypeElement sealed1 = null;
