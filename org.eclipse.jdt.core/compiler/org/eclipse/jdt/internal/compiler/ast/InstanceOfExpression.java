@@ -256,6 +256,9 @@ public boolean resolvePatternVariable(BlockScope scope) {
 	if (this.elementVariable == null) return false;
 	if (this.elementVariable.binding == null) {
 		this.elementVariable.resolve(scope, true);
+		// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
+		// missing initializer
+		this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
 		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccUnresolved; // TODO: Change to a different mechanism
 		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
