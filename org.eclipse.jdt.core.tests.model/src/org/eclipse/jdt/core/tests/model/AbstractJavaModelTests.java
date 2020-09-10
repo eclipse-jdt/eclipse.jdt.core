@@ -84,7 +84,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE13 = false;
 	protected static boolean isJRE14 = false;
 	protected static boolean isJRE15 = false;
-	protected static String DEFAULT_MODULES = null;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -114,28 +113,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
-			if (vmName.contains("HotSpot")) {
-				DEFAULT_MODULES = "java.se," +
-						"javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web," + 	// not present in OpenJDK
-						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
-						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
-						"jdk.jfr," +																						// not present in OpenJDK
-						"jdk.jshell,jdk.jsobject,jdk.management," +
-						"jdk.management.cmm,jdk.management.jfr,jdk.management.resource," +									// not present in OpenJDK
-						"jdk.net," +
-						"jdk.packager,jdk.packager.services,jdk.plugin.dom," +												// not present in OpenJDK
-						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom," +
-						"oracle.desktop,oracle.net";																		// not present in OpenJDK
-			} else if (vmName.contains("OpenJDK") || vmName.contains("OpenJ9")) {
-				DEFAULT_MODULES = "java.se," +
-						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
-						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
-						"jdk.jshell,jdk.jsobject,jdk.management,jdk.net," +
-						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom";
-			} else {
-				System.out.println(System.getProperties());
-				fail("Unexpected java vm "+javaVersion+" "+vmName);
-			}
 			System.out.println("Recognized Java version '"+javaVersion+"' with vm.name '"+vmName+"'");
 		}
 	}
