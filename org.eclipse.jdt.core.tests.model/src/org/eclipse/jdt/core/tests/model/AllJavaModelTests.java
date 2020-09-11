@@ -106,7 +106,7 @@ private static Class[] getAllTestClasses() {
 		ResolveTests18.class,
 		ResolveTests9.class,
 		ResolveTests10.class,
-		ResolveTests12.class,
+		ResolveTests12To15.class,
 		SelectionJavadocModelTests.class,
 
 		// Support for completion tests

@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 
 import junit.framework.Test;
 
-public class ResolveTests12 extends AbstractJavaModelTests {
+public class ResolveTests12To15 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
 
 static {
@@ -30,9 +30,9 @@ static {
 	// TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildModelTestSuite(ResolveTests12.class);
+	return buildModelTestSuite(ResolveTests12To15.class);
 }
-public ResolveTests12(String name) {
+public ResolveTests12To15(String name) {
 	super(name);
 }
 @Override
@@ -43,6 +43,7 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setUpJavaProject("Resolve", "12", false);
+	setUpJavaProject("Resolve15", "15", false);
 	waitUntilIndexesReady();
 }
 @Override
@@ -53,6 +54,7 @@ protected void setUp() throws Exception {
 @Override
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
+	deleteProject("Resolve15");
 	super.tearDownSuite();
 }
 
@@ -607,6 +609,117 @@ public void test022() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"ijk [in testSw(int) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+		elements
+	);
+}
+public void testBug553149_1() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    protected Object x_ = \"FIELD X\";\n"
+					+ "    @SuppressWarnings(\"preview\")\n"
+					+ "	   public void f(Object obj, boolean b) {\n"
+					+ "        if ((x_ instanceof String y) && y.length() > 0) {\n"
+					+ "            System.out.println(y.toLowerCase());\n"
+					+ "        }\n"
+					+ "    }\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "x_";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x_ [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+public void testBug553149_2() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    protected Object x_ = \"FIELD X\";\n"
+					+ "    @SuppressWarnings(\"preview\")\n"
+					+ "	   public void f(Object obj, boolean b) {\n"
+					+ "        if ((x_ instanceof String y_) && y_.length() > 0) {\n"
+					+ "            System.out.println(y.toLowerCase());\n"
+					+ "        }\n"
+					+ "    }\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "y_";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"y_ [in f(Object, boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
+public void testBug553149_3() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    protected Object x_ = \"FIELD X\";\n"
+					+ "    @SuppressWarnings(\"preview\")\n"
+					+ "	   public void f(Object obj, boolean b) {\n"
+					+ "        if ((x_ instanceof String x_) && x_.length() > 0) {\n"
+					+ "            System.out.println(y.toLowerCase());\n"
+					+ "        }\n"
+					+ "    }\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "x_";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x_ [in f(Object, boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
+public void _testBug553149_4() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    protected Object x_ = \"FIELD X\";\n"
+					+ "    @SuppressWarnings(\"preview\")\n"
+					+ "	   public void f(Object obj, boolean b) {\n"
+					+ "        if ((x_ instanceof String x_) && x_.length() > 0) {\n"
+					+ "            System.out.println(x_.toLowerCase());\n"
+					+ "        }\n"
+					+ "    }\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "x_ instanceof";
+	int start = str.lastIndexOf(selection);
+	int length = "x_".length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x_ [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+public void _testBug553149_5() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    protected Object x_ = \"FIELD X\";\n"
+					+ "    @SuppressWarnings(\"preview\")\n"
+					+ "	   public void f(Object obj, boolean b) {\n"
+					+ "        if ((x_ instanceof String x_) && x_.length() > 0) {\n"
+					+ "            System.out.println(x_.toLowerCase());\n"
+					+ "        }\n"
+					+ "        System.out.println(x_.toLowerCase());\n"
+					+ "    }\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "x_";
+	int start = str.lastIndexOf(selection);
+	int length = "x_".length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x_ [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
 		elements
 	);
 }

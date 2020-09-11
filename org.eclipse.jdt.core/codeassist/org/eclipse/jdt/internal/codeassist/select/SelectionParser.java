@@ -801,7 +801,22 @@ protected void consumeInstanceOfExpression() {
 }
 @Override
 protected void consumeInstanceOfExpressionWithName() {
-	if (indexOfAssistIdentifier() < 0) {
+	int length = this.patternLengthPtr >= 0 ?
+			this.patternLengthStack[this.patternLengthPtr--] : 0;
+	if (length > 0) {
+		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
+		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+		if (this.assistNode == null || this.expressionStack[this.expressionPtr] != this.assistNode) {
+			// Push only when the selection node is not the expression of this
+			// pattern matching instanceof expression
+			pushOnAstStack(typeDecl);
+		}
+		if (indexOfAssistIdentifier() >= 0) {
+			this.isOrphanCompletionNode = true;
+			this.restartRecovery = true;
+			this.lastIgnoredToken = -1;
+		}
+	} else if (indexOfAssistIdentifier() < 0) {
 		super.consumeInstanceOfExpressionWithName();
 	} else {
 		getTypeReference(this.intStack[this.intPtr--]);
