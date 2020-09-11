@@ -270,22 +270,25 @@ public boolean resolvePatternVariable(BlockScope scope) {
 @Override
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
 	this.expression.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
-	if (this.elementVariable != null && this.elementVariable.binding == null) {
-		resolvePatternVariable(scope);
-		if (variables != null) {
-			for (LocalVariableBinding variable : variables) {
-				if (CharOperation.equals(this.elementVariable.name, variable.name)) {
-					scope.problemReporter().redefineLocal(this.elementVariable);
+	if (this.elementVariable != null) {
+		if (this.elementVariable.binding == null) {
+			resolvePatternVariable(scope);
+			if (variables != null) {
+				for (LocalVariableBinding variable : variables) {
+					if (CharOperation.equals(this.elementVariable.name, variable.name)) {
+						scope.problemReporter().redefineLocal(this.elementVariable);
+					}
 				}
 			}
 		}
+		if (this.patternVarsWhenTrue == null) {
+			this.patternVarsWhenTrue = new LocalVariableBinding[1];
+			this.patternVarsWhenTrue[0] = this.elementVariable.binding;
+		} else {
+			this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.elementVariable.binding});
+		}
 	}
-	if (this.patternVarsWhenTrue == null) {
-		this.patternVarsWhenTrue = new LocalVariableBinding[1];
-		this.patternVarsWhenTrue[0] = this.elementVariable.binding;
-	} else {
-		this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.elementVariable.binding});
-	}
+
 }
 @Override
 public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {

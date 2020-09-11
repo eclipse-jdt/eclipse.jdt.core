@@ -1826,6 +1826,7 @@ public boolean containsPatternVariable() {
 }
 @Override
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	this.addPatternVariablesWhenTrue(variables);
 	this.left.addPatternVariablesWhenTrue(this.patternVarsWhenTrue);
 	this.right.addPatternVariablesWhenTrue(this.patternVarsWhenTrue);
 	this.left.addPatternVariablesWhenFalse(this.patternVarsWhenFalse);

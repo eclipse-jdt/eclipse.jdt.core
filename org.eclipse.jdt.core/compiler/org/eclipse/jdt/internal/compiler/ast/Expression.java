@@ -799,26 +799,6 @@ public void collectPatternVariablesToScope(LocalVariableBinding[] variables, Blo
 	new ASTVisitor() {
 		LocalVariableBinding[] patternVariablesInScope;
 		@Override
-		public boolean visit(OR_OR_Expression exp, BlockScope skope) {
-			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
-			return true;
-		}
-		@Override
-		public boolean visit(AND_AND_Expression exp, BlockScope skope) {
-			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
-			return true;
-		}
-		@Override
-		public boolean visit(EqualExpression exp, BlockScope skope) {
-			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
-			return true;
-		}
-		@Override
-		public boolean visit(UnaryExpression exp, BlockScope skope) {
-			this.patternVariablesInScope = exp.getPatternVariablesWhenTrue();
-			return true;
-		}
-		@Override
 		public boolean visit(Argument argument, BlockScope skope) {
 			// Most likely to be a lambda parameter
 			argument.addPatternVariablesWhenTrue(this.patternVariablesInScope);

@@ -28,7 +28,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test022a" };
+//		TESTS_NAMES = new String[] { "test025b" };
 	}
 
 	public static Class<?> testClass() {
@@ -3014,6 +3014,186 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 						+ "}",
 				},
 				"field x",
+				compilerOptions);
+	}
+	public void test068() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"
+						+ "    static void foo(Object o) {\n"
+						+ "		if (o instanceof X x || o instanceof X) {\n"
+						+ "            System.out.println(\"X\");\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		foo(new X());\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"X",
+				compilerOptions);
+	}
+	public void test069() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"
+						+ "    static void foo(Object o) {\n"
+						+ "		if (o instanceof X x && x instanceof X x) {\n"
+						+ "            System.out.println(\"X\");\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		foo(new X());\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (o instanceof X x && x instanceof X x) {\n" +
+				"	                                       ^\n" +
+				"Duplicate local variable x\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
+	// Javac rejects this. Need to check with the spec authors
+	public void test070() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+						"public class X {\n"
+						+ "    static void foo(Object o) {\n"
+						+ "		if (o instanceof X x || o instanceof X x) {\n"
+						+ "            System.out.println(\"X\");\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		foo(new X());\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"X",
+				compilerOptions);
+	}
+	// Javac rejects the code on the IF itself (same as above)
+	public void test071() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+								"public class X {\n"
+								+ "    static void foo(Object o) {\n"
+								+ "		if (o instanceof X x || o instanceof X x) {\n"
+								+ "            System.out.println(x);\n"
+								+ "		}\n"
+								+ "	}\n"
+								+ "	public static void main(String[] args) {\n"
+								+ "		foo(new X());\n"
+								+ "	}\n"
+								+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	System.out.println(x);\n" +
+				"	                   ^\n" +
+				"x cannot be resolved to a variable\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
+	// Javac rejects the code on the IF itself (same as above)
+	public void test072() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+								"public class X {\n"
+								+ "    static void foo(Object o) {\n"
+								+ "		if (o instanceof X x || o instanceof X x) {\n"
+								+ "			throw new IllegalArgumentException();\n"
+								+ "		}\n"
+								+ "     System.out.println(x);\n"
+								+ "	}\n"
+								+ "	public static void main(String[] args) {\n"
+								+ "		foo(new X());\n"
+								+ "	}\n"
+								+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	System.out.println(x);\n" +
+				"	                   ^\n" +
+				"x cannot be resolved to a variable\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
+	public void test073() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+								"public class X {\n"
+								+ " static void foo(Object o) {\n"
+								+ "		try {\n"
+								+ "			if (!(o instanceof X x) || x != null || x!= null) { // allowed \n"
+								+ "				throw new IllegalArgumentException();\n"
+								+ "			}\n"
+								+ "    	 	System.out.println(x); // allowed \n"
+								+ "	  	} catch (Throwable e) {\n"
+								+ "	  		e.printStackTrace(System.out);\n"
+								+ "	  	}\n"
+								+ "	}\n"
+								+ "	public static void main(String[] args) {\n"
+								+ "		foo(new X());\n"
+								+ "	}\n"
+								+ "}",
+				},
+				"java.lang.IllegalArgumentException\n" +
+				"	at X.foo(X.java:6)\n" +
+				"	at X.main(X.java:14)",
+				compilerOptions);
+	}
+	public void test074() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+								"public class X {\n"
+								+ "   static void foo(Object o) {\n"
+								+ "		if (!(o instanceof X x) || x != null || x!= null) {\n"
+								+ "     	System.out.println(x);\n // not allowed"
+								+ "		}\n"
+								+ "	  }\n"
+								+ "	}\n"
+								+ "	public static void main(String[] args) {\n"
+								+ "		foo(new X());\n"
+								+ "	}\n"
+								+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	System.out.println(x);\n" +
+				"	                   ^\n" +
+				"x cannot be resolved to a variable\n" +
+				"----------\n",
+				null,
+				true,
 				compilerOptions);
 	}
 }
