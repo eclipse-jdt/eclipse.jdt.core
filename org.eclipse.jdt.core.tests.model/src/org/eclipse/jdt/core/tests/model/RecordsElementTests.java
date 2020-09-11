@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -384,6 +385,93 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("incorrect numer of names", 2, parameterNames.length);
 			assertEquals("incorrect parameter names", "x1", parameterNames[0]);
 			assertEquals("incorrect parameter names", "x2", parameterNames[1]);
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	public void testBug566860_1() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("RecordsElement");
+			project.open(null);
+			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
+					"public record Point(int /* comment1 */ x1, int /* comment2 */ x2) {\n" +
+					"	public void foo() {}\n" +
+					"	static int field;\n" +
+					"}\n";
+			createFile(	"/RecordsElement/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			assertTrue("type should be a record", types[0].isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+			IMethod[] methods = types[0].getMethods();
+			assertEquals("Incorret no of methods", 1, methods.length);
+			IMethod m = methods[0];
+			ISourceRange sourceRange = m.getSourceRange();
+			String methodString = "public void foo() {}";
+			int o = fileContent.indexOf(methodString);
+			int l = methodString.length();
+			assertEquals("Unexpected offset", o, sourceRange.getOffset());
+			assertEquals("Unexpected length", l, sourceRange.getLength());
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	public void testBug566860_2() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("RecordsElement");
+			project.open(null);
+			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
+					"public record Point(int /* comment */ x1) {\n" +
+					"	static int field;\n" +
+					"	public void foo() {}\n" +
+					"}\n";
+			createFile(	"/RecordsElement/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			assertTrue("type should be a record", types[0].isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+			IField[] fields = types[0].getFields();
+			assertEquals("Incorret no of methods", 1, fields.length);
+			IField m = fields[0];
+			ISourceRange sourceRange = m.getSourceRange();
+			String methodString = "static int field;";
+			int o = fileContent.indexOf(methodString);
+			int l = methodString.length();
+			assertEquals("Unexpected offset", o, sourceRange.getOffset());
+			assertEquals("Unexpected length", l, sourceRange.getLength());
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	public void testBug566860_3() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("RecordsElement");
+			project.open(null);
+			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
+					"public record Point(int /* comment */ x1) {\n" +
+					"	/** javadoc */ static int field;\n" +
+					"	public void foo() {}\n" +
+					"}\n";
+			createFile(	"/RecordsElement/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			assertTrue("type should be a record", types[0].isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+			IField[] fields = types[0].getFields();
+			assertEquals("Incorret no of methods", 1, fields.length);
+			IField m = fields[0];
+			ISourceRange sourceRange = m.getSourceRange();
+			String methodString = "/** javadoc */ static int field;";
+			int o = fileContent.indexOf(methodString);
+			int l = methodString.length();
+			assertEquals("Unexpected offset", o, sourceRange.getOffset());
+			assertEquals("Unexpected length", l, sourceRange.getLength());
 		}
 		finally {
 			deleteProject("RecordsElement");

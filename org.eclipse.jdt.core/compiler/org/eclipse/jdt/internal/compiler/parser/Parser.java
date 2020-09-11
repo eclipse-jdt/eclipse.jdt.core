@@ -10958,6 +10958,7 @@ protected void consumeRecordComponentHeaderRightParen() {
 		this.lastCheckPoint = typeDecl.bodyStart;
 		if (this.currentElement.parseTree() == typeDecl) return;
 	}
+	resetModifiers();
 }
 private void convertToFields(TypeDeclaration typeDecl, RecordComponent[] recComps) {
 	int length = recComps.length;
