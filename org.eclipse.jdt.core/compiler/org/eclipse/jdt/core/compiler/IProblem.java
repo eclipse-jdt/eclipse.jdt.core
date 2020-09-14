@@ -6,10 +6,6 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -784,7 +780,7 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.10 */
 	int MissingTypeInLambda = MethodRelated + 271;
-	/** @since 3.23 BETA_JAVA 15 */
+	/** @since 3.23  */
 	int UnterminatedTextBlock = PreviewRelated + 272;
 	// type related problems
 	/** @since 3.1 */
@@ -2123,7 +2119,7 @@ void setSourceStart(int sourceStart);
 	int PreviewFeatureNotSupported = Compliance + 1105;
 	/** @since 3.20*/
 	int PreviewFeaturesNotAllowed = PreviewRelated + 1106;
-	/** @since 3.23 BETA_JAVA15 */
+	/** @since 3.23  */
 	int FeatureNotSupported = Compliance + 1107;
 
 	/** @since 3.13 */
@@ -2297,7 +2293,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @noreference preview feature error */
 	int RecordInstanceInitializerBlockInRecord = PreviewRelated + 1741;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int RestrictedTypeName = PreviewRelated + 1742;
 	/** @since 3.22
@@ -2358,7 +2354,7 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int RecordIllegalStaticModifierForLocalClassOrInterface = PreviewRelated + 1761;
 
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = PreviewRelated + 1765;
 	/* records - end */
@@ -2370,52 +2366,52 @@ void setSourceStart(int sourceStart);
 	int PatternVariableNotInScope = PreviewRelated + 1780;
 
 
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedMissingClassModifier = PreviewRelated + 1850;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedDisAllowedNonSealedModifierInClass = PreviewRelated + 1851;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedSuperClassDoesNotPermit = PreviewRelated + 1852;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedSuperInterfaceDoesNotPermit = PreviewRelated + 1853;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedMissingSealedModifier = PreviewRelated + 1854;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedMissingInterfaceModifier = PreviewRelated + 1855;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedDuplicateTypeInPermits = PreviewRelated + 1856;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedNotDirectSuperClass = PreviewRelated + 1857;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedPermittedTypeOutsideOfModule = PreviewRelated + 1858;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedPermittedTypeOutsideOfPackage = PreviewRelated + 1859;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedSealedTypeMissingPermits = PreviewRelated + 1860;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1861;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedDisAllowedNonSealedModifierInInterface = PreviewRelated + 1862;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedNotDirectSuperInterface = PreviewRelated + 1863;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1864;
-	/** @since 3.23 BETA_JAVA15
+	/** @since 3.23
 	 * @noreference preview feature error */
 	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
 	/* Java15 errors - end */

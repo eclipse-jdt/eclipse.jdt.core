@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -995,7 +991,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ModuleQualifiedName</code>.
 	 * @see ModuleQualifiedName
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 */
 	public static final int MODULE_QUALIFIED_NAME = 103;
 
@@ -2184,7 +2180,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS15
-	 * @since 3.22 BETA_JAVA15
+	 * @since 3.22
 	 */
 	final void unsupportedBelow15() {
 		if (this.ast.apiLevel < AST.JLS15_INTERNAL) {
@@ -2300,7 +2296,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS15
-	 * @since 3.22 BETA_JAVA15
+	 * @since 3.22
 	 */
 	final void supportedOnlyIn15() {
 		if (this.ast.apiLevel != AST.JLS15_INTERNAL) {

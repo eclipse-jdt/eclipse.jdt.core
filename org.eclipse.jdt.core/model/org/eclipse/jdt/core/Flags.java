@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added constant AccDefault
@@ -203,7 +199,7 @@ public final class Flags {
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
 	 * </p>
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public static final int  AccSealed = ExtraCompilerModifiers.AccSealed;
@@ -213,7 +209,7 @@ public final class Flags {
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
 	 * </p>
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public static final int  AccNonSealed = ExtraCompilerModifiers.AccNonSealed;

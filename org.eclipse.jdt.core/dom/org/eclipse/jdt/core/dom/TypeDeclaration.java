@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -144,7 +140,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The "permitsTypes" structural property of this node type (element type: {@link Type}) (added in JLS15 API).
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 */
 	public static final ChildListPropertyDescriptor PERMITS_TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "permitsTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -171,7 +167,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.22 BETA_JAVA
+	 * @since 3.22
 	 */
 	private static final List PROPERTY_DESCRIPTORS_15;
 
@@ -242,7 +238,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.22 BETA_JAVA
+	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (DOMASTUtil.isFeatureSupportedinAST(apiLevel, previewEnabled, Modifier.SEALED)) {
@@ -302,7 +298,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * The permits types (element type: {@link Type}).
 	 * Not Null from Java 15 with oreview; defaults to an empty list
 	 * (see constructor).
-	 * @since 3.22 BETA_JAVA
+	 * @since 3.22
 	 */
 	private ASTNode.NodeList permittedTypes = null;
 
@@ -756,7 +752,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @return the live list of types
 	 *    (element type: {@link Type})
 	 * @exception UnsupportedOperationException if this operation is not used with Java 15 and preview enabled
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 */
 	public List permittedTypes() {
 		// more efficient than just calling unsupportedIn2() to check

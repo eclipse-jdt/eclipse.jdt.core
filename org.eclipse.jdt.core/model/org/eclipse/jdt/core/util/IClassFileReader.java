@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -144,7 +140,7 @@ public interface IClassFileReader {
 	 * Answer back the permitted subclasses attribute of this .class file, null if none.
 	 *
 	 * @return the permitted subclasses attribute of this .class file, null if none
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 */
 	default IPermittedSubclassesAttribute getPermittedSubclassesAttribute() {
 		return null;

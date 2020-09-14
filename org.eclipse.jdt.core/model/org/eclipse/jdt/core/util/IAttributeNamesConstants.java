@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *        Andy Clement - Contributions for
@@ -213,7 +209,7 @@ public interface IAttributeNamesConstants {
 	char[] RECORD = "Record".toCharArray(); //$NON-NLS-1$
 	/**
 	 * "PermittedSubclasses" attribute (JVMS 15).
-	 * @since 3.23 BETA_JAVA15
+	 * @since 3.23
 	 */
 	char[] PERMITTED_SUBCLASSES = "PermittedSubclasses".toCharArray(); //$NON-NLS-1$
 

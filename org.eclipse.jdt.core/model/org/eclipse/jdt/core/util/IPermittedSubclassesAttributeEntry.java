@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,7 +17,7 @@ package org.eclipse.jdt.core.util;
  * Description of permitted subclasses attribute as described in the JVM
  * specifications.
  *
- * @since 3.23 BETA_JAVA15
+ * @since 3.23
  */
 public interface IPermittedSubclassesAttributeEntry {
 
