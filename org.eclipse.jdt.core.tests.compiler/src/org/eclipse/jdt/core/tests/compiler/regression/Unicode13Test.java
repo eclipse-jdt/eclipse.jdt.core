@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -34,6 +34,19 @@ public void test1() {
 			"X.java",
 			"public class X {\n" +
 			"		public int a\\u08BE; // new unicode character in unicode 13 \n" +
+			"}",
+		},
+		"",
+		options);
+}
+public void test2() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"		public int a\\ud880\\udc00; // new unicode character in unicode 13 using high and low surrogate\n" +
 			"}",
 		},
 		"",

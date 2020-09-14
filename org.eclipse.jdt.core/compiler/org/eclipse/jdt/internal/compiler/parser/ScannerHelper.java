@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -160,7 +160,7 @@ static void initializeTableJava13() {
 	Tables13 = initializeTables("unicode12_1"); //$NON-NLS-1$
 }
 static void initializeTableJava15() {
-	Tables15 = initializeTables("unicode13"); //$NON-NLS-1$
+	Tables15 = initializeTables13andPlus("unicode13"); //$NON-NLS-1$
 }
 static long[][][] initializeTables(String unicode_path) {
 	long[][][] tempTable = new long[2][][];
@@ -231,6 +231,93 @@ static long[][][] initializeTables(String unicode_path) {
 	}
 	return tempTable;
 }
+static long[][][] initializeTables13andPlus(String unicode_path) {
+	long[][][] tempTable = new long[2][][];
+	tempTable[START_INDEX] = new long[4][];
+	tempTable[PART_INDEX] = new long[5][];
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/start0.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[START_INDEX][0] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/start1.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[START_INDEX][1] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/start2.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[START_INDEX][2] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/start3.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[START_INDEX][3] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/part0.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[PART_INDEX][0] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/part1.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[PART_INDEX][1] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/part2.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[PART_INDEX][2] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/part3.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[PART_INDEX][3] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	try (DataInputStream inputStream = new DataInputStream(new BufferedInputStream(ScannerHelper.class.getResourceAsStream(unicode_path + "/part14.rsc")))) { //$NON-NLS-1$
+		long[] readValues = new long[1024];
+		for (int i = 0; i < 1024; i++) {
+			readValues[i] = inputStream.readLong();
+		}
+		tempTable[PART_INDEX][4] = readValues;
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	return tempTable;
+}
 private final static boolean isBitSet(long[] values, int i) {
 	try {
 		return (values[i / 64] & Bits[i % 64]) != 0;
@@ -251,6 +338,9 @@ public static boolean isJavaIdentifierPart(long complianceLevel, char c) {
 	return isJavaIdentifierPart(complianceLevel, (int) c);
 }
 private static boolean isJavaIdentifierPart0(int codePoint, long[][][] tables) {
+	return isJavaIdentifierPart0(codePoint, tables, false);
+}
+private static boolean isJavaIdentifierPart0(int codePoint, long[][][] tables, boolean isJava15orAbove) {
 	switch((codePoint & 0x1F0000) >> 16) {
 		case 0 :
 			return isBitSet(tables[PART_INDEX][0], codePoint & 0xFFFF);
@@ -258,7 +348,15 @@ private static boolean isJavaIdentifierPart0(int codePoint, long[][][] tables) {
 			return isBitSet(tables[PART_INDEX][1], codePoint & 0xFFFF);
 		case 2 :
 			return isBitSet(tables[PART_INDEX][2], codePoint & 0xFFFF);
+		case 3 :
+			if (isJava15orAbove) {
+				return isBitSet(tables[PART_INDEX][3], codePoint & 0xFFFF);
+			}
+			return false;
 		case 14 :
+			if (isJava15orAbove) {
+				return isBitSet(tables[PART_INDEX][4], codePoint & 0xFFFF);
+			}
 			return isBitSet(tables[PART_INDEX][3], codePoint & 0xFFFF);
 	}
 	return false;
@@ -311,7 +409,7 @@ public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) 
 		if (Tables15 == null) {
 			initializeTableJava15();
 		}
-		return isJavaIdentifierPart0(codePoint, Tables15);
+		return isJavaIdentifierPart0(codePoint, Tables15, true);
 	}
 }
 public static boolean isJavaIdentifierPart(long complianceLevel, char high, char low) {
@@ -333,6 +431,9 @@ public static boolean isJavaIdentifierStart(long complianceLevel, char high, cha
 	return isJavaIdentifierStart(complianceLevel, toCodePoint(high, low));
 }
 private static boolean isJavaIdentifierStart0(int codePoint, long[][][] tables) {
+	return isJavaIdentifierStart0(codePoint, tables, false);
+}
+private static boolean isJavaIdentifierStart0(int codePoint, long[][][] tables, boolean isJava15orAbove) {
 	switch((codePoint & 0x1F0000) >> 16) {
 		case 0 :
 			return isBitSet(tables[START_INDEX][0], codePoint & 0xFFFF);
@@ -340,6 +441,10 @@ private static boolean isJavaIdentifierStart0(int codePoint, long[][][] tables) 
 			return isBitSet(tables[START_INDEX][1], codePoint & 0xFFFF);
 		case 2 :
 			return isBitSet(tables[START_INDEX][2], codePoint & 0xFFFF);
+		case 3 :
+			if (isJava15orAbove)
+				return isBitSet(tables[START_INDEX][3], codePoint & 0xFFFF);
+			return false;
 	}
 	return false;
 }
@@ -390,7 +495,7 @@ public static boolean isJavaIdentifierStart(long complianceLevel, int codePoint)
 		if (Tables15 == null) {
 			initializeTableJava15();
 		}
-		return isJavaIdentifierStart0(codePoint, Tables15);
+		return isJavaIdentifierStart0(codePoint, Tables15, true);
 	}
 }
 private static int toCodePoint(char high, char low) {
