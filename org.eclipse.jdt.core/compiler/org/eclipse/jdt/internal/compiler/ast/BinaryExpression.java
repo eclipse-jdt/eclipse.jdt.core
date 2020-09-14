@@ -1821,16 +1821,6 @@ public boolean containsPatternVariable() {
 	return this.left.containsPatternVariable() || this.right.containsPatternVariable();
 }
 @Override
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	this.addPatternVariablesWhenTrue(variables);
-	this.left.addPatternVariablesWhenTrue(this.patternVarsWhenTrue);
-	this.right.addPatternVariablesWhenTrue(this.patternVarsWhenTrue);
-	this.left.addPatternVariablesWhenFalse(this.patternVarsWhenFalse);
-	this.right.addPatternVariablesWhenFalse(this.patternVarsWhenFalse);
-	this.left.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
-	this.right.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
-}
-@Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
 	// and nonRecursiveResolveTypeUpwards

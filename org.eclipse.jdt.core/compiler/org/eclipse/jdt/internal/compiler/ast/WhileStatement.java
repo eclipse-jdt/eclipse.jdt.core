@@ -284,8 +284,8 @@ public class WhileStatement extends Statement {
 			this.condition.computeConversion(scope, type, type);
 			if (this.action != null) {
 				this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
-				this.action.injectPatternVariablesIfApplicable(patternVariablesInFalseScope, scope,
-							(statement) -> { return !statement.breaksOut(null);});
+				this.action.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
+						() -> !this.action.breaksOut(null));
 			}
 		} else {
 			TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);

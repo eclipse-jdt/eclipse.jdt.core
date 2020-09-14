@@ -41,7 +41,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.Predicate;
+import java.util.function.BooleanSupplier;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -524,22 +524,21 @@ private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] curren
 	current[oldSize] = add;
 	return current;
 }
-public void injectPatternVariablesIfApplicable(LocalVariableBinding[] patternVariablesInScope, BlockScope scope,
-								Predicate<Statement> condition) {
-	if (patternVariablesInScope != null && condition.test(this)) {
+public void promotePatternVariablesIfApplicable(LocalVariableBinding[] patternVariablesInScope, BooleanSupplier condition) {
+	if (patternVariablesInScope != null && condition.getAsBoolean()) {
 		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
 		}
 	}
 }
 public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {
 	if (patternVariablesInScope != null) {
 		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
 		}
 		this.resolve(scope);
 		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers |= ExtraCompilerModifiers.AccUnresolved;
+			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 		}
 	} else {
 		resolve(scope);

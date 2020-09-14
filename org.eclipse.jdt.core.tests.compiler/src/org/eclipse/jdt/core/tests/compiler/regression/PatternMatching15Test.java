@@ -2916,6 +2916,114 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	// Test that pattern variables are seen by body of lamda expressions
+	public void test063a() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" @SuppressWarnings(\"preview\")\n"+
+						" public void foo(Object o) {\n"+
+						"   int len  = (o instanceof String p) ? test(p1 -> p.length()) : test(p2 -> p.length());\n"+
+						" }\n"+
+						"  public int test(FI fi) {\n" +
+						"	  return fi.length(\"\");\n" +
+						"  } \n" +
+						"  interface FI {\n" +
+						"	  public int length(String str);\n" +
+						"  }" +
+						"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	int len  = (o instanceof String p) ? test(p1 -> p.length()) : test(p2 -> p.length());\n" +
+				"	                                                                         ^\n" +
+				"p cannot be resolved\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				compilerOptions);
+	}
+	// Test that pattern variables are seen by body of anonymous class creation
+	public void test063b() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						" @SuppressWarnings(\"preview\")\n"+
+						" public void foo(Object o) {\n"
+						+ "		int len = (o instanceof String p) ? test(new X.FI() {\n"
+						+ "			@Override\n"
+						+ "			public int length(String p1) {\n"
+						+ "				return p.length();\n"
+						+ "			}\n"
+						+ "		}) : test(new X.FI() {\n"
+						+ "			@Override\n"
+						+ "			public int length(String p2) {\n"
+						+ "				return p.length();\n"
+						+ "			}\n"
+						+ "		});\n"
+						+ "	}\n"
+						+ "	public int test(FI fi) {\n"
+						+ "		return fi.length(\"\");\n"
+						+ "	}\n"
+						+ "	interface FI {\n"
+						+ "		public int length(String str);\n"
+						+ "	}" +
+						"}",
+					},
+					"----------\n" +
+					"1. ERROR in X.java (at line 12)\n" +
+					"	return p.length();\n" +
+					"	       ^\n" +
+					"p cannot be resolved\n" +
+					"----------\n",
+					"",
+					null,
+					true,
+					compilerOptions);
+	}
+	// Test that pattern variables are shadowed by parameters in an anonymous class
+	// creation
+	public void test063c() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"	public static void main(String argv[]) {\n" +
+						"		System.out.println(new X().foo(\"test\"));\n" +
+						"	}\n" +
+						" @SuppressWarnings(\"preview\")\n"+
+						" public int foo(Object o) {\n"
+						+ "		int len = (o instanceof String p) ? test(new X.FI() {\n"
+						+ "			String s = p; // allowed\n"
+						+ "			@Override\n"
+						+ "			public int length(String p) {\n"
+						+ "				return p.length();\n"
+						+ "			}\n"
+						+ "		}) : test(new X.FI() {\n"
+						+ "			@Override\n"
+						+ "			public int length(String p) {\n"
+						+ "				return p.length();\n"
+						+ "			}\n"
+						+ "		});\n"
+						+ "		return len;\n"
+						+ "	}\n"
+						+ "	public int test(FI fi) {\n"
+						+ "		return fi.length(\"fi\");\n"
+						+ "	}\n"
+						+ "	interface FI {\n"
+						+ "		public int length(String str);\n"
+						+ "	}" +
+						"}",
+					},
+					"2",
+					compilerOptions);
+	}
 	public void test064() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(

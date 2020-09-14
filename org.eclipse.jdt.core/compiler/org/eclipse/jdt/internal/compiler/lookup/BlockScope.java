@@ -507,9 +507,6 @@ public LocalVariableBinding findVariable(char[] variableName, InvocationSite inv
 		char[] localName;
 		if ((localName = local.name).length != varLength || !CharOperation.equals(localName, variableName))
 			continue;
-		if ((local.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0) {
-			return local;
-		}
 		if (isPatternVariableInScope(invocationSite, local)) {
 			return local;
 		}

@@ -256,7 +256,6 @@ public boolean resolvePatternVariable(BlockScope scope) {
 		// missing initializer
 		this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
 		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccUnresolved; // TODO: Change to a different mechanism
 		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
 		// Why cant this be done in the constructor?
 		this.type = this.elementVariable.type;

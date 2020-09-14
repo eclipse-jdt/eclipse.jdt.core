@@ -432,8 +432,8 @@ public class ForStatement extends Statement {
 
 		if (this.action != null) {
 			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
-			this.action.injectPatternVariablesIfApplicable(patternVariablesInFalseScope, this.scope,
-					(statement) -> { return !statement.breaksOut(null);});
+			this.action.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
+					() -> !this.action.breaksOut(null));
 		}
 	}
 

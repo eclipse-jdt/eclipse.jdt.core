@@ -299,11 +299,11 @@ public void resolve(BlockScope scope) {
 			this.elseStatement.resolveWithPatternVariablesInScope(patternVariablesInFalseScope, scope);
 		}
 		if (this.thenStatement != null)
-			this.thenStatement.injectPatternVariablesIfApplicable(patternVariablesInFalseScope, scope,
-				(statement) -> { return statement.doesNotCompleteNormally();});
+			this.thenStatement.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
+				this.thenStatement::doesNotCompleteNormally);
 		if (this.elseStatement != null)
-			this.elseStatement.injectPatternVariablesIfApplicable(patternVariablesInTrueScope, scope,
-				(statement) -> { return statement.doesNotCompleteNormally();});
+			this.elseStatement.promotePatternVariablesIfApplicable(patternVariablesInTrueScope,
+					this.elseStatement::doesNotCompleteNormally);
 	} else {
 		resolveIfStatement(scope);
 	}
