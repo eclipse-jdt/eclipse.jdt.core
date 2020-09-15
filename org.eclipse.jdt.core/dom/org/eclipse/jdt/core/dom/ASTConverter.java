@@ -3308,7 +3308,7 @@ class ASTConverter {
 						typeDecl.permittedTypes().add(convertType);
 					}
 				}
-				if (permittedTypes.length > 0) {
+				if (permittedTypes.length > 0 && typeDeclaration.restrictedIdentifierStart >= 0) {
 					typeDecl.setRestrictedIdentifierStartPosition(typeDeclaration.restrictedIdentifierStart);
 				}
 			}
