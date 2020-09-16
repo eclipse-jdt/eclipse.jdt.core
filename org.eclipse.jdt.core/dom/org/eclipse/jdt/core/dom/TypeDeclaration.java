@@ -140,7 +140,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The "permitsTypes" structural property of this node type (element type: {@link Type}) (added in JLS15 API).
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static final ChildListPropertyDescriptor PERMITS_TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(TypeDeclaration.class, "permitsTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -752,7 +752,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @return the live list of types
 	 *    (element type: {@link Type})
 	 * @exception UnsupportedOperationException if this operation is not used with Java 15 and preview enabled
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public List permittedTypes() {
 		// more efficient than just calling unsupportedIn2() to check

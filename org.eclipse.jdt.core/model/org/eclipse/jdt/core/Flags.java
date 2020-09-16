@@ -199,7 +199,7 @@ public final class Flags {
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
 	 * </p>
-	 * @since 3.23
+	 * @since 3.24
 	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public static final int  AccSealed = ExtraCompilerModifiers.AccSealed;
@@ -209,7 +209,7 @@ public final class Flags {
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
 	 * </p>
-	 * @since 3.23
+	 * @since 3.24
 	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public static final int  AccNonSealed = ExtraCompilerModifiers.AccNonSealed;

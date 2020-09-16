@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.util;
  * Description of permitted subclasses attribute as described in the JVM
  * specifications.
  *
- * @since 3.23
+ * @since 3.24
  */
 public interface IPermittedSubclassesAttribute extends IClassFileAttribute {
 

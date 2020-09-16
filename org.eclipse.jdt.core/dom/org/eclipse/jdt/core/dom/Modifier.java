@@ -108,12 +108,12 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		public static final ModifierKeyword DEFAULT_KEYWORD = new ModifierKeyword("default", DEFAULT);//$NON-NLS-1$
 
 		/**
-		 * @since 3.23
+		 * @since 3.24
 		 */
 		public static final ModifierKeyword SEALED_KEYWORD = new ModifierKeyword("sealed", SEALED);//$NON-NLS-1$
 
 		/**
-		 * @since 3.23
+		 * @since 3.24
 		 */
 		public static final ModifierKeyword NON_SEALED_KEYWORD = new ModifierKeyword("non-sealed", NON_SEALED);//$NON-NLS-1$
 
@@ -328,14 +328,14 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	/**
 	 * "sealed" modifier constant (bit mask).
 	 * Applicable only to types.
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static final int SEALED = 0x0200;
 
 	/**
 	 * "non-sealed" modifier constant (bit mask).
 	 * Applicable only to types.
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static final int NON_SEALED = 0x1000;
 
@@ -520,7 +520,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @param flags the modifier flags
 	 * @return <code>true</code> if the <code>SEALED</code> bit is set
 	 * and <code>false</code> otherwise
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static boolean isSealed(int flags) {
 		return (flags & SEALED) != 0;
@@ -533,7 +533,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @param flags the modifier flags
 	 * @return <code>true</code> if the <code>NON_SEALED</code> bit is set
 	 * and <code>false</code> otherwise
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static boolean isNonSealed(int flags) {
 		return (flags & NON_SEALED) != 0;
@@ -762,7 +762,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Answer true if the receiver is the sealed modifier, false otherwise.
 	 *
 	 * @return true if the receiver is the sealed modifier, false otherwise
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public boolean isSealed() {
 		return this.modifierKeyword == ModifierKeyword.SEALED_KEYWORD;
@@ -772,7 +772,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * Answer true if the receiver is the non-sealed modifier, false otherwise.
 	 *
 	 * @return true if the receiver is the non-sealed modifier, false otherwise
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public boolean isNonSealed() {
 		return this.modifierKeyword == ModifierKeyword.NON_SEALED_KEYWORD;

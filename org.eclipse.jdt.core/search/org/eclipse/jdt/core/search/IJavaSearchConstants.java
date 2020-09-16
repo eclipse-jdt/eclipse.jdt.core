@@ -498,7 +498,7 @@ public interface IJavaSearchConstants {
 	 * When this flag is set, only {@link TypeReferenceMatch} matches will be
 	 * returned.
 	 *</p>
-	 * @since 3.23
+	 * @since 3.24
 	 * @noreference permit type reference
 	 * @category limitTo
 	 */

@@ -991,7 +991,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ModuleQualifiedName</code>.
 	 * @see ModuleQualifiedName
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static final int MODULE_QUALIFIED_NAME = 103;
 

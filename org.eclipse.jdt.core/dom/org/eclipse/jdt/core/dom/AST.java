@@ -357,7 +357,7 @@ public final class AST {
 	 * up to and including Java SE 15(aka JDK 15).
 	 * </p>
 	 *
-	 * @since 3.23
+	 * @since 3.24
 	 */
 	public static final int JLS15 = 15;
 

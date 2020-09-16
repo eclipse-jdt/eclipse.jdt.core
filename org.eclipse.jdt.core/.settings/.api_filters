@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="3.23.100"/>
-                <message_argument value="3.23.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -31,13 +23,13 @@
                 <message_argument value="2098909"/>
             </message_arguments>
         </filter>
-        <filter comment="Record preview 2 changes" id="405864542">
+        <filter comment="Java 15 Merge" id="405864542">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
                 <message_argument value="RecordCanonicalConstructorShouldBePublic"/>
             </message_arguments>
         </filter>
-        <filter id="405864542">
+        <filter comment="Java 15 Merge" id="405864542">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
                 <message_argument value="RecordIsAReservedTypeName"/>
@@ -161,13 +153,13 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/Modifier.java" type="org.eclipse.jdt.core.dom.Modifier$ModifierKeyword">
-        <filter comment="For Java 15" id="336658481">
+        <filter comment="Java 15 Merge" id="336658481">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
                 <message_argument value="NON_SEALED_KEYWORD"/>
             </message_arguments>
         </filter>
-        <filter comment="For Java 15" id="336658481">
+        <filter comment="Java 15 Merge" id="336658481">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
                 <message_argument value="SEALED_KEYWORD"/>
@@ -175,7 +167,7 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/ModuleQualifiedName.java" type="org.eclipse.jdt.core.dom.ModuleQualifiedName">
-        <filter id="576778288">
+        <filter comment="Java 15 Merge" id="576778288">
             <message_arguments>
                 <message_argument value="Name"/>
                 <message_argument value="ModuleQualifiedName"/>
@@ -203,14 +195,6 @@
             <message_arguments>
                 <message_argument value="Name"/>
                 <message_argument value="QualifiedName"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/RecordDeclaration.java" type="org.eclipse.jdt.core.dom.RecordDeclaration">
-        <filter comment="method not needed" id="338792546">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.RecordDeclaration"/>
-                <message_argument value="getTypes()"/>
             </message_arguments>
         </filter>
     </resource>
@@ -255,7 +239,7 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TypeDeclaration.java" type="org.eclipse.jdt.core.dom.TypeDeclaration">
-        <filter comment="Added For Java 15" id="336658481">
+        <filter comment="Java 15 Merge" id="336658481">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.TypeDeclaration"/>
                 <message_argument value="PERMITS_TYPES_PROPERTY"/>
@@ -303,7 +287,7 @@
         </filter>
     </resource>
     <resource path="model/org/eclipse/jdt/core/util/IClassFileReader.java" type="org.eclipse.jdt.core.util.IClassFileReader">
-        <filter comment="Permitted Subclasses for JEP 360 Sealed Types" id="404000815">
+        <filter comment="Java 15 Merge" id="404000815">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.util.IClassFileReader"/>
                 <message_argument value="getPermittedSubclassesAttribute()"/>
