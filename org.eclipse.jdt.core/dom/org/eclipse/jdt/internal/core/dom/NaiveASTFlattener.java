@@ -84,6 +84,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	private static final int JLS9 = AST.JLS9;
 
 	/**
+	 * Internal synonym for {@link AST#JLS14}. Use to alleviate
+	 * deprecation warnings.
+	 * @deprecated
+	 * @since 3.22
+	 */
+	private static final int JLS14 = AST.JLS14;
+
+	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
@@ -201,6 +209,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		if (Modifier.isTransient(modifiers)) {
 			this.buffer.append("transient ");//$NON-NLS-1$
+		}
+		if (Modifier.isSealed(modifiers)) {
+			this.buffer.append("sealed ");//$NON-NLS-1$
+		}
+		if (Modifier.isNonSealed(modifiers)) {
+			this.buffer.append("non-sealed ");//$NON-NLS-1$
 		}
 	}
 
@@ -1289,6 +1303,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(ModuleQualifiedName node) {
+		node.getModuleQualifier().accept(this);
+		this.buffer.append("/");//$NON-NLS-1$
+		ASTNode cNode = node.getName();
+		if (cNode != null) {
+			cNode.accept(this);
+		}
+		return false;
+	}
+
+	@Override
 	public boolean visit(QualifiedName node) {
 		node.getQualifier().accept(this);
 		this.buffer.append(".");//$NON-NLS-1$
@@ -1550,7 +1575,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if ((node.getAST().apiLevel() >= AST.JLS14)) {
+		if ((node.getAST().apiLevel() >= JLS14)) {
 			if (node.isDefault()) {
 				this.buffer.append("default");//$NON-NLS-1$
 				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1800,6 +1825,19 @@ public class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append(" ");//$NON-NLS-1$
 			}
 		}
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED)) {
+			if (!node.permittedTypes().isEmpty()) {
+				this.buffer.append("permits ");//$NON-NLS-1$
+				for (Iterator it = node.permittedTypes().iterator(); it.hasNext(); ) {
+					Type t = (Type) it.next();
+					t.accept(this);
+					if (it.hasNext()) {
+						this.buffer.append(", ");//$NON-NLS-1$
+					}
+				}
+				this.buffer.append(" ");//$NON-NLS-1$
+			}
+		}
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
 		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
@@ -1975,7 +2013,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(YieldStatement node) {
-		if ((node.getAST().apiLevel() >= AST.JLS14) && node.isImplicit()  && node.getExpression() == null) {
+		if ((node.getAST().apiLevel() >= JLS14) && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 		printIndent();

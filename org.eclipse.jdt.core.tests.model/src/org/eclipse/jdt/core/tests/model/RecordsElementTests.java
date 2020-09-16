@@ -13,15 +13,23 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
+
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
@@ -35,10 +43,10 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		super(name);
 	}
 	public static Test suite() {
-		return buildModelTestSuite(AbstractCompilerTest.F_14, RecordsElementTests.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_15, RecordsElementTests.class);
 	}
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "14");
+		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
 		createJavaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		return createJavaProject;
 	}
@@ -108,6 +116,8 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 				assertEquals("Incorret no of types", 1, types.length);
 				assertTrue("type should be a record", types[0].isRecord());
 				assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+				IField[] fields = types[0].getFields();
+				assertEquals("Incorret no of fields", 0, fields.length);
 				IField[] recordComponents = types[0].getRecordComponents();
 				assertNotNull("should be null", recordComponents);
 				assertEquals("Incorret no of components", 2, recordComponents.length);
@@ -145,7 +155,235 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
 			IMethod[] methods = types[0].getMethods();
 			assertNotNull("should not be null", methods);
-			assertEquals("Incorret no of methods", 0, methods.length);
+			assertEquals("Incorret no of elements", 0, methods.length);
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	// Test record with compact canonical constructor
+	public void test005() throws Exception {
+		try {
+			this.workingCopies = new ICompilationUnit[1];
+			IJavaProject project = createJavaProject("RecordsElement");
+			project.open(null);
+			String fileContent =  "public record Point(int x1, int x2) {\n" +
+					"	public Point {\n" +
+					"		x1 = 1;\n" +
+					"	}\n" +
+					"}\n";
+			createFile(	"/RecordsElement/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			assertTrue("type should be a record", types[0].isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+			IMethod[] methods = types[0].getMethods();
+			assertNotNull("should not be null", methods);
+			assertEquals("Incorret no of elements", 1, methods.length);
+			IMethod constructor = methods[0];
+			assertTrue("should be a constructor", constructor.isConstructor());
+			//assertTrue("should be a canonical constructor", constructor.isCanonicalConstructor());
+			assertEquals("incorrect number of parameters", 2, constructor.getNumberOfParameters());
+			String[] parameterNames = constructor.getParameterNames();
+			assertEquals("incorrect numer of names", 2, parameterNames.length);
+			assertEquals("incorrect parameter names", "x1", parameterNames[0]);
+			assertEquals("incorrect parameter names", "x2", parameterNames[1]);
+
+			this.workingCopies[0] = getWorkingCopy("/RecordsElement/src/X.java", fileContent);
+			// Test code select
+			String str = this.workingCopies[0].getSource();
+			String selection = "x1";
+			int start = str.lastIndexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertEquals("Incorret no of types", 1, elements.length);
+			IJavaElement element = elements[0];
+			assertEquals("type should be a record", IJavaElement.LOCAL_VARIABLE, element.getElementType());
+			element = element.getParent();
+			assertNotNull("should not be null", element);
+			// unlike constructors whose parameters are explicitly declared,
+			// in case of compact constructors, the element is attached as a child of
+			// the field that represents the record component.
+			assertEquals("should be a method", IJavaElement.FIELD, element.getElementType());
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	//Test record with canonical constructor
+	public void test006() throws Exception {
+		try {
+			this.workingCopies = new ICompilationUnit[1];
+			IJavaProject project = createJavaProject("RecordsElement");
+			project.open(null);
+			String fileContent =  "public record Point(int x1, int x2) {\n" +
+					"	public Point(int x1, int x2) {\n" +
+					"		this.x1 = x1;\n" +
+					"		this.x2 = x2;\n" +
+					"	}\n" +
+					"}\n";
+			createFile(	"/RecordsElement/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/RecordsElement/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorret no of types", 1, types.length);
+			assertTrue("type should be a record", types[0].isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+			IMethod[] methods = types[0].getMethods();
+			assertNotNull("should not be null", methods);
+			assertEquals("Incorret no of elements", 1, methods.length);
+			IMethod constructor = methods[0];
+			assertTrue("should be a constructor", constructor.isConstructor());
+//			assertTrue("should be a canonical constructor", constructor.isCanonicalConstructor());
+			assertEquals("incorrect number of parameters", 2, constructor.getNumberOfParameters());
+			String[] parameterNames = constructor.getParameterNames();
+			assertEquals("incorrect numer of names", 2, parameterNames.length);
+			assertEquals("incorrect parameter names", "x1", parameterNames[0]);
+			assertEquals("incorrect parameter names", "x2", parameterNames[1]);
+
+			this.workingCopies[0] = getWorkingCopy("/RecordsElement/src/X.java", fileContent);
+			// Test code select
+			String str = this.workingCopies[0].getSource();
+			String selection = "x1";
+			int start = str.lastIndexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertEquals("Incorret no of types", 1, elements.length);
+			IJavaElement element = elements[0];
+			assertEquals("type should be a record", IJavaElement.LOCAL_VARIABLE, element.getElementType());
+			element = element.getParent();
+			assertNotNull("should not be null", element);
+			assertEquals("type should be a method", IJavaElement.METHOD, element.getElementType());
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	// Test things from a binary
+	public void test007() throws Exception {
+		try {
+			String[] sources = {
+					"p/Point.java",
+					"package p;\n;" +
+					"public record Point(int x1, int x2) {\n" +
+					"	public Point(int x1, int x2) {\n" +
+					"		this.x1 = x1;\n" +
+					"		this.x2 = x2;\n" +
+					"	}\n" +
+					"	public Point(int x1, int x2, int x3) {\n" +
+					"		this(x1, x2);\n" +
+					"	}\n" +
+					"	public Point(int x1, float f2) {\n" +
+					"		this(0, 0);\n" +
+					"	}\n" +
+					"}\n"
+				};
+			String outputDirectory = Util.getOutputDirectory();
+
+			String jarPath = outputDirectory + File.separator + "records.jar";
+			Util.createJar(sources, jarPath, "15", true);
+
+			IJavaProject project = createJavaProject("RecordsElement");
+			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
+			project.open(null);
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			IPackageFragmentRoot root = null;
+			for (IPackageFragmentRoot iRoot : roots) {
+				if (iRoot.getRawClasspathEntry().getPath().toString().endsWith("records.jar")) {
+					root = iRoot;
+				}
+			}
+			assertNotNull("root should not be null", root);
+			IPackageFragment packageFragment = root.getPackageFragment("p");
+			assertNotNull("package is null", packageFragment);
+			IOrdinaryClassFile classFile = packageFragment.getOrdinaryClassFile("Point.class");
+			assertNotNull("class is null", classFile);
+			IType type = classFile.getType();
+			assertNotNull("type is null", type);
+			assertTrue("should be a record", type.isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, type.getElementType());
+
+			IField[] fields = type.getFields();
+			assertEquals("Incorret no of fields", 0, fields.length);
+
+			IMethod[] methods = type.getMethods();
+			assertNotNull("should not be null", methods);
+			assertEquals("Incorret no of elements", 8, methods.length); // Point(),  Point(), x1(), x2(), toString(), hashCode(), equals()
+			IMethod constructor = methods[0];
+			assertTrue("should be a constructor", constructor.isConstructor());
+//			assertTrue("should be a canonical constructor", constructor.isCanonicalConstructor());
+			assertEquals("incorrect number of parameters", 2, constructor.getNumberOfParameters());
+			String[] parameterNames = constructor.getParameterNames();
+			assertEquals("incorrect numer of names", 2, parameterNames.length);
+			assertEquals("incorrect parameter names", "x1", parameterNames[0]);
+			assertEquals("incorrect parameter names", "x2", parameterNames[1]);
+
+			constructor = methods[1];
+			assertTrue("should be a constructor", constructor.isConstructor());
+//			assertFalse("should not be a canonical constructor", constructor.isCanonicalConstructor());
+			assertEquals("incorrect number of parameters", 3, constructor.getNumberOfParameters());
+
+			constructor = methods[2];
+			assertTrue("should be a constructor", constructor.isConstructor());
+//			assertFalse("should not be a canonical constructor", constructor.isCanonicalConstructor());
+			assertEquals("incorrect number of parameters", 2, constructor.getNumberOfParameters());
+		}
+		finally {
+			deleteProject("RecordsElement");
+		}
+	}
+	// Test things from a binary
+	public void test008() throws Exception {
+		try {
+			String[] sources = {
+					"p/Point.java",
+					"package p;\n;" +
+							"public record Point(int x1, int x2) {\n" +
+							"	public Point {\n" +
+							"		x1 = 1;\n" +
+							"		x2 = 2;\n" +
+							"	}\n" +
+							"}\n"
+			};
+			String outputDirectory = Util.getOutputDirectory();
+
+			String jarPath = outputDirectory + File.separator + "records.jar";
+			Util.createJar(sources, jarPath, "15", true);
+
+			IJavaProject project = createJavaProject("RecordsElement");
+			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
+			project.open(null);
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			IPackageFragmentRoot root = null;
+			for (IPackageFragmentRoot iRoot : roots) {
+				if (iRoot.getRawClasspathEntry().getPath().toString().endsWith("records.jar")) {
+					root = iRoot;
+				}
+			}
+			assertNotNull("root should not be null", root);
+			IPackageFragment packageFragment = root.getPackageFragment("p");
+			assertNotNull("package is null", packageFragment);
+			IOrdinaryClassFile classFile = packageFragment.getOrdinaryClassFile("Point.class");
+			assertNotNull("class is null", classFile);
+			IType type = classFile.getType();
+			assertNotNull("type is null", type);
+			assertTrue("should be a record", type.isRecord());
+			assertEquals("type should be a record", IJavaElement.TYPE, type.getElementType());
+			IMethod[] methods = type.getMethods();
+			assertNotNull("should not be null", methods);
+			assertEquals("Incorret no of elements", 6, methods.length);
+			IMethod constructor = methods[0];
+			assertTrue("should be a constructor", constructor.isConstructor());
+//			assertTrue("should be a canonical constructor", constructor.isCanonicalConstructor());
+			assertEquals("incorrect number of parameters", 2, constructor.getNumberOfParameters());
+			String[] parameterNames = constructor.getParameterNames();
+			assertEquals("incorrect numer of names", 2, parameterNames.length);
+			assertEquals("incorrect parameter names", "x1", parameterNames[0]);
+			assertEquals("incorrect parameter names", "x2", parameterNames[1]);
 		}
 		finally {
 			deleteProject("RecordsElement");

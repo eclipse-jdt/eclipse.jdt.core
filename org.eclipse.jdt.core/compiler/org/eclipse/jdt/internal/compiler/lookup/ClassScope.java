@@ -35,7 +35,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -82,6 +86,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		anonymousType.typeBits |= inheritedBits;
+		anonymousType.setPermittedTypes(Binding.NO_PERMITTEDTYPES); // JLS 15 JEP 360 Preview - Sec 15.9.5
 		if (supertype.isInterface()) {
 			anonymousType.setSuperClass(getJavaLangObject());
 			anonymousType.setSuperInterfaces(new ReferenceBinding[] { supertype });
@@ -97,6 +102,7 @@ public class ClassScope extends Scope {
 		} else {
 			anonymousType.setSuperClass(supertype);
 			anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+			checkForEnumSealedPreview(supertype, anonymousType);
 			TypeReference typeReference = this.referenceContext.allocation.type;
 			if (typeReference != null) { // no check for enum constant body
 				this.referenceContext.superclass = typeReference;
@@ -118,6 +124,10 @@ public class ClassScope extends Scope {
 					problemReporter().superTypeCannotUseWildcard(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
+				} else if (supertype.isSealed()) {
+					problemReporter().sealedAnonymousClassCannotExtendSealedType(typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+					anonymousType.setSuperClass(getJavaLangObject());
 				}
 			}
 		}
@@ -125,6 +135,27 @@ public class ClassScope extends Scope {
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
 		anonymousType.verifyMethods(environment().methodVerifier());
+	}
+
+	private void checkForEnumSealedPreview(ReferenceBinding supertype, LocalTypeBinding anonymousType) {
+		if (compilerOptions().sourceLevel < ClassFileConstants.JDK15
+				|| !compilerOptions().enablePreviewFeatures
+				|| !supertype.isEnum()
+				|| !(supertype instanceof SourceTypeBinding))
+			return;
+
+		SourceTypeBinding sourceSuperType = (SourceTypeBinding) supertype;
+		ReferenceBinding[] permTypes = sourceSuperType.permittedTypes();
+		int sz = permTypes == null ? 0 : permTypes.length;
+		if (sz == 0) {
+			permTypes = new ReferenceBinding[] {anonymousType};
+		} else {
+			System.arraycopy(permTypes, 0,
+					permTypes = new ReferenceBinding[sz + 1], 0,
+					sz);
+			permTypes[sz] = anonymousType;
+		}
+		sourceSuperType.setPermittedTypes(permTypes);
 	}
 
 	void buildComponents() {
@@ -178,8 +209,11 @@ public class ClassScope extends Scope {
 		sourceType.setComponents(componentBindings);
 	}
 	private void checkAndSetModifiersForComponents(RecordComponentBinding compBinding, RecordComponent comp) {
-		// TODO Auto-generated method stub
-
+		int modifiers = compBinding.modifiers;
+		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
+		if (realModifiers  != 0 && comp != null){
+			problemReporter().recordComponentsCannotHaveModifiers(comp);
+		}
 	}
 
 	void buildFields() {
@@ -319,6 +353,7 @@ public class ClassScope extends Scope {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
+		connectImplicitPermittedTypes();
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			checkParameterizedTypeBounds();
 			checkParameterizedSuperTypeCollisions();
@@ -525,6 +560,8 @@ public class ClassScope extends Scope {
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
+		boolean isPreviewEnabled = compilerOptions().sourceLevel == ClassFileConstants.getLatestJDKLevel() &&
+				compilerOptions().enablePreviewFeatures;
 		if (sourceType.isRecord()) {
 			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
 			modifiers |= ClassFileConstants.AccFinal;
@@ -553,14 +590,26 @@ public class ClassScope extends Scope {
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
-				problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
-				sourceType.modifiers = 0;
-				return;
+				if (!isPreviewEnabled) {
+					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
+					sourceType.modifiers = 0;
+					return;
+				}
+				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+					return;
+				}
+				modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isRecord()) {
 				if (enclosingType != null && enclosingType.isLocalType()) {
 					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
 					return;
 				}
+				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+					return;
+				}
+				modifiers |= ClassFileConstants.AccStatic;
 			}
 			if (sourceType.isAnonymousType()) {
 				if (compilerOptions().complianceLevel < ClassFileConstants.JDK9)
@@ -634,6 +683,15 @@ public class ClassScope extends Scope {
 					if ((realModifiers & unexpectedModifiers) != 0)
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
+			} else 	if (isPreviewEnabled && sourceType.isLocalType()) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface
+						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
+//				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+//					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+//				}
+				modifiers |= ClassFileConstants.AccStatic;
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
@@ -650,11 +708,13 @@ public class ClassScope extends Scope {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
-		} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
+			} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
+			boolean flagSealedNonModifiers = isPreviewEnabled &&
+					(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers) {
 					problemReporter().illegalModifierForMemberEnum(sourceType);
 					modifiers &= ~ClassFileConstants.AccAbstract; // avoid leaking abstract modifier
 					realModifiers &= ~ClassFileConstants.AccAbstract;
@@ -665,7 +725,7 @@ public class ClassScope extends Scope {
 				// each enum constant is an anonymous local type and its modifiers were already checked as an enum constant field
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
 			if (!sourceType.isAnonymousType()) {
@@ -721,6 +781,8 @@ public class ClassScope extends Scope {
 					}
 					modifiers |= ClassFileConstants.AccFinal;
 				}
+				if (isPreviewEnabled && (modifiers & ClassFileConstants.AccFinal) == 0)
+					modifiers |= ExtraCompilerModifiers.AccSealed;
 			}
 		} else if (sourceType.isRecord()) {
 			if (isMemberType) {
@@ -733,7 +795,9 @@ public class ClassScope extends Scope {
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic |  ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0
+						|| (modifiers & ExtraCompilerModifiers.AccNonSealed) != 0
+						|| (modifiers & ExtraCompilerModifiers.AccSealed) != 0)
 					problemReporter().illegalModifierForRecord(sourceType);
 			}
 			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
@@ -760,8 +824,11 @@ public class ClassScope extends Scope {
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
+				boolean flagSealedNonModifiers = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
+						compilerOptions().enablePreviewFeatures &&
+						(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
@@ -1053,6 +1120,7 @@ public class ClassScope extends Scope {
 		if (sourceType.id == TypeIds.T_JavaLangObject) { // handle the case of redefining java.lang.Object up front
 			sourceType.setSuperClass(null);
 			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+			sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
 			if (!sourceType.isClass())
 				problemReporter().objectMustBeClass(sourceType);
 			if (this.referenceContext.superclass != null || (this.referenceContext.superInterfaces != null && this.referenceContext.superInterfaces.length > 0))
@@ -1139,6 +1207,99 @@ public class ClassScope extends Scope {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
 		}
 		return !foundCycle;
+	}
+	// Call only when we know there's no explicit permits clause and this is a sealed type
+	private void connectImplicitPermittedTypes(SourceTypeBinding sourceType) {
+		List<SourceTypeBinding> types = new ArrayList<>();
+		for (TypeDeclaration typeDecl : this.referenceCompilationUnit().types) {
+			types.addAll(sourceType.collectAllTypeBindings(typeDecl, this.compilationUnitScope()));
+		}
+		Set<ReferenceBinding> permSubTypes = new LinkedHashSet<>();
+		for (ReferenceBinding type : types) {
+			if (!TypeBinding.equalsEquals(type, sourceType) && type.findSuperTypeOriginatingFrom(sourceType) != null) {
+				permSubTypes.add(type);
+			}
+		}
+		if (permSubTypes.size() == 0) {
+			problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
+			return;
+		}
+		sourceType.setPermittedTypes(permSubTypes.toArray(new ReferenceBinding[0]));
+	}
+/**
+	 * @see #connectPermittedTypes()
+	 */
+	void connectImplicitPermittedTypes() {
+		TypeDeclaration typeDecl = this.referenceContext;
+		SourceTypeBinding sourceType = typeDecl.binding;
+		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum() || sourceType.isRecord()) // already handled
+			return;
+		if (sourceType.isSealed() && (typeDecl.permittedTypes == null ||
+				typeDecl.permittedTypes.length == 0)) {
+			connectImplicitPermittedTypes(sourceType);
+		}
+		ReferenceBinding[] memberTypes = sourceType.memberTypes;
+		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
+			for (int i = 0, size = memberTypes.length; i < size; i++)
+				 ((SourceTypeBinding) memberTypes[i]).scope.connectImplicitPermittedTypes();
+		}
+	}
+	/**
+	 * This method only deals with the permitted types that are explicitly declared
+	 * in a type's permits clause. The implicitly permitted types are all filled in
+	 * in {@link #connectImplicitPermittedTypes()}. The reason being, the implicitly
+	 * permitted types require the complete type hierarchy to be ready. Therefore, this
+	 * method is called inside {@link #connectTypeHierarchy()} and connectImplicitPermittedTypes()
+	 * is called after the connectTypeHierarchy(). Why can't we do both after connectTypeHierarchy()?
+	 * That is because, in a very specific case of one of an explicitly permitted type also being
+	 * a member type and is referenced in the permits clause without type qualifier, we would allow
+	 * the following incorrect code:
+	 * <pre>
+	 * 	public sealed class X permits Y {
+	 *		final class Y extends X {}
+	 *	}
+	 *	</pre>
+	 *  If we were to resolve <code>Y</code> in <code>permits Y</code> after resolving
+	 *  the hierarchy, Y is resolved in current scope. However, Y should only be
+	 *  allowed with the qualifier, in this case, X.Y.
+	 */
+	void connectPermittedTypes() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+		if (this.referenceContext.permittedTypes == null) {
+			return;
+		}
+		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum()) // already handled
+			return;
+
+		int length = this.referenceContext.permittedTypes.length;
+		ReferenceBinding[] permittedTypeBindings = new ReferenceBinding[length];
+		int count = 0;
+		nextPermittedType : for (int i = 0; i < length; i++) {
+			TypeReference permittedTypeRef = this.referenceContext.permittedTypes[i];
+			ReferenceBinding permittedType = findPermittedtype(permittedTypeRef);
+			if (permittedType == null) { // detected cycle
+				continue nextPermittedType;
+			}
+			// check for simple interface collisions
+			// Check for a duplicate interface once the name is resolved, otherwise we may be confused (i.e. a.b.I and c.d.I)
+			for (int j = 0; j < i; j++) {
+				if (TypeBinding.equalsEquals(permittedTypeBindings[j], permittedType)) {
+					problemReporter().sealedDuplicateTypeInPermits(sourceType, permittedTypeRef, permittedType);
+					continue nextPermittedType;
+				}
+			}
+			// only want to reach here when no errors are reported
+			permittedTypeBindings[count++] = permittedType;
+		}
+		// hold onto all correctly resolved superinterfaces
+		if (count > 0) {
+			if (count != length)
+				System.arraycopy(permittedTypeBindings, 0, permittedTypeBindings = new ReferenceBinding[count], 0, count);
+			sourceType.setPermittedTypes(permittedTypeBindings);
+		} else {
+			sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+		}
 	}
 
 	private boolean connectRecordSuperclass() {
@@ -1245,6 +1406,7 @@ public class ClassScope extends Scope {
 				environment().typesBeingConnected.add(sourceType);
 				boolean noProblems = connectSuperclass();
 				noProblems &= connectSuperInterfaces();
+				connectPermittedTypes();
 				environment().typesBeingConnected.remove(sourceType);
 				sourceType.tagBits |= TagBits.EndHierarchyCheck;
 				noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
@@ -1303,6 +1465,7 @@ public class ClassScope extends Scope {
 			environment().typesBeingConnected.add(sourceType);
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
+			connectPermittedTypes();
 			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
 			noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
@@ -1462,6 +1625,7 @@ public class ClassScope extends Scope {
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;
 			if (sourceType.superInterfaces == null)  sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES); // be more resilient for hierarchies (144976)
+			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
 			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
 			throw e;
 		} finally {
@@ -1470,6 +1634,24 @@ public class ClassScope extends Scope {
 		}
 	}
 
+	private ReferenceBinding findPermittedtype(TypeReference typeReference) {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		LookupEnvironment env = unitScope.environment;
+		try {
+			env.missingClassFileLocation = typeReference;
+			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
+			unitScope.recordQualifiedReference(typeReference.getTypeName());
+			ReferenceBinding permittedType = (ReferenceBinding) typeReference.resolveType(this);
+			return permittedType;
+		} catch (AbortCompilation e) {
+			SourceTypeBinding sourceType = this.referenceContext.binding;
+			if (sourceType.permittedTypes == null)  sourceType.setPermittedTypes(Binding.NO_PERMITTEDTYPES);
+			e.updateContext(typeReference, referenceCompilationUnit().compilationResult);
+			throw e;
+		} finally {
+			env.missingClassFileLocation = null;
+		}
+	}
 	/* Answer the problem reporter to use for raising new problems.
 	*
 	* Note that as a side-effect, this updates the current reference context

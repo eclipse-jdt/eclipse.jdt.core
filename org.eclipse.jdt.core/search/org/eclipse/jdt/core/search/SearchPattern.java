@@ -1932,6 +1932,9 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *     			<tr>
  *         		<td>{@link IJavaSearchConstants#METHOD_REFERENCE_EXPRESSION METHOD_REFERENCE_EXPRESSION}
  *         		<td>Return only method reference expressions (e.g. <code>A :: foo</code>).
+ *         		<tr>
+ *         		<td>{@link IJavaSearchConstants#PERMITTYPE_TYPE_REFERENCE PERMITTYPE_TYPE_REFERENCE}
+ *         		<td>Return only type references used as a permit type.
  * 			</table>
  * 	</li>
  *	</ul>

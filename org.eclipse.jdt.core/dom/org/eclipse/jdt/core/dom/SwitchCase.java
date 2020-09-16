@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -136,7 +136,7 @@ public class SwitchCase extends Statement {
 	 */
 	SwitchCase(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS14) {
+		if (ast.apiLevel >= AST.JLS14_INTERNAL) {
 			this.expressions = new ASTNode.NodeList(EXPRESSIONS2_PROPERTY );
 		}
 	}
@@ -194,7 +194,7 @@ public class SwitchCase extends Statement {
 		SwitchCase result = new SwitchCase(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		if (this.ast.apiLevel >= AST.JLS14) {
+		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
 			result.expressions().addAll(
 				ASTNode.copySubtrees(target, expressions()));
 		} else {
@@ -214,7 +214,7 @@ public class SwitchCase extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (this.ast.apiLevel >= AST.JLS14) {
+			if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
 				acceptChildren(visitor, this.expressions);
 			} else {
 				acceptChild(visitor, getExpression());
@@ -323,7 +323,7 @@ public class SwitchCase extends Statement {
 	 *    <code>false</code> if this is a non-default switch case
 	 */
 	public boolean isDefault()  {
-		if (this.ast.apiLevel >= AST.JLS14) {
+		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
 			return expressions().isEmpty();
 		}
 		return getExpression() == null;

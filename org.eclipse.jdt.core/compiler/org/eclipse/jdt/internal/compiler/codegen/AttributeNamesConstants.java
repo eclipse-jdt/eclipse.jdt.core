@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,4 +55,5 @@ public interface AttributeNamesConstants {
 	final char[] NestMembers = "NestMembers".toCharArray(); //$NON-NLS-1$
 	// jep 359 records
 	final char[] RecordClass = "Record".toCharArray(); //$NON-NLS-1$
+	final char[] PermittedSubclasses = "PermittedSubclasses".toCharArray(); //$NON-NLS-1$
 }

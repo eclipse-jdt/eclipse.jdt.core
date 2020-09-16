@@ -791,6 +791,37 @@ public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
 public boolean containsPatternVariable() {
 	return false;
 }
+public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	new ASTVisitor() {
+		LocalVariableBinding[] patternVariablesInScope;
+		@Override
+		public boolean visit(Argument argument, BlockScope skope) {
+			// Most likely to be a lambda parameter
+			argument.addPatternVariablesWhenTrue(this.patternVariablesInScope);
+			return true;
+		}
+		@Override
+		public boolean visit(
+				QualifiedNameReference nameReference,
+				BlockScope skope) {
+			nameReference.addPatternVariablesWhenTrue(this.patternVariablesInScope);
+			return true;
+		}
+		@Override
+		public boolean visit(
+				SingleNameReference nameReference,
+				BlockScope skope) {
+			nameReference.addPatternVariablesWhenTrue(this.patternVariablesInScope);
+			return true;
+		}
+
+		public void propagatePatternVariablesInScope(LocalVariableBinding[] vars, BlockScope skope) {
+			this.patternVariablesInScope = vars;
+			Expression.this.traverse(this, skope);
+		}
+	}.propagatePatternVariablesInScope(variables, scope);
+}
+
 /**
  * Default generation of a boolean value
  * @param currentScope

@@ -176,8 +176,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int GenerateCheckcast = Bit7;
 	public static final int UnsafeCast = Bit8;
 
-	// for name references (Java 14 addition - Records preview - Bit18)
-	public static final int RestrictiveFlagMASK = Bit1 | Bit2 | Bit3 | Bit18 ;
+	public static final int RestrictiveFlagMASK = Bit1 | Bit2 | Bit3 ;
 
 	// for local decls
 	public static final int IsTypeElided = Bit2;  // type elided lambda argument.
@@ -676,6 +675,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			output.append("abstract "); //$NON-NLS-1$
 		if ((modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0)
 			output.append("default "); //$NON-NLS-1$
+		if ((modifiers & ExtraCompilerModifiers.AccNonSealed) != 0)
+			output.append("non-sealed "); //$NON-NLS-1$
+		if ((modifiers & ExtraCompilerModifiers.AccSealed) != 0)
+			output.append("sealed "); //$NON-NLS-1$
 		return output;
 	}
 
@@ -1239,7 +1242,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		// TODO: Null Analysis Address via bug 562478?
 
-		recipientTargetMask |= TagBits.AnnotationForTypeUse;
 		List<AnnotationBinding> relevantAnnotations = new ArrayList<>();
 		Annotation[] filteredAnnotations = ASTNode.getRelevantAnnotations(annotations, recipientTargetMask, relevantAnnotations);
 		AnnotationBinding [] recipientAnnotations = relevantAnnotations.toArray(new AnnotationBinding[relevantAnnotations.size()]);

@@ -204,6 +204,20 @@ public class Factory {
 				case ClassFileConstants.AccVolatile :
 					appendModifier(result, modifiers, checkBits[i], Modifier.VOLATILE);
 					break;
+				case ExtraCompilerModifiers.AccNonSealed :
+					try {
+						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("NON_SEALED")); //$NON-NLS-1$
+					} catch(IllegalArgumentException iae) {
+						// Don't have JDK 15, just ignore and proceed.
+					}
+					break;
+				case ExtraCompilerModifiers.AccSealed :
+					try {
+						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("SEALED")); //$NON-NLS-1$
+					} catch(IllegalArgumentException iae) {
+						// Don't have JDK 15, just ignore and proceed.
+					}
+					break;
 			}
 		}
 	}
@@ -295,7 +309,8 @@ public class Factory {
 						ClassFileConstants.AccPrivate,
 						ClassFileConstants.AccAbstract,
 						ClassFileConstants.AccStatic,
-						ClassFileConstants.AccStrictfp
+						ClassFileConstants.AccStrictfp,
+						ExtraCompilerModifiers.AccSealed,
 					});
 				} else {
 					// enum from source cannot be explicitly abstract
@@ -305,7 +320,8 @@ public class Factory {
 						ClassFileConstants.AccFinal,
 						ClassFileConstants.AccPrivate,
 						ClassFileConstants.AccStatic,
-						ClassFileConstants.AccStrictfp
+						ClassFileConstants.AccStrictfp,
+						ExtraCompilerModifiers.AccSealed,
 					});
 				}
 				break;
@@ -321,7 +337,9 @@ public class Factory {
 					ClassFileConstants.AccFinal,
 					ClassFileConstants.AccPrivate,
 					ClassFileConstants.AccStatic,
-					ClassFileConstants.AccStrictfp
+					ClassFileConstants.AccStrictfp,
+					ExtraCompilerModifiers.AccSealed,
+					ExtraCompilerModifiers.AccNonSealed
 				});
 				break;
 			case MODULE :

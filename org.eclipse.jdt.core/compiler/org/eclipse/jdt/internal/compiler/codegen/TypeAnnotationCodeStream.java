@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 IBM Corporation and others.
+ * Copyright (c) 2012, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -30,14 +30,13 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-@SuppressWarnings({"rawtypes"})
 public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
-	public List allTypeAnnotationContexts;
+	public List<AnnotationContext> allTypeAnnotationContexts;
 
 	public TypeAnnotationCodeStream(ClassFile givenClassFile) {
 		super(givenClassFile);
 		this.generateAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
-		this.allTypeAnnotationContexts = new ArrayList();
+		this.allTypeAnnotationContexts = new ArrayList<>();
 	}
 
 	private void addAnnotationContext(TypeReference typeReference, int info, int targetType, ArrayAllocationExpression allocationExpression) {
@@ -162,12 +161,12 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 	@Override
 	public void reset(ClassFile givenClassFile) {
 		super.reset(givenClassFile);
-		this.allTypeAnnotationContexts = new ArrayList();
+		this.allTypeAnnotationContexts = new ArrayList<>();
 	}
 
 	@Override
 	public void init(ClassFile targetClassFile) {
 		super.init(targetClassFile);
-		this.allTypeAnnotationContexts = new ArrayList();
+		this.allTypeAnnotationContexts = new ArrayList<>();
 	}
 }

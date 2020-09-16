@@ -95,6 +95,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
 
+	/** @deprecated using deprecated code */
+	private static final int JLS14_INTERNAL = AST.JLS14;
+
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
 		node.accept(flattener);
@@ -164,6 +167,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		if (Modifier.isTransient(modifiers)) {
 			buf.append("transient "); //$NON-NLS-1$
+		}
+		if (Modifier.isSealed(modifiers)) {
+			buf.append("sealed ");//$NON-NLS-1$
+		}
+		if (Modifier.isNonSealed(modifiers)) {
+			buf.append("non-sealed ");//$NON-NLS-1$
 		}
 	}
 
@@ -995,7 +1004,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if ((node.getAST().apiLevel() >= AST.JLS14)) {
+		if ((node.getAST().apiLevel() >= JLS14_INTERNAL)) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
 				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1135,6 +1144,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		ChildListPropertyDescriptor superInterfaceProperty= (apiLevel == JLS2_INTERNAL) ? INTERNAL_TYPE_SUPER_INTERFACES_PROPERTY : TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 		String lead= isInterface ? "extends " : "implements ";  //$NON-NLS-1$//$NON-NLS-2$
 		visitList(node, superInterfaceProperty, String.valueOf(','), lead, Util.EMPTY_STRING);
+
+
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED) && !node.permittedTypes().isEmpty()) {
+				visitList(node, TypeDeclaration.PERMITS_TYPES_PROPERTY, String.valueOf(','), lead, Util.EMPTY_STRING);
+		}
 		this.result.append('{');
 		visitList(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY, null);
 		this.result.append('}');
@@ -1530,7 +1544,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(YieldStatement node) {
-		if (node.getAST().apiLevel() >= AST.JLS14 && node.isImplicit()  && node.getExpression() == null) {
+		if (node.getAST().apiLevel() >= JLS14_INTERNAL && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 

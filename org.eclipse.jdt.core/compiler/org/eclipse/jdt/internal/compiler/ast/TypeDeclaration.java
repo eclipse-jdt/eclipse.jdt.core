@@ -72,7 +72,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int maxFieldCount;
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
-	public int restrictedIdentifierStart; // used only for records
+	public int restrictedIdentifierStart = -1; // used only for record and permits restricted keywords.
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public CompilationResult compilationResult;
@@ -91,8 +91,11 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	// 14 Records preview support
 	public RecordComponent[] recordComponents;
 	public int nRecordComponents;
-	public boolean isLocalRecord;
 	public static Set<String> disallowedComponentNames;
+
+	// 15 Sealed Type preview support
+	public TypeReference[] permittedTypes;
+
 	static {
 		disallowedComponentNames = new HashSet<>(6);
 		disallowedComponentNames.add("clone"); //$NON-NLS-1$
@@ -304,14 +307,6 @@ public void analyseCode(CompilationUnitScope unitScope) {
 	}
 }
 
-public static void checkAndFlagRecordNameErrors(char[] typeName, ASTNode node, Scope skope) {
-	if (CharOperation.equals(typeName, TypeConstants.RECORD_RESTRICTED_IDENTIFIER)) {
-		if (skope.compilerOptions().sourceLevel == ClassFileConstants.JDK14) {
-				skope.problemReporter().recordIsAReservedTypeName(node);
-		}
-	}
-}
-
 /**
  * Check for constructor vs. method with no return type.
  * Answers true if at least one constructor is defined
@@ -367,9 +362,9 @@ public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExpl
 	ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 	constructor.bits |= ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit;
 	constructor.selector = this.name;
-//	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-	constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
-	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
+	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+//	constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
+//	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
 	constructor.arguments = getArgumentsFromComponents(this.recordComponents);
 
 	constructor.declarationSourceStart = constructor.sourceStart =
@@ -430,7 +425,7 @@ private Argument[] getArgumentsFromComponents(RecordComponent[] comps) {
 	int count = 0;
 	for (RecordComponent comp : comps) {
 		Argument argument = new Argument(comp.name, ((long)comp.sourceStart) << 32 | comp.sourceEnd,
-				comp.type, comp.modifiers);
+				comp.type, 0); // no modifiers allowed for record components - enforce
 		args2[count++] = argument;
 	}
 	return args2;
@@ -1264,6 +1259,13 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 			this.superInterfaces[i].print(0, output);
 		}
 	}
+	if (this.permittedTypes != null && this.permittedTypes.length > 0) {
+		output.append(" permits "); //$NON-NLS-1$
+		for (int i = 0; i < this.permittedTypes.length; i++) {
+			if (i > 0) output.append( ", "); //$NON-NLS-1$
+			this.permittedTypes[i].print(0, output);
+		}
+	}
 	return output;
 }
 
@@ -1294,7 +1296,7 @@ public void resolve() {
 				this.scope.problemReporter().varIsReservedTypeName(this);
 			}
 		}
-		TypeDeclaration.checkAndFlagRecordNameErrors(this.name, this, this.scope);
+		this.scope.problemReporter().validateRestrictedKeywords(this.name, this);
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0
@@ -1648,6 +1650,11 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 				for (int i = 0; i < length; i++)
 					this.superInterfaces[i].traverse(visitor, this.scope);
 			}
+			if (this.permittedTypes != null) {
+				int length = this.permittedTypes.length;
+				for (int i = 0; i < length; i++)
+					this.permittedTypes[i].traverse(visitor, this.scope);
+			}
 			if (this.typeParameters != null) {
 				int length = this.typeParameters.length;
 				for (int i = 0; i < length; i++) {
@@ -1709,6 +1716,11 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 				for (int i = 0; i < length; i++)
 					this.superInterfaces[i].traverse(visitor, this.scope);
 			}
+			if (this.permittedTypes != null) {
+				int length = this.permittedTypes.length;
+				for (int i = 0; i < length; i++)
+					this.permittedTypes[i].traverse(visitor, this.scope);
+			}
 			if (this.typeParameters != null) {
 				int length = this.typeParameters.length;
 				for (int i = 0; i < length; i++) {
@@ -1769,6 +1781,11 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 				int length = this.superInterfaces.length;
 				for (int i = 0; i < length; i++)
 					this.superInterfaces[i].traverse(visitor, this.scope);
+			}
+			if (this.permittedTypes != null) {
+				int length = this.permittedTypes.length;
+				for (int i = 0; i < length; i++)
+					this.permittedTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.typeParameters != null) {
 				int length = this.typeParameters.length;

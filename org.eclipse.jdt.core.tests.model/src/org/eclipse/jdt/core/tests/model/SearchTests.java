@@ -1141,8 +1141,8 @@ public void testSearchPatternCreation37() {
 		"QUALIFIED_REFERENCE | " +
 		"THIS_REFERENCE | " +
 		"IMPLICIT_THIS_REFERENCE | " +
-		"METHOD_REFERENCE_EXPRESSION | " + // unused slots
-		" | " +
+		"METHOD_REFERENCE_EXPRESSION | " +
+		"PERMITTYPE_TYPE_REFERENCE | " + // unused slots
 		" | ",
 		searchPattern);
 }

@@ -612,8 +612,12 @@ public class EclipseCompilerImpl extends Main {
 						}
 						fileSystemClasspaths.addAll(modulepaths);
 					}
+				} catch (IllegalStateException e) {
+					// Ignore this as JRE 9 throws IllegalStateException for getLocation returning null
+				} catch (IllegalArgumentException e) {
+					throw e;
 				} catch (Exception e) {
-					// TODO: Revisit when JRE 9 no longer throws IllegalStateException for getLocation.
+					this.logger.logException(e);
 				}
 				try {
 					locationFiles = standardJavaFileManager.getLocation(StandardLocation.MODULE_PATH);
@@ -635,8 +639,12 @@ public class EclipseCompilerImpl extends Main {
 							}
 						}
 					}
+				} catch (IllegalStateException e) {
+					// Ignore this as JRE 9 throws IllegalStateException for getLocation returning null
+				} catch (IllegalArgumentException e) {
+					throw e;
 				} catch (Exception e) {
-					// TODO: Revisit when JRE 9 no longer throws IllegalStateException for getLocation.
+					this.logger.logException(e);
 				}
 			}
 		} else if (javaFileManager != null) {

@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.INestMembersAttribute;
+import org.eclipse.jdt.core.util.IPermittedSubclassesAttribute;
 import org.eclipse.jdt.core.util.IRecordAttribute;
 import org.eclipse.jdt.core.util.ISourceAttribute;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -49,6 +50,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private int fieldsCount;
 	private IInnerClassesAttribute innerClassesAttribute;
 	private INestMembersAttribute nestMembersAttribute;
+	private IPermittedSubclassesAttribute permittedSubclassesAttribute;
 	private int[] interfaceIndexes;
 	private char[][] interfaceNames;
 	private int interfacesCount;
@@ -314,6 +316,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						} else if (equals(attributeName, IAttributeNamesConstants.RECORD)) {
 							this.recordAttribute = new RecordAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.recordAttribute;
+						} else if (equals(attributeName, IAttributeNamesConstants.PERMITTED_SUBCLASSES)) {
+							this.permittedSubclassesAttribute = new PermittedSubclassesAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.permittedSubclassesAttribute;
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -395,6 +400,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	public IFieldInfo[] getFieldInfos() {
 		return this.fields;
 	}
+	/*
+	 * @see IClassFileReader#getFieldInfos()
+	 */
 
 	/**
 	 * @see IClassFileReader#getFieldsCount()
@@ -415,6 +423,11 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	@Override
 	public INestMembersAttribute getNestMembersAttribute() {
 		return this.nestMembersAttribute;
+	}
+
+	@Override
+	public IPermittedSubclassesAttribute getPermittedSubclassesAttribute() {
+		return this.permittedSubclassesAttribute;
 	}
 
 	/**

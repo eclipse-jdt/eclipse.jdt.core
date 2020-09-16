@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2020 GK Software SE and others.
+
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+    
+    Contributors:
+        IBM Corporation - initial API and implementation
+ -->
+
+<project name="export-JCLmins" default="allConverterJcls" basedir=".">
+	<property name="jclbase" value="${basedir}/../../JCL"/>
+	
+	<target name="build" depends="converterJclMin"/>
+	
+	<target name="allConverterJcls">
+		<!--antcall target="converterJclMin">
+			<param name="compliance" value="1.4"/>
+			<param name="suffix" value=""/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="1.5"/>
+			<param name="suffix" value="1.5"/>
+		</antcall-->
+		<antcall target="converterJclMin">
+			<param name="compliance" value="1.7"/>
+			<param name="suffix" value="1.7"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="1.8"/>
+			<param name="suffix" value="1.8"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="9"/>
+			<param name="suffix" value="9"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="10"/>
+			<param name="suffix" value="10"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="11"/>
+			<param name="suffix" value="11"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="12"/>
+			<param name="suffix" value="12"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="13"/>
+			<param name="suffix" value="13"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="14"/>
+			<param name="suffix" value="14"/>
+		</antcall>
+		<antcall target="converterJclMin">
+					<param name="compliance" value="15"/>
+					<param name="suffix" value="15"/>
+		</antcall>
+	</target>
+	<target name="converterJclMin">
+		<javac srcdir="${jclbase}/converterJclMin${suffix}/src" destdir="${jclbase}/converterJclMin${suffix}/bin"
+					debuglevel="lines,source"
+					source="${compliance}"
+					target="${compliance}">
+			<compilerarg line="-Xlint:none"/>
+		</javac>
+		<jar destfile="${basedir}/converterJclMin${suffix}.jar" basedir="${jclbase}/converterJclMin${suffix}/bin"/>
+		<zip destfile="${basedir}/converterJclMin${suffix}src.zip">
+			<fileset dir="${jclbase}/converterJclMin${suffix}/src" />
+		</zip>
+	</target>
+</project>

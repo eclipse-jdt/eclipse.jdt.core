@@ -80,9 +80,13 @@ public class Argument extends LocalDeclaration {
 		if ((this.binding.tagBits & TagBits.AnnotationResolved) == 0) {
 			Annotation[] annots = this.annotations;
 			long sourceLevel = scope.compilerOptions().sourceLevel;
-			if (sourceLevel >= ClassFileConstants.JDK14 && annots == null)
+			if (sourceLevel >= ClassFileConstants.JDK14 && annots == null) {
 				annots = getCorrespondingRecordComponentAnnotationsIfApplicable(scope.referenceMethod());
-			resolveAnnotations(scope, annots, this.binding, true);
+				annots = ASTNode.copyRecordComponentAnnotations(scope,
+							this.binding, annots);
+			}
+			if (annots != null)
+				resolveAnnotations(scope, annots, this.binding, true);
 			if (sourceLevel >= ClassFileConstants.JDK1_8) {
 				Annotation.isTypeUseCompatible(this.type, scope, annots);
 				scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
@@ -100,11 +104,13 @@ public class Argument extends LocalDeclaration {
 			ReferenceBinding referenceBinding = methodBinding== null ? null : methodBinding.declaringClass;
 			if (referenceBinding instanceof SourceTypeBinding) {
 				SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) referenceBinding;
-				assert (sourceTypeBinding.isRecord());
+				assert (sourceTypeBinding.isRecord()); // CHECK: Is this really necessary?
 				sourceTypeBinding.components();
 				RecordComponentBinding recordComponentBinding = sourceTypeBinding.getRecordComponent(this.name);
-				RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
-				return recordComponent.annotations;
+				if (recordComponentBinding != null) {
+					RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
+					return recordComponent.annotations;
+				}
 			}
 		}
 		return null;
@@ -118,15 +124,7 @@ public class Argument extends LocalDeclaration {
 			final boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && this.hiddenVariableDepth == 0) {
 				if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
-					if ((((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0) {
-						this.duplicateCheckObligation = (flowInfo) -> {
-							if (flowInfo.isDefinitelyAssigned((LocalVariableBinding) existingVariable)) {
-								scope.problemReporter().lambdaRedeclaresArgument(this);
-							}
-						};
-					} else {
-						scope.problemReporter().lambdaRedeclaresArgument(this);
-					}
+					scope.problemReporter().lambdaRedeclaresArgument(this);
 				} else if (scope.referenceContext instanceof CompactConstructorDeclaration) {
 					// skip error reporting - hidden params - already reported in record components
 				} else {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocArraySingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
@@ -203,14 +204,24 @@ public class JavadocParser extends AbstractCommentParser {
 	protected Object createFieldReference(Object receiver) throws InvalidInputException {
 		try {
 			// Get receiver type
-			TypeReference typeRef = (TypeReference) receiver;
+			TypeReference typeRef = null;
+			boolean useReceiver = false;
+			if (receiver instanceof JavadocModuleReference) {
+				JavadocModuleReference jRef = (JavadocModuleReference)receiver;
+				if (jRef.typeReference != null) {
+					typeRef = jRef.typeReference;
+					useReceiver =  true;
+				}
+			} else {
+				typeRef = (TypeReference) receiver;
+			}
 			if (typeRef == null) {
 				char[] name = this.sourceParser.compilationUnit.getMainTypeName();
 				typeRef = new JavadocImplicitTypeReference(name, this.memberStart);
 			}
 			// Create field
 			JavadocFieldReference field = new JavadocFieldReference(this.identifierStack[0], this.identifierPositionStack[0]);
-			field.receiver = typeRef;
+			field.receiver = useReceiver ? (Expression)receiver : typeRef;
 			field.tagSourceStart = this.tagSourceStart;
 			field.tagSourceEnd = this.tagSourceEnd;
 			field.tagValue = this.tagValue;
@@ -225,7 +236,15 @@ public class JavadocParser extends AbstractCommentParser {
 	protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
 		try {
 			// Get receiver type
-			TypeReference typeRef = (TypeReference) receiver;
+			TypeReference typeRef = null;
+			if (receiver instanceof JavadocModuleReference) {
+				JavadocModuleReference jRef = (JavadocModuleReference)receiver;
+				if (jRef.typeReference != null) {
+					typeRef = jRef.typeReference;
+				}
+			} else {
+				typeRef = (TypeReference) receiver;
+			}
 			// Decide whether we have a constructor or not
 			boolean isConstructor = false;
 			int length = this.identifierLengthStack[0];	// may be > 1 for member class constructor reference
@@ -345,6 +364,43 @@ public class JavadocParser extends AbstractCommentParser {
 			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
 		}
 		return typeRef;
+	}
+
+	protected JavadocModuleReference createModuleReference(int moduleRefTokenCount) {
+		JavadocModuleReference moduleRef = null;
+		char[][] tokens = new char[moduleRefTokenCount][];
+		System.arraycopy(this.identifierStack, 0, tokens, 0, moduleRefTokenCount);
+		long[] positions = new long[moduleRefTokenCount];
+		System.arraycopy(this.identifierPositionStack, 0, positions, 0, moduleRefTokenCount);
+		moduleRef = new JavadocModuleReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+		return moduleRef;
+	}
+
+	@Override
+	protected Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount) {
+		JavadocModuleReference moduleRef= createModuleReference(moduleRefTokenCount);
+
+		TypeReference typeRef = null;
+		int size = this.identifierLengthStack[this.identifierLengthPtr];
+		int newSize= size-moduleRefTokenCount;
+		if (newSize == 1) { // Single Type ref
+			typeRef = new JavadocSingleTypeReference(
+						this.identifierStack[this.identifierPtr],
+						this.identifierPositionStack[this.identifierPtr],
+						this.tagSourceStart,
+						this.tagSourceEnd);
+		} else if (newSize > 1) { // Qualified Type ref
+			char[][] tokens = new char[newSize][];
+			System.arraycopy(this.identifierStack, this.identifierPtr - newSize + 1, tokens, 0, newSize);
+			long[] positions = new long[newSize];
+			System.arraycopy(this.identifierPositionStack, this.identifierPtr - newSize + 1, positions, 0, newSize);
+			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+		} else {
+			this.lastIdentifierEndPosition++;
+		}
+
+		moduleRef.setTypeReference(typeRef);
+		return moduleRef;
 	}
 
 	/*
@@ -626,12 +682,12 @@ public class JavadocParser extends AbstractCommentParser {
 				if (length == TAG_LINK_LENGTH && CharOperation.equals(TAG_LINK, tagName, 0, length)) {
 					this.tagValue = TAG_LINK_VALUE;
 					if (this.inlineTagStarted || (this.kind & COMPLETION_PARSER) != 0) {
-						valid= parseReference();
+						valid= parseReference(true);
 					}
 				} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName, 0, length)) {
 					this.tagValue = TAG_LINKPLAIN_VALUE;
 					if (this.inlineTagStarted) {
-						valid = parseReference();
+						valid = parseReference(true);
 					}
 				} else if (length == TAG_LITERAL_LENGTH && this.inlineTagStarted && CharOperation.equals(TAG_LITERAL, tagName, 0, length)) {
 					this.tagValue = TAG_LITERAL_VALUE;
@@ -663,7 +719,7 @@ public class JavadocParser extends AbstractCommentParser {
 				if (length == TAG_SEE_LENGTH && CharOperation.equals(TAG_SEE, tagName, 0, length)) {
 					this.tagValue = TAG_SEE_VALUE;
 					if (!this.inlineTagStarted) {
-						valid = parseReference();
+						valid = parseReference(true);
 					}
 				} else if (length == TAG_SERIAL_LENGTH && CharOperation.equals(TAG_SERIAL, tagName, 0, length)) {
 					this.tagValue = TAG_SERIAL_VALUE;

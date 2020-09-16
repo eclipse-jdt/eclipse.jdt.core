@@ -55,10 +55,15 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		return createSuite(ASTRewritingSwitchExpressionsTest.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS14 ) {
+		if (this.apiLevel == AST_INTERNAL_JLS15 ) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+		} else if (this.apiLevel == AST_INTERNAL_JLS14 ) {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
@@ -229,6 +234,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_03_since_12() throws Exception {
+		/*
+		 * if (this.apiLevel == AST_INTERNAL_JLS15) { return; }
+		 */
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -398,6 +406,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_04_since_12() throws Exception {
+		/*
+		 * if (this.apiLevel == AST_INTERNAL_JLS15) { return; }
+		 */
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	= "package test1;\n"+
 				"public class X {\n"+

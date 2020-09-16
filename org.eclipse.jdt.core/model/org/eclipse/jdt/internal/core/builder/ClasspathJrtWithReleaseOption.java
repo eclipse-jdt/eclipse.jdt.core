@@ -57,7 +57,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	protected Path releasePath;
 	protected Path modulePath;
 	private String modPathString;
-	private CtSym ctSym;
+	CtSym ctSym;
 
 
 

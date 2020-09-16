@@ -24,6 +24,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -91,9 +92,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 	}
 	if (this.elementVariable != null) {
-		if (this.elementVariable.duplicateCheckObligation != null) {
-			this.elementVariable.duplicateCheckObligation.accept(flowInfo);
-		}
 		initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
 	}
 	return (initsWhenTrue == null) ? flowInfo :
@@ -250,13 +248,57 @@ public void addPatternVariables(BlockScope currentScope, CodeStream codeStream) 
 		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
 	}
 }
-public void resolvePatternVariable(BlockScope scope) {
-	if (this.elementVariable != null && this.elementVariable.binding == null) {
+public boolean resolvePatternVariable(BlockScope scope) {
+	if (this.elementVariable == null) return false;
+	if (this.elementVariable.binding == null) {
 		this.elementVariable.resolve(scope, true);
+		// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
+		// missing initializer
+		this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
 		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccUnresolved; // TODO: Change to a different mechanism
 		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
 		// Why cant this be done in the constructor?
 		this.type = this.elementVariable.type;
+	}
+	return true;
+}
+@Override
+public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	this.expression.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
+	if (this.elementVariable != null) {
+		if (this.elementVariable.binding == null) {
+			resolvePatternVariable(scope);
+			if (variables != null) {
+				for (LocalVariableBinding variable : variables) {
+					if (CharOperation.equals(this.elementVariable.name, variable.name)) {
+						scope.problemReporter().redefineLocal(this.elementVariable);
+					}
+				}
+			}
+		}
+		if (this.patternVarsWhenTrue == null) {
+			this.patternVarsWhenTrue = new LocalVariableBinding[1];
+			this.patternVarsWhenTrue[0] = this.elementVariable.binding;
+		} else {
+			this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.elementVariable.binding});
+		}
+	}
+
+}
+@Override
+public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
+	if (this.patternVarsWhenTrue == null) {
+		this.getPatternVariablesWhenTrue();
+	}
+	if (vars == null || vars.length == 0) return;
+	if (this.patternVarsWhenTrue == null) {
+		this.patternVarsWhenTrue = vars;
+	} else {
+		int oldSize = this.patternVarsWhenTrue.length;
+		int newLength = oldSize + vars.length;
+		System.arraycopy(this.patternVarsWhenTrue, 0, (this.patternVarsWhenTrue = new LocalVariableBinding[newLength]), 0, oldSize);
+		System.arraycopy(vars, 0, this.patternVarsWhenTrue, oldSize, vars.length);
 	}
 }
 @Override

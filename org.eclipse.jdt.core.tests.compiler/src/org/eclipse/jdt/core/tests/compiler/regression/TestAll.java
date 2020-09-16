@@ -193,10 +193,17 @@ public static Test suite() {
 	 ArrayList since_14 = new ArrayList();
 	 since_14.add(SwitchExpressionsYieldTest.class);
 	 since_14.add(RecordsRestrictedClassTest.class);
-	 since_14.add(PatternMatching14Test.class);
+	 since_14.add(PatternMatching15Test.class);
 	 since_14.add(JavadocTestForRecord.class);
 	 since_14.add(BatchCompilerTest_14.class);
 
+	 // add 14 specific test here (check duplicates)
+	 ArrayList since_15 = new ArrayList();
+	 since_15.add(SealedTypes15Tests.class);
+	 since_15.add(ClassFileReaderTest_15.class);
+	 since_15.add(JavadocTest_15.class);
+	 since_15.add(LocalStaticsTest_15.class);
+	 since_15.add(Unicode13Test.class);
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
@@ -338,6 +345,23 @@ public static Test suite() {
 		tests_14.addAll(since_14);
 		TestCase.resetForgottenFilters(tests_14);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14), tests_14));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_15) != 0) {
+		ArrayList tests_15 = (ArrayList)standardTests.clone();
+		tests_15.addAll(since_1_4);
+		tests_15.addAll(since_1_5);
+		tests_15.addAll(since_1_6);
+		tests_15.addAll(since_1_7);
+		tests_15.addAll(since_1_8);
+		tests_15.addAll(since_9);
+		tests_15.addAll(since_10);
+		tests_15.addAll(since_11);
+		tests_15.addAll(since_12);
+		tests_15.addAll(since_13);
+		tests_15.addAll(since_14);
+		tests_15.addAll(since_15);
+		TestCase.resetForgottenFilters(tests_15);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15), tests_15));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

@@ -570,6 +570,14 @@ public class SourceTypeConverter extends TypeConverter {
 				type.superInterfaces[i].bits |= ASTNode.IsSuperType;
 			}
 		}
+		char[][] permittedSubtypeNames = typeInfo.getPermittedSubtypeNames();
+		int permittedSubtypeCount = permittedSubtypeNames == null ? 0 : permittedSubtypeNames.length;
+		if (permittedSubtypeCount > 0) {
+			type.permittedTypes = new TypeReference[permittedSubtypeCount];
+			for (int i = 0; i < permittedSubtypeCount; i++) {
+				type.permittedTypes[i] = createTypeReference(permittedSubtypeNames[i], start, end, true /* include generics */);
+			}
+		}
 		/* convert member types */
 		if ((this.flags & MEMBER_TYPE) != 0) {
 			SourceType[] sourceMemberTypes = typeInfo.getMemberTypeHandles();

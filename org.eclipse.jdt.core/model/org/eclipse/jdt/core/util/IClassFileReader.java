@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -133,6 +133,16 @@ public interface IClassFileReader {
 	 * @since 3.22
 	 */
 	default IRecordAttribute getRecordAttribute() {
+		return null;
+	}
+
+	/**
+	 * Answer back the permitted subclasses attribute of this .class file, null if none.
+	 *
+	 * @return the permitted subclasses attribute of this .class file, null if none
+	 * @since 3.23
+	 */
+	default IPermittedSubclassesAttribute getPermittedSubclassesAttribute() {
 		return null;
 	}
 

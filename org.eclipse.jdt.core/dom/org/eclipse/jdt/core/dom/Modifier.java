@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,6 +35,8 @@ import java.util.Map;
  *    <b>volatile</b>
  *    <b>strictfp</b>
  *    <b>default</b>
+ *    <b>sealed</b>
+ *    <b>non-sealed</b>
  * </pre>
  * <p>
  * The numeric values of these flags match the ones for class
@@ -105,6 +107,16 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 */
 		public static final ModifierKeyword DEFAULT_KEYWORD = new ModifierKeyword("default", DEFAULT);//$NON-NLS-1$
 
+		/**
+		 * @since 3.23
+		 */
+		public static final ModifierKeyword SEALED_KEYWORD = new ModifierKeyword("sealed", SEALED);//$NON-NLS-1$
+
+		/**
+		 * @since 3.23
+		 */
+		public static final ModifierKeyword NON_SEALED_KEYWORD = new ModifierKeyword("non-sealed", NON_SEALED);//$NON-NLS-1$
+
 		static {
 			KEYWORDS = new HashMap(20);
 			ModifierKeyword[] ops = {
@@ -119,7 +131,9 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 					TRANSIENT_KEYWORD,
 					VOLATILE_KEYWORD,
 					STRICTFP_KEYWORD,
-					DEFAULT_KEYWORD
+					DEFAULT_KEYWORD,
+					SEALED_KEYWORD,
+					NON_SEALED_KEYWORD
 				};
 			for (int i = 0; i < ops.length; i++) {
 				KEYWORDS.put(ops[i].toString(), ops[i]);
@@ -312,6 +326,20 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	public static final int VOLATILE = 0x0040;
 
 	/**
+	 * "sealed" modifier constant (bit mask).
+	 * Applicable only to types.
+	 * @since 3.23
+	 */
+	public static final int SEALED = 0x0200;
+
+	/**
+	 * "non-sealed" modifier constant (bit mask).
+	 * Applicable only to types.
+	 * @since 3.23
+	 */
+	public static final int NON_SEALED = 0x1000;
+
+	/**
 	 * "default" modifier constant (bit mask) (added in JLS8 API).
 	 * Applicable only to methods in interfaces (but not for annotation methods with a default value).
 	 * <p>
@@ -483,6 +511,32 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 */
 	public static boolean isDefault(int flags) {
 		return (flags & DEFAULT) != 0;
+	}
+
+	/**
+	 * Returns whether the given flags includes the "sealed" modifier.
+	 * Applicable only to types.
+	 *
+	 * @param flags the modifier flags
+	 * @return <code>true</code> if the <code>SEALED</code> bit is set
+	 * and <code>false</code> otherwise
+	 * @since 3.23
+	 */
+	public static boolean isSealed(int flags) {
+		return (flags & SEALED) != 0;
+	}
+
+	/**
+	 * Returns whether the given flags includes the "non-sealed" modifier.
+	 * Applicable only to types.
+	 *
+	 * @param flags the modifier flags
+	 * @return <code>true</code> if the <code>NON_SEALED</code> bit is set
+	 * and <code>false</code> otherwise
+	 * @since 3.23
+	 */
+	public static boolean isNonSealed(int flags) {
+		return (flags & NON_SEALED) != 0;
 	}
 
 	/**
@@ -702,6 +756,26 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 */
 	public boolean isDefault() {
 		return this.modifierKeyword == ModifierKeyword.DEFAULT_KEYWORD;
+	}
+
+	/**
+	 * Answer true if the receiver is the sealed modifier, false otherwise.
+	 *
+	 * @return true if the receiver is the sealed modifier, false otherwise
+	 * @since 3.23
+	 */
+	public boolean isSealed() {
+		return this.modifierKeyword == ModifierKeyword.SEALED_KEYWORD;
+	}
+
+	/**
+	 * Answer true if the receiver is the non-sealed modifier, false otherwise.
+	 *
+	 * @return true if the receiver is the non-sealed modifier, false otherwise
+	 * @since 3.23
+	 */
+	public boolean isNonSealed() {
+		return this.modifierKeyword == ModifierKeyword.NON_SEALED_KEYWORD;
 	}
 
 	@Override

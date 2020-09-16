@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 Google, Inc and others.
+ * Copyright (c) 2016, 2020 Google, Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -351,6 +352,10 @@ public class IndexBinaryType implements IBinaryType {
 
 		return this.isLocal;
 	}
+	@Override
+	public boolean isRecord() {
+		return false;
+	}
 
 	@Override
 	public boolean isMember() {
@@ -670,6 +675,12 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public char[] getModule() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public IRecordComponent[] getRecordComponents() {
 		// TODO Auto-generated method stub
 		return null;
 	}

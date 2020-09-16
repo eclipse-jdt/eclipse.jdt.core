@@ -272,7 +272,21 @@ public class AND_AND_Expression extends BinaryExpression {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
 		}
 	}
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.left.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
 
+		variables = this.left.getPatternVariablesWhenTrue();
+		this.addPatternVariablesWhenTrue(variables);
+		this.right.addPatternVariablesWhenTrue(variables);
+
+		variables = this.left.getPatternVariablesWhenFalse();
+		this.right.addPatternVariablesWhenFalse(variables);
+
+		this.right.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
+		variables = this.right.getPatternVariablesWhenTrue();
+		this.addPatternVariablesWhenTrue(variables);
+	}
 	@Override
 	public boolean isCompactableOperation() {
 		return false;

@@ -198,6 +198,19 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
     }
 
 	@Override
+	public List<? extends TypeMirror> getPermittedSubclasses() {
+		ReferenceBinding binding = (ReferenceBinding)_binding;
+		if (binding.isSealed()) {
+			List<TypeMirror> permitted = new ArrayList<>();
+			for (ReferenceBinding type : binding.permittedTypes()) {
+				TypeMirror typeMirror = _env.getFactory().newTypeMirror(type);
+				permitted.add(typeMirror);
+			}
+			return Collections.unmodifiableList(permitted);
+		}
+		return Collections.emptyList();
+    }
+	@Override
 	public Element getEnclosingElement() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
 		ReferenceBinding enclosingType = binding.enclosingType();
@@ -275,6 +288,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (refBinding.isInterface() && refBinding.isNestedType()) {
 			modifiers |= ClassFileConstants.AccStatic;
 		}
+		
 		return Factory.getModifiers(modifiers, getKind(), refBinding.isBinaryBinding());
 	}
 

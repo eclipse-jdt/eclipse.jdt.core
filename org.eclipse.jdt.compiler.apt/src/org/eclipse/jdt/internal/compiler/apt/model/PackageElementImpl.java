@@ -82,7 +82,8 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 			for (char[][] typeName : typeNames) {
 				if (typeName == null) continue;
 				ReferenceBinding type = environment.getType(typeName);
-				if (type != null && type.isValidBinding()) {
+				if (type == null || type.isMemberType()) continue;
+				if (type.isValidBinding()) {
 					Element newElement = _env.getFactory().newElement(type);
 					if (newElement.getKind() != ElementKind.PACKAGE) {
 						set.add(newElement);

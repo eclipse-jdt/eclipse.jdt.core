@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2014 IBM Corporation and others.
+ * Copyright (c) 2004, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -162,6 +162,9 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants 
 					break;
 				case IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION:
 					buffer.append("METHOD_REFERENCE_EXPRESSION"); //$NON-NLS-1$
+					break;
+				case IJavaSearchConstants.PERMITTYPE_TYPE_REFERENCE:
+					buffer.append("PERMITTYPE_TYPE_REFERENCE"); //$NON-NLS-1$
 					break;
 			}
 		}

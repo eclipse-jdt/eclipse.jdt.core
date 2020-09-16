@@ -292,14 +292,6 @@ public void enterField(FieldInfo fieldInfo) {
 	this.methodDepth++;
 }
 /**
- * @see ISourceElementRequestor#enterRecordComponent(ISourceElementRequestor.RecordComponentInfo)
- */
-@Override
-public void enterRecordComponent(RecordComponentInfo componentInfo) {
-	this.indexer.addFieldDeclaration(componentInfo.type, componentInfo.name);
-	this.methodDepth++;
-}
-/**
  * @see ISourceElementRequestor#enterInitializer(int, int)
  */
 @Override

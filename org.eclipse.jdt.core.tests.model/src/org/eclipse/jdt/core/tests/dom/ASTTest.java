@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1329,6 +1329,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
         case JavaCore.VERSION_12: return AST.JLS12;
         case JavaCore.VERSION_13: return AST.JLS13;
         case JavaCore.VERSION_14: return AST.JLS14;
+        case JavaCore.VERSION_15: return AST.JLS15;
         default:  return AST.JLS2;
 		}
 	}
@@ -9175,6 +9176,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertSame(Modifier.SYNCHRONIZED ,0x0020);
 		assertSame(Modifier.TRANSIENT ,0x0080);
 		assertSame(Modifier.VOLATILE ,0x0040);
+		assertSame(Modifier.SEALED ,0x0200);
+		assertSame(Modifier.NON_SEALED ,0x1000);
 
 		// check that all
 		final int[] mods =
@@ -9190,6 +9193,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				Modifier.SYNCHRONIZED,
 				Modifier.TRANSIENT,
 				Modifier.VOLATILE,
+				Modifier.SEALED,
+				Modifier.NON_SEALED,
 				};
 
 		for (int i=0; i< mods.length; i++) {
@@ -9205,6 +9210,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertTrue(Modifier.isSynchronized(m) == (m == Modifier.SYNCHRONIZED));
 			assertTrue(Modifier.isTransient(m) == (m == Modifier.TRANSIENT));
 			assertTrue(Modifier.isVolatile(m) == (m == Modifier.VOLATILE));
+			assertTrue(Modifier.isSealed(m) == (m == Modifier.SEALED));
+			assertTrue(Modifier.isNonSealed(m) == (m == Modifier.NON_SEALED));
 		}
 
 		if (this.ast.apiLevel() == AST.JLS2) {
@@ -9253,6 +9260,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(Modifier.ModifierKeyword.VOLATILE_KEYWORD.toString().equals("volatile")); //$NON-NLS-1$
 		assertTrue(Modifier.ModifierKeyword.STRICTFP_KEYWORD.toString().equals("strictfp")); //$NON-NLS-1$
 		assertTrue(Modifier.ModifierKeyword.DEFAULT_KEYWORD.toString().equals("default")); //$NON-NLS-1$
+		if (DOMASTUtil.isFeatureSupportedinAST(this.ast, Modifier.SEALED)) {
+			assertTrue(Modifier.ModifierKeyword.SEALED_KEYWORD.toString().equals("sealed")); //$NON-NLS-1$
+			assertTrue(Modifier.ModifierKeyword.NON_SEALED_KEYWORD.toString().equals("non-sealed")); //$NON-NLS-1$
+		}
 
 		final Modifier.ModifierKeyword[] known = {
 			Modifier.ModifierKeyword.PUBLIC_KEYWORD,
@@ -9266,7 +9277,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			Modifier.ModifierKeyword.TRANSIENT_KEYWORD,
 			Modifier.ModifierKeyword.VOLATILE_KEYWORD,
 			Modifier.ModifierKeyword.STRICTFP_KEYWORD,
-			Modifier.ModifierKeyword.DEFAULT_KEYWORD
+			Modifier.ModifierKeyword.DEFAULT_KEYWORD,
+			Modifier.ModifierKeyword.SEALED_KEYWORD,
+			Modifier.ModifierKeyword.NON_SEALED_KEYWORD
 		};
 
 		// check all modifiers are distinct
@@ -9320,6 +9333,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				Modifier.ModifierKeyword.STRICTFP_KEYWORD,
 				Modifier.ModifierKeyword.TRANSIENT_KEYWORD,
 				Modifier.ModifierKeyword.VOLATILE_KEYWORD,
+				Modifier.ModifierKeyword.SEALED_KEYWORD,
+				Modifier.ModifierKeyword.NON_SEALED_KEYWORD,
 			};
 		int all = 0;
 		for (int i = 0; i < mods.length; i++) {
@@ -9350,8 +9365,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				assertEquals(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD, modifier.getKeyword());
 			} else if (modifier.isTransient()) {
 				assertEquals(Modifier.ModifierKeyword.TRANSIENT_KEYWORD, modifier.getKeyword());
-			} else {
+			} else if (modifier.isVolatile()) {
 				assertEquals(Modifier.ModifierKeyword.VOLATILE_KEYWORD, modifier.getKeyword());
+			} else if (modifier.isSealed()) {
+				assertEquals(Modifier.ModifierKeyword.SEALED_KEYWORD, modifier.getKeyword());
+			} else {
+				assertEquals(Modifier.ModifierKeyword.NON_SEALED_KEYWORD, modifier.getKeyword());
 			}
 		}
 	}
@@ -9521,7 +9540,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	@SuppressWarnings("deprecation")
 	public void testASTLevels() throws Exception {
-		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14};
+		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15};
 		for (int level : apilLevels) {
 			try {
 				DOMASTUtil.checkASTLevel(level);

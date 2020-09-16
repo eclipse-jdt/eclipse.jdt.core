@@ -92,6 +92,13 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private boolean declarationModifierVisited;
 
+	/**
+	 * Internal synonym for constant AST.JSL14
+	 * to alleviate deprecation warnings once AST.JLS14 is deprecated in future.
+	 * @deprecated
+	 */
+	private static final int AST_INTERNAL_JLS14 = AST.JLS14;
+
 	public LineBreaksPreparator(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
 		this.tm = tokenManager;
 		this.options = options;
@@ -406,7 +413,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void doSwitchStatementsLineBreaks(List<Statement> statements) {
 		boolean arrowMode = statements.stream()
-				.anyMatch(s -> s instanceof SwitchCase && s.getAST().apiLevel() >= AST.JLS14 &&((SwitchCase) s).isSwitchLabeledRule());
+				.anyMatch(s -> s instanceof SwitchCase && s.getAST().apiLevel() >= AST_INTERNAL_JLS14 &&((SwitchCase) s).isSwitchLabeledRule());
 		Statement previous = null;
 		for (Statement statement : statements) {
 			boolean skip = statement instanceof Block // will add break in visit(Block) if necessary

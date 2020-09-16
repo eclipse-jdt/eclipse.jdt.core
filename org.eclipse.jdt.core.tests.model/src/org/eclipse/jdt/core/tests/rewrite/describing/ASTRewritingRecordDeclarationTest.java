@@ -6,10 +6,6 @@
 * which accompanies this distribution, and is available at
 * https://www.eclipse.org/legal/epl-2.0/
 *
-* This is an implementation of an early-draft specification developed under the Java
-* Community Process (JCP) and is made available for testing and evaluation purposes
-* only. The code is not compatible with any specification of the JCP.
-*
 * SPDX-License-Identifier: EPL-2.0
 *
 * Contributors:
@@ -29,6 +25,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -52,7 +49,7 @@ import junit.framework.Test;
 public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	public ASTRewritingRecordDeclarationTest(String name) {
-		super(name, 14);
+		super(name, 15);
 	}
 
 	public ASTRewritingRecordDeclarationTest(String name, int apiLevel) {
@@ -66,18 +63,18 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS14 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		if (this.apiLevel == AST.JLS15 ) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
 
 	@SuppressWarnings("deprecation")
 	private boolean checkAPILevel() {
-		if (this.apiLevel != 14) {
-			System.err.println("Test "+getName()+" requires a JRE 14");
+		if (this.apiLevel != 15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
 			return true;
 		}
 		return false;
@@ -1141,7 +1138,6 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		assertTrue("Not a record", type instanceof RecordDeclaration);
 		RecordDeclaration record = (RecordDeclaration)type;
 		{ // change parameter type
-			//rewrite.set((TypeParameter) record.typeParameters().get(0), TypeParameter.NAME_PROPERTY, astRoot.getAST().newSimpleName("Y"), null);
 			ListRewrite listRewrite= rewrite.getListRewrite(record, RecordDeclaration.TYPE_PARAMETERS_PROPERTY);
 			TypeParameter typeParameter= ast.newTypeParameter();
 			typeParameter.setName(ast.newSimpleName("Y"));
@@ -1207,6 +1203,175 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 		buf.append("    public C{}\n");
 		buf.append("\n");
 		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_025() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("import java.lang.annotation.Target;\n");
+		buf.append("record X(@MyAnnot int lo) {\n");
+		buf.append("	public int lo() {\n");
+		buf.append("		return this.lo;\\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		buf.append("@Target({ElementType.FIELD})\n");
+		buf.append("@interface MyAnnot {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "X");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		{
+			List recordComponents = record.recordComponents();
+			assertTrue("must be 1 parameter", recordComponents.size() == 1);
+			SingleVariableDeclaration recordComp = (SingleVariableDeclaration)recordComponents.get(0);
+			// remove annotation
+			ListRewrite listRewrite= rewrite.getListRewrite(recordComp, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
+			listRewrite.remove((MarkerAnnotation)(recordComp.modifiers().get(0)), null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("import java.lang.annotation.Target;\n");
+		buf.append("record X(int lo) {\n");
+		buf.append("	public int lo() {\n");
+		buf.append("		return this.lo;\\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		buf.append("@Target({ElementType.FIELD})\n");
+		buf.append("@interface MyAnnot {}");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_026() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("import java.lang.annotation.Target;\n");
+		buf.append("record X(@MyAnnot int lo) {\n");
+		buf.append("	public int lo() {\n");
+		buf.append("		return this.lo;\\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		buf.append("@Target({ElementType.FIELD})\n");
+		buf.append("@interface MyAnnot {}");
+		buf.append("@Target({ElementType.RECORD_COMPONENT})\n");
+		buf.append("@interface MyAnnotNew {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "X");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		AST ast= astRoot.getAST();
+		{
+			List recordComponents = record.recordComponents();
+			assertTrue("must be 1 parameter", recordComponents.size() == 1);
+			SingleVariableDeclaration recordComp = (SingleVariableDeclaration)recordComponents.get(0);
+			// modify annotation
+			ListRewrite listRewrite= rewrite.getListRewrite(recordComp, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
+			MarkerAnnotation annot= ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("MyAnnotNew"));
+			listRewrite.replace((MarkerAnnotation)(recordComp.modifiers().get(0)), annot, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("import java.lang.annotation.Target;\n");
+		buf.append("record X(@MyAnnotNew int lo) {\n");
+		buf.append("	public int lo() {\n");
+		buf.append("		return this.lo;\\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		buf.append("@Target({ElementType.FIELD})\n");
+		buf.append("@interface MyAnnot {}");
+		buf.append("@Target({ElementType.RECORD_COMPONENT})\n");
+		buf.append("@interface MyAnnotNew {}");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecord_027() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("import java.lang.annotation.Target;\n");
+		buf.append("record X(int lo) {\n");
+		buf.append("	public int lo() {\n");
+		buf.append("		return this.lo;\\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		buf.append("@Target({ElementType.RECORD_COMPONENT})\n");
+		buf.append("@interface MyAnnot {}");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		AbstractTypeDeclaration type= findAbstractTypeDeclaration(astRoot, "X");
+		assertTrue("Not a record", type instanceof RecordDeclaration);
+		RecordDeclaration record = (RecordDeclaration)type;
+		AST ast= astRoot.getAST();
+		{
+			List recordComponents = record.recordComponents();
+			assertTrue("must be 1 parameter", recordComponents.size() == 1);
+			SingleVariableDeclaration recordComp = (SingleVariableDeclaration)recordComponents.get(0);
+			// add annotation
+			ListRewrite listRewrite= rewrite.getListRewrite(recordComp, SingleVariableDeclaration.MODIFIERS2_PROPERTY);
+			MarkerAnnotation annot= ast.newMarkerAnnotation();
+			annot.setTypeName(ast.newSimpleName("MyAnnot"));
+			listRewrite.insertFirst(annot, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("import java.lang.annotation.ElementType;\n");
+		buf.append("import java.lang.annotation.Target;\n");
+		buf.append("record X(@MyAnnot int lo) {\n");
+		buf.append("	public int lo() {\n");
+		buf.append("		return this.lo;\\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		buf.append("@Target({ElementType.RECORD_COMPONENT})\n");
+		buf.append("@interface MyAnnot {}");
 
 		assertEqualString(preview, buf.toString());
 

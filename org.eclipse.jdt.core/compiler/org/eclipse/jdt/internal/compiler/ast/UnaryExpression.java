@@ -224,7 +224,22 @@ public class UnaryExpression extends OperatorExpression {
 		output.append(operatorToString()).append(' ');
 		return this.expression.printExpression(0, output);
 	}
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.expression.collectPatternVariablesToScope(variables, scope);
+		if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+			variables = this.expression.getPatternVariablesWhenTrue();
+			this.addPatternVariablesWhenFalse(variables);
 
+			variables = this.expression.getPatternVariablesWhenFalse();
+			this.addPatternVariablesWhenTrue(variables);
+		} else {
+			variables = this.expression.getPatternVariablesWhenTrue();
+			this.addPatternVariablesWhenTrue(variables);
+			variables = this.expression.getPatternVariablesWhenFalse();
+			this.addPatternVariablesWhenFalse(variables);
+		}
+	}
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		boolean expressionIsCast;

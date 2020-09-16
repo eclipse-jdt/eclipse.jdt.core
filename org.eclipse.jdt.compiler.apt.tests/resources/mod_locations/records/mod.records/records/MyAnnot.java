@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.RECORD_COMPONENT, ElementType.TYPE})
+@Target({ElementType.RECORD_COMPONENT, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @interface MyAnnot {}
 

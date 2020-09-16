@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-@SuppressWarnings("rawtypes")
 public class RecordComponent extends AbstractVariableDeclaration {
 
 	public RecordComponentBinding binding;
@@ -80,7 +79,7 @@ public class RecordComponent extends AbstractVariableDeclaration {
 		return RECORD_COMPONENT;
 	}
 
-	public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+	public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 		this.traverse(collector, (BlockScope) null);
 	}

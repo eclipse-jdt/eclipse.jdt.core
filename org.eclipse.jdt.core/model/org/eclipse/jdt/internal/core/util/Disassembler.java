@@ -1023,6 +1023,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		}
 
 		INestMembersAttribute nestMembersAttribute = classFileReader.getNestMembersAttribute();
+		IPermittedSubclassesAttribute permittedSubclassesAttribute = classFileReader.getPermittedSubclassesAttribute();
 		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
@@ -1184,6 +1185,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			if (nestMembersAttribute != null) {
 				remainingAttributesLength--;
 			}
+			if (permittedSubclassesAttribute != null) {
+				remainingAttributesLength--;
+			}
 			if (innerClassesAttribute != null
 					|| enclosingMethodAttribute != null
 					|| nestHostAttribute != null
@@ -1191,6 +1195,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					|| bootstrapMethods != null
 					|| moduleAttribute != null
 					|| recordAttribute != null
+					|| permittedSubclassesAttribute != null
 					|| remainingAttributesLength != 0) {
 				// this test is to ensure we don't insert more than one line separator
 				if (buffer.lastIndexOf(lineSeparator) != buffer.length() - lineSeparator.length()) {
@@ -1215,6 +1220,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			if (bootstrapMethods != null) {
 				disassemble((IBootstrapMethodsAttribute) bootstrapMethods, buffer, lineSeparator, 0, classFileReader.getConstantPool());
 			}
+			if (permittedSubclassesAttribute != null) {
+				disassemble(permittedSubclassesAttribute, buffer, lineSeparator, 0);
+			}
 			if (checkMode(mode, SYSTEM)) {
 				if (runtimeVisibleAnnotationsAttribute != null) {
 					disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, 0, mode);
@@ -1235,6 +1243,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								&& attribute != nestHostAttribute
 								&& attribute != nestMembersAttribute
 								&& attribute != recordAttribute
+								&& attribute != permittedSubclassesAttribute
 								&& attribute != sourceAttribute
 								&& attribute != signatureAttribute
 								&& attribute != enclosingMethodAttribute
@@ -1475,6 +1484,32 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				buffer
 					.append(Messages.disassembler_space)
 					.append(entry.getNestMemberName());
+			}
+		}
+	}
+	private void disassemble(IPermittedSubclassesAttribute permittedSubclassesAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		writeNewLine(buffer, lineSeparator, tabNumber); // additional line
+		buffer.append(Messages.disassembler_permittedsubclasses);
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		IPermittedSubclassesAttributeEntry[] entries = permittedSubclassesAttribute.getPermittedSubclassAttributesEntries();
+		int length = entries.length;
+		int permittedSubclassesIndex;
+		IPermittedSubclassesAttributeEntry entry;
+		for (int i = 0; i < length; i++) {
+			if (i != 0) {
+				buffer.append(Messages.disassembler_comma);
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			}
+			entry = entries[i];
+			permittedSubclassesIndex = entry.gePermittedSubclassIndex();
+			buffer
+				.append(Messages.disassembler_constantpoolindex)
+				.append(permittedSubclassesIndex);
+			if (permittedSubclassesIndex != 0) {
+				buffer
+					.append(Messages.disassembler_space)
+					.append(entry.getPermittedSubclassName());
 			}
 		}
 	}

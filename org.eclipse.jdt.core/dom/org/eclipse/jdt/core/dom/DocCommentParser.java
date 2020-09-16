@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2016 IBM Corporation and others.
+ * Copyright (c) 2004, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -327,6 +327,98 @@ class DocCommentParser extends AbstractCommentParser {
 		return typeRef;
 	}
 
+	private ModuleQualifiedName createModuleReference(int moduleRefTokenCount) {
+		String[] identifiers = new String[moduleRefTokenCount];
+		for (int i = 0; i < moduleRefTokenCount; i++) {
+			identifiers[i] = new String(this.identifierStack[i]);
+		}
+		ModuleQualifiedName moduleRef = new ModuleQualifiedName(this.ast);
+
+		ASTNode typeRef = null;
+		typeRef = this.ast.internalNewName(identifiers);
+		int start = (int) (this.identifierPositionStack[0] >>> 32);
+		if (moduleRefTokenCount > 1) {
+			Name name = (Name)typeRef;
+			int nameIndex = moduleRefTokenCount;
+			for (int i=moduleRefTokenCount-1; i>0; i--, nameIndex--) {
+				int s = (int) (this.identifierPositionStack[i] >>> 32);
+				int e = (int) this.identifierPositionStack[i];
+				name.index = nameIndex;
+				SimpleName simpleName = ((QualifiedName)name).getName();
+				simpleName.index = nameIndex;
+				simpleName.setSourceRange(s, e-s+1);
+				name.setSourceRange(start, e-start+1);
+				name =  ((QualifiedName)name).getQualifier();
+			}
+			int end = (int) this.identifierPositionStack[0];
+			name.setSourceRange(start, end-start+1);
+			name.index = nameIndex;
+		} else {
+			int end = (int) this.identifierPositionStack[0];
+			typeRef.setSourceRange(start, end-start+1);
+		}
+		moduleRef.setModuleQualifier((Name)typeRef);
+		moduleRef.setName(null);
+		moduleRef.setSourceRange(typeRef.getStartPosition(), typeRef.getLength()+1);
+		return moduleRef;
+	}
+
+	@Override
+	protected Object createModuleTypeReference(int primitiveToken, int  moduleRefTokenCount) {
+		int size = this.identifierLengthStack[this.identifierLengthPtr];
+		ModuleQualifiedName moduleRef= null;
+		Name typeRef= null;
+		if (size == moduleRefTokenCount) {
+			moduleRef= createModuleReference(moduleRefTokenCount);
+			this.lastIdentifierEndPosition++;
+		} else {
+			String[] moduleIdentifiers = new String[moduleRefTokenCount];
+			String[] identifiers = new String[size- moduleRefTokenCount];
+			int pos = this.identifierPtr - size + 1;
+			for (int i = 0; i < size; i++) {
+				if (i < moduleRefTokenCount) {
+					moduleIdentifiers[i] =  new String(this.identifierStack[pos+i]);
+				} else {
+					identifiers[i-moduleRefTokenCount] = new String(this.identifierStack[pos+i]);
+				}
+			}
+			moduleRef= createModuleReference(moduleRefTokenCount);
+			pos = this.identifierPtr+moduleRefTokenCount - size + 1;
+
+			if (primitiveToken == -1) {
+				typeRef = this.ast.internalNewName(identifiers);
+				// Update ref for whole name
+				int start = (int) (this.identifierPositionStack[pos] >>> 32);
+//				int end = (int) this.identifierPositionStack[this.identifierPtr];
+//				typeRef.setSourceRange(start, end-start+1);
+				// Update references of each simple name
+				if (size-moduleRefTokenCount > 1) {
+					Name name = typeRef;
+					int nameIndex = size-moduleRefTokenCount;
+					for (int i=this.identifierPtr; i>pos; i--, nameIndex--) {
+						int s = (int) (this.identifierPositionStack[i] >>> 32);
+						int e = (int) this.identifierPositionStack[i];
+						name.index = nameIndex;
+						SimpleName simpleName = ((QualifiedName)name).getName();
+						simpleName.index = nameIndex;
+						simpleName.setSourceRange(s, e-s+1);
+						name.setSourceRange(start, e-start+1);
+						name =  ((QualifiedName)name).getQualifier();
+					}
+					int end = (int) this.identifierPositionStack[pos];
+					name.setSourceRange(start, end-start+1);
+					name.index = nameIndex;
+				} else {
+					int end = (int) this.identifierPositionStack[pos];
+					typeRef.setSourceRange(start, end-start+1);
+				}
+				moduleRef.setName(typeRef);
+				moduleRef.setSourceRange(moduleRef.getStartPosition(), moduleRef.getLength() + typeRef.getLength());
+			}
+		}
+		return moduleRef;
+	}
+
 	@Override
 	protected boolean parseIdentifierTag(boolean report) {
 		if (super.parseIdentifierTag(report)) {
@@ -473,7 +565,7 @@ class DocCommentParser extends AbstractCommentParser {
 								// Cannot have @see inside inline comment
 								valid = false;
 							} else {
-								valid = parseReference();
+								valid = parseReference(true);
 							}
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;
@@ -491,7 +583,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 						if (this.tagValue != NO_TAG_VALUE && this.tagValue != TAG_LITERAL_VALUE)  {
 							if (this.inlineTagStarted) {
-								valid = parseReference();
+								valid = parseReference(true);
 							} else {
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53290
 								// Cannot have @link outside inline comment

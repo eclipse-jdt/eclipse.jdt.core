@@ -988,6 +988,14 @@ public abstract class ASTNode {
 
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>ModuleQualifiedName</code>.
+	 * @see ModuleQualifiedName
+	 * @since 3.23
+	 */
+	public static final int MODULE_QUALIFIED_NAME = 103;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -2164,6 +2172,22 @@ public abstract class ASTNode {
 		}
 	}
 
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13 or JSL14 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS15
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS15
+	 * @since 3.22
+	 */
+	final void unsupportedBelow15() {
+		if (this.ast.apiLevel < AST.JLS15_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS15 and above"); //$NON-NLS-1$
+		}
+	}
+
 
 	/**
      * Checks that this AST operation is not used when
@@ -2250,7 +2274,7 @@ public abstract class ASTNode {
 
 	/**
  	 * Checks that this AST operation is only used when
-     * building JLS13 level ASTs.
+     * building JLS14 level ASTs.
      * <p>
      * Use this method to prevent access to new properties available only in JLS14.
      * </p>
@@ -2263,6 +2287,23 @@ public abstract class ASTNode {
 			throw new UnsupportedOperationException("Operation only supported in JLS14 AST"); //$NON-NLS-1$
 		}
 	}
+
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS15 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS15.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS15
+	 * @since 3.22
+	 */
+	final void supportedOnlyIn15() {
+		if (this.ast.apiLevel != AST.JLS15_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS15 AST"); //$NON-NLS-1$
+		}
+	}
+
 	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>

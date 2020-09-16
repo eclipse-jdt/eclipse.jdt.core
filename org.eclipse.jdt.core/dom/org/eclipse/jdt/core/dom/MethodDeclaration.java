@@ -729,12 +729,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *    and <code>false</code> if this is a method declaration
 	 * @since 3.22
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @exception UnsupportedOperationException if this operation is not used in JLS14
+	 * @exception UnsupportedOperationException if this operation is not used in JLS15
 	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false
 	 */
 
 	public boolean isCompactConstructor() {
-		supportedOnlyIn14();
+		supportedOnlyIn15();
 		unsupportedWithoutPreviewError();
 		return this.isCompactConstructor;
 	}

@@ -8,7 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
@@ -67,6 +66,8 @@ public class MethodScope extends BlockScope {
 	// remember suppressed warning re missing 'default:' to give hints on possibly related flow problems
 	public boolean hasMissingSwitchDefault; // TODO(stephan): combine flags to a bitset?
 
+	public boolean isCompactConstructorScope = false;
+
 	static {
 		if (Boolean.getBoolean("jdt.flow.test.extra")) { //$NON-NLS-1$
 			baseAnalysisIndex = 64;
@@ -115,7 +116,9 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 	if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 		problemReporter().duplicateModifierForMethod(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
 
-	if ((((ConstructorDeclaration) this.referenceContext).bits & ASTNode.IsDefaultConstructor) != 0) {
+	int astNodeBits = ((ConstructorDeclaration) this.referenceContext).bits;
+	if ((astNodeBits & ASTNode.IsDefaultConstructor) != 0
+			||((astNodeBits & ASTNode.IsImplicit) != 0 && (astNodeBits & ASTNode.IsCanonicalConstructor) != 0))  {
 		// certain flags are propagated from declaring class onto constructor
 		final int DECLARING_FLAGS = ClassFileConstants.AccEnum|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
 		final int VISIBILITY_FLAGS = ClassFileConstants.AccPrivate|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
@@ -152,10 +155,6 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 	} else if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccStrictfp) != 0) {
 		// must check the parse node explicitly
 		problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) this.referenceContext);
-	} else if (this.referenceContext instanceof CompactConstructorDeclaration) {
-		if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccPublic) == 0) {
-			problemReporter().recordCanonicalConstructorNotPublic((AbstractMethodDeclaration) this.referenceContext);
-		}
 	}
 
 	// check for incompatible modifiers in the visibility bits, isolate the visibility bits

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -227,10 +227,22 @@ public StringBuffer printStatement(int indent, StringBuffer output) {
 
 @Override
 public void resolve(BlockScope scope) {
-	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-	this.condition.computeConversion(scope, type, type);
-	if (this.action != null)
-		this.action.resolve(scope);
+	if (this.condition.containsPatternVariable()) {
+		this.condition.collectPatternVariablesToScope(null, scope);
+		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
+		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+		this.condition.computeConversion(scope, type, type);
+		if (this.action != null) {
+			this.action.resolve(scope);
+			this.action.injectPatternVariablesIfApplicable(patternVariablesInFalseScope, scope,
+					(statement) -> { return !statement.breaksOut(null);});
+		}
+	} else {
+		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+		this.condition.computeConversion(scope, type, type);
+		if (this.action != null)
+			this.action.resolve(scope);
+	}
 }
 
 @Override

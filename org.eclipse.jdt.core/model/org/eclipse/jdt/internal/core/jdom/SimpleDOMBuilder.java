@@ -209,11 +209,6 @@ protected SourceElementParser getParser(Map<String, String> settings) {
 }
 
 @Override
-public void enterRecordComponent(RecordComponentInfo recordComponentInfo) {
-	// TODO Auto-generated method stub
-}
-
-@Override
 public void exitRecordComponent(int declarationEnd, int declarationSourceEnd) {
 	// TODO Auto-generated method stub
 }

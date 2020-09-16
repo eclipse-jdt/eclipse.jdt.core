@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -67,6 +68,8 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private InnerClassInfo[] innerInfos;
 	private char[][] interfaceNames;
 	private int interfacesCount;
+	private char[][] permittedSubtypesNames;
+	private int permittedSubtypesCount;
 	private MethodInfo[] methods;
 	private int methodsCount;
 	private char[] signature;
@@ -84,7 +87,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[][] nestMembers;
 	private boolean isRecord;
 	private int recordComponentsCount;
-	private ComponentInfo[] recordComponents;
+	private RecordComponentInfo[] recordComponents;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -96,6 +99,7 @@ private static String printTypeModifiers(int modifiers) {
 	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
 	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	if ((modifiers & ExtraCompilerModifiers.AccSealed) != 0) print.print("sealed "); //$NON-NLS-1$
 	print.flush();
 	return out.toString();
 }
@@ -470,6 +474,23 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						}
 					}
 					break;
+				case 'P' :
+					if (CharOperation.equals(attributeName, AttributeNamesConstants.PermittedSubclasses)) {
+						int offset = readOffset + 6;
+						this.permittedSubtypesCount = u2At(offset);
+						if (this.permittedSubtypesCount != 0) {
+							this.accessFlags |= ExtraCompilerModifiers.AccSealed;
+							offset += 2;
+							this.permittedSubtypesNames = new char[this.permittedSubtypesCount][];
+							for (int j = 0; j < this.permittedSubtypesCount; j++) {
+								utf8Offset =
+									this.constantPoolOffsets[u2At(this.constantPoolOffsets[u2At(offset)] + 1)];
+		 						this.permittedSubtypesNames[j] = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		 						offset += 2;
+							}
+						}
+					}
+					break;
 			}
 			readOffset += (6 + u4At(readOffset + 2));
 		}
@@ -497,9 +518,9 @@ private void decodeRecords(int readOffset, char[] attributeName) {
 		this.recordComponentsCount = u2At(offset);
 		if (this.recordComponentsCount != 0) {
 			offset += 2;
-			this.recordComponents = new ComponentInfo[this.recordComponentsCount];
+			this.recordComponents = new RecordComponentInfo[this.recordComponentsCount];
 			for (int j = 0; j < this.recordComponentsCount; j++) {
-				ComponentInfo component = ComponentInfo.createComponent(this.reference, this.constantPoolOffsets, offset, this.version);
+				RecordComponentInfo component = RecordComponentInfo.createComponent(this.reference, this.constantPoolOffsets, offset, this.version);
 				this.recordComponents[j] = component;
 				offset += component.sizeInBytes();
 			}
@@ -733,6 +754,11 @@ public char[][] getInterfaceNames() {
 }
 
 @Override
+public char[][] getPermittedSubtypeNames() {
+	return this.permittedSubtypesNames;
+}
+
+@Override
 public IBinaryNestedType[] getMemberTypes() {
 	// we might have some member types of the current type
 	if (this.innerInfos == null) return null;
@@ -858,6 +884,8 @@ public int getModifiers() {
 	} else {
 		modifiers = this.accessFlags;
 	}
+	if (this.permittedSubtypesCount > 0)
+		modifiers |= ExtraCompilerModifiers.AccSealed;
 	return modifiers;
 }
 
@@ -1036,6 +1064,17 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 				return true;
 			for (int i = 0, max = this.interfacesCount; i < max; i++)
 				if (!CharOperation.equals(this.interfaceNames[i], newInterfacesNames[i]))
+					return true;
+		}
+
+		// permitted sub-types
+		char[][] newPermittedSubtypeNames = newClassFile.getPermittedSubtypeNames();
+		if (this.permittedSubtypesNames != newPermittedSubtypeNames) {
+			int newPermittedSubtypesLength = newPermittedSubtypeNames == null ? 0 : newPermittedSubtypeNames.length;
+			if (newPermittedSubtypesLength != this.permittedSubtypesCount)
+				return true;
+			for (int i = 0, max = this.permittedSubtypesCount; i < max; i++)
+				if (!CharOperation.equals(this.permittedSubtypesNames[i], newPermittedSubtypeNames[i]))
 					return true;
 		}
 
@@ -1412,7 +1451,13 @@ public String toString() {
 	return out.toString();
 }
 
+@Override
 public boolean isRecord() {
 	return this.isRecord;
+}
+
+@Override
+public IRecordComponent[] getRecordComponents() {
+	return this.recordComponents;
 }
 }

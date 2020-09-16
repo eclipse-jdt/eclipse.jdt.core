@@ -589,6 +589,21 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 	}
 	return strings;
 }
+@Override
+public String[] getPermittedSubtypeNames() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getElementInfo();
+	char[][] names= info.getPermittedSubtypeNames();
+	int length;
+	if (names == null || (length = names.length) == 0) {
+		return CharOperation.NO_STRINGS;
+	}
+	names= ClassFile.translatedNames(names);
+	String[] strings= new String[length];
+	for (int i= 0; i < length; i++) {
+		strings[i]= new String(names[i]);
+	}
+	return strings;
+}
 
 /**
  * @see IType#getSuperInterfaceTypeSignatures()
@@ -742,6 +757,16 @@ public boolean isEnum() throws JavaModelException {
 public boolean isRecord() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.RECORD_DECL;
+}
+/**
+ * @see IType#isSealed()
+ * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+ */
+@Override
+public boolean isSealed() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getElementInfo();
+	char[][] names = info.getPermittedSubtypeNames();
+	return (names != null && names.length > 0);
 }
 
 @Override

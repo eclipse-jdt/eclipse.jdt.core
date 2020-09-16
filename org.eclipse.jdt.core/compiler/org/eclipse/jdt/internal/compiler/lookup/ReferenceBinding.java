@@ -1509,6 +1509,19 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 			return false;
 	}
 }
+/**
+ * Answer true if the receiver has non-sealed modifier
+ */
+public final boolean isNonSealed() {
+	return (this.modifiers & ExtraCompilerModifiers.AccNonSealed) != 0;
+}
+
+/**
+ * Answer true if the receiver has sealed modifier
+ */
+public boolean isSealed() {
+	return (this.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
+}
 
 @Override
 public boolean isSubtypeOf(TypeBinding other, boolean simulatingBugJDK8026527) {
@@ -2040,6 +2053,11 @@ public ReferenceBinding superclass() {
 }
 
 @Override
+public ReferenceBinding[] permittedTypes() {
+	return Binding.NO_PERMITTEDTYPES;
+}
+
+@Override
 public ReferenceBinding[] superInterfaces() {
 	return Binding.NO_SUPERINTERFACES;
 }
@@ -2402,6 +2420,8 @@ public ModuleBinding module() {
 public boolean hasEnclosingInstanceContext() {
 	if (isMemberType() && !isStatic())
 		return true;
+	if (isLocalType() && isStatic())
+		return false;
 	MethodBinding enclosingMethod = enclosingMethod();
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();

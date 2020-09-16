@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3776,6 +3776,10 @@ public void test123() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155255 - variation
 public void test124() {
+	String specVersion = System.getProperty("java.specification.version");
+	isJRE15Plus =  Integer.valueOf(specVersion) >= Integer.valueOf(CompilerOptions.VERSION_15);
+	String bounds = isJRE15Plus ? "Object&Serializable&Comparable<?>&Constable" : "Object&Serializable&Comparable<?>";
+
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -3802,7 +3806,7 @@ public void test124() {
 						"1. ERROR in X.java (at line 3)\n" +
 						"	boolean x = false ? \"\" : false;\n" +
 						"	            ^^^^^^^^^^^^^^^^^^\n" +
-						"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to boolean\n" +
+						"Type mismatch: cannot convert from "+ bounds +" to boolean\n" +
 						"----------\n" +
 						"2. WARNING in X.java (at line 3)\n" +
 						"	boolean x = false ? \"\" : false;\n" +

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -114,6 +116,11 @@ private void acceptJavadocTypeReference(Expression expression) {
 	} else if (expression instanceof JavadocQualifiedTypeReference) {
 		JavadocQualifiedTypeReference qualifiedRef = (JavadocQualifiedTypeReference) expression;
 		this.requestor.acceptTypeReference(qualifiedRef.tokens, qualifiedRef.sourceStart, qualifiedRef.sourceEnd);
+	} else if (expression instanceof JavadocModuleReference) {
+		Expression exp = ((JavadocModuleReference) expression).getTypeReference();
+		if (exp != null) {
+			acceptJavadocTypeReference(exp);
+		}
 	}
 }
 public void addUnknownRef(NameReference nameRef) {
@@ -1032,6 +1039,73 @@ protected QualifiedNameReference newQualifiedNameReference(char[][] tokens, long
 protected SingleNameReference newSingleNameReference(char[] source, long positions) {
 	return new SingleNameReference(source, positions);
 }
+private class DummyTypeReference extends TypeReference {
+	char[] token;
+	DummyTypeReference(char[] name) {
+		this.token = name;
+	}
+	@Override
+	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions,
+			Annotation[][] additionalAnnotations, boolean isVarargs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public char[] getLastToken() {
+		return this.token;
+	}
+	@Override
+	protected TypeBinding getTypeBinding(Scope scope) {
+		return null;
+	}
+	@Override
+	public char[][] getTypeName() {
+		return new char[][] {this.token};
+	}
+	@Override
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void traverse(ASTVisitor visitor, ClassScope scope) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		return output.append(this.token);
+	}
+	@Override
+	public String toString() {
+		return new String(this.token);
+	}
+}
+private void processImplicitPermittedTypes(TypeDeclaration typeDecl, TypeDeclaration[] allTypes) {
+	if (typeDecl.permittedTypes == null &&
+			(typeDecl.modifiers & ExtraCompilerModifiers.AccSealed) != 0) {
+		List<TypeReference> list = new ArrayList();
+		for (TypeDeclaration type : allTypes) {
+			if (type != typeDecl) {
+				char[][] qName = type.superclass == null ? null : type.superclass.getTypeName();
+				if (qName != null &&
+						CharOperation.equals(qName[qName.length -1], typeDecl.name)) {
+					list.add(new DummyTypeReference(type.name));
+				}
+				if (type.superInterfaces != null) {
+					for (TypeReference ref : type.superInterfaces) {
+						qName = ref.getTypeName();
+						if (CharOperation.equals(qName[qName.length -1], typeDecl.name)) {
+							list.add(new DummyTypeReference(type.name));
+							break;
+						}
+					}
+				}
+			}
+		}
+		typeDecl.permittedTypes = list.toArray(new TypeReference[list.size()]);
+	}
+}
 public CompilationUnitDeclaration parseCompilationUnit(
 	ICompilationUnit unit,
 	boolean fullParse,
@@ -1046,6 +1120,12 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		this.reportReferenceInfo = fullParse;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		parsedUnit = parse(unit, compilationUnitResult);
+		TypeDeclaration[] types = parsedUnit.types;
+		if (types != null) {
+			for (TypeDeclaration typeDecl : types) {
+				processImplicitPermittedTypes(typeDecl, types);
+			}
+		}
 		if (pm != null && pm.isCanceled())
 			throw new OperationCanceledException(Messages.operation_cancelled);
 		if (this.scanner.recordLineSeparator) {

@@ -80,7 +80,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 
-	/*package*/ static final int JLS_LATEST = AST.JLS14;
+	/*package*/ static final int JLS_LATEST = AST.JLS15;
 
 	static class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;
@@ -5972,24 +5972,24 @@ public void testBug534865() throws CoreException, IOException {
 	}
 }
 public void testBug562637() throws CoreException, IOException, InterruptedException {
-	if (!isJRE14) return;
-	IJavaProject project14 = null;
+	if (!isJRE15) return;
+	IJavaProject project15 = null;
 	try {
-		project14 = createJava14Project("Reconciler14", new String[] {"src"});
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
-		project14.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		project14.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+		project15 = createJava14Project("Reconciler_15", new String[] {"src"});
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 
 		String[] sources = new String[2];
 		char[][] sourceAsArray = new char[2][];
-		createFolder("/Reconciler14/src/p");
-		createFolder("/Reconciler14/src/q");
+		createFolder("/Reconciler_15/src/p");
+		createFolder("/Reconciler_15/src/q");
 		sources[0] = "package p;\n" +
 				"public record X(int a, int b) {\n" +
 				"	public X {\n" +
-				"		this.a = a * 2;\n" +
+				"		a = a * 2;\n" +
 				"	}\n" +
 				"	public  void foo() {}\n" +
 				"}\n" +
@@ -6001,7 +6001,7 @@ public void testBug562637() throws CoreException, IOException, InterruptedExcept
 				"	}\n" +
 				"}";
 		createFile(
-			"/Reconciler14/src/p/X.java",
+			"/Reconciler_15/src/p/X.java",
 			sources[0]
 		);
 		sourceAsArray[0] = sources[0].toCharArray();
@@ -6018,7 +6018,7 @@ public void testBug562637() throws CoreException, IOException, InterruptedExcept
 				"} ";
 
 		createFile(
-			"/Reconciler14/src/q/Y.java",
+			"/Reconciler_15/src/q/Y.java",
 			sources[1]
 		);
 		sourceAsArray[1] = sources[1].toCharArray();
@@ -6026,17 +6026,63 @@ public void testBug562637() throws CoreException, IOException, InterruptedExcept
 		this.workingCopies = new ICompilationUnit[2];
 			// Get first working copy and verify that there's no error
 		this.problemRequestor.initialize(sourceAsArray[0]);
-		this.workingCopies[0] = getCompilationUnit("/Reconciler14/src/p/X.java").getWorkingCopy(this.wcOwner, null);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler_15/src/p/X.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourceAsArray[0], this.workingCopies[0]);
 
 		// Get second working copy and verify that there's no error
 		this.problemRequestor.initialize(sourceAsArray[1]);
-		this.workingCopies[1] = getCompilationUnit("/Reconciler14/src/q/Y.java").getWorkingCopy(this.wcOwner, null);
+		this.workingCopies[1] = getCompilationUnit("/Reconciler_15/src/q/Y.java").getWorkingCopy(this.wcOwner, null);
 		assertNoProblem(sourceAsArray[1], this.workingCopies[1]);
 
 	} finally {
-		if (project14 != null)
-			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
+public void testBug564613_001() throws CoreException, IOException, InterruptedException {
+	if (!isJRE15) return;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJava15Project("Reconciler_15", new String[] {"src"});
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project15.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+		String[] sources = new String[2];
+		char[][] sourceAsArray = new char[2][];
+		createFolder("/Reconciler_15/src/X");
+		sources[0] =
+				"public sealed class X  permits Y Z {} \n" +
+				"final class Y extends X{} \n" +
+				"final class Z extends X{}";
+		createFile(
+			"/Reconciler_15/src/X.java",
+			sources[0]
+		);
+		sourceAsArray[0] = sources[0].toCharArray();
+		waitUntilIndexesReady();
+			// Get first working copy and verify that there's no error
+		this.problemRequestor.initialize(sourceAsArray[0]);
+		this.workingCopy = getCompilationUnit("/Reconciler_15/src/X.java").getWorkingCopy(this.wcOwner, null);
+		try {
+			this.workingCopy.makeConsistent(null);
+			assertProblemsInclude("Unexpected Errors",
+					"----------\n" +
+					"1. ERROR in /Reconciler_15/src/X.java (at line 1)\n" +
+					"	public sealed class X  permits Y Z {} \n" +
+					"	                       ^^^^^^^\n" +
+					"Syntax error on token \"permits\", { expected\n" +
+					"----------\n");
+		} catch (ArrayIndexOutOfBoundsException e) {
+			assertFalse("Failure: AIOOBE thrown", true);
+		}
+
+
+	} finally {
+		if (project15 != null)
+			deleteProject(project15);
 	}
 }
 }

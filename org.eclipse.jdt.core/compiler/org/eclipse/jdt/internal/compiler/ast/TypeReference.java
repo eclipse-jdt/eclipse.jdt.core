@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -69,7 +69,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({})
 public abstract class TypeReference extends Expression {
 	public static final TypeReference[] NO_TYPE_ARGUMENTS = new TypeReference[0];
 
@@ -91,7 +91,7 @@ public abstract class TypeReference extends Expression {
 	}
 
 static class AnnotationCollector extends ASTVisitor {
-	List annotationContexts;
+	List<AnnotationContext> annotationContexts;
 	Expression typeReference;
 	int targetType;
 	int info = 0;
@@ -106,7 +106,7 @@ static class AnnotationCollector extends ASTVisitor {
 			TypeParameter typeParameter,
 			int targetType,
 			int typeParameterIndex,
-			List annotationContexts) {
+			List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = typeParameter.type;
 		this.targetType = targetType;
@@ -117,7 +117,7 @@ static class AnnotationCollector extends ASTVisitor {
 			LocalDeclaration localDeclaration,
 			int targetType,
 			LocalVariableBinding localVariable,
-			List annotationContexts) {
+			List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = localDeclaration.type;
 		this.targetType = targetType;
@@ -128,7 +128,7 @@ static class AnnotationCollector extends ASTVisitor {
 			LocalDeclaration localDeclaration,
 			int targetType,
 			int parameterIndex,
-			List annotationContexts) {
+			List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = localDeclaration.type;
 		this.targetType = targetType;
@@ -138,7 +138,7 @@ static class AnnotationCollector extends ASTVisitor {
 	public AnnotationCollector(
 			TypeReference typeReference,
 			int targetType,
-			List annotationContexts) {
+			List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = typeReference;
 		this.targetType = targetType;
@@ -147,7 +147,7 @@ static class AnnotationCollector extends ASTVisitor {
 			Expression typeReference,
 			int targetType,
 			int info,
-			List annotationContexts) {
+			List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = typeReference;
 		this.info = info;
@@ -158,7 +158,7 @@ static class AnnotationCollector extends ASTVisitor {
 			int targetType,
 			int info,
 			int typeIndex,
-			List annotationContexts) {
+			List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = typeReference;
 		this.info = info;
@@ -169,7 +169,7 @@ static class AnnotationCollector extends ASTVisitor {
 			TypeReference typeReference,
 			int targetType,
 			int info,
-			List annotationContexts,
+			List<AnnotationContext> annotationContexts,
 			Annotation[][] annotationsOnDimensions,
 			int dimensions) {
 		this.annotationContexts = annotationContexts;
@@ -185,7 +185,7 @@ static class AnnotationCollector extends ASTVisitor {
 		this.dimensions = dimensions;
 	}
 
-	public AnnotationCollector(RecordComponent recordComponent, int targetType, List annotationContexts) {
+	public AnnotationCollector(RecordComponent recordComponent, int targetType, List<AnnotationContext> annotationContexts) {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = recordComponent.type;
 		this.targetType = targetType;
@@ -425,10 +425,10 @@ public int extraDimensions() {
 }
 
 public AnnotationContext[] getAllAnnotationContexts(int targetType) {
-	List allAnnotationContexts = new ArrayList();
+	List<AnnotationContext> allAnnotationContexts = new ArrayList<>();
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 	this.traverse(collector, (BlockScope) null);
-	return (AnnotationContext[]) allAnnotationContexts.toArray(new AnnotationContext[allAnnotationContexts.size()]);
+	return allAnnotationContexts.toArray(new AnnotationContext[allAnnotationContexts.size()]);
 }
 /**
  * info can be either a type index (superclass/superinterfaces) or a pc into the bytecode
@@ -436,11 +436,11 @@ public AnnotationContext[] getAllAnnotationContexts(int targetType) {
  * @param info
  * @param allAnnotationContexts
  */
-public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts) {
+public void getAllAnnotationContexts(int targetType, int info, List<AnnotationContext> allAnnotationContexts) {
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts);
 	this.traverse(collector, (BlockScope) null);
 }
-public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts, Annotation [] se7Annotations) {
+public void getAllAnnotationContexts(int targetType, int info, List<AnnotationContext> allAnnotationContexts, Annotation [] se7Annotations) {
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts);
 	for (int i = 0, length = se7Annotations == null ? 0 : se7Annotations.length; i < length; i++) {
 		Annotation annotation = se7Annotations[i];
@@ -451,7 +451,7 @@ public void getAllAnnotationContexts(int targetType, int info, List allAnnotatio
 /**
  * info can be either a type index (superclass/superinterfaces) or a pc into the bytecode
  */
-public void getAllAnnotationContexts(int targetType, int info, List allAnnotationContexts, Annotation[][] annotationsOnDimensions, int dimensions) {
+public void getAllAnnotationContexts(int targetType, int info, List<AnnotationContext> allAnnotationContexts, Annotation[][] annotationsOnDimensions, int dimensions) {
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts, annotationsOnDimensions, dimensions);
 	this.traverse(collector, (BlockScope) null);
 	if (annotationsOnDimensions != null) {
@@ -465,11 +465,11 @@ public void getAllAnnotationContexts(int targetType, int info, List allAnnotatio
 		}
 	}
 }
-public void getAllAnnotationContexts(int targetType, int info, int typeIndex, List allAnnotationContexts) {
+public void getAllAnnotationContexts(int targetType, int info, int typeIndex, List<AnnotationContext> allAnnotationContexts) {
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, typeIndex, allAnnotationContexts);
 	this.traverse(collector, (BlockScope) null);
 }
-public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
+public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 	this.traverse(collector, (BlockScope) null);
 }
@@ -532,17 +532,16 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 			}
 		}
 	}
-	boolean hasError;
+	boolean hasError = false;
 	TypeBinding type = this.resolvedType = getTypeBinding(scope);
 	if (type == null) {
 		return null; // detected cycle while resolving hierarchy
 	} else if ((hasError = !type.isValidBinding()) == true) {
 		if (this.isTypeNameVar(scope)) {
 			reportVarIsNotAllowedHere(scope);
-		} else {
+		} else if (!scope.problemReporter().validateRestrictedKeywords(getLastToken(), this)) {
 			reportInvalidType(scope);
 		}
-		TypeDeclaration.checkAndFlagRecordNameErrors(getTypeName(0), this, scope);
 		switch (type.problemId()) {
 			case ProblemReasons.NotFound :
 			case ProblemReasons.NotVisible :
@@ -553,6 +552,8 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 			default :
 				return null;
 		}
+	} else { // check anyway - to cover a illegally declared "permits" type
+		scope.problemReporter().validateRestrictedKeywords(getLastToken(), this);
 	}
 	if (type.isArrayType() && ((ArrayBinding) type).leafComponentType == TypeBinding.VOID) {
 		scope.problemReporter().cannotAllocateVoidArray(this);

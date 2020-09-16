@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core.dom.util;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Modifier;
 
 public class DOMASTUtil {
 
@@ -52,12 +53,14 @@ public class DOMASTUtil {
 	 * @see ASTNode#getNodeType()
 	 * @since 3.22
 	 */
+	@SuppressWarnings("deprecation")
 	private static boolean isNodeTypeSupportedinAST(int apiLevel, boolean previewEnabled, int nodeType) {
 		switch (nodeType) {
 			case ASTNode.SWITCH_EXPRESSION:
 			case ASTNode.YIELD_STATEMENT:
 				return apiLevel >= AST.JLS14;
 			case ASTNode.TEXT_BLOCK:
+				return apiLevel >= AST.JLS15;
 			case ASTNode.RECORD_DECLARATION:
 			case ASTNode.INSTANCEOF_EXPRESSION:
 				return isPreviewEnabled(apiLevel, previewEnabled);
@@ -65,8 +68,54 @@ public class DOMASTUtil {
 		return false;
 	}
 
+	/**
+	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
+	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
+	 * <code>true></code> for nodes added before JLS14.
+	 *
+	 * @param ast
+	 *            the AST to be evaluated
+	 * @param featureName
+	 *            the feature name constant indicating the feature to be evaluated
+	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
+	 *         <code>false</code>
+	 * @see ASTNode#getNodeType()
+	 * @since 3.22
+	 */
+	public static boolean isFeatureSupportedinAST(AST ast, int featureName) {
+		switch (featureName) {
+			case Modifier.SEALED:
+				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+		}
+		return false;
+	}
+
+	/**
+	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
+	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
+	 * <code>true></code> for nodes added before JLS14.
+	 *
+	 * @param apiLevel
+	 *            the level to be checked
+	 * @param previewEnabled
+	 *            the preview feature to be considered
+	 * @param featureName
+	 *            the feature name constant indicating the feature to be evaluated
+	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
+	 *         <code>false</code>
+	 * @see ASTNode#getNodeType()
+	 * @since 3.22
+	 */
+	public static boolean isFeatureSupportedinAST(int apiLevel, boolean previewEnabled, int featureName) {
+		switch (featureName) {
+			case Modifier.SEALED:
+				return isPreviewEnabled(apiLevel, previewEnabled);
+		}
+		return false;
+	}
+
 	private static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
-		return (apiLevel == AST.JLS14 && previewEnabled);
+		return (apiLevel == AST.JLS15 && previewEnabled);
 	}
 
 	public static boolean isSwitchExpressionSupported(AST ast) {
@@ -97,6 +146,10 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.INSTANCEOF_EXPRESSION);
 	}
 
+	public static boolean isSealedTypeSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
+	}
+
 	@SuppressWarnings("deprecation")
 	public static void checkASTLevel(int level) {
 		switch (level) {
@@ -110,6 +163,7 @@ public class DOMASTUtil {
 	        case AST.JLS12 :
 	        case AST.JLS13 :
 	        case AST.JLS14 :
+	        case AST.JLS15 :
 	        	return;
 		}
 		throw new IllegalArgumentException();

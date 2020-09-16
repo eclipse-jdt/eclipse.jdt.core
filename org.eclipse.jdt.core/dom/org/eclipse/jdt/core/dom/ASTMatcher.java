@@ -1953,6 +1953,30 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
+	 * @noreference
+	 */
+	public boolean match(ModuleQualifiedName node, Object other) {
+		if (!(other instanceof ModuleQualifiedName)) {
+			return false;
+		}
+		ModuleQualifiedName o = (ModuleQualifiedName) other;
+		return safeSubtreeMatch(node.getModuleQualifier(), o.getModuleQualifier())
+				&& safeSubtreeMatch(node.getName(), o.getName());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
 	 * @since 3.1
 	 */
 	public boolean match(QualifiedType node, Object other) {
@@ -2304,7 +2328,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SwitchCase o = (SwitchCase) other;
-		return ( node.getAST().apiLevel >= AST.JLS14
+		return ( node.getAST().apiLevel >= AST.JLS14_INTERNAL
 				? safeSubtreeListMatch(node.expressions(), o.expressions())
 						: compareDeprecatedSwitchExpression(node, o));
 	}
@@ -2576,6 +2600,11 @@ public class ASTMatcher {
 				return false;
 			}
 			if (!safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())) {
+				return false;
+			}
+		}
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED)) {
+			if (!safeSubtreeListMatch(node.permittedTypes(), o.permittedTypes())) {
 				return false;
 			}
 		}

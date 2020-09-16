@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,6 +46,17 @@ ISourceField[] getFields();
  * For example, Hashtable or java.util.Hashtable.
  */
 char[][] getInterfaceNames();
+
+/**
+ * Answer the unresolved names of the receiver's permitted sub types
+ * or null if the array is empty.
+ *
+ * A name is a simple name or a qualified, dot separated name.
+ * For example, Hashtable or java.util.Hashtable.
+ */
+default char[][] getPermittedSubtypeNames() {
+	return null;
+}
 
 /**
  * Answer the receiver's member types.

@@ -138,6 +138,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
 
+	/** @deprecated using deprecated code */
+	private static final int JLS14_INTERNAL = AST.JLS14;
 
 	TextEdit currentEdit;
 	final RewriteEventStore eventStore; // used from inner classes
@@ -1567,6 +1569,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					case TerminalTokens.TokenNamestrictfp: keep= Modifier.isStrictfp(newModifiers); break;
 					case TerminalTokens.TokenNametransient: keep= Modifier.isTransient(newModifiers); break;
 					case TerminalTokens.TokenNamesynchronized: keep= Modifier.isSynchronized(newModifiers); break;
+					case TerminalTokens.TokenNameRestrictedIdentifiersealed: keep= Modifier.isSealed(newModifiers); break;
+					case TerminalTokens.TokenNamenon_sealed: keep= Modifier.isNonSealed(newModifiers); break;
 					default:
 						break loop;
 				}
@@ -1943,6 +1947,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 			pos= rewriteNodeList(node, superInterfaceProperty, pos, keyword, ", "); //$NON-NLS-1$
+		}
+
+		if (DOMASTUtil.isFeatureSupportedinAST(node.getAST(), Modifier.SEALED)) {
+			// permits for sealed
+			ChildListPropertyDescriptor permitsProperty= TypeDeclaration.PERMITS_TYPES_PROPERTY;
+
+			RewriteEvent permitsEvent= getEvent(node, permitsProperty);
+			if (permitsEvent == null || permitsEvent.getChangeKind() == RewriteEvent.UNCHANGED) {
+				pos= doVisit(node, permitsProperty, pos);
+			} else {
+				pos= rewriteNodeList(node, permitsProperty, pos, " permits ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		}
 
 		// type members
@@ -3580,7 +3596,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		// dont allow switching from case to default or back. New statements should be created.
-		if (node.getAST().apiLevel() >= AST.JLS14) {
+		if (node.getAST().apiLevel() >= JLS14_INTERNAL) {
 			int pos = node.expressions().size() == 0 ? node.getStartPosition() :
 					rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), Util.EMPTY_STRING, ", "); //$NON-NLS-1$
 			if (isChanged(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY)) {
@@ -3804,7 +3820,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					insertIndent++;
 				}
 				ParagraphListRewriter listRewriter;
-				if ((node.getAST().apiLevel() >= AST.JLS14)) {
+				if ((node.getAST().apiLevel() >= JLS14_INTERNAL)) {
 					listRewriter= new SwitchListLabeledRuleRewriter(insertIndent);
 				} else {
 					listRewriter= new SwitchListRewriter(insertIndent);
@@ -4551,7 +4567,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		try {
 			int offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNamebreak, node.getStartPosition());
-			if ((node.getAST().apiLevel() >= AST.JLS14)) {
+			if ((node.getAST().apiLevel() >= JLS14_INTERNAL)) {
 				rewriteNode(node, YieldStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between yield and label
 			}
 		} catch (CoreException e) {

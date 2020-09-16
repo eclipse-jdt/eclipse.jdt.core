@@ -453,7 +453,20 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.valueIfTrue.addPatternVariables(scope, codeStream);
 		this.valueIfFalse.addPatternVariables(scope, codeStream);
 	}
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.condition.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
 
+		variables = this.condition.getPatternVariablesWhenTrue();
+		this.valueIfTrue.addPatternVariablesWhenTrue(variables);
+		this.valueIfFalse.addPatternVariablesWhenFalse(variables);
+		this.valueIfTrue.collectPatternVariablesToScope(variables, scope);
+
+		variables = this.condition.getPatternVariablesWhenFalse();
+		this.valueIfTrue.addPatternVariablesWhenFalse(variables);
+		this.valueIfFalse.addPatternVariablesWhenTrue(variables);
+		this.valueIfFalse.collectPatternVariablesToScope(variables, scope);
+	}
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
@@ -470,7 +483,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				this.valueIfFalse.setExpectedType(this.expectedType);
 			}
 		}
-
+		if (this.condition.containsPatternVariable()) {
+			collectPatternVariablesToScope(null, scope);
+		}
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
 			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);

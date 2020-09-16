@@ -81,6 +81,14 @@ class MethodBinding implements IMethodBinding {
 	}
 
 	/**
+	 * @see IMethodBinding#isCanonicalConstructor()
+	 */
+	@Override
+	public boolean isCanonicalConstructor() {
+		return ((this.binding.tagBits & TagBits.IsCanonicalConstructor) != 0);
+	}
+
+	/**
 	 * @see IMethodBinding#isDefaultConstructor()
 	 * @since 3.0
 	 */

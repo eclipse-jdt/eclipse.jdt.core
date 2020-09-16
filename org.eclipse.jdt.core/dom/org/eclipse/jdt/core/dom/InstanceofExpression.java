@@ -194,7 +194,10 @@ public class InstanceofExpression extends Expression {
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Type) getRightOperand().clone(target));
 		if (DOMASTUtil.isInstanceofExpressionPatternSupported(target)) {
-			result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+			SingleVariableDeclaration pv = getPatternVariable();
+			if (pv != null) {
+				result.setPatternVariable((SingleVariableDeclaration) pv.clone(target));
+			}
 		}
 		return result;
 	}
@@ -303,13 +306,13 @@ public class InstanceofExpression extends Expression {
 	 * Returns the patternVariable of this instanceof expression.
 	 *
 	 * @return the patternVariable node
-	 * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @exception UnsupportedOperationException if this operation is used other than JLS15
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
-		supportedOnlyIn14();
+		supportedOnlyIn15();
 		unsupportedWithoutPreviewError();
 		return this.patternVariable;
 	}
@@ -319,13 +322,13 @@ public class InstanceofExpression extends Expression {
 	 *
 	 * @param referencePatternVariable the right operand node
 	 * @exception IllegalArgumentException if:
-	 * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @exception UnsupportedOperationException if this operation is used other than JLS15
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternVariable(SingleVariableDeclaration referencePatternVariable) {
-		supportedOnlyIn14();
+		supportedOnlyIn15();
 		unsupportedWithoutPreviewError();
 		if (referencePatternVariable == null) {
 			throw new IllegalArgumentException();

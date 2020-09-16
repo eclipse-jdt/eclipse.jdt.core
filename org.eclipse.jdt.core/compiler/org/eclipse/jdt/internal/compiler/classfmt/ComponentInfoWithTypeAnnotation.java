@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 public final class ComponentInfoWithTypeAnnotation extends ComponentInfoWithAnnotation {
 	private TypeAnnotationInfo[] typeAnnotations;
 
-ComponentInfoWithTypeAnnotation(ComponentInfo info, AnnotationInfo[] annos, TypeAnnotationInfo[] typeAnnos) {
+ComponentInfoWithTypeAnnotation(RecordComponentInfo info, AnnotationInfo[] annos, TypeAnnotationInfo[] typeAnnos) {
 	super(info, annos);
 	this.typeAnnotations = typeAnnos;
 }

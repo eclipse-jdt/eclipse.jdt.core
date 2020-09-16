@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -154,6 +154,12 @@ public void checkComment() {
 		if (references != null) {
 			for (int i=0, length=references.length; i < length; i++) {
 				Expression reference = references[i];
+				if (reference instanceof JavadocModuleReference) {
+					JavadocModuleReference modRef = (JavadocModuleReference)reference;
+					if (modRef.typeReference != null) {
+						this.patternLocator.match(modRef.typeReference, this.nodeSet);
+					}
+				}
 				if (reference instanceof TypeReference) {
 					TypeReference typeRef = (TypeReference) reference;
 					this.patternLocator.match(typeRef, this.nodeSet);
@@ -163,6 +169,12 @@ public void checkComment() {
 					if (fieldRef.receiver instanceof TypeReference && !fieldRef.receiver.isThis()) {
 						TypeReference typeRef = (TypeReference) fieldRef.receiver;
 						this.patternLocator.match(typeRef, this.nodeSet);
+					}
+					if (fieldRef.receiver instanceof JavadocModuleReference) {
+						JavadocModuleReference modRef = (JavadocModuleReference)fieldRef.receiver;
+						if (modRef.typeReference != null) {
+							this.patternLocator.match(modRef.typeReference, this.nodeSet);
+						}
 					}
 				} else if (reference instanceof JavadocMessageSend) {
 					JavadocMessageSend messageSend = (JavadocMessageSend) reference;
@@ -901,6 +913,27 @@ protected void consumeWildcardBoundsSuper() {
 		Wildcard wildcard = (Wildcard) this.genericsStack[this.genericsPtr];
 		this.patternLocator.match(wildcard.bound, this.nodeSet);
 	}
+}
+
+@Override
+protected  void consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces(){
+	super.consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces();
+	updatePatternLocaterMatch();
+}
+private void updatePatternLocaterMatch() {
+	if ((this.patternFineGrain & IJavaSearchConstants.PERMITTYPE_TYPE_REFERENCE) != 0) {
+		TypeDeclaration td = (TypeDeclaration) this.astStack[this.astPtr];
+		TypeReference[] permittedTypes = td.permittedTypes;
+		for (TypeReference pt : permittedTypes) {
+			this.patternLocator.match(pt, this.nodeSet);
+		}
+	}
+}
+
+@Override
+protected void consumeClassHeaderPermittedSubclasses() {
+	super.consumeClassHeaderPermittedSubclasses();
+	updatePatternLocaterMatch();
 }
 
 @Override

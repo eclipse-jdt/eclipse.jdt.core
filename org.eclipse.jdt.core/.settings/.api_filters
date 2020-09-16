@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.23.100"/>
+                <message_argument value="3.23.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -9,137 +17,30 @@
         </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
-        <filter comment="Needed for Java14" id="388194388">
+        <filter id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally"/>
-                <message_argument value="2098855"/>
+                <message_argument value="PatternVariableNotInScope"/>
+                <message_argument value="2098912"/>
             </message_arguments>
         </filter>
-        <filter comment="Needed for Java14" id="388194388">
+        <filter id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldBreakNotAllowed"/>
-                <message_argument value="2098863"/>
+                <message_argument value="RecordMissingExplicitConstructorCallInNonCanonicalConstructor"/>
+                <message_argument value="2098909"/>
             </message_arguments>
         </filter>
-        <filter comment="Needed for Java14" id="388194388">
+        <filter comment="Record preview 2 changes" id="405864542">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldEmptySwitchBlock"/>
-                <message_argument value="2098853"/>
+                <message_argument value="RecordCanonicalConstructorShouldBePublic"/>
             </message_arguments>
         </filter>
-        <filter comment="Needed for Java14" id="388194388">
+        <filter id="405864542">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldIllegalLastStatement"/>
-                <message_argument value="2098862"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldIllegalStatement"/>
-                <message_argument value="2098868"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldIncompatibleResultExpressionTypes"/>
-                <message_argument value="2098852"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldLastStatementCompletesNormally"/>
-                <message_argument value="2098856"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldMissingDefaultCase"/>
-                <message_argument value="2098859"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldMissingEnumConstantCase"/>
-                <message_argument value="2098861"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldMissingValue"/>
-                <message_argument value="2098860"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldNoResultExpression"/>
-                <message_argument value="2098854"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldOutsideSwitchExpression"/>
-                <message_argument value="2098866"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldRestrictedGeneralWarning"/>
-                <message_argument value="2098867"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldTrailingSwitchLabels"/>
-                <message_argument value="2098857"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldTypeDeclarationError"/>
-                <message_argument value="2098870"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldTypeDeclarationWarning"/>
-                <message_argument value="2098869"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldUnqualifiedMethodError"/>
-                <message_argument value="2098865"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchExpressionsYieldUnqualifiedMethodWarning"/>
-                <message_argument value="2098864"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Needed for Java14" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="SwitchPreviewMixedCase"/>
-                <message_argument value="2098858"/>
+                <message_argument value="RecordIsAReservedTypeName"/>
             </message_arguments>
         </filter>
     </resource>
@@ -207,14 +108,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/InstanceofExpression.java" type="org.eclipse.jdt.core.dom.InstanceofExpression">
-        <filter comment="For Java 14" id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.InstanceofExpression"/>
-                <message_argument value="PATTERN_VARIABLE_PROPERTY"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/MemberRef.java" type="org.eclipse.jdt.core.dom.MemberRef">
         <filter id="576725006">
             <message_arguments>
@@ -234,14 +127,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="MemberValuePair"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/MethodDeclaration.java" type="org.eclipse.jdt.core.dom.MethodDeclaration">
-        <filter comment="Needed for Java 14" id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.MethodDeclaration"/>
-                <message_argument value="COMPACT_CONSTRUCTOR_PROPERTY"/>
             </message_arguments>
         </filter>
     </resource>
@@ -272,6 +157,28 @@
             <message_arguments>
                 <message_argument value="IExtendedModifier"/>
                 <message_argument value="Modifier"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/Modifier.java" type="org.eclipse.jdt.core.dom.Modifier$ModifierKeyword">
+        <filter comment="For Java 15" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
+                <message_argument value="NON_SEALED_KEYWORD"/>
+            </message_arguments>
+        </filter>
+        <filter comment="For Java 15" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
+                <message_argument value="SEALED_KEYWORD"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/ModuleQualifiedName.java" type="org.eclipse.jdt.core.dom.ModuleQualifiedName">
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="Name"/>
+                <message_argument value="ModuleQualifiedName"/>
             </message_arguments>
         </filter>
     </resource>
@@ -347,6 +254,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/TypeDeclaration.java" type="org.eclipse.jdt.core.dom.TypeDeclaration">
+        <filter comment="Added For Java 15" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TypeDeclaration"/>
+                <message_argument value="PERMITS_TYPES_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TypeParameter.java" type="org.eclipse.jdt.core.dom.TypeParameter">
         <filter id="576778288">
             <message_arguments>
@@ -388,10 +303,10 @@
         </filter>
     </resource>
     <resource path="model/org/eclipse/jdt/core/util/IClassFileReader.java" type="org.eclipse.jdt.core.util.IClassFileReader">
-        <filter comment="For the Java 14 preview feature record" id="404000815">
+        <filter comment="Permitted Subclasses for JEP 360 Sealed Types" id="404000815">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.util.IClassFileReader"/>
-                <message_argument value="getRecordAttribute()"/>
+                <message_argument value="getPermittedSubclassesAttribute()"/>
             </message_arguments>
         </filter>
     </resource>

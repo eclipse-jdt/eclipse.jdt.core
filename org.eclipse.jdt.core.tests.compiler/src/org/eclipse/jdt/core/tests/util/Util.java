@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -457,6 +457,12 @@ public static void createJar(String[] pathsAndContents, String[] extraPathsAndCo
 		}
 	}
     zip(classesDir, jarPath);
+}
+public static void createJar(String[] javaPathsAndContents, String jarPath, String compliance, boolean preview) throws IOException {
+	Map options = getCompileOptions(compliance);
+	if (preview)
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	createJar(javaPathsAndContents, null, options, null, jarPath);
 }
 public static void createJar(String[] javaPathsAndContents, String jarPath, String compliance) throws IOException {
 	createJar(javaPathsAndContents, null, jarPath, compliance);

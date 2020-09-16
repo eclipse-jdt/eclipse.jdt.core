@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,8 @@
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.function.Predicate;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -85,7 +87,6 @@ public abstract class Statement extends ASTNode {
 		return false;
 	}
 public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
-
 /** Lambda shape analysis: *Assuming* this is reachable, analyze if this completes normally i.e control flow can reach the textually next statement.
    For blocks, we don't perform intra-reachability analysis. We assume the lambda body is free of intrinsic control flow errors (if such errors
    exist they will not be flagged by this analysis, but are guaranteed to surface later on.)
@@ -124,6 +125,8 @@ public boolean continueCompletes() {
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
+	LocalVariableBinding[] patternVarsWhenTrue = null;
+	LocalVariableBinding[] patternVarsWhenFalse = null;
 
 
 /** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */
@@ -483,7 +486,65 @@ public StringBuffer print(int indent, StringBuffer output) {
 public abstract StringBuffer printStatement(int indent, StringBuffer output);
 
 public abstract void resolve(BlockScope scope);
-
+public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	return this.patternVarsWhenTrue;
+}
+public LocalVariableBinding[] getPatternVariablesWhenFalse() {
+	return this.patternVarsWhenFalse;
+}
+public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
+	this.patternVarsWhenTrue = addPatternVariables(this.patternVarsWhenTrue, vars);
+}
+public void addPatternVariablesWhenFalse(LocalVariableBinding[] vars) {
+	this.patternVarsWhenFalse = addPatternVariables(this.patternVarsWhenFalse, vars);
+}
+private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] current, LocalVariableBinding[] add) {
+	if (add == null || add.length == 0)
+		return current;
+	if (current == null) {
+		current = add;
+	} else {
+		for (LocalVariableBinding local : add) {
+			current = addPatternVariables(current, local);
+		}
+	}
+	return current;
+}
+private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] current, LocalVariableBinding add) {
+	int oldSize = current.length;
+	// it's odd that we only look at the last element, but in most cases
+	// we will only have one in the array. In the unlikely case of having two
+	// distinct pattern variables, the cost is nothing but setting the same
+	// bit twice on the same object.
+	if (oldSize > 0 && current[oldSize - 1] == add) {
+		return current;
+	}
+	int newLength = current.length + 1;
+	System.arraycopy(current, 0, (current = new LocalVariableBinding[newLength]), 0, oldSize);
+	current[oldSize] = add;
+	return current;
+}
+public void injectPatternVariablesIfApplicable(LocalVariableBinding[] patternVariablesInScope, BlockScope scope,
+								Predicate<Statement> condition) {
+	if (patternVariablesInScope != null && condition.test(this)) {
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+		}
+	}
+}
+public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {
+	if (patternVariablesInScope != null) {
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+		}
+		this.resolve(scope);
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers |= ExtraCompilerModifiers.AccUnresolved;
+		}
+	} else {
+		resolve(scope);
+	}
+}
 /**
  * Returns case constant associated to this statement (NotAConstant if none)
  * parameter statement has to be either a SwitchStatement or a SwitchExpression

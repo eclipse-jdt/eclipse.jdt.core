@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -62,6 +62,11 @@ char[] getEnclosingTypeName();
 
 IBinaryField[] getFields();
 /**
+ * Answer the receiver's record components or null if the array is empty.
+ */
+
+IRecordComponent[] getRecordComponents();
+/**
  * Answer the module to which this type belongs.
  * {@code null} if the type is associated to the unnamed module.
  *
@@ -86,6 +91,18 @@ char[] getGenericSignature();
  */
 
 char[][] getInterfaceNames();
+
+/**
+ * Answer the unresolved names of the receiver's permitted sub types
+ * or null if the array is empty.
+ *
+ * A name is a simple name or a qualified, dot separated name.
+ * For example, Hashtable or java.util.Hashtable.
+ */
+default char[][] getPermittedSubtypeNames() {
+	return null;
+}
+
 /**
  * Answer the receiver's nested types or null if the array is empty.
  *
@@ -148,6 +165,12 @@ boolean isAnonymous();
  * false otherwise
  */
 boolean isLocal();
+
+/**
+ * Answer true if the receiver is a record.
+ * false otherwise
+ */
+boolean isRecord();
 
 /**
  * Answer true if the receiver is a member class.

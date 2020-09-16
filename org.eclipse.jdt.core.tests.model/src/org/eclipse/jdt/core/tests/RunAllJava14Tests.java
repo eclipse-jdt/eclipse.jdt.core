@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
-import org.eclipse.jdt.core.tests.model.JavaSearchBugs14Tests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -33,7 +32,7 @@ public class RunAllJava14Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-			JavaSearchBugs14Tests.class,JavaSearchBugs14SwitchExpressionTests.class
+			JavaSearchBugs14SwitchExpressionTests.class
 
 		};
 	}

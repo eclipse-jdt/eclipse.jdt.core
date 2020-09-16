@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -37,7 +38,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
-@SuppressWarnings("rawtypes")
 public class TypeParameter extends AbstractVariableDeclaration {
 
     public TypeVariableBinding binding;
@@ -63,7 +63,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 	}
 
-	public void getAllAnnotationContexts(int targetType, int typeParameterIndex, List allAnnotationContexts) {
+	public void getAllAnnotationContexts(int targetType, int typeParameterIndex, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, typeParameterIndex, allAnnotationContexts);
 		if (this.annotations != null) {
 			int annotationsLength = this.annotations.length;
@@ -120,7 +120,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				scope.problemReporter().varIsNotAllowedHere(this);
 			}
 		}
-		TypeDeclaration.checkAndFlagRecordNameErrors(this.name, this, scope);
+		scope.problemReporter().validateRestrictedKeywords(this.name, this);
 	}
 
 	@Override

@@ -8,6 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -36,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
+import org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
@@ -1330,6 +1332,19 @@ class DefaultBindingResolver extends BindingResolver {
 					return null;
 				} else {
 					return this.getVariableBinding(qualifiedNameReference.otherBindings[index - indexOfFirstFieldBinding - 1]);
+				}
+			}
+		} else if (node instanceof JavadocModuleReference)  {
+			JavadocModuleReference modRef = (JavadocModuleReference) node;
+			if (modRef.typeReference == null) {
+				ModuleReference moduleReference = modRef.moduleReference;
+				IModuleBinding moduleBinding = getModuleBinding(moduleReference.binding);
+				if (moduleBinding != null) {
+					return moduleBinding;
+				}
+			} else {
+				if (name instanceof ModuleQualifiedName) {
+					return resolveName(((ModuleQualifiedName)name).getName());
 				}
 			}
 		} else if (node instanceof QualifiedTypeReference) {

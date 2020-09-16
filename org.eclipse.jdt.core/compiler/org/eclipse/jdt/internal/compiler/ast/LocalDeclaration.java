@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,7 +45,6 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CO
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -56,16 +55,9 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
-@SuppressWarnings("rawtypes")
 public class LocalDeclaration extends AbstractVariableDeclaration {
 
 	public LocalVariableBinding binding;
-
-	/**
-	 * For pattern variable, resolve() may store here an obligation to be checked when we have
-	 * a flow info that tells us whether a potential duplicates is in fact in scope.
-	 */
-	Consumer<FlowInfo> duplicateCheckObligation;
 
 	public LocalDeclaration(
 		char[] name,
@@ -124,9 +116,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		flowInfo.markNullStatus(this.binding, nullStatus);
 		// no need to inform enclosing try block since its locals won't get
 		// known by the finally block
-	}
-	if (this.duplicateCheckObligation != null) {
-		this.duplicateCheckObligation.accept(flowInfo);
 	}
 	return flowInfo;
 }
@@ -197,13 +186,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	// for local variables
-	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List allAnnotationContexts) {
+	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, localVariable, allAnnotationContexts);
 		this.traverseWithoutInitializer(collector, (BlockScope) null);
 	}
 
 	// for arguments
-	public void getAllAnnotationContexts(int targetType, int parameterIndex, List allAnnotationContexts) {
+	public void getAllAnnotationContexts(int targetType, int parameterIndex, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, parameterIndex, allAnnotationContexts);
 		this.traverse(collector, (BlockScope) null);
 	}
@@ -309,23 +298,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			boolean localExists = existingVariable instanceof LocalVariableBinding;
-			if (localExists && (isPatternVariable
-					|| (((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0))
-			{
-				// Do this only if either one of them is a pattern variable.
-				this.duplicateCheckObligation = (flowInfo) -> {
-					if (flowInfo.isDefinitelyAssigned((LocalVariableBinding) existingVariable)) {
-						scope.problemReporter().redefineLocal(this);
-					}
-				};
+			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
+				scope.problemReporter().lambdaRedeclaresLocal(this);
+			} else if (localExists && this.hiddenVariableDepth == 0) {
+				scope.problemReporter().redefineLocal(this);
 			} else {
-				if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
-					scope.problemReporter().lambdaRedeclaresLocal(this);
-				} else if (localExists && this.hiddenVariableDepth == 0) {
-					scope.problemReporter().redefineLocal(this);
-				} else {
-					scope.problemReporter().localVariableHiding(this, existingVariable, false);
-				}
+				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
 		}
 

@@ -279,7 +279,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		// check @Override annotation
 		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
-			if (this.binding == null) break checkOverride;
+			// For a record component accessor method, don't bother with checking for override (JLS 15 9.6.4.4)
+			if (this.binding == null || recordComponent != null) break checkOverride;
 			long complianceLevel = compilerOptions.complianceLevel;
 			if (complianceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;

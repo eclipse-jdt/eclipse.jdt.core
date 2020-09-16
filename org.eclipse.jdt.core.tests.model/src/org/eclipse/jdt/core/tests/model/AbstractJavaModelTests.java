@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -42,6 +41,7 @@ import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
@@ -80,7 +80,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE12 = false;
 	protected static boolean isJRE13 = false;
 	protected static boolean isJRE14 = false;
-	protected static String DEFAULT_MODULES = null;
+	protected static boolean isJRE15 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -93,6 +93,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK15) {
+			isJRE15 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK14) {
 			isJRE14 = true;
 		}
@@ -107,28 +110,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
-			if (vmName.contains("HotSpot")) {
-				DEFAULT_MODULES = "java.se," +
-						"javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web," + 	// not present in OpenJDK
-						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
-						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
-						"jdk.jfr," +																						// not present in OpenJDK
-						"jdk.jshell,jdk.jsobject,jdk.management," +
-						"jdk.management.cmm,jdk.management.jfr,jdk.management.resource," +									// not present in OpenJDK
-						"jdk.net," +
-						"jdk.packager,jdk.packager.services,jdk.plugin.dom," +												// not present in OpenJDK
-						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom," +
-						"oracle.desktop,oracle.net";																		// not present in OpenJDK
-			} else if (vmName.contains("OpenJDK") || vmName.contains("OpenJ9")) {
-				DEFAULT_MODULES = "java.se," +
-						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
-						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
-						"jdk.jshell,jdk.jsobject,jdk.management,jdk.net," +
-						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom";
-			} else {
-				System.out.println(System.getProperties());
-				fail("Unexpected java vm "+javaVersion+" "+vmName);
-			}
 			System.out.println("Recognized Java version '"+javaVersion+"' with vm.name '"+vmName+"'");
 		}
 	}
@@ -163,8 +144,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL14
 	 * to alleviate deprecation warnings once AST.JLS14 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS14 = AST.JLS14;
+
+	/**
+	 * Internal synonym for constant AST.JSL15
+	 * to alleviate deprecation warnings once AST.JLS15 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS15 = AST.JLS15;
 
 	/**
 	 * Internal synonym for constant AST.JSL11
@@ -177,7 +165,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for the latest AST level.
 	 *
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS14;
+	protected static final int AST_INTERNAL_LATEST = AST.JLS15;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -310,6 +298,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		public int compare(Object a, Object b) {
         			IJavaElementDelta deltaA = (IJavaElementDelta)a;
         			IJavaElementDelta deltaB = (IJavaElementDelta)b;
+        			// Make sure JRT elements and other external JAR elements always
+        			// come in the same position with respect to other kind. These two
+        			// kinds usually come from two entirely different locations which makes
+        			// the sorting by path unpredictable.
+        			boolean isAFromJRT = deltaA.getElement() instanceof JrtPackageFragmentRoot;
+        			boolean isBFromJRT = deltaB.getElement() instanceof JrtPackageFragmentRoot;
+        			int result = 0;
+        			if (isAFromJRT) {
+        				if (!isBFromJRT) {
+        					result = 1;
+        				}
+        			} else if (isBFromJRT) {
+        				result = -1;
+        			}
+        			if (result != 0)
+        				return result;
         			return toString(deltaA).compareTo(toString(deltaB));
         		}
         		private String toString(IJavaElementDelta delta) {
@@ -1532,6 +1536,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava14Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "14");
 	}
+	protected IJavaProject createJava15Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "15");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -2129,6 +2136,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+					javaProject.setOptions(options);
+				} else if ("15".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;
@@ -3228,7 +3241,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("14")) {
+			if (compliance.equals("15")) {
+				// Reuse the same 14 stuff as of now. No real need for a new one
+				newJclLibString = "JCL14_LIB";
+				newJclSrcString = "JCL14_SRC";
+			} else if (compliance.equals("14")) {
 				newJclLibString = "JCL14_LIB";
 				newJclSrcString = "JCL14_SRC";
 			} else if (compliance.equals("13")) {
@@ -3381,6 +3398,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("14".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
+				setupExternalJCL("jclMin14");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL14_LIB", "JCL14_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("14"), getExternalJCLSourcePath("14"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("15".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
 				setupExternalJCL("jclMin14");
 				JavaCore.setClasspathVariables(

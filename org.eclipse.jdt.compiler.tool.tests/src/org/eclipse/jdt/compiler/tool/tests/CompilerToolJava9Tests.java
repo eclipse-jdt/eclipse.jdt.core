@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -669,6 +665,47 @@ public class CompilerToolJava9Tests extends TestCase {
  		if (result.booleanValue()) {
  			System.err.println("Compilation should fail: " + stringWriter.getBuffer().toString());
  			assertTrue("Compilation did not fail ", false);
+ 		}
+	}
+	public void testBug566749() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = _tmpFolder;
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(new File(modules_directory + File.separator + "bug566749" + File.separator + 
+ 				"mod.test" + File.separator + "module-info.java"));
+		
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options = new ArrayList<String>();
+ 		options.add("-d");
+ 		options.add(tmpFolder);
+ 		options.add("--module-path");
+ 		options.add(tmpFolder);
+ 		options.add("--module-source-path");
+ 		options.add(modules_directory + File.separator + "bug566749");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				super.report(diagnostic);
+			}
+		};
+ 		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+ 		// check the classpath location
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (result.booleanValue()) {
+ 			System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation did not fail as expected ", false);
  		}
 	}
 	public void testGetJavaFileObjects() {

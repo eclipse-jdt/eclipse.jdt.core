@@ -277,7 +277,26 @@ public class OR_OR_Expression extends BinaryExpression {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
 		}
 	}
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.left.collectPatternVariablesToScope(variables, scope);
 
+		// Just keep the ones in false scope
+		variables = this.left.getPatternVariablesWhenFalse();
+		this.addPatternVariablesWhenFalse(variables);
+
+		this.right.collectPatternVariablesToScope(variables, scope);
+		variables = this.right.getPatternVariablesWhenFalse();
+		this.addPatternVariablesWhenFalse(variables);
+
+		// do this at the end, otherwise we will end up with
+		// same variable we just added from left to right
+		variables = this.left.getPatternVariablesWhenTrue();
+		this.right.addPatternVariablesWhenFalse(variables);
+
+		variables = this.left.getPatternVariablesWhenFalse();
+		this.right.addPatternVariablesWhenTrue(variables);
+	}
 	@Override
 	public boolean isCompactableOperation() {
 		return false;

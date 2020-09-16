@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 Google, Inc. and others.
+ * Copyright (c) 2016, 2020 Google, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -96,6 +97,11 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 	}
 
 	@Override
+	public IRecordComponent[] getRecordComponents() {
+		return this.inputType.getRecordComponents();
+	}
+
+	@Override
 	public char[] getGenericSignature() {
 		return this.inputType.getGenericSignature();
 	}
@@ -148,6 +154,10 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 	@Override
 	public boolean isLocal() {
 		return this.inputType.isLocal();
+	}
+	@Override
+	public boolean isRecord() {
+		return this.inputType.isRecord();
 	}
 
 	@Override
@@ -298,4 +308,5 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 		}
 		return ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 	}
+
 }

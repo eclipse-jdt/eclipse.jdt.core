@@ -174,7 +174,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (apiLevel == AST.JLS14_INTERNAL && previewEnabled) {
+		if (apiLevel == AST.JLS15_INTERNAL && previewEnabled) {
 			return PROPERTY_DESCRIPTORS;
 		}
 		return null;
@@ -218,12 +218,12 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
-	 * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @exception UnsupportedOperationException if this operation is used other than JLS15
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 */
 	RecordDeclaration(AST ast) {
 		super(ast);
-		supportedOnlyIn14();
+		supportedOnlyIn15();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -455,7 +455,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	@Override
 	int memSize() {
-		return super.memSize() + 8 * 4;
+		return super.memSize() + 4 * 4;
 	}
 
 	@Override

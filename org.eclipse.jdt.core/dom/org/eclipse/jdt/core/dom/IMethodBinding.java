@@ -77,6 +77,19 @@ public interface IMethodBinding extends IBinding {
 	public boolean isCompactConstructor();
 
 	/**
+	 * Returns whether this binding is for a canonical constructor or not.
+	 *
+	 * <p>
+	 * This method returns <code>true</code> for canonical constructors
+	 * </p>
+	 *
+	 * @return <code>true</code> if this is the binding for a canonical constructor
+	 * and <code>false</code> otherwise
+	 * @noreference
+	 */
+	public boolean isCanonicalConstructor();
+
+	/**
 	 * Returns whether this binding is known to be a compiler-generated
 	 * default constructor.
 	 * <p>

@@ -202,6 +202,13 @@ public void setUpSuite() throws Exception {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b140156.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b164791.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b166348.jar", false);
+
+	removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/record_reference_in_nonsource_jar.jar"));
+	removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/record_reference_in_source_jar.jar"));
+	removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/permit_reference_in_nonsource_jar.jar"));
+	removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/permit_reference_in_source_jar.jar"));
+	removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/annotation_in_record_jar.jar"));
+	removeClasspathEntry(JAVA_PROJECT, new Path("/JavaSearchBugs/lib/annotation_in_record_source_jar.jar"));
 }
 @Override
 public void tearDownSuite() throws Exception {
@@ -8885,6 +8892,8 @@ public void testBug185452() throws CoreException {
 		"src/b95794 b95794",
 		packageCollector);
 }
+
+
 
 /**
  * @bug 194185 [search] for package declarations finds also sub-packages

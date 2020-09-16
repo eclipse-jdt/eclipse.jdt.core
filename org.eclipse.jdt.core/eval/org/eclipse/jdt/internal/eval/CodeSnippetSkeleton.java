@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -226,6 +227,10 @@ public boolean isLocal() {
 	return false;
 }
 @Override
+public boolean isRecord() {
+	return false;
+}
+@Override
 public boolean isMember() {
 	return false;
 }
@@ -245,5 +250,9 @@ public char[] getModule() {
 @Override
 public ExternalAnnotationStatus getExternalAnnotationStatus() {
 	return ExternalAnnotationStatus.NOT_EEA_CONFIGURED;
+}
+@Override
+public IRecordComponent[] getRecordComponents() {
+	return null;
 }
 }
