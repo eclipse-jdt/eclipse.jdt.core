@@ -56,7 +56,6 @@
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.compiler.regression.TestAll"/>
-      <property name="vmargs" value="-Dcompliance=1.4,1.7,1.8,15"/>
     </ant>
 
 	<antcall target="evaluation_tests"/>
