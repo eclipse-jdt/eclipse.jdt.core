@@ -69,8 +69,25 @@
     <module>org.eclipse.jdt.apt.tests</module>
     <module>org.eclipse.jdt.compiler.apt.tests</module>
   </modules>
-
+  
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-toolchains-plugin</artifactId>
+          <version>3.0.0</version>
+          <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>toolchain</goal>
+            </goals>
+          </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
