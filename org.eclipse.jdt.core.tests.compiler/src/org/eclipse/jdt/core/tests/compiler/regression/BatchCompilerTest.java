@@ -681,6 +681,8 @@ public void test012(){
         "                       (or 6, 6.0, etc)\n" +
         "                       cldc1.1 can also be used to generate the StackMap\n" +
         "                       attribute\n" +
+        "    --enable-preview   enable support for preview features of the\n" +
+        "                       latest Java release\n" +
         " \n" +
         " Warning options:\n" +
         "    -deprecation     + deprecation outside deprecated code (equivalent to\n" +
