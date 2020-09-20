@@ -928,14 +928,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 
 	protected void processAnnotations() {
-		try {
-			processAnnotationsInternal();
-		} finally {
-			this.annotationProcessorManager.cleanUp();
-		}
-	}
-
-	private void processAnnotationsInternal() {
 		int newUnitSize = 0;
 		int newClassFilesSize = 0;
 		int bottom = this.annotationProcessorStartIndex;
@@ -997,21 +989,22 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		// process potential units added in the final round see 329156
 		ICompilationUnit[] newUnits = this.annotationProcessorManager.getNewUnits();
 		newUnitSize = newUnits.length;
-		if (newUnitSize != 0) {
-			ICompilationUnit[] newProcessedUnits = newUnits.clone(); // remember new units in case a source type collision occurs
-			try {
-				this.lookupEnvironment.isProcessingAnnotations = true;
-				internalBeginToCompile(newUnits, newUnitSize);
-			} catch (SourceTypeCollisionException e) {
-				e.isLastRound = true;
-				e.newAnnotationProcessorUnits = newProcessedUnits;
-				throw e;
-			} finally {
-				this.lookupEnvironment.isProcessingAnnotations = false;
-				this.annotationProcessorManager.reset();
+		try {
+			if (newUnitSize != 0) {
+				ICompilationUnit[] newProcessedUnits = newUnits.clone(); // remember new units in case a source type collision occurs
+				try {
+					this.lookupEnvironment.isProcessingAnnotations = true;
+					internalBeginToCompile(newUnits, newUnitSize);
+				} catch (SourceTypeCollisionException e) {
+					e.isLastRound = true;
+					e.newAnnotationProcessorUnits = newProcessedUnits;
+					throw e;
+				}
 			}
-		} else {
+		} finally {
+			this.lookupEnvironment.isProcessingAnnotations = false;
 			this.annotationProcessorManager.reset();
+			this.annotationProcessorManager.cleanUp();
 		}
 		// Units added in final round don't get annotation processed
 		this.annotationProcessorStartIndex = this.totalUnits;
