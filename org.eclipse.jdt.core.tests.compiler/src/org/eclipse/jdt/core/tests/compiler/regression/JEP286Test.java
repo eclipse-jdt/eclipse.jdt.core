@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 Jesper Steen Møller and others.
+ * Copyright (c) 2018, 2020 Jesper Steen Møller and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -59,6 +60,8 @@ protected Map getCompilerOptions() {
 }
 private static final Map<String, String> simpleTypeNames = new HashMap<>();
 static {
+	// Below call forces the init when the test is run independently.
+	AbstractCompilerTest.getPossibleComplianceLevels();
 	simpleTypeNames.put("String", "java.lang.String");
 	simpleTypeNames.put("Object", "java.lang.Object");
 	simpleTypeNames.put("Bar", "X.Bar");
@@ -1236,5 +1239,160 @@ public void testBug532920() throws IOException {
 		"	             ^^^^\n" +
 		"Can only iterate over an array or an instance of java.lang.Iterable\n" +
 		"----------\n");
+}
+public void testBug567183_1() {
+	this.runNegativeTest(
+			new String[] {
+				"p/Item.java",
+				"package p;\n"
+				+ "class Item {\n"
+				+ "}",
+				"p/Container.java",
+				"package p;\n"
+				+ "import java.util.List;\n"
+				+ "\n"
+				+ "public class Container {\n"
+				+ "  public final List<Item> items = null;\n"
+				+ "}",
+				"p/PublicItem.java",
+				"package p;\n"
+				+ "public class PublicItem extends Item {\n"
+				+ "}",
+				"p1/X.java",
+				"package p1;\n"
+				+ "import p.Container;\n"
+				+ "import p.PublicItem;\n"
+				+ "public class X {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		var container = new Container();\n"
+				+ "		for (var item : container.items) {\n"
+				+ "			if (item instanceof PublicItem) {\n"
+				+ "				var publicItem = (PublicItem) item;\n"
+				+ "				System.out.println(publicItem);\n"
+				+ "			}\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "}\n"
+				+ ""
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 7)\n" +
+			"	for (var item : container.items) {\n" +
+			"	         ^^^^\n" +
+			"The type Item is not visible\n" +
+			"----------\n");
+}
+public void testBug567183_2() {
+	this.runNegativeTest(
+			new String[] {
+				"p/Item.java",
+				"package p;\n"
+				+ "class Item {\n"
+				+ "}",
+				"p/Container.java",
+				"package p;\n"
+				+ "import java.util.List;\n"
+				+ "\n"
+				+ "public class Container {\n"
+				+ "  public final List<List<Item>> items = null;\n"
+				+ "}",
+				"p/PublicItem.java",
+				"package p;\n"
+				+ "public class PublicItem extends Item {\n"
+				+ "}",
+				"p1/X.java",
+				"package p1;\n"
+				+ "import java.util.List;\n"
+				+ "import p.Container;\n"
+				+ "import p.PublicItem;\n"
+				+ "public class X {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		var container = new Container();\n"
+				+ "		for (var item : container.items) {\n"
+				+ "			if (item instanceof PublicItem) {\n"
+				+ "				var publicItem = (PublicItem) item;\n"
+				+ "				System.out.println(publicItem);\n"
+				+ "			} else if (item instanceof List) {\n"
+				+ "				  for (var item2 : item) {}\n"
+				+ "			}\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "}\n"
+				+ ""
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 13)\n" +
+			"	for (var item2 : item) {}\n" +
+			"	         ^^^^^\n" +
+			"The type Item is not visible\n" +
+			"----------\n");
+}
+public void testBug567183_3() {
+	this.runNegativeTest(
+			new String[] {
+				"p/Item.java",
+				"package p;\n"
+				+ "class Item {\n"
+				+ "}",
+				"p/Container.java",
+				"package p;\n"
+				+ "import java.util.List;\n"
+				+ "\n"
+				+ "public class Container {\n"
+				+ "  public final List<List<Item>> items = null;\n"
+				+ "}",
+				"p/PublicItem.java",
+				"package p;\n"
+				+ "public class PublicItem extends Item {\n"
+				+ "}",
+				"p1/X.java",
+				"package p1;\n"
+				+ "import p.Container;\n"
+				+ "public class X {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		var container = new Container();\n"
+				+ "		for (var item : container.items) { // Javac over-eagerly reports this\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "}\n"
+				+ ""
+			},
+			"");
+}
+public void testBug567183_4() {
+	this.runNegativeTest(
+			new String[] {
+				"p/Item.java",
+				"package p;\n"
+				+ "class Item {\n"
+				+ "}",
+				"p/Container.java",
+				"package p;\n"
+				+ "import java.util.List;\n"
+				+ "\n"
+				+ "public class Container {\n"
+				+ "  public final List<List<Item>> items = null;\n"
+				+ "}",
+				"p/PublicItem.java",
+				"package p;\n"
+				+ "public class PublicItem extends Item {\n"
+				+ "}",
+				"p1/X.java",
+				"package p1;\n"
+				+ "import p.Container;\n"
+				+ "public class X {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		var container = new Container();\n"
+				+ "		var item1 = container.items.get(0).get(0);\n"
+				+ "	}\n"
+				+ "}\n"
+				+ ""
+			},
+			"----------\n" +
+			"1. ERROR in p1\\X.java (at line 6)\n" +
+			"	var item1 = container.items.get(0).get(0);\n" +
+			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The type Item is not visible\n" +
+			"----------\n");
 }
 }
