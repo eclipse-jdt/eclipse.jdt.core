@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -42,18 +42,12 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		URI t = this.file.toURI();
 		if (this.file.exists()) {
 			URI uri = URI.create("jar:file:" + t.getRawPath()); //$NON-NLS-1$
+
 			try {
-				this.fs = FileSystems.getFileSystem(uri);
-			} catch(FileSystemNotFoundException fne) {
-				// Ignore and move on
-			}
-			if (this.fs == null) {
 				HashMap<String, ?> env = new HashMap<>();
-				try {
-					this.fs = FileSystems.newFileSystem(uri, env);
-				} catch (IOException e) {
-					// return
-				}
+				this.fs = FileSystems.newFileSystem(uri, env);
+			} catch (FileSystemAlreadyExistsException e) {
+				this.fs = FileSystems.getFileSystem(uri);
 			}
 			this.releasePath = this.fs.getPath("/", "META-INF", "versions", this.compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (!Files.exists(this.releasePath)) {
