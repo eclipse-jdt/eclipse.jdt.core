@@ -53,7 +53,7 @@ import org.eclipse.text.edits.TextEdit;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes"})
 public class CodeFormatterApplication implements IApplication {
 
 	/**

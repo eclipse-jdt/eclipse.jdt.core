@@ -92,7 +92,6 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 		runner.runWarningTest();
 	}
 
-	@SuppressWarnings("unused")
 	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
 			throws IOException, ClassFormatException {
 		File f = new File(OUTPUT_DIR + File.separator + classFileName);

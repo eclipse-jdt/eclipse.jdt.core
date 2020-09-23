@@ -209,7 +209,7 @@ public class AbstractCompilerTest extends TestCase {
 		TestSuite complianceSuite = null;
 		try {
 			Constructor constructor = setupClass.getConstructor(new Class[]{long.class});
-			complianceSuite = (TestSuite)constructor.newInstance(new Object[]{new Long(complianceLevel)});
+			complianceSuite = (TestSuite)constructor.newInstance(new Object[]{Long.valueOf(complianceLevel)});
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		} catch (InstantiationException e) {

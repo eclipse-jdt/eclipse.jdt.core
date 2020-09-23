@@ -138,7 +138,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 
 		ASTVisitor visitor;
 
-		@SuppressWarnings("synthetic-access")
 		protected void runConformTest() {
 			runTest(this.shouldFlushOutputDirectory,
 					this.testFiles,
@@ -164,7 +163,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
 		}
 
-		@SuppressWarnings("synthetic-access")
 		protected void runNegativeTest() {
 			runTest(this.shouldFlushOutputDirectory,
 					this.testFiles,
@@ -190,7 +188,6 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
 		}
 
-		@SuppressWarnings("synthetic-access")
 		protected void runWarningTest() {
 			runTest(this.shouldFlushOutputDirectory,
 					this.testFiles,

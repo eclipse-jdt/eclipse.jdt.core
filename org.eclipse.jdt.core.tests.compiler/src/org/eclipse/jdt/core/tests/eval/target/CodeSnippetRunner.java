@@ -148,12 +148,28 @@ private String className(byte[] classDefinition) {
 Object createCodeSnippet(Class snippetClass) {
 	Object object = null;
 	try {
-		object = snippetClass.newInstance();
+		object = snippetClass.getDeclaredConstructor().newInstance();
 	} catch (InstantiationException e) {
 		e.printStackTrace();
 		this.ide.sendResult(void.class, null);
 		return null;
 	} catch (IllegalAccessException e) {
+		e.printStackTrace();
+		this.ide.sendResult(void.class, null);
+		return null;
+	} catch (IllegalArgumentException e) {
+		e.printStackTrace();
+		this.ide.sendResult(void.class, null);
+		return null;
+	} catch (InvocationTargetException e) {
+		e.printStackTrace();
+		this.ide.sendResult(void.class, null);
+		return null;
+	} catch (NoSuchMethodException e) {
+		e.printStackTrace();
+		this.ide.sendResult(void.class, null);
+		return null;
+	} catch (SecurityException e) {
 		e.printStackTrace();
 		this.ide.sendResult(void.class, null);
 		return null;
