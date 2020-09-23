@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -198,7 +198,19 @@ public void initialize() throws IOException {
 	if (this.zipFile == null) {
 		this.zipFile = new ZipFile(this.file);
 	}
+	loadModules();
 }
+private void loadModules() {
+	try {
+		ClassFileReader reader = ClassFileReader.read(this.zipFile, IModule.MODULE_INFO_CLASS);
+		if (reader != null) {
+			this.module = reader.getModuleDeclaration();
+		}
+	} catch (Exception e) {
+		// continue
+	}
+}
+
 void acceptModule(ClassFileReader reader) {
 	if (reader != null) {
 		acceptModule(reader.getModuleDeclaration());

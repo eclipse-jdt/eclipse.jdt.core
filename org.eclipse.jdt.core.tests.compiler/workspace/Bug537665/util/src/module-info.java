@@ -1,0 +1,3 @@
+module util {
+	exports util;
+}
