@@ -81,6 +81,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE13 = false;
 	protected static boolean isJRE14 = false;
 	protected static boolean isJRE15 = false;
+	protected static boolean isJRE16 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -93,6 +94,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK16) {
+			isJRE16 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK15) {
 			isJRE15 = true;
 		}

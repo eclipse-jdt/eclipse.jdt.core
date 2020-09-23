@@ -71,10 +71,10 @@ public class ImportRewrite_15Test extends AbstractJavaModelTests {
 		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "15");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
-		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
 		proj.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
-		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
+		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, String.valueOf(99));
 
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(1));

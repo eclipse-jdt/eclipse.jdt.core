@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -1215,7 +1219,7 @@ protected static class JavacTestOptions {
 	public final static String MODULE_INFO_NAME = new String(TypeConstants.MODULE_INFO_NAME);
 
 	public static boolean SHIFT = false;
-	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.VERSION_15;
+	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.latestSupportedJavaVersion();
 
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
@@ -1228,7 +1232,7 @@ protected static class JavacTestOptions {
 		super(name);
 	}
 	protected boolean checkPreviewAllowed() {
-		return this.complianceLevel == ClassFileConstants.JDK15;
+		return this.complianceLevel == ClassFileConstants.getLatestJDKLevel();
 	}
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);

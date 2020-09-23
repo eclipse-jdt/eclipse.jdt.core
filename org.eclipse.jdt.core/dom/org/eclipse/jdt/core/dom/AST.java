@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -360,12 +364,32 @@ public final class AST {
 	 * @since 3.24
 	 */
 	public static final int JLS15 = 15;
+	/**
+	 * Constant for indicating the AST API that handles JLS16.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 15 Edition (JLS16).
+	 * JLS16 is a superset of all earlier versions of the
+	 * Java language, and the JLS16 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 16(aka JDK 16).
+	 * </p>
+	 *
+	 * @since 3.24 BETA_JAVA15
+	 */
+	public static final int JLS16 = 16;
 
 	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
 	 */
 	static final int JLS15_INTERNAL = JLS15;
+	/**
+	 * Internal synonym for {@link #JLS16}. Use to alleviate
+	 * deprecation warnings once JLS16 is deprecated
+	 */
+	static final int JLS16_INTERNAL = JLS16;
 
 	/**
 	 * @since 3.24
@@ -1160,6 +1184,7 @@ public final class AST {
         t.put(JavaCore.VERSION_13, ClassFileConstants.JDK13);
         t.put(JavaCore.VERSION_14, ClassFileConstants.JDK14);
         t.put(JavaCore.VERSION_15, ClassFileConstants.JDK15);
+        t.put(JavaCore.VERSION_16, ClassFileConstants.JDK16);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1179,6 +1204,7 @@ public final class AST {
         t.put(JavaCore.VERSION_13, JLS13_INTERNAL);
         t.put(JavaCore.VERSION_14, JLS14_INTERNAL);
         t.put(JavaCore.VERSION_15, JLS15_INTERNAL);
+        t.put(JavaCore.VERSION_16, JLS16_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**

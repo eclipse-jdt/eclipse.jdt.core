@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper Steen Moller - Contributions for
@@ -127,14 +131,14 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.workingOptions = new DefaultCodeFormatterOptions(options);
 			this.oldCommentFormatOption = getOldCommentFormatOption(options);
 			String compilerSource = options.get(CompilerOptions.OPTION_Source);
-			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_15;
+			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.getLatestVersion();
 			this.previewEnabled = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES));
 		} else {
 			Map<String, String> settings = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 			this.originalOptions = new DefaultCodeFormatterOptions(settings);
 			this.workingOptions = new DefaultCodeFormatterOptions(settings);
 			this.oldCommentFormatOption = DefaultCodeFormatterConstants.TRUE;
-			this.sourceLevel = CompilerOptions.VERSION_15;
+			this.sourceLevel = CompilerOptions.getLatestVersion();
 		}
 		if (defaultCodeFormatterOptions != null) {
 			this.originalOptions.set(defaultCodeFormatterOptions.getMap());

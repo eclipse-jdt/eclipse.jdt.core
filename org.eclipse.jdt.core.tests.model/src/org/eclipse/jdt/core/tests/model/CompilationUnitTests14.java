@@ -124,7 +124,7 @@ public void tearDownSuite() throws Exception {
  * exist in a compilation unit.
  */
 public void testGetTypes() throws JavaModelException {
-	if (canRunJava15()) {
+	if (canRunJava16()) {
 		IType[] types = this.cu.getTypes();
 		String[] typeNames = new String[] {"X", "I", "I2", "I3", "Y", "Colors", "Annot", "Record"};
 		String[] flags = new String[] {"public", "", "", "", "", "", "", ""};
@@ -165,9 +165,9 @@ public void testGetTypes() throws JavaModelException {
 	}
 }
 
-public boolean canRunJava15() {
+public boolean canRunJava16() {
 	try {
-		SourceVersion.valueOf("RELEASE_15");
+		SourceVersion.valueOf("RELEASE_16");
 	} catch(IllegalArgumentException iae) {
 		return false;
 	}

@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -36,7 +40,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 		return LocalStaticsTest_15.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_15);
+		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
 	public LocalStaticsTest_15(String testName){
 		super(testName);
@@ -45,9 +49,9 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);

@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -20,7 +24,7 @@ import junit.framework.Test;
 
 public class PatternMatching15Test extends AbstractRegressionTest {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 15 --enable-preview -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 16 --enable-preview -Xlint:-preview");
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -31,7 +35,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 		return PatternMatching15Test.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_15);
+		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
 	public PatternMatching15Test(String testName){
 		super(testName);
@@ -39,9 +43,9 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews,
 				preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
@@ -88,7 +92,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"The preview feature Pattern Matching in instanceof Expressions is only available with source level 15 and above\n" +
+				"The preview feature Pattern Matching in instanceof Expressions is only available with source level "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +" and above\n" +
 				"----------\n",
 				null,
 				true,
@@ -116,7 +120,7 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 0)\n" +
 				"	public class X1 {\n" +
 				"	^\n" +
-				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level 15\n" +
+				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 				"----------\n",
 				null,
 				true,
