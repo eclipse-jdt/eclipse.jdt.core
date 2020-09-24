@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 Mateusz Matela and others.
+ * Copyright (c) 2014, 2020 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -384,7 +384,14 @@ public class CommentsPreparator extends ASTVisitor {
 		boolean isHeader = this.tm.isInHeader(commentIndex);
 		boolean formattingEnabled = (this.options.comment_format_block_comment && !isHeader)
 				|| (this.options.comment_format_header && isHeader);
-		formattingEnabled = formattingEnabled && this.tm.charAt(commentToken.originalStart + 2) != '-';
+		if (this.tm.charAt(commentToken.originalStart + 2) == '-') {
+			if (commentToken.getLineBreaksBefore() > 0 || commentIndex == 0
+					|| this.tm.get(commentIndex - 1).getLineBreaksAfter() > 0) {
+				formattingEnabled = false;
+			} else {
+				return;
+			}
+		}
 		if (formattingEnabled && tokenizeMultilineComment(commentToken)) {
 			this.commentStructure = commentToken.getInternalStructure();
 			this.ctm = new TokenManager(this.commentStructure, this.tm);

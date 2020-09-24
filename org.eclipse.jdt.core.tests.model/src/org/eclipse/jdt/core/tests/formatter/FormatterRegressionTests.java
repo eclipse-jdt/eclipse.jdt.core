@@ -15895,4 +15895,17 @@ public void testBug545078j() throws JavaModelException {
 	this.formatterPrefs.alignment_for_annotations_on_enum_constant = Alignment.M_COMPACT_SPLIT;
 	formatSourceInWorkspace("test545078", "in.java", "J_out.java");
 }
+
+/**
+ * https://bugs.eclipse.org/222083 - [formatter] Formatting bug for GWT code
+ */
+public void testBug222083() {
+	String source =
+		"class C {\n" +
+		"	private static native void redirect(String url)/*-{\n" +
+		"		$wnd.location = url;\n" +
+		"	}-*/;\n" +
+		"}";
+	formatSource(source);
+}
 }
