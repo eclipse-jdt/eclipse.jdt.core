@@ -173,6 +173,7 @@ public abstract class HierarchyBuilder {
 		switch (TypeDeclaration.kind(type.getModifiers())) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
+			case TypeDeclaration.RECORD_DECL :
 				if (superclassHandle == null) {
 					this.hierarchy.addRootClass(typeHandle);
 				} else {
@@ -181,7 +182,6 @@ public abstract class HierarchyBuilder {
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
 			case TypeDeclaration.ANNOTATION_TYPE_DECL :
-			case TypeDeclaration.RECORD_DECL :
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663
 				if (this.hierarchy.typeToSuperInterfaces.get(typeHandle) == null)
 					this.hierarchy.addInterface(typeHandle);
