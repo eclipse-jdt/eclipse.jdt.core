@@ -1000,22 +1000,25 @@ public void testBug564289_001() throws Exception {
 		p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 		waitForAutoBuild();
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-		assertMarkers("Unexpected markers",	"The package java.lang.String conflicts with a package accessible from another module: <unnamed>",  markers);
+		String expected = "Type java.lang.String is indirectly referenced from required .class files but cannot be resolved"
+				+ " since the declaring package java.lang exported from module java.base conflicts with a package accessible"
+				+ " from module <unnamed>";
+		assertMarkers("Unexpected markers",	expected,  markers);
 
 		this.workingCopy.discardWorkingCopy();
 		this.workingCopy = getCompilationUnit("p/src/X.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
-		String expected = 		"----------\n" +
+		String expectedErrorMessage = 		"----------\n" +
 				"1. ERROR in /p/src/X.java (at line 1)\n" +
 				"	import net.openhft.chronicle.bytes.BytesMarshallable; \n" +
 				"	^\n" +
-				"The package java.lang.String conflicts with a package accessible from another module: <unnamed>\n" +
+				expected + "\n" +
 				"----------\n";
-		assertProblems("Expecting  problems",expected, this.problemRequestor);
+		assertProblems("Expecting  problems",expectedErrorMessage, this.problemRequestor);
 
 		markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-		assertMarkers("Unexpected markers",	"The package java.lang.String conflicts with a package accessible from another module: <unnamed>",  markers);
+		assertMarkers("Unexpected markers", expected,  markers);
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject(p);

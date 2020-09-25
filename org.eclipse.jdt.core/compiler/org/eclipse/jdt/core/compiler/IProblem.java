@@ -2092,6 +2092,8 @@ void setSourceStart(int sourceStart);
 	int UnnamedPackageInNamedModule = ModuleRelated + 1460;
 	/** @since  3.14 */
 	int UnstableAutoModuleName = ModuleRelated + 1461;
+	/** @since  3.24 */
+	int ConflictingPackageInModules = ModuleRelated + 1462;
 
 	// doc variant of an above constant:
 	/** @since 3.22 */
