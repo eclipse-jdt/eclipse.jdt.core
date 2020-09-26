@@ -6513,7 +6513,7 @@ public void testBug311578_320754b() throws JavaModelException {
 
 /**
  * @bug 311582: [formatter] Master switch to enable/disable on/off tags
- * @test Ensure that the formatter does not take care of formatting tags by default
+ * @test Ensure that the formatter does take care of formatting tags by default
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311582"
  */
 public void testBug311582a() throws JavaModelException {
@@ -6534,12 +6534,11 @@ public void testBug311582a() throws JavaModelException {
 	formatSource(source,
 		"public class X01 {\n" +
 		"\n" +
-		"	/* disable-formatter */\n" +
-		"	void foo() {\n" +
-		"		// unformatted comment\n" +
-		"	}\n" +
-		"\n" +
-		"	/* enable-formatter */\n" +
+		"/* disable-formatter */\n" +
+		"void     foo(    )      {	\n" +
+		"				//      unformatted       comment\n" +
+		"}\n" +
+		"/* enable-formatter */\n" +
 		"	void bar() {\n" +
 		"		// formatted comment\n" +
 		"	}\n" +
@@ -6557,14 +6556,7 @@ public void testBug311582b() {
 		"				//      unformatted       area\n" +
 		"}\n" +
 		"}\n";
-	formatSource(source,
-		"/* off */\n" +
-		"public class X01 {\n" +
-		"	void foo() {\n" +
-		"		// unformatted area\n" +
-		"	}\n" +
-		"}\n"
-	);
+	formatSource(source);
 }
 
 /**

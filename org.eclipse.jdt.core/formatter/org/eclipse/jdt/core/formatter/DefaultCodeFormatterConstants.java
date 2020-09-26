@@ -1682,7 +1682,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to use the disabling and enabling tags defined respectively by the {@link #FORMATTER_DISABLING_TAG} and the {@link #FORMATTER_ENABLING_TAG} options.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.use_on_off_tags"
 	 *     - possible values:   TRUE / FALSE
-	 *     - default:           FALSE
+	 *     - default:           TRUE
 	 * </pre>
 	 * @since 3.6
 	 */
@@ -5789,6 +5789,7 @@ public class DefaultCodeFormatterConstants {
 		DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getDefaultSettings();
 		options.page_width = 80; // changed with bug 356841
 		options.comment_count_line_length_from_starting_position = false;
+		options.use_tags = false;
 		return options.getMap();
 	}
 

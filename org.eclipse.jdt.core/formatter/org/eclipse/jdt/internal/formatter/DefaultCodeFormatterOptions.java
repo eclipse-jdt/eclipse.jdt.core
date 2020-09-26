@@ -3304,7 +3304,7 @@ public class DefaultCodeFormatterOptions {
 		this.wrap_before_or_operator_multicatch = true;
 		this.wrap_before_conditional_operator = true;
 		this.wrap_before_assignment_operator = false;
-		this.use_tags = false;
+		this.use_tags = true;
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
 		this.wrap_outer_expressions_when_nested = true;
@@ -3696,7 +3696,7 @@ public class DefaultCodeFormatterOptions {
 		this.wrap_before_or_operator_multicatch = true;
 		this.wrap_before_conditional_operator = true;
 		this.wrap_before_assignment_operator = false;
-		this.use_tags = false;
+		this.use_tags = true;
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
 		this.wrap_outer_expressions_when_nested = true;

@@ -15908,4 +15908,37 @@ public void testBug222083() {
 		"}";
 	formatSource(source);
 }
+
+/**
+ * Bug 567016 - [formatter] off/on tags: enable by default
+ */
+public void testBug567016() {
+	this.formatterPrefs.use_tags = false;
+	String source =
+		"public class X01 {\n" +
+		"\n" +
+		"/* @formatter:off */\n" +
+		"void     foo(    )      {	\n" +
+		"				//      unformatted       comment\n" +
+		"}\n" +
+		"/* @formatter:on */\n" +
+		"void     bar(    )      {	\n" +
+		"				//      formatted       comment\n" +
+		"}\n" +
+		"}\n";
+	formatSource(source,
+		"public class X01 {\n" +
+		"\n" +
+		"	/* @formatter:off */\n" +
+		"	void foo() {\n" +
+		"		// unformatted comment\n" +
+		"	}\n" +
+		"\n" +
+		"	/* @formatter:on */\n" +
+		"	void bar() {\n" +
+		"		// formatted comment\n" +
+		"	}\n" +
+		"}\n"
+	);
+}
 }
