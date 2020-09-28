@@ -132,7 +132,11 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	}
 	@Override
 	public int hashCode() {
-		return this.jarPath.hashCode() + this.moduleName.hashCode() + Arrays.hashCode(this.extraAttributes);
+		int hash = 31;
+		hash = Util.combineHashCodes(hash, this.jarPath.hashCode());
+		hash = Util.combineHashCodes(hash, this.moduleName.hashCode());
+		hash = Util.combineHashCodes(hash, Arrays.hashCode(this.extraAttributes));
+		return hash;
 	}
 	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
