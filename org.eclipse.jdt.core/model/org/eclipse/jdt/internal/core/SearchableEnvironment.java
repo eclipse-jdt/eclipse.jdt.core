@@ -914,23 +914,26 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 				//$FALL-THROUGH$
 			case AnyNamed:
 				char[][] names = CharOperation.NO_CHAR_CHAR;
-				IPackageFragmentRoot[] packageRoots = this.nameLookup.packageFragmentRoots;
-				boolean containsUnnamed = false;
-				for (IPackageFragmentRoot packageRoot : packageRoots) {
-					IPackageFragmentRoot[] singleton = { packageRoot };
-					if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
-						if (this.nameLookup.isPackage(pkgName, singleton)) {
-							IModuleDescription moduleDescription = getModuleDescription(singleton);
-							char[] aName;
-							if (moduleDescription != null) {
-								aName = moduleDescription.getElementName().toCharArray();
-							} else {
-								if (containsUnnamed)
-									continue;
-								containsUnnamed = true;
-								aName = ModuleBinding.UNNAMED;
+				// narrow down candidates of roots (https://bugs.eclipse.org/566498)
+				IPackageFragmentRoot[] matchingRoots = this.nameLookup.findPackageFragementRoots(pkgName);
+				if(matchingRoots != null) {
+					boolean containsUnnamed = false;
+					for (IPackageFragmentRoot packageRoot : matchingRoots) {
+						IPackageFragmentRoot[] singleton = { packageRoot };
+						if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
+							if (this.nameLookup.isPackage(pkgName, singleton)) {
+								IModuleDescription moduleDescription = getModuleDescription(singleton);
+								char[] aName;
+								if (moduleDescription != null) {
+									aName = moduleDescription.getElementName().toCharArray();
+								} else {
+									if (containsUnnamed)
+										continue;
+									containsUnnamed = true;
+									aName = ModuleBinding.UNNAMED;
+								}
+								names = CharOperation.arrayConcat(names, aName);
 							}
-							names = CharOperation.arrayConcat(names, aName);
 						}
 					}
 				}
@@ -962,12 +965,16 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 				}
 				//$FALL-THROUGH$
 			case AnyNamed:
-				IPackageFragmentRoot[] packageRoots = this.nameLookup.packageFragmentRoots;
-				for (IPackageFragmentRoot packageRoot : packageRoots) {
-					IPackageFragmentRoot[] singleton = { packageRoot };
-					if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
-						if (this.nameLookup.hasCompilationUnit(pkgName, singleton))
-							return true;
+				// narrow down candidates of roots (https://bugs.eclipse.org/566498)
+				String[] splittedName = Util.toStrings(pkgName);
+				IPackageFragmentRoot[] packageRoots = this.nameLookup.findPackageFragementRoots(splittedName);
+				if(packageRoots != null) {
+					for (IPackageFragmentRoot packageRoot : packageRoots) {
+						IPackageFragmentRoot[] singleton = { packageRoot };
+						if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
+							if (this.nameLookup.hasCompilationUnit(pkgName, singleton))
+								return true;
+						}
 					}
 				}
 				return false;
