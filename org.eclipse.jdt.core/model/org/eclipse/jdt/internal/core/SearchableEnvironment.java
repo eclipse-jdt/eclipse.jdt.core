@@ -76,6 +76,8 @@ public class SearchableEnvironment
 	private ModuleUpdater moduleUpdater;
 	private Map<IPackageFragmentRoot,IModuleDescription> rootToModule;
 
+	private long timeSpentInGetModulesDeclaringPackage;
+
 	@Deprecated
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
 		this(project, workingCopies, false);
@@ -888,58 +890,66 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	 */
 	@Override
 	public char[][] getModulesDeclaringPackage(char[][] packageName, char[] moduleName) {
-		String[] pkgName = Arrays.stream(packageName).map(String::new).toArray(String[]::new);
-		LookupStrategy strategy = LookupStrategy.get(moduleName);
-		switch (strategy) {
-			case Named:
-				if (this.knownModuleLocations != null) {
-					IPackageFragmentRoot[] moduleContext = findModuleContext(moduleName);
-					if (moduleContext != null) {
-						// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
-						if (this.nameLookup.isPackage(pkgName, moduleContext)) {
-							return new char[][] { moduleName };
-						}
-					}
-				}
-				return null;
-			case Unnamed:
-			case Any:
-				// if in pre-9 mode we may still search the unnamed module
-				if (this.knownModuleLocations == null) {
-					if ((this.owner != null && this.owner.isPackage(pkgName))
-							|| this.nameLookup.isPackage(pkgName))
-						return new char[][] { ModuleBinding.UNNAMED };
-					return null;
-				}
-				//$FALL-THROUGH$
-			case AnyNamed:
-				char[][] names = CharOperation.NO_CHAR_CHAR;
-				// narrow down candidates of roots (https://bugs.eclipse.org/566498)
-				IPackageFragmentRoot[] matchingRoots = this.nameLookup.findPackageFragementRoots(pkgName);
-				if(matchingRoots != null) {
-					boolean containsUnnamed = false;
-					for (IPackageFragmentRoot packageRoot : matchingRoots) {
-						IPackageFragmentRoot[] singleton = { packageRoot };
-						if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
-							if (this.nameLookup.isPackage(pkgName, singleton)) {
-								IModuleDescription moduleDescription = getModuleDescription(singleton);
-								char[] aName;
-								if (moduleDescription != null) {
-									aName = moduleDescription.getElementName().toCharArray();
-								} else {
-									if (containsUnnamed)
-										continue;
-									containsUnnamed = true;
-									aName = ModuleBinding.UNNAMED;
-								}
-								names = CharOperation.arrayConcat(names, aName);
+		long start = -1;
+		if (NameLookup.VERBOSE)
+			start = System.currentTimeMillis();
+		try {
+			String[] pkgName = Arrays.stream(packageName).map(String::new).toArray(String[]::new);
+			LookupStrategy strategy = LookupStrategy.get(moduleName);
+			switch (strategy) {
+				case Named:
+					if (this.knownModuleLocations != null) {
+						IPackageFragmentRoot[] moduleContext = findModuleContext(moduleName);
+						if (moduleContext != null) {
+							// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
+							if (this.nameLookup.isPackage(pkgName, moduleContext)) {
+								return new char[][] { moduleName };
 							}
 						}
 					}
-				}
-				return names == CharOperation.NO_CHAR_CHAR ? null : names;
-			default:
-				throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
+					return null;
+				case Unnamed:
+				case Any:
+					// if in pre-9 mode we may still search the unnamed module
+					if (this.knownModuleLocations == null) {
+						if ((this.owner != null && this.owner.isPackage(pkgName))
+								|| this.nameLookup.isPackage(pkgName))
+							return new char[][] { ModuleBinding.UNNAMED };
+						return null;
+					}
+					//$FALL-THROUGH$
+				case AnyNamed:
+					char[][] names = CharOperation.NO_CHAR_CHAR;
+					// narrow down candidates of roots (https://bugs.eclipse.org/566498)
+					IPackageFragmentRoot[] matchingRoots = this.nameLookup.findPackageFragementRoots(pkgName);
+					if(matchingRoots != null) {
+						boolean containsUnnamed = false;
+						for (IPackageFragmentRoot packageRoot : matchingRoots) {
+							IPackageFragmentRoot[] singleton = { packageRoot };
+							if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
+								if (this.nameLookup.isPackage(pkgName, singleton)) {
+									IModuleDescription moduleDescription = getModuleDescription(singleton);
+									char[] aName;
+									if (moduleDescription != null) {
+										aName = moduleDescription.getElementName().toCharArray();
+									} else {
+										if (containsUnnamed)
+											continue;
+										containsUnnamed = true;
+										aName = ModuleBinding.UNNAMED;
+									}
+									names = CharOperation.arrayConcat(names, aName);
+								}
+							}
+						}
+					}
+					return names == CharOperation.NO_CHAR_CHAR ? null : names;
+				default:
+					throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
+			}
+		} finally {
+			if (NameLookup.VERBOSE)
+				this.timeSpentInGetModulesDeclaringPackage += System.currentTimeMillis()-start;
 		}
 	}
 	@Override
@@ -1161,5 +1171,15 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 			default:
 				throw new UnsupportedOperationException("can list packages only of a named module"); //$NON-NLS-1$
 		}
+	}
+
+	public void printTimeSpent() {
+		if(!NameLookup.VERBOSE)
+			return;
+
+		Util.verbose(" TIME SPENT SearchableEnvironment");  //$NON-NLS-1$
+		Util.verbose(" -> getModulesDeclaringPackage: " +  this.timeSpentInGetModulesDeclaringPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+
+		this.nameLookup.printTimeSpent();
 	}
 }
