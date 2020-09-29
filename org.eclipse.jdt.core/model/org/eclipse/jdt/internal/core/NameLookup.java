@@ -1086,11 +1086,30 @@ public class NameLookup implements SuffixConstants {
 		if (moduleContext == null) // includes the case where looking for module UNNAMED or ANY
 			return isPackage(pkgName);
 
+		String[] trimmedPkgName = null;
 		for (IPackageFragmentRoot moduleRoot : moduleContext) {
+			if (moduleRoot instanceof PackageFragmentRoot) {
+				// Performance improvement: Avoid String.join(".") with
+				// subsequent Signature.getSimpleNames(). We already have
+				// that String array, we just need to trim the names.
+				if (trimmedPkgName == null) {
+					trimmedPkgName = trim(pkgName);
+				}
+				if (((PackageFragmentRoot)moduleRoot).getPackageFragment(trimmedPkgName).exists())
+					return true;
+			} else
 			if (moduleRoot.getPackageFragment(String.join(".", pkgName)).exists()) //$NON-NLS-1$
 				return true;
 		}
 		return false;
+	}
+
+	private static String[] trim(String[] strings) {
+		String[] trimmed = new String[strings.length];
+		for (int i = 0; i < strings.length; i++) {
+			trimmed[i] = strings[i].trim();
+		}
+		return trimmed;
 	}
 
 	private boolean moduleMatches(IPackageFragmentRoot root, IPackageFragmentRoot[] moduleContext) {
