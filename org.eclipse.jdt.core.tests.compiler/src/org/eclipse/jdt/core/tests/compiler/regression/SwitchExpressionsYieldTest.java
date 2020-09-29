@@ -5925,4 +5925,37 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n"
 				);
 	}
+	public void testBug567112_001() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"import java.util.ArrayList;\n"+
+						"\n"+
+						"public class X {\n"+
+						"    public void foo() {\n"+
+						"        new ArrayList<>().stream().filter(p -> p != null)\n"+
+						"        switch (\"\") {\n"+
+						"        case \"\":\n"+
+						"        }\n"+
+						"    }\n"+
+						"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	new ArrayList<>().stream().filter(p -> p != null)\n" +
+				"	                                            ^^^^^\n" +
+				"Syntax error on tokens, delete these tokens\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error, insert \")\" to complete Expression\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 8)\n" +
+				"	}\n" +
+				"	^\n" +
+				"Syntax error, insert \";\" to complete BlockStatements\n" +
+				"----------\n"
+				);
+	}
 }
