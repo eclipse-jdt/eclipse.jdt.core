@@ -5631,8 +5631,8 @@ private VanguardParser getNewVanguardParser(char[] src) {
 }
 int disambiguatedToken(int token) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr()) {
-		assert this.caseStartPosition < this.startPosition;
+	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  this.caseStartPosition < this.startPosition) {
+		// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
 		int nSz = this.startPosition - this.caseStartPosition;
 		// add fake token of TokenNameCOLON, call vanguard on this modified source
 		// TODO: Inefficient method due to redoing of the same source, investigate alternate
