@@ -1215,7 +1215,7 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	projects.add(project);
 	if (this.pattern.focus != null) {
 		IJavaProject focusProject = this.pattern.focus.getJavaProject();
-		if (focusProject != project) {
+		if (!project.equals(focusProject)) {
 			projects.add(focusProject);
 		}
 	}
