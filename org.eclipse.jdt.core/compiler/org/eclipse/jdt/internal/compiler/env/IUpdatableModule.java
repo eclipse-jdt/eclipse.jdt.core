@@ -79,6 +79,11 @@ public interface IUpdatableModule {
 			}
 			return hash;
 		}
+		@Override
+		public String toString() {
+			return "add-exports " + CharOperation.charToString(this.name) + "=" + CharOperation.charToString(CharOperation.concatWith(this.targets, ','));  //$NON-NLS-1$//$NON-NLS-2$
+		}
+
 	}
 
 	class AddReads implements Consumer<IUpdatableModule> {
@@ -113,6 +118,10 @@ public interface IUpdatableModule {
 		public int hashCode() {
 			return CharOperation.hashCode(this.targetModule);
 		}
+		@Override
+		public String toString() {
+			return "add-read " + CharOperation.charToString(this.targetModule); //$NON-NLS-1$
+		}
 	}
 	/** Structure for update operations, sorted by {@link UpdateKind}. */
 	class UpdatesByKind {
@@ -131,6 +140,21 @@ public interface IUpdatableModule {
 				default:
 					throw new IllegalArgumentException("Unknown enum value "+kind); //$NON-NLS-1$
 			}
+		}
+		@Override
+		public String toString() {
+			StringBuilder result = new StringBuilder();
+			for (Consumer<IUpdatableModule> consumer : this.moduleUpdates) {
+				if(result.length() > 0)
+					result.append("\n"); //$NON-NLS-1$
+				result.append(consumer);
+			}
+			for (Consumer<IUpdatableModule> consumer : this.packageUpdates) {
+				if(result.length() > 0)
+					result.append("\n"); //$NON-NLS-1$
+				result.append(consumer);
+			}
+			return result.toString();
 		}
 	}
 
