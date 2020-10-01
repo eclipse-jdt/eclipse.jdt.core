@@ -580,14 +580,14 @@ private boolean hasClasspathChanged(CompilationGroup compilationGroup) {
 	for (n = o = 0; n < newLength && o < oldLength; n++, o++) {
 		if (newBinaryLocations[n].equals(oldBinaryLocations[o])) continue;
 		if (DEBUG) {
-			System.out.println("JavaBuilder: New location: " + newBinaryLocations[n] + "\n!= old location: " + oldBinaryLocations[o]); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println("JavaBuilder: New test location: " + newBinaryLocations[n] + "\n!= old test location: " + oldBinaryLocations[o]); //$NON-NLS-1$ //$NON-NLS-2$
 			printLocations(newBinaryLocations, oldBinaryLocations);
 		}
 		return true;
 	}
 	if (n < newLength || o < oldLength) {
 		if (DEBUG) {
-			System.out.println("JavaBuilder: Number of binary folders/jar files has changed:"); //$NON-NLS-1$
+			System.out.println("JavaBuilder: Number of test binary folders/jar files has changed:"); //$NON-NLS-1$
 			printLocations(newBinaryLocations, oldBinaryLocations);
 		}
 		return true;
