@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
+import static org.eclipse.jdt.core.tests.compiler.regression.AbstractBatchCompilerTest.OUTPUT_DIR_PLACEHOLDER;
+
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,13 +49,13 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
-import junit.framework.TestCase;
-
 import org.eclipse.jdt.compiler.tool.tests.AbstractCompilerToolTest.CompilerInvocationDiagnosticListener;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+
+import junit.framework.TestCase;
 
 public class CompilerToolTests extends TestCase {
 	private static final boolean DEBUG = false;
@@ -1333,9 +1335,40 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				.map(d -> d.getKind().toString() + ' ' + 
 						d.getLineNumber() + ": " + d.getMessage(Locale.getDefault()))
 				.collect(Collectors.joining("\n")));
-		assertEquals("Unexpected output:", expectedOutput.replaceAll("---OUTPUT_DIR_PLACEHOLDER---", tmpFolder), stringWriter.toString());
+
+		
+		String expected = expectedOutput.replaceAll(OUTPUT_DIR_PLACEHOLDER, normalized(tmpFolder));
+		String actual = normalized(stringWriter.toString());
+		
+		assertEquals("Unexpected output:", expected, actual);
 	}
 
+	private static String normalized(String s) {
+		s = convertToIndependantLineDelimiter(s);
+		if(File.separatorChar != '/') {
+			s = s.replace(File.separatorChar, '/');
+		}
+		return s;
+	}
+
+	public static String convertToIndependantLineDelimiter(String source) {
+		if (source == null) return "";
+	    if (source.indexOf('\n') == -1 && source.indexOf('\r') == -1) return source;
+	    StringBuffer buffer = new StringBuffer();
+	    for (int i = 0, length = source.length(); i < length; i++) {
+	        char car = source.charAt(i);
+	        if (car == '\r') {
+	            buffer.append('\n');
+	            if (i < length-1 && source.charAt(i+1) == '\n') {
+	                i++; // skip \n after \r
+	            }
+	        } else {
+	            buffer.append(car);
+	        }
+	    }
+	    return buffer.toString();
+	}
+	
 	public void testCompilerSimpleSuppressWarnings() throws Exception {
 		suppressTest("p/SuppressTest.java", 
 				"package p;\n" +
