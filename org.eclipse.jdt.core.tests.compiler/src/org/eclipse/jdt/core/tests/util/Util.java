@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.*;
 import java.net.ServerSocket;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.*;
 
@@ -1431,9 +1432,10 @@ public static void zip(File rootDir, String zipPath) throws IOException {
     try {
         File zipFile = new File(zipPath);
         if (zipFile.exists()) {
-        	if (!delete(zipFile))
-	        	throw new IOException("Could not delete " + zipPath);
-        	 // ensure the new zip file has a different timestamp than the previous one
+        	if (!delete(zipFile)) {
+				Files.deleteIfExists(zipFile.toPath());
+			}
+        	// ensure the new zip file has a different timestamp than the previous one
         	int timeToWait = 1000; // some platform (like Linux) have a 1s granularity)
             waitAtLeast(timeToWait);
         } else {
@@ -1472,8 +1474,9 @@ private static void zip(File dir, ZipOutputStream zip, int rootPathLength) throw
 public static void zipFiles(File[] files, String zipPath) throws IOException {
 	File zipFile = new File(zipPath);
 	if (zipFile.exists()) {
-		if (!delete(zipFile))
-			throw new IOException("Could not delete " + zipPath);
+		if (!delete(zipFile)) {
+			Files.deleteIfExists(zipFile.toPath());
+		}
 		// ensure the new zip file has a different timestamp than the previous one
 		int timeToWait = 1000; // some platform (like Linux) have a 1s granularity)
 		waitAtLeast(timeToWait);
