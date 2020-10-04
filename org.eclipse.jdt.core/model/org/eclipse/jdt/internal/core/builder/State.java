@@ -59,8 +59,8 @@ public class State {
 String javaProjectName;
 public ClasspathMultiDirectory[] sourceLocations;
 public ClasspathMultiDirectory[] testSourceLocations;
-ClasspathLocation[] binaryLocations;
-ClasspathLocation[] testBinaryLocations;
+public ClasspathLocation[] binaryLocations;
+public ClasspathLocation[] testBinaryLocations;
 // keyed by the project relative path of the type (i.e. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 Map<String, ReferenceCollection> references;
 // keyed by qualified type name "p1/p2/A", value is the project relative path which defines this type "src1/p1/p2/A.java"
@@ -76,7 +76,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x0022;
+public static final byte VERSION = 0x0023;
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -377,6 +377,38 @@ static State read(IProject project, DataInputStream in) throws IOException, Core
 							readRestriction(in), new Path(in.readUTF()), in.readBoolean(), in.readUTF());
 					break;
 		}
+		ClasspathLocation loc = newState.testBinaryLocations[i];
+		char[] patchName = readName(in);
+		loc.patchModuleName = patchName.length > 0 ? new String(patchName) : null;
+		int limitSize = in.readInt();
+		if (limitSize != 0) {
+			loc.limitModuleNames = new LinkedHashSet<>(limitSize);
+			for (int j = 0; j < limitSize; j++) {
+				loc.limitModuleNames.add(in.readUTF());
+			}
+		} else {
+			loc.limitModuleNames = null;
+		}
+		IUpdatableModule.UpdatesByKind updates = new IUpdatableModule.UpdatesByKind();
+		List<Consumer<IUpdatableModule>> packageUpdates = null;
+		int packageUpdatesSize = in.readInt();
+		if (packageUpdatesSize != 0) {
+			packageUpdates = updates.getList(UpdateKind.PACKAGE, true);
+			for (int j = 0; j < packageUpdatesSize; j++) {
+				char[] pkgName = readName(in);
+				char[][] targets = readNames(in);
+				packageUpdates.add(new AddExports(pkgName, targets));
+			}
+		}
+		List<Consumer<IUpdatableModule>> moduleUpdates = null;
+		int moduleUpdatesSize = in.readInt();
+		if (moduleUpdatesSize != 0) {
+			moduleUpdates = updates.getList(UpdateKind.MODULE, true);
+			char[] modName = readName(in);
+			moduleUpdates.add(new AddReads(modName));
+		}
+		if (packageUpdates != null || moduleUpdates != null)
+			loc.updates = updates;
 	}
 
 	newState.structuralBuildTimes = new SimpleLookupTable(length = in.readInt());
@@ -702,6 +734,55 @@ void write(DataOutputStream out) throws IOException {
 					out.writeUTF(((ClasspathJrtWithReleaseOption) jrt).release);
 				else
 					out.writeUTF(""); //$NON-NLS-1$
+			}
+			char[] patchName = c.patchModuleName == null ? CharOperation.NO_CHAR : c.patchModuleName.toCharArray();
+			writeName(patchName, out);
+			if (c.limitModuleNames != null) {
+				out.writeInt(c.limitModuleNames.size());
+				for (String name : c.limitModuleNames) {
+					out.writeUTF(name);
+				}
+			} else {
+				out.writeInt(0);
+			}
+			if (c.updates != null) {
+				List<Consumer<IUpdatableModule>> pu = c.updates.getList(UpdateKind.PACKAGE, false);
+				if (pu != null) {
+					Map<String, List<Consumer<IUpdatableModule>>> map = pu.stream().
+							collect(Collectors.groupingBy(
+									update -> CharOperation.charToString(((IUpdatableModule.AddExports)update).getName())));
+					out.writeInt(map.size());
+					map.entrySet().stream().forEach(entry -> {
+						String pkgName = entry.getKey();
+						try {
+							writeName(pkgName.toCharArray(), out);
+							char[][] targetModules = entry.getValue().stream()
+									.map(consumer -> ((IUpdatableModule.AddExports) consumer).getTargetModules())
+									.filter(targets -> targets != null)
+									.reduce((f,s) -> CharOperation.arrayConcat(f,s))
+									.orElse(null);
+							writeNames(targetModules, out);
+						} catch (IOException e) {
+							// ignore
+						}
+
+					});
+				} else {
+					out.writeInt(0);
+				}
+				List<Consumer<IUpdatableModule>> mu = c.updates.getList(UpdateKind.MODULE, false);
+				if (mu != null) {
+					out.writeInt(mu.size());
+					for (Consumer<IUpdatableModule> cons : mu) {
+						AddReads m = (AddReads) cons;
+						writeName(m.getTarget(), out);
+					}
+				} else {
+					out.writeInt(0);
+				}
+			} else {
+				out.writeInt(0);
+				out.writeInt(0);
 			}
 		}
 
