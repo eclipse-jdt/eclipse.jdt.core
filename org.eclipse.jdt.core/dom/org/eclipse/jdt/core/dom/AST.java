@@ -367,8 +367,11 @@ public final class AST {
 	 */
 	static final int JLS15_INTERNAL = JLS15;
 
-	/* Used for Java doc only*/
-	private static final int JLS_Latest = JLS15;
+	/**
+	 * @since 3.24
+	 * This provides the latest JLS level.
+	 */
+	public static final int JLS_Latest = JLS15;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
