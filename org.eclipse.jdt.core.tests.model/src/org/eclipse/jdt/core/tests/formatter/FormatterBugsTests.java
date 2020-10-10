@@ -13218,4 +13218,17 @@ public void testBug565053b() {
 		"	);\n" +
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/567714 - [15] Formatting record file moves annotation to the line of record declaration
+ */
+public void testBug567714() {
+	formatSource(
+		"@SuppressWarnings(\"preview\")\n" +
+		"@Deprecated\n" +
+		"public record X(int i) {\n" +
+		"	public X(int i) {\n" +
+		"		this.i = i;\n" +
+		"	}\n" +
+		"}");
+}
 }
