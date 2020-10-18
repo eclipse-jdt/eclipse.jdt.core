@@ -2137,12 +2137,7 @@ public class CompilerOptions {
 
 	String nameListToString(String[] names) {
 		if (names == null) return ""; //$NON-NLS-1$
-		StringBuilder buf = new StringBuilder();
-		for (int i = 0; i < names.length; i++) {
-			if (i > 0) buf.append(',');
-			buf.append(names[i]);
-		}
-		return buf.toString();
+		return String.join(String.valueOf(','), names);
 	}
 
 	@Override

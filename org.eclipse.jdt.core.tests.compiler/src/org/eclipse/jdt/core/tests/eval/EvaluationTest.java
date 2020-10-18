@@ -165,13 +165,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	 * Build a char array from the given lines
 	 */
 	protected char[] buildCharArray(String[] lines) {
-		StringBuffer buffer = new StringBuffer();
-		for (int i = 0; i < lines.length; i++) {
-			buffer.append(lines[i]);
-			if (i < lines.length - 1) {
-				buffer.append("\n");
-			}
-		}
+		String buffer = String.join("\n", lines);
 		int length = buffer.length();
 		char[] result = new char[length];
 		buffer.getChars(0, length, result, 0);
