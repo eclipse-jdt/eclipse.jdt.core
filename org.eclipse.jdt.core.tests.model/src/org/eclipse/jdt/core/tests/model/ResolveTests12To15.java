@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -720,6 +720,27 @@ public void _testBug553149_5() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"x_ [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+public void testBug553149_6() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    @SuppressWarnings(\"preview\")\n"
+					+ "	   public void f(Object obj, boolean b) {\n"
+					+ "        if ((y instanceof String /*not selecting */x_) && /* selecting*/x_.length() > 0) {\n"
+					+ "            System.out.println(x_.toLowerCase());\n"
+					+ "        }\n"
+					+ "    }\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "x_";
+	int start = str.indexOf(selection);
+	int length = "x_".length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x_ [in f(Object, boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
 		elements
 	);
 }
