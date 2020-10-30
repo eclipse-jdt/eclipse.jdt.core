@@ -29,7 +29,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug566418_001"};
+//		TESTS_NAMES = new String[] { "testBug564672_037"};
 	}
 
 	public static Class<?> testClass() {
@@ -7925,5 +7925,51 @@ public void testBug567731_002() {
 		"Illegal modifier for the local record R2; only final and strictfp are permitted\n" +
 		"----------\n"
 	);
+}
+public void testBug566846_1() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X;\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public record X;\n" +
+			"	       ^^^^^^\n" +
+			"Syntax error on token \"record\", package expected\n" +
+			"----------\n",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			getCompilerOptions());
+}
+public void testBug566846_2() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "} \n"
+				+ "record R1;\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	} \n" +
+			"	^\n" +
+			"Syntax error on token \"}\", delete this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	record R1;\n" +
+			"	^^^^^^\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 15\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	record R1;\n" +
+			"	         ^\n" +
+			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"----------\n",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			getCompilerOptions());
 }
 }
