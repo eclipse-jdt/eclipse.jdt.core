@@ -2378,7 +2378,7 @@ public void testBug558718_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
 		"	^^^^^^\n" +
-		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"Syntax error on token \"record\", record expected\n" +
 		"----------\n",
 		null,
 		true,
@@ -2399,7 +2399,7 @@ public void testBug558718_002() {
 	"1. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
 	"	^^^^^^\n" +
-	"The preview feature Records is only available with source level 15 and above\n" +
+	"Syntax error on token \"record\", @ expected\n" +
 	"----------\n" +
 	"2. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
@@ -6870,7 +6870,7 @@ public void testBug564672b_039() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
 		"	^^^^^^\n" +
-		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"Syntax error on token \"record\", record expected\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 7)\n" +
 		"	class record {}\n" +

@@ -9541,7 +9541,7 @@ public boolean validateRestrictedKeywords(char[] name, int start, int end, boole
 		for (char[] k : restrictedKeywords) {
 			if (CharOperation.equals(name, k)) {
 				if (reportSyntaxError) {
-					return validateJavaFeatureSupport(feature, start, end);
+//					return validateJavaFeatureSupport(feature, start, end);
 				} else {
 					if (feature.isPreview()) {
 						int severity = isPreviewEnabled ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning;

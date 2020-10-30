@@ -31,7 +31,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565847_001"};
+//		TESTS_NAMES = new String[] { "testBug566979","testBug566980", "testBug566846"};
 	}
 
 	public static Class<?> testClass() {
@@ -2847,7 +2847,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
 			"	^^^^^^\n" +
-			"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"Syntax error on token \"record\", record expected\n" +
 			"----------\n",
 			null,
 			true,
@@ -4570,7 +4570,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
 			"	^^^^^^\n" +
-			"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"Syntax error on token \"record\", record expected\n" +
 			"----------\n",
 			null,
 			true,
@@ -5300,6 +5300,111 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 					"	^^^^^^\n" +
 					"You are using a preview language feature that may or may not be supported in a future release\n" +
 					"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug566979_001() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public sealed void main(String[] args){ }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public sealed void main(String[] args){ }\n" +
+			"	       ^^^^^^\n" +
+			"Syntax error on token \"sealed\", static expected\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug566979_002() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public sealed void main(String[] args){ }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public sealed void main(String[] args){ }\n" +
+			"	       ^^^^^^\n" +
+			"Syntax error on token \"sealed\", static expected\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug566980_001() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public permits void main(String[] args){ }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public permits void main(String[] args){ }\n" +
+			"	               ^^^^\n" +
+			"Syntax error on token \"void\", delete this token\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void testBug566980_002() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public permits void main(String[] args){ }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	public permits void main(String[] args){ }\n" +
+			"	               ^^^^\n" +
+			"Syntax error on token \"void\", delete this token\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug566846_001() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X;\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^^^^^^\n" +
+			"Syntax error on token \"record\", package expected\n" +
+			"----------\n",
 			null,
 			true,
 			options
