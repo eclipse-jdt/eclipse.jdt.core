@@ -760,7 +760,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		assertEquals("wrong line number", 9, compilationUnit.getLineNumber(node.getStartPosition()));
 	}
 
-	public void _testPatternInstanceOfExpression001() throws JavaModelException {
+	public void testPatternInstanceOfExpression001() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -795,14 +795,14 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				checkSourceRange(expression, "o instanceof String s", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
 				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getPatternVariable();
-				checkSourceRange(var, "String s", contents);
+				SimpleName var = instanceofExpression.getPatternVariable();
+				checkSourceRange(var, "s", contents);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
 	}
 
-	public void _testPatternInstanceOfExpression002() throws JavaModelException {
+	public void testPatternInstanceOfExpression002() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -838,7 +838,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				checkSourceRange(expression, "o instanceof String", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
 				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getPatternVariable();
+				SimpleName var = instanceofExpression.getPatternVariable();
 				assertNull(var);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);

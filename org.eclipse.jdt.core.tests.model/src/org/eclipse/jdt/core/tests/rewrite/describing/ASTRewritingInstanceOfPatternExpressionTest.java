@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
@@ -90,10 +89,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			instanceOfExpression.setLeftOperand(ast.newSimpleName("o"));//$NON-NLS-1$
 			SimpleType simpleType = ast.newSimpleType(ast.newSimpleName("String"));//$NON-NLS-1$
 			instanceOfExpression.setRightOperand(simpleType);
-			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
-			patternVariable.setName(ast.newSimpleName("s"));
-			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("String")));//$NON-NLS-1$
-			instanceOfExpression.setPatternVariable(patternVariable);
+			instanceOfExpression.setPatternVariable(ast.newSimpleName("s"));
 			ifStatement.setExpression(instanceOfExpression);
 			ifStatement.setThenStatement(ast.newEmptyStatement());
 			rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY).insertLast(ifStatement, null);
