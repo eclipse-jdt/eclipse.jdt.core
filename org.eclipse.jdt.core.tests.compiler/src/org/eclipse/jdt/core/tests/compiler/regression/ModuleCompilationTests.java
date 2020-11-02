@@ -46,7 +46,7 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "test001" };
+//		 TESTS_NAMES = new String[] { "testRelease565930" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -4066,8 +4066,8 @@ public void testBug521362_emptyFile() {
 		     "----------\n" +
     		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
     		 "	public java.util.stream.Stream<String> emptyStream() {\n" +
-    		 "	       ^^^^^^^^^^^^^^^^\n" +
-    		 "java.util.stream cannot be resolved to a type\n" +
+    		 "	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+    		 "java.util.stream.Stream cannot be resolved to a type\n" +
     		 "----------\n" +
     		 "1 problem (1 error)\n",
 		     true);
@@ -5476,5 +5476,41 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				false,
 				"");
+	}
+	public void testRelease565930_1() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"Dummy.java",
+					"public class Dummy {\n"
+					+ "	boolean b = new String(\"a\").contains(\"b\");\n"
+					+ "}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "Dummy.java\""
+		     + " --release 9 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+	}
+	public void testRelease565930_2() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"Main.java",
+					"public final class Main<T extends Object> {\n"
+					+ "    public void test() {\n"
+					+ "    	final ClassLoader classLoader = this.getClass().getClassLoader();\n"
+					+ "    } \n"
+					+ "}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "Main.java\""
+		     + " --release 9 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" +
+    		 "1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/Main.java (at line 3)\n" +
+    		 "	final ClassLoader classLoader = this.getClass().getClassLoader();\n" +
+    		 "	                  ^^^^^^^^^^^\n" +
+    		 "The value of the local variable classLoader is not used\n" +
+    		 "----------\n" +
+    		 "1 problem (1 warning)\n",
+		     true);
 	}
 }
