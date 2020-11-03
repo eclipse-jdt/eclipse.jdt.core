@@ -5296,7 +5296,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
-	public void testBug566979_001() {
+	public void _testBug566979_001() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5317,7 +5317,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void testBug566979_002() {
+	public void _testBug566979_002() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
@@ -5339,7 +5339,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
-	public void testBug566980_001() {
+	public void _testBug566980_001() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5360,7 +5360,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void testBug566980_002() {
+	public void _testBug566980_002() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
@@ -5382,7 +5382,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
-	public void testBug566846_001() {
+	public void _testBug566846_001() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {

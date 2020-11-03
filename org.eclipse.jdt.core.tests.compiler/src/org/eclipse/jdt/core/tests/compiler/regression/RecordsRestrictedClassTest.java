@@ -7926,7 +7926,7 @@ public void testBug567731_002() {
 		"----------\n"
 	);
 }
-public void testBug566846_1() {
+public void _testBug566846_1() {
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7943,7 +7943,7 @@ public void testBug566846_1() {
 			new String[] {"--enable-preview"},
 			getCompilerOptions());
 }
-public void testBug566846_2() {
+public void _testBug566846_2() {
 	runNegativeTest(
 			new String[] {
 				"X.java",
