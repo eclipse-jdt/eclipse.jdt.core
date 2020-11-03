@@ -31,7 +31,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug566979","testBug566980", "testBug566846"};
+//		TESTS_NAMES = new String[] { "testBug568428"};
 	}
 
 	public static Class<?> testClass() {
@@ -1105,11 +1105,6 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	sealed class Y{}\n" +
 			"	             ^\n" +
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 4)\n" +
-			"	sealed class Y{}\n" +
-			"	             ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares Y as its direct superclass\n" +
 			"----------\n");
 	}
 	public void testBug563806_037() {
@@ -1146,11 +1141,6 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	non-sealed sealed class Y{}\n" +
 			"	                        ^\n" +
 			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
-			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 4)\n" +
-			"	non-sealed sealed class Y{}\n" +
-			"	                        ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares Y as its direct superclass\n" +
 			"----------\n");
 	}
 	public void testBug563806_039() {
@@ -5404,6 +5394,98 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	record X;\n" +
 			"	^^^^^^\n" +
 			"Syntax error on token \"record\", package expected\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug568428_001() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public void foo() {\n" +
+				"        sealed interface I {}\n"+
+				"    }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	sealed interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug568428_002() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public void foo() {\n" +
+				"        non-sealed interface I {}\n"+
+				"    }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	non-sealed interface I {}\n" +
+			"	                     ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void _testBug568428_003() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public void foo() {\n" +
+				"        sealed enum I {}\n"+
+				"    }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	sealed interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void _testBug568428_004() {
+		Map options = getCompilerOptions();
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public void foo() {\n" +
+				"        non-sealed enum I {}\n"+
+				"    }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	non-sealed interface I {}\n" +
+			"	                     ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
 			"----------\n",
 			null,
 			true,

@@ -562,6 +562,8 @@ public class ClassScope extends Scope {
 		int modifiers = sourceType.modifiers;
 		boolean isPreviewEnabled = compilerOptions().sourceLevel == ClassFileConstants.getLatestJDKLevel() &&
 				compilerOptions().enablePreviewFeatures;
+		boolean flagSealedNonModifiers = isPreviewEnabled &&
+				(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 		if (sourceType.isRecord()) {
 			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
 			modifiers |= ClassFileConstants.AccFinal;
@@ -686,7 +688,7 @@ public class ClassScope extends Scope {
 			} else 	if (isPreviewEnabled && sourceType.isLocalType()) {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface
 						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
 //				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
 //					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
@@ -709,8 +711,6 @@ public class ClassScope extends Scope {
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
 			} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
-			boolean flagSealedNonModifiers = isPreviewEnabled &&
-					(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
@@ -823,9 +823,6 @@ public class ClassScope extends Scope {
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
-				boolean flagSealedNonModifiers = compilerOptions().sourceLevel >= ClassFileConstants.JDK15 &&
-						compilerOptions().enablePreviewFeatures &&
-						(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForLocalClass(sourceType);
@@ -1219,8 +1216,12 @@ public class ClassScope extends Scope {
 				permSubTypes.add(type);
 			}
 		}
+		if (sourceType.isSealed() && sourceType.isLocalType()) {
+			// bug xxxx flag Error and return;
+		}
 		if (permSubTypes.size() == 0) {
-			problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
+			if (!sourceType.isLocalType()) // error flagged already
+				problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
 			return;
 		}
 		sourceType.setPermittedTypes(permSubTypes.toArray(new ReferenceBinding[0]));
