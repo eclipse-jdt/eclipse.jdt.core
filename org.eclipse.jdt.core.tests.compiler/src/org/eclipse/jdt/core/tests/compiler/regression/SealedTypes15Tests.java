@@ -2837,7 +2837,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
 			"	^^^^^^\n" +
-			"Syntax error on token \"record\", record expected\n" +
+			"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n",
 			null,
 			true,
@@ -4560,7 +4560,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
 			"	^^^^^^\n" +
-			"Syntax error on token \"record\", record expected\n" +
+			"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n",
 			null,
 			true,
