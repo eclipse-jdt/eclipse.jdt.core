@@ -24,10 +24,10 @@ public abstract class JobManager implements Runnable {
 	protected IJob[] awaitingJobs = new IJob[10];
 	protected int jobStart = 0;
 	protected int jobEnd = -1;
-	protected boolean executing = false;
+	protected volatile boolean executing;
 
 	/* background processing */
-	protected Thread processingThread;
+	protected volatile Thread processingThread;
 	protected Job progressJob;
 
 	/* counter indicating whether job execution is enabled or not, disabled if <= 0
