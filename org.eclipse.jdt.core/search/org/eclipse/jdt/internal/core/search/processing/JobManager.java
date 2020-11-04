@@ -272,6 +272,19 @@ public abstract class JobManager implements Runnable {
 	}
 	public abstract String processName();
 
+	/**
+	 * Schedules given job for execution is there is no equal jobs waiting in the queue already
+	 *
+	 * @see JobManager#isJobWaiting(IJob)
+	 * @param job
+	 *            a job to schedule (or not)
+	 */
+	public synchronized void requestIfNotWaiting(IJob job) {
+		if(!isJobWaiting(job)) {
+			request(job);
+		}
+	}
+
 	public synchronized void request(IJob job) {
 
 		job.ensureReadyToRun();
