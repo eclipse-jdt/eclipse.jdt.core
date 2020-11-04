@@ -11908,6 +11908,15 @@ public void localStaticsIllegalVisibilityModifierForInterfaceLocalType(SourceTyp
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalModifierForLocalEnumDeclaration(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForLocalEnumDeclaration,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;

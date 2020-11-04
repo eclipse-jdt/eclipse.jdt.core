@@ -7663,7 +7663,7 @@ public void testBug566063_002() {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	static enum E {\n" +
 			"	            ^\n" +
-			"A local interface, enum or record E is implicitly static; cannot have explicit static declaration\n" +
+			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
 			"----------\n");
 }
 public void testBug566063_003() {
@@ -7690,12 +7690,12 @@ public void testBug566063_003() {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	static enum E {\n" +
 			"	            ^\n" +
-			"A local interface, enum or record E is implicitly static; cannot have explicit static declaration\n" +
+			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	static record Bar(E x) implements I{}\n" +
 			"	              ^^^\n" +
-			"A local interface, enum or record Bar is implicitly static; cannot have explicit static declaration\n" +
+			"A local class or interface Bar is implicitly static; cannot have explicit static declaration\n" +
 			"----------\n");
 }
 public void testBug566063_004() {

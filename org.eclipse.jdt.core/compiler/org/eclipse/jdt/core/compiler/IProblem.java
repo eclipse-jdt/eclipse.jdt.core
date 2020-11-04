@@ -2359,9 +2359,14 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int RecordIllegalModifierForLocalRecord = PreviewRelated + 1762;
 
+	/* records - end */
+	/* Local and Nested Static Declarations - Begin */
 	/** @since 3.24
 	 * @noreference preview feature error */
 	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = PreviewRelated + 1765;
+	/** @since 3.24
+	 * @noreference preview feature error */
+	int IllegalModifierForLocalEnumDeclaration = PreviewRelated + 1766;
 	/* records - end */
 
 

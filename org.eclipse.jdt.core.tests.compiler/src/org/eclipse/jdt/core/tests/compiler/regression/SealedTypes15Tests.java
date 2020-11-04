@@ -5400,9 +5400,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			options
 		);
 	}
-	@SuppressWarnings({ "rawtypes" })
 	public void testBug568428_001() {
-		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5417,15 +5415,10 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	sealed interface I {}\n" +
 			"	                 ^\n" +
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n",
-			null,
-			true,
-			options
+			"----------\n"
 		);
 	}
-	@SuppressWarnings({ "rawtypes" })
 	public void testBug568428_002() {
-		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5440,15 +5433,10 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	non-sealed interface I {}\n" +
 			"	                     ^\n" +
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n",
-			null,
-			true,
-			options
+			"----------\n"
 		);
 	}
-	@SuppressWarnings({ "rawtypes" })
-	public void _testBug568428_003() {
-		Map options = getCompilerOptions();
+	public void testBug568514_001() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5460,18 +5448,13 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	sealed interface I {}\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n",
-			null,
-			true,
-			options
+			"	sealed enum I {}\n" +
+			"	            ^\n" +
+			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
+			"----------\n"
 		);
 	}
-	@SuppressWarnings({ "rawtypes" })
-	public void _testBug568428_004() {
-		Map options = getCompilerOptions();
+	public void testBug568514_002() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -5483,13 +5466,10 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	non-sealed interface I {}\n" +
-			"	                     ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n",
-			null,
-			true,
-			options
+			"	non-sealed enum I {}\n" +
+			"	                ^\n" +
+			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
+			"----------\n"
 		);
 	}
 }

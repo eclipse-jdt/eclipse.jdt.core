@@ -597,8 +597,10 @@ public class ClassScope extends Scope {
 					sourceType.modifiers = 0;
 					return;
 				}
-				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
-					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+				final int UNEXPECTED_MODIFIERS =~(ClassFileConstants.AccEnum);
+				if ((modifiers & ExtraCompilerModifiers.AccJustFlag & UNEXPECTED_MODIFIERS) != 0
+						|| flagSealedNonModifiers) {
+					problemReporter().illegalModifierForLocalEnumDeclaration(sourceType);
 					return;
 				}
 				modifiers |= ClassFileConstants.AccStatic;
@@ -722,6 +724,8 @@ public class ClassScope extends Scope {
 //					realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 				}
 			} else if (sourceType.isLocalType()) {
+//				if (flagSealedNonModifiers)
+//					problemReporter().illegalModifierForLocalEnum(sourceType);
 				// each enum constant is an anonymous local type and its modifiers were already checked as an enum constant field
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
