@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.Predicate;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -87,13 +88,16 @@ public abstract class JobManager implements Runnable {
 	}
 
 	/**
-	 * Remove the index from cache for a given project.
-	 * Passing null as a job family discards them all.
+	 * Remove the index from cache if given predicate matches.
+	 *
+	 * @param condition awaiting jobs for which given condition will return {@code true} will be discarded
+	 * @param description condition description for debug purposes, can be {@code null}.
+	 * @param syncExec optional task to run synchronously at the end of this one, inside the synchronized block. Can be null.
 	 */
-	public void discardJobs(String jobFamily) {
+	void discardJobs(Predicate<IJob> condition, String description, Runnable syncExec) {
 
 		if (VERBOSE)
-			Util.verbose("DISCARD   background job family - " + jobFamily); //$NON-NLS-1$
+			Util.verbose("DISCARD   waiting jobs conflicting with: " + description); //$NON-NLS-1$
 
 		try {
 			IJob currentJob;
@@ -102,26 +106,31 @@ public abstract class JobManager implements Runnable {
 				currentJob = currentJob();
 				disable();
 			}
-			if (currentJob != null && (jobFamily == null || currentJob.belongsTo(jobFamily))) {
+			if (currentJob != null && condition.test(currentJob)) {
 				currentJob.cancel();
 
+				boolean waited = false;
 				// wait until current active job has finished
 				while (this.processingThread != null && this.executing){
 					try {
-						if (VERBOSE)
+						if (VERBOSE && !waited) {
 							Util.verbose("-> waiting end of current background job - " + currentJob); //$NON-NLS-1$
+							waited = true;
+						}
 						Thread.sleep(50);
 					} catch(InterruptedException e){
 						// ignore
 					}
 				}
+				if (VERBOSE && waited)
+					Util.verbose("-> waiting done for current background job - " + currentJob); //$NON-NLS-1$
 			}
 
 			synchronized(this) {
 				Iterator<IJob> it = this.awaitingJobs.iterator();
 				while (it.hasNext()) {
 					currentJob = it.next();
-					if (jobFamily == null || currentJob.belongsTo(jobFamily)) {
+					if (condition.test(currentJob)) {
 						if (VERBOSE) {
 							Util.verbose("-> discarding background job  - " + currentJob); //$NON-NLS-1$
 						}
@@ -129,13 +138,27 @@ public abstract class JobManager implements Runnable {
 						it.remove();
 					}
 				}
+				if(syncExec != null) {
+					if (VERBOSE)
+						Util.verbose("DISCARD   startung sync task for: " + description); //$NON-NLS-1$
+					syncExec.run();
+				}
 			}
 		} finally {
 			enable();
 		}
 		if (VERBOSE)
-			Util.verbose("DISCARD   DONE with background job family - " + jobFamily); //$NON-NLS-1$
+			Util.verbose("DISCARD   DONE for waiting jobs conflicting with: " + description); //$NON-NLS-1$
 	}
+
+	/**
+	 * Remove the index from cache for a given project.
+	 * Passing null as a job family discards them all.
+	 */
+	public void discardJobs(String jobFamily) {
+		discardJobs(job -> jobFamily == null || job.belongsTo(jobFamily), jobFamily, null);
+	}
+
 	public synchronized void enable() {
 		this.enableCount++;
 		if (VERBOSE)
@@ -314,13 +337,13 @@ public abstract class JobManager implements Runnable {
 	 * @param job
 	 *            a job to schedule (or not)
 	 */
-	public synchronized void requestIfNotWaiting(IJob job) {
+	public /* not synchronized */ void requestIfNotWaiting(IJob job) {
 		if(!isJobWaiting(job)) {
 			request(job);
 		}
 	}
 
-	public synchronized void request(IJob job) {
+	private synchronized void requestSync(IJob job) {
 
 		job.ensureReadyToRun();
 		// append the job to the list of ones to process later on
@@ -331,6 +354,17 @@ public abstract class JobManager implements Runnable {
 		}
 		notifyAll(); // wake up the background thread if it is waiting
 	}
+
+	public /* not synchronized */ void request(IJob job) {
+		// if the job doesn't support discard, we want to run the entire method inside one lock
+		if (!job.canDiscardWaitingJobs()) {
+			requestSync(job);
+		} else {
+			// must run discardJobs() without lock taken
+			discardJobs(j -> job.canDiscard(j), job.toString(), () -> requestSync(job));
+		}
+	}
+
 	/**
 	 * Flush current state
 	 */

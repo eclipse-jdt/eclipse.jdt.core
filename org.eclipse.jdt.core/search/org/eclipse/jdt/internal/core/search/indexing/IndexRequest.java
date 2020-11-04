@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import java.util.Objects;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
@@ -52,5 +54,13 @@ public abstract class IndexRequest implements IJob {
 	@Override
 	public boolean waitNeeded() {
 		return true;
+	}
+
+	@Override
+	public boolean canDiscard(IJob job) {
+		if(!(job instanceof IndexRequest)) {
+			return false;
+		}
+		return Objects.equals(this.containerPath, ((IndexRequest) job).containerPath);
 	}
 }

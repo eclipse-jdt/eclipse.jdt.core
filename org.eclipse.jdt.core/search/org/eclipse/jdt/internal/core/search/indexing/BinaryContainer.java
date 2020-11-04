@@ -66,4 +66,9 @@ public abstract class BinaryContainer extends IndexRequest {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean canDiscardWaitingJobs() {
+		return true;
+	}
 }

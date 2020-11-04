@@ -58,4 +58,24 @@ public interface IJob {
 	public default boolean waitNeeded() {
 		return false;
 	}
+
+	/**
+	 * Answers if before adding the job to the queue matching waiting jobs should be discarded
+	 *
+	 * @return default implementation always return {@code false}
+	 * @see #canDiscard(IJob)
+	 */
+	public default boolean canDiscardWaitingJobs() {
+		return false;
+	}
+
+	/**
+	 * Answers if the given waiting job can be discarded before adding this job to the waiting queue.
+	 *
+	 * @return default implementation always return {@code false}
+	 * @see #canDiscardWaitingJobs()
+	 */
+	public default boolean canDiscard(IJob job) {
+		return false;
+	}
 }
