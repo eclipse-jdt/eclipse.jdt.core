@@ -245,7 +245,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 1)\n" +
 			"	sealed public sealed class X {\n" +
 			"	                           ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
 			"----------\n");
 	}
 	public void testBug562715_006() {
@@ -262,7 +262,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X {\n" +
 			"	                    ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 2)\n" +
 			"	public static sealed void main(String[] args){\n" +
@@ -327,7 +327,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits {\n" +
 			"	                    ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public sealed class X permits {\n" +
@@ -431,7 +431,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in p1\\A.java (at line 2)\n" +
 			"	public sealed class A extends X{}\n" +
 			"	                    ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares A as its direct superclass\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares A as its direct superclass or superinterface\n" +
 			"----------\n" +
 			"2. ERROR in p1\\A.java (at line 2)\n" +
 			"	public sealed class A extends X{}\n" +
@@ -1036,7 +1036,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed non-sealed interface X {\n" +
 			"	                                   ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares X as its direct superclass\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
 			"----------\n" +
 			"2. ERROR in p1\\X.java (at line 2)\n" +
 			"	public sealed non-sealed interface X {\n" +
@@ -1159,7 +1159,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in p1\\X.java (at line 2)\n" +
 			"	sealed class A{}\n" +
 			"	             ^\n" +
-			"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares A as its direct superclass\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares A as its direct superclass or superinterface\n" +
 			"----------\n" +
 			"2. ERROR in p1\\X.java (at line 5)\n" +
 			"	class Y extends A{}\n" +
@@ -1288,7 +1288,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"1. ERROR in p1\\X.java (at line 3)\n" +
 				"	sealed class Y extends X {}\n" +
 				"	             ^\n" +
-				"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares Y as its direct superclass\n" +
+				"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares Y as its direct superclass or superinterface\n" +
 				"----------\n");
 	}
 	// Test that implicit permitted member type with explicit permits clause
@@ -1323,7 +1323,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 				"1. ERROR in p1\\X.java (at line 2)\n" +
 				"	sealed interface SI {}\n" +
 				"	                 ^^\n" +
-				"Sealed class lacks the permits clause and no top level or nested class from the same compilation unit declares SI as its direct superclass\n" +
+				"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares SI as its direct superclass or superinterface\n" +
 				"----------\n");
 	}
 	public void testBug564450_001() throws IOException, ClassFormatException {
