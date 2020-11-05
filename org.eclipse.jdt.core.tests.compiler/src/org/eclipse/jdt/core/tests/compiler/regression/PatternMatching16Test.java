@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class PatternMatching15Test extends AbstractRegressionTest {
+public class PatternMatching16Test extends AbstractRegressionTest {
 
 	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 16 --enable-preview -Xlint:-preview");
 	static {
@@ -32,12 +32,12 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	}
 
 	public static Class<?> testClass() {
-		return PatternMatching15Test.class;
+		return PatternMatching16Test.class;
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public PatternMatching15Test(String testName){
+	public PatternMatching16Test(String testName){
 		super(testName);
 	}
 	// Enables the tests to run individually
@@ -75,9 +75,9 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 	}
 	public void test000a() {
 		Map<String, String> options = getCompilerOptions(false);
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 		runNegativeTest(
 				new String[] {
 						"X1.java",
@@ -92,14 +92,14 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"The preview feature Pattern Matching in instanceof Expressions is only available with source level "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +" and above\n" +
+				"The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +" and above\n" +
 				"----------\n",
 				null,
 				true,
 				options);
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 	}
 	public void test000b() {
 		Map<String, String> options = getCompilerOptions(true);
@@ -125,13 +125,14 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 				null,
 				true,
 				options);
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 	}
+	// No longer negative since pattern matching is a standard feature now.
 	public void test001() {
 		Map<String, String> options = getCompilerOptions(false);
-		runNegativeTest(
+		runConformTest(
 				new String[] {
 						"X1.java",
 						"public class X1 {\n" +
@@ -139,17 +140,11 @@ public class PatternMatching15Test extends AbstractRegressionTest {
 						"		if (obj instanceof String s) {\n" +
 						"		}\n " +
 						"	}\n" +
+						"  public static void main(String[] obj) {\n" +
+						"	}\n" +
 						"}\n",
 				},
-				"----------\n" +
-				"1. ERROR in X1.java (at line 3)\n" +
-				"	if (obj instanceof String s) {\n" +
-				"	                   ^^^^^^^^\n" +
-				"Pattern Matching in instanceof Expressions is a preview feature and disabled by default. Use --enable-preview to enable\n" +
-				"----------\n",
-				/* omit one arg to directly call super method without JAVA_OPTIONS */
-				null,
-				true,
+				"",
 				options);
 	}
 	public void test002() {

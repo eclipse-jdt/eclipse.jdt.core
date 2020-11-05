@@ -213,7 +213,7 @@ public class AbstractCompilerTest extends TestCase {
 		int lev = complianceLevels & abstractCompilerTestCompliance;
 		if (lev != 0) {
 			if (lev < minimalCompliance) {
-				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance" + release + "!");
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance " + release + "!");
 			} else {
 				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(classFileConstantsVersion)));
 			}

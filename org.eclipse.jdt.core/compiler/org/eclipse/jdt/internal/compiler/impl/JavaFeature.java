@@ -45,7 +45,7 @@ public enum JavaFeature {
 	PATTERN_MATCHING_IN_INSTANCEOF(ClassFileConstants.JDK16,
 			Messages.bind(Messages.pattern_matching_instanceof),
 			new char[][] {},
-			true),
+			false),
 
 	RECORDS(ClassFileConstants.JDK16,
 			Messages.bind(Messages.records),
