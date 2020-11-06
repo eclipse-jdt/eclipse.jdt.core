@@ -555,6 +555,54 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
+	public void testRecord012() throws CoreException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents =
+			"public record X(int myComp) {\n" +
+			"		public void foo() {\n" +
+			"			System.out.println(\"no error\");\n" +
+			"		}\n" +
+			"\n" +
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			List<AbstractTypeDeclaration> types = compilationUnit.types();
+			assertEquals("No. of Types is not 1", types.size(), 1);
+			AbstractTypeDeclaration type = types.get(0);
+			assertTrue("type not a Record", type instanceof RecordDeclaration);
+			RecordDeclaration recDecl = (RecordDeclaration)type;
+			MethodDeclaration[] methods = recDecl.getMethods();
+			assertEquals("No. of methods is not 1", methods.length, 1);
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertNotNull("typeBinding is null", typeBinding);
+			IMethodBinding[] mBindings = typeBinding.getDeclaredMethods();
+			assertEquals("No. of declared methods is not 6", mBindings.length, 6);
+			for (IMethodBinding mBinding : mBindings) {
+				if (mBinding.getName().equals("X") || mBinding.getName().equals("foo")) {
+					assertFalse("foo is not a synthetic method", mBinding.isSyntheticRecordMethod());
+				} else {
+					assertTrue("expected a synthetic method", mBinding.isSyntheticRecordMethod());
+				}
+			}
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
 	public void testClass001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
