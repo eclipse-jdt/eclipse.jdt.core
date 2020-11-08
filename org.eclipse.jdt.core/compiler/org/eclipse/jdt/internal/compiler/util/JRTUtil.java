@@ -612,7 +612,7 @@ class JrtFileSystem {
 		});
 	}
 
-	void cachePackage(String packageName, String module) {
+	synchronized void cachePackage(String packageName, String module) {
 		packageName = packageName.intern();
 		module = module.intern();
 		packageName = packageName.replace('.', '/');
