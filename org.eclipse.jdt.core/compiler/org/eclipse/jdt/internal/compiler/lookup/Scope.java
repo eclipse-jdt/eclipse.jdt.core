@@ -5437,6 +5437,9 @@ public abstract class Scope {
 		}
 		return resolutionScope;
 	}
+	protected Map<SourceTypeBinding, SyntheticArgumentBinding> getMapSyntheticEnclosingType() {
+		return null;
+	}
 	// Some entity in the receiver scope is referencing instance data of enclosing type. Tag all intervening methods as instance methods.
 	public void tagAsAccessingEnclosingInstanceStateOf(ReferenceBinding enclosingType, boolean typeVariableAccess) {
 		MethodScope methodScope = methodScope();
@@ -5450,7 +5453,17 @@ public abstract class Scope {
 		while (methodScope != null) {
 			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
-				if (!typeVariableAccess && !lambda.scope.isStatic)
+				SourceTypeBinding lambdaEnclosingType = methodScope.classScope().referenceContext.binding;
+				ReferenceBinding tmp = lambdaEnclosingType;
+				while ((tmp = tmp.enclosingType()) != null) {
+					if (!methodScope.isConstructorCall || !enclosingType.equals(tmp)) continue;
+					if ((lambda.mapSyntheticEnclosingTypes = getMapSyntheticEnclosingType()) != null) {
+						lambda.mapSyntheticEnclosingTypes.put((SourceTypeBinding) enclosingType, null);
+						lambda.hasOuterClassMemberReference = true; // ref to Outer class members allowed - interpreting 8.8.7.1
+					}
+					break;
+				}
+				if (!typeVariableAccess && !lambda.scope.isStatic && !lambda.hasOuterClassMemberReference)
 					lambda.shouldCaptureInstance = true;  // lambda can still be static, only when `this' is touched (implicitly or otherwise) it cannot be.
 				methodScope = methodScope.enclosingMethodScope();
 			}
@@ -5460,6 +5473,11 @@ public abstract class Scope {
 					if (methodDeclaration.binding == enclosingMethod)
 						break;
 					methodDeclaration.bits &= ~ASTNode.CanBeStatic;
+				}
+				if (methodScope.referenceContext instanceof ConstructorDeclaration) {
+					ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodScope.referenceContext;
+					if (constructorDeclaration.binding == enclosingMethod)
+						break;
 				}
 				ClassScope enclosingClassScope = methodScope.enclosingClassScope();
 				if (enclosingClassScope != null) {

@@ -7205,6 +7205,60 @@ public void testBug540631() {
 		};
 	runner.runConformTest();
 }
+public void testBug529197_001() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    int var = 0;\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"       X x = new X();\n" +
+				"       x.new Inner();\n" +
+				"    }\n" +
+				"\n" +
+				"    public class Inner {\n" +
+				"        public Inner(Runnable r) {\n" +
+				"        	System.out.println(\"SUCCESS\"); \n" +
+				"        }\n" +
+				"        public Inner() {\n" +
+				"            this(() -> {\n" +
+				"                var = 1;\n" +
+				"            });\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"SUCCESS"
+			);
+}
+public void testBug529197_002() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    int var = 0;\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"       X x = new X();\n" +
+				"       x.new Inner();\n" +
+				"    }\n" +
+				"\n" +
+				"    public class Inner {\n" +
+				"        public Inner(Runnable r) {\n" +
+				"        	System.out.println(\"SUCCESS\"); \n" +
+				"        }\n" +
+				"        public Inner() {\n" +
+				"            this(() -> {\n" +
+				"                var = 1;\n" +
+				"            });\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"SUCCESS"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

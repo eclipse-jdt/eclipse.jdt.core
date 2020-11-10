@@ -22,6 +22,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -74,6 +77,9 @@ public class MethodScope extends BlockScope {
 			System.out.println("JDT/Core testing with -Djdt.flow.test.extra=true"); //$NON-NLS-1$
 		}
 	}
+
+	// enclosing type access mapper
+	public Map<SourceTypeBinding, SyntheticArgumentBinding> mapSyntheticEnclosingTypes = null;
 
 public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 	super(METHOD_SCOPE, parent);
@@ -502,6 +508,14 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 				ProblemReasons.NonStaticReferenceInConstructorInvocation);
 	}
 	return field;
+}
+
+@Override
+protected Map<SourceTypeBinding, SyntheticArgumentBinding> getMapSyntheticEnclosingType() {
+	if (this.mapSyntheticEnclosingTypes == null) {
+		this.mapSyntheticEnclosingTypes = new HashMap<>();
+	}
+	return this.mapSyntheticEnclosingTypes;
 }
 
 public boolean isInsideConstructor() {

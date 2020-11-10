@@ -124,6 +124,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean returnsVoid;
 	public LambdaExpression original = this;
 	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
+	public Map<SourceTypeBinding, SyntheticArgumentBinding> mapSyntheticEnclosingTypes = null;
+	public boolean hasOuterClassMemberReference = false;
 	private int outerLocalVariablesSlotSize = 0;
 	private boolean assistNode = false;
 	private boolean hasIgnoredMandatoryErrors = false;
@@ -214,6 +216,21 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			LocalVariableBinding capturedOuterLocal = syntheticArgument.actualOuterLocalVariable;
 			VariableBinding[] path = currentScope.getEmulationPath(capturedOuterLocal);
 			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
+		}
+		// handling of passing enclosing class instance variable
+		if (this.hasOuterClassMemberReference) {
+			SourceTypeBinding[] stbs = this.mapSyntheticEnclosingTypes.keySet().toArray(new SourceTypeBinding[0]);
+			for (int i = 0, max = stbs.length; i < max; i++) {
+				SourceTypeBinding stb = stbs[i];
+				signature.append(stb.signature());
+				Object[] path = currentScope.getEmulationPath(
+						stb,
+						false /*not only exact match (that is, allow compatible)*/,
+						false);
+				codeStream.generateOuterAccess(path, this, stb, currentScope);
+				SyntheticArgumentBinding sab = addSyntheticArgument(stb);
+				this.mapSyntheticEnclosingTypes.put(stb, sab);
+			}
 		}
 		signature.append(')');
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
@@ -466,7 +483,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
 		}
-		if (this.shouldCaptureInstance && this.scope.isConstructorCall) {
+		if (this.shouldCaptureInstance && this.scope.isConstructorCall && !this.hasOuterClassMemberReference) {
 			this.scope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
 		}
 		// beyond this point ensure that all local type bindings are their final binding:
@@ -1344,6 +1361,36 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 	}
 
+	private SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding enclosingType) {
+		
+		if (this.original != this || this.binding == null) 
+			return null; // Do not bother tracking outer locals for clones created during overload resolution.
+		
+		SyntheticArgumentBinding syntheticLocal = null;
+		int newSlot = this.outerLocalVariables.length;
+		System.arraycopy(this.outerLocalVariables, 0, this.outerLocalVariables = new SyntheticArgumentBinding[newSlot + 1], 0, newSlot);
+		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(enclosingType);
+		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize; // may need adjusting later if we need to generate an instance method for the lambda.
+		syntheticLocal.declaringScope = this.scope;
+		int parameterCount = this.binding.parameters.length;
+		TypeBinding [] newParameters = new TypeBinding[parameterCount + 1];
+		newParameters[newSlot] = enclosingType;
+		for (int i = 0, j = 0; i < parameterCount; i++, j++) {
+			if (i == newSlot) j++;
+			newParameters[j] = this.binding.parameters[i];
+		}
+		this.binding.parameters = newParameters;
+		switch (syntheticLocal.type.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				this.outerLocalVariablesSlotSize  += 2;
+				break;
+			default :
+				this.outerLocalVariablesSlotSize++;
+				break;
+		}
+		return syntheticLocal;
+	}
 	public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
 		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++)
 			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)

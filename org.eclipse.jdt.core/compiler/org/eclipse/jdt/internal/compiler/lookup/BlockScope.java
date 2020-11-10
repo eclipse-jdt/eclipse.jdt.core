@@ -34,6 +34,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -851,6 +852,16 @@ public VariableBinding[] getEmulationPath(LocalVariableBinding outerLocalVariabl
 	return null;
 }
 
+private Object[] getSyntheticEnclosingArgumentLambda(MethodScope methodScope, ReferenceBinding targetEnclosingType) {
+	Map<SourceTypeBinding, SyntheticArgumentBinding> stbToSynthetic =
+			methodScope.isConstructorCall &&
+			methodScope.referenceContext instanceof LambdaExpression && 
+			((LambdaExpression) methodScope.referenceContext).hasOuterClassMemberReference ?
+			getMapSyntheticEnclosingType(): null;
+
+	SyntheticArgumentBinding sa = stbToSynthetic != null ? stbToSynthetic.get(targetEnclosingType) : null;
+	return sa != null ? new Object[] {sa} : null;
+}
 /*
  * This retrieves the argument that maps to an enclosing instance of the suitable type,
  * 	if not found then answers nil -- do not create one
@@ -863,9 +874,9 @@ public VariableBinding[] getEmulationPath(LocalVariableBinding outerLocalVariabl
  *	jls 15.9.2 + http://www.ergnosis.com/java-spec-report/java-language/jls-8.8.5.1-d.html
  */
 public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean onlyExactMatch, boolean denyEnclosingArgInConstructorCall) {
-	MethodScope currentMethodScope = methodScope();
+MethodScope currentMethodScope = methodScope();
 	SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
-
+	Object[] synEAL = getSyntheticEnclosingArgumentLambda(currentMethodScope, targetEnclosingType);
 	// use 'this' if possible
 	if (!currentMethodScope.isStatic && !currentMethodScope.isConstructorCall) {
 		if (TypeBinding.equalsEquals(sourceType, targetEnclosingType) || (!onlyExactMatch && sourceType.findSuperTypeOriginatingFrom(targetEnclosingType) != null)) {
@@ -918,7 +929,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 	FieldBinding syntheticField = sourceType.getSyntheticField(targetEnclosingType, onlyExactMatch);
 	if (syntheticField != null) {
 		if (currentMethodScope.isConstructorCall){
-			return BlockScope.NoEnclosingInstanceInConstructorCall;
+			return synEAL != null ? synEAL : BlockScope.NoEnclosingInstanceInConstructorCall;
 		}
 		return new Object[] { syntheticField };
 	}
@@ -930,7 +941,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 		path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument(currentType, onlyExactMatch, currentMethodScope.isConstructorCall);
 	} else {
 		if (currentMethodScope.isConstructorCall){
-			return BlockScope.NoEnclosingInstanceInConstructorCall;
+			return synEAL != null ? synEAL : BlockScope.NoEnclosingInstanceInConstructorCall;
 		}
 		path[0] = sourceType.getSyntheticField(currentType, onlyExactMatch);
 	}
