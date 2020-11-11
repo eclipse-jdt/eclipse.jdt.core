@@ -2399,12 +2399,33 @@ public void testBug558718_002() {
 	"1. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
 	"	^^^^^^\n" +
-	"The preview feature Records is only available with source level 15 and above\n" +
+	"Syntax error on token \"record\", @ expected\n" +
 	"----------\n" +
 	"2. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
 	"	         ^\n" +
 	"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
+	"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testBug558718_003() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"record R() {}\n",
+		},
+	"----------\n" +
+	"1. ERROR in X.java (at line 1)\n" +
+	"	record R() {}\n" +
+	"	^^^^^^\n" +
+	"The preview feature Records is only available with source level 15 and above\n" +
 	"----------\n",
 		null,
 		true,
@@ -7926,7 +7947,7 @@ public void testBug567731_002() {
 		"----------\n"
 	);
 }
-public void _testBug566846_1() {
+public void testBug566846_1() {
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7943,7 +7964,7 @@ public void _testBug566846_1() {
 			new String[] {"--enable-preview"},
 			getCompilerOptions());
 }
-public void _testBug566846_2() {
+public void testBug566846_2() {
 	runNegativeTest(
 			new String[] {
 				"X.java",

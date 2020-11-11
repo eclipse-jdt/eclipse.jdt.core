@@ -341,7 +341,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// TODO : Enable after error flag code implemented
-	public void _testBug562715_011() {
+	public void testBug562715_011() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -353,13 +353,23 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	EXPECTED ERROR IN RECORD\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	sealed enum Natural {ONE, TWO}\n" +
+			"	            ^^^^^^^\n" +
+			"Illegal modifier for the enum Natural; only public is permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public sealed class X {\n" +
+			"	                    ^\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	public static sealed void main(String[] args){\n" +
 			"	              ^^^^^^\n" +
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n");
 	}
-	public void _testBug562715_xxx() {
+	public void testBug562715_xxx() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -371,8 +381,18 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	EXPECTED ERROR IN RECORD\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	sealed record R() {}\n" +
+			"	              ^\n" +
+			"Illegal modifier for the record R; only public, final and strictfp are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	public sealed class X {\n" +
+			"	                    ^\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	public static sealed void main(String[] args){\n" +
 			"	              ^^^^^^\n" +
 			"Syntax error on token \"sealed\", static expected\n" +
 			"----------\n");
@@ -5296,7 +5316,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
-	public void _testBug566979_001() {
+	public void testBug566979_001() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5317,7 +5337,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void _testBug566979_002() {
+	public void testBug566979_002() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
@@ -5339,7 +5359,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
-	public void _testBug566980_001() {
+	public void testBug566980_001() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
@@ -5360,7 +5380,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void _testBug566980_002() {
+	public void testBug566980_002() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		this.runNegativeTest(
@@ -5382,7 +5402,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 		);
 	}
 	@SuppressWarnings({ "rawtypes" })
-	public void _testBug566846_001() {
+	public void testBug566846_001() {
 		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
