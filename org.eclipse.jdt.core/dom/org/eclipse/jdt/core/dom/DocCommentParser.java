@@ -255,6 +255,11 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
+		return createTypeReference(primitiveToken);
+	}
+
+	@Override
 	protected Object createTypeReference(int primitiveToken) {
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		String[] identifiers = new String[size];

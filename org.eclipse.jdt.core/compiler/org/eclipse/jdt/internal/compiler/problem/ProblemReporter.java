@@ -5624,6 +5624,11 @@ public void javadocInvalidModuleQualification(int sourceStart, int sourceEnd, in
 		this.handle(IProblem.JavadocInvalidModuleQualification, NoArgument, NoArgument, sourceStart, sourceEnd);
 	}
 }
+public void javadocInvalidModule(ModuleReference ref) {
+	this.handle(IProblem.JavadocInvalidModule,
+		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
+		ref.sourceStart, ref.sourceEnd);
+}
 /*
  * Similar implementation than invalidMethod(MessageSend...)
  * Note that following problem id cannot occur for Javadoc:

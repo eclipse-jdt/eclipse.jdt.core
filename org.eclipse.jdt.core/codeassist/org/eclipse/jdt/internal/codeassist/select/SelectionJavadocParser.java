@@ -133,9 +133,9 @@ public class SelectionJavadocParser extends JavadocParser {
 	 * Otherwise return null as we do not need this reference.
 	 */
 	@Override
-	protected Object createTypeReference(int primitiveToken) {
+	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
 		// Need to create type ref in case it was needed by members
-		TypeReference typeRef = (TypeReference) super.createTypeReference(primitiveToken);
+		TypeReference typeRef = (TypeReference) super.createTypeReference(primitiveToken, canBeModule);
 
 		// See if node is concerned by selection
 		if (typeRef.sourceStart <= this.selectionStart && this.selectionEnd <= typeRef.sourceEnd) {
