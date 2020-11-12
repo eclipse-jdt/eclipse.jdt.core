@@ -1012,6 +1012,8 @@ void setSourceStart(int sourceStart);
 	int IllegalUseOfUnderscoreAsAnIdentifier = Syntax + Internal + 443;
 	 /** @since 3.10 */
 	int UninternedIdentityComparison = Syntax + Internal + 444;
+	 /** @since 3.24 */
+	int ErrorUseOfUnderscoreAsAnIdentifier = Syntax + Internal + 445;
 
 	// detected task
 	/** @since 2.1 */

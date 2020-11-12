@@ -9606,9 +9606,10 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 }
 public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd, boolean reportError) {
 	this.underScoreIsError = reportError;
+	int problemId = (reportError) ? IProblem.ErrorUseOfUnderscoreAsAnIdentifier : IProblem.IllegalUseOfUnderscoreAsAnIdentifier;
 	try {
 		this.handle(
-			IProblem.IllegalUseOfUnderscoreAsAnIdentifier,
+			problemId,
 			NoArgument,
 			NoArgument,
 			sourceStart,
