@@ -893,12 +893,17 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				buffer,
 				"",
 				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 3)\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" +
+				"	requires mod.one;\n" +
+				"	         ^^^^^^^\n" +
+				"mod.one cannot be resolved to a module\n" +
+				"----------\n" +
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 3)\n" +
 				"	requires mod.two;\n" +
 				"	         ^^^^^^^\n" +
 				"mod.two cannot be resolved to a module\n" +
 				"----------\n" +
-				"1 problem (1 error)\n",
+				"2 problems (2 errors)\n",
 				false,
 				"module");
 	}

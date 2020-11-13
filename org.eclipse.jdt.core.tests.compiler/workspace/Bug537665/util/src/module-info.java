@@ -1,3 +1,0 @@
-module util {
-	exports util;
-}

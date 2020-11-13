@@ -1881,31 +1881,4 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			packDir.delete();
 		}
 	}
-	public void testBug537665() throws IOException {
-		// resolve requires from a module-info.java file
-		String workDir =  this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Bug537665" + File.separator;
-		String mainModuleSource = workDir  + "main/src";
-		String utilModule = workDir + "util" + "/out/util.jar";
-		String mainModuleInfo = mainModuleSource + "/module-info.java";
-
-		final class FileASTRequestorExtension extends FileASTRequestor {
-			@Override
-			public void acceptAST(String sourceFilePath, CompilationUnit unit) {
-				assertEquals(0, unit.getProblems().length);
-			}
-		}
-
-		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
-		parser.setEnvironment(new String[] {utilModule}, new String[] {mainModuleSource, workDir}, null, true);
-		parser.setResolveBindings(true);
-		parser.setStatementsRecovery(true);
-		parser.setBindingsRecovery(true);
-		Map<String, String> options = new HashMap<>();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
-		parser.setCompilerOptions(options);
-
-		parser.createASTs(new String[] {mainModuleInfo}, null, new String[0], new FileASTRequestorExtension(), null);
-	}
 }
