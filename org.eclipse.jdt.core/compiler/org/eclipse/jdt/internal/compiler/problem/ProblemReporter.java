@@ -11993,7 +11993,19 @@ public void sealedSuperClassDoesNotPermit(SourceTypeBinding type, TypeReference 
 	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperClassDoesNotPermit, type, superType, superTypeBinding);
 }
 public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
-	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperInterfaceDoesNotPermit, type, superType, superTypeBinding);
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String name = new String(type.sourceName());
+	String superTypeFullName = new String(superTypeBinding.readableName());
+	String superTypeShortName = new String(superTypeBinding.shortReadableName());
+	String keyword = type.isClass() ? new String(TypeConstants.IMPLEMENTS) : new String(TypeConstants.EXTENDS);
+	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
+	this.handle(
+			IProblem.SealedSuperInterfaceDoesNotPermit,
+		new String[] {name, superTypeFullName, keyword},
+		new String[] {name, superTypeShortName, keyword},
+		superType.sourceStart,
+		superType.sourceEnd);
 }
 
 public void sealedMissingSealedModifier(SourceTypeBinding type, ASTNode node) {

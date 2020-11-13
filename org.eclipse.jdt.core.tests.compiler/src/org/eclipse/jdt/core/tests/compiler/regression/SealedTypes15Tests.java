@@ -651,7 +651,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"1. ERROR in p2\\Y.java (at line 2)\n" +
 			"	public final class Y implements p1.X{}\n" +
 			"	                                ^^^^\n" +
-			"The type Y extending a sealed class X should be a permitted subtype of X\n" +
+			"The type Y that implements a sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
 	public void testBug563806_013() {
@@ -696,7 +696,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"2. ERROR in p2\\Y.java (at line 2)\n" +
 			"	public interface Y extends p1.X{}\n" +
 			"	                           ^^^^\n" +
-			"The type Y extending a sealed interface X should be a permitted subtype of X\n" +
+			"The type Y that extends a sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
 	}
 	public void testBug563806_015() {
@@ -5491,5 +5491,26 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
 			"----------\n"
 		);
+	}
+	public void testBug568758_001() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public sealed interface X{}\n",
+				"Y.java",
+				"public final class Y implements X{}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public sealed interface X{}\n" +
+			"	                        ^\n" +
+			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares X as its direct superclass or superinterface\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. ERROR in Y.java (at line 1)\n" +
+			"	public final class Y implements X{}\n" +
+			"	                                ^\n" +
+			"The type Y that implements a sealed interface X should be a permitted subtype of X\n" +
+			"----------\n");
 	}
 }
