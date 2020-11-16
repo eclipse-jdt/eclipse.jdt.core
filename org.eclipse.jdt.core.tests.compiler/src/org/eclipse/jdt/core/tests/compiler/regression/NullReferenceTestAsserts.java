@@ -72,6 +72,30 @@ static final String ORG_JUNIT_ASSERT_CONTENT = "package org.junit;\n" +
 		"    static public void assertFalse(boolean expression) {}\n" +
 		"    static public void assertFalse(String message, boolean expression) {}\n" +
 		"}\n";
+static final String ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME = "org/junit/jupiter/api/Assertions.java";
+static final String ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT = "package org.junit.jupiter.api;\n" +
+		"import java.util.function.Supplier;\n" +
+		"import java.util.function.BooleanSupplier;\n" +
+		"public class Assertions {\n" +
+		"    static public void assertNull(Object object) {}\n" +
+		"    static public void assertNull(Object object, String message) {}\n" +
+		"    static public void assertNull(Object object, Supplier<String> messageSupplier) {}\n" +
+		"    static public void assertNotNull(Object object) {}\n" +
+		"    static public void assertNotNull(Object object, String message) {}\n" +
+		"    static public void assertNotNull(Object object, Supplier<String> messageSupplier) {}\n" +
+		"    static public void assertTrue(boolean expression) {}\n" +
+		"    static public void assertTrue(boolean expression, String message) {}\n" +
+		"    static public void assertTrue(boolean expression, Supplier<String> messageSupplier) {}\n" +
+		"    static public void assertTrue(BooleanSupplier booleanSupplier) {}\n" +
+		"    static public void assertTrue(BooleanSupplier booleanSupplier, String message) {}\n" +
+		"    static public void assertTrue(BooleanSupplier booleanSupplier, Supplier<String> messageSupplier) {}\n" +
+		"    static public void assertFalse(boolean expression) {}\n" +
+		"    static public void assertFalse(boolean expression, String message) {}\n" +
+		"    static public void assertFalse(boolean expression, Supplier<String> messageSupplier) {}\n" +
+		"    static public void assertFalse(BooleanSupplier booleanSupplier) {}\n" +
+		"    static public void assertFalse(BooleanSupplier booleanSupplier, String message) {}\n" +
+		"    static public void assertFalse(BooleanSupplier booleanSupplier, Supplier<String> messageSupplier) {}\n" +
+		"}\n";
 
 static final String APACHE_VALIDATE_NAME = "org/apache/commons/lang/Validate.java";
 static final String APACHE_VALIDATE_CONTENT = "package org.apache.commons.lang;\n" +
@@ -1232,5 +1256,126 @@ public void testBug472618() throws IOException {
 			"    }\n" +
 			"}\n"},
 		"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568542
+// junit 5's assertNotNull
+public void testBug568542a() throws IOException {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses Supplier
+	this.runConformTest(
+		new String[] {
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
+			"X.java",
+			"import static org.junit.jupiter.api.Assertions.assertNotNull;\n" +
+			"public class X {\n" +
+			"    void test(Long test1, Long test2, Long test3) {\n" +
+			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
+			"        assertNotNull(test1);\n" +
+			"        test1.longValue();\n" +
+			"        assertNotNull(test2, \"message\");\n" +
+			"        test2.longValue();\n" +
+			"        assertNotNull(test3, () -> \"message\");\n" +
+			"        test3.longValue();\n" +
+			"    }\n" +
+			"}\n"},
+		"");
+}
+// junit 5's assertNull
+public void testBug568542b() throws IOException {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses Supplier
+	runNegativeTest(
+		new String[] {
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
+			"X.java",
+			"import static org.junit.jupiter.api.Assertions.assertNull;\n" +
+			"public class X {\n" +
+			"    void test(Long test1, Long test2, Long test3) {\n" +
+			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
+			"        assertNull(test1);\n" +
+			"        test1.longValue();\n" +
+			"        assertNull(test2, \"message\");\n" +
+			"        test2.longValue();\n" +
+			"        assertNull(test3, () -> \"message\");\n" +
+			"        test3.longValue();\n" +
+			"    }\n" +
+			"}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	test1.longValue();\n" +
+		"	^^^^^\n" +
+		"Null pointer access: The variable test1 can only be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	test2.longValue();\n" +
+		"	^^^^^\n" +
+		"Null pointer access: The variable test2 can only be null at this location\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	test3.longValue();\n" +
+		"	^^^^^\n" +
+		"Null pointer access: The variable test3 can only be null at this location\n" +
+		"----------\n"
+	);
+}
+// junit 5's assertTrue
+public void testBug568542c() throws IOException {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses Supplier
+	this.runConformTest(
+		new String[] {
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
+			"X.java",
+			"import static org.junit.jupiter.api.Assertions.assertTrue;\n" +
+			"public class X {\n" +
+			"    void test(Long test1, Long test2, Long test3) {\n" +
+			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
+			"        assertTrue(test1 != null);\n" +
+			"        test1.longValue();\n" +
+			"        assertTrue(test2 != null, \"message\");\n" +
+			"        test2.longValue();\n" +
+			"        assertTrue(test3 != null, () -> \"message\");\n" +
+			"        test3.longValue();\n" +
+			"    }\n" +
+			"}\n"},
+		"");
+}
+// junit 5's assertFalse
+public void testBug568542d() throws IOException {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses Supplier
+	runNegativeTest(
+		new String[] {
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_NAME,
+			ORG_JUNIT_JUPITER_API_ASSERTIONS_CONTENT,
+			"X.java",
+			"import static org.junit.jupiter.api.Assertions.assertFalse;\n" +
+			"public class X {\n" +
+			"    void test(Long test1, Long test2, Long test3) {\n" +
+			"        boolean b = (test1 != null | test2 != null | test3 != null);\n" +
+			"        assertFalse(test1 != null);\n" +
+			"        test1.longValue();\n" +
+			"        assertFalse(test2 != null, \"message\");\n" +
+			"        test2.longValue();\n" +
+			"        assertFalse(test3 != null, () -> \"message\");\n" +
+			"        test3.longValue();\n" +
+			"    }\n" +
+			"}\n"},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	test1.longValue();\n" +
+		"	^^^^^\n" +
+		"Null pointer access: The variable test1 can only be null at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	test2.longValue();\n" +
+		"	^^^^^\n" +
+		"Null pointer access: The variable test2 can only be null at this location\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	test3.longValue();\n" +
+		"	^^^^^\n" +
+		"Null pointer access: The variable test3 can only be null at this location\n" +
+		"----------\n"
+	);
 }
 }
