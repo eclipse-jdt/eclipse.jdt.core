@@ -163,8 +163,7 @@ public class CommentsPreparator extends ASTVisitor {
 				&& this.tm.countLineBreaksBetween(this.lastLineComment, commentToken) == 1;
 
 		boolean isHeader = this.tm.isInHeader(commentIndex);
-		boolean formattingEnabled = (this.options.comment_format_line_comment && !isHeader)
-				|| (this.options.comment_format_header && isHeader);
+		boolean formattingEnabled = (isHeader ? this.options.comment_format_header : this.options.comment_format_line_comment);
 		if (!formattingEnabled) {
 			preserveWhitespace(commentToken, commentIndex);
 			if (isContinuation) {
@@ -382,8 +381,7 @@ public class CommentsPreparator extends ASTVisitor {
 			return;
 
 		boolean isHeader = this.tm.isInHeader(commentIndex);
-		boolean formattingEnabled = (this.options.comment_format_block_comment && !isHeader)
-				|| (this.options.comment_format_header && isHeader);
+		boolean formattingEnabled = (isHeader ? this.options.comment_format_header : this.options.comment_format_block_comment);
 		if (this.tm.charAt(commentToken.originalStart + 2) == '-') {
 			if (commentToken.getLineBreaksBefore() > 0 || commentIndex == 0
 					|| this.tm.get(commentIndex - 1).getLineBreaksAfter() > 0) {
@@ -560,8 +558,7 @@ public class CommentsPreparator extends ASTVisitor {
 			return false;
 
 		boolean isHeader = this.tm.isInHeader(commentIndex);
-		boolean formattingEnabled = (this.options.comment_format_javadoc_comment && !isHeader)
-				|| (this.options.comment_format_header && isHeader);
+		boolean formattingEnabled = (isHeader ? this.options.comment_format_header : this.options.comment_format_javadoc_comment);
 		if (!formattingEnabled || !tokenizeMultilineComment(commentToken)) {
 			commentToken.setInternalStructure(commentToLines(commentToken, -1));
 			return false;
@@ -736,8 +733,7 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 		}
 
-		boolean extraIndent = (paramName != null && this.options.comment_indent_parameter_description)
-				|| (paramName == null && this.options.comment_indent_tag_description);
+		boolean extraIndent = (paramName != null ? this.options.comment_indent_parameter_description : this.options.comment_indent_tag_description);
 		for (int i = 2; i < tagTokens.size(); i++) {
 			Token token = tagTokens.get(i);
 			token.setAlign(descriptionAlign);

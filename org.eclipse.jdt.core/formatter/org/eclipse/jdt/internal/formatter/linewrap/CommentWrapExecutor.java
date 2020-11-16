@@ -228,8 +228,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 			return;
 		int commentIndex = this.tm.indexOf(commentToken);
 		boolean isHeader = this.tm.isInHeader(commentIndex);
-		boolean formattingEnabled = (this.options.comment_format_line_comment && !isHeader)
-				|| (this.options.comment_format_header && isHeader);
+		boolean formattingEnabled = (isHeader ? this.options.comment_format_header : this.options.comment_format_line_comment);
 		if (!formattingEnabled)
 			return;
 

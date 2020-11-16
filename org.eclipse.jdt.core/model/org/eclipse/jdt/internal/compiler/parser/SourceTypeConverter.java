@@ -656,7 +656,7 @@ public class SourceTypeConverter extends TypeConverter {
 				if ((methodInfo.getModifiers() & ClassFileConstants.AccAbstract) != 0) {
 					hasAbstractMethods = true;
 				}
-				if ((isConstructor && needConstructor) || (!isConstructor && needMethod)) {
+				if ((isConstructor ? needConstructor : needMethod)) {
 					AbstractMethodDeclaration method = convert(sourceMethod, methodInfo, compilationResult);
 					if (isAbstract || method.isAbstract()) { // fix-up flag
 						method.modifiers |= ExtraCompilerModifiers.AccSemicolonBody;

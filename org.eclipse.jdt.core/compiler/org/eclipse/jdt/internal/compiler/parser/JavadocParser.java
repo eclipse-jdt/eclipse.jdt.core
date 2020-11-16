@@ -797,8 +797,7 @@ public class JavadocParser extends AbstractCommentParser {
 			}
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833
 			// Report a problem if a block tag is being used in the context of an inline tag and vice versa.
-			if ((this.inlineTagStarted && JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_BLOCK)
-					|| (!this.inlineTagStarted && JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_INLINE)) {
+			if ((this.inlineTagStarted ? JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_BLOCK : JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_INLINE)) {
 				valid = false;
 				this.tagValue = TAG_OTHERS_VALUE;
 				this.tagWaitingForDescription = NO_TAG_VALUE;

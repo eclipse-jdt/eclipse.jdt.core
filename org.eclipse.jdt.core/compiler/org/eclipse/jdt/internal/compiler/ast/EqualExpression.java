@@ -62,8 +62,7 @@ public class EqualExpression extends BinaryExpression {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, rightStatus, this.left);
 				}
 			} else if (this.left instanceof Reference
-							&& ((!contextualCheckEquality && rightStatus == FlowInfo.NULL)
-									|| (contextualCheckEquality && rightStatus == FlowInfo.NON_NULL))
+							&& ((contextualCheckEquality ? rightStatus == FlowInfo.NON_NULL : rightStatus == FlowInfo.NULL))
 							&& scope.compilerOptions().enableSyntacticNullAnalysisForFields)
 			{
 				FieldBinding field = ((Reference)this.left).lastFieldBinding();
@@ -79,8 +78,7 @@ public class EqualExpression extends BinaryExpression {
 					checkVariableComparison(scope, flowContext, flowInfo, initsWhenTrue, initsWhenFalse, local, leftStatus, this.right);
 				}
 			} else if (this.right instanceof Reference
-							&& ((!contextualCheckEquality && leftStatus == FlowInfo.NULL)
-									|| (contextualCheckEquality && leftStatus == FlowInfo.NON_NULL))
+							&& ((contextualCheckEquality ? leftStatus == FlowInfo.NON_NULL : leftStatus == FlowInfo.NULL))
 							&& scope.compilerOptions().enableSyntacticNullAnalysisForFields)
 			{
 				FieldBinding field = ((Reference)this.right).lastFieldBinding();
