@@ -7993,4 +7993,25 @@ public void testBug566846_2() {
 			new String[] {"--enable-preview"},
 			getCompilerOptions());
 }
+public void testBug561199_001() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);
+	runNegativeTest(
+			new String[] {
+				"R.java",
+				"record R() implements java.io.Serializable {}\n",
+				"X.java",
+				"class X implements java.io.Serializable {}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X implements java.io.Serializable {}\n" +
+			"	      ^\n" +
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			options);
+}
 }
