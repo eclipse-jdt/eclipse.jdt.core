@@ -9554,7 +9554,7 @@ private boolean validateRestrictedKeywords(char[] name, String expectedToken, in
 	boolean isPreviewEnabled = this.options.enablePreviewFeatures;
 	if (expectedToken != null) {
 		String tokenName= new String(name);
-		String restrictedIdentifier= this.permittedRestrictedKeyWordMap.get(tokenName);
+		String restrictedIdentifier= permittedRestrictedKeyWordMap.get(tokenName);
 		if (restrictedIdentifier == null || !restrictedIdentifier.equals(expectedToken)) {
 			return false;
 		}
@@ -11998,7 +11998,7 @@ public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeRefere
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
-	String keyword = type.isClass() ? new String(TypeConstants.IMPLEMENTS) : new String(TypeConstants.EXTENDS);
+	String keyword = type.isClass() ? new String(TypeConstants.IMPLEMENTS) : new String(TypeConstants.KEYWORD_EXTENDS);
 	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
 	this.handle(
 			IProblem.SealedSuperInterfaceDoesNotPermit,
