@@ -706,9 +706,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject project = setUpJavaProject("ConvertToModule");
 			Map<String, String> options = new HashMap<>();
 			// Make sure the new options map doesn't reset.
-			options.put(CompilerOptions.OPTION_Compliance, "9");
-			options.put(CompilerOptions.OPTION_Source, "9");
-			options.put(CompilerOptions.OPTION_TargetPlatform, "9");
+			options.put(CompilerOptions.OPTION_Compliance, "10");
+			options.put(CompilerOptions.OPTION_Source, "10");
+			options.put(CompilerOptions.OPTION_TargetPlatform, "10");
 			options.put(CompilerOptions.OPTION_Release, "enabled");
 			project.setOptions(options);
 			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
