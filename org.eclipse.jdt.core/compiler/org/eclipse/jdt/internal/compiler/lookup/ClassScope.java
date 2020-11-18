@@ -597,7 +597,7 @@ public class ClassScope extends Scope {
 					sourceType.modifiers = 0;
 					return;
 				}
-				final int UNEXPECTED_MODIFIERS =~(ClassFileConstants.AccEnum);
+				final int UNEXPECTED_MODIFIERS =~(ClassFileConstants.AccEnum | ClassFileConstants.AccStrictfp);
 				if ((modifiers & ExtraCompilerModifiers.AccJustFlag & UNEXPECTED_MODIFIERS) != 0
 						|| flagSealedNonModifiers) {
 					problemReporter().illegalModifierForLocalEnumDeclaration(sourceType);

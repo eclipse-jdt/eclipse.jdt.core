@@ -986,4 +986,23 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"----------\n"
 		);
 	}
+	public void testBug568514LocalEnums_004() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"    public void foo() {\n" +
+				"        public strictfp enum I {}\n"+
+				"    Zork;\n"+
+				"    }\n"+
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	Zork;\n" +
+			"	^^^^\n" +
+			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" +
+			"----------\n"
+		);
+	}
 }
