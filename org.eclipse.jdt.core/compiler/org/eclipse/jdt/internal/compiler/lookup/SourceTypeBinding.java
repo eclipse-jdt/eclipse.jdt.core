@@ -82,6 +82,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -2446,6 +2447,12 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 			return true;
 		}
 	};
+	if ( methodDecl instanceof CompactConstructorDeclaration) {
+		CompactConstructorDeclaration ccd = (CompactConstructorDeclaration) methodDecl;
+		if (ccd.constructorCall == null) { // local traverse - super not set yet.
+			ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		}
+	}
 	methodDecl.traverse(visitor, this.scope);
 }
 
