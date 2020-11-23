@@ -893,6 +893,50 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
+	public void testPatternInstanceOfExpression003() throws JavaModelException {
+		if (!isJRE15) {
+			System.err.println("Test "+getName()+" requires a JRE 15");
+			return;
+		}
+		String contents =
+				"public class X {\n" +
+						"	public String test001(Object o) {\n" +
+						"		if (o instanceof String s){\n" +
+						"    		System.out.println(s);\n" +
+						"			return s;\n" +
+						"		}\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}" ;
+		this.workingCopy = getWorkingCopy("/Converter_15/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+
+				ASTNode node = buildAST(
+						contents,
+						this.workingCopy);
+				assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+				CompilationUnit compilationUnit = (CompilationUnit) node;
+				assertProblemsSize(compilationUnit, 0);
+				node = getASTNode(compilationUnit, 0, 0, 0);
+				assertEquals("Not an if statement", ASTNode.IF_STATEMENT, node.getNodeType());
+				IfStatement ifStatement = (IfStatement) node;
+				Expression expression = ifStatement.getExpression();
+				checkSourceRange(expression, "o instanceof String s", contents);
+				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+				SimpleName var = instanceofExpression.getPatternVariable();
+				checkSourceRange(var, "s", contents);
+				String instanceofExpressionString = instanceofExpression.toString();
+				assertEquals("o instanceof String s", instanceofExpressionString);
+			}finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+	}
+
 	public void testSealed001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
