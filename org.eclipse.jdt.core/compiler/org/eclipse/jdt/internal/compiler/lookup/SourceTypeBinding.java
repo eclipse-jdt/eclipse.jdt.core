@@ -82,6 +82,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -1163,10 +1164,7 @@ private void checkPermitsInType() {
 			ReferenceBinding superInterface = this.superInterfaces[i];
 			if (superInterface != null && !checkPermitsAndAdd(superInterface, typesInCU)) {
 				TypeReference superInterfaceRef = typeDecl.superInterfaces[i];
-				if (this.isClass())
-					this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, superInterfaceRef, superInterface);
-				else if (this.isInterface())
-					this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superInterfaceRef, superInterface);
+				this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superInterfaceRef, superInterface);
 			}
 		}
 	}
@@ -2449,6 +2447,12 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 			return true;
 		}
 	};
+	if ( methodDecl instanceof CompactConstructorDeclaration) {
+		CompactConstructorDeclaration ccd = (CompactConstructorDeclaration) methodDecl;
+		if (ccd.constructorCall == null) { // local traverse - super not set yet.
+			ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
+		}
+	}
 	methodDecl.traverse(visitor, this.scope);
 }
 

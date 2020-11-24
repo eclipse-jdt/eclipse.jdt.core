@@ -77,6 +77,7 @@ public class SearchableEnvironment
 	private Map<IPackageFragmentRoot,IModuleDescription> rootToModule;
 
 	private long timeSpentInGetModulesDeclaringPackage;
+	private long timeSpentInFindTypes;
 
 	@Deprecated
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies) throws JavaModelException {
@@ -520,6 +521,10 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	 * types are found relative to their enclosing type.
 	 */
 	public void findTypes(char[] prefix, final boolean findMembers, int matchRule, int searchFor, final ISearchRequestor storage, IProgressMonitor monitor) {
+		long start = -1;
+		if (NameLookup.VERBOSE)
+			start = System.currentTimeMillis();
+		
 		boolean camelCaseMatch = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
 		/*
 			if (true){
@@ -676,6 +681,9 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 				new String(prefix),
 				storage,
 				convertSearchFilterToModelFilter(searchFor));
+		} finally {
+			if (NameLookup.VERBOSE)
+				this.timeSpentInFindTypes += System.currentTimeMillis()-start;
 		}
 	}
 
@@ -1178,7 +1186,8 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 			return;
 
 		Util.verbose(" TIME SPENT SearchableEnvironment");  //$NON-NLS-1$
-		Util.verbose(" -> getModulesDeclaringPackage: " +  this.timeSpentInGetModulesDeclaringPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+		Util.verbose(" -> getModulesDeclaringPackage..." +  this.timeSpentInGetModulesDeclaringPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+		Util.verbose(" -> findTypes...................." +  this.timeSpentInFindTypes + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 
 		this.nameLookup.printTimeSpent();
 	}

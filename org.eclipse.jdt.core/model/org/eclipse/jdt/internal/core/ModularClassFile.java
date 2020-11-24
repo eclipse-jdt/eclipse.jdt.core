@@ -36,8 +36,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ModularClassFile extends AbstractClassFile implements IModularClassFile {
 
-	private BinaryModule binaryModule;
-
 	protected ModularClassFile(PackageFragment parent) {
 		super(parent, TypeConstants.MODULE_INFO_NAME_STRING);
 	}
@@ -64,10 +62,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 		BinaryModule module = new BinaryModule(this, moduleInfo);
 		newElements.put(module, moduleInfo);
 		info.setChildren(new IJavaElement[] {module});
-		this.binaryModule = module;
-		if (info instanceof ClassFileInfo) {
-			((ClassFileInfo) info).setModule(module);
-		}
+		((ClassFileInfo) info).setModule(module);
 		((PackageFragmentRootInfo) getPackageFragmentRoot().getElementInfo()).setModule(module);
 		return true;
 	}
@@ -294,11 +289,10 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 
 	@Override
 	public IModuleDescription getModule() throws JavaModelException {
-		if (this.binaryModule == null) {
-			openWhenClosed(createElementInfo(), false, null);
-			if (this.binaryModule == null)
-				throw newNotPresentException();
+		BinaryModule module = (BinaryModule) ((ClassFileInfo) getElementInfo()).getModule();
+		if (module == null) {
+			throw newNotPresentException();
 		}
-		return this.binaryModule;
+		return module;
 	}
 }

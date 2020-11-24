@@ -70,7 +70,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("15");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
 		runner.runConformTest();
 	}
 	@Override
@@ -2382,7 +2382,7 @@ public void testBug558718_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
 		"	^^^^^^\n" +
-		"Syntax error on token \"record\", record expected\n" +
+		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 		"----------\n",
 		null,
 		true,
@@ -2409,6 +2409,27 @@ public void testBug558718_002() {
 	"	record R() {}\n" +
 	"	         ^\n" +
 	"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
+	"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testBug558718_003() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"record R() {}\n",
+		},
+	"----------\n" +
+	"1. ERROR in X.java (at line 1)\n" +
+	"	record R() {}\n" +
+	"	^^^^^^\n" +
+	"The preview feature Records is only available with source level 16 and above\n" +
 	"----------\n",
 		null,
 		true,
@@ -6874,7 +6895,7 @@ public void testBug564672b_039() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
 		"	^^^^^^\n" +
-		"Syntax error on token \"record\", record expected\n" +
+		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 7)\n" +
 		"	class record {}\n" +
@@ -7667,7 +7688,7 @@ public void testBug566063_002() {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	static enum E {\n" +
 			"	            ^\n" +
-			"A local interface, enum or record E is implicitly static; cannot have explicit static declaration\n" +
+			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
 			"----------\n");
 }
 public void testBug566063_003() {
@@ -7694,12 +7715,12 @@ public void testBug566063_003() {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	static enum E {\n" +
 			"	            ^\n" +
-			"A local interface, enum or record E is implicitly static; cannot have explicit static declaration\n" +
+			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	static record Bar(E x) implements I{}\n" +
 			"	              ^^^\n" +
-			"A local interface, enum or record Bar is implicitly static; cannot have explicit static declaration\n" +
+			"A local class or interface Bar is implicitly static; cannot have explicit static declaration\n" +
 			"----------\n");
 }
 public void testBug566063_004() {
@@ -7975,5 +7996,72 @@ public void testBug566846_2() {
 			true,
 			new String[] {"--enable-preview"},
 			getCompilerOptions());
+}
+public void testBug561199_001() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);
+	runNegativeTest(
+			new String[] {
+				"R.java",
+				"record R() implements java.io.Serializable {}\n",
+				"X.java",
+				"class X implements java.io.Serializable {}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	class X implements java.io.Serializable {}\n" +
+			"	      ^\n" +
+			"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
+			"----------\n",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			options);
+}
+public void testBug568922_001() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   @SuppressWarnings(\"preview\")\n"+
+				"   record R() {\n"+
+				"     R  {\n"+
+				"       super();\n"+
+				"       System.out.println(\"helo\");\n"+
+				"     }\n"+
+				"   }\n"+
+				"   new R();\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"The body of a compact constructor must not contain an explicit constructor call\n" +
+			"----------\n",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			getCompilerOptions());
+}
+public void testBug568922_002() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			" public static void main(String[] args) {\n"+
+			"   @SuppressWarnings(\"preview\")\n"+
+			"   record R() {\n"+
+			"     R  {\n"+
+			"       System.out.println(\"helo\");\n"+
+			"     }\n"+
+			"   }\n"+
+			"   new R();\n"+
+			" }\n"+
+			"}"
+		},
+		"helo");
 }
 }

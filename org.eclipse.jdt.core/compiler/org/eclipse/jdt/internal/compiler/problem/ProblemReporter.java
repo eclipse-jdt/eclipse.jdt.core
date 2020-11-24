@@ -81,9 +81,11 @@ package org.eclipse.jdt.internal.compiler.problem;
 import java.io.CharConversionException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -231,6 +233,17 @@ public class ProblemReporter extends ProblemHandler {
 	private static String SEALED = "sealed"; //$NON-NLS-1$
 	private static String RESTRICTED_IDENTIFIER_PERMITS = "RestrictedIdentifierpermits"; //$NON-NLS-1$
 	private static String PERMITS = "permits"; //$NON-NLS-1$
+	private static String PREVIEW_KEYWORD_NON_SEALED = "non-sealed"; //$NON-NLS-1$
+
+	private static Map<String, String> permittedRestrictedKeyWordMap;
+
+	static {
+		permittedRestrictedKeyWordMap = new HashMap<>();
+		permittedRestrictedKeyWordMap.put(RECORD, RESTRICTED_IDENTIFIER_RECORD);
+		permittedRestrictedKeyWordMap.put(SEALED, RESTRICTED_IDENTIFIER_SEALED);
+		permittedRestrictedKeyWordMap.put(PERMITS, RESTRICTED_IDENTIFIER_PERMITS);
+		permittedRestrictedKeyWordMap.put(PREVIEW_KEYWORD_NON_SEALED, PREVIEW_KEYWORD_NON_SEALED);
+	}
 
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
 	super(policy, options, problemFactory);
@@ -8256,7 +8269,7 @@ private boolean handleSyntaxErrorOnNewTokens(
 	String errorTokenName,
 	String expectedToken) {
 	if (isIdentifier(currentKind)) {
-		return validateRestrictedKeywords(errorTokenSource, start, end, true);
+		return validateRestrictedKeywords(errorTokenSource, expectedToken, start, end, true);
 	}
 	return false;
 }
@@ -9535,13 +9548,23 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 }
 //Returns true if the problem is handled and reported (only errors considered and not warnings)
 public boolean validateRestrictedKeywords(char[] name, int start, int end, boolean reportSyntaxError) {
+	return validateRestrictedKeywords(name, null, start, end, reportSyntaxError);
+}
+private boolean validateRestrictedKeywords(char[] name, String expectedToken, int start, int end, boolean reportSyntaxError) {
 	boolean isPreviewEnabled = this.options.enablePreviewFeatures;
+	if (expectedToken != null) {
+		String tokenName= new String(name);
+		String restrictedIdentifier= permittedRestrictedKeyWordMap.get(tokenName);
+		if (restrictedIdentifier == null || !restrictedIdentifier.equals(expectedToken)) {
+			return false;
+		}
+	}
 	for (JavaFeature feature : JavaFeature.values()) {
 		char[][] restrictedKeywords = feature.getRestrictedKeywords();
 		for (char[] k : restrictedKeywords) {
 			if (CharOperation.equals(name, k)) {
 				if (reportSyntaxError) {
-//					return validateJavaFeatureSupport(feature, start, end);
+					return validateJavaFeatureSupport(feature, start, end);
 				} else {
 					if (feature.isPreview()) {
 						int severity = isPreviewEnabled ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning;
@@ -9606,9 +9629,10 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 }
 public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd, boolean reportError) {
 	this.underScoreIsError = reportError;
+	int problemId = (reportError) ? IProblem.ErrorUseOfUnderscoreAsAnIdentifier : IProblem.IllegalUseOfUnderscoreAsAnIdentifier;
 	try {
 		this.handle(
-			IProblem.IllegalUseOfUnderscoreAsAnIdentifier,
+			problemId,
 			NoArgument,
 			NoArgument,
 			sourceStart,
@@ -11908,6 +11932,15 @@ public void localStaticsIllegalVisibilityModifierForInterfaceLocalType(SourceTyp
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalModifierForLocalEnumDeclaration(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.IllegalModifierForLocalEnumDeclaration,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;
@@ -11960,7 +11993,19 @@ public void sealedSuperClassDoesNotPermit(SourceTypeBinding type, TypeReference 
 	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperClassDoesNotPermit, type, superType, superTypeBinding);
 }
 public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
-	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperInterfaceDoesNotPermit, type, superType, superTypeBinding);
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String name = new String(type.sourceName());
+	String superTypeFullName = new String(superTypeBinding.readableName());
+	String superTypeShortName = new String(superTypeBinding.shortReadableName());
+	String keyword = type.isClass() ? new String(TypeConstants.IMPLEMENTS) : new String(TypeConstants.KEYWORD_EXTENDS);
+	if (superTypeShortName.equals(name)) superTypeShortName = superTypeFullName;
+	this.handle(
+			IProblem.SealedSuperInterfaceDoesNotPermit,
+		new String[] {name, superTypeFullName, keyword},
+		new String[] {name, superTypeShortName, keyword},
+		superType.sourceStart,
+		superType.sourceEnd);
 }
 
 public void sealedMissingSealedModifier(SourceTypeBinding type, ASTNode node) {

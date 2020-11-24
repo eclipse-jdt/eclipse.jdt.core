@@ -226,7 +226,7 @@ public void testAddDotClasspathFile() throws CoreException {
 /*
  * Ensures that adding a library entry for an existing external library folder triggers the correct delta
  */
-public void testAddExternalLibFolder1() throws CoreException {
+public void _testAddExternalLibFolder1() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
 		createExternalFolder("externalLib");
@@ -251,7 +251,7 @@ public void testAddExternalLibFolder1() throws CoreException {
 /*
  * Ensures that adding a library entry for a non-existing external library folder triggers the correct delta
  */
-public void testAddExternalLibFolder2() throws CoreException {
+public void _testAddExternalLibFolder2() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
 		refresh(p);

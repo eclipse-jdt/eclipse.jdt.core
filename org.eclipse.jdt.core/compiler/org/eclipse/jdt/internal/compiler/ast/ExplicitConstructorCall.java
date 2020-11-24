@@ -310,7 +310,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			if (methodDeclaration == null
 					|| !methodDeclaration.isConstructor()
 					|| ((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
-				scope.problemReporter().invalidExplicitConstructorCall(this);
+				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) // already flagged for CCD
+						scope.problemReporter().invalidExplicitConstructorCall(this);
 				// fault-tolerance
 				if (this.qualification != null) {
 					this.qualification.resolveType(scope);
