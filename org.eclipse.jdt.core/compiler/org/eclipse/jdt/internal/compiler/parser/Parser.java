@@ -231,6 +231,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 						compliance = ClassFileConstants.JDK14;
 					}  else if("15".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK15;
+					}  else if("16".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK16;
 					} else if("recovery".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK_DEFERRED;
 					}

@@ -9571,7 +9571,16 @@ private boolean validateRestrictedKeywords(char[] name, String expectedToken, in
 						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(feature.getCompliance()), start, end, severity);
 						return isPreviewEnabled;
 					} else {
-						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(feature.getCompliance()), start, end, ProblemSeverities.Error | ProblemSeverities.Fatal);
+						int severity;
+						long compliance;
+						if (this.options.complianceLevel < feature.getCompliance()) {
+							severity = ProblemSeverities.Warning;
+							compliance = this.options.complianceLevel;
+						} else {
+							severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+							compliance = feature.getCompliance();
+						}
+						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(compliance), start, end, severity);
 						return true;
 					}
 				}

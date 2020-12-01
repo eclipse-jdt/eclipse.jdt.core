@@ -105,6 +105,7 @@ import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -1651,12 +1652,10 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 				if((this.lastModifiers & ClassFileConstants.AccFinal) == 0) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.INTERFACE;
 				}
-				if (this.options.complianceLevel >= ClassFileConstants.JDK14
-						&& this.options.enablePreviewFeatures == true) {
+				if (JavaFeature.RECORDS.isSupported(this.options)) {
 					keywordsAndRestrictedIndentifiers[count++] = RestrictedIdentifiers.RECORD;
 				}
-				if (this.options.complianceLevel >= ClassFileConstants.JDK15
-						&& this.options.enablePreviewFeatures == true) {
+				if (JavaFeature.SEALED_CLASSES.isSupported(this.options)) {
 					boolean nonSeal = (this.lastModifiers & ExtraCompilerModifiers.AccNonSealed) != 0;
 					boolean seal = (this.lastModifiers & ExtraCompilerModifiers.AccSealed) != 0;
 					if (!nonSeal && !seal) {

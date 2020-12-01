@@ -182,11 +182,11 @@ public void setUpSuite() throws Exception {
 		"}"
 	);
 
-	IJavaProject project_15 = createJava15Project("TypeHierarchy_15", new String[] {"src"});
-	project_15.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	createFolder("/TypeHierarchy_15/src/pkg");
+	IJavaProject project_16 = createJava16Project("TypeHierarchy_16", new String[] {"src"});
+	project_16.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	createFolder("/TypeHierarchy_16/src/pkg");
 	createFile(
-			"/TypeHierarchy_15/src/pkg/Rec1.java",
+			"/TypeHierarchy_16/src/pkg/Rec1.java",
 			"public record Rec1 (int one) {\n" +
 			"   " +
 			"}"
@@ -2177,18 +2177,18 @@ public void testSourceTypeGetSuperclass4() throws JavaModelException {
  * in the same compilation unit.
  */
 public void testSourceRecordTypeGetSuperclass() throws JavaModelException {
-	if (!isJRE15) {
+	if (!isJRE16) {
 		System.err.println("Test "+getName()+" requires a JRE 15");
 		return;
 	}
-	IType type = getCompilationUnit("/TypeHierarchy_15/src/pkg/Rec1.java").getType("Rec1");
+	IType type = getCompilationUnit("/TypeHierarchy_16/src/pkg/Rec1.java").getType("Rec1");
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	hierarchy.refresh(null);
 	IType superclass = hierarchy.getSuperclass(type);
 	assertTrue("Superclass not found for Rec1", superclass != null);
 	assertEquals("Unexpected super class for Rec1", "Record", superclass.getElementName());
 	assertHierarchyEquals(
-			"Focus: Rec1 [in Rec1.java [in pkg [in src [in TypeHierarchy_15]]]]\n" +
+			"Focus: Rec1 [in Rec1.java [in pkg [in src [in TypeHierarchy_16]]]]\n" +
 			"Super types:\n" +
 			"  Record [in Record.class [in java.lang [in <module:java.base>]]]\n" +
 			"    Object [in Object.class [in java.lang [in <module:java.base>]]]\n" +

@@ -1543,6 +1543,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava15Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "15");
 	}
+	protected IJavaProject createJava16Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "16");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -2147,7 +2150,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 					javaProject.setOptions(options);
+				} else if ("16".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
+					javaProject.setOptions(options);
 				}
+
 				result[0] = javaProject;
 			}
 		};
@@ -3245,7 +3255,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("15")) {
+			if (compliance.equals("16")) {
+				// Reuse the same 14 stuff as of now. No real need for a new one
+				newJclLibString = "JCL14_LIB";
+				newJclSrcString = "JCL14_SRC";
+			} else if (compliance.equals("15")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL14_LIB";
 				newJclSrcString = "JCL14_SRC";
@@ -3410,6 +3424,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("15".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
+				setupExternalJCL("jclMin14");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL14_LIB", "JCL14_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("14"), getExternalJCLSourcePath("14"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("16".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
 				setupExternalJCL("jclMin14");
 				JavaCore.setClasspathVariables(

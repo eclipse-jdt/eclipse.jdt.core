@@ -4197,9 +4197,8 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 private int checkFor_KeyWord(int index, int length, char[] data) {
 	if (this._Keywords == null) {
 		this._Keywords = new HashMap<>(0);
-		if (this.sourceLevel >= ClassFileConstants.JDK15) {
-			if (this.previewEnabled)
-				this._Keywords.put("non-sealed", TerminalTokens.TokenNamenon_sealed); //$NON-NLS-1$
+		if (JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled)) {
+			this._Keywords.put("non-sealed", TerminalTokens.TokenNamenon_sealed); //$NON-NLS-1$
 		}
 	}
 	for (String key : this._Keywords.keySet()) {
@@ -5543,7 +5542,7 @@ int disambiguatedRestrictedIdentifierpermits(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierpermits)
 		return restrictedIdentifierToken;
-	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
+	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
 		return TokenNameIdentifier;
 
 	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtARestricedIdentifier,
@@ -5553,7 +5552,7 @@ int disambiguatedRestrictedIdentifiersealed(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifiersealed)
 		return restrictedIdentifierToken;
-	if (this.sourceLevel < ClassFileConstants.JDK15 || !this.previewEnabled)
+	if (!JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled))
 		return TokenNameIdentifier;
 
 	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtARestricedIdentifier,

@@ -49,7 +49,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -2223,26 +2223,6 @@ public void testBug560798_005() throws Exception {
 		},
 	 "true");
 }
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug560770_001() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.ERROR);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	record R() {}\n" +
-		"	       ^\n" +
-		"You are using a preview language feature that may or may not be supported in a future release\n" +
-		"----------\n",
-		null,
-		true,
-		options
-	);
-}
 public void testBug560893_001() {
 	runConformTest(
 			new String[] {
@@ -2372,6 +2352,7 @@ public void testBug560893_007() {
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public void testBug558718_001() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runNegativeTest(
 	new String[] {
@@ -2381,8 +2362,8 @@ public void testBug558718_001() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
-		"	^^^^^^\n" +
-		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"	       ^\n" +
+		"The Java feature \'Records\' is only available with source level 16 and above\n" +
 		"----------\n",
 		null,
 		true,
@@ -2399,17 +2380,12 @@ public void testBug558718_002() {
 			"X.java",
 			"record R() {}\n",
 		},
-	"----------\n" +
-	"1. ERROR in X.java (at line 1)\n" +
-	"	record R() {}\n" +
-	"	^^^^^^\n" +
-	"Syntax error on token \"record\", @ expected\n" +
-	"----------\n" +
-	"2. ERROR in X.java (at line 1)\n" +
-	"	record R() {}\n" +
-	"	         ^\n" +
-	"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-	"----------\n",
+		"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	record R() {}\n" +
+				"	       ^\n" +
+				"The Java feature \'Records\' is only available with source level 16 and above\n" +
+				"----------\n",
 		null,
 		true,
 		options
@@ -2428,8 +2404,8 @@ public void testBug558718_003() {
 	"----------\n" +
 	"1. ERROR in X.java (at line 1)\n" +
 	"	record R() {}\n" +
-	"	^^^^^^\n" +
-	"The preview feature Records is only available with source level 16 and above\n" +
+	"	       ^\n" +
+	"The Java feature \'Records\' is only available with source level 16 and above\n" +
 	"----------\n",
 		null,
 		true,
@@ -5913,6 +5889,9 @@ public void testBug564672_053() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_001() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -5942,15 +5921,10 @@ public void testBug564672b_002() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
-		"	class X extends record {\n" +
-		"	                ^^^^^^\n" +
-		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	class X extends record {\n" +
 		"	                ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
 		"----------\n",
 		null,
 		true,
@@ -5960,6 +5934,9 @@ public void testBug564672b_002() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_003() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -5989,15 +5966,10 @@ public void testBug564672b_004() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
+		"1. ERROR in X.java (at line 1)\n" +
 		"	class X implements record {\n" +
 		"	                   ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	class X implements record {\n" +
-		"	                   ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6007,6 +5979,9 @@ public void testBug564672b_004() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_005() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6040,15 +6015,10 @@ public void testBug564672b_006() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	class Y extends record {\n" +
-		"	                ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6058,6 +6028,9 @@ public void testBug564672b_006() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_007() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6091,15 +6064,10 @@ public void testBug564672b_008() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	class Y implements record {\n" +
-		"	                   ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6109,6 +6077,9 @@ public void testBug564672b_008() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_009() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6142,15 +6113,10 @@ public void testBug564672b_010() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 1)\n" +
+		"1. ERROR in X.java (at line 1)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	interface Y extends record {\n" +
-		"	                    ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6160,6 +6126,9 @@ public void testBug564672b_010() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_011() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6193,15 +6162,10 @@ public void testBug564672b_012() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	interface Y extends record {\n" +
-		"	                    ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6211,6 +6175,9 @@ public void testBug564672b_012() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_013() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6243,15 +6210,10 @@ public void testBug564672b_014() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y extends record {\n" +
 		"	                ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	class Y extends record {\n" +
-		"	                ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6261,6 +6223,9 @@ public void testBug564672b_014() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_015() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6293,15 +6258,10 @@ public void testBug564672b_016() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	class Y implements record {\n" +
 		"	                   ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	class Y implements record {\n" +
-		"	                   ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6311,6 +6271,9 @@ public void testBug564672b_016() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_017() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6343,15 +6306,10 @@ public void testBug564672b_018() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 2)\n" +
 		"	interface Y extends record {\n" +
 		"	                    ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	interface Y extends record {\n" +
-		"	                    ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
 		"----------\n",
 		null,
 		true,
@@ -6376,35 +6334,20 @@ public void testBug564672b_019() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 2)\n" +
-		"	static record a(int i, int j) {\n" +
-		"	       ^^^^^^\n" +
-		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 2)\n" +
-		"	static record a(int i, int j) {\n" +
-		"	       ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 3)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
 		"	^^^^^^\n" +
-		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 3)\n" +
+		"2. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
+		"	             ^^^^^^\n" +
+		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 4)\n" +
+		"	return r;\n" +
 		"	^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 3)\n" +
-		"	record r=new record(i,j);\n" +
-		"	             ^^^^^^\n" +
-		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 3)\n" +
-		"	record r=new record(i,j);\n" +
-		"	             ^^^^^^\n" +
-		"record cannot be resolved to a type\n" +
+		"Syntax error on token \"return\", byte expected\n" +
 		"----------\n",
 		null,
 		true,
@@ -6414,6 +6357,9 @@ public void testBug564672b_019() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_020() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6438,6 +6384,9 @@ public void testBug564672b_020() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_021() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6460,6 +6409,9 @@ public void testBug564672b_021() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_022() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6485,6 +6437,9 @@ public void testBug564672b_022() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_023() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6506,6 +6461,9 @@ public void testBug564672b_023() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_024() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6533,6 +6491,9 @@ public void testBug564672b_024() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_025() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6553,6 +6514,9 @@ public void testBug564672b_025() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_026() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6573,6 +6537,9 @@ public void testBug564672b_026() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_027() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6592,6 +6559,9 @@ public void testBug564672b_027() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_028() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6618,6 +6588,9 @@ public void testBug564672b_028() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_029() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6640,6 +6613,9 @@ public void testBug564672b_029() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_030() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6660,6 +6636,9 @@ public void testBug564672b_030() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_031() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6704,6 +6683,9 @@ public void testBug564672b_032() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_033() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6746,6 +6728,9 @@ public void testBug564672b_034() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_035() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6786,6 +6771,9 @@ public void testBug564672b_035() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_036() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6825,6 +6813,9 @@ public void testBug564672b_036() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_037() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6854,6 +6845,9 @@ public void testBug564672b_037() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_038() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6894,10 +6888,10 @@ public void testBug564672b_039() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
-		"	^^^^^^\n" +
-		"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+		"	             ^^^^^^\n" +
+		"'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"2. WARNING in X.java (at line 7)\n" +
+		"2. ERROR in X.java (at line 7)\n" +
 		"	class record {}\n" +
 		"	      ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +"\n" +
@@ -6910,6 +6904,9 @@ public void testBug564672b_039() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_040() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6935,6 +6932,9 @@ public void testBug564672b_040() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_041() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6962,6 +6962,9 @@ public void testBug564672b_041() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_042() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -6986,6 +6989,9 @@ public void testBug564672b_042() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_043() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -7010,6 +7016,9 @@ public void testBug564672b_043() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_044() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -7041,6 +7050,9 @@ public void testBug564672b_044() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_045() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -7068,6 +7080,9 @@ public void testBug564672b_045() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_046() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -7087,6 +7102,9 @@ public void testBug564672b_046() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_047() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -7117,6 +7135,9 @@ public void testBug564672b_047() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_048() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {
@@ -7146,6 +7167,9 @@ public void testBug564672b_048() {
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public void testBug564672b_049() {
 	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 	this.runConformTest(
 		new String[] {

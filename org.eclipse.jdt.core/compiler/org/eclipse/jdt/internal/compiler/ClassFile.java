@@ -433,7 +433,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.bootstrapMethods != null && !this.bootstrapMethods.isEmpty()) {
 			attributesNumber += generateBootstrapMethods(this.bootstrapMethods);
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK15) {
+		if (this.targetJDK >= ClassFileConstants.JDK16) {
 			// add record attributes
 			attributesNumber += generatePermittedTypeAttributes();
 		}

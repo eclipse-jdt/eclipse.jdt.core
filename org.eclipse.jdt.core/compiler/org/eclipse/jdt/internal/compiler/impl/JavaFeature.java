@@ -50,7 +50,7 @@ public enum JavaFeature {
 	RECORDS(ClassFileConstants.JDK16,
 			Messages.bind(Messages.records),
 			new char[][] {TypeConstants.RECORD_RESTRICTED_IDENTIFIER},
-			true),
+			false),
 
 	SEALED_CLASSES(ClassFileConstants.JDK16,
 			Messages.bind(Messages.sealed_types),

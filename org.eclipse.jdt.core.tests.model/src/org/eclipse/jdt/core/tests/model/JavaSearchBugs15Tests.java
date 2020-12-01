@@ -134,7 +134,7 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "15");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "16");
 	}
 
 	public void tearDownSuite() throws Exception {
@@ -867,8 +867,8 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		IJavaProject project1 = createJavaProject("JavaSearchBugs15", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "14");
 		try {
 			Map<String, String> options = project1.getOptions(false);
-			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
-			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
 			project1.setOptions(options);
 			project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			project1.open(null);
@@ -1311,10 +1311,10 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		}
 		//permit reference in another file
 		public void test564049_011() throws CoreException {
-			IJavaProject project1 = createJavaProject("JavaSearchBugs15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "15");
+			IJavaProject project1 = createJavaProject("JavaSearchBugs15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "16");
 			try {
 				Map<String, String> options = project1.getOptions(false);
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
 				project1.setOptions(options);
 				project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 				project1.open(null);

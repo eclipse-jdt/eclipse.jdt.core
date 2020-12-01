@@ -19,8 +19,232 @@
         <filter id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordAccessorMethodHasThrowsClause"/>
+                <message_argument value="2098886"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordAccessorMethodShouldBePublic"/>
+                <message_argument value="2098897"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordAccessorMethodShouldNotBeGeneric"/>
+                <message_argument value="2098896"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordAccessorMethodShouldNotBeStatic"/>
+                <message_argument value="2098903"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCannotDefineRecordInLocalType"/>
+                <message_argument value="2098908"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCannotExtendRecord"/>
+                <message_argument value="2098904"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCanonicalConstructorHasExplicitConstructorCall"/>
+                <message_argument value="2098900"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCanonicalConstructorHasReturnStatement"/>
+                <message_argument value="2098899"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCanonicalConstructorHasThrowsClause"/>
+                <message_argument value="2098887"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCanonicalConstructorShouldNotBeGeneric"/>
+                <message_argument value="2098898"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCanonicalConstructorVisibilityReduced"/>
+                <message_argument value="2098888"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCompactConstructorHasExplicitConstructorCall"/>
+                <message_argument value="2098901"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordCompactConstructorHasReturnStatement"/>
+                <message_argument value="2098890"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordComponentCannotBeVoid"/>
+                <message_argument value="2098905"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordComponentsCannotHaveModifiers"/>
+                <message_argument value="2098909"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordDuplicateComponent"/>
+                <message_argument value="2098891"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalAccessorReturnType"/>
+                <message_argument value="2098895"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalComponentNameInRecord"/>
+                <message_argument value="2098884"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalExplicitFinalFieldAssignInCompactConstructor"/>
+                <message_argument value="2098911"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalModifierForInnerRecord"/>
+                <message_argument value="2098882"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalModifierForRecord"/>
+                <message_argument value="2098883"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalNativeModifierInRecord"/>
+                <message_argument value="2098892"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalParameterNameInCanonicalConstructor"/>
+                <message_argument value="2098910"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalStaticModifierForLocalClassOrInterface"/>
+                <message_argument value="2098913"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordIllegalVararg"/>
+                <message_argument value="2098906"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordInstanceInitializerBlockInRecord"/>
+                <message_argument value="2098893"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
                 <message_argument value="RecordMissingExplicitConstructorCallInNonCanonicalConstructor"/>
                 <message_argument value="2098909"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordMissingExplicitConstructorCallInNonCanonicalConstructor"/>
+                <message_argument value="2098912"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordMultipleCanonicalConstructors"/>
+                <message_argument value="2098889"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordNestedRecordInherentlyStatic"/>
+                <message_argument value="2098902"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordNonStaticFieldDeclarationInRecord"/>
+                <message_argument value="2098885"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RecordStaticReferenceToOuterLocalVariable"/>
+                <message_argument value="2098907"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="RestrictedTypeName"/>
+                <message_argument value="2098894"/>
             </message_arguments>
         </filter>
         <filter comment="Java 15 Merge" id="405864542">

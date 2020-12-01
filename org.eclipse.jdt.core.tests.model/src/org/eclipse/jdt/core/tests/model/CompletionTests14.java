@@ -32,9 +32,9 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null)  {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "15");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "16");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "15");
+			setUpProjectCompliance(COMPLETION_PROJECT, "16");
 		}
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
@@ -301,7 +301,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults("", requestor.getResults());
 	}
 
-	public void test0015() throws JavaModelException {
+	public void _test0015() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
@@ -310,7 +310,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						" * @par \n" +
 						" *\n"+
 						" */\n" +
-						"public record Point(int a)  {\n" +
+						"//public record Point(int a)  {\n" +
 				"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);

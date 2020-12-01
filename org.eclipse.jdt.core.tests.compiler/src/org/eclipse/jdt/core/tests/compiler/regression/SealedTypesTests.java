@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class SealedTypes15Tests extends AbstractRegressionTest9 {
+public class SealedTypesTests extends AbstractRegressionTest9 {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
@@ -39,12 +39,12 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	}
 
 	public static Class<?> testClass() {
-		return SealedTypes15Tests.class;
+		return SealedTypesTests.class;
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public SealedTypes15Tests(String testName){
+	public SealedTypesTests(String testName){
 		super(testName);
 	}
 
@@ -2860,8 +2860,18 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
-			"	^^^^^^\n" +
-			"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"	^\n" +
+			"permits cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 1)\n" +
+			"	record X(permits p) {\n" +
+			"	         ^^^^^^^\n" +
+			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	record X(permits p) {\n" +
+			"	         ^^^^^^^\n" +
+			"permits cannot be resolved to a type\n" +
 			"----------\n",
 			null,
 			true,
@@ -4583,8 +4593,18 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
-			"	^^^^^^\n" +
-			"Records is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"	^\n" +
+			"sealed cannot be resolved to a type\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 1)\n" +
+			"	record X(sealed p) {\n" +
+			"	         ^^^^^^\n" +
+			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	record X(sealed p) {\n" +
+			"	         ^^^^^^\n" +
+			"sealed cannot be resolved to a type\n" +
 			"----------\n",
 			null,
 			true,

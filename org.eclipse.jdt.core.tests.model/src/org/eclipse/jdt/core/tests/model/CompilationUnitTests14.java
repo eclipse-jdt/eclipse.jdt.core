@@ -31,7 +31,7 @@ public CompilationUnitTests14(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	final String compliance = "15"; //$NON-NLS-1$
+	final String compliance = "16"; //$NON-NLS-1$
 	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	createFolder("/P/src/p");
 	createFile(

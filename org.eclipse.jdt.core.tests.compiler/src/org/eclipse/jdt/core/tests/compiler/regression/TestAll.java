@@ -203,7 +203,7 @@ public static Test suite() {
 
 	 // add 15 specific test here (check duplicates)
 	 ArrayList since_15 = new ArrayList();
-	 since_15.add(SealedTypes15Tests.class);
+	 since_15.add(SealedTypesTests.class);
 	 since_15.add(ClassFileReaderTest_15.class);
 	 since_15.add(JavadocTest_15.class);
 	 since_15.add(LocalStaticsTest_15.class);
