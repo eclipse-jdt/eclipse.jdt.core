@@ -46,7 +46,7 @@ public class LocalEnumTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test10" };
+//		TESTS_NAMES = new String[] { "testNPE" };
 //		TESTS_NUMBERS = new int[] { 185 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -584,7 +584,7 @@ public void test011() {
 		"----------\n");
 }
 // check abstract method diagnosis
-public void _NPE_test012() {
+public void testNPE012() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -600,10 +600,10 @@ public void _NPE_test012() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X implements Runnable { \n" +
-		"	            ^\n" +
-		"The type X must implement the inherited abstract method Runnable.run()\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	enum Y implements Runnable { \n" +
+		"	     ^\n" +
+		"The type Y must implement the inherited abstract method Runnable.run()\n" +
 		"----------\n");
 }
 // check enum constants with wrong arguments
@@ -2648,7 +2648,7 @@ public void test074() {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83901
-public void _NPE_test075() {
+public void testNPE075() {
 	this.runNegativeTest( // do not implement inherited method
 		new String[] {
 			"X.java",
@@ -2662,10 +2662,10 @@ public void _NPE_test075() {
 			"interface I { void _test(); }\n"
 		},
 		"----------\n" +
-		"1. ERROR in X5.java (at line 1)\n" +
-		"	public enum X5 implements I {\n" +
-		"	            ^^\n" +
-		"The type X5 must implement the inherited abstract method I.test()\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	enum X5 implements I {\n" +
+		"	     ^^\n" +
+		"The type X5 must implement the inherited abstract method I._test()\n" +
 		"----------\n"
 		// X5 is not abstract and does not override abstract method test() in I
 	);
@@ -2682,10 +2682,10 @@ public void _NPE_test075() {
 			"interface I { void _test(); }\n"
 		},
 		"----------\n" +
-		"1. ERROR in X5a.java (at line 1)\n" +
-		"	public enum X5a implements I {\n" +
-		"	            ^^^\n" +
-		"The type X5a must implement the inherited abstract method I.test()\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	enum X5a implements I {\n" +
+		"	     ^^^\n" +
+		"The type X5a must implement the inherited abstract method I._test()\n" +
 		"----------\n"
 		// X5a is not abstract and does not override abstract method test() in I
 	);
@@ -2719,10 +2719,10 @@ public void _NPE_test075() {
 			"interface I { void _test(); }\n"
 		},
 		"----------\n" +
-		"1. ERROR in X5c.java (at line 2)\n" +
+		"1. ERROR in X.java (at line 4)\n" +
 		"	A() { void random() {} };\n" +
 		"	^\n" +
-		"The enum constant A must implement the abstract method test()\n" +
+		"The enum constant A must implement the abstract method _test()\n" +
 		"----------\n"
 		// <anonymous X5c$1> is not abstract and does not override abstract method test() in I
 	);
@@ -3377,7 +3377,7 @@ public void test094() throws Exception {
 		assertEquals("unexpected bytecode sequence", expectedOutput, actualOutput);
 	}
 }
-public void _NPE_test095() { // check missing abstract cases from multiple interfaces
+public void testNPE095() { // check missing abstract cases from multiple interfaces
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -3392,17 +3392,17 @@ public void _NPE_test095() { // check missing abstract cases from multiple inter
 			"interface J { void foo(); }\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X implements I, J { \n" +
-		"	            ^\n" +
-		"The type X must implement the inherited abstract method J.foo()\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	enum Y implements I, J { \n" +
+		"	     ^\n" +
+		"The type Y must implement the inherited abstract method J.foo()\n" +
 		"----------\n");
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
-			"		public enum Y implements I, J { \n" +
+			"		enum Y implements I, J { \n" +
 			"			ROUGE;\n" +
 			"			public void foo() {}\n" +
 			"		}\n" +
@@ -3412,13 +3412,13 @@ public void _NPE_test095() { // check missing abstract cases from multiple inter
 			"interface J { void foo(); }\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X implements I, J { \n" +
-		"	            ^\n" +
-		"The type X must implement the inherited abstract method I.foo(int)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	enum Y implements I, J { \n" +
+		"	     ^\n" +
+		"The type Y must implement the inherited abstract method I.foo(int)\n" +
 		"----------\n");
 }
-public void _NPE_test096() { // check for raw vs. parameterized parameter types
+public void testNPE096() { // check for raw vs. parameterized parameter types
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3439,7 +3439,7 @@ public void _NPE_test096() { // check for raw vs. parameterized parameter types
 			"X.java",
 			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
-			"		public enum Y implements I { \n" +
+			"		 enum Y implements I { \n" +
 			"			ROUGE { public void foo(A a) {} }\n" +
 			"			;\n" +
 			"		}\n" +
@@ -3454,7 +3454,7 @@ public void _NPE_test096() { // check for raw vs. parameterized parameter types
 			"X.java",
 			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
-			"		public enum Y implements I { \n" +
+			"		 enum Y implements I { \n" +
 			"			ROUGE;\n" +
 			"			public void foo(A<String> a) {}\n" +
 			"		}\n" +
@@ -3464,17 +3464,17 @@ public void _NPE_test096() { // check for raw vs. parameterized parameter types
 			"class A<T> {}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X implements I { \n" +
-		"	            ^\n" +
-		"The type X must implement the inherited abstract method I.foo(A)\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	enum Y implements I { \n" +
+		"	     ^\n" +
+		"The type Y must implement the inherited abstract method I.foo(A)\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"2. ERROR in X.java (at line 5)\n" +
 		"	public void foo(A<String> a) {}\n" +
 		"	            ^^^^^^^^^^^^^^^^\n" +
-		"Name clash: The method foo(A<String>) of type X has the same erasure as foo(A) of type I but does not override it\n" +
+		"Name clash: The method foo(A<String>) of type Y has the same erasure as foo(A) of type I but does not override it\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 5)\n" +
+		"3. WARNING in X.java (at line 9)\n" +
 		"	interface I { void foo(A a); }\n" +
 		"	                       ^\n" +
 		"A is a raw type. References to generic type A<T> should be parameterized\n" +
@@ -3600,38 +3600,38 @@ blocks, or instance variable initializer expressions of an enum constant e1
 to refer to itself or an enum constant of the same type that is declared to
 the right of e1."
 	*/
-public void _NPE_test100() {
+public void testNPE100() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
-			"public enum Y {\n" +
+			"		enum Y {\n" +
 			"\n" +
-			"	anEnumValue {\n" +
-			"		private final Y thisOne = anEnumValue;\n" +
+			"			anEnumValue {\n" +
+			"				private final Y thisOne = anEnumValue;\n" +
 			"\n" +
-			"		@Override String getMessage() {\n" +
-			"			return \"Here is what thisOne gets assigned: \" + thisOne;\n" +
+			"				@Override String getMessage() {\n" +
+			"					return \"Here is what thisOne gets assigned: \" + thisOne;\n" +
+			"				}\n" +
+			"			};\n" +
+			"\n" +
+			"			abstract String getMessage();\n" +
+			"\n" +
+			"			public static void main(String[] arguments) {\n" +
+			"				System.out.println(anEnumValue.getMessage());\n" +
+			"				System.out.println(\"SUCCESS\");\n" +
+			"			}\n" +
 			"		}\n" +
-			"	};\n" +
-			"\n" +
-			"	abstract String getMessage();\n" +
-			"\n" +
-			"	public static void main(String[] args) {\n" +
-			"		System.out.println(anEnumValue.getMessage());\n" +
-			"		System.out.println(\"SUCCESS\");\n" +
-			"	}\n" +
-			"	}\n" +
 			"	}\n" +
 			"\n" +
 			"}\n",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	private final X thisOne = anEnumValue;\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	private final Y thisOne = anEnumValue;\n" +
 		"	                          ^^^^^^^^^^^\n" +
-		"Cannot refer to the static enum field X.anEnumValue within an initializer\n" +
+		"Cannot refer to the static enum field Y.anEnumValue within an initializer\n" +
 		"----------\n",
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10);
 }

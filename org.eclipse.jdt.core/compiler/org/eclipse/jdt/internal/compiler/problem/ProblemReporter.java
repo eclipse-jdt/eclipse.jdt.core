@@ -911,7 +911,7 @@ public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBindi
 		type.sourceEnd());
 }
 public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
-	if (type.isEnum() && type.isLocalType()) {
+	if (type.isEnum() && type.isLocalType() && type.isAnonymousType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
 		String[] arguments = new String[] {new String(decl.name), new String(methodDecl.selector)};
@@ -932,7 +932,7 @@ public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethod
 	}
 }
 public void abstractMethodInConcreteClass(SourceTypeBinding type) {
-	if (type.isEnum() && type.isLocalType()) {
+	if (type.isEnum() && type.isLocalType() && type.isAnonymousType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
 		String[] arguments = new String[] {new String(decl.name)};
@@ -953,7 +953,7 @@ public void abstractMethodInConcreteClass(SourceTypeBinding type) {
 	}
 }
 public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBinding abstractMethod) {
-	if (type.isEnum() && type.isLocalType()) {
+	if (type.isEnum() && type.isLocalType() && type.isAnonymousType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
 		this.handle(
