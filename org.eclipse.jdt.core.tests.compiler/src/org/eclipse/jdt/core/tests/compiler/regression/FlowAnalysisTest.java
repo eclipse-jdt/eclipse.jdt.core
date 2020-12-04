@@ -52,6 +52,9 @@ public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
 
+private boolean checkSwitchAllowedLevel() {
+	return this.complianceLevel >= ClassFileConstants.JDK14;
+}
 public void test001() {
 	this.runNegativeTest(new String[] {
 		"X.java", // =================
@@ -2905,9 +2908,9 @@ public void testBug537804_comment5() {
 		"----------\n");
 }
 public void testBug548318_001() {
-	if (!checkPreviewAllowed())
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
@@ -2950,16 +2953,13 @@ public void testBug548318_001() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 
 }
 public void testBug548318_002() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
@@ -3002,18 +3002,15 @@ public void testBug548318_002() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /*
  * k is definitely assigned - no errors on that front.
  */
 public void testBug548318_003() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 23)\n" +
@@ -3057,15 +3054,12 @@ public void testBug548318_003() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 public void testBug548318_004() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
@@ -3124,15 +3118,12 @@ public void testBug548318_004() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 public void testBug548318_005() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
@@ -3185,8 +3176,7 @@ public void testBug548318_005() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3197,11 +3187,9 @@ public void testBug548318_005() {
  * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when false.
  */
 public void testBug548318_006() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3244,8 +3232,7 @@ public void testBug548318_006() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3258,11 +3245,9 @@ public void testBug548318_006() {
  * statement and V is definitely unassigned after e when false.
  */
 public void testBug548318_007() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 18)\n" +
@@ -3310,8 +3295,7 @@ public void testBug548318_007() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3319,11 +3303,8 @@ public void testBug548318_007() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_008() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3366,8 +3347,7 @@ public void testBug548318_008() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3375,11 +3355,9 @@ public void testBug548318_008() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_009() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
@@ -3427,8 +3405,7 @@ public void testBug548318_009() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3437,11 +3414,9 @@ public void testBug548318_009() {
  * iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_010() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3484,8 +3459,7 @@ public void testBug548318_010() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3494,11 +3468,9 @@ public void testBug548318_010() {
  * iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_011() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
@@ -3546,8 +3518,7 @@ public void testBug548318_011() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3557,11 +3528,9 @@ public void testBug548318_011() {
  * and V is [un]assigned after the preceding statement
  */
 public void testBug548318_012() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3604,8 +3573,7 @@ public void testBug548318_012() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3615,11 +3583,9 @@ public void testBug548318_012() {
  * and V is [un]assigned after the preceding statement"
  */
 public void testBug548318_012b() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 15)\n" +
@@ -3664,8 +3630,7 @@ public void testBug548318_012b() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3675,11 +3640,9 @@ public void testBug548318_012b() {
  * and V is [un]assigned after the preceding statement" needs to be checked
  */
 public void testBug548318_013() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
@@ -3727,8 +3690,7 @@ public void testBug548318_013() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3747,11 +3709,9 @@ public void testBug548318_013() {
  * 		It is a switch labeled throw statement.
  */
 public void testBug548318_014() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 23)\n" +
@@ -3799,8 +3759,7 @@ public void testBug548318_014() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3821,11 +3780,9 @@ public void testBug548318_014() {
  * 		It is a switch labeled throw statement.
  */
 public void testBug548318_015() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 17)\n" +
@@ -3876,8 +3833,7 @@ public void testBug548318_015() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3886,11 +3842,9 @@ public void testBug548318_015() {
  * block iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_016() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 14)\n" +
@@ -3929,8 +3883,7 @@ public void testBug548318_016() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
@@ -3940,11 +3893,9 @@ public void testBug548318_016() {
  * block iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_017() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
@@ -3993,8 +3944,7 @@ public void testBug548318_017() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
@@ -4003,11 +3953,9 @@ public void testBug548318_017() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_018() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4048,8 +3996,7 @@ public void testBug548318_018() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
@@ -4058,11 +4005,9 @@ public void testBug548318_018() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_019() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 15)\n" +
@@ -4107,8 +4052,7 @@ public void testBug548318_019() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4116,11 +4060,9 @@ public void testBug548318_019() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_020() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 19)\n" +
@@ -4160,8 +4102,7 @@ public void testBug548318_020() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4169,11 +4110,9 @@ public void testBug548318_020() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_021() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
@@ -4218,8 +4157,7 @@ public void testBug548318_021() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4231,11 +4169,9 @@ public void testBug548318_021() {
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group.
  */
 public void testBug548318_022() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 19)\n" +
@@ -4275,8 +4211,7 @@ public void testBug548318_022() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4288,11 +4223,9 @@ public void testBug548318_022() {
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group.
  */
 public void testBug548318_023() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
@@ -4337,8 +4270,7 @@ public void testBug548318_023() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4350,11 +4282,9 @@ public void testBug548318_023() {
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group.
  */
 public void testBug548318_024() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
@@ -4399,8 +4329,7 @@ public void testBug548318_024() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
@@ -4409,11 +4338,9 @@ public void testBug548318_024() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_025() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4459,8 +4386,7 @@ public void testBug548318_025() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
@@ -4469,11 +4395,9 @@ public void testBug548318_025() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_026() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 16)\n" +
@@ -4524,8 +4448,7 @@ public void testBug548318_026() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4534,11 +4457,9 @@ public void testBug548318_026() {
  * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
 public void testBug548318_027() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4584,8 +4505,7 @@ public void testBug548318_027() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
@@ -4594,11 +4514,9 @@ public void testBug548318_027() {
  * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
 public void testBug548318_028() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
@@ -4649,8 +4567,7 @@ public void testBug548318_028() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.2.9, [tests the second rule - assigned]
@@ -4664,11 +4581,9 @@ public void testBug548318_028() {
  *        followed by }, then V is [un]assigned after the selector expression
  */
 public void testBug548318_029() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 24)\n" +
@@ -4718,8 +4633,7 @@ public void testBug548318_029() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 /**
  * From JLS 13 16.2.9, [tests the second rule - unassigned]
@@ -4733,11 +4647,9 @@ public void testBug548318_029() {
  *        followed by }, then V is [un]assigned after the selector expression
  */
 public void testBug548318_030() {
-	if (!checkPreviewAllowed())
-
-
+	if (!checkSwitchAllowedLevel())
 		return;
-	Map<String, String> defaultOptions = setPresetPreviewOptions();
+	setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4792,8 +4704,7 @@ public void testBug548318_030() {
 			testFiles,
 			expectedProblemLog,
 			null,
-			true,
-			defaultOptions);
+			true);
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
