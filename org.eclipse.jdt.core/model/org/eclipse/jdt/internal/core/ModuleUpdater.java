@@ -128,7 +128,7 @@ public class ModuleUpdater {
 	public void addReadUnnamedForNonEmptyClasspath(JavaProject project, IClasspathEntry[] expandedClasspath)
 			throws JavaModelException {
 		for (String moduleName : determineModulesOfProjectsWithNonEmptyClasspath(project, expandedClasspath)) {
-			addModuleUpdate(moduleName, m -> m.addReads(ModuleBinding.ALL_UNNAMED), UpdateKind.MODULE);
+			addModuleUpdate(moduleName, new IUpdatableModule.AddReads(ModuleBinding.ALL_UNNAMED), UpdateKind.MODULE);
 		}
 	}
 
