@@ -474,4 +474,15 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		return "HierarchyScope on " + ((JavaElement)this.focusType).toStringWithAncestors(); //$NON-NLS-1$
 	}
 
+	@Override
+	public boolean isParallelSearchSupported() {
+		return true;
+	}
+
+	@Override
+	public void initBeforeSearch(IProgressMonitor monitor) throws JavaModelException {
+		if (this.needsRefresh) {
+			initialize(monitor);
+		}
+	}
 }

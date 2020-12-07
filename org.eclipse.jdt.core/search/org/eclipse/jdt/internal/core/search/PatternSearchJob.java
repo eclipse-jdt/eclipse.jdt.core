@@ -14,12 +14,29 @@
 package org.eclipse.jdt.internal.core.search;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.IParallelizable;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.FileIndexLocation;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -37,9 +54,14 @@ protected IJavaSearchScope scope;
 protected SearchParticipant participant;
 protected IndexQueryRequestor requestor;
 protected boolean areIndexesReady;
-protected long executionTime = 0;
+protected AtomicLong executionTime;
+boolean parallel;
+
+public static final String ENABLE_PARALLEL_SEARCH = "enableParallelJavaIndexSearch";//$NON-NLS-1$
+public static final boolean ENABLE_PARALLEL_SEARCH_DEFAULT = true;
 
 public PatternSearchJob(SearchPattern pattern, SearchParticipant participant, IJavaSearchScope scope, IndexQueryRequestor requestor) {
+	this.executionTime = new AtomicLong(0);
 	this.pattern = pattern;
 	this.participant = participant;
 	this.scope = scope;
@@ -63,20 +85,80 @@ public boolean execute(IProgressMonitor progressMonitor) {
 	SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 3);
 
 	boolean isComplete = COMPLETE;
-	this.executionTime = 0;
+	this.executionTime.set(0);
+	long startTime = System.currentTimeMillis();
+
 	Index[] indexes = getIndexes(subMonitor.split(1));
 	try {
 		int max = indexes.length;
 		SubMonitor loopMonitor = subMonitor.split(2).setWorkRemaining(max);
-		for (int i = 0; i < max; i++) {
-			isComplete &= search(indexes[i], loopMonitor.split(1));
+		this.parallel = canRunInParallel();
+		if(this.parallel) {
+			isComplete = performParallelSearch(indexes, loopMonitor);
+		} else {
+			for (int i = 0; i < max; i++) {
+				isComplete &= search(indexes[i], this.requestor, loopMonitor.split(1));
+			}
 		}
-		if (JobManager.VERBOSE)
-			Util.verbose("-> execution time: " + this.executionTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
+
+		if (JobManager.VERBOSE) {
+			if (this.parallel) {
+				long wallClockTime = System.currentTimeMillis() - startTime;
+				Util.verbose("-> execution time: " + wallClockTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
+				Util.verbose("-> cumulative execution time (" + ForkJoinPool.getCommonPoolParallelism() + "): " //$NON-NLS-1$//$NON-NLS-2$
+						+ this.executionTime.get() + "ms - " + this);//$NON-NLS-1$
+			} else {
+				Util.verbose("-> execution time: " + this.executionTime.get() + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
+			}
+		}
 		return isComplete;
 	} finally {
 		SubMonitor.done(progressMonitor);
 	}
+}
+private boolean performParallelSearch(Index[] indexes, SubMonitor loopMonitor) {
+	boolean isComplete = true;
+	List<Future<IndexResult>> futures = new ArrayList<>(indexes.length);
+	ForkJoinPool commonPool = ForkJoinPool.commonPool();
+	ParallelSearchMonitor monitor = new ParallelSearchMonitor(loopMonitor);
+
+	try {
+		if (this.scope instanceof IParallelizable) {
+			((IParallelizable) this.scope).initBeforeSearch(monitor);
+		}
+		for (Index index : indexes) {
+			futures.add(commonPool.submit(() -> search(index, monitor)));
+		}
+
+		for (Future<IndexResult> future : futures) {
+			loopMonitor.split(1);
+			try {
+				IndexResult result = future.get();
+				isComplete &= result.complete;
+				result.matches.forEach(m -> {
+					boolean continueSearch = this.requestor.acceptIndexMatch(m.documentPath, m.indexRecord, this.participant, m.access);
+					if(!continueSearch) {
+						throw new OperationCanceledException();
+					}
+				});
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new OperationCanceledException();
+			} catch (ExecutionException e) {
+				if(e.getCause() instanceof RuntimeException) {
+					throw (RuntimeException) e.getCause();
+				}
+				throw new RuntimeException(e);
+			}
+		}
+	} catch (JavaModelException e) {
+		monitor.setCanceled(true);
+		throw new RuntimeException("Error initializing scope: " + this.scope, e); //$NON-NLS-1$
+	} catch (Exception e) {
+		monitor.setCanceled(true);
+		throw e;
+	}
+	return isComplete;
 }
 public Index[] getIndexes(IProgressMonitor progressMonitor) {
 	// acquire the in-memory indexes on the fly
@@ -106,7 +188,16 @@ public boolean waitNeeded() {
 public String getJobFamily() {
 	return ""; //$NON-NLS-1$
 }
-public boolean search(Index index, IProgressMonitor progressMonitor) {
+
+private IndexResult search(Index index, IProgressMonitor progressMonitor) {
+	List<IndexMatch> matches = new ArrayList<>();
+	boolean complete = search(index,
+			collectTo(matches, progressMonitor), progressMonitor);
+	return new IndexResult(complete, matches);
+}
+
+
+public boolean search(Index index, IndexQueryRequestor queryRequestor, IProgressMonitor progressMonitor) {
 	if (index == null) return COMPLETE;
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	ReadWriteMonitor monitor = index.monitor;
@@ -114,8 +205,14 @@ public boolean search(Index index, IProgressMonitor progressMonitor) {
 	try {
 		monitor.enterRead(); // ask permission to read
 		long start = System.currentTimeMillis();
-		MatchLocator.findIndexMatches(this.pattern, index, this.requestor, this.participant, this.scope, progressMonitor);
-		this.executionTime += System.currentTimeMillis() - start;
+		SearchPattern searchPattern = this.pattern;
+		IJavaSearchScope searchScope = this.scope;
+		if(this.parallel) {
+			searchPattern = clone(searchPattern);
+			searchScope = clone(searchScope);
+		}
+		MatchLocator.findIndexMatches(searchPattern, index, queryRequestor, this.participant, searchScope, progressMonitor);
+		this.executionTime.addAndGet(System.currentTimeMillis() - start);
 		return COMPLETE;
 	} catch (IOException e) {
 		if (e instanceof java.io.EOFException)
@@ -125,8 +222,102 @@ public boolean search(Index index, IProgressMonitor progressMonitor) {
 		monitor.exitRead(); // finished reading
 	}
 }
+
+private static IJavaSearchScope clone(IJavaSearchScope searchScope) {
+	if (searchScope instanceof AbstractSearchScope) {
+		try {
+			searchScope = ((AbstractSearchScope)searchScope).clone();
+		} catch (CloneNotSupportedException e) {
+			Util.log(new Status(IStatus.WARNING, JavaCore.PLUGIN_ID,
+					"PatternSearchJob could not clone " + searchScope, e));//$NON-NLS-1$
+		}
+	}
+	return searchScope;
+}
+
+private static SearchPattern clone(SearchPattern searchPattern) {
+	if(searchPattern instanceof Cloneable) {
+		try {
+			searchPattern = searchPattern.clone();
+		} catch (CloneNotSupportedException e) {
+			Util.log(new Status(IStatus.WARNING, JavaCore.PLUGIN_ID,
+					"PatternSearchJob could not clone " + searchPattern, e));//$NON-NLS-1$
+		}
+	}
+	return searchPattern;
+}
+
 @Override
 public String toString() {
 	return "searching " + this.pattern.toString(); //$NON-NLS-1$
 }
+
+private boolean canRunInParallel() {
+	return isParallelSearchEnabled() && IParallelizable.isParallelSearchSupported(this.scope)
+			&& IParallelizable.isParallelSearchSupported(this.participant)
+			&& IParallelizable.isParallelSearchSupported(this.pattern);
+}
+
+private boolean isParallelSearchEnabled() {
+	IPreferencesService preferenceService = Platform.getPreferencesService();
+	if (preferenceService == null) {
+		return true;
+	}
+	return preferenceService.getBoolean(JavaCore.PLUGIN_ID, ENABLE_PARALLEL_SEARCH, ENABLE_PARALLEL_SEARCH_DEFAULT,
+			null);
+}
+
+private static IndexQueryRequestor collectTo(final List<IndexMatch> collectTo, final IProgressMonitor monitor) {
+	return new IndexQueryRequestor() {
+
+		@Override
+		public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant,
+				AccessRuleSet access) {
+			collectTo.add(new IndexMatch(documentPath, indexRecord, access));
+			return !monitor.isCanceled();
+		}
+	};
+}
+
+static class IndexResult {
+	final boolean complete;
+	final List<IndexMatch> matches;
+
+	IndexResult(boolean complete, List<IndexMatch> matches) {
+		this.complete = complete;
+		this.matches = matches;
+	}
+}
+
+static class IndexMatch {
+	final String documentPath;
+	final SearchPattern indexRecord;
+	final AccessRuleSet access;
+
+	IndexMatch(String documentPath, SearchPattern indexRecord, AccessRuleSet access) {
+		this.documentPath = documentPath;
+		this.indexRecord = indexRecord;
+		this.access = access;
+	}
+}
+
+static class ParallelSearchMonitor extends NullProgressMonitor {
+	private volatile boolean canceled;
+	private IProgressMonitor original;
+
+	public ParallelSearchMonitor(IProgressMonitor original) {
+		this.original = original;
+	}
+
+	@Override
+	public boolean isCanceled() {
+		return this.canceled || this.original.isCanceled();
+	}
+
+	@Override
+	public void setCanceled(boolean canceled) {
+		this.canceled = canceled;
+	}
+}
+
 }

@@ -15,8 +15,9 @@ package org.eclipse.jdt.internal.core.search;
 
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.IParallelizable;
 
-public abstract class AbstractSearchScope implements IJavaSearchScope {
+public abstract class AbstractSearchScope implements IJavaSearchScope, IParallelizable, Cloneable {
 
 /**
  * @see IJavaSearchScope#includesBinaries()
@@ -60,4 +61,13 @@ public void setIncludesClasspaths(boolean includesClasspaths) {
 	// implements interface method
 }
 
+@Override
+public boolean isParallelSearchSupported() {
+	return false;
+}
+
+@Override
+public AbstractSearchScope clone() throws CloneNotSupportedException {
+	return (AbstractSearchScope) super.clone();
+}
 }

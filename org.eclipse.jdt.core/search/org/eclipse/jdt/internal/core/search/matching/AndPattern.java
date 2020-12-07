@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.stream.Stream;
+
+import org.eclipse.jdt.core.search.IParallelizable;
 import org.eclipse.jdt.core.search.SearchPattern;
 
 public class AndPattern extends IntersectingPattern {
@@ -75,6 +78,21 @@ protected boolean hasNextQuery() {
 @Override
 protected void resetQuery() {
 	this.current = 0;
+}
+
+@Override
+public boolean isParallelSearchSupported() {
+	return Stream.of(this.patterns).allMatch(IParallelizable::isParallelSearchSupported);
+}
+
+@Override
+public SearchPattern clone() throws CloneNotSupportedException {
+	AndPattern pattern = (AndPattern) super.clone();
+	pattern.patterns = this.patterns.clone();
+	for (int i = 0; i < this.patterns.length; i++) {
+		 pattern.patterns[i] =  this.patterns[i].clone();
+	}
+	return pattern;
 }
 
 }

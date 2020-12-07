@@ -97,4 +97,9 @@ public class UnindexedSearchScope extends AbstractSearchScope {
 		}
 	}
 
+	@Override
+	public boolean isParallelSearchSupported() {
+		return true;
+	}
+
 }
