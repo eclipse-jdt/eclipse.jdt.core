@@ -45,7 +45,7 @@ public ConstantTest(String name) {
 // All specified tests which does not belong to the class are skipped...
 static {
 //	TESTS_PREFIX = "testBug95521";
-//	TESTS_NAMES = new String[] { "testBug83127a" };
+//	TESTS_NAMES = new String[] { "testBug566332_01" };
 //	TESTS_NUMBERS = new int[] { 21 };
 //	TESTS_RANGE = new int[] { 23, -1 };
 }
@@ -1603,6 +1603,25 @@ public void testBug566332_04() {
 			"	     ^^^^^^^\n" +
 			"case expressions must be constant expressions\n" +
 			"----------\n");
+}
+public void testBug569498() {
+	if (this.complianceLevel < ClassFileConstants.JDK11) {
+		return;
+	}
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "	final String s1 = \"\";\n"
+				+ "	public void m(Object s) {\n"
+				+ "		final boolean b = false;\n"
+				+ "		final String s2 = \"\";\n"
+				+ "		m(b? s1 : s2);\n"
+				+ "	}\n"
+				+ "    public static void main(String[] args) {}\n"
+				+ "}",
+			},
+			"");
 }
 public static Class testClass() {
 	return ConstantTest.class;
