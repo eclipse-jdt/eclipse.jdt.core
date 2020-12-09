@@ -521,6 +521,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 		if (isPolyExpression()) {
 			if (this.expectedType == null || !this.expectedType.isProperType(true)) {
+				// We will be back here in case of a PolyTypeBinding. So, to enable
+				// further processing, set it back to default.
+				this.constant = Constant.NotAConstant;
 				return new PolyTypeBinding(this);
 			}
 			return this.resolvedType = computeConversions(scope, this.expectedType) ? this.expectedType : null;
