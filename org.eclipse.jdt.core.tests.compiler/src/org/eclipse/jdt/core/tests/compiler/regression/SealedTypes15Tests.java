@@ -31,7 +31,7 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug568428"};
+//		TESTS_NAMES = new String[] { "testBug569522"};
 	}
 
 	public static Class<?> testClass() {
@@ -5512,5 +5512,33 @@ public class SealedTypes15Tests extends AbstractRegressionTest9 {
 			"	                                ^\n" +
 			"The type Y that implements a sealed interface X should be a permitted subtype of X\n" +
 			"----------\n");
+	}
+	public void testBug569522_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  sealed interface Foo<T> permits Bar { }\n"+
+				"  final class Bar<T> implements Foo<T> { }\n"+
+				"  public static void main(String[] args) {\n"+
+				"       System.out.println(\"\");\n"+
+				"  }\n"+
+				"}",
+			},
+			"");
+	}
+	public void testBug569522_002() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  sealed class Foo<T> permits Bar { }\n"+
+				"  final class Bar<T> extends Foo<T> { }\n"+
+				"  public static void main(String[] args) {\n"+
+				"       System.out.println(\"\");\n"+
+				"  }\n"+
+				"}",
+			},
+			"");
 	}
 }
