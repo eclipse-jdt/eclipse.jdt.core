@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2164,7 +2167,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 	public void testSealedModifier_003() throws Exception {
-		if (checkAPILevel(15)) {
+		if (checkAPILevel(16)) {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -2501,7 +2504,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	}
 
 	public void testSealedModifier_009() throws Exception {
-		if (checkAPILevel(15)) {
+		if (checkAPILevel(16)) {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

@@ -751,13 +751,13 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of types
 	 *    (element type: {@link Type})
-	 * @exception UnsupportedOperationException if this operation is not used with Java 15 and preview enabled
+	 * @exception UnsupportedOperationException if this operation is not used with Java 16 and preview enabled
 	 * @since 3.24
 	 */
 	public List permittedTypes() {
 		// more efficient than just calling unsupportedIn2() to check
 		if (this.permittedTypes == null) {
-			supportedOnlyIn15();
+			supportedOnlyIn16();
 			unsupportedWithoutPreviewError();
 		}
 		return this.permittedTypes;

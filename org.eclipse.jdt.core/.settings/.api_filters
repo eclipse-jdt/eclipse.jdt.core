@@ -249,6 +249,15 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
+        <filter comment="This should have the latest value" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AST"/>
+                <message_argument value="JLS_Latest"/>
+                <message_argument value="15"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/Annotation.java" type="org.eclipse.jdt.core.dom.Annotation">
         <filter id="576725006">
             <message_arguments>

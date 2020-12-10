@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -132,6 +136,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
 
 	/**
+	 * Internal synonym for constant AST.JSL11
+	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
+	 * @deprecated
+	 */
+	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
+
+	/**
 	 * Internal synonym for constant AST.JSL12
 	 * to alleviate deprecation warnings once AST.JLS12 is deprecated in future.
 	 * @deprecated
@@ -155,21 +166,21 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL15
 	 * to alleviate deprecation warnings once AST.JLS15 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS15 = AST.JLS15;
 
 	/**
-	 * Internal synonym for constant AST.JSL11
-	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
-	 * @deprecated
+	 * Internal synonym for constant AST.JSL16
+	 * to alleviate deprecation warnings once AST.JLS16 is deprecated in future.
 	 */
-	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
+	protected static final int AST_INTERNAL_JLS16 = AST.JLS16;
 
 	/**
 	 * Internal synonym for the latest AST level.
 	 *
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS15;
+	protected static final int AST_INTERNAL_LATEST = AST.JLS_Latest;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -3233,6 +3244,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, compliance);
+		javaProject.setOption(JavaCore.COMPILER_SOURCE, compliance);
+		javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, compliance);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {

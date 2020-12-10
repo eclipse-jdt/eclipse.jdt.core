@@ -360,7 +360,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 15(aka JDK 15).
 	 * </p>
-	 *
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 * @since 3.24
 	 */
 	public static final int JLS15 = 15;
@@ -376,7 +376,7 @@ public final class AST {
 	 * up to and including Java SE 16(aka JDK 16).
 	 * </p>
 	 *
-	 * @since 3.24 BETA_JAVA15
+	 * @since 3.24 BETA_JAVA16
 	 */
 	public static final int JLS16 = 16;
 
@@ -395,7 +395,7 @@ public final class AST {
 	 * @since 3.24
 	 * This provides the latest JLS level.
 	 */
-	public static final int JLS_Latest = JLS15;
+	public static final int JLS_Latest = JLS16;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -1093,6 +1093,21 @@ public final class AST {
 				this.apiLevel = level;
 				// initialize a scanner
 				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15);
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						compliance /*sourceLevel*/,
+						compliance /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/,
+						previewEnabled);
+				break;
+			case JLS16_INTERNAL :
+				this.apiLevel = level;
+				// initialize a scanner
+				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_16);
 				this.scanner = new Scanner(
 						true /*comment*/,
 						true /*whitespace*/,
@@ -2678,7 +2693,7 @@ public final class AST {
 	 * and an empty record body.
 	 *
 	 * @return a new unparented type declaration node
-	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS14
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS16
 	 * @since 3.23
 	 */
 	public RecordDeclaration newRecordDeclaration() {

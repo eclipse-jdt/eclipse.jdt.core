@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -727,15 +731,12 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *
 	 * @return <code>true</code> if this is a compact constructor declaration in a record,
 	 *    and <code>false</code> if this is a method declaration
-	 * @since 3.22
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @exception UnsupportedOperationException if this operation is not used in JLS15
-	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false
+	 * @since 3.24 BETA_JAVA16
+	 * @exception UnsupportedOperationException if this operation is used below JLS16
 	 */
 
 	public boolean isCompactConstructor() {
-		supportedOnlyIn15();
-		unsupportedWithoutPreviewError();
+		unsupportedBelow16();
 		return this.isCompactConstructor;
 	}
 
@@ -744,13 +745,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *
 	 * @param isCompactConstructor <code>true</code> for a constructor declaration,
 	 *    and <code>false</code> for a method declaration
-	 * @since 3.22
+	 * @since 3.24 BETA_JAVA16
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @exception UnsupportedOperationException if this operation is not used in JLS14
-	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false
+	 * @exception UnsupportedOperationException if this operation is used below JLS16
 	 */
 
 	public void setCompactConstructor(boolean isCompactConstructor) {
+		unsupportedBelow16();
 		preValueChange(COMPACT_CONSTRUCTOR_PROPERTY);
 		this.isCompactConstructor = isCompactConstructor;
 		postValueChange(COMPACT_CONSTRUCTOR_PROPERTY);

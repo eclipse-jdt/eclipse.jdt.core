@@ -8,6 +8,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -307,14 +310,11 @@ public class InstanceofExpression extends Expression {
 	 * Returns the patternVariable of this instanceof expression.
 	 *
 	 * @return the patternVariable node
-	 * @exception UnsupportedOperationException if this operation is used other than JLS15
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @exception UnsupportedOperationException if this operation is used below JLS16
+	 * @since 3.24 BETA_JAVA16
 	 */
 	public SimpleName getPatternVariable() {
-		supportedOnlyIn15();
-		unsupportedWithoutPreviewError();
+		unsupportedBelow16();
 		return this.patternVariable;
 	}
 
@@ -323,14 +323,11 @@ public class InstanceofExpression extends Expression {
 	 *
 	 * @param referencePatternVariable the right operand node
 	 * @exception IllegalArgumentException if:
-	 * @exception UnsupportedOperationException if this operation is used other than JLS15
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @exception UnsupportedOperationException if this operation is used below JLS16
+	 * @since 3.24 BETA_JAVA16
 	 */
 	public void setPatternVariable(SimpleName referencePatternVariable) {
-		supportedOnlyIn15();
-		unsupportedWithoutPreviewError();
+		unsupportedBelow16();
 		if (referencePatternVariable == null) {
 			throw new IllegalArgumentException();
 		}

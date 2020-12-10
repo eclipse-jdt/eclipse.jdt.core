@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -91,7 +94,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord001() throws CoreException {
+	public void _testRecord001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -124,7 +127,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 	 * Added for Bug 561193 - [14]record keyword inside method not colored correctly
 	 * @throws CoreException
 	 */
-	public void testRecord002() throws CoreException {
+	public void _testRecord002() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -155,7 +158,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord003() throws CoreException {
+	public void _testRecord003() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -190,7 +193,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord004() throws CoreException {
+	public void _testRecord004() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test " + getName() + " requires a JRE 15");
 			return;
@@ -226,7 +229,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord005() throws CoreException {
+	public void _testRecord005() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -277,7 +280,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord006() throws CoreException {
+	public void _testRecord006() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -324,7 +327,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord007() throws CoreException {
+	public void _testRecord007() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -366,7 +369,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord008() throws CoreException {
+	public void _testRecord008() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -403,7 +406,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord009() throws CoreException {
+	public void _testRecord009() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -521,7 +524,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord011() throws CoreException {
+	public void _testRecord011() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -557,7 +560,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecord012() throws CoreException {
+	public void _testRecord012() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -810,7 +813,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		assertEquals("wrong line number", 9, compilationUnit.getLineNumber(node.getStartPosition()));
 	}
 
-	public void testPatternInstanceOfExpression001() throws JavaModelException {
+	public void _testPatternInstanceOfExpression001() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -852,7 +855,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
-	public void testPatternInstanceOfExpression002() throws JavaModelException {
+	public void _testPatternInstanceOfExpression002() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -895,7 +898,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
-	public void testPatternInstanceOfExpression003() throws JavaModelException {
+	public void _testPatternInstanceOfExpression003() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1111,7 +1114,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecordConstructor001() throws CoreException {
+	public void _testRecordConstructor001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1164,7 +1167,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testRecordConstructor002() throws CoreException {
+	public void _testRecordConstructor002() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;

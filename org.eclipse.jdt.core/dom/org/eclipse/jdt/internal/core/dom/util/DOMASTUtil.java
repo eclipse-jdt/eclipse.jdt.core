@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -63,7 +67,7 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS15;
 			case ASTNode.RECORD_DECLARATION:
 			case ASTNode.INSTANCEOF_EXPRESSION:
-				return isPreviewEnabled(apiLevel, previewEnabled);
+				return apiLevel >= AST.JLS16;
 		}
 		return false;
 	}
@@ -115,7 +119,7 @@ public class DOMASTUtil {
 	}
 
 	private static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
-		return (apiLevel == AST.JLS15 && previewEnabled);
+		return (apiLevel == AST.JLS16 && previewEnabled);
 	}
 
 	public static boolean isSwitchExpressionSupported(AST ast) {
@@ -164,6 +168,7 @@ public class DOMASTUtil {
 	        case AST.JLS13 :
 	        case AST.JLS14 :
 	        case AST.JLS15 :
+	        case AST.JLS16 :
 	        	return;
 		}
 		throw new IllegalArgumentException();
