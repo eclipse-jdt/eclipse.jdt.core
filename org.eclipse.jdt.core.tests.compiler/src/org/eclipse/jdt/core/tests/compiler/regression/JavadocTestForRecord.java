@@ -101,7 +101,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return options;
 	}

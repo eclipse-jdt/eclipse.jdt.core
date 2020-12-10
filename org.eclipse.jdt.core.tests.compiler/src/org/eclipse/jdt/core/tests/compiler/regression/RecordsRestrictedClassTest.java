@@ -65,6 +65,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
+		if (!isJRE16Plus)
+			return;
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedOutputString = expectedOutput;
@@ -75,7 +77,9 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("15"));
+		if (!isJRE16Plus)
+			return;
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.DEFAULT);
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -85,14 +89,15 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog,
 			Map<String, String> customOptions, String javacAdditionalTestOptions) {
-
+		if (!isJRE16Plus)
+			return;
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("15") :
-			JavacTestOptions.forReleaseWithPreview("15", javacAdditionalTestOptions);
+		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("16") :
+			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 
@@ -116,7 +121,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"X.java",
-						"class X {\n"+
+						"public class X {\n"+
 						"  public static void main(String[] args){\n"+
 						"     System.out.println(0);\n" +
 						"  }\n"+
@@ -7197,6 +7202,8 @@ public void testBug564672b_049() {
 	);
 }
 public void testBug565388_001() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7207,10 +7214,16 @@ public void testBug565388_001() {
 		"	public non-sealed record X() {}\n" +
 		"	                         ^\n" +
 		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
-		"----------\n"
+		"----------\n",
+		null,
+		true,
+		options
 	);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug565388_002() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7221,8 +7234,12 @@ public void testBug565388_002() {
 		"	public sealed record X() {}\n" +
 		"	                     ^\n" +
 		"Illegal modifier for the record X; only public, final and strictfp are permitted\n" +
-		"----------\n"
+		"----------\n",
+		null,
+		true,
+		options
 	);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug565786_001() throws IOException, ClassFormatException {
 	runConformTest(
@@ -7667,6 +7684,8 @@ public void testBug563182_07() {
 		"private final int X$1Bar.x");
 	}
 public void testBug566063_001() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	runConformTest(
 			new String[] {
 				"X.java",
@@ -7686,9 +7705,14 @@ public void testBug566063_001() {
 				"    }\n"+
 				"}"
 			},
-		 "ONE");
+			"ONE",
+			options
+		);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug566063_002() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7713,9 +7737,16 @@ public void testBug566063_002() {
 			"	static enum E {\n" +
 			"	            ^\n" +
 			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options
+		);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug566063_003() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7745,34 +7776,46 @@ public void testBug566063_003() {
 			"	static record Bar(E x) implements I{}\n" +
 			"	              ^^^\n" +
 			"A local class or interface Bar is implicitly static; cannot have explicit static declaration\n" +
-			"----------\n");
+			"----------\n",
+			null,
+			true,
+			options
+		);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug566063_004() {
-	runNegativeTest(
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	this.runNegativeTest(
 			new String[] {
-				"X.java",
-				"class X {\n"+
-				"    void bar() throws Exception {\n"+
-				"        enum E {\n"+
-				"               ONE,\n"+
-				"               TWO\n"+
-				"        }\n"+
-				"        static interface I {}\n"+
-				"        record Bar(E x) implements I{}\n"+
-				"        E e = new Bar(E.ONE).x();\n"+
-				"        System.out.println(e);\n"+
-				"    }\n"+
-				"    public static void main(String[] args) throws Exception {\n"+
-				"       new X().bar();\n"+
-				"    }\n"+
-				"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	static interface I {}\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n");
+					"X.java",
+					"class X {\n"+
+					"    void bar() throws Exception {\n"+
+					"        enum E {\n"+
+					"               ONE,\n"+
+					"               TWO\n"+
+					"        }\n"+
+					"        static interface I {}\n"+
+					"        record Bar(E x) implements I{}\n"+
+					"        E e = new Bar(E.ONE).x();\n"+
+					"        System.out.println(e);\n"+
+					"    }\n"+
+					"    public static void main(String[] args) throws Exception {\n"+
+					"       new X().bar();\n"+
+					"    }\n"+
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	static interface I {}\n" +
+				"	                 ^\n" +
+				"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+				"----------\n",
+		null,
+		true,
+		options
+	);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public void testBug566418_001() {
@@ -7928,6 +7971,8 @@ public void testBug566554_04() {
 		"----------\n");
 }
 public void testBug567731_001() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7948,10 +7993,16 @@ public void testBug567731_001() {
 		"	sealed record B() { }  \n" +
 		"	              ^\n" +
 		"Illegal modifier for the local record B; only final and strictfp are permitted\n" +
-		"----------\n"
+		"----------\n",
+		null,
+		true,
+		options
 	);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug567731_002() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7972,8 +8023,12 @@ public void testBug567731_002() {
 		"	non-sealed record R2() { }  \n" +
 		"	                  ^^\n" +
 		"Illegal modifier for the local record R2; only final and strictfp are permitted\n" +
-		"----------\n"
+		"----------\n",
+		null,
+		true,
+		options
 	);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug566846_1() {
 	runNegativeTest(

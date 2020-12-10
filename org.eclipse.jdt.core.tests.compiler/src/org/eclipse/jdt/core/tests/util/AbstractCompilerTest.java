@@ -202,7 +202,7 @@ public class AbstractCompilerTest extends TestCase {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		for (int[] map : complianceTestLevelMapping) {
 			if ((complianceLevels & map[0]) != 0) {
-				long complianceLevelForJavaVersion = ClassFileConstants.getComplianceLevelForJavaVersion(map[0]);
+				long complianceLevelForJavaVersion = ClassFileConstants.getComplianceLevelForJavaVersion(map[1]);
 				checkCompliance(evaluationTestClass, minimalCompliance, suite, complianceLevels, map[0], map[1], getVersionString(complianceLevelForJavaVersion));
 			}
 		}
@@ -652,7 +652,7 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	protected static String getVersionString(long compliance) {
-		String version = "version 15 : 59.0";
+		String version = "version 16 : 60.0";
 		if (compliance < ClassFileConstants.JDK9) return "version 1.8 : 52.0";
 		if (compliance == ClassFileConstants.JDK9) return "version 9 : 53.0";
 		if (compliance == ClassFileConstants.JDK10) return "version 10 : 54.0";
