@@ -2271,94 +2271,94 @@ void setSourceStart(int sourceStart);
 	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
 	int RecordIllegalComponentNameInRecord = TypeRelated + 1732;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordNonStaticFieldDeclarationInRecord = TypeRelated + 1733;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordAccessorMethodHasThrowsClause = TypeRelated + 1734;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCanonicalConstructorHasThrowsClause = TypeRelated + 1735;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RecordCanonicalConstructorVisibilityReduced = TypeRelated + 1736;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordMultipleCanonicalConstructors = TypeRelated + 1737;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCompactConstructorHasReturnStatement = TypeRelated + 1738;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordDuplicateComponent = TypeRelated + 1739;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalNativeModifierInRecord = TypeRelated + 1740;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordInstanceInitializerBlockInRecord = TypeRelated + 1741;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RestrictedTypeName = TypeRelated + 1742;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalAccessorReturnType = TypeRelated + 1743;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordAccessorMethodShouldNotBeGeneric = TypeRelated + 1744;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordAccessorMethodShouldBePublic = TypeRelated + 1745;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCanonicalConstructorShouldNotBeGeneric = TypeRelated + 1746;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCanonicalConstructorHasReturnStatement = TypeRelated + 1747;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCanonicalConstructorHasExplicitConstructorCall = TypeRelated + 1748;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCompactConstructorHasExplicitConstructorCall = TypeRelated + 1749;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordNestedRecordInherentlyStatic = TypeRelated + 1750;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordAccessorMethodShouldNotBeStatic= TypeRelated + 1751;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCannotExtendRecord= TypeRelated + 1752;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordComponentCannotBeVoid= TypeRelated + 1753;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalVararg= TypeRelated + 1754;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordStaticReferenceToOuterLocalVariable= TypeRelated + 1755;
 	/** @since 3.22
-	 * @noreference preview feature error */
+	 */
 	int RecordCannotDefineRecordInLocalType= TypeRelated + 1756;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RecordComponentsCannotHaveModifiers= TypeRelated + 1757;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalParameterNameInCanonicalConstructor = TypeRelated + 1758;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalExplicitFinalFieldAssignInCompactConstructor = TypeRelated + 1759;
 	/** @since 3.23
-	 * @noreference preview feature error */
+	 */
 	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= TypeRelated + 1760;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalStaticModifierForLocalClassOrInterface = TypeRelated + 1761;
 	/** @since 3.24
-	 * @noreference preview feature error */
+	 */
 	int RecordIllegalModifierForLocalRecord = TypeRelated + 1762;
 
 	/* records - end */
