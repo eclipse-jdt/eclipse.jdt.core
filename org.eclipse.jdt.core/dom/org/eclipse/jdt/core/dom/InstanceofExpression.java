@@ -69,7 +69,7 @@ public class InstanceofExpression extends Expression {
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
-	private static final List PROPERTY_DESCRIPTORS_14;
+	private static final List PROPERTY_DESCRIPTORS_16;
 
 	static {
 		List properyList = new ArrayList(3);
@@ -82,7 +82,7 @@ public class InstanceofExpression extends Expression {
 		addProperty(LEFT_OPERAND_PROPERTY, properyList);
 		addProperty(RIGHT_OPERAND_PROPERTY, properyList);
 		addProperty(PATTERN_VARIABLE_PROPERTY, properyList);
-		PROPERTY_DESCRIPTORS_14 = reapPropertyList(properyList);
+		PROPERTY_DESCRIPTORS_16 = reapPropertyList(properyList);
 	}
 
 	/**
@@ -97,27 +97,12 @@ public class InstanceofExpression extends Expression {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return propertyDescriptors(apiLevel, false);
-	}
-
-	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @param previewEnabled the previewEnabled flag
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.22
-	 */
-	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (DOMASTUtil.isInstanceofExpressionPatternSupported(apiLevel, previewEnabled)) {
-			return PROPERTY_DESCRIPTORS_14;
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(apiLevel, true)) {
+			return PROPERTY_DESCRIPTORS_16;
 		}
 		return PROPERTY_DESCRIPTORS;
 	}
+
 	/**
 	 * The left operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
@@ -149,11 +134,6 @@ public class InstanceofExpression extends Expression {
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
-	}
-
-	@Override
-	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
-		return propertyDescriptors(apiLevel, previewEnabled);
 	}
 
 	@Override
