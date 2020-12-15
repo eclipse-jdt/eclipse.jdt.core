@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class LocalStaticsTest_15 extends AbstractRegressionTest {
+public class LocalStaticsTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
@@ -37,12 +37,12 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 	}
 
 	public static Class<?> testClass() {
-		return LocalStaticsTest_15.class;
+		return LocalStaticsTest.class;
 	}
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_16);
 	}
-	public LocalStaticsTest_15(String testName){
+	public LocalStaticsTest(String testName){
 		super(testName);
 	}
 
@@ -846,7 +846,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			},
 			"");
 		String expectedOutput = "abstract static interface X$1I {\n";
-		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
+		LocalStaticsTest.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 14.3 for enum
 	public void testBug564557BinaryForm_006() throws Exception {
@@ -865,7 +865,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			},
 			"");
 		String expectedOutput = "static final enum X$1I {\n";
-		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
+		LocalStaticsTest.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 15.8.3
 	public void testBug564557thisInStatic_007() {
@@ -964,7 +964,7 @@ public class LocalStaticsTest_15 extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	public enum I {}\n" +
 			"	            ^\n" +
-			"The member enum I can only be defined inside a top-level class or interface or in a static context\n" +
+			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
 			"----------\n",
 			null,
 			true,

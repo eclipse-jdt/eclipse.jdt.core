@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *		IBM Corporation - initial API and implementation
@@ -2545,21 +2549,36 @@ public void test080() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=87818
 public void test081() {
-	this.runNegativeTest(
+	String expectedErrorMessage = this.complianceLevel < ClassFileConstants.JDK16 ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	enum E {}\n" +
+			"	     ^\n" +
+			"The member enum E can only be defined inside a top-level class or interface or in a static context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n";
+		this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void foo() {\n" +
 			"		enum E {}\n" +
+			"	    Zork();\n" +
 			"	}\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	enum E {}\n" +
-		"	     ^\n" +
-		"The member enum E can only be defined inside a top-level class or interface or in a static context\n" +
-		"----------\n");
+		expectedErrorMessage);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88223
@@ -2589,23 +2608,38 @@ public void test082() {
 			"}"
 		},
 		"");
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	void foo() {\n" +
-			"		class Local {\n" +
-			"			enum E {}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}"
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	enum E {}\n" +
-		"	     ^\n" +
-		"The member enum E can only be defined inside a top-level class or interface or in a static context\n" +
-		"----------\n");
+	if ( this.complianceLevel < ClassFileConstants.JDK16) {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	void foo() {\n" +
+					"		class Local {\n" +
+					"			enum E {}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	enum E {}\n" +
+				"	     ^\n" +
+				"The member enum E can only be defined inside a top-level class or interface or in a static context\n" +
+				"----------\n");
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	void foo() {\n" +
+					"		class Local {\n" +
+					"			enum E {}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+				},
+				"");
+	}
 }
 
 

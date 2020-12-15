@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -562,6 +566,7 @@ public class ClassScope extends Scope {
 		int modifiers = sourceType.modifiers;
 		boolean isPreviewEnabled = compilerOptions().sourceLevel == ClassFileConstants.getLatestJDKLevel() &&
 				compilerOptions().enablePreviewFeatures;
+		boolean is16Plus = compilerOptions().sourceLevel >= ClassFileConstants.JDK16;
 		boolean flagSealedNonModifiers = isPreviewEnabled &&
 				(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 		if (sourceType.isRecord()) {
@@ -592,7 +597,7 @@ public class ClassScope extends Scope {
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
-				if (!isPreviewEnabled) {
+				if (!is16Plus) {
 					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
 					sourceType.modifiers = 0;
 					return;

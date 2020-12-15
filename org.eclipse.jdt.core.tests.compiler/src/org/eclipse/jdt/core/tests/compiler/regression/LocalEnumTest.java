@@ -46,7 +46,7 @@ public class LocalEnumTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test120" };
+//		TESTS_NAMES = new String[] { "test004" };
 //		TESTS_NUMBERS = new int[] { 185 };
 //		TESTS_RANGE = new int[] { 21, 50 };
 	}
@@ -65,7 +65,7 @@ public class LocalEnumTest extends AbstractComparableTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
@@ -98,38 +98,38 @@ public class LocalEnumTest extends AbstractComparableTest {
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions());
 	}
-	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
-		Runner runner = new Runner();
-		runner.testFiles = testFiles;
-		runner.expectedOutputString = expectedOutput;
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
-		runner.runConformTest();
-	}
-	@Override
-	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("16"));
-	}
-	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
-		runWarningTest(testFiles, expectedCompilerLog, null);
-	}
-	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
-		runWarningTest(testFiles, expectedCompilerLog, customOptions, null);
-	}
-	protected void runWarningTest(String[] testFiles, String expectedCompilerLog,
-			Map<String, String> customOptions, String javacAdditionalTestOptions) {
-
-		Runner runner = new Runner();
-		runner.testFiles = testFiles;
-		runner.expectedCompilerLog = expectedCompilerLog;
-		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("15") :
-			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
-		runner.runWarningTest();
-	}
+//	@Override
+//	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+//		Runner runner = new Runner();
+//		runner.testFiles = testFiles;
+//		runner.expectedOutputString = expectedOutput;
+//		runner.vmArguments = new String[] {"--enable-preview"};
+//		runner.customOptions = customOptions;
+//		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
+//		runner.runConformTest();
+//	}
+//	@Override
+//	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+//		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("16"));
+//	}
+//	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
+//		runWarningTest(testFiles, expectedCompilerLog, null);
+//	}
+//	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
+//		runWarningTest(testFiles, expectedCompilerLog, customOptions, null);
+//	}
+//	protected void runWarningTest(String[] testFiles, String expectedCompilerLog,
+//			Map<String, String> customOptions, String javacAdditionalTestOptions) {
+//
+//		Runner runner = new Runner();
+//		runner.testFiles = testFiles;
+//		runner.expectedCompilerLog = expectedCompilerLog;
+//		runner.customOptions = customOptions;
+//		runner.vmArguments = new String[] {"--enable-preview"};
+//		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("15") :
+//			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
+//		runner.runWarningTest();
+//	}
 
 // test simple valid enum and its usage
 public void test000() {
@@ -289,7 +289,7 @@ public void test004() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"     enum Y { \n" +
 			"		\n" +
@@ -297,7 +297,7 @@ public void test004() {
 			"		BLANC,\n" +
 			"		ROUGE;\n" +
 			"		\n" +
-			"		public static void main(String[] args) {\n" +
+			"		public static void main(String[] a) {\n" +
 			"			System.out.println(BLEU);\n" +
 			"		}\n" +
 			"		\n" +
@@ -339,7 +339,7 @@ public void test006() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"     enum Y { \n" +
 			"		\n" +
@@ -365,7 +365,7 @@ public void test007() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"     enum Y { \n" +
 			"		\n" +
@@ -458,7 +458,7 @@ public void test009() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"     enum Y { \n" +
 			"	\n" +
@@ -644,7 +644,7 @@ public void test014() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"	  enum Y  { \n" +
 			"	\n" +
@@ -709,7 +709,7 @@ public void test016() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"	  enum Y  { \n" +
 			"	\n" +
@@ -745,7 +745,7 @@ public void test017() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			"	  enum Y  { \n" +
 			"	\n" +
@@ -789,7 +789,7 @@ public void test019() {
 	this.runConformTest(
 		new String[] {
 			"X.java",
-			"class X { \n" +
+			"public class X { \n" +
 			"	public static void main(String[] args) {\n" +
 			" enum MonthEnum {\n" +
 			"    JANUARY   (30),\n" +
@@ -3307,7 +3307,6 @@ public void test094() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-		"// Compiled from X.java (version 16 : 60.65535, super bit)\n" +
 		"// Signature: Ljava/lang/Enum<LX$1Y;>;\n" +
 		"static final enum X$1Y {\n" +
 		"  \n" +

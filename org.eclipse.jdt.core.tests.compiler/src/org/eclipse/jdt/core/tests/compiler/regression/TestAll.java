@@ -206,12 +206,12 @@ public static Test suite() {
 	 since_15.add(SealedTypesTests.class);
 	 since_15.add(ClassFileReaderTest_15.class);
 	 since_15.add(JavadocTest_15.class);
-	 since_15.add(LocalStaticsTest_15.class);
 	 since_15.add(Unicode13Test.class);
 
 	 // add 16 specific test here (check duplicates)
 	 ArrayList since_16 = new ArrayList();
 	 since_16.add(LocalEnumTest.class);
+	 since_16.add(LocalStaticsTest.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

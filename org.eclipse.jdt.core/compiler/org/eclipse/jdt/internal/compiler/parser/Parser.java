@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -4880,13 +4884,8 @@ protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
 }
 protected void consumeInvalidEnumDeclaration() {
 	// BlockStatement ::= EnumDeclaration
-	if (this.previewEnabled) {
-		 /* JLS 15 Local Static Interfaces and Enum Classes - Records preview - Sec 6.1
-		  * A local class or interface (14.3), declared in one of the following: A class declaration, An enum declaration,
-		  * An interface declaration
-		  */
-		return;
-	}
+	if (this.options.sourceLevel >= ClassFileConstants.JDK16)
+		return; // local enum classes allowed from 16 onwards.
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -4897,13 +4896,8 @@ protected void consumeInvalidEnumDeclaration() {
 protected void consumeInvalidInterfaceDeclaration() {
 	// BlockStatement ::= InvalidInterfaceDeclaration
 	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
-	if (this.previewEnabled) {
-		 /* JLS 15 Local Static Interfaces and Enum Classes - Records preview - Sec 6.1
-		  * A local class or interface (14.3), declared in one of the following: A class declaration, An enum declaration,
-		  * An interface declaration
-		  */
-		return;
-	}
+	if (this.options.sourceLevel >= ClassFileConstants.JDK16)
+		return; // local interfaces allowed from 16 onwards.
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
