@@ -13231,4 +13231,21 @@ public void testBug567714() {
 		"	}\n" +
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/569798 - [formatter] Brace position - next line indented: bug for array within annotation
+ */
+public void testBug569798() {
+	this.formatterPrefs.brace_position_for_array_initializer = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
+	formatSource(
+		"class Test {\n" +
+		"	@Nullable\n" +
+		"	@SuppressWarnings(\n" +
+		"		{ \"\" })\n" +
+		"	@Something(a =\n" +
+		"		{ \"\" })\n" +
+		"	void f() {\n" +
+		"	}\n" +
+		"}"
+	);
+}
 }
