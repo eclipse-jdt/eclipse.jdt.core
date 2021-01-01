@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -59,7 +61,11 @@ public class JarIndexLocation extends IndexLocation {
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof JarIndexLocation)) return false;
-		return this.localUrl.equals(((JarIndexLocation) other).localUrl);
+		try {
+			return Objects.equals(this.localUrl.toURI(),((JarIndexLocation) other).localUrl.toURI());
+		} catch (URISyntaxException e) {
+			return false;
+		}
 	}
 
 	@Override

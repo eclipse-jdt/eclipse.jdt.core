@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -296,8 +298,13 @@ public synchronized IndexLocation computeIndexLocation(IPath containerPath, fina
 		// an existing index location exists - make sure it has not changed (i.e. the URL has not changed)
 		URL existingURL = indexLocation.getUrl();
 		if (newIndexURL != null) {
-			// if either URL is different then the index location has been updated so rebuild.
-			if(!newIndexURL.equals(existingURL)) {
+			boolean urisarequal = false;
+			try {
+				urisarequal = Objects.equals(newIndexURL.toURI(), existingURL.toURI());
+			} catch (URISyntaxException e) {
+				// ignore missing RFC 2396 compliance
+			}
+			if(!urisarequal) {
 				// URL has changed so remove the old index and create a new one
 				this.removeIndex(containerPath);
 				// create a new one

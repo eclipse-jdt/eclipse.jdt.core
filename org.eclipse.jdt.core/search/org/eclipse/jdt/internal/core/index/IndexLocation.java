@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,13 +16,14 @@ package org.eclipse.jdt.internal.core.index;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * The location of the index files are represented as {@link IndexLocation}
@@ -55,6 +56,7 @@ public abstract class IndexLocation {
 	}
 
 	private final URL url; // url of the given index location
+	private final URI uri; // uri of the given index location
 
 	/**
 	 * Set to true if this index location is of an index file specified
@@ -65,16 +67,28 @@ public abstract class IndexLocation {
 
 	protected IndexLocation(File file) {
 		URL tempUrl = null;
+		URI tempUri = null;
 		try {
-			tempUrl = file.toURI().toURL();
+			tempUri = file.toURI();
+			tempUrl = tempUri.toURL();
 		} catch (MalformedURLException e) {
 			// should not happen
+			Util.log(e, "Unexpected uri to url failure"); //$NON-NLS-1$
 		}
 		this.url = tempUrl;
+		this.uri = tempUri;
 	}
 
 	public IndexLocation(URL url) {
 		this.url = url;
+		URI tempUri = null;
+		try {
+			tempUri = url.toURI();
+		} catch (URISyntaxException e) {
+			// should not happen
+			Util.log(e, "Unexpected url to uri failure"); //$NON-NLS-1$
+		}
+		this.uri = tempUri;
 	}
 
 	/**
@@ -110,9 +124,13 @@ public abstract class IndexLocation {
 		return this.url;
 	}
 
+	public URI getUri() {
+		return this.uri;
+	}
+
 	@Override
 	public int hashCode() {
-		return this.url.hashCode();
+		return this.uri != null ? this.uri.hashCode() : this.url.hashCode();
 	}
 
 	public boolean isParticipantIndex() {
@@ -133,6 +151,6 @@ public abstract class IndexLocation {
 
 	@Override
 	public String toString() {
-		return this.url.toString();
+		return this.uri.toString();
 	}
 }

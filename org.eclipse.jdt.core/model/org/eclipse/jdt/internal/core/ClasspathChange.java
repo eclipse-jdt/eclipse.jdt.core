@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,12 +15,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -560,7 +562,11 @@ public class ClasspathChange {
 								if (oldurl == null && newurl == null) {
 									pathHasChanged = false;
 								} else if (oldurl != null && newurl != null) {
-									pathHasChanged = !(newurl.equals(oldurl));
+									try {
+										pathHasChanged = !Objects.equals(newurl.toURI(),oldurl.toURI());
+									} catch (URISyntaxException e) {
+										// ignore
+									}
 								} else if (oldurl != null) {
 									indexManager.removeIndex(newPath);
 								}
