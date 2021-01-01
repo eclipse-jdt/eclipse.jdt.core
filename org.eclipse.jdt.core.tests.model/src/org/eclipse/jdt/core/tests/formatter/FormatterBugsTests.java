@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13245,6 +13245,21 @@ public void testBug569798() {
 		"		{ \"\" })\n" +
 		"	void f() {\n" +
 		"	}\n" +
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/569964 - [formatter] Keep braced code on one line: problem with comments after javadoc
+ */
+public void testBug569964() {
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	formatSource(
+		"class Test {\n" +
+		"	/**\n" +
+		"	 * More Java doc comment\n" +
+		"	 */\n" +
+		"	// A line comment\n" +
+		"	/* package */ void nothing() {}\n" +
 		"}"
 	);
 }
