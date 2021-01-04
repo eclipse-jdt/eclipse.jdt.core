@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2019 GK Software AG and others.
+ * Copyright (c) 2010, 2021 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
@@ -9560,9 +9564,22 @@ public void testBug530970_return_bin() {
 			"public class X {\n" +
 			"	@NonNullByDefault(DefaultLocation.RETURN_TYPE)\n" +
 			"	Number test(Number in) {\n" +
-			"		return new Integer(13);\n" +
+			"		return new MyInteger(13);\n" +
 			"	}\n" +
+			"}\n" +
+			"class MyInteger extends Number {\n" +
+			"private static final long serialVersionUID = 1L;\n" +
+			"	public MyInteger(int i) {}\n" +
+			"	@Override\n" +
+			"	public int intValue() {	return 0;}\n" +
+			"	@Override\n" +
+			"	public long longValue() { return 0;	}\n" +
+			"	@Override\n" +
+			"	public float floatValue() {	return 0;}\n" +
+			"	@Override\n" +
+			"	public double doubleValue() { return 0;	}\n" +
 			"}\n"
+
 		},
 		customOptions,
 		"");
@@ -9630,7 +9647,19 @@ public void testBug530970_field_bin() {
 			"import annotation.*;\n" +
 			"@NonNullByDefault(DefaultLocation.FIELD)\n" +
 			"public class X {\n" +
-			"	Number field = new Double(1.1);\n" +
+			"	Number field = new MyDouble(1.1);\n" +
+			"}\n" +
+			"class MyDouble extends Number {\n" +
+			"private static final long serialVersionUID = 1L;\n" +
+			"	public MyDouble(double d) {}\n" +
+			"	@Override\n" +
+			"	public int intValue() {	return 0;}\n" +
+			"	@Override\n" +
+			"	public long longValue() { return 0;	}\n" +
+			"	@Override\n" +
+			"	public float floatValue() {	return 0;}\n" +
+			"	@Override\n" +
+			"	public double doubleValue() { return 0;	}\n" +
 			"}\n"
 		},
 		customOptions,
@@ -9701,10 +9730,22 @@ public void testBug530970_default_bin() {
 			"import annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class X {\n" +
-			"	Number field = new Long(13);\n" +
+			"	Number field = new MyLong(13);\n" +
 			"	void test1(Number[] ns) {\n" +
 			"		ns[0] = null; // OK since not affected by default\n" +
 			"	}\n" +
+			"}\n" +
+			"class MyLong extends Number {\n" +
+			"private static final long serialVersionUID = 1L;\n" +
+			"	public MyLong(long l) {}\n" +
+			"	@Override\n" +
+			"	public int intValue() {	return 0;}\n" +
+			"	@Override\n" +
+			"	public long longValue() { return 0;	}\n" +
+			"	@Override\n" +
+			"	public float floatValue() {	return 0;}\n" +
+			"	@Override\n" +
+			"	public double doubleValue() { return 0;	}\n" +
 			"}\n"
 		},
 		customOptions,
