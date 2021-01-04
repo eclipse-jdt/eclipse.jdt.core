@@ -76,7 +76,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x0023;
+public static final byte VERSION = 0x0024;
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -338,7 +338,7 @@ private static ClasspathMultiDirectory[] readSourceLocations(IProject project, D
 		if ((folderName = in.readUTF()).length() > 0) sourceFolder = project.getFolder(folderName);
 		if ((folderName = in.readUTF()).length() > 0) outputFolder = project.getFolder(folderName);
 		ClasspathMultiDirectory md =
-			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean());
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean(), readNullablePath(in));
 		if (in.readBoolean())
 			md.hasIndependentOutputFolder = true;
 		sourceLocations[i] = md;
@@ -427,6 +427,13 @@ private static char[][] readNames(DataInputStream in) throws IOException {
 	for (int i = 0; i < length; i++)
 		names[i] = readName(in);
 	return names;
+}
+
+private static IPath readNullablePath(DataInputStream in) throws IOException {
+	String path = in.readUTF();
+	if (!path.isEmpty())
+		return new Path(path);
+	return null;
 }
 
 private static AccessRuleSet readRestriction(DataInputStream in) throws IOException {
@@ -711,6 +718,7 @@ private void writeSourceLocations(DataOutputStream out, ClasspathMultiDirectory[
 		writeNames(md.inclusionPatterns, out);
 		writeNames(md.exclusionPatterns, out);
 		out.writeBoolean(md.ignoreOptionalProblems);
+		writeNullablePath(md.externalAnnotationPath, out);
 		out.writeBoolean(md.hasIndependentOutputFolder);
 	}
 }
@@ -741,7 +749,7 @@ private void writeBinaryLocations(DataOutputStream out, ClasspathLocation[] loca
 			out.writeUTF(cd.binaryFolder.getFullPath().toString());
 			out.writeBoolean(cd.isOutputFolder);
 			writeRestriction(cd.accessRuleSet, out);
-			out.writeUTF(cd.externalAnnotationPath != null ? cd.externalAnnotationPath : ""); //$NON-NLS-1$
+			writeNullablePath(cd.externalAnnotationPath, out);
 			out.writeBoolean(cd.isOnModulePath);
 		} else if (c instanceof ClasspathJar) {
 			ClasspathJar jar = (ClasspathJar) c;
@@ -754,7 +762,7 @@ private void writeBinaryLocations(DataOutputStream out, ClasspathLocation[] loca
 				out.writeUTF(jar.resource.getFullPath().toString());
 			}
 			writeRestriction(jar.accessRuleSet, out);
-			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
+			writeNullablePath(jar.externalAnnotationPath, out);
 			out.writeBoolean(jar.isOnModulePath);
 			out.writeUTF(jar.compliance == null ? "" : jar.compliance); //$NON-NLS-1$
 
@@ -763,7 +771,7 @@ private void writeBinaryLocations(DataOutputStream out, ClasspathLocation[] loca
 			out.writeByte(EXTERNAL_JAR);
 			out.writeUTF(jrt.zipFilename);
 			writeRestriction(jrt.accessRuleSet, out);
-			out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
+			writeNullablePath(jrt.externalAnnotationPath, out);
 			if (jrt instanceof ClasspathJrtWithReleaseOption)
 				out.writeUTF(((ClasspathJrtWithReleaseOption) jrt).release);
 			else
@@ -833,6 +841,10 @@ private void writeNames(char[][] names, DataOutputStream out) throws IOException
 	out.writeInt(length);
 	for (int i = 0; i < length; i++)
 		writeName(names[i], out);
+}
+
+private void writeNullablePath(String path, DataOutputStream out) throws IOException {
+	out.writeUTF(path != null ? path : ""); //$NON-NLS-1$
 }
 
 private void writeRestriction(AccessRuleSet accessRuleSet, DataOutputStream out) throws IOException {

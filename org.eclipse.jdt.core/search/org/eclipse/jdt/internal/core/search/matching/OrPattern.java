@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.*;
@@ -21,7 +22,7 @@ import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
-public class OrPattern extends SearchPattern implements IIndexConstants {
+public class OrPattern extends SearchPattern implements IIndexConstants, IParallelizable, Cloneable {
 
 	protected SearchPattern[] patterns;
 
@@ -118,5 +119,20 @@ public class OrPattern extends SearchPattern implements IIndexConstants {
 			buffer.append(this.patterns[i].toString());
 		}
 		return buffer.toString();
+	}
+
+	@Override
+	public boolean isParallelSearchSupported() {
+		return Stream.of(this.patterns).allMatch(IParallelizable::isParallelSearchSupported);
+	}
+
+	@Override
+	public SearchPattern clone() throws CloneNotSupportedException {
+		OrPattern pattern = (OrPattern) super.clone();
+		pattern.patterns = this.patterns.clone();
+		for (int i = 0; i < this.patterns.length; i++) {
+			 pattern.patterns[i] =  this.patterns[i].clone();
+		}
+		return pattern;
 	}
 }

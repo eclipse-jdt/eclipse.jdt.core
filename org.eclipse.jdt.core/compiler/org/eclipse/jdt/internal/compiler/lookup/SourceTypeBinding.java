@@ -2841,7 +2841,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 	if (this.externalAnnotationProvider != null) {
-		ExternalAnnotationSuperimposer.annotateMethodBinding(method, this.externalAnnotationProvider, this.environment);
+		ExternalAnnotationSuperimposer.annotateMethodBinding(method, arguments, this.externalAnnotationProvider, this.environment);
 	}
 	return method;
 }

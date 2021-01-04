@@ -33,10 +33,10 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
  * the workspace or no exist yet, and thus aren't just resources).
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class JavaSearchParticipant extends SearchParticipant {
+public class JavaSearchParticipant extends SearchParticipant implements IParallelizable {
 
-	private ThreadLocal indexSelector = new ThreadLocal();
-	private SourceIndexer sourceIndexer;
+	private final ThreadLocal indexSelector = new ThreadLocal();
+	private final ThreadLocal<SourceIndexer> sourceIndexer = new ThreadLocal<SourceIndexer>();
 
 	@Override
 	public void beginSearching() {
@@ -67,8 +67,9 @@ public class JavaSearchParticipant extends SearchParticipant {
 
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
-			this.sourceIndexer = new SourceIndexer(document);
-			this.sourceIndexer.indexDocument();
+			SourceIndexer indexer = new SourceIndexer(document);
+			this.sourceIndexer.set(indexer);
+			indexer.indexDocument();
 		} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
 			new BinaryIndexer(document).indexDocument();
 		} else if (documentPath.endsWith(TypeConstants.AUTOMATIC_MODULE_NAME)) {
@@ -80,9 +81,10 @@ public class JavaSearchParticipant extends SearchParticipant {
 	public void indexResolvedDocument(SearchDocument document, IPath indexPath) {
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
-			if (this.sourceIndexer != null)
-				this.sourceIndexer.indexResolvedDocument();
-			this.sourceIndexer = null;
+			SourceIndexer indexer = this.sourceIndexer.get();
+			if (indexer != null)
+				indexer.indexResolvedDocument();
+			this.sourceIndexer.remove();
 		}
 	}
 
@@ -90,8 +92,9 @@ public class JavaSearchParticipant extends SearchParticipant {
 	public void resolveDocument(SearchDocument document) {
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
-			if (this.sourceIndexer != null)
-				this.sourceIndexer.resolveDocument();
+			SourceIndexer indexer = this.sourceIndexer.get();
+			if (indexer != null)
+				indexer.resolveDocument();
 		}
 	}
 
@@ -114,11 +117,7 @@ public class JavaSearchParticipant extends SearchParticipant {
 
 	@Override
 	public IPath[] selectIndexes(SearchPattern pattern, IJavaSearchScope scope) {
-		IndexSelector selector = (IndexSelector) this.indexSelector.get();
-		if (selector == null) {
-			selector = new IndexSelector(scope, pattern);
-			this.indexSelector.set(selector);
-		}
+		IndexSelector selector = getIndexSelector(pattern, scope);
 		IndexLocation[] urls = selector.getIndexLocations();
 		IPath[] paths = new IPath[urls.length];
 		for (int i = 0; i < urls.length; i++) {
@@ -127,13 +126,23 @@ public class JavaSearchParticipant extends SearchParticipant {
 		return paths;
 	}
 
-	public IndexLocation[] selectIndexURLs(SearchPattern pattern, IJavaSearchScope scope) {
+	private IndexSelector getIndexSelector(SearchPattern pattern, IJavaSearchScope scope) {
 		IndexSelector selector = (IndexSelector) this.indexSelector.get();
 		if (selector == null) {
 			selector = new IndexSelector(scope, pattern);
 			this.indexSelector.set(selector);
 		}
+		return selector;
+	}
+
+	public IndexLocation[] selectIndexURLs(SearchPattern pattern, IJavaSearchScope scope) {
+		IndexSelector selector = getIndexSelector(pattern, scope);
 		return selector.getIndexLocations();
+	}
+
+	@Override
+	public boolean isParallelSearchSupported() {
+		return true;
 	}
 
 }

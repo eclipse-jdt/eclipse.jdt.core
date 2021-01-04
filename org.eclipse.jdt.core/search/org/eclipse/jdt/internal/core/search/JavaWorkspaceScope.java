@@ -239,4 +239,9 @@ public String toString() {
 	}
 	return result.toString();
 }
+
+@Override
+public boolean isParallelSearchSupported() {
+	return true;
+}
 }

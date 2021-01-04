@@ -2419,13 +2419,13 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 		EntryResult[] entries = pattern.queryIn(index);
 		if (entries == null) return;
 
-		SearchPattern decodedResult = pattern.getBlankPattern();
 		String containerPath = index.containerPath;
 		char separator = index.separator;
 		for (int i = 0, l = entries.length; i < l; i++) {
 			if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 
 			EntryResult entry = entries[i];
+			SearchPattern decodedResult = pattern.getBlankPattern();
 			decodedResult.decodeIndexKey(entry.getWord());
 			if (pattern.matchesDecodedKey(decodedResult)) {
 				// TODO (kent) some clients may not need the document names
@@ -2737,5 +2737,13 @@ public EntryResult[] queryIn(Index index) throws IOException {
 @Override
 public String toString() {
 	return "SearchPattern"; //$NON-NLS-1$
+}
+
+/**
+ * @since 3.25
+ */
+@Override
+public SearchPattern clone() throws CloneNotSupportedException {
+	return (SearchPattern) super.clone();
 }
 }

@@ -18,6 +18,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
@@ -41,7 +42,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	private HashSet resourcePaths;
 	private IPath[] enclosingProjectsAndJars;
 
-	protected IResource[] elements;
+	protected Set<String> elements;
 	protected int elementCount;
 
 	public boolean needsRefresh;
@@ -55,15 +56,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	 * Adds the given resource to this search scope.
 	 */
 	public void add(IResource element) {
-		if (this.elementCount == this.elements.length) {
-			System.arraycopy(
-				this.elements,
-				0,
-				this.elements = new IResource[this.elementCount * 2],
-				0,
-				this.elementCount);
-		}
-		this.elements[this.elementCount++] = element;
+		this.elements.add(element.getFullPath().toString());
 	}
 
 	/**
@@ -140,7 +133,6 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		//JavaModelManager.getJavaModelManager().rememberScope(this);
 	}
 	private void buildResourceVector() {
-		HashMap resources = new HashMap();
 		HashMap paths = new HashMap();
 		IType[] types = null;
 		if (this.subTypes != null) {
@@ -160,8 +152,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 				this.subTypes.add(type);
 			}
 			IResource resource = ((JavaElement)type).resource();
-			if (resource != null && resources.get(resource) == null) {
-				resources.put(resource, resource);
+			if (resource != null) {
 				add(resource);
 			}
 			IPackageFragmentRoot root =
@@ -318,13 +309,8 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		if (separatorIndex != -1) {
 			return this.resourcePaths.contains(resourcePath);
 		} else {
-			for (int i = 0; i < this.elementCount; i++) {
-				if (resourcePath.startsWith(this.elements[i].getFullPath().toString())) {
-					return true;
-				}
-			}
+			return this.elements.contains(resourcePath);
 		}
-		return false;
 	}
 	/**
 	 * Optionally perform additional checks after element has already passed matching based on index/documents.
@@ -455,7 +441,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	}
 	protected void initialize(IProgressMonitor progressMonitor) throws JavaModelException {
 		this.resourcePaths = new HashSet();
-		this.elements = new IResource[5];
+		this.elements = new HashSet<>();
 		this.elementCount = 0;
 		this.needsRefresh = false;
 		if (this.hierarchy == null) {
@@ -488,4 +474,15 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		return "HierarchyScope on " + ((JavaElement)this.focusType).toStringWithAncestors(); //$NON-NLS-1$
 	}
 
+	@Override
+	public boolean isParallelSearchSupported() {
+		return true;
+	}
+
+	@Override
+	public void initBeforeSearch(IProgressMonitor monitor) throws JavaModelException {
+		if (this.needsRefresh) {
+			initialize(monitor);
+		}
+	}
 }
