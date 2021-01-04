@@ -1009,4 +1009,97 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"----------\n"
 		);
 	}
+
+	public void testBug566579_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private String I=null;\n"+
+				" public void foo() {\n"+
+				"   int f = switch (5) {\n"+
+				"			case 5: {\n"+
+				"				interface I{\n"+
+				"					public int getVal();\n"+
+				"				}\n"+
+				"				class C implements I{\n"+
+				"					private int j=5;\n"+
+				"					@Override\n"+
+				"					public int getVal() {\n"+
+				"						return j;\n"+
+				"					}\n"+
+				"				}\n"+
+				"				\n"+
+				"				I abc= new C();"+
+				"				yield abc.getVal();\n"+
+				"			}\n"+
+				"			default:\n"+
+				"				yield (I==null ? 0 : I.length());\n"+
+				"			};\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   X x = new X();\n"+
+				"   x.I = \"abc\";\n"+
+				"	System.out.println();\n"+
+				" }\n"+
+				"}"
+			},
+			"");
+	}
+	public void testBug566579_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n"+
+				"	public void main5(int i) {\n"+
+				"		interface i{\n"+
+				"			public static int i=0;\n"+
+				"		}\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println();\n"+
+				"	}\n"+
+				"}"
+			},
+			"");
+	}
+	public void testBug566579_003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n"+
+				"	public void main5() {\n"+
+				"		int i=10;\n"+
+				"		interface i{\n"+
+				"			public static int i=0;\n"+
+				"		}\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println();\n"+
+				"	}\n"+
+				"}"
+			},
+			"");
+	}
+	public void testBug566579_004() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {	\n"+
+				"	public void main5() {\n"+
+				"		try {\n"+
+				"			int i=10;\n"+
+				"		} catch(NullPointerException npe) {\n"+
+				"			interface i{\n"+
+				"				public static int npe=0;\n"+
+				"			}\n"+
+				"		}"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println();\n"+
+				"	}\n"+
+				"}"
+			},
+			"");
+	}
 }
