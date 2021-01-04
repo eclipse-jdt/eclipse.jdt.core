@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -310,6 +310,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_14;
 		} else if(rawVersion.startsWith("15")) {
 			return JavaCore.VERSION_15;
+		} else if(rawVersion.startsWith("16")) {
+			return JavaCore.VERSION_16;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -476,6 +478,20 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("15.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_16) {
+			if ("16-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("16".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("16.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("16.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
