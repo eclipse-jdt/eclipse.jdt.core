@@ -6658,6 +6658,10 @@ public void test180() {
 	);
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	JavacTestOptions.Excuse excuse = JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone;
+	if(this.complianceLevel >= ClassFileConstants.JDK16) {
+		excuse = null;
+	}
 	this.runConformTest(
 		false,
 		new String[] {
@@ -6674,7 +6678,7 @@ public void test180() {
 		"",
 		"class test180.Test",
 		"",
-		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone);
+		excuse);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=289892
 // in interaction with null annotations
@@ -6718,6 +6722,10 @@ public void test180a() {
 	);
 	options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	JavacTestOptions.Excuse excuse = JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone;
+	if(this.complianceLevel >= ClassFileConstants.JDK16) {
+		excuse = null;
+	}
 	this.runConformTest(
 		false,
 		new String[] {
@@ -6734,7 +6742,7 @@ public void test180a() {
 		"",
 		"class test180.Test",
 		"",
-		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone);
+		excuse);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=300133
 public void test181() {
