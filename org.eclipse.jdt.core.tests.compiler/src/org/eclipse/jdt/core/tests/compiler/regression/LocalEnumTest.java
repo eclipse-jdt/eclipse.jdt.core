@@ -4779,7 +4779,7 @@ public void test126() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126087
 // Commented and created https://bugs.eclipse.org/bugs/show_bug.cgi?id=570106
-public void _test127() throws Exception {
+public void test127() throws Exception {
 	this.runConformTest(
 		new String[] {
 				"X.java",
@@ -4861,7 +4861,7 @@ public void _test127() throws Exception {
 	}
 
 	disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X$1Y.class"));
+	classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X$1Y$1.class"));
 	actualOutput =
 		disassembler.disassemble(
 			classFileBytes,
