@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2014 IBM Corporation and others.
+ * Copyright (c) 2004, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Microsoft Corporation - read formatting options from the compilation unit
  *******************************************************************************/
 package org.eclipse.jdt.core.dom.rewrite;
 
@@ -289,7 +290,8 @@ public class ASTRewrite {
 		char[] content= typeRoot.getBuffer().getCharacters();
 		LineInformation lineInfo= LineInformation.create(astRoot);
 		String lineDelim= typeRoot.findRecommendedLineSeparator();
-		Map options= typeRoot.getJavaProject().getOptions(true);
+		Map options= typeRoot instanceof ICompilationUnit ? ((ICompilationUnit) typeRoot).getOptions(true) :
+			typeRoot.getJavaProject().getOptions(true);
 
 		return internalRewriteAST(content, lineInfo, lineDelim, astRoot.getCommentList(), options, rootNode, (RecoveryScannerData)astRoot.getStatementsRecoveryData());
 	}
