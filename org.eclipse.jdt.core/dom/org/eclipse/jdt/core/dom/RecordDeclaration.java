@@ -337,7 +337,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of type parameters
 	 *    (element type: {@link TypeParameter})
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public List typeParameters() {
 		return this.typeParameters;
@@ -352,7 +352,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of interface types
 	 *    (element type: {@link Type})
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public List superInterfaceTypes() {
 		return this.superInterfaceTypes;
@@ -363,7 +363,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of  recordComponents
 	 *    (element type: {@link SingleVariableDeclaration})
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public List recordComponents() {
 		return this.recordComponents;

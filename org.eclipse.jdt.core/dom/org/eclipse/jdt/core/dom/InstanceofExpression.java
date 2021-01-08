@@ -291,7 +291,7 @@ public class InstanceofExpression extends Expression {
 	 *
 	 * @return the patternVariable node
 	 * @exception UnsupportedOperationException if this operation is used below JLS16
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public SimpleName getPatternVariable() {
 		unsupportedBelow16();
@@ -304,7 +304,7 @@ public class InstanceofExpression extends Expression {
 	 * @param referencePatternVariable the right operand node
 	 * @exception IllegalArgumentException if:
 	 * @exception UnsupportedOperationException if this operation is used below JLS16
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public void setPatternVariable(SimpleName referencePatternVariable) {
 		unsupportedBelow16();
