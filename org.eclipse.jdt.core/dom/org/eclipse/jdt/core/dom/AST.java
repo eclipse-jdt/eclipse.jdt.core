@@ -376,7 +376,7 @@ public final class AST {
 	 * up to and including Java SE 16(aka JDK 16).
 	 * </p>
 	 *
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public static final int JLS16 = 16;
 

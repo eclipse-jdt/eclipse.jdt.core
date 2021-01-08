@@ -110,7 +110,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	private int restrictedIdentifierStartPosition = -1;
 
 	/**
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 * @param restrictedIdentifierStartPosition
 	 */
 	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
@@ -124,7 +124,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	}
 
 	/**
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 * @return restrictedIdentifierStartPosition
 	 */
 	public int getRestrictedIdentifierStartPosition() {
@@ -381,7 +381,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * </p>
 	 *
 	 * @return the (possibly empty) list of field declarations
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public FieldDeclaration[] getFields() {
 		List bd = bodyDeclarations();
@@ -413,7 +413,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the (possibly empty) list of method (and constructor)
 	 *    declarations
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.25 BETA_JAVA16
 	 */
 	public MethodDeclaration[] getMethods() {
 		List bd = bodyDeclarations();
