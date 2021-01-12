@@ -2987,7 +2987,7 @@ class ASTConverter {
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			ASTNode result = convert((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) statement);
-			if (result == null || !(result instanceof TypeDeclaration || result instanceof RecordDeclaration)) {
+			if (result == null || !(result instanceof TypeDeclaration || result instanceof RecordDeclaration || result instanceof EnumDeclaration)) {
 				return createFakeEmptyStatement(statement);
 			}
 			TypeDeclarationStatement typeDeclarationStatement = new TypeDeclarationStatement(this.ast);
@@ -2995,9 +2995,12 @@ class ASTConverter {
 				// annotation and enum type declarations are not returned by the parser inside method bodies
 				TypeDeclaration typeDeclaration = (TypeDeclaration) result;
 				typeDeclarationStatement.setDeclaration(typeDeclaration);
-			} else {
+			} else if (result instanceof RecordDeclaration) {
 				RecordDeclaration recordDeclaration = (RecordDeclaration) result;
 				typeDeclarationStatement.setDeclaration(recordDeclaration);
+			} else {
+				EnumDeclaration enumDeclaration = (EnumDeclaration) result;
+				typeDeclarationStatement.setDeclaration(enumDeclaration);
 			}
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :

@@ -748,4 +748,38 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		assertFalse("Is a CanonicalConstructor?", methodBinding.isCompactConstructor());
 		assertFalse("Is a CompactConstructor?", methodBinding.isCompactConstructor());
 	}
+
+	public void testLocalEnum() throws CoreException {
+		if (!isJRE16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		String contents = "public class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"    enum Y1 { \n" +
+			"		\n" +
+			"		BLEU, \n" +
+			"		BLANC, \n" +
+			"		ROUGE,\n" +
+			"		BLEU;\n" +
+			"		public static void main(String[] args) {\n" +
+			"			for(Y1 y: Y1.values()) {\n" +
+			"				System.out.print(y);\n" +
+			"			}\n" +
+			"		}\n" +
+			"	 }\n" +
+			"	}\n" +
+			"	}\n";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Not an enum statement", ASTNode.ENUM_DECLARATION, node.getNodeType());
+	}
+
+
 }
