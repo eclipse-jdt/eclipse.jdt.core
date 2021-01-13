@@ -5042,6 +5042,10 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				if (this.options.complianceLevel >= ClassFileConstants.JDK10) {
 					keywords[count++]= Keywords.VAR;
 				}
+				if (this.options.complianceLevel >= ClassFileConstants.JDK16) {
+					keywords[count++]= Keywords.INTERFACE;
+					keywords[count++]= Keywords.ENUM;
+				}
 
 				if(this.previousKind == K_BLOCK_DELIMITER) {
 					switch (this.previousInfo) {
