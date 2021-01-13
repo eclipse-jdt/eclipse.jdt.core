@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1595,6 +1595,48 @@ public void testBug536387() throws Exception {
 		IType type = (IType) elements[0];
 		String signature= Signature.createTypeSignature(type.getFullyQualifiedName(), true);
 		assertEquals("incorrect type", "Lp.X$NewType;", signature);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug570314() throws Exception{
+	try {
+		createJava16Project("P", new String[] {"src"});
+		String source =   "package p;\n\n" +
+				"public class X {\n" +
+
+				" 	public static void main(String[] args) {\n" +
+				"		enum Y1 {\n" +
+				"				\n" +
+				"				BLEU,\n" +
+				"				BLANC,\n" +
+				"				ROUGE;\n" +
+				"				\n" +
+				"				public static void printValues() {\r\n" +
+				"					for(Y1 y: Y1.values()) {\r\n" +
+				"						System.out.print(y);\r\n" +
+				"					}\r\n" +
+				"				}\r\n" +
+				"				\r\n" +
+				"		}\r\n" +
+				"		Y1.printValues();"	+
+				"	}\n" +
+				"\n" +
+				"}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "main";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		IMethod method= (IMethod) elements[0];
+		IJavaElement[] children = method.getChildren();
+		assertEquals("children should not be empty", 1, children.length);
+		IType type = (IType) children[0];
+		String signature= Signature.createTypeSignature(type.getFullyQualifiedName(), true);
+		assertEquals("incorrect type", "Lp.X$Y1;", signature);
 	} finally {
 		deleteProject("P");
 	}
