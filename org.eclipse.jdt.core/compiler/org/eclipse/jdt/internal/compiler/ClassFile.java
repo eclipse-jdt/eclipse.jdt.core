@@ -3549,7 +3549,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 			// access flag
 			if (innerClass.isAnonymousType()) {
-				accessFlags &= ~ClassFileConstants.AccFinal;
+				ReferenceBinding superClass = innerClass.superclass();
+				if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
+					accessFlags &= ~ClassFileConstants.AccFinal;
 			} else if (innerClass.isMemberType() && innerClass.isInterface()) {
 				accessFlags |= ClassFileConstants.AccStatic; // implicitely static
 			}
@@ -5750,6 +5752,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			accessFlags |= ClassFileConstants.AccSuper;
 		}
 		if (aType.isAnonymousType()) {
+			ReferenceBinding superClass = aType.superclass;
+			if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
 			accessFlags &= ~ClassFileConstants.AccFinal;
 		}
 		int finalAbstract = ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract;

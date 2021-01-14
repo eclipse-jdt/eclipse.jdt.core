@@ -160,6 +160,7 @@ public class ClassScope extends Scope {
 					sz);
 			permTypes[sz] = anonymousType;
 		}
+		anonymousType.modifiers |= ClassFileConstants.AccFinal; // JLS 15 / sealed preview/Sec 8.9.1
 		sourceSuperType.setPermittedTypes(permTypes);
 	}
 

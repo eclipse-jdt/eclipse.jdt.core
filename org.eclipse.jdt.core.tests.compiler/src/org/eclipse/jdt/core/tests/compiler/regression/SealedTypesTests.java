@@ -35,7 +35,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug569522"};
+//		TESTS_NAMES = new String[] { "testBug570359_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -5564,5 +5564,44 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"}",
 			},
 			"");
+	}
+	public void testBug570359_001() throws IOException, ClassFormatException {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.Modifier;\n"+
+				"\n"+
+				"@SuppressWarnings(\"preview\")\n"+
+				"sealed interface I {\n"+
+				" void foo();\n"+
+				"}\n"+
+				"\n"+
+				"class Y {\n"+
+				" enum E implements I {\n"+
+				"   ONE() {\n"+
+				"     public void foo() {\n"+
+				"     }\n"+
+				"   };\n"+
+				" }\n"+
+				"}\n"+
+				"\n"+
+				"public class X {\n"+
+				" public static void main(String argv[]) {\n"+
+				"   Class<? extends Y.E> c = Y.E.ONE.getClass();\n"+
+				"   System.out.println(c != null ? (c.getModifiers() & Modifier.FINAL) != 0 : false);\n"+
+				" }\n"+
+				"}",
+			},
+			"true");
+		String expectedOutput = "final enum Y$E$1 {\n";
+		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		expectedOutput =
+				"  Inner classes:\n" +
+				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
+				"     inner name: #22 E, accessflags: 17416 abstract static],\n" +
+				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
+				"     inner name: #0, accessflags: 16400 final]\n" +
+				"  Enclosing Method: #3  #0 Y$E\n";
+		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }
