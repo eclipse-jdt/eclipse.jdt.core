@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2020 IBM Corporation and others.
+ * Copyright (c) 2006, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1263,6 +1267,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordMissingExplicitConstructorCallInNonCanonicalConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("RecordIllegalStaticModifierForLocalClassOrInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("RecordIllegalModifierForLocalRecord", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("RecordIllegalExtendedDimensionsForRecordComponent", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("LocalStaticsIllegalVisibilityModifierForInterfaceLocalType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("IllegalModifierForLocalEnumDeclaration", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedMissingClassModifier", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2312,6 +2317,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordCannotDefineRecordInLocalType",SKIP);
 	    expectedProblemAttributes.put("RecordMissingExplicitConstructorCallInNonCanonicalConstructor",SKIP);
 	    expectedProblemAttributes.put("RecordIllegalStaticModifierForLocalClassOrInterface", SKIP);
+	    expectedProblemAttributes.put("RecordIllegalExtendedDimensionsForRecordComponent", SKIP);
 	    expectedProblemAttributes.put("RecordIllegalModifierForLocalRecord", SKIP);
 	    expectedProblemAttributes.put("RecordComponentsCannotHaveModifiers",SKIP);
 	    expectedProblemAttributes.put("RecordIllegalParameterNameInCanonicalConstructor",SKIP);

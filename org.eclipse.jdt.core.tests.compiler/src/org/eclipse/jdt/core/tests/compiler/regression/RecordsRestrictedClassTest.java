@@ -8266,4 +8266,17 @@ public void testBug570243_003() {
 		"int myCompOne\n"+
 		"char[] myCompChar");
 }
+public void testBug570230_001() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"public record X(int marr[]) {}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public record X(int marr[]) {}\n" +
+			"	                    ^^^^\n" +
+			"Extended dimensions are illegal for a record component\n" +
+			"----------\n");
+}
 }

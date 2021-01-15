@@ -11127,6 +11127,9 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 				extendedDimensions > 0) {
 			problemReporter().illegalExtendedDimensions(recordComponent);
 		}
+	} else {
+		if (!this.statementRecoveryActivated && extendedDimensions > 0)
+			problemReporter().recordIllegalExtendedDimensionsForRecordComponent(recordComponent);
 	}
 }
 protected void consumeRecordBody() {
