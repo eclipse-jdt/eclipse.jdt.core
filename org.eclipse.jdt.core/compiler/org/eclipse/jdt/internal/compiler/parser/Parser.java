@@ -4568,22 +4568,23 @@ protected void consumeInstanceOfExpression() {
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
 					typeDecl);
+		typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
+		typeDecl.modifiers = this.intStack[this.intPtr--];
 	} else {
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
 		this.expressionLengthPtr--;
 		this.expressionStack[this.expressionPtr] = exp =
-				new InstanceOfExpression(
-					this.expressionStack[this.expressionPtr],
-					typeRef);
+ 				new InstanceOfExpression(
+ 					this.expressionStack[this.expressionPtr],
+ 					typeRef);
+		this.intPtr--; // skip modifierSourceStart
+		this.intPtr--; // lose the fake modifier if any
 	}
 
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
-	InstanceOfExpression ioe = (InstanceOfExpression) exp;
-	this.intPtr--; // skip modifierSourceStart
-	ioe.modifiers = this.intStack[this.intPtr--];
 }
 protected void consumeInstanceOfExpressionHelper() {
 	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
@@ -4642,6 +4643,8 @@ protected void consumeInstanceOfExpressionWithName() {
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
 					typeDecl);
+		typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
+		typeDecl.modifiers = this.intStack[this.intPtr--];
 	} else {
 	//by construction, no base type may be used in getTypeReference
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
@@ -4651,15 +4654,13 @@ protected void consumeInstanceOfExpressionWithName() {
 				new InstanceOfExpression(
 						this.expressionStack[this.expressionPtr],
 						typeRef);
+		this.intPtr--; // skip modifierSourceStart
+		this.intPtr--; // lose the fake modifier if any
 	}
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
-	InstanceOfExpression ioe = (InstanceOfExpression) exp;
-	this.intPtr--; // skip modifierSourceStart
-	ioe.modifiers = this.intStack[this.intPtr--];
-	//the scanner is on the next token already....
 }
 protected void consumeInterfaceDeclaration() {
 	// see consumeClassDeclaration in case of changes: duplicated code

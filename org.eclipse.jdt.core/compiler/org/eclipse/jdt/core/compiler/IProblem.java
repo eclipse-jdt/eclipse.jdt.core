@@ -2380,9 +2380,15 @@ void setSourceStart(int sourceStart);
 
 
 	/* instanceof pattern: */
-	/** @since 3.22
-	 * @deprecated problem no longer generated */
-	int PatternVariableNotInScope = PreviewRelated + 1780;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int PatternVariableRedefined = Internal + 1780;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int PatternSubtypeOfExpression = Internal + 1781;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int IllegalModifierForPatternVariable = Internal + 1782;
 
 
 	/** @since 3.24

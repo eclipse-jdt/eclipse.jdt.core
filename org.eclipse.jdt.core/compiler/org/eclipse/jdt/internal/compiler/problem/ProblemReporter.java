@@ -2126,11 +2126,20 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 		nodeSourceEnd(field, reference));
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
+	int problemId = local.isPatternVariable() ? IProblem.PatternVariableRedefined : IProblem.DuplicateFinalLocalInitialization;
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
-			IProblem.DuplicateFinalLocalInitialization,
+			problemId,
 			arguments,
 			arguments,
+			nodeSourceStart(local, location),
+			nodeSourceEnd(local, location));
+}
+public void patternCannotBeSubtypeOfExpression(LocalVariableBinding local, ASTNode location) {
+	this.handle(
+			IProblem.PatternSubtypeOfExpression,
+			NoArgument,
+			NoArgument,
 			nodeSourceStart(local, location),
 			nodeSourceEnd(local, location));
 }
@@ -3123,10 +3132,13 @@ public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 }
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	String[] arguments = new String[] {new String(localDecl.name)};
+	int problemId = ((localDecl.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0) ?
+			IProblem.IllegalModifierForPatternVariable :
+			(complainAsArgument
+					? IProblem.IllegalModifierForArgument
+						: IProblem.IllegalModifierForVariable);
 	this.handle(
-		complainAsArgument
-			? IProblem.IllegalModifierForArgument
-			: IProblem.IllegalModifierForVariable,
+		problemId,
 		arguments,
 		arguments,
 		localDecl.sourceStart,
