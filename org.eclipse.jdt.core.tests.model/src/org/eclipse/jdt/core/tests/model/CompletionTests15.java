@@ -30,9 +30,10 @@ public class CompletionTests15 extends AbstractJavaModelCompletionTests {
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "15");
+			// preview enabled only works with latest compliance
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "16");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "15");
+			setUpProjectCompliance(COMPLETION_PROJECT, "16");
 		}
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
