@@ -4540,8 +4540,7 @@ protected void consumeInsideCastExpressionLL1WithBounds() {
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty
 }
-private void consumeTypeTestPattern() {
-	TypeReference type;
+private LocalDeclaration getInstanceOfVar(TypeReference type) {
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 
@@ -4551,21 +4550,18 @@ private void consumeTypeTestPattern() {
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 
-	type = getTypeReference(this.intStack[this.intPtr--]); //getTypeReference(0); // no type dimension
 	local.declarationSourceStart = type.sourceStart;
 	local.type = type;
 	problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart, local.declarationEnd);
 	local.modifiers |= ClassFileConstants.AccFinal;
-	pushOnPatternStack(local);
+	return local;
 }
-protected void consumeInstanceOfExpression() {
-	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
-	//optimize the push/pop
 
-	//by construction, no base type may be used in getTypeReference
+protected void consumeInstanceOfExpression() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
 	Expression exp;
+	// consume annotations
 	if (length > 0) {
 		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
 		this.expressionStack[this.expressionPtr] = exp =
@@ -4573,17 +4569,64 @@ protected void consumeInstanceOfExpression() {
 					this.expressionStack[this.expressionPtr],
 					typeDecl);
 	} else {
+		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
+		this.expressionLengthPtr--;
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
-					getTypeReference(this.intStack[this.intPtr--]));
+					typeRef);
 	}
 
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
+	InstanceOfExpression ioe = (InstanceOfExpression) exp;
+	this.intPtr--; // skip modifierSourceStart
+	ioe.modifiers = this.intStack[this.intPtr--];
+}
+protected void consumeInstanceOfExpressionHelper() {
+	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
+	//optimize the push/pop
+
+	int length;
+	Annotation[] typeAnnotations = null;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack,
+			(this.expressionPtr -= length) + 1,
+			typeAnnotations = new Annotation[length],
+			0,
+			length);
+	}
+
+	TypeReference ref = getTypeReference(this.intStack[this.intPtr--]);
+	if (typeAnnotations != null) {
+		int levels = ref.getAnnotatableLevels();
+		if (ref.annotations == null)
+			ref.annotations = new Annotation[levels][];
+		ref.annotations[0] = typeAnnotations;
+		ref.sourceStart = ref.annotations[0][0].sourceStart;
+		ref.bits |= ASTNode.HasTypeAnnotations;
+
+	}
+	pushOnExpressionStack(ref);
+	//by construction, no base type may be used in getTypeReference
+//	exp.declarationSourceStart = this.intStack[this.intPtr--];
+//	exp.modifiers = this.intStack[this.intPtr--];
 	//the scanner is on the next token already....
+}
+protected void consumeInstanceOfRHS() {
+	// do nothing
+}
+protected void consumeInstanceOfClassic() {
+	consumeInstanceOfExpressionHelper();
+}
+protected void consumeInstanceofPattern() {
+	TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	LocalDeclaration local = getInstanceOfVar(typeRef);
+	pushOnPatternStack(local);
 }
 protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
@@ -4601,17 +4644,21 @@ protected void consumeInstanceOfExpressionWithName() {
 					typeDecl);
 	} else {
 	//by construction, no base type may be used in getTypeReference
-		TypeReference reference = getTypeReference(this.intStack[this.intPtr--]);
+		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
+		this.expressionLengthPtr--;
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
 						this.expressionStack[this.expressionPtr],
-						reference);
+						typeRef);
 	}
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
+	InstanceOfExpression ioe = (InstanceOfExpression) exp;
+	this.intPtr--; // skip modifierSourceStart
+	ioe.modifiers = this.intStack[this.intPtr--];
 	//the scanner is on the next token already....
 }
 protected void consumeInterfaceDeclaration() {
@@ -7376,12 +7423,20 @@ protected void consumeRule(int act) {
 		    consumeCompactConstructorHeaderNameWithTypeParameters();
 			break;
 
-    case 351 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression instanceof"); }  //$NON-NLS-1$
+    case 351 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression..."); }  //$NON-NLS-1$
 		    consumeInstanceOfExpression();
 			break;
 
-    case 355 : if (DEBUG) { System.out.println("TypeTestPattern ::= Type Identifier"); }  //$NON-NLS-1$
-		    consumeTypeTestPattern();
+    case 353 : if (DEBUG) { System.out.println("InstanceofRHS -> InstanceofPattern"); }  //$NON-NLS-1$
+		    consumeInstanceOfRHS();
+			break;
+
+    case 354 : if (DEBUG) { System.out.println("InstanceofClassic ::= instanceof Modifiersopt Type"); }  //$NON-NLS-1$
+		    consumeInstanceOfClassic();
+			break;
+
+    case 355 : if (DEBUG) { System.out.println("InstanceofPattern ::= InstanceofClassic Identifier"); }  //$NON-NLS-1$
+		    consumeInstanceofPattern();
 			break;
 
     case 357 : if (DEBUG) { System.out.println("PushLeftBrace ::="); }  //$NON-NLS-1$
@@ -8644,7 +8699,7 @@ protected void consumeRule(int act) {
 		    consumeBinaryExpressionWithName(OperatorIds.GREATER_EQUAL);
 			break;
 
-    case 838 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::= Name instanceof..."); }  //$NON-NLS-1$
+    case 838 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::= Name InstanceofRHS"); }  //$NON-NLS-1$
 		    consumeInstanceOfExpressionWithName();
 			break;
 

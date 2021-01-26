@@ -40,6 +40,7 @@ public class InstanceOfExpression extends OperatorExpression {
 	public Expression expression;
 	public TypeReference type;
 	public LocalDeclaration elementVariable;
+	public int modifiers;
 	static final char[] SECRET_INSTANCEOF_PATTERN_EXPRESSION_VALUE = " instanceOfPatternExpressionValue".toCharArray(); //$NON-NLS-1$
 
 	public LocalVariableBinding secretInstanceOfPatternExpressionValue = null;

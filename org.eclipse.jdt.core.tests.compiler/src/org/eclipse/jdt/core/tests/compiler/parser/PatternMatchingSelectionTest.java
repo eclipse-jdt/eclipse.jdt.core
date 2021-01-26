@@ -23,7 +23,7 @@ static {
 //		TESTS_NAMES = new String[] { "test005" };
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(PatternMatchingSelectionTest.class, F_15);
+	return buildMinimalComplianceTestSuite(PatternMatchingSelectionTest.class, F_16);
 }
 
 public PatternMatchingSelectionTest(String testName) {
