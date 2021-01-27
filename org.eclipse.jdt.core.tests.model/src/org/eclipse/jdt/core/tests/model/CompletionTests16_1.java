@@ -18,19 +18,19 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 
-public class CompletionTests15 extends AbstractJavaModelCompletionTests {
+//java 15 scenarios run with java 16 compliance
+public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 
 	static {
 		// TESTS_NAMES = new String[]{"test034"};
 	}
 
-	public CompletionTests15(String name) {
+	public CompletionTests16_1(String name) {
 		super(name);
 	}
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			// preview enabled only works with latest compliance
 			COMPLETION_PROJECT = setUpJavaProject("Completion", "16");
 		} else {
 			setUpProjectCompliance(COMPLETION_PROJECT, "16");
@@ -40,7 +40,7 @@ public class CompletionTests15 extends AbstractJavaModelCompletionTests {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(CompletionTests15.class);
+		return buildModelTestSuite(CompletionTests16_1.class);
 	}
 
 	// completion for sealed

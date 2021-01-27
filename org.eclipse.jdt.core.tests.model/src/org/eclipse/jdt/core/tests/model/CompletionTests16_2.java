@@ -17,13 +17,14 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 
-public class CompletionTests16 extends AbstractJavaModelCompletionTests {
+//java 16 scenarios run with java 16 compliance
+public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 
 	static {
 		// TESTS_NAMES = new String[]{"test034"};
 	}
 
-	public CompletionTests16(String name) {
+	public CompletionTests16_2(String name) {
 		super(name);
 	}
 
@@ -37,7 +38,7 @@ public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(CompletionTests16.class);
+		return buildModelTestSuite(CompletionTests16_2.class);
 	}
 
 	// completion for local interface
