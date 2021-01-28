@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -79,6 +79,116 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 		buf.append("\n");
 		buf.append("    /**\n");
 		buf.append("     * @param newName Hello World.\n");
+		buf.append("     */\n");
+		buf.append("    public void gee(String name) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testEmptyParamName() throws Exception {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=560055
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");
+		buf.append("     * @param\n");
+		buf.append("     */\n");
+		buf.append("    public void gee(String name) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		{  // insert method at first position
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
+
+			Javadoc javadoc= methodDecl.getJavadoc();
+			List tags= javadoc.tags();
+			assertTrue("Has one tag", tags.size() == 1);
+
+			TagElement tagElement= (TagElement) tags.get(0);
+			List fragments= tagElement.fragments();
+			assertTrue("Has fragments", fragments.isEmpty());
+
+			TagElement newTagElement = ast.newTagElement();
+			newTagElement.setTagName(TagElement.TAG_PARAM);
+
+			SimpleName newName= ast.newSimpleName("newName");
+			newTagElement.fragments().add(newName);
+
+			rewrite.replace(tagElement, newTagElement, null);
+			}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");
+		buf.append("     * @param newName\n");
+		buf.append("     */\n");
+		buf.append("    public void gee(String name) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testEmptyThrows() throws Exception {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=560055
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");
+		buf.append("     * @throws\n");
+		buf.append("     */\n");
+		buf.append("    public void gee(String name) {\n");
+		buf.append("    }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		{  // insert method at first position
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "gee");
+
+			Javadoc javadoc= methodDecl.getJavadoc();
+			List tags= javadoc.tags();
+			assertTrue("Has one tag", tags.size() == 1);
+
+			TagElement tagElement= (TagElement) tags.get(0);
+			List fragments= tagElement.fragments();
+			assertTrue("Has fragments", fragments.isEmpty());
+
+			TagElement newTagElement = ast.newTagElement();
+			newTagElement.setTagName(TagElement.TAG_THROWS);
+
+			SimpleName newName= ast.newSimpleName("Exception");
+			newTagElement.fragments().add(newName);
+
+			rewrite.replace(tagElement, newTagElement, null);
+			}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class E {\n");
+		buf.append("\n");
+		buf.append("    /**\n");
+		buf.append("     * @throws Exception\n");
 		buf.append("     */\n");
 		buf.append("    public void gee(String name) {\n");
 		buf.append("    }\n");
