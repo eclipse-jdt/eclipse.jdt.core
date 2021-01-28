@@ -2389,6 +2389,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.25 BETA_JAVA16
 	 */
 	int IllegalModifierForPatternVariable = Internal + 1782;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int PatternVariableRedeclared = Internal + 1783;
 
 
 	/** @since 3.24

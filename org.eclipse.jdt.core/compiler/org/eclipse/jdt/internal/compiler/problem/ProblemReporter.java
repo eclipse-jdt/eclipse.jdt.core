@@ -2135,6 +2135,14 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 			nodeSourceStart(local, location),
 			nodeSourceEnd(local, location));
 }
+public void illegalRedeclarationOfPatternVar(LocalVariableBinding local, ASTNode location) {
+	this.handle(
+			IProblem.PatternVariableRedeclared,
+			NoArgument,
+			NoArgument,
+			nodeSourceStart(local, location),
+			nodeSourceEnd(local, location));
+}
 public void patternCannotBeSubtypeOfExpression(LocalVariableBinding local, ASTNode location) {
 	this.handle(
 			IProblem.PatternSubtypeOfExpression,
