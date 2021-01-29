@@ -3469,4 +3469,87 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"X",
 				compilerOptions);
 	}
+	public void test079() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+								"public class X<T> {\n"
+								+ "	public void foo(T o) {\n"
+								+ "		// Rejected\n"
+								+ "		boolean b1 = (o instanceof String a) ? (o instanceof String a) : false;\n"
+								+ "		boolean b2 = !(o instanceof String a) ? (o instanceof String a) : false;\n"
+								+ "		boolean b3 = (o instanceof String a) ? !(o instanceof String a) : false;\n"
+								+ "		boolean b4 = !(o instanceof String a) ? !(o instanceof String a) : false;\n"
+								+ "		\n"
+								+ "		boolean b5 = (o instanceof String a) ? true : (o instanceof String a);\n"
+								+ "		boolean b6 = !(o instanceof String a) ? true : (o instanceof String a);\n"
+								+ "		boolean b7 = (o instanceof String a) ? true : !(o instanceof String a);\n"
+								+ "		boolean b8 = !(o instanceof String a) ? true : !(o instanceof String a);\n"
+								+ "		\n"
+								+ "		boolean b9 = (o instanceof String) ? (o instanceof String a) : (o instanceof String a);\n"
+								+ "		boolean b10 = (o instanceof String) ? !(o instanceof String a) : !(o instanceof String a);\n"
+								+ "		\n"
+								+ "		// These are allowed\n"
+								+ "		boolean b11 = (o instanceof String) ? !(o instanceof String a) : !!(o instanceof String a);\n"
+								+ "		boolean b12 = (o instanceof String) ? !(o instanceof String a) : (o instanceof String a);\n"
+								+ "		boolean b21 = (o instanceof String a) ? false : ((o instanceof String a) ? false : true); \n"
+								+ "	} \n"
+								+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	boolean b1 = (o instanceof String a) ? (o instanceof String a) : false;\n" +
+				"	                                                            ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	boolean b2 = !(o instanceof String a) ? (o instanceof String a) : false;\n" +
+				"	                                                             ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 6)\n" +
+				"	boolean b3 = (o instanceof String a) ? !(o instanceof String a) : false;\n" +
+				"	                                                             ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 7)\n" +
+				"	boolean b4 = !(o instanceof String a) ? !(o instanceof String a) : false;\n" +
+				"	                                                              ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 9)\n" +
+				"	boolean b5 = (o instanceof String a) ? true : (o instanceof String a);\n" +
+				"	                                                                   ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 10)\n" +
+				"	boolean b6 = !(o instanceof String a) ? true : (o instanceof String a);\n" +
+				"	                                                                    ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 11)\n" +
+				"	boolean b7 = (o instanceof String a) ? true : !(o instanceof String a);\n" +
+				"	                                                                    ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 12)\n" +
+				"	boolean b8 = !(o instanceof String a) ? true : !(o instanceof String a);\n" +
+				"	                                                                     ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 14)\n" +
+				"	boolean b9 = (o instanceof String) ? (o instanceof String a) : (o instanceof String a);\n" +
+				"	                                                                                    ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n" +
+				"10. ERROR in X.java (at line 15)\n" +
+				"	boolean b10 = (o instanceof String) ? !(o instanceof String a) : !(o instanceof String a);\n" +
+				"	                                                                                       ^\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
 }

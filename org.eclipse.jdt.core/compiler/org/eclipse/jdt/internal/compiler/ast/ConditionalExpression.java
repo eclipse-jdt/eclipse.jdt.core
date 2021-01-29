@@ -514,10 +514,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.valueIfFalse.collectPatternVariablesToScope(variables, scope);
 	}
 	@Override
-	protected LocalDeclaration getPatternVariableIntroduced() {
-		return this.condition.getPatternVariableIntroduced();
-	}
-	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
 		LookupEnvironment env = scope.environment();
