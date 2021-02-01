@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -859,4 +860,62 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		builder.append("}\n");
 		assertEqualString(preview, builder.toString());
 	}
+
+	@SuppressWarnings("rawtypes")
+	public void testSwitchExpressions_Bug567975_since_12() throws Exception {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=567975
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder builder= new StringBuilder();
+		builder.append(
+				"package test1;\n" +
+				"public class X {\n" +
+				"    public String foo(int i) {\n" +
+				"		String ret = switch(i) {\n" +
+				"		case 0 -> \"abc\";\n" +
+				"		default -> \"\";\n" +
+				"		};\n" +
+				"		return ret;" +
+				"    }\n" +
+				"}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", builder.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		{
+			VariableDeclarationStatement varStatement= (VariableDeclarationStatement) blockStatements.get(0);
+			List fragments = varStatement.fragments();
+			assertEquals("Incorrect no of fragments", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			SwitchExpression initializer = (SwitchExpression) fragment.getInitializer();
+			List statements= initializer.statements();
+			assertEquals("incorrect Number of statements", 4, statements.size());
+
+			// replace the implicit yield expression to exercise the fix
+			YieldStatement yieldStmt = (YieldStatement) statements.get(1);
+			Expression exp = yieldStmt.getExpression();
+			ASTNode newLiteral = rewrite.createStringPlaceholder("\"def\"", ASTNode.STRING_LITERAL);
+			rewrite.replace(exp, newLiteral, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		builder= new StringBuilder();
+		builder.append(
+				"package test1;\n" +
+				"public class X {\n" +
+				"    public String foo(int i) {\n" +
+				"		String ret = switch(i) {\n" +
+				"		case 0 -> \"def\";\n" +
+				"		default -> \"\";\n" +
+				"		};\n" +
+				"		return ret;" +
+				"    }\n" +
+				"}\n");
+		assertEqualString(preview, builder.toString());
+	}
+
 }

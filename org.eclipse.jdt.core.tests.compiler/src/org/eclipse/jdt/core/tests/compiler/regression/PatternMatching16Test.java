@@ -3356,10 +3356,9 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 								"public class X {\n"
 								+ "   static void foo(Object o) {\n"
 								+ "		if (!(o instanceof X x) || x != null || x!= null) {\n"
-								+ "     	System.out.println(x);\n // not allowed"
+								+ "     	System.out.println(x); // not allowed\n"
 								+ "		}\n"
 								+ "	  }\n"
-								+ "	}\n"
 								+ "	public static void main(String[] args) {\n"
 								+ "		foo(new X());\n"
 								+ "	}\n"
@@ -3367,7 +3366,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 5)\n" +
-				"	System.out.println(x);\n" +
+				"	System.out.println(x); // not allowed\n" +
 				"	                   ^\n" +
 				"x cannot be resolved to a variable\n" +
 				"----------\n",
@@ -3375,8 +3374,54 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
-	// Test that a non final pattern variable can be assigned again
 	public void test075() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"+
+								"public class X {\n"
+								+ " public boolean isMyError(Exception e) {\n"
+								+ "        return e instanceof MyError my && (my.getMessage().contains(\"something\") || my.getMessage().contains(\"somethingelse\"));\n"
+								+ " }\n"
+								+ "	public static void main(String[] args) {\n"
+								+ "		System.out.println(\"hello\");\n"
+								+ "	}\n"
+								+ "}\n"
+								+ "class MyError extends Exception {}\n",
+				},
+				"hello",
+				compilerOptions);
+	}
+	public void test076() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "   static void foo(Object o) {\n"
+						+ "	   if ( (! (o instanceof String a)) || (o instanceof String a) ) {\n"
+						+ "		   // Nothing\n"
+						+ "	   }\n"
+						+ "	  }\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		System.out.println(\"hello\");\n"
+						+ "	}\n"
+						+ "}\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if ( (! (o instanceof String a)) || (o instanceof String a) ) {\n" +
+				"	                                                         ^\n" +
+				"Duplicate local variable a\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
+	// Test that a non final pattern variable can be assigned again
+	public void test077() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -3397,7 +3442,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// Test that a final pattern variable cannot be assigned again
-	public void test076() {
+	public void test078() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
 				new String[] {
@@ -3423,7 +3468,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
-	public void test077() {
+	public void test079() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
 				new String[] {
@@ -3450,7 +3495,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	// test that we allow final for a pattern instanceof variable
-	public void test078() {
+	public void test080() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -3469,7 +3514,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"X",
 				compilerOptions);
 	}
-	public void test079() {
+	public void test081() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runNegativeTest(
 				new String[] {

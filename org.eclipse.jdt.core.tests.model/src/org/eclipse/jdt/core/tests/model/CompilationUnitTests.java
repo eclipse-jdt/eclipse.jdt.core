@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *     Pierre-Yves B. <pyvesdev@gmail.com> - Contributions for
  *                              Bug 559618 - No compiler warning for import from same package
  *                              Bug 560630 - No warning on unused import on class from same package
+ *     Microsoft Corporation - support custom options at compilation unit level
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -22,6 +23,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import junit.framework.Test;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -34,6 +37,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.core.Buffer;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -2817,5 +2821,44 @@ public void testBug560630() throws CoreException {
           deleteFile("/P/src/p/C.java");
           deleteFile("/P/src/p/D.java");
   }
+}
+
+public void testSetOptions() throws CoreException {
+	try {
+		Map<String, String> newOptions = new HashMap<>();
+		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
+		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+		this.cu.setOptions(newOptions);
+
+		Map<String, String> customOptions = this.cu.getCustomOptions();
+		assertEquals(newOptions.size(), customOptions.size());
+		for (Map.Entry<String, String> entry : newOptions.entrySet()) {
+			assertEquals(entry.getValue(), customOptions.get(entry.getKey()));
+		}
+	} finally {
+		this.cu.setOptions(null);
+	}
+}
+
+public void testGetOptions() throws CoreException {
+	String oldTabChar = this.testProject.getOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, false);
+	try {
+		Map<String, String> projectOptions = this.testProject.getOptions(true);
+		Map<String, String> unitOptions = this.cu.getOptions(true);
+		assertEquals("Should inherit the project options", unitOptions, projectOptions);
+
+		this.testProject.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		Map<String, String> newOptions = new HashMap<>();
+		newOptions.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+		this.cu.setOptions(newOptions);
+
+		projectOptions = this.testProject.getOptions(true);
+		unitOptions = this.cu.getOptions(true);
+		assertEquals("Should use the options from the compilation unit", JavaCore.SPACE, unitOptions.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR));
+		assertEquals("should inherit the project options", projectOptions.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE), unitOptions.get(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE));
+	} finally {
+		this.testProject.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, oldTabChar);
+		this.cu.setOptions(null);
+	}
 }
 }

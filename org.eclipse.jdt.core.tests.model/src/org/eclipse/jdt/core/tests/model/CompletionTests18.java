@@ -2495,7 +2495,7 @@ public void testBug459189_004() throws JavaModelException {
 			requestor.getResults());
 }
 public void testBug460410() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies = new ICompilationUnit[2];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/X.java",
 			"import java.util.ArrayList;\n" +
@@ -2504,9 +2504,16 @@ public void testBug460410() throws JavaModelException {
 			"	public static void main(String[] args) {\n"+
 			"		ArrayList<Supplier<Runnable>> list = new ArrayList<>();\n"+
 			"		list.forEach((supp) -> {\n"+
-			"			Supplier<Run/* HERE */>}\n"+
+			"			Supplier<Bug460/* HERE */>}\n"+
 			"		});\n"+
 			"	}\n"+
+			"	public static class Bug460410 {" +
+			"	}" +
+			"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/Bug460411.java",
+			"package abc;" +
+			"public class Bug460411 {\n"+
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -2515,7 +2522,42 @@ public void testBug460410() throws JavaModelException {
 	String completeBehind = "/* HERE */";
 	int cursorLocation = str.indexOf(completeBehind);
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("", requestor.getResults());
+	assertResults(
+			"Bug460411[TYPE_REF]{abc.Bug460411, abc, Labc.Bug460411;, null, null, " + (R_DEFAULT + 39) + "}\n" +
+			"Bug460410[TYPE_REF]{Bug460410, , LBug460410;, null, null, " + (R_DEFAULT + 42) + "}",
+			requestor.getResults());
+}
+public void testBug462015() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"package abc;\n" +
+			"import java.util.ArrayList;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"public class X {\n"+
+			"	public static void main(String[] args) {\n"+
+			"		ArrayList<Entry> list = new ArrayList<>();\n"+
+			"		list.stream().collect(Collectors.averagingInt(e -> e.a/* HERE */));\n"+
+			"	}\n"+
+			"}\n");
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/Entry.java",
+			"package abc;" +
+			"public class Entry {\n"+
+			"	public String age() {\n"+
+			"		return \"10\";"+
+			"	}"+
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"age[METHOD_REF]{age(), LEntry;, ()Ljava.lang.String;, age, null, " + (R_DEFAULT + 30) + "}",
+			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=481564
 public void testBug481564() throws JavaModelException {

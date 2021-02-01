@@ -13263,4 +13263,18 @@ public void testBug569964() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/570220 - [formatter] Bug for 'if' open parenthesis inside lambda body preceded by comment line
+ */
+public void testBug570220() {
+	this.formatterPrefs.brace_position_for_block = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
+	formatSource(
+		"class C {\n" +
+		"	Runnable r = () -> {\n" +
+		"		//\n" +
+		"		if (true) {\n" +
+		"		}\n" +
+		"	};\n" +
+		"}");
+}
 }
