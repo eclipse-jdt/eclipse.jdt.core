@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5603,5 +5603,122 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"     inner name: #0, accessflags: 16400 final]\n" +
 				"  Enclosing Method: #3  #0 Y$E\n";
 		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+	public void testBug568854_001() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" public class X {\n"+
+				"   sealed interface Foo permits A {}\n"+
+				"   record A() implements Foo {}\n"+
+				"   record B() implements Foo {}\n"+
+				" }",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	record B() implements Foo {}\n" +
+			"	                      ^^^\n" +
+			"The type B that implements a sealed interface X.Foo should be a permitted subtype of X.Foo\n" +
+			"----------\n");
+	}
+	public void testBug568854_002() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" sealed interface Foo permits X.A {}\n"+
+				" public class X {\n"+
+				"   record A() implements Foo {}\n"+
+				"   record B() implements Foo {}\n"+
+				" }",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	record B() implements Foo {}\n" +
+			"	                      ^^^\n" +
+			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
+			"----------\n");
+	}
+	public void testBug568854_003() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" sealed interface Foo permits A {}\n"+
+				" record A() implements Foo {}\n"+
+				" record B() implements Foo {}\n"+
+				" public class X {\n"+
+				" }",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	record B() implements Foo {}\n" +
+			"	                      ^^^\n" +
+			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
+			"----------\n");
+	}
+	public void testBug568854_004() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" public class X {\n"+
+				"   sealed interface Foo permits A {}\n"+
+				"   class A implements Foo {}\n"+
+				"   final class B implements Foo {}\n"+
+				" }",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	class A implements Foo {}\n" +
+			"	      ^\n" +
+			"The class A with a sealed direct superclass or a sealed direct superinterface X.Foo should be declared either final, sealed, or non-sealed\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	final class B implements Foo {}\n" +
+			"	                         ^^^\n" +
+			"The type B that implements a sealed interface X.Foo should be a permitted subtype of X.Foo\n" +
+			"----------\n");
+	}
+	public void testBug568854_005() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" sealed interface Foo permits X.A {}\n"+
+				" public class X {\n"+
+				"   class A implements Foo {}\n"+
+				"   final class B implements Foo {}\n"+
+				" }",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	class A implements Foo {}\n" +
+			"	      ^\n" +
+			"The class A with a sealed direct superclass or a sealed direct superinterface Foo should be declared either final, sealed, or non-sealed\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	final class B implements Foo {}\n" +
+			"	                         ^^^\n" +
+			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
+			"----------\n");
+	}
+	public void testBug568854_006() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				" sealed interface Foo permits A {}\n"+
+				" class A implements Foo {}\n"+
+				" final class B implements Foo {}\n"+
+				" public class X {\n"+
+				" }",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	class A implements Foo {}\n" +
+			"	      ^\n" +
+			"The class A with a sealed direct superclass or a sealed direct superinterface Foo should be declared either final, sealed, or non-sealed\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	final class B implements Foo {}\n" +
+			"	                         ^^^\n" +
+			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
+			"----------\n");
 	}
 }
