@@ -1094,7 +1094,7 @@ private Map.Entry<TypeReference, ReferenceBinding> getFirstSealedSuperTypeOrInte
 }
 // TODO: Optimize the multiple loops - defer until the feature becomes standard.
 private void checkPermitsInType() {
-	if (this.isRecordDeclaration || this.isEnum())
+	if (/* this.isRecordDeclaration || */this.isEnum())
 		return; // handled separately
 	TypeDeclaration typeDecl = this.scope.referenceContext;
 	if (this.isInterface()) {
@@ -1144,7 +1144,7 @@ private void checkPermitsInType() {
 		}
 	} else if (this.isNonSealed()) {
 		if (!foundSealedSuperTypeOrInterface) {
-			if (this.isClass())
+			if (this.isClass() && !this.isRecord()) // record to give only illegal modifier error.
 				this.scope.problemReporter().sealedDisAllowedNonSealedModifierInClass(this, typeDecl);
 			else if (this.isInterface())
 				this.scope.problemReporter().sealedDisAllowedNonSealedModifierInInterface(this, typeDecl);
@@ -1158,7 +1158,7 @@ private void checkPermitsInType() {
 				this.scope.problemReporter().sealedMissingInterfaceModifier(this, typeDecl, sealedEntry.getValue());
 		}
 		List<SourceTypeBinding> typesInCU = collectAllTypeBindings(typeDecl, this.scope.compilationUnitScope());
-		if (typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
+		if (!typeDecl.isRecord() && typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
 			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, typeDecl.superclass, this.superclass);
 		for (int i = 0, l = this.superInterfaces.length; i < l; ++i) {
 			ReferenceBinding superInterface = this.superInterfaces[i];

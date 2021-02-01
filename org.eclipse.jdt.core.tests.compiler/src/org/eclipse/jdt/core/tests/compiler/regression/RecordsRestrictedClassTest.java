@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug570243"};
+//		TESTS_NAMES = new String[] { "testBug570605"};
 	}
 
 	public static Class<?> testClass() {
@@ -8278,5 +8278,30 @@ public void testBug570230_001() {
 			"	                    ^^^^\n" +
 			"Extended dimensions are illegal for a record component\n" +
 			"----------\n");
+}
+public void testBug570605_001() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed class Y {}\n"+
+				"non-sealed class Z extends Y {}\n"+
+				"public class X {\n"+
+				" public void foo() {\n"+
+				"        record R()  {\n"+
+				"            class L extends Y {}\n"+
+				"        }\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	class L extends Y {}\n" +
+			"	                ^\n" +
+			"A local class L cannot have a sealed direct superclass or a sealed direct superinterface Y\n" +
+			"----------\n",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			getCompilerOptions());
 }
 }
