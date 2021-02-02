@@ -3597,4 +3597,67 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				true,
 				compilerOptions);
 	}
+	public void testBug570831a() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "	public static void run() {\n"
+							+ "		String s = \"s\";\n"
+							+ "		Object o = null;\n"
+							+ "		{\n"
+							+ "			while (!(o instanceof String v)) {\n"
+							+ "				o = null;\n"
+							+ "			}\n"
+							+ "			s = s + v; // allowed\n"
+							+ "		}\n"
+							+ "		for (int i = 0; i < 1; i++) {\n"
+							+ "			s = s + v; // not allowed\n"
+							+ "		}\n"
+							+ "	}\n"
+							+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	s = s + v; // not allowed\n" +
+				"	        ^\n" +
+				"v cannot be resolved to a variable\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
+	public void testBug570831b() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "	public static void run() {\n"
+							+ "		String s = \"s\";\n"
+							+ "		Object o = null;\n"
+							+ "		{\n"
+							+ "			int local = 0;\n"
+							+ "			while (!(o instanceof String v)) {\n"
+							+ "				o = null;\n"
+							+ "			}\n"
+							+ "			s = s + v; // allowed\n"
+							+ "		}\n"
+							+ "		for (int i = 0; i < 1; i++) {\n"
+							+ "			s = s + v; // not allowed\n"
+							+ "		}\n"
+							+ "	}\n"
+							+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	s = s + v; // not allowed\n" +
+				"	        ^\n" +
+				"v cannot be resolved to a variable\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
+	}
 }

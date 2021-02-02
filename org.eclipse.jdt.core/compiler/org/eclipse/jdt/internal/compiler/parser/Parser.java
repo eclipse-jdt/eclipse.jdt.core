@@ -4628,6 +4628,9 @@ protected void consumeInstanceofPattern() {
 	this.expressionLengthPtr--;
 	LocalDeclaration local = getInstanceOfVar(typeRef);
 	pushOnPatternStack(local);
+	// Only if we are not inside a block
+	if (this.realBlockPtr != -1)
+		blockReal();
 }
 protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
