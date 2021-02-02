@@ -5721,4 +5721,62 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"The type B that implements a sealed interface Foo should be a permitted subtype of Foo\n" +
 			"----------\n");
 	}
+	public void testBug568854_007() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A {}\n"+
+				"final class A implements I {}\n"+
+				"enum B {\n"+
+				"   ONE {\n"+
+				"     class Y implements I {}\n"+
+				"   }\n"+
+				"}\n"+
+				"public class    X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   class Z implements I{}\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	class Y implements I {}\n" +
+			"	                   ^\n" +
+			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	class Z implements I{}\n" +
+			"	                   ^\n" +
+			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"----------\n");
+	}
+	public void testBug568854_008() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits X.A {}\n"+
+				"public class    X {\n"+
+				"final class A implements I {}\n"+
+				"enum B {\n"+
+				"   ONE {\n"+
+				"     class Y implements I {}\n"+
+				"   }\n"+
+				"}\n"+
+				" public static void main(String[] args) {\n"+
+				"   class Z implements I{}\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	class Y implements I {}\n" +
+			"	                   ^\n" +
+			"A local class Y cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	class Z implements I{}\n" +
+			"	                   ^\n" +
+			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
+			"----------\n");
+	}
 }

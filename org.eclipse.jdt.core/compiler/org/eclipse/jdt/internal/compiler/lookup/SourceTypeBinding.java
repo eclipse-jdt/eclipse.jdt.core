@@ -1078,7 +1078,7 @@ void faultInTypesForFieldsAndMethods() {
 }
 
 private Map.Entry<TypeReference, ReferenceBinding> getFirstSealedSuperTypeOrInterface(TypeDeclaration typeDecl) {
-	boolean isAnySuperTypeSealed = this.superclass != null ? this.superclass.isSealed() : false;
+	boolean isAnySuperTypeSealed = typeDecl.superclass != null && this.superclass != null ? this.superclass.isSealed() : false;
 	if (isAnySuperTypeSealed)
 		return new AbstractMap.SimpleEntry<>(typeDecl.superclass, this.superclass);
 
@@ -1094,8 +1094,8 @@ private Map.Entry<TypeReference, ReferenceBinding> getFirstSealedSuperTypeOrInte
 }
 // TODO: Optimize the multiple loops - defer until the feature becomes standard.
 private void checkPermitsInType() {
-	if (/* this.isRecordDeclaration || */this.isEnum())
-		return; // handled separately
+//	if (/* this.isRecordDeclaration || */this.isEnum())
+//		return; // handled separately
 	TypeDeclaration typeDecl = this.scope.referenceContext;
 	if (this.isInterface()) {
 		if (isSealed() && isNonSealed()) {
@@ -1124,7 +1124,7 @@ private void checkPermitsInType() {
 				ReferenceBinding permType = this.permittedTypes[i];
 				if (!permType.isValidBinding()) continue;
 				ModuleBinding permTypeModule = permType.module();
-				if (sourceModuleBinding != permTypeModule) {
+				if (permTypeModule != null && sourceModuleBinding != permTypeModule) {
 					TypeReference permittedTypeRef = typeDecl.permittedTypes[i];
 					this.scope.problemReporter().sealedPermittedTypeOutsideOfModule(permType, this, permittedTypeRef, sourceModuleBinding);
 				}

@@ -201,6 +201,7 @@ public void tearDownSuite() throws Exception {
 	this.typeHierarchy = null;
 	deleteProject("TypeHierarchy");
 	deleteProject("TypeHierarchy15");
+	deleteProject("TypeHierarchy_16");
 
 	super.tearDownSuite();
 }
