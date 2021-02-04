@@ -2589,6 +2589,19 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented instanceof expression node
+	 * owned by this AST. By default, the operator and left and right
+	 * operand are unspecified (but legal).
+	 *
+	 * @return a new unparented instanceof expression node
+	 * @since 3.25 BETA_JAVA16
+	 */
+	public PatternInstanceofExpression newPatternInstanceofExpression() {
+		PatternInstanceofExpression result = new PatternInstanceofExpression(this);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented postfix expression node
 	 * owned by this AST. By default, the operator and operand are
 	 * unspecified (but legal).

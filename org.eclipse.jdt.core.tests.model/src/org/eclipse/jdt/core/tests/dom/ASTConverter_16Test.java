@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,9 +38,9 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -581,9 +581,9 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		Expression expression = ifStatement.getExpression();
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
-		SimpleName var = instanceofExpression.getPatternVariable();
-		checkSourceRange(var, "s", contents);
+		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
+		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+		checkSourceRange(var, "String s", contents);
 	}
 
 	public void testPatternInstanceOfExpression002() throws JavaModelException {
@@ -615,8 +615,8 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		Expression expression = ifStatement.getExpression();
 		checkSourceRange(expression, "o instanceof String", contents);
 		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
-		SimpleName var = instanceofExpression.getPatternVariable();
+		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
+		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
 		assertNull(var);
 	}
 
@@ -649,9 +649,9 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		Expression expression = ifStatement.getExpression();
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
-		SimpleName var = instanceofExpression.getPatternVariable();
-		checkSourceRange(var, "s", contents);
+		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
+		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+		checkSourceRange(var, "String s", contents);
 		String instanceofExpressionString = instanceofExpression.toString();
 		assertEquals("o instanceof String s", instanceofExpressionString);
 	}

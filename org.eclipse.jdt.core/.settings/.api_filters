@@ -322,6 +322,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/InstanceofExpression.java" type="org.eclipse.jdt.core.dom.InstanceofExpression">
+        <filter id="338755678">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.InstanceofExpression"/>
+                <message_argument value="PATTERN_VARIABLE_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/MemberRef.java" type="org.eclipse.jdt.core.dom.MemberRef">
         <filter id="576725006">
             <message_arguments>

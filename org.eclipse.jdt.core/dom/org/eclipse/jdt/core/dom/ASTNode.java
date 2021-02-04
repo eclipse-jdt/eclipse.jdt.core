@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1001,6 +1001,14 @@ public abstract class ASTNode {
 	public static final int MODULE_QUALIFIED_NAME = 103;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>PatternInstanceofExpression</code>.
+	 * @see PatternInstanceofExpression
+	 * @since 3.25 BETA_JAVA16
+	 */
+	public static final int PATTERN_INSTANCEOF_EXPRESSION = 104;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -1136,6 +1144,8 @@ public abstract class ASTNode {
 				return ParameterizedType.class;
 			case PARENTHESIZED_EXPRESSION :
 				return ParenthesizedExpression.class;
+			case PATTERN_INSTANCEOF_EXPRESSION :
+				return PatternInstanceofExpression.class;
 			case POSTFIX_EXPRESSION :
 				return PostfixExpression.class;
 			case PREFIX_EXPRESSION :

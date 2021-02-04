@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,7 +11,6 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,31 +21,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Instanceof expression AST node type.
+ * PatternInstanceof expression AST node type.
  * <pre>
- * InstanceofExpression:
- *    Expression <b>instanceof</b> Type
+ * PatternInstanceofExpression:
+ *    Expression <b>instanceof</b> Variable
  * </pre>
  *
- * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noreference This class is not intended to be referenced by clients as this has been added to support Java 16 features and may change in future.
  */
 @SuppressWarnings("rawtypes")
-public class InstanceofExpression extends Expression {
+public class PatternInstanceofExpression extends Expression {
 
 	/**
 	 * The "leftOperand" structural property of this node type (child type: {@link Expression}).
-	 * @since 3.0
 	 */
 	public static final ChildPropertyDescriptor LEFT_OPERAND_PROPERTY =
-		new ChildPropertyDescriptor(InstanceofExpression.class, "leftOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "leftOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "rightOperand" structural property of this node type (child type: {@link Type}).
-	 * @since 3.0
+	 * The "rightOperand" structural property of this node type (child type: {@link SingleVariableDeclaration}).
 	 */
 	public static final ChildPropertyDescriptor RIGHT_OPERAND_PROPERTY =
-		new ChildPropertyDescriptor(InstanceofExpression.class, "rightOperand", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "rightOperand", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -57,7 +54,7 @@ public class InstanceofExpression extends Expression {
 
 	static {
 		List properyList = new ArrayList(3);
-		createPropertyList(InstanceofExpression.class, properyList);
+		createPropertyList(PatternInstanceofExpression.class, properyList);
 		addProperty(LEFT_OPERAND_PROPERTY, properyList);
 		addProperty(RIGHT_OPERAND_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
@@ -72,7 +69,6 @@ public class InstanceofExpression extends Expression {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -86,9 +82,10 @@ public class InstanceofExpression extends Expression {
 
 	/**
 	 * The right operand; lazily initialized; defaults to an unspecified,
-	 * but legal, simple type.
+	 * but legal, simple variable decalaration.
 	 */
-	private Type rightOperand = null;
+	private SingleVariableDeclaration rightOperand = null;
+
 
 	/**
 	 * Creates a new AST node for an instanceof expression owned by the given
@@ -97,8 +94,9 @@ public class InstanceofExpression extends Expression {
 	 *
 	 * @param ast the AST that is to own this node
 	 */
-	InstanceofExpression(AST ast) {
+	PatternInstanceofExpression(AST ast) {
 		super(ast);
+		unsupportedBelow16();
 	}
 
 	@Override
@@ -120,7 +118,7 @@ public class InstanceofExpression extends Expression {
 			if (get) {
 				return getRightOperand();
 			} else {
-				setRightOperand((Type) child);
+				setRightOperand((SingleVariableDeclaration) child);
 				return null;
 			}
 		}
@@ -130,15 +128,15 @@ public class InstanceofExpression extends Expression {
 
 	@Override
 	final int getNodeType0() {
-		return INSTANCEOF_EXPRESSION;
+		return PATTERN_INSTANCEOF_EXPRESSION;
 	}
 
 	@Override
 	ASTNode clone0(AST target) {
-		InstanceofExpression result = new InstanceofExpression(target);
+		PatternInstanceofExpression result = new PatternInstanceofExpression(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
-		result.setRightOperand((Type) getRightOperand().clone(target));
+		result.setRightOperand((SingleVariableDeclaration) getRightOperand().clone(target));
 		return result;
 	}
 
@@ -160,7 +158,7 @@ public class InstanceofExpression extends Expression {
 	}
 
 	/**
-	 * Returns the left operand of this instanceof expression.
+	 * Returns the left operand of this Patterninstanceof expression.
 	 *
 	 * @return the left operand node
 	 */
@@ -204,13 +202,13 @@ public class InstanceofExpression extends Expression {
 	 *
 	 * @return the right operand node
 	 */
-	public Type getRightOperand() {
+	public SingleVariableDeclaration getRightOperand() {
 		if (this.rightOperand  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
 				if (this.rightOperand == null) {
 					preLazyInit();
-					this.rightOperand= new SimpleType(this.ast);
+					this.rightOperand= new SingleVariableDeclaration(this.ast);
 					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
 				}
 			}
@@ -221,7 +219,7 @@ public class InstanceofExpression extends Expression {
 	/**
 	 * Sets the right operand of this instanceof expression.
 	 *
-	 * @param referenceType the right operand node
+	 * @param referenceDeclaration the right operand node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -229,15 +227,16 @@ public class InstanceofExpression extends Expression {
 	 * <li>a cycle in would be created</li>
 	 * </ul>
 	 */
-	public void setRightOperand(Type referenceType) {
-		if (referenceType == null) {
+	public void setRightOperand(SingleVariableDeclaration referenceDeclaration) {
+		if (referenceDeclaration == null) {
 			throw new IllegalArgumentException();
 		}
 		ASTNode oldChild = this.rightOperand;
-		preReplaceChild(oldChild, referenceType, RIGHT_OPERAND_PROPERTY);
-		this.rightOperand = referenceType;
-		postReplaceChild(oldChild, referenceType, RIGHT_OPERAND_PROPERTY);
+		preReplaceChild(oldChild, referenceDeclaration, RIGHT_OPERAND_PROPERTY);
+		this.rightOperand = referenceDeclaration;
+		postReplaceChild(oldChild, referenceDeclaration, RIGHT_OPERAND_PROPERTY);
 	}
+
 
 	@Override
 	int memSize() {

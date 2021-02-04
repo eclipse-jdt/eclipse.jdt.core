@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1183,9 +1187,7 @@ public class ASTMatcher {
 		InstanceofExpression o = (InstanceofExpression) other;
 		return
 			safeSubtreeMatch(node.getLeftOperand(), o.getLeftOperand())
-			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand())
-			&& ((DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST())) ? safeSubtreeMatch(node.getPatternVariable(), o.getPatternVariable())
-					: true);
+			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand());
 	}
 
 	/**
@@ -1817,6 +1819,31 @@ public class ASTMatcher {
 		}
 		ParenthesizedExpression o = (ParenthesizedExpression) other;
 		return safeSubtreeMatch(node.getExpression(), o.getExpression());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.25 BETA_JAVA16
+	 */
+	public boolean match(PatternInstanceofExpression node, Object other) {
+		if (!(other instanceof PatternInstanceofExpression)) {
+			return false;
+		}
+		PatternInstanceofExpression o = (PatternInstanceofExpression) other;
+		return
+			safeSubtreeMatch(node.getLeftOperand(), o.getLeftOperand())
+			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand());
 	}
 
 	/**

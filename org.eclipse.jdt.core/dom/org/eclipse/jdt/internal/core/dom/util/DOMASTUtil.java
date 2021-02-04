@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2019, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -66,7 +66,7 @@ public class DOMASTUtil {
 			case ASTNode.TEXT_BLOCK:
 				return apiLevel >= AST.JLS15;
 			case ASTNode.RECORD_DECLARATION:
-			case ASTNode.INSTANCEOF_EXPRESSION:
+			case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
 				return apiLevel >= AST.JLS16;
 		}
 		return false;
@@ -142,12 +142,8 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.RECORD_DECLARATION);
 	}
 
-	public static boolean isInstanceofExpressionPatternSupported(AST ast) {
-		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
-	}
-
-	public static boolean isInstanceofExpressionPatternSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.INSTANCEOF_EXPRESSION);
+	public static boolean isPatternInstanceofExpressionSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
 	}
 
 	public static boolean isSealedTypeSupported(AST ast) {
