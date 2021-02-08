@@ -2096,11 +2096,12 @@ private void checkAndGetExplicitCanonicalConstructors() {
 			}
 		}
 		if (isEC) {
-			checkRecordCanonicalConstructor(method);
+			explictCanConstr = checkRecordCanonicalConstructor(method);
 			// Just exit after sighting the first explicit canonical constructor,
 			// because there can only be one.
-			explictCanConstr = method;
-			break;
+			if (explictCanConstr != null)
+				break;
+			isEC = false; //error
 		}
 	}
 	if (explictCanConstr == null && implicitCanConstr != null) {
@@ -2411,10 +2412,11 @@ private void checkCanonicalConstructorParameterNames(MethodBinding explicitCanon
 	}
 }
 
-private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
+private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
 
 	AbstractMethodDeclaration methodDecl = explicitCanonicalConstructor.sourceMethod();
-
+	if (methodDecl == null)
+		return null;
 	if (!SourceTypeBinding.isAtleastAsAccessibleAsRecord(explicitCanonicalConstructor))
 		this.scope.problemReporter().recordCanonicalConstructorVisibilityReduced(methodDecl);
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
@@ -2460,6 +2462,7 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 		}
 	}
 	methodDecl.traverse(visitor, this.scope);
+	return explicitCanonicalConstructor;
 }
 
 @Override

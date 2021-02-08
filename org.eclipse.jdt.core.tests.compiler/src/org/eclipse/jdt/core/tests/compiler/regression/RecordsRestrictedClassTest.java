@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug570605"};
+//		TESTS_NAMES = new String[] { "testBug571015"};
 	}
 
 	public static Class<?> testClass() {
@@ -8303,5 +8303,48 @@ public void testBug570605_001() {
 			true,
 			new String[] {"--enable-preview"},
 			getCompilerOptions());
+}
+public void testBug571015_001() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"record R() {\n"+
+				"       R(I<T> ... t) {}\n"+
+				"}\n"+
+				"interface I{}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	R(I<T> ... t) {}\n" +
+			"	  ^\n" +
+			"The type I is not generic; it cannot be parameterized with arguments <T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 2)\n" +
+			"	R(I<T> ... t) {}\n" +
+			"	    ^\n" +
+			"T cannot be resolved to a type\n" +
+			"----------\n");
+}
+public void testBug571015_002() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"record R() {\n"+
+				"       R(I<X> ... t) {}\n"+
+				"}\n"+
+				"interface I<T>{}\n"+
+				"class X{}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	R(I<X> ... t) {}\n" +
+			"	^^^^^^^^^^^^^\n" +
+			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 2)\n" +
+			"	R(I<X> ... t) {}\n" +
+			"	           ^\n" +
+			"Type safety: Potential heap pollution via varargs parameter t\n" +
+			"----------\n");
 }
 }
