@@ -548,21 +548,16 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	}
 	// 9.1.1
 	public void testBug566720_005() {
-		runNegativeTest(
+		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n"+
-				"  void foo() {\n"+
+				"  public static void main(String[] args) {\n"+
 				"	static interface I {}\n"+
 				" }\n"+
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	static interface I {}\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-		 	"----------\n"
+			""
 			);
 	}
 	public void testBug566748_001() {
@@ -1118,6 +1113,26 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				" class Z {\n"+
 				"   static int f2;\n"+
 				"   static {};\n"+
+				" }\n"+
+				"}"
+			},
+			"hello");
+	}
+	public void testBug569444_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private void foo() {\n"+
+				"   class Y {\n"+
+				"     static record R() {}\n"+
+				"     static class Z{}\n"+
+				"     interface I{}\n"+
+				"     static interface II{}\n"+
+				"   }\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(\"hello\");\n"+
 				" }\n"+
 				"}"
 			},

@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571015"};
+//		TESTS_NAMES = new String[] { "testBug562219_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -2617,11 +2617,11 @@ public void testBug561778_002() throws IOException, ClassFormatException {
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562219_001() {
-	this.runNegativeTest(
+	runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"+
-				"       public void foo() {\n"+
+				"       public static void main(String[] args) {\n"+
 				"               @SuppressWarnings(\"unused\")\n"+
 				"               class Y {\n"+
 				"                       @SuppressWarnings(\"preview\")\n"+
@@ -2634,38 +2634,22 @@ public void testBug562219_001() {
 				"       }\n"+
 				"}\n"
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	record R() {\n" +
-		"	       ^\n" +
-		"A record declaration R is not allowed in a local inner class\n" +
-		"----------\n",
-		null,
-		true
-	);
+		"");
 }
 public void testBug562219_002() {
-	this.runNegativeTest(
+	runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"+
-				"    public void foo() {\n"+
+				"    public static void main(String[] args) {\n"+
 				"        @SuppressWarnings(\"unused\")\n"+
 				"        class Y {\n"+
-				"           @SuppressWarnings(\"preview\")\n"+
 				"           record R() {}\n"+
 				"        }\n"+
 				"    }\n"+
 				"}\n"
 			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
-		"	record R() {}\n" +
-		"	       ^\n" +
-		"A record declaration R is not allowed in a local inner class\n" +
-		"----------\n",
-		null,
-		true
+		""
 	);
 }
 /*
@@ -7833,11 +7817,6 @@ public void testBug566063_003() {
 			"	static enum E {\n" +
 			"	            ^\n" +
 			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
-			"	static record Bar(E x) implements I{}\n" +
-			"	              ^^^\n" +
-			"A local class or interface Bar is implicitly static; cannot have explicit static declaration\n" +
 			"----------\n",
 			null,
 			true,
@@ -7848,7 +7827,7 @@ public void testBug566063_003() {
 public void testBug566063_004() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 					"X.java",
 					"class X {\n"+
@@ -7867,16 +7846,7 @@ public void testBug566063_004() {
 					"    }\n"+
 					"}"
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	static interface I {}\n" +
-				"	                 ^\n" +
-				"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-				"----------\n",
-		null,
-		true,
-		options
-	);
+				"ONE");
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 @SuppressWarnings({ "unchecked", "rawtypes" })

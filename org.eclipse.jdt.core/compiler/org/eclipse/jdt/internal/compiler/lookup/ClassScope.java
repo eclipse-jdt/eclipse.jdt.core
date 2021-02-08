@@ -323,6 +323,9 @@ public class ClassScope extends Scope {
 				TypeDeclaration memberContext = this.referenceContext.memberTypes[i];
 				switch(TypeDeclaration.kind(memberContext.modifiers)) {
 					case TypeDeclaration.INTERFACE_DECL :
+						if (compilerOptions().sourceLevel >= ClassFileConstants.JDK16)
+							break;
+						//$FALL-THROUGH$
 					case TypeDeclaration.ANNOTATION_TYPE_DECL :
 						problemReporter().illegalLocalTypeDeclaration(memberContext);
 						continue nextMember;
@@ -619,11 +622,12 @@ public class ClassScope extends Scope {
 				}
 				modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isRecord()) {
-				if (enclosingType != null && enclosingType.isLocalType()) {
-					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
-					return;
-				}
-				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+//				if (enclosingType != null && enclosingType.isLocalType()) {
+//					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
+//					return;
+//				}
+				if (compilerOptions().complianceLevel < ClassFileConstants.JDK16 &&
+						(modifiers & ClassFileConstants.AccStatic) != 0) {
 					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
 					return;
 				}
@@ -703,7 +707,8 @@ public class ClassScope extends Scope {
 				*/
 			} else 	if (isPreviewEnabled && sourceType.isLocalType()) {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface
-						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
+						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation
+						| (is16Plus ? ClassFileConstants.AccStatic : 0));
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
 //				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
@@ -841,11 +846,14 @@ public class ClassScope extends Scope {
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp
+						| (compilerOptions().sourceLevel >= ClassFileConstants.JDK16 ? ClassFileConstants.AccStatic : 0));
+				if (compilerOptions().sourceLevel >= ClassFileConstants.JDK16)
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForClass(sourceType);
 			}
