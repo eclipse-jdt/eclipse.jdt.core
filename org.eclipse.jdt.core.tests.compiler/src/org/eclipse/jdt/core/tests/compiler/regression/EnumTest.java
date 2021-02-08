@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3861,6 +3861,9 @@ public void test112() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93789
 public void test113() {
+	if (this.complianceLevel >= ClassFileConstants.JDK16) {
+		return;
+	}
     this.runNegativeTest(
         new String[] {
             "X.java",

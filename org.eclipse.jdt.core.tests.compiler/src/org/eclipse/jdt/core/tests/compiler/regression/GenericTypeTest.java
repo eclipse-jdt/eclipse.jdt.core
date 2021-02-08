@@ -19582,7 +19582,56 @@ public void test0617() {
     }
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=84973 - variation
 	public void test0618() {
-	    this.runNegativeTest(
+		String expectedError = 	this.complianceLevel < ClassFileConstants.JDK16 ?
+	            "----------\n" +
+	    		"1. ERROR in Map.java (at line 5)\n" +
+	    		"	static void foo(Entry<String> e) { } // invalid static ref\n" +
+	    		"	            ^^^^^^^^^^^^^^^^^^^^\n" +
+	    		"The method foo cannot be declared static; static methods can only be declared in a static or top level type\n" +
+	    		"----------\n" +
+	    		"2. ERROR in Map.java (at line 5)\n" +
+	    		"	static void foo(Entry<String> e) { } // invalid static ref\n" +
+	    		"	                ^^^^^\n" +
+	    		"Cannot make a static reference to the non-static type Entry\n" +
+	    		"----------\n" +
+	    		"3. ERROR in Map.java (at line 8)\n" +
+	    		"	Entry<String> entry; // invalid static ref\n" +
+	    		"	^^^^^\n" +
+	    		"Cannot make a static reference to the non-static type Entry\n" +
+	    		"----------\n" +
+	    		"4. ERROR in Map.java (at line 11)\n" +
+	    		"	void c(Map.Entry<String> e) { } // illegal \n" +
+	    		"	       ^^^^^^^^^\n" +
+	    		"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" +
+	    		"----------\n" +
+	    		"5. WARNING in Map.java (at line 12)\n" +
+	    		"	void b(Entry e) { } // OK\n" +
+	    		"	       ^^^^^\n" +
+	    		"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" +
+	    		"----------\n"
+	    		:
+	            "----------\n" +
+	        	"1. ERROR in Map.java (at line 5)\n" +
+	        	"	static void foo(Entry<String> e) { } // invalid static ref\n" +
+	        	"	                ^^^^^\n" +
+	        	"Cannot make a static reference to the non-static type Entry\n" +
+	        	"----------\n" +
+	        	"2. ERROR in Map.java (at line 8)\n" +
+	        	"	Entry<String> entry; // invalid static ref\n" +
+	        	"	^^^^^\n" +
+	        	"Cannot make a static reference to the non-static type Entry\n" +
+	        	"----------\n" +
+	        	"3. ERROR in Map.java (at line 11)\n" +
+	        	"	void c(Map.Entry<String> e) { } // illegal \n" +
+	        	"	       ^^^^^^^^^\n" +
+	        	"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" +
+	        	"----------\n" +
+	        	"4. WARNING in Map.java (at line 12)\n" +
+	        	"	void b(Entry e) { } // OK\n" +
+	        	"	       ^^^^^\n" +
+	        	"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" +
+	        	"----------\n";
+	        	this.runNegativeTest(
             new String[] {
                 "Map.java",
 				"class Map<M> {\n" +
@@ -19600,32 +19649,7 @@ public void test0617() {
 				"    void d(Map<Integer>.Entry<String> e) { } // OK\n" +
 				"}\n",
             },
-            "----------\n" +
-    		"1. ERROR in Map.java (at line 5)\n" +
-    		"	static void foo(Entry<String> e) { } // invalid static ref\n" +
-    		"	            ^^^^^^^^^^^^^^^^^^^^\n" +
-    		"The method foo cannot be declared static; static methods can only be declared in a static or top level type\n" +
-    		"----------\n" +
-    		"2. ERROR in Map.java (at line 5)\n" +
-    		"	static void foo(Entry<String> e) { } // invalid static ref\n" +
-    		"	                ^^^^^\n" +
-    		"Cannot make a static reference to the non-static type Entry\n" +
-    		"----------\n" +
-    		"3. ERROR in Map.java (at line 8)\n" +
-    		"	Entry<String> entry; // invalid static ref\n" +
-    		"	^^^^^\n" +
-    		"Cannot make a static reference to the non-static type Entry\n" +
-    		"----------\n" +
-    		"4. ERROR in Map.java (at line 11)\n" +
-    		"	void c(Map.Entry<String> e) { } // illegal \n" +
-    		"	       ^^^^^^^^^\n" +
-    		"The member type Map.Entry<String> must be qualified with a parameterized type, since it is not static\n" +
-    		"----------\n" +
-    		"5. WARNING in Map.java (at line 12)\n" +
-    		"	void b(Entry e) { } // OK\n" +
-    		"	       ^^^^^\n" +
-    		"Map.Entry is a raw type. References to generic type Map<M>.Entry<E> should be parameterized\n" +
-    		"----------\n");
+	    	expectedError);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=89440
 	public void test0619() {

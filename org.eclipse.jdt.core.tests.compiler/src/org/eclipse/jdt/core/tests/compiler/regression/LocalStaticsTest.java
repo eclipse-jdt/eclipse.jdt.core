@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1101,5 +1101,26 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"}"
 			},
 			"");
+	}
+	public void testBug569444_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(\"hello\");\n"+
+				"   class Y{\n"+
+				"     static int field;\n"+
+				"     public static void foo() {}\n"+
+				"   }\n"+
+				"   record R() {}\n"+
+				" }\n"+
+				" class Z {\n"+
+				"   static int f2;\n"+
+				"   static {};\n"+
+				" }\n"+
+				"}"
+			},
+			"hello");
 	}
 }

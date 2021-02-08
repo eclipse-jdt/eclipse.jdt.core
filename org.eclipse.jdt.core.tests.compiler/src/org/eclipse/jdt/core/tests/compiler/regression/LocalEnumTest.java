@@ -4258,7 +4258,10 @@ public void _NA_test112() {
 	);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=93789
-public void test113() {
+public void _test113() {
+	if (this.complianceLevel >= ClassFileConstants.JDK16) {
+		return;
+	}
     this.runNegativeTest(
         new String[] {
             "X.java",
