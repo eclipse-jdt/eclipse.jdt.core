@@ -156,6 +156,8 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 }
 @Override
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
+	if (this.zipFile == null)
+		return false;
 	return this.zipFile.getEntry(qualifiedTypeName+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX) != null;
 }
 @Override

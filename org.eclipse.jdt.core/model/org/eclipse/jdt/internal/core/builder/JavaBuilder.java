@@ -713,16 +713,13 @@ private boolean isWorthBuilding() throws CoreException {
 
 		removeProblemsAndTasksFor(this.currentProject); // remove all compilation problems
 
-		IMarker marker = this.currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-		marker.setAttributes(
-			new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
-			new Object[] {
-				Messages.build_abortDueToClasspathProblems,
-				Integer.valueOf(IMarker.SEVERITY_ERROR),
-				Integer.valueOf(CategorizedProblem.CAT_BUILDPATH),
-				JavaBuilder.SOURCE_ID
-			}
-		);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(IMarker.MESSAGE, Messages.build_abortDueToClasspathProblems);
+		attributes.put(IMarker.SEVERITY, Integer.valueOf(IMarker.SEVERITY_ERROR));
+		attributes.put(IJavaModelMarker.CATEGORY_ID, Integer.valueOf(CategorizedProblem.CAT_BUILDPATH));
+		attributes.put(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+
+		this.currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, attributes);
 		return false;
 	}
 
