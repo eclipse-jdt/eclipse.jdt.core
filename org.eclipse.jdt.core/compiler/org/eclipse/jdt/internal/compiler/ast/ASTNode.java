@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -883,7 +887,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
 						// Note for JDK>=14, this could be LVB or RCB, hence typecasting to VB
 						long otherLocalTagBits = ((VariableBinding) annotationRecipient).tagBits;
-						local.tagBits = otherLocalTagBits;
+						// Make sure we retain the TagBits.IsArgument bit
+						local.tagBits = otherLocalTagBits | (local.tagBits & TagBits.IsArgument);
 						if ((otherLocalTagBits & TagBits.AnnotationSuppressWarnings) == 0) {
 							// None of the annotations is a SuppressWarnings annotation
 							// need to fill the instances array
