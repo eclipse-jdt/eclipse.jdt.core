@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -11121,42 +11125,74 @@ public void test384567_2() {
 // Bug 416107 - Incomplete error message for member interface and annotation
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=416107
 public void test416107a() {
-    this.runNegativeTest(
-        new String[] {
-            "X.java",
-			"public class X {\n" +
-			"	class Y {\n" +
-			"		 @interface Bar {\n" +
-			"			public String bar = \"BUG\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
-        },
-        "----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	@interface Bar {\n" +
-		"	           ^^^\n" +
-		"The member annotation Bar can only be defined inside a top-level class or interface or in a static context\n" +
-		"----------\n");
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+	    this.runNegativeTest(
+	            new String[] {
+	                "X.java",
+	    			"public class X {\n" +
+	    			"	class Y {\n" +
+	    			"		 @interface Bar {\n" +
+	    			"			public String bar = \"BUG\";\n" +
+	    			"		}\n" +
+	    			"	}\n" +
+	    			"}",
+	            },
+	            "----------\n" +
+	    		"1. ERROR in X.java (at line 3)\n" +
+	    		"	@interface Bar {\n" +
+	    		"	           ^^^\n" +
+	    		"The member annotation Bar can only be defined inside a top-level class or interface or in a static context\n" +
+	    		"----------\n");
+	}	else {
+	    	    this.runConformTest(
+	    	            new String[] {
+	    	                "X.java",
+	    	    			"public class X {\n" +
+	    	    			"	class Y {\n" +
+	    	    			"		 @interface Bar {\n" +
+	    	    			"			public String bar = \"BUG\";\n" +
+	    	    			"		}\n" +
+	    	    			"	}\n" +
+	    	    			"}",
+	    	            },
+	    	            "");
+
+	}
 }
 public void test416107b() {
-	runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"	class Y {\n" +
-			"		interface Bar {\n" +
-			"			public String bar = \"BUG\";\n" +
-			"		}\n" +
-			"	}\n" +
-			"}",
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	interface Bar {\n" +
-		"	          ^^^\n" +
-		"The member interface Bar can only be defined inside a top-level class or interface or in a static context\n" +
-		"----------\n");
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		interface Bar {\n" +
+					"			public String bar = \"BUG\";\n" +
+					"		}\n" +
+					"	}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	interface Bar {\n" +
+				"	          ^^^\n" +
+				"The member interface Bar can only be defined inside a top-level class or interface or in a static context\n" +
+				"----------\n");
+	} else {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		interface Bar {\n" +
+					"			public String bar = \"BUG\";\n" +
+					"		}\n" +
+					"	}\n" +
+					"}",
+				},
+				"");
+
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427367
 public void test427367() throws Exception {

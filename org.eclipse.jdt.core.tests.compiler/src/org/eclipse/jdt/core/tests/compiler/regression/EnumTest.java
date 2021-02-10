@@ -2583,6 +2583,7 @@ public void test081() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=88223
 public void test082() {
+	if ( this.complianceLevel < ClassFileConstants.JDK16) {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2598,6 +2599,18 @@ public void test082() {
 		"	     ^\n" +
 		"The member enum E must be defined inside a static member type\n" +
 		"----------\n");
+	} else {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		enum E {}\n" +
+					"	}\n" +
+					"}"
+				},
+				"");
+	}
 	this.runConformTest(
 		new String[] {
 			"X.java",

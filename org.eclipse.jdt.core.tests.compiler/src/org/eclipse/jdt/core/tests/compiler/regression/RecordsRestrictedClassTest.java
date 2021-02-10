@@ -1321,7 +1321,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug553152_017() {
-		this.runNegativeTest(
+		this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"+
@@ -1333,12 +1333,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				"  }\n"+
 				"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	record Point(int myInt, char myChar) {}\n" +
-		"	       ^^^^^\n" +
-		"Nested Record is (implicitly) static and hence enclosing type should be static\n" +
-		"----------\n");
+		"0");
 	}
 	public void testBug553152_018() {
 		runConformTest(
@@ -1974,21 +1969,19 @@ public void testBug560256_002() {
 		"----------\n");
 }
 public void testBug560256_003() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
 			"  class Inner {\n"+
 			"	  record Point(int x, int y){}\n"+
 			"  }\n" +
 			"}",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	record Point(int x, int y){}\n" +
-		"	       ^^^^^\n" +
-		"Nested Record is (implicitly) static and hence enclosing type should be static\n" +
-		"----------\n");
+		"0");
 }
 public void testBug560256_004() {
 	this.runNegativeTest(

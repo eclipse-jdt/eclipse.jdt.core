@@ -388,6 +388,9 @@ public class ClassScope extends Scope {
 				switch(TypeDeclaration.kind(memberContext.modifiers)) {
 					case TypeDeclaration.INTERFACE_DECL :
 					case TypeDeclaration.ANNOTATION_TYPE_DECL :
+						if (compilerOptions().sourceLevel >= ClassFileConstants.JDK16)
+							break;
+						//$FALL-THROUGH$
 						if (sourceType.isNestedType()
 								&& sourceType.isClass() // no need to check for enum, since implicitly static
 								&& !sourceType.isStatic()) {
@@ -597,7 +600,7 @@ public class ClassScope extends Scope {
 			if (enclosingType.isInterface())
 				modifiers |= ClassFileConstants.AccPublic;
 			if (sourceType.isEnum()) {
-				if (!enclosingType.isStatic())
+				if (!is16Plus && !enclosingType.isStatic())
 					problemReporter().nonStaticContextForEnumMemberType(sourceType);
 				else
 					modifiers |= ClassFileConstants.AccStatic;
@@ -897,9 +900,10 @@ public class ClassScope extends Scope {
 				if (enclosingType.isInterface())
 					modifiers |= ClassFileConstants.AccStatic;
 			} else if (!enclosingType.isStatic()) {
-				if (sourceType.isRecord())
-					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
-				else
+//				if (sourceType.isRecord())
+//					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
+//				else
+					if (!is16Plus)
 					// error the enclosing type of a static field must be static or a top-level type
 					problemReporter().illegalStaticModifierForMemberType(sourceType);
 			}

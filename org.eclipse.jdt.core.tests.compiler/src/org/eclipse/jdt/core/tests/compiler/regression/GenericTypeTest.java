@@ -28632,6 +28632,34 @@ public void test0871() {
 		"");
 }
 public void test0872() {
+	String expectedError = this.complianceLevel < ClassFileConstants.JDK16 ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 22)\n" +
+			"	M3<X>.N3<X> n = m.new N3<X>();\n" +
+			"	^^^^^^^^\n" +
+			"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 25)\n" +
+			"	static class N3<U> {\n" +
+			"	             ^^\n" +
+			"The member type N3 cannot be declared static; static types can only be declared in static or top level types\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 30)\n" +
+			"	M4<X>.N4<X> n = m.new N4<X>();\n" +
+			"	^^^^^^^^\n" +
+			"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
+			"----------\n" :
+			"----------\n" +
+			"1. ERROR in X.java (at line 22)\n" +
+			"	M3<X>.N3<X> n = m.new N3<X>();\n" +
+			"	^^^^^^^^\n" +
+			"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 30)\n" +
+			"	M4<X>.N4<X> n = m.new N4<X>();\n" +
+			"	^^^^^^^^\n" +
+			"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -28672,22 +28700,7 @@ public void test0872() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 22)\n" +
-		"	M3<X>.N3<X> n = m.new N3<X>();\n" +
-		"	^^^^^^^^\n" +
-		"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 25)\n" +
-		"	static class N3<U> {\n" +
-		"	             ^^\n" +
-		"The member type N3 cannot be declared static; static types can only be declared in static or top level types\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 30)\n" +
-		"	M4<X>.N4<X> n = m.new N4<X>();\n" +
-		"	^^^^^^^^\n" +
-		"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
-		"----------\n");
+		expectedError);
 }
 public void test0873() {
 	this.runConformTest(

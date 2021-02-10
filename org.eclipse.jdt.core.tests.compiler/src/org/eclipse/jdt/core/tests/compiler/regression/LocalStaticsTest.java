@@ -1138,4 +1138,37 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"hello");
 	}
+	public void testBug569444_003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public void foo() {\n"+
+				"   @SuppressWarnings(\"unused\")\n"+
+				"   class Y {\n"+
+				"     static record R() {}\n"+
+				"      class Z{\n"+
+				"       static class zz{}\n"+
+				"     }\n"+
+				"     interface I{\n"+
+				"       abstract int bar();\n"+
+				"     }\n"+
+				"   }\n"+
+				"    new Y.I() {\n"+
+				"     @Override\n"+
+				"     public int bar() {\n"+
+				"        @SuppressWarnings(\"unused\")\n"+
+				"       static class zzz{}\n"+
+				"       return 0;\n"+
+				"     }\n"+
+				"     \n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(\"hello\");\n"+
+				" }\n"+
+				"}"
+			},
+			"hello");
+	}
 }
