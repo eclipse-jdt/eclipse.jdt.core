@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2021 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -473,9 +473,9 @@ public class Factory
 			case 'c':
 				return Character.valueOf((char)b); // narrowing.
 			case 'd':
-				return new Double(b); // widening.
+				return Double.valueOf(b); // widening.
 			case 'f':
-				return new Float(b); // widening.
+				return Float.valueOf(b); // widening.
 			case 'i':
 				return Integer.valueOf(b); // widening.
 			case 'l':
@@ -501,9 +501,9 @@ public class Factory
 			case 'c':
 				return Character.valueOf((char)s); // narrowing.
 			case 'd':
-				return new Double(s); // widening.
+				return Double.valueOf(s); // widening.
 			case 'f':
-				return new Float(s); // widening.
+				return Float.valueOf(s); // widening.
 			case 'i':
 				return Integer.valueOf(s); // widening.
 			case 'l':
@@ -529,9 +529,9 @@ public class Factory
 			case 'c':
 				return value; // exact match
 			case 'd':
-				return new Double(c); // widening.
+				return Double.valueOf(c); // widening.
 			case 'f':
-				return new Float(c); // widening.
+				return Float.valueOf(c); // widening.
 			case 'i':
 				return Integer.valueOf(c); // widening.
 			case 'l':
@@ -558,9 +558,9 @@ public class Factory
 			case 'c':
 				return Character.valueOf((char)i); // narrowing
 			case 'd':
-				return new Double(i); // widening.
+				return Double.valueOf(i); // widening.
 			case 'f':
-				return new Float(i); // widening.
+				return Float.valueOf(i); // widening.
 			case 'i':
 				return value; // exact match
 			case 'l':
@@ -584,9 +584,9 @@ public class Factory
 				// completely wrong.
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
 			case 'd':
-				return new Double(l); // widening.
+				return Double.valueOf(l); // widening.
 			case 'f':
-				return new Float(l); // widening.
+				return Float.valueOf(l); // widening.
 			case 'l':
 				return value; // exact match.
 
@@ -609,7 +609,7 @@ public class Factory
 				// completely wrong.
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
 			case 'd':
-				return new Double(f); // widening.
+				return Double.valueOf(f); // widening.
 			case 'f':
 				return value; // exact match.
 			default:

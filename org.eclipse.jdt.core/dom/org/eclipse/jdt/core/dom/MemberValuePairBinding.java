@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 BEA Systems, Inc.
+ * Copyright (c) 2005, 2021 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -67,9 +67,9 @@ class MemberValuePairBinding implements IMemberValuePairBinding {
 				case TypeIds.T_char:
 					return Character.valueOf(constant.charValue());
 				case TypeIds.T_double:
-					return new Double(constant.doubleValue());
+					return Double.valueOf(constant.doubleValue());
 				case TypeIds.T_float:
-					return new Float(constant.floatValue());
+					return Float.valueOf(constant.floatValue());
 				case TypeIds.T_int:
 					return Integer.valueOf(constant.intValue());
 				case TypeIds.T_long:

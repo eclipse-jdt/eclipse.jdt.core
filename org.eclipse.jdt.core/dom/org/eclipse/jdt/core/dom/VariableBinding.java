@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -95,9 +95,9 @@ class VariableBinding implements IVariableBinding {
 			case TypeIds.T_char:
 				return Character.valueOf(c.charValue());
 			case TypeIds.T_double:
-				return new Double(c.doubleValue());
+				return Double.valueOf(c.doubleValue());
 			case TypeIds.T_float:
-				return new Float(c.floatValue());
+				return Float.valueOf(c.floatValue());
 			case TypeIds.T_int:
 				return Integer.valueOf(c.intValue());
 			case TypeIds.T_long:

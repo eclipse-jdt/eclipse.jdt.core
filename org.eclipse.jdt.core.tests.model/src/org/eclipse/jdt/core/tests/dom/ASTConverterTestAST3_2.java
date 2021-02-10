@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4560,7 +4560,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "BYTE_FIELD", variableBinding.getName());
 		constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant", constantValue);
-		assertEquals("Wrong value", new Byte((byte)1), constantValue);
+		assertEquals("Wrong value", Byte.valueOf((byte)1), constantValue);
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "1", source);
@@ -4576,7 +4576,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "CHAR_FIELD", variableBinding.getName());
 		constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant", constantValue);
-		assertEquals("Wrong value", new Character('{'), constantValue);
+		assertEquals("Wrong value", Character.valueOf('{'), constantValue);
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "\'{\'", source);
@@ -4592,7 +4592,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "DOUBLE_FIELD", variableBinding.getName());
 		constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant", constantValue);
-		assertEquals("Wrong value", new Double("3.1415"), constantValue);
+		assertEquals("Wrong value", Double.valueOf("3.1415"), constantValue);
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "3.1415", source);
@@ -4608,7 +4608,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "FLOAT_FIELD", variableBinding.getName());
 		constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant", constantValue);
-		assertEquals("Wrong value", new Float("3.14159f"), constantValue);
+		assertEquals("Wrong value", Float.valueOf("3.14159f"), constantValue);
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "3.14159f", source);
@@ -4640,7 +4640,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "LONG_FIELD", variableBinding.getName());
 		constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant", constantValue);
-		assertEquals("Wrong value", new Long("34"), constantValue);
+		assertEquals("Wrong value", Long.valueOf("34"), constantValue);
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "34L", source);
@@ -4656,7 +4656,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Wrong name", "SHORT_FIELD", variableBinding.getName());
 		constantValue = variableBinding.getConstantValue();
 		assertNotNull("No constant", constantValue);
-		assertEquals("Wrong value", new Short("130"), constantValue);
+		assertEquals("Wrong value",Short.valueOf("130"), constantValue);
 		initializer = fragment.getInitializer();
 		assertNotNull("No initializer", initializer);
 		checkSourceRange(initializer, "130", source);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -75,9 +75,9 @@ public Object getConstant() throws JavaModelException {
 			}
 			constant = Character.valueOf(constantSourceChars[1]);
 		} else if (signature.equals(Signature.SIG_DOUBLE)) {
-			constant = new Double(constantSource);
+			constant = Double.valueOf(constantSource);
 		} else if (signature.equals(Signature.SIG_FLOAT)) {
-			constant = new Float(constantSource);
+			constant = Float.valueOf(constantSource);
 		} else if (signature.equals(Signature.SIG_LONG)) {
 			if (constantSource.endsWith("L") || constantSource.endsWith("l")) { //$NON-NLS-1$ //$NON-NLS-2$
 				int index = constantSource.lastIndexOf("L");//$NON-NLS-1$
