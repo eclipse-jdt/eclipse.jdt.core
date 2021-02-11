@@ -8310,4 +8310,105 @@ public void testBug571015_002() {
 			"Type safety: Potential heap pollution via varargs parameter t\n" +
 			"----------\n");
 }
+public void testBug571038_1() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"
+			+ " public static void main(String[] args) {\n"
+			+ "   System.out.println(\"hello\");\n"
+			+ " }\n"
+			+ "}\n"
+			+ "record MyRecord<T> (MyIntf<T>... t) {\n"
+			+ "	public MyRecord(MyIntf<T>... t) {\n"
+			+ "		this.t = null;\n"
+			+ "	}\n"
+			+ "}\n"
+			+ "interface MyIntf<T> {}\n"
+		},
+	 "hello");
+	String expectedOutput = "  // Method descriptor #25 ()[LMyIntf;\n"
+			+ "  // Signature: ()[LMyIntf<TT;>;\n"
+			+ "  // Stack: 1, Locals: 1\n"
+			+ "  public MyIntf[] t();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug571038_2() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"
+			+ " public static void main(String[] args) {\n"
+			+ "   System.out.println(\"hello\");\n"
+			+ " }\n"
+			+ "}\n"
+			+ "record MyRecord<T> (MyIntf<T>... t) {\n"
+			+ "	@SafeVarargs\n"
+			+ "	public MyRecord(MyIntf<T>... t) {\n"
+			+ "		this.t = null;\n"
+			+ "	}\n"
+			+ "}\n"
+			+ "interface MyIntf<T> {}\n"
+		},
+	 "hello");
+	String expectedOutput = "  // Method descriptor #27 ()[LMyIntf;\n"
+			+ "  // Signature: ()[LMyIntf<TT;>;\n"
+			+ "  // Stack: 1, Locals: 1\n"
+			+ "  public MyIntf[] t();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug571038_3() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.*;\n"
+			+ "public class X {\n"
+			+ " public static void main(String[] args) {\n"
+			+ "   System.out.println(\"hello\");\n"
+			+ " }\n"
+			+ "}\n"
+			+ "record MyRecord<T> (MyIntf<T>... t) {\n"
+			+ "	@SafeVarargs\n"
+			+ "	public MyRecord(@MyAnnot MyIntf<T>... t) {\n"
+			+ "		this.t = null;\n"
+			+ "	}\n"
+			+ "}\n"
+			+ "interface MyIntf<T> {}\n"
+			+ "@Retention(RetentionPolicy.RUNTIME)\n"
+			+ "@interface MyAnnot {}\n"
+		},
+	 "hello");
+	String expectedOutput = "  // Method descriptor #30 ()[LMyIntf;\n"
+			+ "  // Signature: ()[LMyIntf<TT;>;\n"
+			+ "  // Stack: 1, Locals: 1\n"
+			+ "  public MyIntf[] t();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug571038_4() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.*;\n"
+			+ "public class X {\n"
+			+ " public static void main(String[] args) {\n"
+			+ "   System.out.println(\"hello\");\n"
+			+ " }\n"
+			+ "}\n"
+			+ "record MyRecord<T> (MyIntf<T>... t) {\n"
+			+ "	@SafeVarargs\n"
+			+ "	public MyRecord(MyIntf<@MyAnnot T>... t) {\n"
+			+ "		this.t = null;\n"
+			+ "	}\n"
+			+ "}\n"
+			+ "interface MyIntf<T> {}\n"
+			+ "@Retention(RetentionPolicy.RUNTIME)\n"
+			+ "@interface MyAnnot {}\n"
+		},
+	 "hello");
+	String expectedOutput = "  // Method descriptor #29 ()[LMyIntf;\n"
+			+ "  // Signature: ()[LMyIntf<TT;>;\n"
+			+ "  // Stack: 1, Locals: 1\n"
+			+ "  public MyIntf[] t();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }
