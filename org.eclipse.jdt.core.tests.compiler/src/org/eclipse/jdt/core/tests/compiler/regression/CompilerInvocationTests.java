@@ -943,6 +943,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ParsingErrorOnKeywordNoSuggestion", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorReplaceTokens", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ParsingErrorUnexpectedEOF", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("PatternVariableNotInScope", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("PatternVariableRedefined", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("PatternSubtypeOfExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalModifierForPatternVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -2000,6 +2001,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ParsingErrorOnKeywordNoSuggestion", SKIP);
 		expectedProblemAttributes.put("ParsingErrorReplaceTokens", SKIP);
 		expectedProblemAttributes.put("ParsingErrorUnexpectedEOF", SKIP);
+		expectedProblemAttributes.put("PatternVariableNotInScope", SKIP);
 		expectedProblemAttributes.put("PatternVariableRedefined", SKIP);
 		expectedProblemAttributes.put("PatternSubtypeOfExpression", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForPatternVariable", SKIP);
