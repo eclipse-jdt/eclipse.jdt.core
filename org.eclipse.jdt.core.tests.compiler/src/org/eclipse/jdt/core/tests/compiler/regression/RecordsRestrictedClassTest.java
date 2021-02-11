@@ -7795,7 +7795,7 @@ public void testBug566063_003() {
 				"               ONE,\n"+
 				"               TWO\n"+
 				"        }\n"+
-				"        interface I {}\n"+
+				"        static interface I {}\n"+
 				"        static record Bar(E x) implements I{}\n"+
 				"        E e = new Bar(E.ONE).x();\n"+
 				"        System.out.println(e);\n"+
@@ -7810,6 +7810,16 @@ public void testBug566063_003() {
 			"	static enum E {\n" +
 			"	            ^\n" +
 			"Illegal modifier for local enum E; no explicit modifier is permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	static interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	static record Bar(E x) implements I{}\n" +
+			"	              ^^^\n" +
+			"A local class or interface Bar is implicitly static; cannot have explicit static declaration\n" +
 			"----------\n",
 			null,
 			true,
@@ -7829,7 +7839,7 @@ public void testBug566063_004() {
 					"               ONE,\n"+
 					"               TWO\n"+
 					"        }\n"+
-					"        static interface I {}\n"+
+					"		 interface I {}\n" +
 					"        record Bar(E x) implements I{}\n"+
 					"        E e = new Bar(E.ONE).x();\n"+
 					"        System.out.println(e);\n"+

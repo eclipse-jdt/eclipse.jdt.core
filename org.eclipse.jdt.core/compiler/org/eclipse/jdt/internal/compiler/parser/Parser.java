@@ -11601,18 +11601,8 @@ protected void dispatchDeclarationInto(int length) {
 		for (int i = typeDecl.memberTypes.length - 1; i >= 0; i--) {
 			TypeDeclaration memberType = typeDecl.memberTypes[i];
 			memberType.enclosingType = typeDecl;
-			markNestedRecordStatic(memberType);
 		}
 	}
-}
-private void markNestedRecordStatic(TypeDeclaration typeDeclaration) {
-	/*
-	 * JLS 14 8.10 (Preview)
-	 * A nested record type is implicitly static.
-	 * It is permitted for the declaration of a nested record type to redundantly specify the static modifier.
-	 */
-	if (typeDeclaration.isRecord())
-		typeDeclaration.modifiers |= ClassFileConstants.AccStatic;
 }
 protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 

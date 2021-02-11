@@ -33,7 +33,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug566715_003"};
+//		TESTS_NAMES = new String[] { "testBug569444_006"};
 	}
 
 	public static Class<?> testClass() {
@@ -70,7 +70,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("15");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
 		runner.runConformTest();
 	}
 	@Override
@@ -92,7 +92,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("15") :
-			JavacTestOptions.forReleaseWithPreview("15", javacAdditionalTestOptions);
+			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 
@@ -548,7 +548,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	}
 	// 9.1.1
 	public void testBug566720_005() {
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X<T> {\n"+
@@ -557,8 +557,12 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				" }\n"+
 				"}\n"
 			},
-			""
-			);
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	static interface I {}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n");
 	}
 	public void testBug566748_001() {
 		runNegativeTest(
@@ -1157,8 +1161,6 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"    new Y.I() {\n"+
 				"     @Override\n"+
 				"     public int bar() {\n"+
-				"        @SuppressWarnings(\"unused\")\n"+
-				"       static class zzz{}\n"+
 				"       return 0;\n"+
 				"     }\n"+
 				"     \n"+
@@ -1170,5 +1172,90 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"}"
 			},
 			"hello");
+	}
+	public void testBug569444_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public void foo() {\n"+
+				"    @SuppressWarnings(\"unused\")\n"+
+				"    static class zzz{}\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(\"hello\");\n"+
+				" }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	static class zzz{}\n" +
+			"	             ^^^\n" +
+			"Illegal modifier for the local class zzz; only abstract or final is permitted\n" +
+			"----------\n");
+	}
+	public void testBug569444_005() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public void foo() {\n"+
+				"     static class Z{} //  static not allowed\n"+
+				"     class Y{\n"+
+				"       static class ZZ{} // static allowed\n"+
+				"     }\n"+
+				"   static record R() {} // explicit static not allowed\n"+
+				"   static interface I {} // explicit static not allowed\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	static class Z{} //  static not allowed\n" +
+			"	             ^\n" +
+			"Illegal modifier for the local class Z; only abstract or final is permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	static record R() {} // explicit static not allowed\n" +
+			"	              ^\n" +
+			"A local class or interface R is implicitly static; cannot have explicit static declaration\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	static interface I {} // explicit static not allowed\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n");
+	}
+	public void testBug569444_006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public void foo() {\n"+
+				"   for (;;) {\n"+
+				"     static class Y  {}\n"+
+				"     static record R() {}\n"+
+				"     static interface I{}\n"+
+				"     break;\n"+
+				"   }\n"+
+				"    }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	static class Y  {}\n" +
+			"	             ^\n" +
+			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	static record R() {}\n" +
+			"	              ^\n" +
+			"A local class or interface R is implicitly static; cannot have explicit static declaration\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	static interface I{}\n" +
+			"	                 ^\n" +
+			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n");
 	}
 }
