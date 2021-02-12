@@ -33,7 +33,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug569444_006"};
+//		TESTS_NAMES = new String[] { "testBug571163_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -1256,6 +1256,39 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"	static interface I{}\n" +
 			"	                 ^\n" +
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
+			"----------\n");
+	}
+	public void testBug571163_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				" class X {\n"+
+				"    public void foo() {\n"+
+				"        class Y {\n"+
+				"            static Y y;\n"+
+				"             static {\n"+
+				"                y = Y.this;\n"+
+				"            }\n"+
+				"            class Z {\n"+
+				"                static Y yy;\n"+
+				"                static {\n"+
+				"                       yy = Y.this; //error not flagged here\n"+
+				"                }\n"+
+				"            }\n"+
+				"        } \n"+
+				"     }\n"+
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	y = Y.this;\n" +
+			"	    ^^^^^^\n" +
+			"Cannot use this in a static context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	yy = Y.this; //error not flagged here\n" +
+			"	     ^^^^^^\n" +
+			"Cannot use this in a static context\n" +
 			"----------\n");
 	}
 }
