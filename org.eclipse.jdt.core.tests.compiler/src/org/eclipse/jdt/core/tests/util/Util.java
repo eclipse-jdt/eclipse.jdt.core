@@ -1441,7 +1441,7 @@ public static void zip(File rootDir, String zipPath) throws IOException {
         } else {
         	zipFile.getParentFile().mkdirs();
         }
-        zip = new ZipOutputStream(new FileOutputStream(zipFile));
+        zip = new ZipOutputStream(new BufferedOutputStream( new FileOutputStream(zipFile)));
         zip(rootDir, zip, rootDir.getPath().length()+1); // 1 for last slash
     } finally {
         if (zip != null) {
