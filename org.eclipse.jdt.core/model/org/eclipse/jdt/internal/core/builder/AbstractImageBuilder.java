@@ -704,16 +704,14 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 				JavaBuilder.removeProblemsAndTasksFor(this.javaBuilder.currentProject); // make this the only problem for this project
 				this.keepStoringProblemMarkers = false;
 			}
-			IMarker marker = this.javaBuilder.currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER);
-			marker.setAttributes(
-				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
-				new Object[] {
-					buildPathProblemMessage,
-					Integer.valueOf(isInvalidClasspathError ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING),
-					Integer.valueOf(CategorizedProblem.CAT_BUILDPATH),
-					JavaBuilder.SOURCE_ID
-				}
-			);
+
+			Map<String,Object> attributes = new HashMap<>();
+			attributes.put(IMarker.MESSAGE, buildPathProblemMessage);
+			attributes.put(IMarker.SEVERITY, Integer.valueOf(isInvalidClasspathError ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING));
+			attributes.put(IJavaModelMarker.CATEGORY_ID, Integer.valueOf(CategorizedProblem.CAT_BUILDPATH));
+			attributes.put(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
+
+			this.javaBuilder.currentProject.createMarker(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, attributes);
 			// even if we're not keeping more markers, still fall through rest of the problem reporting, so that offending
 			// IsClassPathCorrect problem gets recorded since it may help locate the offending reference
 		}
