@@ -138,8 +138,8 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(ast, ASTNode.RECORD_DECLARATION);
 	}
 
-	public static boolean isRecordDeclarationSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.RECORD_DECLARATION);
+	public static boolean isRecordDeclarationSupported(int apiLevel) {
+		return isNodeTypeSupportedinAST(apiLevel, true, ASTNode.RECORD_DECLARATION);
 	}
 
 	public static boolean isPatternInstanceofExpressionSupported(AST ast) {
