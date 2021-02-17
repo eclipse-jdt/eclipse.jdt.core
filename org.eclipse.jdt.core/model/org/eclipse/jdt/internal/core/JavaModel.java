@@ -155,7 +155,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 		case JEM_JAVAPROJECT:
 			if (!memento.hasMoreTokens()) return this;
 			String projectName = memento.nextToken();
-			JavaElement project = (JavaElement)getJavaProject(projectName);
+			JavaElement project = getJavaProject(projectName);
 			return project.getHandleFromMemento(memento, owner);
 	}
 	return null;
@@ -180,9 +180,16 @@ protected char getHandleMementoDelimiter(){
  * @see IJavaModel
  */
 @Override
-public IJavaProject getJavaProject(String projectName) {
+public JavaProject getJavaProject(String projectName) {
 	return new JavaProject(ResourcesPlugin.getWorkspace().getRoot().getProject(projectName), this);
 }
+
+@Override
+public JavaModel getJavaModel() {
+	return this;
+}
+
+
 /**
  * Returns the active Java project associated with the specified
  * resource, or <code>null</code> if no Java project yet exists

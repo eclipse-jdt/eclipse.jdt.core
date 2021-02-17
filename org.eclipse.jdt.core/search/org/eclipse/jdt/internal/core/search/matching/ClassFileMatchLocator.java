@@ -173,7 +173,7 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 	// check class definition
 	BinaryType binaryType = (BinaryType) classFile.getType();
 	if (matchBinary(pattern, info, null)) {
-		binaryType = new ResolvedBinaryType((JavaElement) binaryType.getParent(), binaryType.getElementName(), binaryType.getKey());
+		binaryType = new ResolvedBinaryType(binaryType.getParent(), binaryType.getElementName(), binaryType.getKey());
 		locator.reportBinaryMemberDeclaration(null, binaryType, null, info, SearchMatch.A_ACCURATE);
 		return;
 	}
@@ -345,7 +345,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	BinaryType classFileBinaryType = (BinaryType) classFile.getType();
 	BinaryTypeBinding binaryTypeBinding = null;
 	if (checkAnnotations(typeReferencePattern, annotations, binaryType.getTagBits())) {
-		classFileBinaryType = new ResolvedBinaryType((JavaElement) classFileBinaryType.getParent(), classFileBinaryType.getElementName(), classFileBinaryType.getKey());
+		classFileBinaryType = new ResolvedBinaryType(classFileBinaryType.getParent(), classFileBinaryType.getElementName(), classFileBinaryType.getKey());
 		TypeReferenceMatch match = new TypeReferenceMatch(classFileBinaryType, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
 		// TODO 3.4 M7 (frederic) - bug 209996: see how create the annotation handle from the binary and put it in the local element
 		match.setLocalElement(null);

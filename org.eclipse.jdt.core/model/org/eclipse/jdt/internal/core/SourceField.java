@@ -126,13 +126,13 @@ protected char getHandleMementoDelimiter() {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
+public JavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu.isPrimary()) return this;
 	}
-	IJavaElement primaryParent =this.parent.getPrimaryElement(false);
-	return ((IType)primaryParent).getField(this.name);
+	IJavaElement primaryParent =this.getParent().getPrimaryElement(false);
+	return (JavaElement)((IType)primaryParent).getField(this.name);
 }
 /**
  * @see IField
@@ -154,7 +154,7 @@ public boolean isResolved() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedSourceField(this.parent, this.name, new String(binding.computeUniqueKey()));
+	SourceRefElement resolvedHandle = new ResolvedSourceField(this.getParent(), this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
 }

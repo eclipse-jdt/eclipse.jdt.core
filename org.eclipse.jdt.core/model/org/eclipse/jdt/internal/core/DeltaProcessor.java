@@ -777,7 +777,7 @@ public class DeltaProcessor {
 						PackageFragmentRoot root = this.currentElement.getPackageFragmentRoot();
 						if (root == null) {
 							element =  JavaCore.create(resource);
-						} else if (((JavaProject)root.getJavaProject()).contains(resource)) {
+						} else if (root.getJavaProject().contains(resource)) {
 							// create package handle
 							IPath pkgPath = path.removeFirstSegments(root.getPath().segmentCount());
 							String[] pkgName = pkgPath.segments();
@@ -1192,7 +1192,7 @@ public class DeltaProcessor {
 				addToParentInfo(element);
 				this.manager.getPerProjectInfo(project, true /*create info if needed*/).rememberExternalLibTimestamps();
 				if ((delta.getFlags() & IResourceDelta.MOVED_FROM) != 0) {
-					Openable movedFromElement = (Openable)element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
+					Openable movedFromElement = element.getJavaModel().getJavaProject(delta.getMovedFromPath().lastSegment());
 					currentDelta().movedTo(element, movedFromElement);
 				} else {
 					// Force the project to be closed as it might have been opened
@@ -1279,7 +1279,7 @@ public class DeltaProcessor {
 			switch (elementType) {
 				case IJavaElement.PACKAGE_FRAGMENT_ROOT :
 					// when a root is added, and is on the classpath, the project must be updated
-					JavaProject project = (JavaProject) element.getJavaProject();
+					JavaProject project = element.getJavaProject();
 
 					// remember that the project's cache must be reset
 					this.projectCachesToReset.add(project);
@@ -1287,7 +1287,7 @@ public class DeltaProcessor {
 					break;
 				case IJavaElement.PACKAGE_FRAGMENT :
 					// reset project's package fragment cache
-					project = (JavaProject) element.getJavaProject();
+					project = element.getJavaProject();
 					this.projectCachesToReset.add(project);
 
 					break;
@@ -1382,7 +1382,7 @@ public class DeltaProcessor {
 
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT_ROOT :
-				JavaProject project = (JavaProject) element.getJavaProject();
+				JavaProject project = element.getJavaProject();
 
 				// remember that the project's cache must be reset
 				this.projectCachesToReset.add(project);
@@ -1390,7 +1390,7 @@ public class DeltaProcessor {
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				// reset package fragment cache
-				project = (JavaProject) element.getJavaProject();
+				project = element.getJavaProject();
 				this.projectCachesToReset.add(project);
 
 				break;

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -353,7 +352,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ICompilationUnit createDummyModuleInfoCompilationUnit() {
-		IJavaProject dummyProject = new JavaProject() {
+		JavaProject dummyProject = new JavaProject() {
 			@Override
 			public Map<String, String> getOptions(boolean inheritJavaCoreOptions) {
 				return new HashMap<>();
@@ -372,7 +371,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			}
 
 			@Override
-			public IJavaProject getJavaProject() {
+			public JavaProject getJavaProject() {
 				return dummyProject;
 			}
 		};

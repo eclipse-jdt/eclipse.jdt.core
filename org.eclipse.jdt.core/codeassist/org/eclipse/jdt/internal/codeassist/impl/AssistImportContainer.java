@@ -16,10 +16,10 @@ package org.eclipse.jdt.internal.codeassist.impl;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.ImportContainer;
+import org.eclipse.jdt.internal.core.ImportDeclaration;
 
 @SuppressWarnings("rawtypes")
 public class AssistImportContainer extends ImportContainer {
@@ -35,7 +35,7 @@ public class AssistImportContainer extends ImportContainer {
 	}
 
 	@Override
-	protected IImportDeclaration getImport(String importName, boolean isOnDemand) {
+	protected ImportDeclaration getImport(String importName, boolean isOnDemand) {
 		return new AssistImportDeclaration(this, importName, isOnDemand, this.infoCache);
 	}
 }

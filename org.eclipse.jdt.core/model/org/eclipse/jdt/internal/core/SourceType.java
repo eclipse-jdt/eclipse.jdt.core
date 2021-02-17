@@ -119,7 +119,7 @@ public void codeComplete(
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
 
-	JavaProject project = (JavaProject) getJavaProject();
+	JavaProject project = getJavaProject();
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner, requestor.isTestCodeExcluded());
 	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner, monitor);
 
@@ -261,7 +261,7 @@ public IType getDeclaringType() {
 	return null;
 }
 @Override
-public IOrdinaryClassFile getClassFile() {
+public AbstractClassFile getClassFile() {
 	return null;
 }
 /**
@@ -503,7 +503,7 @@ public IMethod[] getMethods() throws JavaModelException {
  */
 @Override
 public IPackageFragment getPackageFragment() {
-	IJavaElement parentElement = this.parent;
+	IJavaElement parentElement = this.getParent();
 	while (parentElement != null) {
 		if (parentElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 			return (IPackageFragment)parentElement;
@@ -517,21 +517,21 @@ public IPackageFragment getPackageFragment() {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
+public JavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu.isPrimary()) return this;
 	}
-	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
+	IJavaElement primaryParent = this.getParent().getPrimaryElement(false);
 	switch (primaryParent.getElementType()) {
 		case IJavaElement.COMPILATION_UNIT:
-			return ((ICompilationUnit)primaryParent).getType(this.name);
+			return (JavaElement)((ICompilationUnit)primaryParent).getType(this.name);
 		case IJavaElement.TYPE:
-			return ((IType)primaryParent).getType(this.name);
+			return (JavaElement)((IType)primaryParent).getType(this.name);
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
-			return ((IMember)primaryParent).getType(this.name, this.occurrenceCount);
+			return (JavaElement)((IMember)primaryParent).getType(this.name, this.occurrenceCount);
 	}
 	return this;
 }
@@ -739,7 +739,7 @@ public boolean isAnnotation() throws JavaModelException {
  */
 @Override
 public boolean isLocal() {
-	switch (this.parent.getElementType()) {
+	switch (this.getParent().getElementType()) {
 		case IJavaElement.METHOD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.FIELD:
@@ -952,7 +952,7 @@ public ITypeHierarchy newTypeHierarchy(
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.parent, this.name, new String(binding.computeUniqueKey()));
+	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.getParent(), this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	resolvedHandle.localOccurrenceCount = this.localOccurrenceCount;
 	return resolvedHandle;

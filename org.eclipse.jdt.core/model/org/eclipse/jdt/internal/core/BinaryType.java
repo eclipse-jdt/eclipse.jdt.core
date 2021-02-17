@@ -116,7 +116,7 @@ public void codeComplete(
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
-	JavaProject project = (JavaProject) getJavaProject();
+	JavaProject project = getJavaProject();
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner, requestor.isTestCodeExcluded());
 	CompletionEngine engine = new CompletionEngine(environment, requestor, project.getOptions(true), project, owner, monitor);
 
@@ -225,11 +225,11 @@ public IJavaElement[] getChildrenForCategory(String category) throws JavaModelEx
 	return NO_ELEMENTS;
 }
 protected ClassFileInfo getClassFileInfo() throws JavaModelException {
-	return (ClassFileInfo) this.parent.getElementInfo();
+	return (ClassFileInfo) this.getParent().getElementInfo();
 }
 @Override
-public IOrdinaryClassFile getClassFile() {
-	return (IOrdinaryClassFile) super.getClassFile();
+public AbstractClassFile getClassFile() {
+	return super.getClassFile();
 }
 @Override
 public IType getDeclaringType() {
@@ -495,7 +495,7 @@ public IMethod[] getMethods() throws JavaModelException {
 
 @Override
 public IPackageFragment getPackageFragment() {
-	IJavaElement parentElement = this.parent;
+	IJavaElement parentElement = this.getParent();
 	while (parentElement != null) {
 		if (parentElement.getElementType() == IJavaElement.PACKAGE_FRAGMENT) {
 			return (IPackageFragment)parentElement;
@@ -966,7 +966,7 @@ public ITypeHierarchy newTypeHierarchy(
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryType(this.parent, this.name, new String(binding.computeUniqueKey()));
+	SourceRefElement resolvedHandle = new ResolvedBinaryType(this.getParent(), this.name, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
 }

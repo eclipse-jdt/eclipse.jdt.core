@@ -67,7 +67,7 @@ public class ResolvedBinaryType extends BinaryType {
 
 	@Override
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryType(this.parent, this.name);
+		SourceRefElement handle = new BinaryType(this.getParent(), this.name);
 		handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}

@@ -61,7 +61,7 @@ public class ResolvedSourceType extends SourceType {
 
 	@Override
 	public JavaElement unresolved() {
-		SourceType handle = new SourceType(this.parent, this.name);
+		SourceType handle = new SourceType(this.getParent(), this.name);
 		handle.occurrenceCount = this.occurrenceCount;
 		handle.localOccurrenceCount = this.localOccurrenceCount;
 		return handle;

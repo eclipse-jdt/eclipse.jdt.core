@@ -17,13 +17,13 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IImportContainer;
-import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.ImportContainer;
 import org.eclipse.jdt.internal.core.JavaElementInfo;
+import org.eclipse.jdt.internal.core.PackageDeclaration;
 import org.eclipse.jdt.internal.core.PackageFragment;
 
 @SuppressWarnings("rawtypes")
@@ -42,12 +42,12 @@ public class AssistCompilationUnit extends CompilationUnit {
 	}
 
 	@Override
-	public IImportContainer getImportContainer() {
+	public ImportContainer getImportContainer() {
 		return new AssistImportContainer(this, this.infoCache);
 	}
 
 	@Override
-	public IPackageDeclaration getPackageDeclaration(String pkg) {
+	public PackageDeclaration getPackageDeclaration(String pkg) {
 		return new AssistPackageDeclaration(this, pkg, this.infoCache);
 	}
 

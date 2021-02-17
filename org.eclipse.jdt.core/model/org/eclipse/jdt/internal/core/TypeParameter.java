@@ -49,7 +49,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
 		// For a binary type or method, the signature is already available from the .class file.
 		// No need to construct again
-		if (this.parent instanceof BinaryMember) {
+		if (this.getParent() instanceof BinaryMember) {
 			char[][] boundsSignatures = info.boundsSignatures;
 			if (boundsSignatures == null || boundsSignatures.length == 0) {
 				return CharOperation.NO_STRINGS;
@@ -92,16 +92,16 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		StringBuilder buf = new StringBuilder();
-		if (this.parent instanceof IType) {
-			if (this.parent instanceof BinaryType)
-				buf.append(((BinaryType) this.parent).getKey(forceOpen));
+		if (this.getParent() instanceof IType) {
+			if (this.getParent() instanceof BinaryType)
+				buf.append(((BinaryType) this.getParent()).getKey(forceOpen));
 			else
-				buf.append(((IType) this.parent).getKey());
-		} else if (this.parent instanceof IMember) {
-			if (this.parent instanceof BinaryMember)
-				buf.append(((BinaryMember) this.parent).getKey(forceOpen));
+				buf.append(((IType) this.getParent()).getKey());
+		} else if (this.getParent() instanceof IMember) {
+			if (this.getParent() instanceof BinaryMember)
+				buf.append(((BinaryMember) this.getParent()).getKey(forceOpen));
 			else
-				buf.append(((IMethod) this.parent).getKey());
+				buf.append(((IMethod) this.getParent()).getKey());
 		}
 		buf.append(":T"); //$NON-NLS-1$
 		buf.append(this.name);
@@ -142,8 +142,8 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	}
 
 	@Override
-	public IClassFile getClassFile() {
-		return ((JavaElement)getParent()).getClassFile();
+	public AbstractClassFile getClassFile() {
+		return (getParent()).getClassFile();
 	}
 
 	/**

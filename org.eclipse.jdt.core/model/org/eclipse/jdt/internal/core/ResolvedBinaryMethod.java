@@ -62,7 +62,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 
 	@Override
 	public JavaElement unresolved() {
-		SourceRefElement handle = new BinaryMethod(this.parent, this.name, this.parameterTypes);
+		SourceRefElement handle = new BinaryMethod(this.getParent(), this.name, this.parameterTypes);
 		handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}

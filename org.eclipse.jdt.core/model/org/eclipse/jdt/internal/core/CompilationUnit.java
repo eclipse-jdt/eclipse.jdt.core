@@ -215,7 +215,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
  * DO NOT PASS TO CLIENTS
  */
 public CompilationUnit cloneCachingContents() {
-	return new CompilationUnit((PackageFragment) this.parent, this.name, this.owner) {
+	return new CompilationUnit((PackageFragment) this.getParent(), this.name, this.owner) {
 		private char[] cachedContents;
 		@Override
 		public char[] getContents() {
@@ -614,7 +614,7 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
  */
 @Override
 public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
-	CompilationUnit cu = new CompilationUnit((PackageFragment)this.parent, getElementName(), workingCopyOwner);
+	CompilationUnit cu = new CompilationUnit((PackageFragment)this.getParent(), getElementName(), workingCopyOwner);
 	if (workingCopyOwner == DefaultWorkingCopyOwner.PRIMARY) {
 		return cu;
 	} else {
@@ -651,7 +651,7 @@ public IType[] getAllTypes() throws JavaModelException {
  * @see IMember#getCompilationUnit()
  */
 @Override
-public ICompilationUnit getCompilationUnit() {
+public CompilationUnit getCompilationUnit() {
 	return this;
 }
 /**
@@ -760,12 +760,12 @@ public char[] getFileName(){
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 	switch (token.charAt(0)) {
 		case JEM_IMPORTDECLARATION:
-			JavaElement container = (JavaElement)getImportContainer();
+			JavaElement container = getImportContainer();
 			return container.getHandleFromMemento(token, memento, workingCopyOwner);
 		case JEM_PACKAGEDECLARATION:
 			if (!memento.hasMoreTokens()) return this;
 			String pkgName = memento.nextToken();
-			JavaElement pkgDecl = (JavaElement)getPackageDeclaration(pkgName);
+			JavaElement pkgDecl = getPackageDeclaration(pkgName);
 			return pkgDecl.getHandleFromMemento(memento, workingCopyOwner);
 		case JEM_TYPE:
 			if (!memento.hasMoreTokens()) return this;
@@ -792,14 +792,14 @@ protected char getHandleMementoDelimiter() {
  * @see ICompilationUnit#getImport(String)
  */
 @Override
-public IImportDeclaration getImport(String importName) {
+public ImportDeclaration getImport(String importName) {
 	return getImportContainer().getImport(importName);
 }
 /**
  * @see ICompilationUnit#getImportContainer()
  */
 @Override
-public IImportContainer getImportContainer() {
+public ImportContainer getImportContainer() {
 	return new ImportContainer(this);
 }
 
@@ -878,7 +878,7 @@ public WorkingCopyOwner getOwner() {
  * @see ICompilationUnit#getPackageDeclaration(String)
  */
 @Override
-public IPackageDeclaration getPackageDeclaration(String pkg) {
+public PackageDeclaration getPackageDeclaration(String pkg) {
 	return new PackageDeclaration(this, pkg);
 }
 /**
@@ -928,7 +928,7 @@ public ICompilationUnit getPrimary() {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
+public JavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner && isPrimary()) return this;
 	return new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
@@ -936,7 +936,7 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 @Override
 public IResource resource(PackageFragmentRoot root) {
 	if (root == null) return null; // working copy not in workspace
-	return ((IContainer) ((Openable) this.parent).resource(root)).getFile(new Path(getElementName()));
+	return ((IContainer) ((Openable) this.getParent()).resource(root)).getFile(new Path(getElementName()));
 }
 /**
  * @see ISourceReference#getSource()

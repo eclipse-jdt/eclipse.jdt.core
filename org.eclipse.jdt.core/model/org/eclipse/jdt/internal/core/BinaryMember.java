@@ -128,7 +128,7 @@ public ISourceRange getNameRange() throws JavaModelException {
 	SourceMapper mapper= getSourceMapper();
 	if (mapper != null) {
 		// ensure the class file's buffer is open so that source ranges are computed
-		((AbstractClassFile)getClassFile()).getBuffer();
+		getClassFile().getBuffer();
 
 		return mapper.getNameRange(this);
 	} else {

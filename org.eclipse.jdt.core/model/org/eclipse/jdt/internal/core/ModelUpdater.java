@@ -95,7 +95,7 @@ public class ModelUpdater {
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				// get rid of package fragment cache
-				JavaProject project = (JavaProject) element.getJavaProject();
+				JavaProject project = element.getJavaProject();
 				project.resetCaches();
 				break;
 		}
@@ -142,7 +142,7 @@ public class ModelUpdater {
 				break;
 			case IJavaElement.PACKAGE_FRAGMENT :
 				// get rid of package fragment cache
-				JavaProject project = (JavaProject) element.getJavaProject();
+				JavaProject project = element.getJavaProject();
 				project.resetCaches();
 				break;
 		}

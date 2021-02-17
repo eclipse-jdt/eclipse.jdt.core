@@ -84,7 +84,7 @@ public String[] getExceptionTypes() throws JavaModelException {
  */
 @Override
 protected void getHandleMemento(StringBuffer buff) {
-	((JavaElement) getParent()).getHandleMemento(buff);
+	getParent().getHandleMemento(buff);
 	char delimiter = getHandleMementoDelimiter();
 	buff.append(delimiter);
 	escapeMementoName(buff, getElementName());
@@ -184,13 +184,13 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
+public JavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu.isPrimary()) return this;
 	}
-	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
-	return ((IType)primaryParent).getMethod(this.name, this.parameterTypes);
+	IJavaElement primaryParent = this.getParent().getPrimaryElement(false);
+	return (JavaElement) ((IType)primaryParent).getMethod(this.name, this.parameterTypes);
 }
 @Override
 public String[] getRawParameterNames() throws JavaModelException {
@@ -228,7 +228,7 @@ public int hashCode() {
  */
 @Override
 public boolean isConstructor() throws JavaModelException {
-	if (!getElementName().equals(this.parent.getElementName())) {
+	if (!getElementName().equals(this.getParent().getElementName())) {
 		// faster than reaching the info
 		return false;
 	}
@@ -287,7 +287,7 @@ public String readableName() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedSourceMethod(this.parent, this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
+	SourceRefElement resolvedHandle = new ResolvedSourceMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
 	resolvedHandle.occurrenceCount = this.occurrenceCount;
 	return resolvedHandle;
 }

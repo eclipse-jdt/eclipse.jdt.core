@@ -45,7 +45,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	@Override
 	public IModule getModuleInfo() throws JavaModelException {
 		if (this.info == null) {
-			ModularClassFile classFile = (ModularClassFile) this.parent;
+			ModularClassFile classFile = (ModularClassFile) this.getParent();
 			this.info = classFile.getBinaryModuleInfo();
 		}
 		return this.info;

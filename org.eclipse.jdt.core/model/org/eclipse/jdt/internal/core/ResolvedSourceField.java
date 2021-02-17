@@ -54,7 +54,7 @@ public class ResolvedSourceField extends SourceField {
 
 	@Override
 	public JavaElement unresolved() {
-		SourceRefElement handle = new SourceField(this.parent, this.name);
+		SourceRefElement handle = new SourceField(this.getParent(), this.name);
 		handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}

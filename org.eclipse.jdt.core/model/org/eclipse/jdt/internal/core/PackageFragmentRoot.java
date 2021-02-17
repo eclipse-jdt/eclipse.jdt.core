@@ -250,7 +250,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 			IJavaProject otherJavaProject = JavaCore.create(folder.getProject());
 			String sourceLevel = otherJavaProject.getOption(JavaCore.COMPILER_SOURCE, true);
 			String complianceLevel = otherJavaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-			JavaProject javaProject = (JavaProject) getJavaProject();
+			JavaProject javaProject = getJavaProject();
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			for (int i = 0; i < length; i++) {
 				IResource member = members[i];
@@ -330,7 +330,7 @@ public IPackageFragment createPackageFragment(String pkgName, boolean force, IPr
  * 		not exist.
  */
 protected int determineKind(IResource underlyingResource) throws JavaModelException {
-	IClasspathEntry entry = ((JavaProject)getJavaProject()).getClasspathEntryFor(underlyingResource.getFullPath());
+	IClasspathEntry entry = getJavaProject().getClasspathEntryFor(underlyingResource.getFullPath());
 	if (entry != null) {
 		return entry.getContentKind();
 	}
@@ -351,7 +351,7 @@ public boolean equals(Object o) {
 		return false;
 	PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return resource().equals(other.resource()) &&
-			this.parent.equals(other.parent);
+			this.getParent().equals(other.getParent());
 }
 
 private IClasspathEntry findSourceAttachmentRecommendation() {
@@ -360,7 +360,7 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 		IClasspathEntry entry;
 
 		// try on enclosing project first
-		JavaProject parentProject = (JavaProject) getJavaProject();
+		JavaProject parentProject = getJavaProject();
 		try {
 			entry = parentProject.getClasspathEntryFor(rootPath);
 			if (entry != null) {
@@ -500,7 +500,7 @@ protected void getHandleMemento(StringBuffer buff) {
 		// external jar
 		path = getPath();
 	}
-	((JavaElement)getParent()).getHandleMemento(buff);
+	getParent().getHandleMemento(buff);
 	buff.append(getHandleMementoDelimiter());
 	escapeMementoName(buff, path.toString());
 	if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(path.toOSString())) {
@@ -603,7 +603,7 @@ public IPath internalPath() {
 public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 
 	IClasspathEntry rawEntry = null;
-	JavaProject project = (JavaProject)getJavaProject();
+	JavaProject project = getJavaProject();
 	project.getResolvedClasspath(); // force the reverse rawEntry cache to be populated
 	Map rootPathToRawEntries = project.getPerProjectInfo().rootPathToRawEntries;
 	if (rootPathToRawEntries != null) {
@@ -620,7 +620,7 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 @Override
 public IClasspathEntry getResolvedClasspathEntry() throws JavaModelException {
 	IClasspathEntry resolvedEntry = null;
-	JavaProject project = (JavaProject)getJavaProject();
+	JavaProject project = getJavaProject();
 	project.getResolvedClasspath(); // force the resolved entry cache to be populated
 	Map rootPathToResolvedEntries = project.getPerProjectInfo().rootPathToResolvedEntries;
 	if (rootPathToResolvedEntries != null) {
@@ -808,7 +808,7 @@ protected IStatus validateOnClasspath() {
 	IPath path = getPath();
 	try {
 		// check package fragment root on classpath of its project
-		JavaProject project = (JavaProject) getJavaProject();
+		JavaProject project = getJavaProject();
 		IClasspathEntry entry = project.getClasspathEntryFor(path);
 		if (entry != null) {
 			return Status.OK_STATUS;
@@ -946,14 +946,14 @@ IModuleDescription getAutomaticModuleDescription(IClasspathEntry classpathEntry)
 	Manifest manifest = null;
 	switch (classpathEntry.getEntryKind()) {
 		case IClasspathEntry.CPE_SOURCE:
-			manifest = ((JavaProject) getJavaProject()).getManifest();
+			manifest = getJavaProject().getManifest();
 			elementName = getJavaProject().getElementName();
 			break;
 		case IClasspathEntry.CPE_LIBRARY:
 			manifest = getManifest();
 			break;
 		case IClasspathEntry.CPE_PROJECT:
-			JavaProject javaProject = (JavaProject) getJavaModel().getJavaProject(classpathEntry.getPath().lastSegment());
+			JavaProject javaProject = getJavaModel().getJavaProject(classpathEntry.getPath().lastSegment());
 			manifest = javaProject.getManifest();
 			elementName = javaProject.getElementName();
 			break;

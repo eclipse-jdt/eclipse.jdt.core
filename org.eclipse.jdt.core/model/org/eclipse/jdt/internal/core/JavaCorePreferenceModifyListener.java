@@ -75,7 +75,7 @@ public class JavaCorePreferenceModifyListener extends PreferenceModifyListener {
 		int index = propertyName.indexOf('|', PREFIX_LENGTH);
 		if (index > 0) {
 			final String projectName = propertyName.substring(PREFIX_LENGTH, index).trim();
-			JavaProject project = (JavaProject) this.javaModel.getJavaProject(projectName);
+			JavaProject project = this.javaModel.getJavaProject(projectName);
 			if (project.getProject().isAccessible()) {
 				return true;
 			}

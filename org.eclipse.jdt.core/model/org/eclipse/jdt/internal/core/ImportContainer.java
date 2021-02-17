@@ -44,7 +44,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 		case JEM_IMPORTDECLARATION:
 			if (memento.hasMoreTokens()) {
 				String importName = memento.nextToken();
-				JavaElement importDecl = (JavaElement)getImport(importName);
+				JavaElement importDecl = getImport(importName);
 				return importDecl.getHandleFromMemento(memento, workingCopyOwner);
 			} else {
 				return this;
@@ -63,7 +63,7 @@ protected char getHandleMementoDelimiter() {
  * @see IImportContainer
  */
 @Override
-public IImportDeclaration getImport(String importName) {
+public ImportDeclaration getImport(String importName) {
 	int index = importName.indexOf(".*"); ///$NON-NLS-1$
 	boolean isOnDemand = index != -1;
 	if (isOnDemand) {
@@ -71,13 +71,13 @@ public IImportDeclaration getImport(String importName) {
 	}
 	return getImport(importName, isOnDemand);
 }
-protected IImportDeclaration getImport(String importName, boolean isOnDemand) {
+protected ImportDeclaration getImport(String importName, boolean isOnDemand) {
 	return new ImportDeclaration(this, importName, isOnDemand);
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
-	CompilationUnit cu = (CompilationUnit)this.parent;
+public JavaElement getPrimaryElement(boolean checkOwner) {
+	CompilationUnit cu = (CompilationUnit)this.getParent();
 	if (checkOwner && cu.isPrimary()) return this;
 	return cu.getImportContainer();
 }

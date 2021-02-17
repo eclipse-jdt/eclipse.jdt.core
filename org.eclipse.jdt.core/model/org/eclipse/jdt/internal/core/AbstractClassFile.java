@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * Common parts of ClassFile (containing a BinaryType) and ModularClassFile (containing a BinaryModule).
  * Prior to Java 9, most of this content was directly in ClassFile.
  */
-public abstract class AbstractClassFile extends Openable implements IClassFile, SuffixConstants {
+public abstract class AbstractClassFile extends Openable implements IOrdinaryClassFile, SuffixConstants  {
 
 	protected String name;
 
@@ -130,7 +130,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	public boolean equals(Object o) {
 		if (!(o instanceof AbstractClassFile)) return false;
 		AbstractClassFile other = (AbstractClassFile) o;
-		return this.name.equals(other.name) && this.parent.equals(other.parent);
+		return this.name.equals(other.name) && this.getParent().equals(other.getParent());
 	}
 
 	/**
@@ -169,7 +169,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	 *         a path in a file system, but is not guaranteed to be a valid path that could be resolved via NIO API.
 	 */
 	public String getPathIdentifier() {
-		JavaElement pkg = (JavaElement) getParent();
+		JavaElement pkg = getParent();
 		if (pkg instanceof JarPackageFragment) {
 			JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
 			String entryName = Util.concatWith(((PackageFragment) pkg).names, getElementName(), '/');
@@ -191,7 +191,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 
 	@Override
 	public byte[] getBytes() throws JavaModelException {
-		JavaElement pkg = (JavaElement) getParent();
+		JavaElement pkg = getParent();
 		if (pkg instanceof JarPackageFragment) {
 			JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
 			try {
@@ -350,7 +350,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	 */
 	@Override
 	public IResource resource(PackageFragmentRoot root) {
-		return ((IContainer) ((Openable) this.parent).resource(root)).getFile(new Path(getElementName()));
+		return ((IContainer) ((Openable) this.getParent()).resource(root)).getFile(new Path(getElementName()));
 	}
 	/**
 	 * @see ISourceReference
@@ -395,7 +395,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	}
 	@Override
 	public int hashCode() {
-		return Util.combineHashCodes(this.name.hashCode(), this.parent.hashCode());
+		return Util.combineHashCodes(this.name.hashCode(), this.getParent().hashCode());
 	}
 	/**
 	 * Returns true - class files are always read only.

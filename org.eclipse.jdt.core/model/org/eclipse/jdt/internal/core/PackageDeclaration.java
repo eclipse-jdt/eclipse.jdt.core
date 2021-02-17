@@ -60,7 +60,7 @@ public ISourceRange getNameRange() throws JavaModelException {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
+public JavaElement getPrimaryElement(boolean checkOwner) {
 	CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 	if (checkOwner && cu.isPrimary()) return this;
 	return cu.getPackageDeclaration(this.name);

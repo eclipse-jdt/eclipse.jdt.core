@@ -204,7 +204,7 @@ public abstract class NamedMember extends Member {
 
 	public String getTypeQualifiedName(char enclosingTypeSeparator, boolean showParameters) throws JavaModelException {
 		NamedMember declaringType;
-		switch (this.parent.getElementType()) {
+		switch (this.getParent().getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
 				if (showParameters) {
 					StringBuffer buffer = new StringBuffer(this.name);
@@ -213,9 +213,9 @@ public abstract class NamedMember extends Member {
 				}
 				return this.name;
 			case IJavaElement.CLASS_FILE:
-				if (this.parent instanceof IModularClassFile)
+				if (this.getParent() instanceof IModularClassFile)
 					return null;
-				String classFileName = this.parent.getElementName();
+				String classFileName = this.getParent().getElementName();
 				String typeName;
 				if (classFileName.indexOf('$') == -1) {
 					// top level class file: name of type is same as name of class file
@@ -231,12 +231,12 @@ public abstract class NamedMember extends Member {
 				}
 				return typeName;
 			case IJavaElement.TYPE:
-				declaringType = (NamedMember) this.parent;
+				declaringType = (NamedMember) this.getParent();
 				break;
 			case IJavaElement.FIELD:
 			case IJavaElement.INITIALIZER:
 			case IJavaElement.METHOD:
-				declaringType = (NamedMember) ((IMember) this.parent).getDeclaringType();
+				declaringType = (NamedMember) ((IMember) this.getParent()).getDeclaringType();
 				break;
 			default:
 				return null;
@@ -274,7 +274,7 @@ public abstract class NamedMember extends Member {
 	 * @see IType#resolveType(String, WorkingCopyOwner)
 	 */
 	public String[][] resolveType(String typeName, WorkingCopyOwner owner) throws JavaModelException {
-		JavaProject project = (JavaProject) getJavaProject();
+		JavaProject project = getJavaProject();
 		SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 
 		class TypeResolveRequestor implements ISelectionRequestor {

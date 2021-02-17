@@ -125,7 +125,7 @@ protected void codeComplete(
 	if (position < -1 || position > buffer.getLength()) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS));
 	}
-	JavaProject project = (JavaProject) getJavaProject();
+	JavaProject project = getJavaProject();
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner, requestor.isTestCodeExcluded());
 
 	// set unit to skip
@@ -149,7 +149,7 @@ protected IJavaElement[] codeSelect(org.eclipse.jdt.internal.compiler.env.ICompi
 		performanceStats.startRun(new String(cu.getFileName()) + " at [" + offset + "," + length + "]"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-	JavaProject project = (JavaProject)getJavaProject();
+	JavaProject project = getJavaProject();
 	SearchableEnvironment environment = project.newSearchableNameEnvironment(owner);
 
 	SelectionRequestor requestor= new SelectionRequestor(environment.nameLookup, this);
@@ -346,7 +346,7 @@ public IOpenable getOpenable() {
  */
 @Override
 public IResource getUnderlyingResource() throws JavaModelException {
-	IResource parentResource = this.parent.getUnderlyingResource();
+	IResource parentResource = this.getParent().getUnderlyingResource();
 	if (parentResource == null) {
 		return null;
 	}

@@ -132,8 +132,8 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 
 	@Override
-	public IClassFile getClassFile() {
-		return ((JavaElement)getParent()).getClassFile();
+	public AbstractClassFile getClassFile() {
+		return getParent().getClassFile();
 	}
 
 	@Override
