@@ -93,13 +93,15 @@ public void testAddCommentAndCommit() throws CoreException {
  */
 public void testAddCuInDefaultPkg1() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, "");
 		startDeltas();
+		createJavaProject("P", new String[] {""}, "");
 		createFile("P/X.java",
 			"public class X {\n" +
 			"}");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		<default>[*]: {CHILDREN}\n" +
@@ -116,13 +118,15 @@ public void testAddCuInDefaultPkg1() throws CoreException {
  */
 public void testAddCuInDefaultPkg2() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, "bin");
 		startDeltas();
+		createJavaProject("P", new String[] {"src"}, "bin");
 		createFile("P/src/X.java",
 			"public class X {\n" +
 			"}");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
 			"		<default>[*]: {CHILDREN}\n" +
@@ -276,12 +280,14 @@ public void _testAddExternalLibFolder2() throws CoreException {
  */
 public void testAddExternalLibFolder3() throws CoreException {
 	try {
-		IJavaProject p =createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p =createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		createExternalFolder("externalLib");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+		    "\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[+]: {}"
 		);
@@ -298,12 +304,14 @@ public void testAddExternalLibFolder3() throws CoreException {
 public void testAddExternalLibFolder4() throws CoreException {
 	try {
 		simulateExitRestart();
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		createExternalFolder("externalLib");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[+]: {}"
 		);
@@ -506,11 +514,13 @@ public void testAddFolderInNonJavaFolder() throws CoreException {
  */
 public void testAddInvalidSubfolder() throws CoreException {
 	try {
-		createJavaProject("P");
 		startDeltas();
+		createJavaProject("P");
 		createFolder("/P/p/.folder");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		p[+]: {}"
@@ -548,9 +558,9 @@ public void testAddJavaNature() throws CoreException {
  */
 public void testAddJarAndFolderInSource() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {""}, new String[] {"/P/lib-1/test.jar"}, "");
 
-		startDeltas();
 		ResourcesPlugin.getWorkspace().run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -562,6 +572,8 @@ public void testAddJarAndFolderInSource() throws CoreException {
 		);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT}\n" +
 			"	lib-1/test.jar[+]: {}\n" +
 			"	ResourceDelta(/P/lib-1)[+]"
@@ -643,11 +655,13 @@ public void testAddNonJavaProject() throws CoreException {
 }
 public void testAddPackageSourceIsBin() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, "src");
 		startDeltas();
+		createJavaProject("P", new String[] {"src"}, "src");
 		createFolder("P/src/x");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
 			"		x[+]: {}"
@@ -811,8 +825,8 @@ public void testBuildProjectUsedAsLib() throws CoreException {
  */
 public void testChangeCustomOutput() throws CoreException {
 	try {
-		IJavaProject proj = createJavaProject("P", new String[] {"src"}, "bin", new String[] {"bin1"});
 		startDeltas();
+		IJavaProject proj = createJavaProject("P", new String[] {"src"}, "bin", new String[] {"bin1"});
 		setClasspath(
 			proj,
 			new IClasspathEntry[] {
@@ -820,6 +834,8 @@ public void testChangeCustomOutput() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -863,12 +879,14 @@ public void testChangeExportFlag() throws CoreException {
 public void testChangeExternalLibFolder1() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		createExternalFolder("externalLib/p");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" +
 			"		p[+]: {}"
@@ -886,12 +904,14 @@ public void testChangeExternalLibFolder1() throws CoreException {
 public void testChangeExternalLibFolder2() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		createExternalFile("externalLib/p/X.class", "");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" +
 			"		p[*]: {CHILDREN}\n" +
@@ -912,12 +932,14 @@ public void testChangeExternalLibFolder3() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		touch(getExternalFile("externalLib/p/X.class"));
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" +
 			"		p[*]: {CHILDREN}\n" +
@@ -936,12 +958,14 @@ public void testChangeExternalLibFolder3() throws CoreException {
 public void testChangeExternalLibFolder4() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		createExternalFile("externalLib/test.txt", "test");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {CONTENT}"
 		);
@@ -958,12 +982,14 @@ public void testChangeExternalLibFolder4() throws CoreException {
 public void testChangeExternalLibFolder5() throws CoreException {
 	try {
 		createExternalFolder("externalLib/p");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		createExternalFile("externalLib/p/test.txt", "test");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {CHILDREN}\n" +
 			"		p[*]: {CONTENT}"
@@ -1125,8 +1151,8 @@ public void testChangeExternalSourceAttachment() throws CoreException {
  */
 public void testChangeRootKind() throws CoreException {
 	try {
-		IJavaProject proj = createJavaProject("P", new String[] {"src"}, "bin");
 		startDeltas();
+		IJavaProject proj = createJavaProject("P", new String[] {"src"}, "bin");
 		setClasspath(
 			proj,
 			new IClasspathEntry[] {
@@ -1134,6 +1160,8 @@ public void testChangeRootKind() throws CoreException {
 			});
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	src[*]: {ADDED TO CLASSPATH | REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -1149,12 +1177,14 @@ public void testChangeRootKind() throws CoreException {
  */
 public void testCloseJavaProject() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {""}, "");
 		IProject project = getProject("P");
-		startDeltas();
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CLOSED}\n" +
 			"ResourceDelta(/P)"
 		);
@@ -1170,8 +1200,8 @@ public void testCloseJavaProject() throws CoreException {
 public void testCloseNonJavaProject() throws CoreException {
 	try {
 		createProject("P");
-		IProject project = getProject("P");
 		startDeltas();
+		IProject project = getProject("P");
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta",
@@ -1782,8 +1812,8 @@ public void testListenerReconcile() throws CoreException {
  */
 public void testMergeResourceDeltas() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, "");
 		startDeltas();
+		createJavaProject("P", new String[] {""}, "");
 		ResourcesPlugin.getWorkspace().run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -1804,6 +1834,8 @@ public void testMergeResourceDeltas() throws CoreException {
 		);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		<default>[*]: {CHILDREN}\n" +
@@ -1860,13 +1892,13 @@ public void testModifyMethodBodyAndSave() throws CoreException {
  */
 public void testModifyOutputLocation1() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {"src"}, "bin");
 
-		startDeltas();
 		createFile("/P/bin/X.class", "");
 		assertDeltas(
 			"Unexpected delta",
-			""
+			"P[+]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -1879,13 +1911,13 @@ public void testModifyOutputLocation1() throws CoreException {
  */
 public void testModifyOutputLocation2() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {"src"}, "bin1", new String[] {"bin2"});
 
-		startDeltas();
 		createFile("/P/bin2/X.class", "");
 		assertDeltas(
 			"Unexpected delta",
-			""
+			"P[+]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -1898,13 +1930,13 @@ public void testModifyOutputLocation2() throws CoreException {
  */
 public void testModifyOutputLocation3() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {"src1", "src2"}, "bin", new String[] {"src1", null});
 
-		startDeltas();
 		createFile("/P/bin/X.class", "");
 		assertDeltas(
 			"Unexpected delta",
-			""
+			"P[+]: {}"
 		);
 	} finally {
 		stopDeltas();
@@ -2217,12 +2249,14 @@ public void testOverwriteClasspath() throws CoreException {
  */
 public void testPackageFragmentAddAndRemove() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {"src"}, "bin");
 
-		startDeltas();
 		IFolder folder = createFolder("/P/src/p");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	src[*]: {CHILDREN}\n" +
 			"		p[+]: {}"
@@ -2270,12 +2304,14 @@ public void testPackageFragmentMove() throws CoreException {
  */
 public void testPackageFragmentRootRemoveAndAdd() throws CoreException {
 	try {
+		startDeltas();
 		createJavaProject("P", new String[] {"src"}, "bin");
 
-		startDeltas();
 		deleteFolder("/P/src");
 		assertDeltas(
 			"Unexpected delta after deleting /P/src",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	src[-]: {}"
 		);
@@ -2334,8 +2370,8 @@ public void testRemoveAddBinaryProject() throws CoreException {
  */
 public void testRemoveAddJavaProject() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, "");
 		startDeltas();
+		createJavaProject("P", new String[] {""}, "");
 		getWorkspace().run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
@@ -2346,6 +2382,8 @@ public void testRemoveAddJavaProject() throws CoreException {
 			null);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CONTENT}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
 			"	ResourceDelta(/P/.project)[*]"
@@ -2463,11 +2501,13 @@ public void testRemoveCPEntryAndRoot3() throws CoreException {
  */
 public void testRemoveDotClasspathFile() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, "bin");
 		startDeltas();
+		createJavaProject("P", new String[] {"src"}, "bin");
 		moveFile("P/.classpath", "P/.classpath2");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	<project root>[*]: {CHILDREN | ADDED TO CLASSPATH}\n" +
 			"		bin[+]: {}\n" +
@@ -2487,11 +2527,13 @@ public void testRemoveDotClasspathFile() throws CoreException {
 public void testRemoveExternalLibFolder1() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -2508,11 +2550,13 @@ public void testRemoveExternalLibFolder1() throws CoreException {
  */
 public void testRemoveExternalLibFolder2() throws CoreException {
 	try {
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		setClasspath(p, new IClasspathEntry[] {});
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	"+ getExternalPath() + "externalLib[*]: {REMOVED FROM CLASSPATH}\n" +
 			"	ResourceDelta(/P/.classpath)[*]"
@@ -2529,12 +2573,14 @@ public void testRemoveExternalLibFolder2() throws CoreException {
 public void testRemoveExternalLibFolder3() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		deleteExternalResource("externalLib");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[-]: {}"
 		);
@@ -2553,12 +2599,14 @@ public void testRemoveExternalLibFolder4() throws CoreException {
 	try {
 		simulateExitRestart();
 		createExternalFolder("externalLib");
-		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		startDeltas();
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		deleteExternalResource("externalLib");
 		refresh(p);
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[*]: {CHILDREN}\n" +
 			"	"+ getExternalPath() + "externalLib[-]: {}"
 		);
@@ -2691,11 +2739,13 @@ public void testRemoveZIPArchive5() throws CoreException {
  */
 public void testRemoveJavaNature() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, "");
 		startDeltas();
+		createJavaProject("P", new String[] {""}, "");
 		removeJavaNature("P");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[-]: {}\n" +
 			"ResourceDelta(/P)"
 		);
@@ -2706,11 +2756,13 @@ public void testRemoveJavaNature() throws CoreException {
 }
 public void testRemoveJavaProject() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, "");
 		startDeltas();
+		createJavaProject("P", new String[] {""}, "");
 		deleteProject("P");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P[-]: {}"
 		);
 	} finally {
@@ -2846,11 +2898,13 @@ public void testRemoveNonJavaResourceJar() throws CoreException {
  */
 public void testRenameJavaProject() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, "");
 		startDeltas();
+		createJavaProject("P", new String[] {""}, "");
 		renameProject("P", "P1");
 		assertDeltas(
 			"Unexpected delta",
+			"P[+]: {}\n" +
+			"\n" +
 			"P1[+]: {MOVED_FROM(P)}\n" +
 			"P[-]: {MOVED_TO(P1)}"
 		);
