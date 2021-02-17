@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3301,6 +3305,7 @@ public abstract class Scope {
 		MethodScope methodScope = null;
 		ReferenceBinding foundType = null;
 		boolean insideStaticContext = false;
+		boolean insideClassContext = false;
 		boolean insideTypeAnnotation = false;
 		if ((mask & Binding.TYPE) == 0) {
 			Scope next = scope;
@@ -3316,8 +3321,12 @@ public abstract class Scope {
 						if (methodDecl != null) {
 							if (methodDecl.binding != null) {
 								TypeVariableBinding typeVariable = methodDecl.binding.getTypeVariable(name);
-								if (typeVariable != null)
+								if (typeVariable != null) {
+									if (insideStaticContext && insideClassContext) {
+										return new ProblemReferenceBinding(new char[][]{name}, typeVariable, ProblemReasons.NonStaticReferenceInStaticContext);
+									}
 									return typeVariable;
+								}
 							} else {
 								// use the methodDecl's typeParameters to handle problem cases when the method binding doesn't exist
 								TypeParameter[] params = methodDecl.typeParameters();
@@ -3388,6 +3397,7 @@ public abstract class Scope {
 							return typeVariable;
 						}
 						insideStaticContext |= sourceType.isStatic();
+						insideClassContext = true;
 						insideTypeAnnotation = false;
 						if (CharOperation.equals(sourceType.sourceName, name)) {
 							if (foundType != null && TypeBinding.notEquals(foundType, sourceType) && foundType.problemId() != ProblemReasons.NotVisible)

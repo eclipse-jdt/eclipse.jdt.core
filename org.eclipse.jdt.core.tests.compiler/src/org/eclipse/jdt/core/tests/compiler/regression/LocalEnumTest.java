@@ -7811,4 +7811,30 @@ public void test476281a() {
 			},
 			"Success");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=566758
+public void test566758() {
+	if(this.complianceLevel < ClassFileConstants.JDK1_6) {
+		return;
+	}
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n" +
+			"	<T> void m(T t) {\n" +
+			"		interface Y {\n" +
+			"			T foo(); // T should not be allowed\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	T foo(); // T should not be allowed\n" +
+		"	^\n" +
+		"Cannot make a static reference to the non-static type T\n" +
+		"----------\n",
+		null,
+		true);
+}
 }
