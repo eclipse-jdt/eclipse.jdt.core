@@ -1291,4 +1291,27 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Cannot use this in a static context\n" +
 			"----------\n");
 	}
+	public void testBug571300_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args) {\n"+
+				"   new X().foo();  \n"+
+				" }\n"+
+				" public void foo() {\n"+
+				"   interface I {\n"+
+				"     class Z {}\n"+
+				"   }\n"+
+				"    I.Z z = new I.Z() { // error flagged incorrectly\n"+
+				"     public String toString() {\n"+
+				"       return \"I.Z\";\n"+
+				"     }\n"+
+				"    };\n"+
+				"    System.out.println(z.toString());\n"+
+				"  }\n"+
+				"}"
+			},
+			"I.Z");
+	}
 }

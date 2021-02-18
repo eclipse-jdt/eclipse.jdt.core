@@ -642,6 +642,12 @@ public class ClassScope extends Scope {
 			    // set AccEnum flag for anonymous body of enum constants
 			    if (this.referenceContext.allocation.type == null)
 			    	modifiers |= ClassFileConstants.AccEnum;
+			} else if (this.parent.referenceContext() instanceof TypeDeclaration) {
+				TypeDeclaration typeDecl = (TypeDeclaration) this.parent.referenceContext();
+				if (TypeDeclaration.kind(typeDecl.modifiers) == TypeDeclaration.INTERFACE_DECL) {
+					// Sec 8.1.3 applies for local types as well
+					modifiers |= ClassFileConstants.AccStatic;
+				}
 			}
 			Scope scope = this;
 			do {
