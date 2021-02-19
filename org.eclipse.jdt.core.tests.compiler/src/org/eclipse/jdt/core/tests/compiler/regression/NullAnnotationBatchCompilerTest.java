@@ -1103,12 +1103,12 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 		// expect eea-motivated problems in Test1 but no in FooImpl:
 		String expectedCompilerMessage =
 				"----------\n" +
-				"1. ERROR in " + OUTPUT_DIR + File.separator + "test1" + File.separator + "Test1.java (at line 7)\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 7)\n" +
 				"	String result = api.m(null);\n" +
 				"	                      ^^^^\n" +
 				"Null type mismatch: required '@NonNull String' but the provided value is null\n" +
 				"----------\n" +
-				"2. WARNING in " + OUTPUT_DIR + File.separator + "test1" + File.separator + "Test1.java (at line 8)\n" +
+				"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 8)\n" +
 				"	System.out.println(result.toUpperCase());\n" +
 				"	                   ^^^^^^\n" +
 				"Potential null pointer access: The variable result may be null at this location\n" +
