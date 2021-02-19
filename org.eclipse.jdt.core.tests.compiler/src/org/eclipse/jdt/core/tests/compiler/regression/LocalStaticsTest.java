@@ -33,7 +33,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571163_001"};
+//		TESTS_NAMES = new String[] { "testBug571274_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -1313,5 +1313,38 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"}"
 			},
 			"I.Z");
+	}
+	public void testBug571274_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				" void m() {\n"+
+				"   interface Y<T> {\n"+
+				"     class Z {\n"+
+				"        T foo() {// T should not be allowed\n"+
+				"         return null;\n"+
+				"       }\n"+
+				"     }\n"+
+				"   }\n"+
+				" }\n"+
+				" }"
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	interface Y<T> {\n" +
+			"	          ^\n" +
+			"The type Y<T> is never used locally\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	class Z {\n" +
+			"	      ^\n" +
+			"The type Y<T>.Z is never used locally\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	T foo() {// T should not be allowed\n" +
+			"	^\n" +
+			"Cannot make a static reference to the non-static type T\n" +
+			"----------\n");
 	}
 }
