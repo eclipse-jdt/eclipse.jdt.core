@@ -5779,4 +5779,25 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"A local class Z cannot have a sealed direct superclass or a sealed direct superinterface I\n" +
 			"----------\n");
 	}
+	public void testBug571332_001() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {\n"+
+				"       void foo();\n"+
+				"}\n"+
+				"non-sealed interface I1 extends I {}\n"+
+				"public class X {\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        I lambda = () -> {};\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	I lambda = () -> {};\n" +
+			"	           ^^^^^\n" +
+			"The target type of this expression must be a functional interface\n" +
+			"----------\n");
+	}
 }
