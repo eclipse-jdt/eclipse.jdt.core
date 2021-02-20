@@ -5682,6 +5682,90 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			deleteProject("P_17");
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=571377
+	// add resources to existing try statement
+	public void testTryStatementWithResources8_since_9() throws Exception {
+		IJavaProject project = createProject("P_17", JavaCore.VERSION_1_7);
+		project.setOption(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, DefaultCodeFormatterConstants.NEXT_LINE);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+		try {
+			IPackageFragment pack1= currentSourceFolder.createPackageFragment("test1", false, null);
+			StringBuffer buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("import java.io.FileInputStream;\n");
+			buf.append("import java.io.IOException;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try {\n");
+			buf.append("            FileInputStream f = new FileInputStream(\"a.b\");\n");
+			buf.append("        } catch (IOException exe) {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
+
+			CompilationUnit astRoot= createAST(cu);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+			TypeDeclaration type= findTypeDeclaration(astRoot, "E");
+			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+			Block block= methodDecl.getBody();
+			List blockStatements= block.statements();
+			assertTrue("Number of statements not 1", blockStatements.size() == 1);
+			{ // add new resource statements to make try-with-resources
+				TryStatement tryStatement= (TryStatement) blockStatements.get(0);
+				List resources= tryStatement.resources();
+				assertTrue("Number of resource statements not 0", resources.size() == 0);
+
+				VariableDeclarationFragment newVariableDeclarationFragment1= ast.newVariableDeclarationFragment();
+				newVariableDeclarationFragment1.setName(ast.newSimpleName("a"));
+				ClassInstanceCreation newClassInstanceCreation1= ast.newClassInstanceCreation();
+				newClassInstanceCreation1.setType(ast.newSimpleType(ast.newSimpleName("FileInputStream")));
+				StringLiteral newStringLiteral1= ast.newStringLiteral();
+				newStringLiteral1.setLiteralValue("c.d");
+				newClassInstanceCreation1.arguments().add(newStringLiteral1);
+				newVariableDeclarationFragment1.setInitializer(newClassInstanceCreation1);
+				VariableDeclarationExpression newVariableDeclarationExpression1= ast.newVariableDeclarationExpression(newVariableDeclarationFragment1);
+				newVariableDeclarationExpression1.setType(ast.newSimpleType(ast.newSimpleName("FileInputStream")));
+
+				VariableDeclarationFragment newVariableDeclarationFragment2= ast.newVariableDeclarationFragment();
+				newVariableDeclarationFragment2.setName(ast.newSimpleName("b"));
+				ClassInstanceCreation newClassInstanceCreation2= ast.newClassInstanceCreation();
+				newClassInstanceCreation2.setType(ast.newSimpleType(ast.newSimpleName("FileInputStream")));
+				StringLiteral newStringLiteral2= ast.newStringLiteral();
+				newStringLiteral2.setLiteralValue("e.f");
+				newClassInstanceCreation2.arguments().add(newStringLiteral2);
+				newVariableDeclarationFragment2.setInitializer(newClassInstanceCreation2);
+				VariableDeclarationExpression newVariableDeclarationExpression2= ast.newVariableDeclarationExpression(newVariableDeclarationFragment2);
+				newVariableDeclarationExpression2.setType(ast.newSimpleType(ast.newSimpleName("FileInputStream")));
+
+				rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES2_PROPERTY).insertLast(newVariableDeclarationExpression1, null);
+				rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES2_PROPERTY).insertLast(newVariableDeclarationExpression2, null);
+			}
+			String preview= evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test1;\n");
+			buf.append("import java.io.FileInputStream;\n");
+			buf.append("import java.io.IOException;\n");
+			buf.append("public class E {\n");
+			buf.append("    public void foo(int i) {\n");
+			buf.append("        try (FileInputStream a = new FileInputStream(\"c.d\");\n");
+			buf.append("                FileInputStream b = new FileInputStream(\"e.f\")) {\n");
+			buf.append("            FileInputStream f = new FileInputStream(\"a.b\");\n");
+			buf.append("        } catch (IOException exe) {\n");
+			buf.append("            System.out.println(exe);\n");
+			buf.append("        }\n");
+			buf.append("    }\n");
+			buf.append("}\n");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
 
 	/** @deprecated using deprecated code */
 	public void testTypeDeclarationStatement_only_2() throws Exception {

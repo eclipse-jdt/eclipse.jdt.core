@@ -679,7 +679,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						doTextInsert(prevEnd, getSeparatorString(i - 1), editGroup);
 						doTextInsert(prevEnd, node, getNodeIndent(i), true, editGroup);
 					}
-					if (insertNew) {
+					if (insertNew && i == lastNonDelete) {
 						if (endKeyword != null && endKeyword.length() > 0) {
 							doTextInsert(currPos, endKeyword, editGroup);
 						}
@@ -3899,6 +3899,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				String prefix= this.formatter.TRY_RESOURCES.getPrefix(indent);
 				String newParen = this.formatter.TRY_RESOURCES_PAREN.getPrefix(indent) + "("; //$NON-NLS-1$
 				pos= rewriteNodeList(node, desc, getPosAfterTry(pos), newParen, ")", ";" + prefix); //$NON-NLS-1$ //$NON-NLS-2$
+
 			} else {
 				pos= doVisit(node, desc, pos);
 			}
