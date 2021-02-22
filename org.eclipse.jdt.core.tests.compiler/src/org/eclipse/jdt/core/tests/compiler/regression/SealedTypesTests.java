@@ -35,7 +35,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug570359_001"};
+//		TESTS_NAMES = new String[] { "testBug570218"};
 	}
 
 	public static Class<?> testClass() {
@@ -5820,5 +5820,33 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"	                ^\n" +
 				"A local class L cannot have a sealed direct superclass or a sealed direct superinterface Y\n" +
 				"----------\n");
+	}
+	public void testBug570218_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {}\n" +
+				"sealed class A permits X {}\n"+
+				"final class X extends A implements I { \n" +
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n",
+			},
+			"0");
+	}
+	public void testBug570218_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits X{}\n" +
+				"class A  {}\n"+
+				"final class X extends A implements I { \n" +
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n",
+			},
+			"0");
 	}
 }

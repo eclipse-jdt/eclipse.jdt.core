@@ -1254,7 +1254,8 @@ public List<SourceTypeBinding> collectAllTypeBindings(TypeDeclaration typeDecl, 
 
 private boolean checkPermitsAndAdd(ReferenceBinding superType, List<SourceTypeBinding> types) {
 	if (superType == null
-			|| superType.equals(this.scope.getJavaLangObject()))
+			|| superType.equals(this.scope.getJavaLangObject())
+			|| !superType.isSealed())
 		return true;
 	if (superType.isSealed()) {
 		superType = getActualType(superType);
