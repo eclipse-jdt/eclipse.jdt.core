@@ -642,9 +642,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(PatternInstanceofExpression node) {
-		getChildNode(node, InstanceofExpression.LEFT_OPERAND_PROPERTY).accept(this);
+		getChildNode(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY).accept(this);
 		this.result.append(" instanceof "); //$NON-NLS-1$
-		getChildNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY).accept(this);
+		getChildNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY).accept(this);
 		return false;
 	}
 

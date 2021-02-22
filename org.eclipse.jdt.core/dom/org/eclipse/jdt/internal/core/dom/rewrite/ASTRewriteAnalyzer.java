@@ -3143,9 +3143,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 
-		rewriteRequiredNode(node, InstanceofExpression.LEFT_OPERAND_PROPERTY);
-		ensureSpaceAfterReplace(node, InstanceofExpression.LEFT_OPERAND_PROPERTY);
-		rewriteRequiredNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY);
+		rewriteRequiredNode(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY);
+		ensureSpaceAfterReplace(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY);
+		rewriteRequiredNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY);
 		return false;
 	}
 

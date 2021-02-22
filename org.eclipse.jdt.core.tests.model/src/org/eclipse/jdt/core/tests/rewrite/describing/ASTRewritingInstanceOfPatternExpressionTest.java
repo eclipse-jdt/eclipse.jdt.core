@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -161,6 +162,58 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");
 		buf.append("        if (o instanceof String str1)\n");
+		buf.append("            ;\n");
+		buf.append(" 	}\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
+
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	public void test003() throws Exception {
+		if (this.apiLevel != 16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("    void foo(Object o) {\n");
+		buf.append("        if (o instanceof String s)\n");
+		buf.append("            ;\n");
+		buf.append(" 	}\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		assertTrue("Number of statements not 1", blockStatements.size() == 1);
+		{ // change left side
+			IfStatement ifStatement = (IfStatement)blockStatements.get(0);
+			PatternInstanceofExpression expr = (PatternInstanceofExpression)ifStatement.getExpression();
+
+			SimpleName name= ast.newSimpleName("x");
+			rewrite.replace(expr.getLeftOperand(), name, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("    void foo(Object o) {\n");
+		buf.append("        if (x instanceof String s)\n");
 		buf.append("            ;\n");
 		buf.append(" 	}\n");
 		buf.append("}\n");
