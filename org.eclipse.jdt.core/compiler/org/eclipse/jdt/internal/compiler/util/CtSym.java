@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 Andrey Loskutov and others.
+ * Copyright (c) 2020, 2021 Andrey Loskutov and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -272,7 +272,7 @@ public class CtSym {
 		return path;
 	}
 
-	private String getModuleInJre12plus(String releaseCode, String qualifiedSignatureFileName) {
+	public String getModuleInJre12plus(String releaseCode, String qualifiedSignatureFileName) {
 		if (DISABLE_CACHE) {
 			return findModuleForFileInJre12plus(releaseCode, qualifiedSignatureFileName);
 		}
