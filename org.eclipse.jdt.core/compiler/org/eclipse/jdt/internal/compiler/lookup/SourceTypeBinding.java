@@ -77,16 +77,12 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.CompactConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
-import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -2431,42 +2427,7 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
 	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
 	explicitCanonicalConstructor.tagBits |= TagBits.IsCanonicalConstructor;
-	ASTVisitor visitor = new ASTVisitor() {
-		boolean isInsideCCD = methodDecl instanceof CompactConstructorDeclaration;
-		@Override
-		public boolean visit(ExplicitConstructorCall explicitConstructorCall, BlockScope skope) {
-			if (explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
-				if (this.isInsideCCD)
-					skope.problemReporter().recordCompactConstructorHasExplicitConstructorCall(explicitConstructorCall);
-				else
-					skope.problemReporter().recordCanonicalConstructorHasExplicitConstructorCall(explicitConstructorCall);
-			}
-			return false;
-		}
-		@Override
-		public boolean visit(MethodDeclaration methodDeclaration, ClassScope skope) {
-			return false;
-		}
-		@Override
-		public boolean visit(LambdaExpression lambda, BlockScope skope) {
-			return false;
-		}
-		@Override
-		public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
-			if (this.isInsideCCD) {
-				skope.problemReporter().recordCompactConstructorHasReturnStatement(returnStatement);
-				return false;
-			}
-			return true;
-		}
-	};
-	if ( methodDecl instanceof CompactConstructorDeclaration) {
-		CompactConstructorDeclaration ccd = (CompactConstructorDeclaration) methodDecl;
-		if (ccd.constructorCall == null) { // local traverse - super not set yet.
-			ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
-		}
-	}
-	methodDecl.traverse(visitor, this.scope);
+//	checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDecl);
 	return explicitCanonicalConstructor;
 }
 

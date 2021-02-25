@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug562219_001"};
+//		TESTS_NAMES = new String[] { "testBug571038_1"};
 	}
 
 	public static Class<?> testClass() {
@@ -4661,11 +4661,6 @@ public void testBug562637_001() {
 			"	this(10);\n" +
 			"	^^^^^^^^^\n" +
 			"The body of a canonical constructor must not contain an explicit constructor call\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	this(10);\n" +
-			"	^^^^^^^^^\n" +
-			"Constructor call must be the first statement in a constructor\n" +
 			"----------\n");
 	}
 	public void testBug564146_007() {
@@ -8395,5 +8390,31 @@ public void testBug571038_4() throws Exception {
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug571454() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public static void main(String argv[]) {\n"+
+					"       R rec = new R(3);\n"+
+					"		if (rec.x() == 3) {\n" +
+					"			// do nothing\n" +
+					"		}\n" +
+					"    }\n"+
+					"}\n",
+					"R.java",
+					"record R(int x) {\n"+
+					"       R {\n"+
+					"               super();\n"+
+					"       }\n"+
+					"}",
+				},
+	        "----------\n"
+	        + "1. ERROR in R.java (at line 3)\n"
+	        + "	super();\n"
+	        + "	^^^^^^^^\n"
+	        + "The body of a compact constructor must not contain an explicit constructor call\n"
+	        + "----------\n");
 }
 }

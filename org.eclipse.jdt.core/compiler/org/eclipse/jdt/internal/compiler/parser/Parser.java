@@ -3578,7 +3578,7 @@ protected void consumeEnterMemberValueArrayInitializer() {
 	}
 }
 private boolean isAFieldDeclarationInRecord() {
-	if (this.options.sourceLevel < ClassFileConstants.JDK14)
+	if (this.options.sourceLevel < ClassFileConstants.JDK16)
 		return false;
 	int recordIndex = -1;
 	Integer[] nestingTypeAndMethod = null;
@@ -11243,6 +11243,7 @@ protected void consumeCompactConstructorDeclaration() {
 			&& !containsComment(ccd.bodyStart, this.endPosition)) {
 		ccd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
+	ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
 
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	// store the this.endPosition (position just before the '}') in case there is

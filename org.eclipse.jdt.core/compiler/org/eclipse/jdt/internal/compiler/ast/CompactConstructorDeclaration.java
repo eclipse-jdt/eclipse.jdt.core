@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,6 +36,7 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 	}
 	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
+		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		parser.parse(this, unit, false);
 		this.containsSwitchWithTry = parser.switchWithTry;
 	}
