@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571038_1"};
+		TESTS_NAMES = new String[] { "testBug571141"};
 	}
 
 	public static Class<?> testClass() {
@@ -115,6 +115,33 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		if (index == -1) {
 			assertEquals("Wrong contents", expectedOutput, result);
 		}
+	}
+	private void verifyOutputNegative(String result, String expectedOutput) {
+		verifyOutput(result, expectedOutput, false);
+	}
+	private void verifyOutput(String result, String expectedOutput, boolean positive) {
+		int index = result.indexOf(expectedOutput);
+		if (positive) {
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+				System.out.println("...");
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} else {
+			if (index != -1) {
+				assertEquals("Unexpected contents", "", result);
+			}
+		}
+	}
+	private String getClassFileContents( String classFileName, int mode) throws IOException,
+	ClassFormatException {
+		File f = new File(OUTPUT_DIR + File.separator + classFileName);
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		return result;
 	}
 
 	public void testBug550750_001() {
@@ -8416,5 +8443,59 @@ public void testBug571454() {
 	        + "	^^^^^^^^\n"
 	        + "The body of a compact constructor must not contain an explicit constructor call\n"
 	        + "----------\n");
+}
+public void testBug571141_1() {
+	runConformTest(new String[] { "X.java",
+			"public class X {\n" +
+			" public static void main(String[] args) {\n" +
+			"   System.out.println(\"helo\");\n" +
+			" }\n" +
+			"}\n" +
+			"record MyRecord(boolean equals){\n" +
+			"    public boolean equals() {\n" +
+			"        return equals;\n" +
+			"    }\n" +
+			"}" },
+		"helo");
+}
+public void testBug571141_2() {
+	runConformTest(new String[] { "X.java",
+			"public class X {\n" +
+			" public static void main(String[] args) {\n" +
+			"   System.out.println(\"helo\");\n" +
+			" }\n" +
+			"}\n" +
+			"record MyRecord(boolean equals){\n" +
+			"    public boolean equals() {\n" +
+			"        return equals;\n" +
+			"    }\n" +
+			"    public boolean equals(Object obj) {\n" +
+			"      return equals;\n" +
+			"    } \n" +
+			"}" },
+		"helo");
+}
+public void testBug571141_3() throws IOException, ClassFormatException {
+	runConformTest(new String[] { "X.java",
+			"public class X {\n" +
+			" public static void main(String[] args) {\n" +
+			"   System.out.println(\"helo\");\n" +
+			" }\n" +
+			"}\n" +
+			"record MyRecord(boolean b){\n" +
+			"    public boolean equals(Object other) {\n" +
+			"        return true;\n" +
+			"    }\n" +
+			"}" },
+		"helo");
+	String unExpectedOutput =
+			 "  public final boolean equals(java.lang.Object arg0);\n"
+			 + "    0  aload_0 [this]\n"
+			 + "    1  aload_1 [arg0]\n"
+			 + "    2  invokedynamic 0 equals(MyRecord, java.lang.Object) : boolean [35]\n"
+			 + "    7  ireturn\n"
+			 + "";
+	String rFile = getClassFileContents("MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyOutputNegative(rFile, unExpectedOutput);
 }
 }

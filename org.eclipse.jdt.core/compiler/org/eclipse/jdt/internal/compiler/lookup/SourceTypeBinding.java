@@ -874,7 +874,7 @@ public List<MethodBinding> checkAndAddSyntheticRecordOverrideMethods(MethodBindi
 	}
 	boolean isEqualsPresent = Arrays.stream(methodBindings)
 			.filter(m -> CharOperation.equals(TypeConstants.EQUALS, m.selector))
-			.anyMatch(m -> m.parameters != null || m.parameters.length == 1 &&
+			.anyMatch(m -> m.parameters != null && m.parameters.length == 1 &&
 				m.parameters[0].equals(this.scope.getJavaLangObject()));
 	if (!isEqualsPresent) {
 		MethodBinding m = addSyntheticRecordOverrideMethod(TypeConstants.EQUALS, implicitMethods.size());
@@ -984,6 +984,14 @@ public SyntheticMethodBinding addSyntheticRecordOverrideMethod(char[] selector, 
 		}
 	}
 	return accessMethod;
+}
+private void removeSyntheticRecordOverrideMethod(MethodBinding smb) {
+	if (this.synthetics == null)
+		return;
+	HashMap syntheticMethods = this.synthetics[SourceTypeBinding.METHOD_EMUL];
+	if (syntheticMethods == null)
+		return;
+	syntheticMethods.remove(smb.selector);
 }
 boolean areComponentsInitialized() {
 	if (!isPrototype())
@@ -2110,12 +2118,12 @@ private void checkAndGetExplicitCanonicalConstructors() {
 	}
 }
 private int getImplicitMethod(char[] name) {
-	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK16) {
 		for (int i = 0, l = this.methods.length; i < l; ++i) {
 			MethodBinding method = this.methods[i];
 			if (!CharOperation.equals(method.selector, name))
 				continue;
-			if ((method.tagBits & TagBits.isImplicit) != 0)
+			if ((method.tagBits & TagBits.isImplicit) != 0 || method instanceof SyntheticMethodBinding)
 				return i;
 		}
 	}
@@ -2293,11 +2301,13 @@ public MethodBinding[] methods() {
 				}
 				if (recordEqualsIndex == i || recordEqualsIndex == j) {
 					methodDecl = this.methods[recordEqualsIndex].sourceMethod();
-					assert methodDecl != null;
-					methodDecl.binding = null;
+					if (methodDecl != null) {
+						methodDecl.binding = null;
+					}
 					// do not alter original method array until resolution is over, due to reentrance (143259)
 					if (resolvedMethods == this.methods)
 						System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+					removeSyntheticRecordOverrideMethod(resolvedMethods[recordEqualsIndex]);
 					resolvedMethods[recordEqualsIndex] = null;
 					failed++;
 					continue;
