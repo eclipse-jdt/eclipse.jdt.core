@@ -2206,17 +2206,7 @@ public static final boolean equals(
  * @return true if the two arrays are identical character by character, otherwise false
  */
 public static final boolean equals(char[] first, char[] second) {
-	if (first == second)
-		return true;
-	if (first == null || second == null)
-		return false;
-	if (first.length != second.length)
-		return false;
-
-	for (int i = first.length; --i >= 0;)
-		if (first[i] != second[i])
-			return false;
-	return true;
+	return Arrays.equals(first, second);
 }
 
 /**
