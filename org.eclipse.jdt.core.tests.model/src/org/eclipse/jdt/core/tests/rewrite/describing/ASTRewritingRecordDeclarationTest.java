@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2020 IBM Corporation and others.
+* Copyright (c) 2020, 2021 IBM Corporation and others.
 *
 * This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,9 @@
 * https://www.eclipse.org/legal/epl-2.0/
 *
 * SPDX-License-Identifier: EPL-2.0
+* This is an implementation of an early-draft specification developed under the Java
+* Community Process (JCP) and is made available for testing and evaluation purposes
+* only. The code is not compatible with any specification of the JCP.
 *
 * Contributors:
 *     IBM Corporation - initial API and implementation
@@ -17,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -49,7 +51,7 @@ import junit.framework.Test;
 public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	public ASTRewritingRecordDeclarationTest(String name) {
-		super(name, 15);
+		super(name, 16);
 	}
 
 	public ASTRewritingRecordDeclarationTest(String name, int apiLevel) {
@@ -63,18 +65,13 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS15 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		}
+		setUpProjectAbove16();
 	}
 
 	@SuppressWarnings("deprecation")
 	private boolean checkAPILevel() {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 15");
+		if (this.apiLevel < 16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
 			return true;
 		}
 		return false;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2019, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
@@ -56,23 +58,27 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		return createSuite(ASTRewritingSwitchExpressionsTest.class);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST_INTERNAL_JLS15 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
-		} else if (this.apiLevel == AST_INTERNAL_JLS14 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		super.setUpProjectAbove14();
+
+	}
+
+	@SuppressWarnings("deprecation")
+	private boolean checkAPILevel() {
+		if (this.apiLevel < 14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return true;
 		}
+		return false;
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -176,6 +182,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_02_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -235,9 +244,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_03_since_12() throws Exception {
-		/*
-		 * if (this.apiLevel == AST_INTERNAL_JLS15) { return; }
-		 */
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -326,6 +335,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 	@SuppressWarnings("rawtypes")
 	public void testSwitchStatement_Bug543720_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -407,9 +419,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_04_since_12() throws Exception {
-		/*
-		 * if (this.apiLevel == AST_INTERNAL_JLS15) { return; }
-		 */
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	= "package test1;\n"+
 				"public class X {\n"+
@@ -483,6 +495,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	// replacing colon by ->
 	@SuppressWarnings("rawtypes")
 	public void testSwitchStatement_Bug543720_05_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -561,6 +576,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	// replacing colon by ->
 	@SuppressWarnings("rawtypes")
 	public void testSwitchStatement_Bug543720_06_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -638,6 +656,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	// replacing colon by ->
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpression_Bug543720_07_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -717,6 +738,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	// replacing colon by ->
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpression_Bug543720_08_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -794,6 +818,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_05_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder builder= new StringBuilder();
 		builder.append("package test1;\n");
@@ -863,6 +890,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_Bug567975_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=567975
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder builder= new StringBuilder();
