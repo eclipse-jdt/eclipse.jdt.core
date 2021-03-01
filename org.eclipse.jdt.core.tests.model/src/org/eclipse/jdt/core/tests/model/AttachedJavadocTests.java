@@ -1361,5 +1361,20 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertTrue("Should not happen", false);
 		}
 	}
+	public void testBug546945() throws JavaModelException {
+		IClasspathAttribute attribute =
+				JavaCore.newClasspathAttribute(
+						IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+						"jar:platform:/resource/AttachedJavadocProject/bug546945_doc.zip!/");
+		IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug546945.jar"), null, null, null, new IClasspathAttribute[] {attribute}, true);
+		this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+		this.project.getResolvedClasspath(false);
+		this.project.setOption(JavaCore.COMPILER_COMPLIANCE, "11");
+
+		IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug546945.jar"));
+		IOrdinaryClassFile classFile = jarRoot.getPackageFragment("org.eclipse.pub").getOrdinaryClassFile("API.class");
+		String javadoc = classFile.getAttachedJavadoc(new NullProgressMonitor());
+		assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
+	}
 }
 

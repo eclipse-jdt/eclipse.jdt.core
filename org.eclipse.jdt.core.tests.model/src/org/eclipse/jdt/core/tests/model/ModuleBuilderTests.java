@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
@@ -6810,6 +6811,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					""
 					);
 			project1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			// regression test for Bug 569512 - CCE in State.writeBinaryLocations:
+			IStatus saveStatus = project1.getProject().getWorkspace().save(true, null);
+			if (!saveStatus.isOK() && saveStatus.isMultiStatus())
+				throw new AssertionError(saveStatus.getChildren()[0].getException());
 
 			IMarker[] markers2 = project2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers2);
