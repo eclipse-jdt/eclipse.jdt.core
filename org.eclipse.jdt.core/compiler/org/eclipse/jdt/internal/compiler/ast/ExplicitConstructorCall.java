@@ -484,6 +484,9 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 
 	private boolean checkAndFlagExplicitConstructorCallInCanonicalConstructor(AbstractMethodDeclaration methodDecl, BlockScope scope) {
 
+		if (methodDecl.binding == null || methodDecl.binding.declaringClass == null
+				|| !methodDecl.binding.declaringClass.isRecord())
+			return true;
 		boolean isInsideCCD = methodDecl instanceof CompactConstructorDeclaration;
 		if (this.accessMode != ExplicitConstructorCall.ImplicitSuper) {
 			if (isInsideCCD)
