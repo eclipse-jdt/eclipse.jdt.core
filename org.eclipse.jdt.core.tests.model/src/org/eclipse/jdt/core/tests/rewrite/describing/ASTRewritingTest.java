@@ -228,6 +228,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		this.sourceFolder = getPackageFragmentRoot("P", "src");
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void setUpProjectAbove14() throws Exception {
 		if (this.apiLevel == AST_INTERNAL_JLS14 ) {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
@@ -237,6 +238,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		setUpProjectAbove15();
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void setUpProjectAbove15() throws Exception {
 		if (this.apiLevel == AST_INTERNAL_JLS15 ) {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);

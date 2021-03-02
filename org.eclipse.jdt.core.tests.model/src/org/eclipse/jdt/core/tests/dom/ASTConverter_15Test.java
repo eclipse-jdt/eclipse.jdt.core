@@ -58,6 +58,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 	ICompilationUnit workingCopy;
 	//private static final String jclLib = "CONVERTER_JCL15_LIB";
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST15(), false);
@@ -83,6 +84,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter_15Test.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	static int getAST15() {
 		return AST.JLS15;
 	}
