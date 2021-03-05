@@ -45,6 +45,7 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 	PackageElement topPkg = null;
 	PackageElement topPkg2 = null;
 	PackageElement topPkg3 = null;
+	PackageElement topPkg4 = null;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -56,6 +57,7 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 		test004();
 		test005Src();
 		test005Binary();
+		test006();
 	}
 	private void fetchElements() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
@@ -70,6 +72,8 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 				topPkg2 = (PackageElement) (element.getEnclosingElement());
 			} else if ("TopMain3".equals(element.getSimpleName().toString())) {
 				topPkg3 = (PackageElement) (element.getEnclosingElement());
+			} else if ("TopMain4".equals(element.getSimpleName().toString())) {
+				topPkg4 = (PackageElement) (element.getEnclosingElement());
 			}
 		}
 		try {
@@ -297,5 +301,52 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 	public void test005Binary() {
 		if (!this.isBinaryMode) return;
 		_test005();
+	}
+	public void test006() {
+		fetchElements();
+		assertNotNull("package null", topPkg4);
+		List<? extends Element> enclosedElements = topPkg4.getEnclosedElements();
+		assertEquals("incorrect no of enclosed elements", 2, enclosedElements.size());
+		TypeElement topInterface = null;
+		for (Element element : enclosedElements) {
+			if (element instanceof TypeElement) {
+				TypeElement temp = (TypeElement) element;
+				if (temp.getQualifiedName().toString().equals("sealed.sub4.TopMain4Test")) {
+					topInterface = (TypeElement) element;
+				}
+			}
+		}
+		Set<Modifier> modifiers = topInterface.getModifiers();
+		assertTrue("should contain modifier sealed", modifiers.contains(sealed));
+		assertFalse("should not contain modifier final", modifiers.contains(modifierFinal));
+		assertFalse("should not contain modifier non-sealed", modifiers.contains(non_Sealed));
+		TypeMirror superclass = topInterface.getSuperclass();
+		assertTrue("should be a NoType", (superclass instanceof NoType));
+		List<? extends TypeMirror> permittedSubclasses = topInterface.getPermittedSubclasses();
+		assertEquals("incorrect no of permitted types", 1, permittedSubclasses.size());
+		for (TypeMirror typeMirror : permittedSubclasses) {
+			TypeElement permittedTypeEl = (TypeElement) _typeUtils.asElement(typeMirror);
+			if (permittedTypeEl.getQualifiedName().toString().equals("sealed.sub2.TopMain2.MyRecord")) {
+				superclass = permittedTypeEl.getSuperclass();
+				modifiers = permittedTypeEl.getModifiers();
+				assertTrue("record should contain modifier final", modifiers.contains(modifierFinal));
+				assertTrue("should contain modifier static", modifiers.contains(modifierStatic));
+				assertFalse("should not contain modifier sealed", modifiers.contains(sealed));
+				assertFalse("should not contain modifier non-sealed", modifiers.contains(non_Sealed));
+				assertFalse("should not be a NoType", (superclass instanceof NoType));
+				TypeElement superClassElement = (TypeElement) _typeUtils.asElement(superclass);
+				assertNotNull("type element should not be null", superClassElement);
+				assertEquals("incorrect super class", "java.lang.Record", superClassElement.getQualifiedName().toString());
+				List<? extends TypeMirror> interfaces = permittedTypeEl.getInterfaces();
+				assertEquals("incorrect no of super interfaces", 1, interfaces.size());
+				TypeElement superInterfaceElement = (TypeElement) _typeUtils.asElement(interfaces.get(0));
+				assertEquals("incorrect super interface", "sealed.sub2.TopMain2.SealedIntf", superInterfaceElement.getQualifiedName().toString());
+				modifiers = superInterfaceElement.getModifiers();
+				assertTrue("should contain modifier sealed", modifiers.contains(sealed));
+				assertTrue("should contain modifier static", modifiers.contains(modifierStatic));
+				assertFalse("should not contain modifier final", modifiers.contains(modifierFinal));
+				assertFalse("should not contain modifier non-sealed", modifiers.contains(non_Sealed));
+			}
+		}
 	}
 }
