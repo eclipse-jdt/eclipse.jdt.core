@@ -347,4 +347,17 @@ public IClasspathEntry createSourceEntry(String referingProjectName, String src,
 protected void deleteExternalFile(String filePath) throws CoreException {
 	deleteResource(new File(filePath));
 }
+
+/**
+ * Request to rebuild the java index and wait until the rebuild is finish
+ */
+protected void rebuildIndex() {
+	try {
+		JavaCore.rebuildIndex(new NullProgressMonitor());
+	} catch (CoreException e) {
+		fail(e.getMessage());
+	}
+	waitUntilIndexesReady();
+}
+
 }

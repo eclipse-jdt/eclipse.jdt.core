@@ -19,8 +19,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.CRC32;
 
 import org.eclipse.core.resources.IContainer;
@@ -41,6 +48,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -53,11 +61,15 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.index.DiskIndex;
+import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.FileIndexLocation;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
+import org.eclipse.jdt.internal.core.index.IndexQualifier;
+import org.eclipse.jdt.internal.core.index.MetaIndex;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
+import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery.QueryCategory;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -65,6 +77,13 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexManager extends JobManager implements IIndexConstants {
+	/**
+	 * Bug 178816:  In case the meta index is causing issue and needs to disable,
+	 * specify VM property: {@code -Dorg.eclipse.jdt.disableMetaIndex=true}
+	 */
+	// For upcoming M builds we make sure meta index is enabled by default, but if this cause problems we will make this
+	// disabled by default for final release.
+	private static final boolean DISABLE_META_INDEX = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	// key = containerPath, value = indexLocation path
 	// indexLocation path is created by appending an index file name to the getJavaPluginWorkingLocation() path
@@ -98,6 +117,7 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	// search participants who register indexes with the index manager
 	private SimpleLookupTable participantsContainers = null;
 	private boolean participantUpdated = false;
+	private MetaIndex metaIndex;
 
 	// should JDT manage (update, delete as needed) pre-built indexes?
 	public static final String MANAGE_PRODUCT_INDEXES_PROPERTY = "jdt.core.manageProductIndexes"; //$NON-NLS-1$
@@ -110,6 +130,8 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	// Debug
 	public static boolean DEBUG = false;
 
+	private static final String INDEX_META_CONTAINER = "meta_index"; //$NON-NLS-1$
+	private static final String META_INDEX_SAVE_JOB_ID = "meta_index_job_id"; //$NON-NLS-1$
 
 public synchronized void aboutToUpdateIndex(IPath containerPath, Integer newIndexState) {
 	// newIndexState is either UPDATING_STATE or REBUILDING_STATE
@@ -156,6 +178,9 @@ public void addSource(IFile resource, IPath containerPath, SourceElementParser p
  */
 public void cleanUpIndexes() {
 	SimpleSet knownPaths = new SimpleSet();
+	if(!DISABLE_META_INDEX) {
+		knownPaths.add(computeIndexLocation(new Path(INDEX_META_CONTAINER)));
+	}
 	IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
@@ -235,6 +260,7 @@ public void deleteIndexFiles(IProgressMonitor monitor) {
 		Util.verbose("Deleting index files"); //$NON-NLS-1$
 	this.nameRegistry.delete(); // forget saved indexes & delete each index file
 	deleteIndexFiles(null, monitor);
+	this.metaIndex = null;
 }
 private void deleteIndexFiles(SimpleSet pathsToKeep, IProgressMonitor monitor) {
 	File[] indexesFiles = getSavedIndexesDirectory().listFiles();
@@ -459,7 +485,7 @@ public synchronized Index getIndexForUpdate(IPath containerPath, boolean reuseEx
 
 	return null; // abort the job since the index has been removed from the REBUILDING_STATE
 }
-private SimpleLookupTable getIndexStates() {
+SimpleLookupTable getIndexStates() {
 	if (this.indexStates != null) return this.indexStates;
 
 	this.indexStates = new SimpleLookupTable();
@@ -831,6 +857,8 @@ public synchronized void removeIndex(IPath containerPath) {
 		indexFile.delete();
 	}
 	this.indexes.removeKey(indexLocation);
+	updateMetaIndex(index, indexLocation, true);
+
 	if (IS_MANAGING_PRODUCT_INDEXES_PROPERTY) {
 		this.indexLocations.removeKey(containerPath);
 	}
@@ -855,6 +883,7 @@ public synchronized void removeIndexPath(IPath path) {
 			continue;
 		if (indexLocation.startsWith(path)) {
 			Index index = (Index) valueTable[i];
+			updateMetaIndex(index, indexLocation, true);
 			index.monitor = null;
 			if (locations == null)
 				locations = new IndexLocation[max];
@@ -981,6 +1010,7 @@ public void savePreBuiltIndex(Index index) throws IOException {
 		index.save();
 	}
 	synchronized (this) {
+		updateMetaIndex(index);
 		updateIndexState(index.getIndexLocation(), REUSE_STATE);
 	}
 }
@@ -992,6 +1022,7 @@ public void saveIndex(Index index) throws IOException {
 		index.save();
 	}
 	synchronized (this) {
+		updateMetaIndex(index);
 		IPath containerPath = new Path(index.containerPath);
 		if (this.jobEnd > this.jobStart) {
 			for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
@@ -1081,6 +1112,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 			if (searchDocument.shouldIndexResolvedDocument()) {
 				indexResolvedDocument(searchDocument, searchParticipant, index, indexPath);
 			}
+			updateMetaIndex(index);
 			return true;
 		}
 		@Override
@@ -1172,7 +1204,7 @@ private synchronized void removeIndexesState(IndexLocation[] locations) {
 	writeSavedIndexNamesFile();
 	writeIndexMapFile();
 }
-private synchronized void updateIndexState(IndexLocation indexLocation, Integer indexState) {
+synchronized void updateIndexState(IndexLocation indexLocation, Integer indexState) {
 	if (indexLocation == null)
 		throw new IllegalArgumentException();
 
@@ -1342,4 +1374,226 @@ private static long getNotifyIdleWait() {
 	}
 	return idleWait;
 }
+
+public synchronized Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
+	if(DISABLE_META_INDEX) {
+		return Optional.empty();
+	}
+	MetaIndex index = null;
+	long startTime = System.currentTimeMillis();
+	try {
+		index = loadMetaIndexIfNeeded();
+		if(index == null) {
+			return Optional.empty();
+		}
+		ReadWriteMonitor monitor = index.getMonitor();
+		if(monitor == null) {
+			return Optional.empty();
+		}
+		monitor.enterRead();
+		index.startQuery();
+
+		try {
+			List<char[]> qualifiedCategories = new ArrayList<>(2);
+			List<char[]> simpleCategories = new ArrayList<>(2);
+
+			for (QueryCategory cat : query.getCategories()) {
+				if(cat == QueryCategory.REF) {
+					qualifiedCategories.add(META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF);
+					simpleCategories.add(META_INDEX_SIMPLE_TYPE_QUALIFIER_REF);
+				} else if(cat == QueryCategory.SUPER) {
+					qualifiedCategories.add(META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF);
+					simpleCategories.add(META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF);
+				}
+			}
+
+			List<EntryResult> results = new ArrayList<>();
+			if(query.getQualifiedKey().length > 0) {
+				results.addAll(runQuery(index, qualifiedCategories.toArray(new char[0][]), query.getQualifiedKey()));
+			}
+			results.addAll(runQuery(index, simpleCategories.toArray(new char[0][]), query.getSimpleKey()));
+
+			Set<String> indexesNotInMeta = index.getIndexesNotInMeta(this.indexes);
+			final Index i = index.getIndex();
+			return Optional.of(Stream.concat(indexesNotInMeta.stream(), results.stream().flatMap(r -> {
+				try {
+					return Stream.of(r.getDocumentNames(i));
+				} catch (IOException e) {
+					return Stream.empty();
+				}
+			})).collect(Collectors.toSet()));
+		} finally {
+			index.stopQuery();
+			monitor.exitRead();
+		}
+	} catch (IOException e) {
+		JavaCore.getJavaCore().getLog().error("Error filtering index locations based on qualifier.", e); //$NON-NLS-1$
+		return Optional.empty();
+	} finally {
+		if (VERBOSE) {
+			long wallClockTime = System.currentTimeMillis() - startTime;
+			Util.verbose("-> execution time: " + wallClockTime + "ms - IndexManager#findMatchingIndexNames");//$NON-NLS-1$//$NON-NLS-2$
+		}
+	}
+}
+private List<EntryResult> runQuery(MetaIndex index, char[][] categories, char[] key) throws IOException {
+	EntryResult[] result = index.query(categories, key,
+			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+	if(result != null) {
+		return Arrays.asList(result);
+	}
+	return Collections.emptyList();
+}
+
+private synchronized MetaIndex loadMetaIndexIfNeeded() throws IOException {
+	if(this.metaIndex == null) {
+		IndexLocation indexLocation = computeIndexLocation(new Path(INDEX_META_CONTAINER));
+		Object state = getIndexStates().get(indexLocation);
+		Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
+		if(UNKNOWN_STATE.equals(currentIndexState)) {
+			if (VERBOSE)
+				Util.verbose("-> create empty meta index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+			this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, false));
+			updateIndexState(indexLocation, REUSE_STATE);
+		} else if(indexLocation.exists()) {
+			this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, true));
+		} else {
+			getIndexStates().put(indexLocation, UNKNOWN_STATE);
+			loadMetaIndexIfNeeded();
+		}
+	}
+	return this.metaIndex;
+}
+
+synchronized void updateMetaIndex(Index index) {
+	updateMetaIndex(index, index.getIndexLocation(), false);
+}
+
+synchronized void updateMetaIndex(Index index, IndexLocation indexLocation, boolean removed) {
+	if(DISABLE_META_INDEX) {
+		return;
+	}
+	ReadWriteMonitor monitor = null;
+	try {
+		List<IndexQualifier> qualifications = removed ? Collections.emptyList(): index.getMetaIndexQualifications();
+
+		MetaIndex mindex = loadMetaIndexIfNeeded();
+		IndexLocation qindexLocation = mindex.getIndexLocation();
+
+		monitor = mindex.getMonitor();
+		if(monitor == null) {
+			updateIndexState(qindexLocation, UNKNOWN_STATE);
+			return;
+		}
+
+		monitor.enterWrite();
+		// clean existing entries for current document
+		mindex.remove(indexLocation.getIndexFile().getName());
+
+		for (IndexQualifier qualifier : qualifications) {
+			mindex.addIndexEntry(qualifier.getCategory(), qualifier.getKey(), index.getIndexFile().getName());
+		}
+
+		// This method must be synchronized to make sure the check of last job and pushing the job is atomic.
+		// push only if we at the end of indexing assumed by the waiting job count avoid lot of meta index writes.
+		if(super.awaitingJobsCount() <= 2) {
+			requestIfNotWaiting(new MetaIndexSaveJob(mindex, qindexLocation, this));
+		}
+	} catch (IOException e) {
+		if (JobManager.VERBOSE) {
+			Util.verbose("-> failed to update meta index for index " + index.getIndexFile().getName() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+			e.printStackTrace();
+		}
+	} finally {
+		if(monitor != null) {
+			monitor.exitWrite();
+		}
+	}
+}
+
+public Optional<MetaIndex> getMetaIndex() {
+	if(DISABLE_META_INDEX) {
+		return Optional.empty();
+	}
+	try {
+		MetaIndex index = loadMetaIndexIfNeeded();
+		return Optional.ofNullable(index);
+	} catch (IOException e) {
+		JavaCore.getJavaCore().getLog().error(e.getMessage(), e);
+		return Optional.empty();
+	}
+}
+
+@Override
+public synchronized int awaitingJobsCount() {
+	int awaitingJobsCount = super.awaitingJobsCount();
+	// if count is 1 check if its MetaIndexSaveJob, if true then return 0 to avoid type search failures which
+	// doesn't use the WaitUntilReady policy. The write operations and metaindex search will be handled by the index.monitor
+	if (awaitingJobsCount == 1 && currentJob() instanceof MetaIndexSaveJob) {
+		return 0;
+	}
+	return awaitingJobsCount;
+}
+
+
+private static class MetaIndexSaveJob implements IJob {
+
+	private MetaIndex metaIndex;
+	private IndexLocation indexLocation;
+	private IndexManager manager;
+
+	public MetaIndexSaveJob(MetaIndex metaIndex, IndexLocation indexLocation, IndexManager manager) {
+		this.metaIndex = metaIndex;
+		this.indexLocation = indexLocation;
+		this.manager = manager;
+	}
+
+	@Override
+	public boolean belongsTo(String jobFamily) {
+		return META_INDEX_SAVE_JOB_ID.equals(jobFamily);
+	}
+
+	@Override
+	public void cancel() {
+		// this is a mandatory job, so this should run even when other index requests been cancelled.
+	}
+
+	@Override
+	public void ensureReadyToRun() {
+		// no implementation
+	}
+
+	@Override
+	public boolean execute(IProgressMonitor progress) {
+		ReadWriteMonitor monitor = null;
+
+		try {
+			monitor = this.metaIndex.getMonitor();
+			if(monitor != null) {
+				monitor.enterWrite();
+				if (this.metaIndex.hasChanged()) {
+					this.metaIndex.save();
+				}
+
+				if(!SAVED_STATE.equals(this.manager.getIndexStates().get(this.indexLocation))) {
+					this.manager.updateIndexState(this.indexLocation, SAVED_STATE);
+				}
+			} else {
+				this.manager.updateIndexState(this.indexLocation, UNKNOWN_STATE);
+			}
+		} catch (IOException e) {
+			JavaCore.getJavaCore().getLog().error("Failed to update qualified index.", e); //$NON-NLS-1$
+		} finally {
+			Optional.ofNullable(monitor).ifPresent(ReadWriteMonitor::exitWrite);
+		}
+		return true;
+	}
+
+	@Override
+	public String getJobFamily() {
+		return META_INDEX_SAVE_JOB_ID;
+	}
+
+}
+
 }

@@ -14,12 +14,15 @@
 package org.eclipse.jdt.internal.core.index;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 /**
@@ -231,5 +234,24 @@ public String toString() {
 public boolean isIndexForJar()
 {
 	return this.separator == JAR_SEPARATOR;
+}
+public List<IndexQualifier> getMetaIndexQualifications() throws IOException {
+	startQuery();
+	try {
+		ArrayList<IndexQualifier> qualifiers = new ArrayList<>();
+		for(char[] category : IIndexConstants.META_INDEX_CATEGORIES) {
+			EntryResult[] results = query(new char[][] {category}, null,
+					SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+			if(results != null) {
+				qualifiers.ensureCapacity(results.length); // minimize array resize
+				for (int i = 0; i < results.length; i++) {
+					qualifiers.add(IndexQualifier.qualifier(category, results[i].getWord()));
+				}
+			}
+		}
+		return qualifiers;
+	} finally {
+		stopQuery();
+	}
 }
 }
