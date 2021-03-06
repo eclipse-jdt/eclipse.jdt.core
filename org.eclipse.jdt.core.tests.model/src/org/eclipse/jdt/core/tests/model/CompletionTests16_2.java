@@ -80,5 +80,59 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+	// completion for final keyword in instanceof pattern variable
+	public void test003() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+				"private void method(Object o) throws Exception{\n" +
+				"if ((o instanceof fina Record xvar )) \n" +
+				"{\n" +
+				"}\n" +
+				"}\n" +
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "fina";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("final[KEYWORD]{final, null, null, final, null, " + (R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_NON_RESTRICTED+R_FINAL+R_EXPECTED_TYPE) + "}",
+				requestor.getResults());
+
+
+	}
+	// completion for final keyword in instanceof pattern variable at higher relevance than Fin* classes
+		public void test004() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/Point.java",
+					"public class Point {\n" +
+					"private void method(Object o) throws Exception{\n" +
+					"if ((o instanceof fina Record xvar )) \n" +
+					"{\n" +
+					"}\n" +
+					"}\n" +
+					"}");
+			this.workingCopies[1] = getWorkingCopy(
+					"/Completion/src/Bug460411.java",
+					"package abc;" +
+					"public class FinalCl {\n"+
+					"}\n");
+			this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "fina";
+			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("FinalCl[TYPE_REF]{abc.FinalCl, abc, Labc.FinalCl;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_NON_RESTRICTED+R_EXPECTED_TYPE)+"}\n"
+					+ "final[KEYWORD]{final, null, null, final, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_NON_RESTRICTED+R_FINAL+R_EXPECTED_TYPE)+"}",
+					requestor.getResults());
+
+
+		}
 
 }
