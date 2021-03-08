@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation.
+ * Copyright (c) 2020 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -132,10 +128,6 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		testRecords4();
 		testRecords5();
 		testRecords6();
-		testRecords7();
-		testRecords8();
-		testRecords9();
-		testRecords10();
 	}
 
 	public void testPreviewFlagTrue() throws IOException {
@@ -529,68 +521,45 @@ public class RecordElementProcessor extends BaseElementProcessor {
         assertTrue("Test returned negative", result);
 	}
 	public void testRecords9() {
-		String[] arr1 = new String[] { "x", "bigInt", "r1", "floatValue", "c", "recordInstance" };
-		TypeKind[] arr2 = new TypeKind[] { TypeKind.INT, TypeKind.DECLARED, TypeKind.DECLARED, TypeKind.FLOAT,
-				TypeKind.DECLARED, TypeKind.DECLARED };
-		List<String> names = Arrays.asList(arr1);
-		List<TypeKind> types = Arrays.asList(arr2);
+			String[] arr1 = new String[] { "x", "bigInt", "r1", "floatValue", "c", "recordInstance" };
+			TypeKind[] arr2 = new TypeKind[] { TypeKind.INT, TypeKind.DECLARED, TypeKind.DECLARED, TypeKind.FLOAT,
+					TypeKind.DECLARED, TypeKind.DECLARED };
+			List<String> names = Arrays.asList(arr1);
+			List<TypeKind> types = Arrays.asList(arr2);
 
-		Element record = _elementUtils.getTypeElement("records.R3");
-		List<? extends Element> allElements = record.getEnclosedElements();
-		List<RecordComponentElement> components = ElementFilter.recordComponentsIn(allElements);
-		List<ExecutableElement> accessors = components.stream().map
-				(RecordComponentElement::getAccessor).collect(Collectors.toList());
-		assertEquals("Size mismatch", names.size(), accessors.size());
-		for (ExecutableElement accessor : accessors) {
-			String name = accessor.getSimpleName().toString();
-			int indexOf = names.indexOf(name);
-			assertSame("Type kind not same for \"" + name + "\".", types.get(indexOf), accessor.getReturnType().getKind());
-			assertTrue("should be executable type for \"" + name + "\".", (accessor.asType() instanceof ExecutableType));
-			assertNull("should be null", accessor.getDefaultValue());
-			List<? extends AnnotationMirror> mirrors = accessor.getAnnotationMirrors();
-			if (name.equals("c") || name.equals("bigInt") || name.equals("r1")) {
-				assertEquals("annotations count mismatch for \"" + name + "\".", 1, mirrors.size());
-				Set<? extends ExecutableElement> accessorAnnotations = mirrors.get(0)
-						.getElementValues().keySet();
-				assertEquals("annotations type element mismatch for \"" + name + "\".", 1, accessorAnnotations.size());
-				int val = (int) accessorAnnotations.toArray(new ExecutableElement[0])[0].getDefaultValue()
-						.getValue();
-				assertEquals("Incorrect default value for \"" + name + "\".", 1, val);
-			}
-			if (name.equals("floatValue") || name.equals("x")) {
-				assertEquals("annotations count mismatch for \"" + name + "\".", 0, mirrors.size());
-			}
-			if (name.equals("recordInstance")) {
-				assertEquals("annotations count mismatch for \"" + name + "\".", 2, mirrors.size());
-			}
-			assertTrue("Parameters should be empty for \"" + name + "\".", accessor.getParameters().isEmpty());
-			assertTrue("Thrown types should be empty for \"" + name + "\".", accessor.getThrownTypes().isEmpty());
-			assertTrue("Type parameters should be empty for \"" + name + "\".", accessor.getTypeParameters().isEmpty());
-			assertFalse("Should not be default for \"" + name + "\".", accessor.isDefault());
-			assertFalse("Should not be varargs for \"" + name + "\".", accessor.isVarArgs());
-		}
-	}
-	public void testRecords10() {
-		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("R4".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
-		assertNotNull("TypeElement for record should not be null", record);
-
-		List<? extends Element> enclosedElements = record.getEnclosedElements();
-		List<ExecutableElement> methodsIn = ElementFilter.constructorsIn(enclosedElements);
-		assertEquals("incorrect method", 1, methodsIn.size());
-		ExecutableElement m = methodsIn.get(0);
-		verifyAnnotations(m, new String[]{});
-		TypeMirror asType = m.asType();
-		verifyAnnotations(asType, new String[]{});
-		List<? extends VariableElement> parameters = m.getParameters();
-		assertEquals("incorrect parameters", 1, parameters.size());
-		VariableElement var = parameters.get(0);
-		assertEquals("component name incorrect", "i", var.getSimpleName().toString());
-		verifyAnnotations(var, new String[]{"@Marker4()"});
+	        Element record = _elementUtils.getTypeElement("records.R3");
+	        List<? extends Element> allElements = record.getEnclosedElements();
+	        List<RecordComponentElement> components = ElementFilter.recordComponentsIn(allElements);
+	        List<ExecutableElement> accessors = components.stream().map
+	                (RecordComponentElement::getAccessor).collect(Collectors.toList());
+	        assertEquals("Size mismatch", names.size(), accessors.size());
+	        for (ExecutableElement accessor : accessors) {
+	            String name = accessor.getSimpleName().toString();
+	            int indexOf = names.indexOf(name);
+	            assertSame("Type kind not same for \"" + name + "\".", types.get(indexOf), accessor.getReturnType().getKind());
+	            assertTrue("should be executable type for \"" + name + "\".", (accessor.asType() instanceof ExecutableType));
+	            assertNull("should be null", accessor.getDefaultValue());
+	            List<? extends AnnotationMirror> mirrors = accessor.getAnnotationMirrors();
+				if (name.equals("c") || name.equals("bigInt") || name.equals("r1")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 1, mirrors.size());
+	            	Set<? extends ExecutableElement> accessorAnnotations = mirrors.get(0)
+	                        .getElementValues().keySet();
+	            	assertEquals("annotations type element mismatch for \"" + name + "\".", 1, accessorAnnotations.size());
+	            	int val = (int) accessorAnnotations.toArray(new ExecutableElement[0])[0].getDefaultValue()
+	                        .getValue();
+	            	assertEquals("Incorrect default value for \"" + name + "\".", 1, val);
+	            }
+	            if (name.equals("floatValue") || name.equals("x")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 0, mirrors.size());
+	            }
+	            if (name.equals("recordInstance")) {
+	            	assertEquals("annotations count mismatch for \"" + name + "\".", 2, mirrors.size());
+	            }
+	            assertTrue("Parameters should be empty for \"" + name + "\".", accessor.getParameters().isEmpty());
+	            assertTrue("Thrown types should be empty for \"" + name + "\".", accessor.getThrownTypes().isEmpty());
+	            assertTrue("Type parameters should be empty for \"" + name + "\".", accessor.getTypeParameters().isEmpty());
+	            assertFalse("Should not be default for \"" + name + "\".", accessor.isDefault());
+	            assertFalse("Should not be varargs for \"" + name + "\".", accessor.isVarArgs());
+	        }
 	}
 }

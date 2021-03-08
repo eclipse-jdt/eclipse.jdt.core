@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -437,7 +433,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.bootstrapMethods != null && !this.bootstrapMethods.isEmpty()) {
 			attributesNumber += generateBootstrapMethods(this.bootstrapMethods);
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK16) {
+		if (this.targetJDK >= ClassFileConstants.JDK15) {
 			// add record attributes
 			attributesNumber += generatePermittedTypeAttributes();
 		}
@@ -2436,8 +2432,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 											(node) -> size > 0,
 											() -> allTypeAnnotationContexts);
 		}
-		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0 ||
-				binding.isConstructor() &&  binding.declaringClass.isRecord()) {
+		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0) {
 			attributesNumber += generateMethodParameters(binding);
 		}
 		// update the number of attributes
@@ -3549,9 +3544,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 			// access flag
 			if (innerClass.isAnonymousType()) {
-				ReferenceBinding superClass = innerClass.superclass();
-				if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
-					accessFlags &= ~ClassFileConstants.AccFinal;
+				accessFlags &= ~ClassFileConstants.AccFinal;
 			} else if (innerClass.isMemberType() && innerClass.isInterface()) {
 				accessFlags |= ClassFileConstants.AccStatic; // implicitely static
 			}
@@ -5752,8 +5745,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 			accessFlags |= ClassFileConstants.AccSuper;
 		}
 		if (aType.isAnonymousType()) {
-			ReferenceBinding superClass = aType.superclass;
-			if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
 			accessFlags &= ~ClassFileConstants.AccFinal;
 		}
 		int finalAbstract = ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract;

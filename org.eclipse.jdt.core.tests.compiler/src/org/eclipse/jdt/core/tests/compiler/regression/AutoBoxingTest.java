@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2021 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -538,7 +534,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] s) {\n" +
 				"		new Y().test(1, 1);\n" + // reference to test is ambiguous, both method test(java.lang.Integer,int) in Y and method test(int,java.lang.Integer) in Y match
-				"		new Y().test(Integer.valueOf(1), Integer.valueOf(1));\n" + // reference to test is ambiguous
+				"		new Y().test(new Integer(1), new Integer(1));\n" + // reference to test is ambiguous
 				"	}\n" +
 				"}\n" +
 				"class Y {\n" +
@@ -553,7 +549,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"The method test(Integer, int) is ambiguous for the type Y\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
-			"	new Y().test(Integer.valueOf(1), Integer.valueOf(1));\n" +
+			"	new Y().test(new Integer(1), new Integer(1));\n" +
 			"	        ^^^^\n" +
 			"The method test(Integer, int) is ambiguous for the type Y\n" +
 			"----------\n"
@@ -764,20 +760,20 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] args) {\n" +
-				"		Float f = args.length == 0 ? Float.valueOf(0) : 0;\n" +
+				"		Float f = args.length == 0 ? new Float(0) : 0;\n" +
 				"		System.out.println((int)f);\n" +
 				"	}\n" +
 				"}\n",
 			},
 			"----------\n" +
 			"1. WARNING in X.java (at line 4)\n" +
-			"	Float f = args.length == 0 ? Float.valueOf(0) : 0;\n" +
-			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	Float f = args.length == 0 ? new Float(0) : 0;\n" +
+			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"The expression of type float is boxed into Float\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 4)\n" +
-			"	Float f = args.length == 0 ? Float.valueOf(0) : 0;\n" +
-			"	                             ^^^^^^^^^^^^^^^^\n" +
+			"	Float f = args.length == 0 ? new Float(0) : 0;\n" +
+			"	                             ^^^^^^^^^^^^\n" +
 			"The expression of type Float is unboxed into float\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 5)\n" +
@@ -1930,7 +1926,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"    public static void main(String[] args) {\n" +
-				"        a(Integer.valueOf(1), 2);\n" +
+				"        a(new Integer(1), 2);\n" +
 				"    }\n" +
 				"    public static void a(int a, int b) { System.out.println(\"SUCCESS\"); }\n" +
 				"    public static void a(Object a, Object b) {}\n" +
@@ -1938,7 +1934,7 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
-			"	a(Integer.valueOf(1), 2);\n" +
+			"	a(new Integer(1), 2);\n" +
 			"	^\n" +
 			"The method a(int, int) is ambiguous for the type X\n" +
 			"----------\n"
@@ -2761,9 +2757,9 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] args) {\n" +
 				"		boolean b = true;\n" +
-				"		Character _Character = Character.valueOf(\' \');\n" +
+				"		Character _Character = new Character(\' \');\n" +
 				"		char c = \' \';\n" +
-				"		Integer _Integer = Integer.valueOf(2);\n" +
+				"		Integer _Integer = new Integer(2);\n" +
 				"		if ((b ? _Character : _Integer) == c) {\n" +
 				"			System.out.println(zork);\n" +
 				"		} else {\n" +
@@ -2934,8 +2930,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] args) {\n" +
 				"		new X().foo(1);\n" +
-				"		new X().foo(Integer.valueOf(1));\n" +
-				"		new X().foo(1, Integer.valueOf(1));\n" +
+				"		new X().foo(new Integer(1));\n" +
+				"		new X().foo(1, new Integer(1));\n" +
 				"	}\n" +
 				"}\n",
 			},
@@ -2946,12 +2942,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"The method foo(Object[]) is ambiguous for the type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
-			"	new X().foo(Integer.valueOf(1));\n" +
+			"	new X().foo(new Integer(1));\n" +
 			"	        ^^^\n" +
 			"The method foo(Object[]) is ambiguous for the type X\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 8)\n" +
-			"	new X().foo(1, Integer.valueOf(1));\n" +
+			"	new X().foo(1, new Integer(1));\n" +
 			"	        ^^^\n" +
 			"The method foo(Object[]) is ambiguous for the type X\n" +
 			"----------\n");
@@ -2964,8 +2960,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] args) {\n" +
 				"		new X().foo(1);\n" +
-				"		new X().foo(Integer.valueOf(1));\n" +
-				"		new X().foo(1, Integer.valueOf(1));\n" +
+				"		new X().foo(new Integer(1));\n" +
+				"		new X().foo(1, new Integer(1));\n" +
 				"	}\n" +
 				"}\n",
 			},
@@ -2976,12 +2972,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"The method foo(Number[]) is ambiguous for the type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
-			"	new X().foo(Integer.valueOf(1));\n" +
+			"	new X().foo(new Integer(1));\n" +
 			"	        ^^^\n" +
 			"The method foo(Number[]) is ambiguous for the type X\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 8)\n" +
-			"	new X().foo(1, Integer.valueOf(1));\n" +
+			"	new X().foo(1, new Integer(1));\n" +
 			"	        ^^^\n" +
 			"The method foo(Number[]) is ambiguous for the type X\n" +
 			"----------\n"
@@ -2995,8 +2991,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] args) {\n" +
 				"		new X().foo(1);\n" +
-				"		new X().foo(Integer.valueOf(1));\n" +
-				"		new X().foo(1, Integer.valueOf(1));\n" +
+				"		new X().foo(new Integer(1));\n" +
+				"		new X().foo(1, new Integer(1));\n" +
 				"	}\n" +
 				"}\n",
 			},
@@ -3007,12 +3003,12 @@ public class AutoBoxingTest extends AbstractComparableTest {
 			"The method foo(int, Object[]) is ambiguous for the type X\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
-			"	new X().foo(Integer.valueOf(1));\n" +
+			"	new X().foo(new Integer(1));\n" +
 			"	        ^^^\n" +
 			"The method foo(int, Object[]) is ambiguous for the type X\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 8)\n" +
-			"	new X().foo(1, Integer.valueOf(1));\n" +
+			"	new X().foo(1, new Integer(1));\n" +
 			"	        ^^^\n" +
 			"The method foo(int, Object[]) is ambiguous for the type X\n" +
 			"----------\n"
@@ -5161,7 +5157,7 @@ public void test168() {
 			"public class X {\n" +
 			"    <T extends Integer> T a() { return 35; }\n" +
 			"    <T extends Integer> T[] b() { return new int[]{35}; }\n" +
-			"    <T extends Integer> T c() { return Integer.valueOf(35); }\n" +
+			"    <T extends Integer> T c() { return new Integer(35); }\n" +
 			"    <T extends Integer> T[] d() { return new Integer[]{35}; }\n" +
 			"}\n",
 		},
@@ -5187,13 +5183,13 @@ public void test168() {
 		"Type mismatch: cannot convert from int[] to T[]\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 5)\n" +
-		"	<T extends Integer> T c() { return Integer.valueOf(35); }\n" +
+		"	<T extends Integer> T c() { return new Integer(35); }\n" +
 		"	           ^^^^^^^\n" +
 		"The type parameter T should not be bounded by the final type Integer. Final types cannot be further extended\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 5)\n" +
-		"	<T extends Integer> T c() { return Integer.valueOf(35); }\n" +
-		"	                                   ^^^^^^^^^^^^^^^^^^^\n" +
+		"	<T extends Integer> T c() { return new Integer(35); }\n" +
+		"	                                   ^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Integer to T\n" +
 		"----------\n" +
 		"7. WARNING in X.java (at line 6)\n" +

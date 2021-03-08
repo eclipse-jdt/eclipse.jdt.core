@@ -1,15 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -28,30 +24,30 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class LocalStaticsTest extends AbstractRegressionTest {
+public class LocalStaticsTest_15 extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571274_001"};
+//		TESTS_NAMES = new String[] { "testBug566715_003"};
 	}
 
 	public static Class<?> testClass() {
-		return LocalStaticsTest.class;
+		return LocalStaticsTest_15.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
+		return buildMinimalComplianceTestSuite(testClass(), F_15);
 	}
-	public LocalStaticsTest(String testName){
+	public LocalStaticsTest_15(String testName){
 		super(testName);
 	}
 
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15); // FIXME
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -70,7 +66,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("15");
 		runner.runConformTest();
 	}
 	@Override
@@ -92,7 +88,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("15") :
-			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
+			JavacTestOptions.forReleaseWithPreview("15", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 
@@ -552,7 +548,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			new String[] {
 				"X.java",
 				"public class X<T> {\n"+
-				"  public static void main(String[] args) {\n"+
+				"  void foo() {\n"+
 				"	static interface I {}\n"+
 				" }\n"+
 				"}\n"
@@ -562,7 +558,8 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"	static interface I {}\n" +
 			"	                 ^\n" +
 			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n");
+		 	"----------\n"
+			);
 	}
 	public void testBug566748_001() {
 		runNegativeTest(
@@ -845,7 +842,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"");
 		String expectedOutput = "abstract static interface X$1I {\n";
-		LocalStaticsTest.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
+		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 14.3 for enum
 	public void testBug564557BinaryForm_006() throws Exception {
@@ -864,7 +861,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			},
 			"");
 		String expectedOutput = "static final enum X$1I {\n";
-		LocalStaticsTest.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
+		LocalStaticsTest_15.verifyClassFile(expectedOutput, "X$1I.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 15.8.3
 	public void testBug564557thisInStatic_007() {
@@ -963,7 +960,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	public enum I {}\n" +
 			"	            ^\n" +
-			"Illegal modifier for local enum I; no explicit modifier is permitted\n" +
+			"The member enum I can only be defined inside a top-level class or interface or in a static context\n" +
 			"----------\n",
 			null,
 			true,
@@ -1007,344 +1004,5 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" +
 			"----------\n"
 		);
-	}
-
-	public void testBug566579_001() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" private String I=null;\n"+
-				" public void foo() {\n"+
-				"   int f = switch (5) {\n"+
-				"			case 5: {\n"+
-				"				interface I{\n"+
-				"					public int getVal();\n"+
-				"				}\n"+
-				"				class C implements I{\n"+
-				"					private int j=5;\n"+
-				"					@Override\n"+
-				"					public int getVal() {\n"+
-				"						return j;\n"+
-				"					}\n"+
-				"				}\n"+
-				"				\n"+
-				"				I abc= new C();"+
-				"				yield abc.getVal();\n"+
-				"			}\n"+
-				"			default:\n"+
-				"				yield (I==null ? 0 : I.length());\n"+
-				"			};\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   X x = new X();\n"+
-				"   x.I = \"abc\";\n"+
-				"	System.out.println();\n"+
-				" }\n"+
-				"}"
-			},
-			"");
-	}
-	public void testBug566579_002() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	public void main5(int i) {\n"+
-				"		interface i{\n"+
-				"			public static int i=0;\n"+
-				"		}\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.println();\n"+
-				"	}\n"+
-				"}"
-			},
-			"");
-	}
-	public void testBug566579_003() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	public void main5() {\n"+
-				"		int i=10;\n"+
-				"		interface i{\n"+
-				"			public static int i=0;\n"+
-				"		}\n"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.println();\n"+
-				"	}\n"+
-				"}"
-			},
-			"");
-	}
-	public void testBug566579_004() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	public void main5() {\n"+
-				"		try {\n"+
-				"			int i=10;\n"+
-				"		} catch(NullPointerException npe) {\n"+
-				"			interface i{\n"+
-				"				public static int npe=0;\n"+
-				"			}\n"+
-				"		}"+
-				"	}\n"+
-				"	public static void main(String[] args) {\n"+
-				"		System.out.println();\n"+
-				"	}\n"+
-				"}"
-			},
-			"");
-	}
-	public void testBug569444_001() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(\"hello\");\n"+
-				"   class Y{\n"+
-				"     static int field;\n"+
-				"     public static void foo() {}\n"+
-				"   }\n"+
-				"   record R() {}\n"+
-				" }\n"+
-				" class Z {\n"+
-				"   static int f2;\n"+
-				"   static {};\n"+
-				" }\n"+
-				"}"
-			},
-			"hello");
-	}
-	public void testBug569444_002() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" private void foo() {\n"+
-				"   class Y {\n"+
-				"     static record R() {}\n"+
-				"     static class Z{}\n"+
-				"     interface I{}\n"+
-				"     static interface II{}\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(\"hello\");\n"+
-				" }\n"+
-				"}"
-			},
-			"hello");
-	}
-	public void testBug569444_003() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public void foo() {\n"+
-				"   @SuppressWarnings(\"unused\")\n"+
-				"   class Y {\n"+
-				"     static record R() {}\n"+
-				"      class Z{\n"+
-				"       static class zz{}\n"+
-				"     }\n"+
-				"     interface I{\n"+
-				"       abstract int bar();\n"+
-				"     }\n"+
-				"   }\n"+
-				"    new Y.I() {\n"+
-				"     @Override\n"+
-				"     public int bar() {\n"+
-				"       return 0;\n"+
-				"     }\n"+
-				"     \n"+
-				"   };\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(\"hello\");\n"+
-				" }\n"+
-				"}"
-			},
-			"hello");
-	}
-	public void testBug569444_004() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public void foo() {\n"+
-				"    @SuppressWarnings(\"unused\")\n"+
-				"    static class zzz{}\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(\"hello\");\n"+
-				" }\n"+
-				"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	static class zzz{}\n" +
-			"	             ^^^\n" +
-			"Illegal modifier for the local class zzz; only abstract or final is permitted\n" +
-			"----------\n");
-	}
-	public void testBug569444_005() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public void foo() {\n"+
-				"     static class Z{} //  static not allowed\n"+
-				"     class Y{\n"+
-				"       static class ZZ{} // static allowed\n"+
-				"     }\n"+
-				"   static record R() {} // explicit static not allowed\n"+
-				"   static interface I {} // explicit static not allowed\n"+
-				"    }\n"+
-				"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	static class Z{} //  static not allowed\n" +
-			"	             ^\n" +
-			"Illegal modifier for the local class Z; only abstract or final is permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	static record R() {} // explicit static not allowed\n" +
-			"	              ^\n" +
-			"A local class or interface R is implicitly static; cannot have explicit static declaration\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
-			"	static interface I {} // explicit static not allowed\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n");
-	}
-	public void testBug569444_006() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public void foo() {\n"+
-				"   for (;;) {\n"+
-				"     static class Y  {}\n"+
-				"     static record R() {}\n"+
-				"     static interface I{}\n"+
-				"     break;\n"+
-				"   }\n"+
-				"    }\n"+
-				"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	static class Y  {}\n" +
-			"	             ^\n" +
-			"Illegal modifier for the local class Y; only abstract or final is permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
-			"	static record R() {}\n" +
-			"	              ^\n" +
-			"A local class or interface R is implicitly static; cannot have explicit static declaration\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	static interface I{}\n" +
-			"	                 ^\n" +
-			"Illegal modifier for the local interface I; abstract and strictfp are the only modifiers allowed explicitly \n" +
-			"----------\n");
-	}
-	public void testBug571163_001() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				" class X {\n"+
-				"    public void foo() {\n"+
-				"        class Y {\n"+
-				"            static Y y;\n"+
-				"             static {\n"+
-				"                y = Y.this;\n"+
-				"            }\n"+
-				"            class Z {\n"+
-				"                static Y yy;\n"+
-				"                static {\n"+
-				"                       yy = Y.this; //error not flagged here\n"+
-				"                }\n"+
-				"            }\n"+
-				"        } \n"+
-				"     }\n"+
-				"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
-			"	y = Y.this;\n" +
-			"	    ^^^^^^\n" +
-			"Cannot use this in a static context\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	yy = Y.this; //error not flagged here\n" +
-			"	     ^^^^^^\n" +
-			"Cannot use this in a static context\n" +
-			"----------\n");
-	}
-	public void testBug571300_001() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"class X {\n"+
-				"  public static void main(String[] args) {\n"+
-				"   new X().foo();  \n"+
-				" }\n"+
-				" public void foo() {\n"+
-				"   interface I {\n"+
-				"     class Z {}\n"+
-				"   }\n"+
-				"    I.Z z = new I.Z() { // error flagged incorrectly\n"+
-				"     public String toString() {\n"+
-				"       return \"I.Z\";\n"+
-				"     }\n"+
-				"    };\n"+
-				"    System.out.println(z.toString());\n"+
-				"  }\n"+
-				"}"
-			},
-			"I.Z");
-	}
-	public void testBug571274_001() {
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"class X {\n"+
-				" void m() {\n"+
-				"   interface Y<T> {\n"+
-				"     class Z {\n"+
-				"        T foo() {// T should not be allowed\n"+
-				"         return null;\n"+
-				"       }\n"+
-				"     }\n"+
-				"   }\n"+
-				" }\n"+
-				" }"
-			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	interface Y<T> {\n" +
-			"	          ^\n" +
-			"The type Y<T> is never used locally\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 4)\n" +
-			"	class Z {\n" +
-			"	      ^\n" +
-			"The type Y<T>.Z is never used locally\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
-			"	T foo() {// T should not be allowed\n" +
-			"	^\n" +
-			"Cannot make a static reference to the non-static type T\n" +
-			"----------\n");
 	}
 }

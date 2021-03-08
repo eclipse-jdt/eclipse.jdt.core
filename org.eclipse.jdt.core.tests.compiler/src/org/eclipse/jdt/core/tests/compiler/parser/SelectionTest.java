@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2012 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1965,7 +1965,7 @@ public void test45() {
 	String str =
 		"public class X {                \n" +
 		"  void foo() {\n" +
-		"    if(x instanceof Object s){\n" +
+		"    if(x instanceof Object){\n" +
 		"    }\n" +
 		"  }  \n" +
 		"}								 \n";
@@ -1980,9 +1980,7 @@ public void test45() {
 		"  public X() {\n"+
 		"  }\n"+
 		"  void foo() {\n"+
-		"    if ((x instanceof <SelectOnType:Object> s))\n" +
-		"        {\n" +
-		"        }\n" +
+		"    <SelectOnType:Object>;\n"+
 		"  }\n"+
 		"}\n";
 	String expectedReplacedSource = "Object";
@@ -2024,7 +2022,7 @@ public void test46() {
 		"  public X() {\n"+
 		"  }\n"+
 		"  void foo() {\n"+
-		"    y = (x instanceof <SelectOnType:Object>);\n"+
+		"    <SelectOnType:Object>;\n"+
 		"  }\n"+
 		"}\n";
 	String expectedReplacedSource = "Object";
@@ -2065,7 +2063,7 @@ public void test47() {
 		"  public X() {\n"+
 		"  }\n"+
 		"  void foo() {\n"+
-		"    boolean y = (x instanceof <SelectOnType:Object>);\n"+
+		"    boolean y = <SelectOnType:Object>;\n"+
 		"  }\n"+
 		"}\n";
 	String expectedReplacedSource = "Object";
@@ -2101,7 +2099,7 @@ public void test48() {
 	String completionIdentifier = "Object";
 	String expectedUnitDisplayString =
 		"public class X {\n"+
-		"  boolean y = (x instanceof <SelectOnType:Object>);\n"+
+		"  boolean y = <SelectOnType:Object>;\n"+
 		"  public X() {\n"+
 		"  }\n"+
 		"}\n";

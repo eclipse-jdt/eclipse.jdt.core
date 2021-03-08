@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,9 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -37,10 +34,10 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -61,12 +58,10 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST15(), false);
-		this.currentProject = getJavaProject("Converter_15");
 		if (this.ast.apiLevel() == AST.JLS15 ) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
-
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		}
 	}
 
@@ -94,7 +89,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord001() throws CoreException {
+	public void testRecord001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -127,7 +122,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 	 * Added for Bug 561193 - [14]record keyword inside method not colored correctly
 	 * @throws CoreException
 	 */
-	public void _testRecord002() throws CoreException {
+	public void testRecord002() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -158,7 +153,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord003() throws CoreException {
+	public void testRecord003() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -193,7 +188,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord004() throws CoreException {
+	public void testRecord004() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test " + getName() + " requires a JRE 15");
 			return;
@@ -229,7 +224,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord005() throws CoreException {
+	public void testRecord005() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -280,7 +275,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord006() throws CoreException {
+	public void testRecord006() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -327,7 +322,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord007() throws CoreException {
+	public void testRecord007() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -369,7 +364,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord008() throws CoreException {
+	public void testRecord008() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -406,7 +401,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord009() throws CoreException {
+	public void testRecord009() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -524,7 +519,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord011() throws CoreException {
+	public void testRecord011() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -560,7 +555,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecord012() throws CoreException {
+	public void testRecord012() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -813,7 +808,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		assertEquals("wrong line number", 9, compilationUnit.getLineNumber(node.getStartPosition()));
 	}
 
-	public void _testPatternInstanceOfExpression001() throws JavaModelException {
+	public void testPatternInstanceOfExpression001() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -847,15 +842,15 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				Expression expression = ifStatement.getExpression();
 				checkSourceRange(expression, "o instanceof String s", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-				PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getRightOperand();
-				checkSourceRange(var, "String s", contents);
+				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+				SimpleName var = instanceofExpression.getPatternVariable();
+				checkSourceRange(var, "s", contents);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
 	}
 
-	public void _testPatternInstanceOfExpression002() throws JavaModelException {
+	public void testPatternInstanceOfExpression002() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -890,15 +885,15 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				Expression expression = ifStatement.getExpression();
 				checkSourceRange(expression, "o instanceof String", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-				PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+				SimpleName var = instanceofExpression.getPatternVariable();
 				assertNull(var);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}
 	}
 
-	public void _testPatternInstanceOfExpression003() throws JavaModelException {
+	public void testPatternInstanceOfExpression003() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -932,9 +927,9 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				Expression expression = ifStatement.getExpression();
 				checkSourceRange(expression, "o instanceof String s", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-				PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getRightOperand();
-				checkSourceRange(var, "String s", contents);
+				InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+				SimpleName var = instanceofExpression.getPatternVariable();
+				checkSourceRange(var, "s", contents);
 				String instanceofExpressionString = instanceofExpression.toString();
 				assertEquals("o instanceof String s", instanceofExpressionString);
 			}finally {
@@ -1114,7 +1109,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecordConstructor001() throws CoreException {
+	public void testRecordConstructor001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1167,7 +1162,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testRecordConstructor002() throws CoreException {
+	public void testRecordConstructor002() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;

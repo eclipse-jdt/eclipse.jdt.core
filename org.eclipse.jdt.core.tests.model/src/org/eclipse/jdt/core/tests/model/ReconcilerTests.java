@@ -5976,9 +5976,9 @@ public void testBug562637() throws CoreException, IOException, InterruptedExcept
 	IJavaProject project15 = null;
 	try {
 		project15 = createJava14Project("Reconciler_15", new String[] {"src"});
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		project15.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		project15.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 
@@ -6044,9 +6044,9 @@ public void testBug564613_001() throws CoreException, IOException, InterruptedEx
 	IJavaProject project15 = null;
 	try {
 		project15 = createJava15Project("Reconciler_15", new String[] {"src"});
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		project15.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		project15.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 

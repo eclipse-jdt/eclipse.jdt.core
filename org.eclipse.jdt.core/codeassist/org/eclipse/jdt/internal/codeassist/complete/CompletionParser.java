@@ -105,7 +105,6 @@ import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -1652,10 +1651,12 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 				if((this.lastModifiers & ClassFileConstants.AccFinal) == 0) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.INTERFACE;
 				}
-				if (JavaFeature.RECORDS.isSupported(this.options)) {
+				if (this.options.complianceLevel >= ClassFileConstants.JDK14
+						&& this.options.enablePreviewFeatures == true) {
 					keywordsAndRestrictedIndentifiers[count++] = RestrictedIdentifiers.RECORD;
 				}
-				if (JavaFeature.SEALED_CLASSES.isSupported(this.options)) {
+				if (this.options.complianceLevel >= ClassFileConstants.JDK15
+						&& this.options.enablePreviewFeatures == true) {
 					boolean nonSeal = (this.lastModifiers & ExtraCompilerModifiers.AccNonSealed) != 0;
 					boolean seal = (this.lastModifiers & ExtraCompilerModifiers.AccSealed) != 0;
 					if (!nonSeal && !seal) {
@@ -5043,10 +5044,6 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				keywords[count++]= Keywords.CLASS;
 				if (this.options.complianceLevel >= ClassFileConstants.JDK10) {
 					keywords[count++]= Keywords.VAR;
-				}
-				if (this.options.complianceLevel >= ClassFileConstants.JDK16) {
-					keywords[count++]= Keywords.INTERFACE;
-					keywords[count++]= Keywords.ENUM;
 				}
 
 				if(this.previousKind == K_BLOCK_DELIMITER) {

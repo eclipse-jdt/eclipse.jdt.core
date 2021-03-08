@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -915,7 +911,7 @@ public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBindi
 		type.sourceEnd());
 }
 public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethodDeclaration methodDecl) {
-	if (type.isEnum() && type.isLocalType() && type.isAnonymousType()) {
+	if (type.isEnum() && type.isLocalType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
 		String[] arguments = new String[] {new String(decl.name), new String(methodDecl.selector)};
@@ -936,7 +932,7 @@ public void abstractMethodInAbstractClass(SourceTypeBinding type, AbstractMethod
 	}
 }
 public void abstractMethodInConcreteClass(SourceTypeBinding type) {
-	if (type.isEnum() && type.isLocalType() && type.isAnonymousType()) {
+	if (type.isEnum() && type.isLocalType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
 		String[] arguments = new String[] {new String(decl.name)};
@@ -957,7 +953,7 @@ public void abstractMethodInConcreteClass(SourceTypeBinding type) {
 	}
 }
 public void abstractMethodMustBeImplemented(SourceTypeBinding type, MethodBinding abstractMethod) {
-	if (type.isEnum() && type.isLocalType() && type.isAnonymousType()) {
+	if (type.isEnum() && type.isLocalType()) {
 		FieldBinding field = type.scope.enclosingMethodScope().initializedField;
 		FieldDeclaration decl = field.sourceField();
 		this.handle(
@@ -2126,28 +2122,11 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 		nodeSourceEnd(field, reference));
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
-	int problemId = local.isPatternVariable() ? IProblem.PatternVariableRedefined : IProblem.DuplicateFinalLocalInitialization;
 	String[] arguments = new String[] { new String(local.readableName())};
 	this.handle(
-			problemId,
+			IProblem.DuplicateFinalLocalInitialization,
 			arguments,
 			arguments,
-			nodeSourceStart(local, location),
-			nodeSourceEnd(local, location));
-}
-public void illegalRedeclarationOfPatternVar(LocalVariableBinding local, ASTNode location) {
-	this.handle(
-			IProblem.PatternVariableRedeclared,
-			NoArgument,
-			NoArgument,
-			nodeSourceStart(local, location),
-			nodeSourceEnd(local, location));
-}
-public void patternCannotBeSubtypeOfExpression(LocalVariableBinding local, ASTNode location) {
-	this.handle(
-			IProblem.PatternSubtypeOfExpression,
-			NoArgument,
-			NoArgument,
 			nodeSourceStart(local, location),
 			nodeSourceEnd(local, location));
 }
@@ -3140,13 +3119,10 @@ public void illegalModifierForMethod(AbstractMethodDeclaration methodDecl) {
 }
 public void illegalModifierForVariable(LocalDeclaration localDecl, boolean complainAsArgument) {
 	String[] arguments = new String[] {new String(localDecl.name)};
-	int problemId = ((localDecl.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0) ?
-			IProblem.IllegalModifierForPatternVariable :
-			(complainAsArgument
-					? IProblem.IllegalModifierForArgument
-						: IProblem.IllegalModifierForVariable);
 	this.handle(
-		problemId,
+		complainAsArgument
+			? IProblem.IllegalModifierForArgument
+			: IProblem.IllegalModifierForVariable,
 		arguments,
 		arguments,
 		localDecl.sourceStart,
@@ -9595,16 +9571,7 @@ private boolean validateRestrictedKeywords(char[] name, String expectedToken, in
 						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(feature.getCompliance()), start, end, severity);
 						return isPreviewEnabled;
 					} else {
-						int severity;
-						long compliance;
-						if (this.options.complianceLevel < feature.getCompliance()) {
-							severity = ProblemSeverities.Warning;
-							compliance = this.options.complianceLevel;
-						} else {
-							severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
-							compliance = feature.getCompliance();
-						}
-						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(compliance), start, end, severity);
+						restrictedTypeName(name, CompilerOptions.versionFromJdkLevel(feature.getCompliance()), start, end, ProblemSeverities.Error | ProblemSeverities.Fatal);
 						return true;
 					}
 				}
@@ -11635,6 +11602,8 @@ public void switchExpressionsReturnWithinSwitchExpression(ASTNode statement) {
 		statement.sourceEnd);
 }
 public void illegalModifierForLocalRecord(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.RecordIllegalModifierForLocalRecord,
@@ -11644,6 +11613,8 @@ public void illegalModifierForLocalRecord(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalModifierForInnerRecord(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.RecordIllegalModifierForInnerRecord,
@@ -11653,6 +11624,8 @@ public void illegalModifierForInnerRecord(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalModifierForRecord(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.RecordIllegalModifierForRecord,
@@ -11662,6 +11635,8 @@ public void illegalModifierForRecord(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void recordNonStaticFieldDeclarationInRecord(FieldDeclaration field) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordNonStaticFieldDeclarationInRecord,
 		new String[] { new String(field.name) },
@@ -11670,6 +11645,8 @@ public void recordNonStaticFieldDeclarationInRecord(FieldDeclaration field) {
 		field.sourceEnd);
 }
 public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordAccessorMethodHasThrowsClause,
 		NoArgument,
@@ -11678,6 +11655,8 @@ public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
 		methodDeclaration.sourceEnd);
 }
 public void recordCanonicalConstructorVisibilityReduced(AbstractMethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCanonicalConstructorVisibilityReduced,
 		new String[] {
@@ -11690,6 +11669,8 @@ public void recordCanonicalConstructorVisibilityReduced(AbstractMethodDeclaratio
 		methodDecl.sourceEnd);
 }
 public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCompactConstructorHasReturnStatement,
 		NoArgument,
@@ -11698,6 +11679,8 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		stmt.sourceEnd);
 }
 public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDeclaration typeDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordIllegalComponentNameInRecord,
 		new String[] {
@@ -11710,6 +11693,8 @@ public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDecl
 		recComp.sourceEnd);
 }
 public void recordDuplicateComponent(RecordComponent recordComponent) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordDuplicateComponent,
 		new String[] { new String(recordComponent.name)},
@@ -11718,6 +11703,8 @@ public void recordDuplicateComponent(RecordComponent recordComponent) {
 		recordComponent.sourceEnd);
 }
 public void recordIllegalNativeModifierInRecord(AbstractMethodDeclaration method) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordIllegalNativeModifierInRecord,
 		new String[] { new String(method.selector)},
@@ -11726,6 +11713,8 @@ public void recordIllegalNativeModifierInRecord(AbstractMethodDeclaration method
 		method.sourceEnd);
 }
 public void recordInstanceInitializerBlockInRecord(Initializer initializer) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordInstanceInitializerBlockInRecord,
 		NoArgument,
@@ -11743,6 +11732,8 @@ public void restrictedTypeName(char[] name, String compliance, int start, int en
 		end);
 }
 public void recordIllegalAccessorReturnType(ASTNode returnType, TypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordIllegalAccessorReturnType,
 		new String[] {new String(type.readableName())},
@@ -11751,6 +11742,8 @@ public void recordIllegalAccessorReturnType(ASTNode returnType, TypeBinding type
 		returnType.sourceEnd);
 }
 public void recordAccessorMethodShouldNotBeGeneric(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordAccessorMethodShouldNotBeGeneric,
 		NoArgument,
@@ -11759,6 +11752,8 @@ public void recordAccessorMethodShouldNotBeGeneric(ASTNode methodDecl) {
 		methodDecl.sourceEnd);
 }
 public void recordAccessorMethodShouldBePublic(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordAccessorMethodShouldBePublic,
 		NoArgument,
@@ -11767,6 +11762,8 @@ public void recordAccessorMethodShouldBePublic(ASTNode methodDecl) {
 		methodDecl.sourceEnd);
 }
 public void recordCanonicalConstructorShouldNotBeGeneric(AbstractMethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCanonicalConstructorShouldNotBeGeneric,
 		new String[] { new String(methodDecl.selector)},
@@ -11775,6 +11772,8 @@ public void recordCanonicalConstructorShouldNotBeGeneric(AbstractMethodDeclarati
 		methodDecl.sourceEnd);
 }
 public void recordCanonicalConstructorHasThrowsClause(AbstractMethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCanonicalConstructorHasThrowsClause,
 		new String[] { new String(methodDecl.selector)},
@@ -11783,6 +11782,8 @@ public void recordCanonicalConstructorHasThrowsClause(AbstractMethodDeclaration 
 		methodDecl.sourceEnd);
 }
 public void recordCanonicalConstructorHasReturnStatement(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCanonicalConstructorHasReturnStatement,
 		NoArgument,
@@ -11791,6 +11792,8 @@ public void recordCanonicalConstructorHasReturnStatement(ASTNode methodDecl) {
 		methodDecl.sourceEnd);
 }
 public void recordCanonicalConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCanonicalConstructorHasExplicitConstructorCall,
 		NoArgument,
@@ -11799,6 +11802,8 @@ public void recordCanonicalConstructorHasExplicitConstructorCall(ASTNode methodD
 		methodDecl.sourceEnd);
 }
 public void recordCompactConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordCompactConstructorHasExplicitConstructorCall,
 		NoArgument,
@@ -11807,6 +11812,8 @@ public void recordCompactConstructorHasExplicitConstructorCall(ASTNode methodDec
 		methodDecl.sourceEnd);
 }
 public void recordNestedRecordInherentlyStatic(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordNestedRecordInherentlyStatic,
 		NoArgument,
@@ -11815,6 +11822,8 @@ public void recordNestedRecordInherentlyStatic(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void recordAccessorMethodShouldNotBeStatic(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordAccessorMethodShouldNotBeStatic,
 		NoArgument,
@@ -11823,6 +11832,8 @@ public void recordAccessorMethodShouldNotBeStatic(ASTNode methodDecl) {
 		methodDecl.sourceEnd);
 }
 public void recordCannotExtendRecord(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -11835,6 +11846,8 @@ public void recordCannotExtendRecord(SourceTypeBinding type, TypeReference super
 		superclass.sourceEnd);
 }
 public void recordComponentCannotBeVoid(RecordComponent arg) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] { new String(arg.name) };
 	this.handle(
 		IProblem.RecordComponentCannotBeVoid,
@@ -11862,6 +11875,8 @@ public void recordStaticReferenceToOuterLocalVariable(LocalVariableBinding local
 		node.sourceEnd);
 }
 public void recordComponentsCannotHaveModifiers(RecordComponent comp) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] { new String(comp.name) };
 	this.handle(
 		IProblem.RecordComponentsCannotHaveModifiers,
@@ -11871,6 +11886,8 @@ public void recordComponentsCannotHaveModifiers(RecordComponent comp) {
 		comp.sourceEnd);
 }
 public void recordIllegalParameterNameInCanonicalConstructor(RecordComponentBinding comp, Argument arg) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordIllegalParameterNameInCanonicalConstructor,
 		new String[] {new String(arg.name), new String(comp.name)},
@@ -11879,6 +11896,8 @@ public void recordIllegalParameterNameInCanonicalConstructor(RecordComponentBind
 		arg.sourceEnd);
 }
 public void recordIllegalExplicitFinalFieldAssignInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] { new String(field.name) };
 	this.handle(
 		IProblem.RecordIllegalExplicitFinalFieldAssignInCompactConstructor,
@@ -11903,14 +11922,6 @@ public void recordIllegalStaticModifierForLocalClassOrInterface(SourceTypeBindin
 		arguments,
 		type.sourceStart(),
 		type.sourceEnd());
-}
-public void recordIllegalExtendedDimensionsForRecordComponent(AbstractVariableDeclaration aVarDecl) {
-	this.handle(
-		IProblem.RecordIllegalExtendedDimensionsForRecordComponent,
-		NoArgument,
-		NoArgument,
-		aVarDecl.sourceStart,
-		aVarDecl.sourceEnd);
 }
 public void localStaticsIllegalVisibilityModifierForInterfaceLocalType(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};

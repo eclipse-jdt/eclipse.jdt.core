@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2217,10 +2213,7 @@ class ASTConverter {
 		return ifStatement;
 	}
 
-	public Expression convert(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression expression) {
-		if (DOMASTUtil.isPatternInstanceofExpressionSupported(this.ast) && expression.elementVariable != null) {
-			return convertToPatternInstanceOfExpression(expression);
-		}
+	public InstanceofExpression convert(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression expression) {
 		InstanceofExpression instanceOfExpression = new InstanceofExpression(this.ast);
 		if (this.resolveBindings) {
 			recordNodes(instanceOfExpression, expression);
@@ -2231,24 +2224,12 @@ class ASTConverter {
 		instanceOfExpression.setRightOperand(convertType);
 		int startPosition = leftExpression.getStartPosition();
 		int sourceEnd = convertType.getStartPosition() + convertType.getLength() - 1;
-
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(this.ast) && expression.elementVariable != null) {
+			instanceOfExpression.setPatternVariable(convertToSimpleName(expression.elementVariable));
+			sourceEnd= expression.elementVariable.sourceEnd;
+		}
 		instanceOfExpression.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		return instanceOfExpression;
-	}
-
-	public PatternInstanceofExpression convertToPatternInstanceOfExpression(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression expression) {
-		PatternInstanceofExpression patternInstanceOfExpression = new PatternInstanceofExpression(this.ast);
-		if (this.resolveBindings) {
-			recordNodes(patternInstanceOfExpression, expression);
-		}
-		Expression leftExpression = convert(expression.expression);
-		patternInstanceOfExpression.setLeftOperand(leftExpression);
-		patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
-		int startPosition = leftExpression.getStartPosition();
-		int sourceEnd= expression.elementVariable.sourceEnd;
-
-		patternInstanceOfExpression.setSourceRange(startPosition, sourceEnd - startPosition + 1);
-		return patternInstanceOfExpression;
 	}
 
 	public NumberLiteral convert(org.eclipse.jdt.internal.compiler.ast.IntLiteral expression) {
@@ -3006,7 +2987,7 @@ class ASTConverter {
 		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			ASTNode result = convert((org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) statement);
-			if (result == null || !(result instanceof TypeDeclaration || result instanceof RecordDeclaration || result instanceof EnumDeclaration)) {
+			if (result == null || !(result instanceof TypeDeclaration || result instanceof RecordDeclaration)) {
 				return createFakeEmptyStatement(statement);
 			}
 			TypeDeclarationStatement typeDeclarationStatement = new TypeDeclarationStatement(this.ast);
@@ -3014,12 +2995,9 @@ class ASTConverter {
 				// annotation and enum type declarations are not returned by the parser inside method bodies
 				TypeDeclaration typeDeclaration = (TypeDeclaration) result;
 				typeDeclarationStatement.setDeclaration(typeDeclaration);
-			} else if (result instanceof RecordDeclaration) {
+			} else {
 				RecordDeclaration recordDeclaration = (RecordDeclaration) result;
 				typeDeclarationStatement.setDeclaration(recordDeclaration);
-			} else {
-				EnumDeclaration enumDeclaration = (EnumDeclaration) result;
-				typeDeclarationStatement.setDeclaration(enumDeclaration);
 			}
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :

@@ -7,10 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -60,7 +56,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
+		return buildMinimalComplianceTestSuite(testClass(), F_15);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -98,10 +94,10 @@ public class JavadocTestForRecord extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_Release, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15); // FIXME
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return options;
 	}
@@ -113,7 +109,7 @@ public class JavadocTestForRecord extends JavadocTest {
 
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("16"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("15"));
 	}
 
 	@Override
@@ -129,7 +125,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] { "--enable-preview" };
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("15");
 		runner.runConformTest();
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3063,26 +3059,17 @@ public void test069() {
 		} catch (InstallException e) {
 			assertTrue("No targetException " + e.getMessage(), false);
 		}
-		boolean is16Plus = 	this.complianceLevel >= ClassFileConstants.JDK16;
-		if (is16Plus) {
-			assertTrue(
-					"Should get one result but got " + (requestor.resultIndex + 1),
-					requestor.resultIndex == 0);
-		} else {
-			assertTrue(
-					"Should get two results but got " + (requestor.resultIndex + 1),
-					requestor.resultIndex == 1);
-		}
+		assertTrue(
+			"Should get two results but got " + (requestor.resultIndex + 1),
+			requestor.resultIndex == 1);
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", result.hasProblems());
 		assertEquals("Wrong size", 1, result.getProblems().length);
-		assertEquals("Wrong pb", is16Plus ? 100 : 31, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
-		if (!is16Plus) {
-			result = requestor.results[1];
-			assertTrue("Code snippet should not have problems", result.hasProblems());
-			assertEquals("Wrong size", 1, result.getProblems().length);
-			assertEquals("Wrong pb", 50, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
-		}
+		assertEquals("Wrong pb", 31, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
+		result = requestor.results[1];
+		assertTrue("Code snippet should not have problems", result.hasProblems());
+		assertEquals("Wrong size", 1, result.getProblems().length);
+		assertEquals("Wrong pb", 50, result.getProblems()[0].getID() & IProblem.IgnoreCategoriesMask);
 	} finally {
 		removeTempClass("A69");
 	}

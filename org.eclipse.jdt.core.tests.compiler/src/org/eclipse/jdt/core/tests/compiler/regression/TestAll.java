@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -197,23 +193,18 @@ public static Test suite() {
 	 ArrayList since_14 = new ArrayList();
 	 since_14.add(SwitchExpressionsYieldTest.class);
 	 since_14.add(RecordsRestrictedClassTest.class);
-	 since_14.add(PatternMatching16Test.class);
+	 since_14.add(PatternMatching15Test.class);
 	 since_14.add(JavadocTestForRecord.class);
 	 since_14.add(BatchCompilerTest_14.class);
 
-	 // add 15 specific test here (check duplicates)
+	 // add 14 specific test here (check duplicates)
 	 ArrayList since_15 = new ArrayList();
-	 since_15.add(SealedTypesTests.class);
+	 since_15.add(SealedTypes15Tests.class);
 	 since_15.add(ClassFileReaderTest_15.class);
 	 since_15.add(JavadocTest_15.class);
+	 since_15.add(LocalStaticsTest_15.class);
 	 since_15.add(Unicode13Test.class);
-
-	 // add 16 specific test here (check duplicates)
-	 ArrayList since_16 = new ArrayList();
-	 since_16.add(LocalEnumTest.class);
-	 since_16.add(LocalStaticsTest.class);
-
-	 // Build final test suite
+	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
@@ -371,24 +362,6 @@ public static Test suite() {
 		tests_15.addAll(since_15);
 		TestCase.resetForgottenFilters(tests_15);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15), tests_15));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_16) != 0) {
-		ArrayList tests_16 = (ArrayList)standardTests.clone();
-		tests_16.addAll(since_1_4);
-		tests_16.addAll(since_1_5);
-		tests_16.addAll(since_1_6);
-		tests_16.addAll(since_1_7);
-		tests_16.addAll(since_1_8);
-		tests_16.addAll(since_9);
-		tests_16.addAll(since_10);
-		tests_16.addAll(since_11);
-		tests_16.addAll(since_12);
-		tests_16.addAll(since_13);
-		tests_16.addAll(since_14);
-		tests_16.addAll(since_15);
-		tests_16.addAll(since_16);
-		TestCase.resetForgottenFilters(tests_16);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_16), tests_16));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

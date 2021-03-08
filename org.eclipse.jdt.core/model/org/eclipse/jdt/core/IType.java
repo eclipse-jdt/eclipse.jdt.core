@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -931,7 +927,7 @@ public interface IType extends IMember, IAnnotatable {
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return true if this type represents a record class,
 	 * false otherwise
-	 * @since 3.25 BETA_JAVA16
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	boolean isRecord() throws JavaModelException;
 	/**
@@ -951,7 +947,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return record components declared by this record class
-	 * @since 3.25 BETA_JAVA16
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	default IField[] getRecordComponents() throws JavaModelException {
 		return new IField[0];
@@ -963,7 +959,7 @@ public interface IType extends IMember, IAnnotatable {
 	 *
 	 * @param name the given name
 	 * @return the record component with the specified name in this record
-	 * @since 3.25 BETA_JAVA16
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	IField getRecordComponent(String name);
 

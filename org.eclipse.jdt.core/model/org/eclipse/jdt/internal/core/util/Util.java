@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2921,10 +2921,10 @@ public class Util {
 				return Character.valueOf(constant.charValue());
 			case TypeIds.T_float :
 				memberValuePair.valueKind = IMemberValuePair.K_FLOAT;
-				return Float.valueOf(constant.floatValue());
+				return new Float(constant.floatValue());
 			case TypeIds.T_double :
 				memberValuePair.valueKind = IMemberValuePair.K_DOUBLE;
-				return Double.valueOf(constant.doubleValue());
+				return new Double(constant.doubleValue());
 			case TypeIds.T_boolean :
 				memberValuePair.valueKind = IMemberValuePair.K_BOOLEAN;
 				return Boolean.valueOf(constant.booleanValue());
@@ -2955,10 +2955,10 @@ public class Util {
 				return Integer.valueOf(constant.intValue() * -1);
 			case TypeIds.T_float :
 				memberValuePair.valueKind = IMemberValuePair.K_FLOAT;
-				return Float.valueOf(constant.floatValue() * -1.0f);
+				return new Float(constant.floatValue() * -1.0f);
 			case TypeIds.T_double :
 				memberValuePair.valueKind = IMemberValuePair.K_DOUBLE;
-				return Double.valueOf(constant.doubleValue() * -1.0);
+				return new Double(constant.doubleValue() * -1.0);
 			case TypeIds.T_long :
 				memberValuePair.valueKind = IMemberValuePair.K_LONG;
 				return Long.valueOf(constant.longValue() * -1L);

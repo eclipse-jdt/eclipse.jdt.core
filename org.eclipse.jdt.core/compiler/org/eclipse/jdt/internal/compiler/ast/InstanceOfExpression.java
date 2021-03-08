@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class InstanceOfExpression extends OperatorExpression {
@@ -105,9 +106,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 */
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-	if (this.elementVariable != null && this.elementVariable.binding != null) {
-		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-	}
 	addPatternVariables(currentScope, codeStream);
 
 	int pc = codeStream.position;
@@ -253,7 +251,6 @@ public void addPatternVariables(BlockScope currentScope, CodeStream codeStream) 
 public boolean resolvePatternVariable(BlockScope scope) {
 	if (this.elementVariable == null) return false;
 	if (this.elementVariable.binding == null) {
-		this.elementVariable.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 		this.elementVariable.resolve(scope, true);
 		// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
 		// missing initializer
@@ -307,10 +304,6 @@ public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
 public boolean containsPatternVariable() {
 	return this.elementVariable != null;
 }
-@Override
-protected LocalDeclaration getPatternVariableIntroduced() {
-	return this.elementVariable;
-}
 private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
 	LocalVariableBinding local =
 			new LocalVariableBinding(
@@ -329,7 +322,7 @@ private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
 	if (this.elementVariable != null)
-		addSecretInstanceOfPatternExpressionValue(scope);
+	addSecretInstanceOfPatternExpressionValue(scope);
 	resolvePatternVariable(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
@@ -347,12 +340,15 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.secretInstanceOfPatternExpressionValue != null && expressionType != TypeBinding.NULL)
 		this.secretInstanceOfPatternExpressionValue.type = expressionType;
 
-	if (!checkedType.isReifiable()) {
+		if (!checkedType.isReifiable()) {
 		CompilerOptions options = scope.compilerOptions();
-		// Report same as before for older compliances
-		if (options.complianceLevel < ClassFileConstants.JDK16) {
+		// If preview is disabled, report same as before, even at Java 14
+		if (options.complianceLevel < ClassFileConstants.JDK14 || !options.enablePreviewFeatures) {
 			scope.problemReporter().illegalInstanceOfGenericType(checkedType, this);
 		} else {
+			if (options.isAnyEnabled(IrritantSet.PREVIEW)) {
+				scope.problemReporter().previewFeatureUsed(this.type.sourceStart, this.type.sourceEnd);
+			}
 			if (expressionType != TypeBinding.NULL) {
 				boolean isLegal = checkCastTypesCompatibility(scope, checkedType, expressionType, this.expression, true);
 				if (!isLegal || (this.bits & ASTNode.UnsafeCast) != 0) {
@@ -367,11 +363,6 @@ public TypeBinding resolveType(BlockScope scope) {
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true)) {
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}
-	}
-	// finally, the subtype check
-	if (this.secretInstanceOfPatternExpressionValue != null &&
-			expressionType.isSubtypeOf(checkedType, false)) {
-		scope.problemReporter().patternCannotBeSubtypeOfExpression(this.elementVariable.binding, this);
 	}
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }

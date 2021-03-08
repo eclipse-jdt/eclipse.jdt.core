@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *		Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *			Bug 407191 - [1.8] Binary access support for type annotations
@@ -44,7 +40,7 @@ public class ClassFileReaderTest_15 extends AbstractRegressionTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.complianceLevel = ClassFileConstants.JDK16;
+		this.complianceLevel = ClassFileConstants.JDK15;
 		this.enablePreview = true;
 	}
 

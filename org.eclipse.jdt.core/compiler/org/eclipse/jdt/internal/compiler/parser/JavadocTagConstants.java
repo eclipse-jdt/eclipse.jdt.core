@@ -200,8 +200,6 @@ public interface JavadocTagConstants {
 		//since 14
 		{},
 		//since 15
-		{},
-		//since 16
 		{}
 	};
 	public static final char[][][] INLINE_TAGS = {
@@ -236,8 +234,6 @@ public interface JavadocTagConstants {
 		//since 14
 		{},
 		//since 15
-		{},
-		//since 16
 		{}
 	};
 	public final static int INLINE_TAGS_LENGTH = INLINE_TAGS.length;

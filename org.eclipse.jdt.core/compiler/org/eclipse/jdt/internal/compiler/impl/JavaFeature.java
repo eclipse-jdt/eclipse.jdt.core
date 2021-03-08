@@ -7,10 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -42,17 +38,17 @@ public enum JavaFeature {
 			new char[][] {},
 			false),
 
-	PATTERN_MATCHING_IN_INSTANCEOF(ClassFileConstants.JDK16,
+	PATTERN_MATCHING_IN_INSTANCEOF(ClassFileConstants.JDK15,
 			Messages.bind(Messages.pattern_matching_instanceof),
 			new char[][] {},
-			false),
+			true),
 
-	RECORDS(ClassFileConstants.JDK16,
+	RECORDS(ClassFileConstants.JDK15,
 			Messages.bind(Messages.records),
 			new char[][] {TypeConstants.RECORD_RESTRICTED_IDENTIFIER},
-			false),
+			true),
 
-	SEALED_CLASSES(ClassFileConstants.JDK16,
+	SEALED_CLASSES(ClassFileConstants.JDK15,
 			Messages.bind(Messages.sealed_types),
 			new char[][] {TypeConstants.SEALED, TypeConstants.PERMITS},
 			true),

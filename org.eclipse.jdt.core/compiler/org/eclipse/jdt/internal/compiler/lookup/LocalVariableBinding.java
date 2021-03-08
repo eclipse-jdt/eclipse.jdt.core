@@ -311,9 +311,6 @@ public class LocalVariableBinding extends VariableBinding {
 	public boolean isCatchParameter() {
 		return false;
 	}
-	public boolean isPatternVariable() {
-		return ((this.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0);
-	}
 
 	public MethodBinding getEnclosingMethod() {
 		BlockScope blockScope = this.declaringScope;

@@ -1225,23 +1225,23 @@ CompactConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier'
 -- 14 preview feature : instanceof pattern matching
 -----------------------------------------------
 
+
 InstanceofExpression -> RelationalExpression
-InstanceofExpression ::= InstanceofExpression InstanceofRHS
+InstanceofExpression ::= InstanceofExpression 'instanceof' TypeOrPattern
 /.$putCase consumeInstanceOfExpression(); $break ./
 /:$readableName Expression:/
 
-InstanceofRHS -> InstanceofClassic
-InstanceofRHS -> InstanceofPattern
-/.$putCase consumeInstanceOfRHS(); $break ./
-/:$readableName Expression:/
+TypeOrPattern -> Type
+TypeOrPattern -> Pattern
+Pattern -> TypeTestPattern
+TypeTestPattern ::= Type Identifier
+/.$putCase consumeTypeTestPattern(); $break ./
+/:$readableName TypeTestPattern:/
 
-InstanceofClassic ::= 'instanceof' Modifiersopt Type
-/.$putCase consumeInstanceOfClassic(); $break ./
-/:$readableName InstanceofClassic:/
-
-InstanceofPattern ::=  InstanceofClassic Identifier
-/.$putCase consumeInstanceofPattern(); $break ./
-/:$readableName InstanceofPattern:/
+--InstanceofExpression ::= InstanceofExpression 'instanceof' Type Identifier
+--/.$putCase consumeInstanceOfExpressionPattern(); $break ./
+--/:$readableName Expression:/
+--/:$compliance 14:/
 
 -----------------------------------------------
 -- 14 preview feature : end of instanceof pattern matching
@@ -2730,9 +2730,9 @@ RelationalExpression_NotName ::= Name '>=' ShiftExpression
 /:$readableName Expression:/
 
 InstanceofExpression_NotName -> RelationalExpression_NotName
-InstanceofExpression_NotName ::= Name InstanceofRHS
+InstanceofExpression_NotName ::= Name 'instanceof' TypeOrPattern
 /.$putCase consumeInstanceOfExpressionWithName(); $break ./
-InstanceofExpression_NotName ::= InstanceofExpression_NotName InstanceofRHS
+InstanceofExpression_NotName ::= InstanceofExpression_NotName 'instanceof' TypeOrPattern
 /.$putCase consumeInstanceOfExpression(); $break ./
 /:$readableName Expression:/
 

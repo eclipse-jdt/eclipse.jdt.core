@@ -2256,12 +2256,6 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		return this.singleAbstractMethod[index];
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
-		// Sec 9.8 of sealed preview - A functional interface is an interface that is not declared sealed...
-		CompilerOptions options = scope.compilerOptions();
-		if (options.complianceLevel == ClassFileConstants.JDK16
-				&& options.enablePreviewFeatures
-				&& this.isSealed())
-			return this.singleAbstractMethod[index] = samProblemBinding;
 	}
 
 	if (this.compoundName != null)

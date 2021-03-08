@@ -7,9 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -45,16 +43,16 @@ import junit.framework.Test;
 
 
 @SuppressWarnings("rawtypes")
-public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
+public class ImportRewrite_15Test extends AbstractJavaModelTests {
 
 
-	private static final Class THIS= ImportRewrite_RecordTest.class;
+	private static final Class THIS= ImportRewrite_15Test.class;
 	private static final String PROJECT = "ImportRewrite14TestProject";
 
 	protected IPackageFragmentRoot sourceFolder;
 
 
-	public ImportRewrite_RecordTest(String name) {
+	public ImportRewrite_15Test(String name) {
 		super(name);
 	}
 
@@ -73,22 +71,26 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "15");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
-		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
+		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
 		proj.setOption(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+		proj.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, String.valueOf(99));
 
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(1));
+		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		proj.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 
 
 		this.sourceFolder = getPackageFragmentRoot(PROJECT, "src");
 
 		waitUntilIndexesReady();
 	}
-
-	protected static int getJLS16() {
-		return AST.JLS16;
+	/**
+	 * @deprecated uses deprecated AST level
+	 */
+	protected static int getJLS15() {
+		return AST.JLS15;
 	}
 	@Override
 	protected void tearDown() throws Exception {
@@ -111,7 +113,7 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/MyAnnotation.java", contents);
 
-		ASTParser parser = ASTParser.newParser(getJLS16());
+		ASTParser parser = ASTParser.newParser(getJLS15());
 		parser.setSource(getCompilationUnit("/" + PROJECT + "/src/pack2/MyAnnotation.java"));
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -163,7 +165,7 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 		createFile("/" + PROJECT + "/src/X.java", contents);
 
 		ICompilationUnit cu= getCompilationUnit("/" + PROJECT + "/src/X.java");
-		ASTParser parser = ASTParser.newParser(getJLS16());
+		ASTParser parser = ASTParser.newParser(getJLS15());
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);

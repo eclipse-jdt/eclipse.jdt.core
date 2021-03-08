@@ -1,15 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2021 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -5831,8 +5827,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"    @SuppressWarnings(\"deprecation\")\n" +
 						"    public void bar(int i) {\n" +
 						"		boolean b = foo( switch(i+1) {\n" +
-						"	    	case 0 -> Short.valueOf((short)0);\n" +
-						"	    	default -> Double.valueOf(2.0d);\n" +
+						"	    	case 0 -> new Short((short)0);\n" +
+						"	    	default -> new Double(2.0d);\n" +
 						"    	});\n" +
 						"    	System.out.println(b);\n" +
 						"    }\n" +
@@ -5850,8 +5846,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
-				"	default -> Double.valueOf(2.0d);\n" +
-				"	           ^^^^^^^^^^^^^^^^^^^^\n" +
+				"	default -> new Double(2.0d);\n" +
+				"	           ^^^^^^^^^^^^^^^^\n" +
 				"Type mismatch: cannot convert from Double to short\n" +
 				"----------\n"
 				);
@@ -5867,7 +5863,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"    @SuppressWarnings(\"deprecation\")\n" +
 						"    public void bar(int i) {\n" +
 						"		boolean b = foo( switch(i+1) {\n" +
-						"	    	case 0 -> Short.valueOf((short)0);\n" +
+						"	    	case 0 -> new Short((short)0);\n" +
 						"	    	default -> 2.0d;\n" +
 						"    	});\n" +
 						"    	System.out.println(b);\n" +
@@ -5904,7 +5900,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"    @SuppressWarnings(\"deprecation\")\n" +
 						"    public void bar(int i) {\n" +
 						"		boolean b = foo( switch(i+1) {\n" +
-						"	    	case 0 : yield Short.valueOf((short)0);\n" +
+						"	    	case 0 : yield new Short((short)0);\n" +
 						"	    	default : yield 2.0d;\n" +
 						"    	});\n" +
 						"    	System.out.println(b);\n" +
