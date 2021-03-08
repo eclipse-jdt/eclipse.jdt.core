@@ -309,6 +309,14 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, source);
 		}
 
+		/*
+		 * release option.
+		 */
+		if (this.release != null) {
+			this.customDefaultOptions.put(CompilerOptions.OPTION_Release, this.release);
+		}
+
+
 		if (compilerArgs != null) {
 			/*
 			 * Add extra argument on the command line
