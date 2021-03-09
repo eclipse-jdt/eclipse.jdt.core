@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571141"};
+//		TESTS_NAMES = new String[] { "testBug571765_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -8497,5 +8497,18 @@ public void testBug571141_3() throws IOException, ClassFormatException {
 			 + "";
 	String rFile = getClassFileContents("MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 	verifyOutputNegative(rFile, unExpectedOutput);
+}
+public void testBug571765_001() {
+	this.runNegativeTest(
+			new String[] {
+					"module-info.java",
+					"public record R() {}\n",
+				},
+	        "----------\n" +
+			"1. ERROR in module-info.java (at line 1)\n" +
+			"	public record R() {}\n" +
+			"	       ^^^^^^\n" +
+			"Syntax error on token \"record\", record expected\n" +
+	        "----------\n");
 }
 }
