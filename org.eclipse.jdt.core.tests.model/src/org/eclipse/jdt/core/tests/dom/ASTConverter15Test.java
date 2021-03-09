@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8756,7 +8756,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "byteValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not a Byte", value instanceof Byte);
-		assertEquals("Wrong value", new Byte((byte) 1), value);
+		assertEquals("Wrong value", Byte.valueOf((byte) 1), value);
 		assertFalse("The default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);
@@ -8769,7 +8769,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "charValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not a Character", value instanceof Character);
-		assertEquals("Wrong value", new Character(' '), value);
+		assertEquals("Wrong value", Character.valueOf(' '), value);
 		assertTrue("Not the default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);
@@ -8782,7 +8782,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "doubleValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not a Double", value instanceof Double);
-		assertEquals("Wrong value", new Double(4.0), value);
+		assertEquals("Wrong value", Double.valueOf(4.0), value);
 		assertFalse("The default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);
@@ -8795,7 +8795,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "floatValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not a Float", value instanceof Float);
-		assertEquals("Wrong value", new Float(3.0f), value);
+		assertEquals("Wrong value", Float.valueOf(3.0f), value);
 		assertFalse("The default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);
@@ -8808,7 +8808,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "intValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not an Integer", value instanceof Integer);
-		assertEquals("Wrong value", new Integer(1), value);
+		assertEquals("Wrong value", Integer.valueOf(1), value);
 		assertTrue("Not the default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);
@@ -8821,7 +8821,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "longValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not a Long", value instanceof Long);
-		assertEquals("Wrong value", new Long(65535L), value);
+		assertEquals("Wrong value", Long.valueOf(65535L), value);
 		assertFalse("The default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);
@@ -8834,7 +8834,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Wrong name", "shortValue", pairBinding.getName());
 		value = pairBinding.getValue();
 		assertTrue("Not a Short", value instanceof Short);
-		assertEquals("Wrong value", new Short((short) 128), value);
+		assertEquals("Wrong value", Short.valueOf((short) 128), value);
 		assertFalse("The default value", pairBinding.isDefault());
 		methodBinding = pairBinding.getMethodBinding();
 		assertNotNull("No method binding", methodBinding);

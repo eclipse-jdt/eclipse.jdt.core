@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2261,105 +2265,108 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.22
 	 * @noreference preview feature error */
-	int RecordIllegalModifierForInnerRecord = PreviewRelated + 1730;
+	int RecordIllegalModifierForInnerRecord = TypeRelated + 1730;
 	/** @since 3.22
 	 * @noreference preview feature error */
-	int RecordIllegalModifierForRecord = PreviewRelated + 1731;
+	int RecordIllegalModifierForRecord = TypeRelated + 1731;
 	/** @since 3.22
 	 * JLS 14 Sec 8.10.1
 	 * it is always a compile-time error for a record header to declare a record component with the name
 	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
-	int RecordIllegalComponentNameInRecord = PreviewRelated + 1732;
+	int RecordIllegalComponentNameInRecord = TypeRelated + 1732;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordNonStaticFieldDeclarationInRecord = PreviewRelated + 1733;
+	 */
+	int RecordNonStaticFieldDeclarationInRecord = TypeRelated + 1733;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordAccessorMethodHasThrowsClause = PreviewRelated + 1734;
+	 */
+	int RecordAccessorMethodHasThrowsClause = TypeRelated + 1734;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCanonicalConstructorHasThrowsClause = PreviewRelated + 1735;
+	 */
+	int RecordCanonicalConstructorHasThrowsClause = TypeRelated + 1735;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RecordCanonicalConstructorVisibilityReduced = PreviewRelated + 1736;
+	 */
+	int RecordCanonicalConstructorVisibilityReduced = TypeRelated + 1736;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordMultipleCanonicalConstructors = PreviewRelated + 1737;
+	 */
+	int RecordMultipleCanonicalConstructors = TypeRelated + 1737;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCompactConstructorHasReturnStatement = PreviewRelated + 1738;
+	 */
+	int RecordCompactConstructorHasReturnStatement = TypeRelated + 1738;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordDuplicateComponent = PreviewRelated + 1739;
+	 */
+	int RecordDuplicateComponent = TypeRelated + 1739;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordIllegalNativeModifierInRecord = PreviewRelated + 1740;
+	 */
+	int RecordIllegalNativeModifierInRecord = TypeRelated + 1740;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordInstanceInitializerBlockInRecord = PreviewRelated + 1741;
+	 */
+	int RecordInstanceInitializerBlockInRecord = TypeRelated + 1741;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RestrictedTypeName = PreviewRelated + 1742;
+	 */
+	int RestrictedTypeName = TypeRelated + 1742;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordIllegalAccessorReturnType = PreviewRelated + 1743;
+	 */
+	int RecordIllegalAccessorReturnType = TypeRelated + 1743;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordAccessorMethodShouldNotBeGeneric = PreviewRelated + 1744;
+	 */
+	int RecordAccessorMethodShouldNotBeGeneric = TypeRelated + 1744;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordAccessorMethodShouldBePublic = PreviewRelated + 1745;
+	 */
+	int RecordAccessorMethodShouldBePublic = TypeRelated + 1745;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCanonicalConstructorShouldNotBeGeneric = PreviewRelated + 1746;
+	 */
+	int RecordCanonicalConstructorShouldNotBeGeneric = TypeRelated + 1746;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCanonicalConstructorHasReturnStatement = PreviewRelated + 1747;
+	 */
+	int RecordCanonicalConstructorHasReturnStatement = TypeRelated + 1747;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCanonicalConstructorHasExplicitConstructorCall = PreviewRelated + 1748;
+	 */
+	int RecordCanonicalConstructorHasExplicitConstructorCall = TypeRelated + 1748;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCompactConstructorHasExplicitConstructorCall = PreviewRelated + 1749;
+	 */
+	int RecordCompactConstructorHasExplicitConstructorCall = TypeRelated + 1749;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordNestedRecordInherentlyStatic = PreviewRelated + 1750;
+	 */
+	int RecordNestedRecordInherentlyStatic = TypeRelated + 1750;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordAccessorMethodShouldNotBeStatic= PreviewRelated + 1751;
+	 */
+	int RecordAccessorMethodShouldNotBeStatic= TypeRelated + 1751;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCannotExtendRecord= PreviewRelated + 1752;
+	 */
+	int RecordCannotExtendRecord= TypeRelated + 1752;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordComponentCannotBeVoid= PreviewRelated + 1753;
+	 */
+	int RecordComponentCannotBeVoid= TypeRelated + 1753;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordIllegalVararg= PreviewRelated + 1754;
+	 */
+	int RecordIllegalVararg= TypeRelated + 1754;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordStaticReferenceToOuterLocalVariable= PreviewRelated + 1755;
+	 */
+	int RecordStaticReferenceToOuterLocalVariable= TypeRelated + 1755;
 	/** @since 3.22
-	 * @noreference preview feature error */
-	int RecordCannotDefineRecordInLocalType= PreviewRelated + 1756;
+	 */
+	int RecordCannotDefineRecordInLocalType= TypeRelated + 1756;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RecordComponentsCannotHaveModifiers= PreviewRelated + 1757;
+	 */
+	int RecordComponentsCannotHaveModifiers= TypeRelated + 1757;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RecordIllegalParameterNameInCanonicalConstructor = PreviewRelated + 1758;
+	 */
+	int RecordIllegalParameterNameInCanonicalConstructor = TypeRelated + 1758;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RecordIllegalExplicitFinalFieldAssignInCompactConstructor = PreviewRelated + 1759;
+	 */
+	int RecordIllegalExplicitFinalFieldAssignInCompactConstructor = TypeRelated + 1759;
 	/** @since 3.23
-	 * @noreference preview feature error */
-	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= PreviewRelated + 1760;
+	 */
+	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= TypeRelated + 1760;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RecordIllegalStaticModifierForLocalClassOrInterface = PreviewRelated + 1761;
+	 */
+	int RecordIllegalStaticModifierForLocalClassOrInterface = TypeRelated + 1761;
 	/** @since 3.24
-	 * @noreference preview feature error */
-	int RecordIllegalModifierForLocalRecord = PreviewRelated + 1762;
+	 */
+	int RecordIllegalModifierForLocalRecord = TypeRelated + 1762;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int RecordIllegalExtendedDimensionsForRecordComponent = Syntax + Internal + 1763;
 
 	/* records - end */
 	/* Local and Nested Static Declarations - Begin */
@@ -2376,6 +2383,18 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @deprecated problem no longer generated */
 	int PatternVariableNotInScope = PreviewRelated + 1780;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int PatternVariableRedefined = Internal + 1781;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int PatternSubtypeOfExpression = Internal + 1782;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int IllegalModifierForPatternVariable = Internal + 1783;
+	/** @since 3.25 BETA_JAVA16
+	 */
+	int PatternVariableRedeclared = Internal + 1784;
 
 
 	/** @since 3.24

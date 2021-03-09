@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - Contribution for bug 125961
@@ -2147,6 +2151,16 @@ public void configure(String[] argv) {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-16") || currentArg.equals("-16.0")) { //$NON-NLS-1$ //$NON-NLS-2$
+					if (didSpecifyCompliance) {
+						throw new IllegalArgumentException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
 						StringBuffer errorMessage = new StringBuffer();
@@ -3150,7 +3164,7 @@ public void configure(String[] argv) {
 		this.pendingErrors = null;
 	}
 }
-/** Translates any supported standarde version starting at 1.3 up-to latest into the corresponding constant from CompilerOptions */
+/** Translates any supported standard version starting at 1.3 up-to latest into the corresponding constant from CompilerOptions */
 @SuppressWarnings("nls")
 private String optionStringToVersion(String currentArg) {
 	switch (currentArg) {
@@ -3194,6 +3208,9 @@ private String optionStringToVersion(String currentArg) {
 		case "15":
 		case "15.0":
 			return CompilerOptions.VERSION_15;
+		case "16":
+		case "16.0":
+			return CompilerOptions.VERSION_16;
 		default:
 			return null;
 	}

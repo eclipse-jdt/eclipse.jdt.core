@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2019, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -62,8 +66,8 @@ public class DOMASTUtil {
 			case ASTNode.TEXT_BLOCK:
 				return apiLevel >= AST.JLS15;
 			case ASTNode.RECORD_DECLARATION:
-			case ASTNode.INSTANCEOF_EXPRESSION:
-				return isPreviewEnabled(apiLevel, previewEnabled);
+			case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
+				return apiLevel >= AST.JLS16;
 		}
 		return false;
 	}
@@ -115,7 +119,7 @@ public class DOMASTUtil {
 	}
 
 	private static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
-		return (apiLevel == AST.JLS15 && previewEnabled);
+		return (apiLevel == AST.JLS16 && previewEnabled);
 	}
 
 	public static boolean isSwitchExpressionSupported(AST ast) {
@@ -134,16 +138,12 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(ast, ASTNode.RECORD_DECLARATION);
 	}
 
-	public static boolean isRecordDeclarationSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.RECORD_DECLARATION);
+	public static boolean isRecordDeclarationSupported(int apiLevel) {
+		return isNodeTypeSupportedinAST(apiLevel, true, ASTNode.RECORD_DECLARATION);
 	}
 
-	public static boolean isInstanceofExpressionPatternSupported(AST ast) {
-		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
-	}
-
-	public static boolean isInstanceofExpressionPatternSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.INSTANCEOF_EXPRESSION);
+	public static boolean isPatternInstanceofExpressionSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
 	}
 
 	public static boolean isSealedTypeSupported(AST ast) {
@@ -164,6 +164,7 @@ public class DOMASTUtil {
 	        case AST.JLS13 :
 	        case AST.JLS14 :
 	        case AST.JLS15 :
+	        case AST.JLS16 :
 	        	return;
 		}
 		throw new IllegalArgumentException();

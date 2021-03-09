@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -231,6 +235,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 						compliance = ClassFileConstants.JDK14;
 					}  else if("15".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK15;
+					}  else if("16".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK16;
 					} else if("recovery".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK_DEFERRED;
 					}
@@ -3572,7 +3578,7 @@ protected void consumeEnterMemberValueArrayInitializer() {
 	}
 }
 private boolean isAFieldDeclarationInRecord() {
-	if (this.options.sourceLevel < ClassFileConstants.JDK14)
+	if (this.options.sourceLevel < ClassFileConstants.JDK16)
 		return false;
 	int recordIndex = -1;
 	Integer[] nestingTypeAndMethod = null;
@@ -3940,7 +3946,7 @@ protected void consumeEnumHeaderName() {
 		}
 	} else {
 		// Record that the block has a declaration for local types
-//		markEnclosingMemberWithLocalType();
+		markEnclosingMemberWithLocalType();
 		blockReal();
 	}
 	//highlight the name of the type
@@ -4534,8 +4540,7 @@ protected void consumeInsideCastExpressionLL1WithBounds() {
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty
 }
-private void consumeTypeTestPattern() {
-	TypeReference type;
+private LocalDeclaration getInstanceOfVar(TypeReference type) {
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 
@@ -4545,39 +4550,87 @@ private void consumeTypeTestPattern() {
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 
-	type = getTypeReference(this.intStack[this.intPtr--]); //getTypeReference(0); // no type dimension
 	local.declarationSourceStart = type.sourceStart;
 	local.type = type;
 	problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart, local.declarationEnd);
 	local.modifiers |= ClassFileConstants.AccFinal;
-	pushOnPatternStack(local);
+	return local;
 }
-protected void consumeInstanceOfExpression() {
-	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
-	//optimize the push/pop
 
-	//by construction, no base type may be used in getTypeReference
+protected void consumeInstanceOfExpression() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
 	Expression exp;
+	// consume annotations
 	if (length > 0) {
 		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
 					typeDecl);
+		typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
+		typeDecl.modifiers = this.intStack[this.intPtr--];
 	} else {
+		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
+		this.expressionLengthPtr--;
 		this.expressionStack[this.expressionPtr] = exp =
-				new InstanceOfExpression(
-					this.expressionStack[this.expressionPtr],
-					getTypeReference(this.intStack[this.intPtr--]));
+ 				new InstanceOfExpression(
+ 					this.expressionStack[this.expressionPtr],
+ 					typeRef);
+		this.intPtr--; // skip modifierSourceStart
+		this.intPtr--; // lose the fake modifier if any
 	}
 
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
+}
+protected void consumeInstanceOfExpressionHelper() {
+	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
+	//optimize the push/pop
+
+	int length;
+	Annotation[] typeAnnotations = null;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack,
+			(this.expressionPtr -= length) + 1,
+			typeAnnotations = new Annotation[length],
+			0,
+			length);
+	}
+
+	TypeReference ref = getTypeReference(this.intStack[this.intPtr--]);
+	if (typeAnnotations != null) {
+		int levels = ref.getAnnotatableLevels();
+		if (ref.annotations == null)
+			ref.annotations = new Annotation[levels][];
+		ref.annotations[0] = typeAnnotations;
+		ref.sourceStart = ref.annotations[0][0].sourceStart;
+		ref.bits |= ASTNode.HasTypeAnnotations;
+
+	}
+	pushOnExpressionStack(ref);
+	//by construction, no base type may be used in getTypeReference
+//	exp.declarationSourceStart = this.intStack[this.intPtr--];
+//	exp.modifiers = this.intStack[this.intPtr--];
 	//the scanner is on the next token already....
+}
+protected void consumeInstanceOfRHS() {
+	// do nothing
+}
+protected void consumeInstanceOfClassic() {
+	consumeInstanceOfExpressionHelper();
+}
+protected void consumeInstanceofPattern() {
+	TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	LocalDeclaration local = getInstanceOfVar(typeRef);
+	pushOnPatternStack(local);
+	// Only if we are not inside a block
+	if (this.realBlockPtr != -1)
+		blockReal();
 }
 protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
@@ -4593,20 +4646,24 @@ protected void consumeInstanceOfExpressionWithName() {
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
 					typeDecl);
+		typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
+		typeDecl.modifiers = this.intStack[this.intPtr--];
 	} else {
 	//by construction, no base type may be used in getTypeReference
-		TypeReference reference = getTypeReference(this.intStack[this.intPtr--]);
+		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
+		this.expressionLengthPtr--;
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
 						this.expressionStack[this.expressionPtr],
-						reference);
+						typeRef);
+		this.intPtr--; // skip modifierSourceStart
+		this.intPtr--; // lose the fake modifier if any
 	}
 	if (exp.sourceEnd == 0) {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
-	//the scanner is on the next token already....
 }
 protected void consumeInterfaceDeclaration() {
 	// see consumeClassDeclaration in case of changes: duplicated code
@@ -4878,13 +4935,8 @@ protected void consumeInvalidConstructorDeclaration(boolean hasBody) {
 }
 protected void consumeInvalidEnumDeclaration() {
 	// BlockStatement ::= EnumDeclaration
-	if (this.previewEnabled) {
-		 /* JLS 15 Local Static Interfaces and Enum Classes - Records preview - Sec 6.1
-		  * A local class or interface (14.3), declared in one of the following: A class declaration, An enum declaration,
-		  * An interface declaration
-		  */
-		return;
-	}
+	if (this.options.sourceLevel >= ClassFileConstants.JDK16)
+		return; // local enum classes allowed from 16 onwards.
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -4895,13 +4947,8 @@ protected void consumeInvalidEnumDeclaration() {
 protected void consumeInvalidInterfaceDeclaration() {
 	// BlockStatement ::= InvalidInterfaceDeclaration
 	//InterfaceDeclaration ::= Modifiersopt 'interface' 'Identifier' ExtendsInterfacesopt InterfaceHeader InterfaceBody
-	if (this.previewEnabled) {
-		 /* JLS 15 Local Static Interfaces and Enum Classes - Records preview - Sec 6.1
-		  * A local class or interface (14.3), declared in one of the following: A class declaration, An enum declaration,
-		  * An interface declaration
-		  */
-		return;
-	}
+	if (this.options.sourceLevel >= ClassFileConstants.JDK16)
+		return; // local interfaces allowed from 16 onwards.
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	if(!this.statementRecoveryActivated) problemReporter().illegalLocalTypeDeclaration(typeDecl);
 	// remove the ast node created in interface header
@@ -7380,12 +7427,20 @@ protected void consumeRule(int act) {
 		    consumeCompactConstructorHeaderNameWithTypeParameters();
 			break;
 
-    case 351 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression instanceof"); }  //$NON-NLS-1$
+    case 351 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression..."); }  //$NON-NLS-1$
 		    consumeInstanceOfExpression();
 			break;
 
-    case 355 : if (DEBUG) { System.out.println("TypeTestPattern ::= Type Identifier"); }  //$NON-NLS-1$
-		    consumeTypeTestPattern();
+    case 353 : if (DEBUG) { System.out.println("InstanceofRHS -> InstanceofPattern"); }  //$NON-NLS-1$
+		    consumeInstanceOfRHS();
+			break;
+
+    case 354 : if (DEBUG) { System.out.println("InstanceofClassic ::= instanceof Modifiersopt Type"); }  //$NON-NLS-1$
+		    consumeInstanceOfClassic();
+			break;
+
+    case 355 : if (DEBUG) { System.out.println("InstanceofPattern ::= InstanceofClassic Identifier"); }  //$NON-NLS-1$
+		    consumeInstanceofPattern();
 			break;
 
     case 357 : if (DEBUG) { System.out.println("PushLeftBrace ::="); }  //$NON-NLS-1$
@@ -8648,7 +8703,7 @@ protected void consumeRule(int act) {
 		    consumeBinaryExpressionWithName(OperatorIds.GREATER_EQUAL);
 			break;
 
-    case 838 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::= Name instanceof..."); }  //$NON-NLS-1$
+    case 838 : if (DEBUG) { System.out.println("InstanceofExpression_NotName ::= Name InstanceofRHS"); }  //$NON-NLS-1$
 		    consumeInstanceOfExpressionWithName();
 			break;
 
@@ -11131,6 +11186,9 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 				extendedDimensions > 0) {
 			problemReporter().illegalExtendedDimensions(recordComponent);
 		}
+	} else {
+		if (!this.statementRecoveryActivated && extendedDimensions > 0)
+			problemReporter().recordIllegalExtendedDimensionsForRecordComponent(recordComponent);
 	}
 }
 protected void consumeRecordBody() {
@@ -11185,6 +11243,7 @@ protected void consumeCompactConstructorDeclaration() {
 			&& !containsComment(ccd.bodyStart, this.endPosition)) {
 		ccd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
+	ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
 
 	//watch for } that could be given as a unicode ! ( u007D is '}' )
 	// store the this.endPosition (position just before the '}') in case there is
@@ -11543,18 +11602,8 @@ protected void dispatchDeclarationInto(int length) {
 		for (int i = typeDecl.memberTypes.length - 1; i >= 0; i--) {
 			TypeDeclaration memberType = typeDecl.memberTypes[i];
 			memberType.enclosingType = typeDecl;
-			markNestedRecordStatic(memberType);
 		}
 	}
-}
-private void markNestedRecordStatic(TypeDeclaration typeDeclaration) {
-	/*
-	 * JLS 14 8.10 (Preview)
-	 * A nested record type is implicitly static.
-	 * It is permitted for the declaration of a nested record type to redundantly specify the static modifier.
-	 */
-	if (typeDeclaration.isRecord())
-		typeDeclaration.modifiers |= ClassFileConstants.AccStatic;
 }
 protected void dispatchDeclarationIntoEnumDeclaration(int length) {
 

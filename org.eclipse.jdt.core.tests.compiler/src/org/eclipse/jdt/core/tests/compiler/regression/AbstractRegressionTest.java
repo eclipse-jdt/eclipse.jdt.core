@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -306,6 +310,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_14;
 		} else if(rawVersion.startsWith("15")) {
 			return JavaCore.VERSION_15;
+		} else if(rawVersion.startsWith("16")) {
+			return JavaCore.VERSION_16;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -472,6 +478,20 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("15.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_16) {
+			if ("16-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("16".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("16.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("16.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
@@ -1215,7 +1235,7 @@ protected static class JavacTestOptions {
 	public final static String MODULE_INFO_NAME = new String(TypeConstants.MODULE_INFO_NAME);
 
 	public static boolean SHIFT = false;
-	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.VERSION_15;
+	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.latestSupportedJavaVersion();
 
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
@@ -1228,7 +1248,7 @@ protected static class JavacTestOptions {
 		super(name);
 	}
 	protected boolean checkPreviewAllowed() {
-		return this.complianceLevel == ClassFileConstants.JDK15;
+		return this.complianceLevel == ClassFileConstants.getLatestJDKLevel();
 	}
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
@@ -4078,9 +4098,9 @@ protected void runNegativeTest(
 	}
 	protected Map<String, String> setPresetPreviewOptions() {
 		Map<String, String> options = getCompilerOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return options;

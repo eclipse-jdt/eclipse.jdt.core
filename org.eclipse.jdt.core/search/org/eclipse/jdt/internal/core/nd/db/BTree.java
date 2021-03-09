@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 QNX Software Systems and others.
+ * Copyright (c) 2005, 2021 QNX Software Systems and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -501,7 +501,7 @@ public class BTree {
 
 					throw new BTreeKeyNotFoundException(
 							MessageFormat.format("Deletion of key not in btree: {0} mode={1}", //$NON-NLS-1$
-									new Object[]{new Long(key), new Integer(mode)}));
+									new Object[]{Long.valueOf(key), Integer.valueOf(mode)}));
 				}
 			}
 		}
@@ -759,8 +759,8 @@ public class BTree {
 				if (!full && !empty) {
 					this.valid = false;
 					this.msg += MessageFormat.format("[{0} blanks inconsistent b={1} nb={2}]", //$NON-NLS-1$
-							new Object[] { new Long(node), new Integer(indexFirstBlankKey),
-									new Integer(indexLastNonBlankKey) });
+							new Object[] { Long.valueOf(node), Integer.valueOf(indexFirstBlankKey),
+									Integer.valueOf(indexLastNonBlankKey) });
 				}
 			}
 
@@ -768,7 +768,7 @@ public class BTree {
 			if (childCount != 0 && childCount != keyCount + 1) {
 				this.valid = false;
 				this.msg += MessageFormat.format("[{0} wrong number of children with respect to key count]", //$NON-NLS-1$
-						new Object[] { new Long(node) });
+						new Object[] { Long.valueOf(node) });
 			}
 
 			// The root node is excused from the remaining node constraints.
@@ -779,13 +779,13 @@ public class BTree {
 			// Check: Non-root nodes must have a keyCount within a certain range
 			if (keyCount < BTree.this.minRecords || keyCount > BTree.this.maxRecords) {
 				this.valid = false;
-				this.msg += MessageFormat.format("[{0} key count out of range]", new Object[] { new Long(node) }); //$NON-NLS-1$
+				this.msg += MessageFormat.format("[{0} key count out of range]", new Object[] { Long.valueOf(node) }); //$NON-NLS-1$
 			}
 
 			// Check: All leaf nodes are at the same depth
 			if (childCount == 0) {
 				if (this.leafDepth == null) {
-					this.leafDepth = new Integer(this.depth);
+					this.leafDepth = Integer.valueOf(this.depth);
 				}
 				if (this.depth != this.leafDepth.intValue()) {
 					this.valid = false;

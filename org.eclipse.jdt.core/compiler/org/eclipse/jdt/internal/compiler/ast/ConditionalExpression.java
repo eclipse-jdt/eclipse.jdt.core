@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,6 +33,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -455,6 +456,51 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 	@Override
 	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.valueIfFalse.collectPatternVariablesToScope(null, scope);
+		this.valueIfTrue.collectPatternVariablesToScope(null, scope);
+		if (this.valueIfFalse.containsPatternVariable() && this.valueIfTrue.containsPatternVariable() ) {
+			LocalVariableBinding[] first = this.valueIfTrue.patternVarsWhenTrue;
+			LocalVariableBinding[] second = this.valueIfFalse.patternVarsWhenTrue;
+			if (first != null && second != null) {
+				for (LocalVariableBinding localVariableBinding : first) {
+					char[] name = localVariableBinding.name;
+					for (LocalVariableBinding localVariableBinding2 : second) {
+						if (CharOperation.equals(name, localVariableBinding2.name)) {
+							scope.problemReporter().illegalRedeclarationOfPatternVar(localVariableBinding2, localVariableBinding2.declaration);
+						}
+					}
+				}
+			}
+			first = this.valueIfTrue.patternVarsWhenFalse;
+			second = this.valueIfFalse.patternVarsWhenFalse;
+			if (first != null && second != null) {
+				for (LocalVariableBinding localVariableBinding : first) {
+					char[] name = localVariableBinding.name;
+					for (LocalVariableBinding localVariableBinding2 : second) {
+						if (CharOperation.equals(name, localVariableBinding2.name)) {
+							scope.problemReporter().illegalRedeclarationOfPatternVar(localVariableBinding2, localVariableBinding2.declaration);
+						}
+					}
+				}
+			}
+		}
+
+		if (!this.condition.containsPatternVariable()) {
+			return;
+		}
+		if (this.condition.getPatternVariableIntroduced() != null) {
+			char[] name = this.condition.getPatternVariableIntroduced().name;
+			LocalDeclaration localVar = this.valueIfTrue.getPatternVariableIntroduced();
+			if (localVar != null && CharOperation.equals(name, localVar.name)) {
+					scope.problemReporter().illegalRedeclarationOfPatternVar(localVar.binding, localVar);
+					return;
+			}
+			localVar = this.valueIfFalse.getPatternVariableIntroduced();
+			if (localVar != null && CharOperation.equals(name, localVar.name)) {
+				scope.problemReporter().illegalRedeclarationOfPatternVar(localVar.binding, localVar);
+				return;
+			}
+		}
 		this.condition.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
 
 		variables = this.condition.getPatternVariablesWhenTrue();
@@ -483,9 +529,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				this.valueIfFalse.setExpectedType(this.expectedType);
 			}
 		}
-		if (this.condition.containsPatternVariable()) {
-			collectPatternVariablesToScope(null, scope);
-		}
+
+		collectPatternVariablesToScope(null, scope);
+
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
 			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);

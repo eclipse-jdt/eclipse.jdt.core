@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  * Copyright (c) 2000, 2020 IBM Corporation and others.
+ *  * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -291,8 +295,10 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 		problemReporter().nativeMethodsCannotBeStrictfp(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
 
 	// static members are only authorized in a static member or top level type
-	if (((realModifiers & ClassFileConstants.AccStatic) != 0) && declaringClass.isNestedType() && !declaringClass.isStatic())
-		problemReporter().unexpectedStaticModifierForMethod(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
+	if (sourceLevel < ClassFileConstants.JDK16) {
+		if (((realModifiers & ClassFileConstants.AccStatic) != 0) && declaringClass.isNestedType() && !declaringClass.isStatic())
+			problemReporter().unexpectedStaticModifierForMethod(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
+	}
 
 	methodBinding.modifiers = modifiers;
 }

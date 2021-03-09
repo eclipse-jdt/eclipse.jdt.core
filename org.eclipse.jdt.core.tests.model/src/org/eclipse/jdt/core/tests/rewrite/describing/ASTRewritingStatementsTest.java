@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -174,7 +174,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("public class D {\n");
 		buf.append("    public Object goo() {\n");
-		buf.append("        Integer i= new Integer(3);\n");
+		buf.append("        Integer i= Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("    public void hoo(int p1, Object p2) {\n");
 		buf.append("        return;\n");
@@ -208,10 +208,10 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("public class D {\n");
 		buf.append("    public Object goo() {\n");
-		buf.append("        Integer i= new Integer(3);\n");
+		buf.append("        Integer i= Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("    public void hoo(int p1, Object p2) {\n");
-		buf.append("        Integer i= new Integer(3);\n");
+		buf.append("        Integer i= Integer.valueOf(3);\n");
 		buf.append("        return;\n");
 		buf.append("    }\n");
 		buf.append("}\n");
@@ -230,7 +230,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("    public Object goo() {\n");
 		buf.append("        i++; //comment\n");
 		buf.append("        i++; //comment\n");
-		buf.append("        return new Integer(3);\n");
+		buf.append("        return Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
@@ -269,7 +269,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("        i++; //comment\n");
 		buf.append("        foo();\n");
 		buf.append("        foo();\n");
-		buf.append("        return new Integer(3);\n");
+		buf.append("        return Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 
@@ -323,7 +323,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("package test1;\n");
 		buf.append("public class D {\n");
 		buf.append("    public Object goo() {\n");
-		buf.append("        return new Integer(3);\n");
+		buf.append("        return Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("    public void hoo(int p1, Object p2) {\n");
 		buf.append("        return;\n");
@@ -373,7 +373,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		buf.append("    public Object goo() {\n");
 		buf.append("        i++; //comment\n");
 		buf.append("        i++; //comment\n");
-		buf.append("        return new Integer(3);\n");
+		buf.append("        return Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
@@ -961,12 +961,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	public void testReplace2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		/* goo(): new Integer(3) -> 'null' */
+		/* goo(): Integer.valueOf(3) -> 'null' */
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class D {\n");
 		buf.append("    public Object goo() {\n");
-		buf.append("        return new Integer(3);\n");
+		buf.append("        return Integer.valueOf(3);\n");
 		buf.append("    }\n");
 		buf.append("    public void hoo(int p1, Object p2) {\n");
 		buf.append("        return;\n");
@@ -5764,7 +5764,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 			rewrite.replace(decl.getType(), newType, null);
@@ -5780,7 +5780,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			List fragments= decl.fragments();
 			assertTrue("Number of fragments not 3", fragments.size() == 3);
@@ -5799,7 +5799,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 			// add modifiers
 			int newModifiers= 0;
-			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VDS_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);

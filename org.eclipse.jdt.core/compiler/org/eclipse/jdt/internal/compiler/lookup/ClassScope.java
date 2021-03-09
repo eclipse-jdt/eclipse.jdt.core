@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -156,6 +160,7 @@ public class ClassScope extends Scope {
 					sz);
 			permTypes[sz] = anonymousType;
 		}
+		anonymousType.modifiers |= ClassFileConstants.AccFinal; // JLS 15 / sealed preview/Sec 8.9.1
 		sourceSuperType.setPermittedTypes(permTypes);
 	}
 
@@ -318,6 +323,9 @@ public class ClassScope extends Scope {
 				TypeDeclaration memberContext = this.referenceContext.memberTypes[i];
 				switch(TypeDeclaration.kind(memberContext.modifiers)) {
 					case TypeDeclaration.INTERFACE_DECL :
+						if (compilerOptions().sourceLevel >= ClassFileConstants.JDK16)
+							break;
+						//$FALL-THROUGH$
 					case TypeDeclaration.ANNOTATION_TYPE_DECL :
 						problemReporter().illegalLocalTypeDeclaration(memberContext);
 						continue nextMember;
@@ -380,6 +388,9 @@ public class ClassScope extends Scope {
 				switch(TypeDeclaration.kind(memberContext.modifiers)) {
 					case TypeDeclaration.INTERFACE_DECL :
 					case TypeDeclaration.ANNOTATION_TYPE_DECL :
+						if (compilerOptions().sourceLevel >= ClassFileConstants.JDK16)
+							break;
+						//$FALL-THROUGH$
 						if (sourceType.isNestedType()
 								&& sourceType.isClass() // no need to check for enum, since implicitly static
 								&& !sourceType.isStatic()) {
@@ -570,6 +581,7 @@ public class ClassScope extends Scope {
 		int modifiers = sourceType.modifiers;
 		boolean isPreviewEnabled = compilerOptions().sourceLevel == ClassFileConstants.getLatestJDKLevel() &&
 				compilerOptions().enablePreviewFeatures;
+		boolean is16Plus = compilerOptions().sourceLevel >= ClassFileConstants.JDK16;
 		boolean flagSealedNonModifiers = isPreviewEnabled &&
 				(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 		if (sourceType.isRecord()) {
@@ -588,7 +600,7 @@ public class ClassScope extends Scope {
 			if (enclosingType.isInterface())
 				modifiers |= ClassFileConstants.AccPublic;
 			if (sourceType.isEnum()) {
-				if (!enclosingType.isStatic())
+				if (!is16Plus && !enclosingType.isStatic())
 					problemReporter().nonStaticContextForEnumMemberType(sourceType);
 				else
 					modifiers |= ClassFileConstants.AccStatic;
@@ -600,7 +612,7 @@ public class ClassScope extends Scope {
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
-				if (!isPreviewEnabled) {
+				if (!is16Plus) {
 					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
 					sourceType.modifiers = 0;
 					return;
@@ -613,12 +625,13 @@ public class ClassScope extends Scope {
 				}
 				modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isRecord()) {
-				if (enclosingType != null && enclosingType.isLocalType()) {
-					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
-					return;
-				}
+//				if (enclosingType != null && enclosingType.isLocalType()) {
+//					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
+//					return;
+//				}
 				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
-					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
+					if (!(this.parent instanceof ClassScope))
+						problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
 					return;
 				}
 				modifiers |= ClassFileConstants.AccStatic;
@@ -629,6 +642,12 @@ public class ClassScope extends Scope {
 			    // set AccEnum flag for anonymous body of enum constants
 			    if (this.referenceContext.allocation.type == null)
 			    	modifiers |= ClassFileConstants.AccEnum;
+			} else if (this.parent.referenceContext() instanceof TypeDeclaration) {
+				TypeDeclaration typeDecl = (TypeDeclaration) this.parent.referenceContext();
+				if (TypeDeclaration.kind(typeDecl.modifiers) == TypeDeclaration.INTERFACE_DECL) {
+					// Sec 8.1.3 applies for local types as well
+					modifiers |= ClassFileConstants.AccStatic;
+				}
 			}
 			Scope scope = this;
 			do {
@@ -695,10 +714,12 @@ public class ClassScope extends Scope {
 					if ((realModifiers & unexpectedModifiers) != 0)
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
-			} else 	if (isPreviewEnabled && sourceType.isLocalType()) {
+			} else 	if (sourceType.isLocalType()) {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface
-						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
-				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
+						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation
+						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0
+						|| (isPreviewEnabled && flagSealedNonModifiers))
 					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
 //				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
 //					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
@@ -835,11 +856,13 @@ public class ClassScope extends Scope {
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp
+						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForClass(sourceType);
 			}
@@ -883,9 +906,10 @@ public class ClassScope extends Scope {
 				if (enclosingType.isInterface())
 					modifiers |= ClassFileConstants.AccStatic;
 			} else if (!enclosingType.isStatic()) {
-				if (sourceType.isRecord())
-					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
-				else
+//				if (sourceType.isRecord())
+//					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
+//				else
+					if (!is16Plus)
 					// error the enclosing type of a static field must be static or a top-level type
 					problemReporter().illegalStaticModifierForMemberType(sourceType);
 			}

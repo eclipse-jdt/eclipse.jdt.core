@@ -32,56 +32,56 @@ public class SealedTypeElementsTests extends TestCase {
 
 	public void test001() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test001", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test001", null, "sealed", true);
 	}
 	public void test001Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test001", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test001", null, "sealed", true);
 	}
 	public void test002() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test002", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test002", null, "sealed", true);
 	}
 	public void test002Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test002", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test002", null, "sealed", true);
 	}
 	public void test003() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test003", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test003", null, "sealed", true);
 	}
 	public void test003Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test003", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test003", null, "sealed", true);
 	}
 	public void test004() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test004", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test004", null, "sealed", true);
 	}
 	public void test004Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test004", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test004", null, "sealed", true);
 	}
 	public void test005Src() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Src", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test005Src", null, "sealed", true);
 	}
 	public void test005SrcJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Src", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test005Src", null, "sealed", true);
 	}
 	public void test005Binary() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Binary", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test005Binary", null, "sealed", true);
 	}
 	public void test005BinaryJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "15", "test005Binary", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "test005Binary", null, "sealed", true);
 	}
 
 	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,
 			String testMethod, String testClass, String resourceArea, boolean preview) throws IOException {
-		if (!canRunJava15()) {
+		if (!canRunJava16()) {
 			return;
 		}
 		System.clearProperty(processor);
@@ -110,9 +110,9 @@ public class SealedTypeElementsTests extends TestCase {
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));
 	}
-	public boolean canRunJava15() {
+	public boolean canRunJava16() {
 		try {
-			SourceVersion.valueOf("RELEASE_15");
+			SourceVersion.valueOf("RELEASE_16");
 		} catch(IllegalArgumentException iae) {
 			return false;
 		}

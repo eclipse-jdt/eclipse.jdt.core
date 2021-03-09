@@ -31,7 +31,7 @@ public CompilationUnitTests14(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	final String compliance = "15"; //$NON-NLS-1$
+	final String compliance = "16"; //$NON-NLS-1$
 	this.testProject = createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	createFolder("/P/src/p");
 	createFile(
@@ -124,7 +124,7 @@ public void tearDownSuite() throws Exception {
  * exist in a compilation unit.
  */
 public void testGetTypes() throws JavaModelException {
-	if (canRunJava15()) {
+	if (canRunJava16()) {
 		IType[] types = this.cu.getTypes();
 		String[] typeNames = new String[] {"X", "I", "I2", "I3", "Y", "Colors", "Annot", "Record"};
 		String[] flags = new String[] {"public", "", "", "", "", "", "", ""};
@@ -165,9 +165,9 @@ public void testGetTypes() throws JavaModelException {
 	}
 }
 
-public boolean canRunJava15() {
+public boolean canRunJava16() {
 	try {
-		SourceVersion.valueOf("RELEASE_15");
+		SourceVersion.valueOf("RELEASE_16");
 	} catch(IllegalArgumentException iae) {
 		return false;
 	}

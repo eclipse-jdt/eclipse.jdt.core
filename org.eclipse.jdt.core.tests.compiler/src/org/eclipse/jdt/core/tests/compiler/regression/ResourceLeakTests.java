@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     Nikolay Metchev (nikolaymetchev@gmail.com) - Contributions for
@@ -5621,7 +5625,6 @@ public void testBug542707_002() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runLeakTest(
 		new String[] {

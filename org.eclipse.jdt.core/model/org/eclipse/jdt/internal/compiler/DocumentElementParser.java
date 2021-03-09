@@ -804,6 +804,16 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	pushOnAstStack(arg);
 	this.intArrayPtr--;
 }
+@Override
+protected void consumeInstanceOfExpression() {
+	super.consumeInstanceOfExpression();
+	this.intPtr--; // skip declarationSourceStart of modifiers
+}
+@Override
+protected void consumeInstanceOfExpressionWithName() {
+	super.consumeInstanceOfExpressionWithName();
+	this.intPtr--; // skip declarationSourceStart of modifiers
+}
 /*
  *
  * INTERNAL USE-ONLY

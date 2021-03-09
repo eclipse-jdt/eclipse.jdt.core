@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -81,6 +85,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE13 = false;
 	protected static boolean isJRE14 = false;
 	protected static boolean isJRE15 = false;
+	protected static boolean isJRE16 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -93,6 +98,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK16) {
+			isJRE16 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK15) {
 			isJRE15 = true;
 		}
@@ -128,6 +136,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
 
 	/**
+	 * Internal synonym for constant AST.JSL11
+	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
+	 * @deprecated
+	 */
+	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
+
+	/**
 	 * Internal synonym for constant AST.JSL12
 	 * to alleviate deprecation warnings once AST.JLS12 is deprecated in future.
 	 * @deprecated
@@ -151,21 +166,21 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL15
 	 * to alleviate deprecation warnings once AST.JLS15 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS15 = AST.JLS15;
 
 	/**
-	 * Internal synonym for constant AST.JSL11
-	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
-	 * @deprecated
+	 * Internal synonym for constant AST.JSL16
+	 * to alleviate deprecation warnings once AST.JLS16 is deprecated in future.
 	 */
-	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
+	protected static final int AST_INTERNAL_JLS16 = AST.JLS16;
 
 	/**
 	 * Internal synonym for the latest AST level.
 	 *
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS15;
+	protected static final int AST_INTERNAL_LATEST = AST.JLS_Latest;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -1539,6 +1554,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava15Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "15");
 	}
+	protected IJavaProject createJava16Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "16");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -2143,7 +2161,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 					javaProject.setOptions(options);
+				} else if ("16".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
+					javaProject.setOptions(options);
 				}
+
 				result[0] = javaProject;
 			}
 		};
@@ -3219,6 +3244,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
+		javaProject.setOption(JavaCore.COMPILER_COMPLIANCE, compliance);
+		javaProject.setOption(JavaCore.COMPILER_SOURCE, compliance);
+		javaProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, compliance);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
@@ -3241,7 +3269,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("15")) {
+			if (compliance.equals("16")) {
+				// Reuse the same 14 stuff as of now. No real need for a new one
+				newJclLibString = "JCL14_LIB";
+				newJclSrcString = "JCL14_SRC";
+			} else if (compliance.equals("15")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL14_LIB";
 				newJclSrcString = "JCL14_SRC";
@@ -3406,6 +3438,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("15".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
+				setupExternalJCL("jclMin14");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL14_LIB", "JCL14_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("14"), getExternalJCLSourcePath("14"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("16".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
 				setupExternalJCL("jclMin14");
 				JavaCore.setClasspathVariables(

@@ -7,22 +7,23 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+
+import junit.framework.Test;
 
 public class CreateMembersTests extends AbstractJavaModelTests {
 
@@ -45,7 +46,7 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setUpJavaProject("CreateMembers", "15");
+		setUpJavaProject("CreateMembers", "16");
 	}
 	@Override
 	public void tearDownSuite() throws Exception {
@@ -174,98 +175,71 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 			expected);
 	}
 	public void testBug563622_1() throws JavaModelException {
-		IJavaProject javaProject = getJavaProject("CreateMembers");
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		try {
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Outer.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			type.createType("record Point() {}", null, true, null);
-			String expectedSource =
-					"public class Outer {\n" +
-					"\n" +
-					"	record Point() {}\n" +
-					"}";
-			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Outer.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		type.createType("record Point() {}", null, true, null);
+		String expectedSource =
+				"public class Outer {\n" +
+				"\n" +
+				"	record Point() {}\n" +
+				"}";
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
 	}
-	public void testBug563622_2() throws JavaModelException {
-		IJavaProject javaProject = getJavaProject("CreateMembers");
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+	// Not required now as record is not a preview feature since Java 16
+	public void _testBug563622_2() throws JavaModelException {
 		JavaModelException expected = null;
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Outer.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
 		try {
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "Outer.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			try {
-				type.createType("record Point() {}", null, true, null);
-			} catch (JavaModelException e) {
-				expected = e;
-			}
-			assertExceptionEquals(
-					"Unexpected exception",
-					"Invalid contents specified",
-					expected);
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			type.createType("record Point() {}", null, true, null);
+		} catch (JavaModelException e) {
+			expected = e;
 		}
+		assertExceptionEquals(
+				"Unexpected exception",
+				"Invalid contents specified",
+				expected);
 	}
 
 	public void testBug565015_1() throws JavaModelException {
-		IJavaProject javaProject = getJavaProject("CreateMembers");
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		try {
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "OuterRecord.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			type.createType("record Point() {}", null, true, null);
-			String expectedSource =
-					"public record OuterRecord() {\n" +
-					"\n" +
-					"	record Point() {}\n" +
-					"}";
-			assertSourceEquals("Unexpected source", expectedSource, type.getSource());
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
-	}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "", "OuterRecord.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		type.createType("record Point() {}", null, true, null);
+		String expectedSource =
+				"public record OuterRecord() {\n" +
+				"\n" +
+				"	record Point() {}\n" +
+				"}";
+		assertSourceEquals("Unexpected source", expectedSource, type.getSource());
+}
 
 	public void testBug565015_2() throws JavaModelException {
-		IJavaProject javaProject = getJavaProject("CreateMembers");
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		try {
-			ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "testBug565015", "PkgRecord.java");
-			assertNotNull("No compilation unit", compilationUnit);
-			IType[] types = compilationUnit.getTypes();
-			assertNotNull("No types", types);
-			assertEquals("Wrong size", 1, types.length);
-			IType type = types[0];
-			type.createType("record Point() {}", null, true, null);
-			String expectedSource =
-					"package testBug565015;\n" +
-					"\n" +
-					"public record PkgRecord() {\n" +
-					"\n" +
-					"	record Point() {}\n" +
-					"}";
-			assertSourceEquals("Unexpected source", expectedSource, compilationUnit.getSource());
-		} finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		ICompilationUnit compilationUnit = getCompilationUnit("CreateMembers", "src", "testBug565015", "PkgRecord.java");
+		assertNotNull("No compilation unit", compilationUnit);
+		IType[] types = compilationUnit.getTypes();
+		assertNotNull("No types", types);
+		assertEquals("Wrong size", 1, types.length);
+		IType type = types[0];
+		type.createType("record Point() {}", null, true, null);
+		String expectedSource =
+				"package testBug565015;\n" +
+				"\n" +
+				"public record PkgRecord() {\n" +
+				"\n" +
+				"	record Point() {}\n" +
+				"}";
+		assertSourceEquals("Unexpected source", expectedSource, compilationUnit.getSource());
 	}
 }

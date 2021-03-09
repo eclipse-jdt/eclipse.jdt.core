@@ -18,28 +18,29 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 
-public class CompletionTests15 extends AbstractJavaModelCompletionTests {
+//java 15 scenarios run with java 16 compliance
+public class CompletionTests16_1 extends AbstractJavaModelCompletionTests {
 
 	static {
 		// TESTS_NAMES = new String[]{"test034"};
 	}
 
-	public CompletionTests15(String name) {
+	public CompletionTests16_1(String name) {
 		super(name);
 	}
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "15");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "16");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "15");
+			setUpProjectCompliance(COMPLETION_PROJECT, "16");
 		}
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(CompletionTests15.class);
+		return buildModelTestSuite(CompletionTests16_1.class);
 	}
 
 	// completion for sealed

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2020 GK Software AG and others.
+ * Copyright (c) 2012, 2021 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2295,11 +2295,20 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in p\\X.java (at line 6)\n" +
-			"	if (!(arg instanceof List<@NonNull X>))\n" +
-			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot perform instanceof check against parameterized type List<X>. Use the form List<?> instead since further generic type information will be erased at runtime\n" +
+			((this.complianceLevel >= ClassFileConstants.JDK16) ?
+					"----------\n" +
+					"1. WARNING in p\\X.java (at line 6)\n" +
+					"	if (!(arg instanceof List<@NonNull X>))\n" +
+					"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"The expression of type List<X> is already an instance of type List<X>\n"
+					:
+						"----------\n" +
+						"1. ERROR in p\\X.java (at line 6)\n" +
+						"	if (!(arg instanceof List<@NonNull X>))\n" +
+						"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+						"Cannot perform instanceof check against parameterized type List<X>. Use the form List<?> instead since further generic type information will be erased at runtime\n"
+					) +
+
 			"----------\n" +
 			"2. ERROR in p\\X.java (at line 6)\n" +
 			"	if (!(arg instanceof List<@NonNull X>))\n" +
@@ -8425,8 +8434,13 @@ public void testBug466713d() {
 		"----------\n" +
 		"1. ERROR in Bug.java (at line 3)\n" +
 		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" +
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot perform instanceof check against parameterized type Iterator<String>. Use the form Iterator<?> instead since further generic type information will be erased at runtime\n" +
+		((this.complianceLevel >= ClassFileConstants.JDK16) ?
+				"	       ^\n" +
+				"Type Object cannot be safely cast to Iterator<String>\n"
+				:
+					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Cannot perform instanceof check against parameterized type Iterator<String>. Use the form Iterator<?> instead since further generic type information will be erased at runtime\n"
+				) +
 		"----------\n" +
 		"2. ERROR in Bug.java (at line 3)\n" +
 		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" +

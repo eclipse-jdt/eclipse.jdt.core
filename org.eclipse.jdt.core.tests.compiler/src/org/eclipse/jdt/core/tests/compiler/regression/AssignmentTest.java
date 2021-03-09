@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -892,6 +896,45 @@ public void test037() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111703
 public void test038() {
+	String expectedError = 	this.complianceLevel < ClassFileConstants.JDK16 ?
+			"----------\n" +
+			"1. WARNING in X.java (at line 19)\n" +
+			"	public void valueChanged(TreeSelectionEvent e) {\n" +
+			"	                                            ^\n" +
+			"The parameter e is hiding another local variable defined in an enclosing scope\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 23)\n" +
+			"	static {\n" +
+			"	       ^\n" +
+			"Cannot define static initializer in inner type new ActionListener(){}\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 24)\n" +
+			"	myTree.addTreeSelectionListener(list);\n" +
+			"	^^^^^^\n" +
+			"Cannot make a static reference to the non-static field myTree\n" +
+			"----------\n" +
+			"4. WARNING in X.java (at line 26)\n" +
+			"	public void actionPerformed(ActionEvent e) {\n" +
+			"	                                        ^\n" +
+			"The parameter e is hiding another local variable defined in an enclosing scope\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in X.java (at line 19)\n" +
+			"	public void valueChanged(TreeSelectionEvent e) {\n" +
+			"	                                            ^\n" +
+			"The parameter e is hiding another local variable defined in an enclosing scope\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 24)\n" +
+			"	myTree.addTreeSelectionListener(list);\n" +
+			"	^^^^^^\n" +
+			"Cannot make a static reference to the non-static field myTree\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 26)\n" +
+			"	public void actionPerformed(ActionEvent e) {\n" +
+			"	                                        ^\n" +
+			"The parameter e is hiding another local variable defined in an enclosing scope\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -935,27 +978,7 @@ public void test038() {
 			"\n" +
 			"}",
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 19)\n" +
-		"	public void valueChanged(TreeSelectionEvent e) {\n" +
-		"	                                            ^\n" +
-		"The parameter e is hiding another local variable defined in an enclosing scope\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 23)\n" +
-		"	static {\n" +
-		"	       ^\n" +
-		"Cannot define static initializer in inner type new ActionListener(){}\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 24)\n" +
-		"	myTree.addTreeSelectionListener(list);\n" +
-		"	^^^^^^\n" +
-		"Cannot make a static reference to the non-static field myTree\n" +
-		"----------\n" +
-		"4. WARNING in X.java (at line 26)\n" +
-		"	public void actionPerformed(ActionEvent e) {\n" +
-		"	                                        ^\n" +
-		"The parameter e is hiding another local variable defined in an enclosing scope\n" +
-		"----------\n");
+		expectedError);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=111898
 public void test039() {
@@ -1255,6 +1278,27 @@ public void test049() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // adding an inner class to the picture
 public void test050() {
+	String expectedError = 	this.complianceLevel < ClassFileConstants.JDK16 ?
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 4)\n" +
+			"	public static String s;\n" +
+			"	                     ^\n" +
+			"The field s cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
+			"----------\n" +
+			"2. ERROR in p\\X.java (at line 6)\n" +
+			"	X.XX.s = s;    }\n" +
+			"	^^^^^^^^^^\n" +
+			"The assignment to variable s has no effect\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 6)\n" +
+			"	X.XX.s = s;    }\n" +
+			"	^^^^^^^^^^\n" +
+			"The assignment to variable s has no effect\n" +
+			"----------\n";
+
+
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",
@@ -1268,17 +1312,7 @@ public void test050() {
 			"  }\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in p\\X.java (at line 4)\n" +
-		"	public static String s;\n" +
-		"	                     ^\n" +
-		"The field s cannot be declared static in a non-static inner type, unless initialized with a constant expression\n" +
-		"----------\n" +
-		"2. ERROR in p\\X.java (at line 6)\n" +
-		"	X.XX.s = s;    }\n" +
-		"	^^^^^^^^^^\n" +
-		"The assignment to variable s has no effect\n" +
-		"----------\n");
+		expectedError);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // swap lhs and rhs
