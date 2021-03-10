@@ -42,6 +42,8 @@
 				<include name="META-INF/**"/>
 				<include name="**/*.properties"/>
 				<exclude name="META-INF/eclipse.inf"/>
+				<exclude name="META-INF/ECLIPSE_.SF"/>
+				<exclude name="META-INF/ECLIPSE_.RSA"/>
 			</fileset>
 		</zip>
 		<delete dir="${output}" />

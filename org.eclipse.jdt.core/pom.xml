@@ -113,6 +113,15 @@
               <fileSets>
                 <fileSet>
                   <directory>${project.basedir}/batch</directory>
+                  <excludes>
+                    <exclude>org/eclipse/jdt/internal/compiler/batch/messages.properties</exclude>
+                  </excludes>
+                </fileSet>
+                <fileSet>
+                  <directory>${project.build.directory}/classes</directory>
+                  <includes>
+                    <include>org/eclipse/jdt/internal/compiler/batch/messages.properties</include>
+                  </includes>
                 </fileSet>
                 <fileSet>
                   <directory>${project.basedir}/compiler</directory>
