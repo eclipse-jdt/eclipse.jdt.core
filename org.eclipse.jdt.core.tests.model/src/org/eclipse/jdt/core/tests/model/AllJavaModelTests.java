@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.eclipse.jdt.core.tests.compiler.map.CharArrayMapperTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 import junit.framework.Test;
@@ -224,6 +225,8 @@ private static Class[] getAllTestClasses() {
 		NullAnnotationModelTests9.class,
 
 		JavaModelManagerTests.class,
+
+		CharArrayMapperTest.class,
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

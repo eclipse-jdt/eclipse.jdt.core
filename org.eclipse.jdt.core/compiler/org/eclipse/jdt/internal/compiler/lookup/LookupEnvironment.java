@@ -85,7 +85,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public ModuleBinding module;
 	public PlainPackageBinding defaultPackage;
 	/** All visible toplevel packages, i.e. observable packages associated with modules read by the current module. */
-	HashtableOfPackage knownPackages;
+	HashtableOfPackage<PackageBinding> knownPackages;
 	private int lastCompletedUnitIndex = -1; 	// ROOT_ONLY
 	private int lastUnitIndex = -1; 			// ROOT_ONLY
 
