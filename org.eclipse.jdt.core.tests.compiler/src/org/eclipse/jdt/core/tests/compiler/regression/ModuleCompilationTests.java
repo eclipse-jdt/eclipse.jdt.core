@@ -4066,8 +4066,8 @@ public void testBug521362_emptyFile() {
 		     "----------\n" +
     		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
     		 "	public java.util.stream.Stream<String> emptyStream() {\n" +
-    		 "	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-    		 "java.util.stream.Stream cannot be resolved to a type\n" +
+    		 "	       ^^^^^^^^^^^^^^^^\n" +
+    		 "java.util.stream cannot be resolved to a type\n" +
     		 "----------\n" +
     		 "1 problem (1 error)\n",
 		     true);

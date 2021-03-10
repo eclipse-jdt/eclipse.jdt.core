@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation.
+ * Copyright (c) 2019, 2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -255,6 +255,11 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 	}
 	@Override
 	public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		if (this.jdklevel >= ClassFileConstants.JDK9) {
+			// Delegate to the boss, even if it means inaccurate error reporting at times
+			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
+			return CharOperation.toCharArrays(mods);
+		}
 		if (this.packageCache == null) {
 			this.packageCache = new HashSet<>(41);
 			this.packageCache.add(Util.EMPTY_STRING);
@@ -298,11 +303,6 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 				e.printStackTrace();
 				// Rethrow
 			}
-		}
-		if (moduleName == null) {
-			// Delegate to the boss, even if it means inaccurate error reporting at times
-			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
-			return CharOperation.toCharArrays(mods);
 		}
 		return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));
 	}
