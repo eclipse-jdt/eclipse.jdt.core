@@ -191,6 +191,9 @@ public interface TagBits {
 
 	long DefaultValueResolved = ASTNode.Bit60L;
 
+	long AnnotationPreviewFeature = ASTNode.Bit32L | ASTNode.Bit33L;
+	long EssentialAPI = ASTNode.Bit11;
+
 	// set when type contains non-private constructor(s)
 	long HasNonPrivateConstructor = ASTNode.Bit61L;
 

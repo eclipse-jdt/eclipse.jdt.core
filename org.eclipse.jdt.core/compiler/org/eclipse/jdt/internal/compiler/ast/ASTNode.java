@@ -62,7 +62,6 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtendedTagBits;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
@@ -477,9 +476,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	private void reportPreviewAPI(Scope scope, long modifiers) {
 		if (scope.compilerOptions().enablePreviewFeatures)
 			return;
-		if((modifiers & ExtendedTagBits.AnnotationPreviewFeature) == ExtendedTagBits.AnnotationPreviewFeature) {
+		if((modifiers & TagBits.AnnotationPreviewFeature) == TagBits.AnnotationPreviewFeature) {
 			scope.problemReporter().previewAPIUsed(this.sourceStart, this.sourceEnd,
-					(modifiers & ExtendedTagBits.EssentialAPI) != 0);
+					(modifiers & TagBits.EssentialAPI) != 0);
 		}
 	}
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, int filteredBits) {

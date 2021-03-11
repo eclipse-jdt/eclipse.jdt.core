@@ -381,11 +381,11 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case TypeIds.T_JdkInternalPreviewFeature :
-				tagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+				tagBits |= TagBits.AnnotationPreviewFeature;
 				for (MemberValuePair memberValuePair : memberValuePairs()) {
 					if (CharOperation.equals(memberValuePair.name, TypeConstants.ESSENTIAL_API)) {
 						if (memberValuePair.value instanceof TrueLiteral) {
-							tagBits |= ExtendedTagBits.EssentialAPI;
+							tagBits |= TagBits.EssentialAPI;
 						}
 					}
 				}

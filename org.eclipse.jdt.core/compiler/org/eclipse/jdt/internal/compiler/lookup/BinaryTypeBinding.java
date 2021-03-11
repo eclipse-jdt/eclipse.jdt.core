@@ -662,7 +662,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			for (IBinaryAnnotation annotation : declAnnotations) {
 				char[] typeName = annotation.getTypeName();
 				if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
-					this.extendedTagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+					this.tagBits |= TagBits.AnnotationPreviewFeature;
 					break;
 				}
 			}
@@ -812,7 +812,7 @@ private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binar
 						for (IBinaryAnnotation annotation : declAnnotations) {
 							char[] typeName = annotation.getTypeName();
 							if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
-								field.tagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+								field.tagBits |= TagBits.AnnotationPreviewFeature;
 								break;
 							}
 						}
@@ -1036,7 +1036,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[] typeName = annotation.getTypeName();
 			if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
-				result.tagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+				result.tagBits |= TagBits.AnnotationPreviewFeature;
 				break;
 			}
 		}
