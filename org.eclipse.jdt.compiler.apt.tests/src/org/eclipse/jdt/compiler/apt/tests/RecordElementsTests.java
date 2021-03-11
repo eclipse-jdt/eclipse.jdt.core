@@ -76,11 +76,11 @@ public class RecordElementsTests extends TestCase {
 	}
 	public void testRecords4a() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", true, true);
 	}
-	public void testRecords4aJavac() throws Exception {
+	public void _testRecords4aJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", true, true);
 	}
 	public void testRecords5() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -141,6 +141,10 @@ public class RecordElementsTests extends TestCase {
 
 	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,
 			String testMethod, String testClass, String resourceArea, boolean preview) throws IOException {
+		internalTestWithPreview(compiler, processor, compliance, testMethod, testClass, resourceArea, preview, false);
+	}
+	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,
+			String testMethod, String testClass, String resourceArea, boolean preview, boolean processBinaries) throws IOException {
 		if (!isRunning16()) {
 			return;
 		}
@@ -165,7 +169,7 @@ public class RecordElementsTests extends TestCase {
 		}
 		if (preview)
 			options.add("--enable-preview");
-		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, false);
+		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, processBinaries);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));

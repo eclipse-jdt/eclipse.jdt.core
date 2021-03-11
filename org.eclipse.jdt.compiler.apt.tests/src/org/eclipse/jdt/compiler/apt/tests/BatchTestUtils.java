@@ -216,6 +216,8 @@ public class BatchTestUtils {
 				String errorOutput = stringWriter.getBuffer().toString();
 				System.err.println("Compilation failed: " + errorOutput);
 		 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+			} else {
+				junit.framework.TestCase.assertEquals("succeeded", System.getProperty(processor));
 			}
 		} catch (IOException e) {
 			// print the stack just in case.

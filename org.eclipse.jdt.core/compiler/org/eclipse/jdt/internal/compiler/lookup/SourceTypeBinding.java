@@ -1269,6 +1269,7 @@ private boolean checkPermitsAndAdd(ReferenceBinding superType, List<SourceTypeBi
 	return false;
 }
 
+@Override
 public RecordComponentBinding[] components() {
 
 	if (!this.isRecordDeclaration)

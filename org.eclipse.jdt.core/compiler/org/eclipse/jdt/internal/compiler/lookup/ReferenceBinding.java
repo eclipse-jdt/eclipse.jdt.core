@@ -1045,6 +1045,10 @@ public FieldBinding[] fields() {
 	return Binding.NO_FIELDS;
 }
 
+public RecordComponentBinding[] components() {
+	return Binding.NO_COMPONENTS;
+}
+
 public final int getAccessFlags() {
 	return this.modifiers & ExtraCompilerModifiers.AccJustFlag;
 }

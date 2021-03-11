@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -236,7 +237,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 		}
 	}
 
-	private String getAnnotationString(AnnotationMirror annot) {
+	protected String getAnnotationString(AnnotationMirror annot) {
 		DeclaredType annotType = annot.getAnnotationType();
 		TypeElement type = (TypeElement) annotType.asElement();
 		StringBuffer buf = new StringBuffer("@" + type.getSimpleName());
@@ -247,7 +248,20 @@ abstract class BaseElementProcessor extends BaseProcessor {
 			buf.append(executableElement.getSimpleName());
 			buf.append('=');
 			AnnotationValue value = values.get(executableElement);
-			buf.append(value.getValue());
+			if (value.getValue() instanceof Iterable<?>) {
+				@SuppressWarnings("unchecked")
+				Iterator<AnnotationValue> iterator = ((Iterable<AnnotationValue>) value.getValue()).iterator();
+				if (iterator.hasNext()) {
+					buf.append(iterator.next().getValue());
+				}
+				while (iterator.hasNext()) {
+					buf.append(",");
+					buf.append(iterator.next().getValue());
+				}
+ 				
+			} else {
+				buf.append(value.getValue());
+			}
 		}
 		buf.append(')');
 		return buf.toString();
