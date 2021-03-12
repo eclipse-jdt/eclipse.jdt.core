@@ -367,6 +367,12 @@ public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExpl
 //	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
 	constructor.arguments = getArgumentsFromComponents(this.recordComponents);
 
+	for (int i = 0, max = constructor.arguments.length; i < max; i++) {
+		if ((constructor.arguments[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+			constructor.bits |= ASTNode.HasTypeAnnotations;
+			break;
+		}
+	}
 	constructor.declarationSourceStart = constructor.sourceStart =
 			constructor.bodyStart = this.sourceStart;
 	constructor.declarationSourceEnd =

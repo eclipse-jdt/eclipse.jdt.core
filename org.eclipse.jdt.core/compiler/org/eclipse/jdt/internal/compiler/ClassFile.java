@@ -4124,16 +4124,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 						if (annotations != null) {
 							assert !methodBinding.isConstructor();
 							attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForMethod);
-							// Now type annotations
-							Supplier<List<AnnotationContext>> collector = () -> {
-								List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
+						}
+						if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+							List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
+							if (annotations != null && (comp.bits & ASTNode.HasTypeAnnotations) != 0) {
 								comp.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
-								return allTypeAnnotationContexts;
-							};
+							}
+							TypeReference compType = comp.type;
+							if (compType != null && ((compType.bits & ASTNode.HasTypeAnnotations) != 0)) {
+								compType.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
+							}
+							int size = allTypeAnnotationContexts.size();
 							attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
-									comp,
-									(node) -> (comp.bits & ASTNode.HasTypeAnnotations) != 0,
-									collector);
+									null,
+									(node) -> size > 0,
+									() -> allTypeAnnotationContexts);
 						}
 					}
 				}

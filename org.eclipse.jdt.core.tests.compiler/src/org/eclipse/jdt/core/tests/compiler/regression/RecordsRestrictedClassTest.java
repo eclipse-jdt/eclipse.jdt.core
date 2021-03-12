@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571765_001"};
+//		TESTS_NAMES = new String[] { "testBug571905"};
 	}
 
 	public static Class<?> testClass() {
@@ -8510,5 +8510,109 @@ public void testBug571765_001() {
 			"	       ^^^^^^\n" +
 			"Syntax error on token \"record\", record expected\n" +
 	        "----------\n");
+}
+public void testBug571905_01() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.*;\n" +
+			"record X( int @MyAnnot [] j) {\n" +
+			" public static void main(String[] args) {\n" +
+			"   System.out.println(\"helo\");\n" +
+			" }\n" +
+			"}\n" +
+			"@Target({ElementType.TYPE_USE})\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@interface MyAnnot {}\n"
+		},
+	 "helo");
+	String expectedOutput = // constructor
+			"  \n" +
+			"  // Method descriptor #10 ([I)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  X(int[] j);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [j]\n" +
+			"     6  putfield X.j : int[] [15]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 2]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+			"        [pc: 0, pc: 10] local: j index: 1 type: int[]\n" +
+			"      Method Parameters:\n" +
+			"        j\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #8 @MyAnnot(\n" +
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
+			"        method parameter index = 0\n" +
+			"      )\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	expectedOutput = // accessor
+			"  public int[] j();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield X.j : int[] [15]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 2]\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #8 @MyAnnot(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"      )\n" ;
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug571905_02() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.*;\n" +
+			"record X( int @MyAnnot ... j) {\n" +
+			" public static void main(String[] args) {\n" +
+			"   System.out.println(\"helo\");\n" +
+			" }\n" +
+			"}\n" +
+			"@Target({ElementType.TYPE_USE})\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@interface MyAnnot {}\n"
+		},
+	 "helo");
+	String expectedOutput = // constructor
+			"  \n" +
+			"  // Method descriptor #10 ([I)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  X(int... j);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [j]\n" +
+			"     6  putfield X.j : int[] [15]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 2]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+			"        [pc: 0, pc: 10] local: j index: 1 type: int[]\n" +
+			"      Method Parameters:\n" +
+			"        j\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #8 @MyAnnot(\n" +
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
+			"        method parameter index = 0\n" +
+			"      )\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	expectedOutput = // accessor
+			"  public int[] j();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield X.j : int[] [15]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 2]\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #8 @MyAnnot(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"      )\n" ;
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }
