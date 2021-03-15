@@ -4644,6 +4644,20 @@ protected void invoke(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 	invoke18(opcode, receiverAndArgsSize, returnTypeSize, declaringClass, opcode == Opcodes.OPC_invokeinterface, selector, signature, typeId, type);
 }
 
+private void popInvokeTypeBinding(int receiverAndArgsSize) {
+	if (!isSwitchStackTrackingActive())
+		return;
+	for (int i = 0; i < receiverAndArgsSize;) {
+		TypeBinding typeBinding = popTypeBinding();
+		// 571929: receiverAndArgsSize counts slots, so when we pop a long/double, we popped two slots
+		if (TypeIds.getCategory(typeBinding.id) == 2) {
+			i += 2;
+		} else {
+			i++;
+		}
+	}
+}
+
 // Starting with 1.8 we can no longer deduce isInterface from opcode, invokespecial can be used for default methods, too.
 // Hence adding explicit parameter 'isInterface', which is needed only for non-ctor invokespecial invocations
 // (i.e., other clients may still call the shorter overload).
@@ -4672,7 +4686,7 @@ private void invoke18(byte opcode, int receiverAndArgsSize, int returnTypeSize, 
 		writeUnsignedShort(this.constantPool.literalIndexForMethod(declaringClass, selector, signature, isInterface));
 	}
 	this.stackDepth += returnTypeSize - receiverAndArgsSize;
-	popTypeBinding(receiverAndArgsSize);
+	popInvokeTypeBinding(receiverAndArgsSize);
 	if (returnTypeSize > 0) {
 		pushTypeBinding(type);
 	}
@@ -4698,7 +4712,7 @@ public void invokeDynamic(int bootStrapIndex, int argsSize, int returnTypeSize, 
 	this.bCodeStream[this.classFileOffset++] = 0;
 	this.bCodeStream[this.classFileOffset++] = 0;
 	this.stackDepth += returnTypeSize - argsSize;
-	popTypeBinding(argsSize);
+	popInvokeTypeBinding(argsSize);
 	if (returnTypeSize > 0) {
 		pushTypeBinding(type);
 	}

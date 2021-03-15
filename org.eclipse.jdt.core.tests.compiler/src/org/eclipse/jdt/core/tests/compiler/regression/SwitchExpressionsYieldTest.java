@@ -4503,6 +4503,59 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"3");
 	}
+	public void testBug571929_normal() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" public static void main(String[] args) {\n" +
+				"   System.out.println(foo(\"a\"));\n" +
+				" }\n" +
+				" private static boolean foo(String s) {\n" +
+				"  bar(0L);\n" +
+				"  return switch (s) {\n" +
+				"    case \"a\" -> {\n" +
+				"      try {\n" +
+				"        yield true;\n" +
+				"      } finally {\n" +
+				"      }\n" +
+				"    }\n" +
+				"    default -> false;\n" +
+				"  };\n" +
+				" }\n" +
+				" private static void bar(long l) {}\n" +
+				"}"
+			},
+			"true");
+	}
+	public void testBug571929_lambda() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				" public static void main(String[] args) {\n" +
+				"   System.out.println(foo(\"a\"));\n" +
+				" }\n" +
+				" static long m = 0L;\n" +
+				" private static boolean foo(String s) {\n" +
+				"  long l = m;\n" +
+				"  // capture l\n" +
+				"  Runnable r = () -> bar(l);\n" +
+				"  return switch (s) {\n" +
+				"    case \"a\" -> {\n" +
+				"      try {\n" +
+				"        yield true;\n" +
+				"      } finally {\n" +
+				"      }\n" +
+				"    }\n" +
+				"    default -> false;\n" +
+				"  };\n" +
+				" }\n" +
+				" private static void bar(long l) {}\n" +
+				"}"
+			},
+			"true");
+	}
 	public void testBug561762_001() {
 		this.runNegativeTest(
 				new String[] {
