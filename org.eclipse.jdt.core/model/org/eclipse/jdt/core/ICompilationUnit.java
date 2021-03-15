@@ -574,6 +574,7 @@ boolean isWorkingCopy();
  * @since 3.25
  */
 default void setOptions(Map<String, String> newOptions) {
+	// Do nothing by default
 }
 
 /**
