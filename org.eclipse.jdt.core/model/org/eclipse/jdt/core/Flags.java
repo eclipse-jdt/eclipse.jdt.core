@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added constant AccDefault
@@ -193,7 +189,7 @@ public final class Flags {
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
 	 * </p>
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.25
 	 */
 	public static final int  AccRecord = ExtraCompilerModifiers.AccRecord;
 	/**
@@ -420,7 +416,7 @@ public final class Flags {
 	 * @param flags the flags
 	 * @return <code>true</code> if the <code>AccRecord</code> flag is included
 	 * @see #AccRecord
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.25
 	 */
 	public static boolean isRecord(int flags) {
 		return (flags & AccRecord) != 0;

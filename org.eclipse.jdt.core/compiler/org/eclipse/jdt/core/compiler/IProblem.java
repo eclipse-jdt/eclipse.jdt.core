@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -2364,7 +2360,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.24
 	 */
 	int RecordIllegalModifierForLocalRecord = TypeRelated + 1762;
-	/** @since 3.25 BETA_JAVA16
+	/** @since 3.25
 	 */
 	int RecordIllegalExtendedDimensionsForRecordComponent = Syntax + Internal + 1763;
 
@@ -2383,16 +2379,16 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22
 	 * @deprecated problem no longer generated */
 	int PatternVariableNotInScope = PreviewRelated + 1780;
-	/** @since 3.25 BETA_JAVA16
+	/** @since 3.25
 	 */
 	int PatternVariableRedefined = Internal + 1781;
-	/** @since 3.25 BETA_JAVA16
+	/** @since 3.25
 	 */
 	int PatternSubtypeOfExpression = Internal + 1782;
-	/** @since 3.25 BETA_JAVA16
+	/** @since 3.25
 	 */
 	int IllegalModifierForPatternVariable = Internal + 1783;
-	/** @since 3.25 BETA_JAVA16
+	/** @since 3.25
 	 */
 	int PatternVariableRedeclared = Internal + 1784;
 
