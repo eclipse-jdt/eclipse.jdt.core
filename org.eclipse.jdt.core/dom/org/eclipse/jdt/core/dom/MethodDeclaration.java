@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -710,7 +706,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *
 	 * @return <code>true</code> if this is a compact constructor declaration in a record,
 	 *    and <code>false</code> if this is a method declaration
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 * @exception UnsupportedOperationException if this operation is used below JLS16
 	 */
 
@@ -724,7 +720,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *
 	 * @param isCompactConstructor <code>true</code> for a constructor declaration,
 	 *    and <code>false</code> for a method declaration
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 * @exception UnsupportedOperationException if this operation is used below JLS16
 	 */
 

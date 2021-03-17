@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -111,7 +111,7 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
 	// AST Level
-	protected int astLevel = AST.JLS15;
+	protected int astLevel = AST.JLS_Latest;
 	protected int savedLevel;
 	// Debug
 	protected String prefix = "";

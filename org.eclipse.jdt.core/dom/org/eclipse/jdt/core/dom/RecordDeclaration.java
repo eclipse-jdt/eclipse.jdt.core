@@ -7,14 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -50,28 +42,28 @@ import java.util.List;
  * character of the "}" token following the body declarations.
  * </p>
  *
- * @since 3.24 BETA_JAVA16
+ * @since 3.24
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
 		internalJavadocPropertyFactory(RecordDeclaration.class);
 
 	/**
 	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
 		internalModifiers2PropertyFactory(RecordDeclaration.class);
 
 	/**
 	 * The "name" structural property of this node type (child type: {@link SimpleName}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		internalNamePropertyFactory(RecordDeclaration.class);
@@ -79,28 +71,28 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The "superInterfaceTypes" structural property of this node type (element type: {@link Type}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "recordComponents" structural property of this node type (element type: {@link SingleVariableDeclaration}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildListPropertyDescriptor RECORD_COMPONENTS_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "recordComponents", SingleVariableDeclaration.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "bodyDeclarations" structural property of this node type (element type: {@link BodyDeclaration}).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(RecordDeclaration.class);
@@ -114,7 +106,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	private int restrictedIdentifierStartPosition = -1;
 
 	/**
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 * @param restrictedIdentifierStartPosition
 	 */
 	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
@@ -128,7 +120,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	}
 
 	/**
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 * @return restrictedIdentifierStartPosition
 	 */
 	public int getRestrictedIdentifierStartPosition() {
@@ -139,7 +131,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
@@ -167,7 +159,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -176,7 +168,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * The type parameters (element type: {@link TypeParameter}).
 	 * defaults to an empty list
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	private ASTNode.NodeList typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 
@@ -185,7 +177,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * The superinterface types (element type: {@link Type}).
 	 * defaults to an empty list
 	 * (see constructor).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	private ASTNode.NodeList superInterfaceTypes =  new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
 
@@ -193,7 +185,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * The parameters (element type: {@link SingleVariableDeclaration}).
 	 * defaults to an empty list
 	 * (see constructor).
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	private ASTNode.NodeList recordComponents = new ASTNode.NodeList(RECORD_COMPONENTS_PROPERTY);
 
@@ -212,7 +204,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @param ast the AST that is to own this node
 	 * @exception UnsupportedOperationException if this operation is used below JLS16
-	 * @since 3.24 BETA_JAVA16
+	 * @since 3.24
 	 */
 	RecordDeclaration(AST ast) {
 		super(ast);
@@ -340,7 +332,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of type parameters
 	 *    (element type: {@link TypeParameter})
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 */
 	public List typeParameters() {
 		return this.typeParameters;
@@ -355,7 +347,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of interface types
 	 *    (element type: {@link Type})
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 */
 	public List superInterfaceTypes() {
 		return this.superInterfaceTypes;
@@ -366,7 +358,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of  recordComponents
 	 *    (element type: {@link SingleVariableDeclaration})
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 */
 	public List recordComponents() {
 		return this.recordComponents;
@@ -384,7 +376,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * </p>
 	 *
 	 * @return the (possibly empty) list of field declarations
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 */
 	public FieldDeclaration[] getFields() {
 		List bd = bodyDeclarations();
@@ -416,7 +408,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the (possibly empty) list of method (and constructor)
 	 *    declarations
-	 * @since 3.25 BETA_JAVA16
+	 * @since 3.26
 	 */
 	public MethodDeclaration[] getMethods() {
 		List bd = bodyDeclarations();

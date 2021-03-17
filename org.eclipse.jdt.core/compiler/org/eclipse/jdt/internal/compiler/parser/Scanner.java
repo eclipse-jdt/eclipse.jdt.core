@@ -5448,6 +5448,8 @@ private int getNextTokenAfterTypeParameterHeader() {
 	return TokenNameEOF;
 }
 private boolean disambiguaterecordWithLookAhead() {
+	if (isInModuleDeclaration())
+		return false;
 	getVanguardParser();
 	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
 	try {

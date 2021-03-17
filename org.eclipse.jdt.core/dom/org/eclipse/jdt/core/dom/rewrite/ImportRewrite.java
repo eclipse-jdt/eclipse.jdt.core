@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     John Glassmyer <jogl@google.com> - import group sorting is broken - https://bugs.eclipse.org/430303
@@ -1317,7 +1316,7 @@ public final class ImportRewrite {
 
 		CompilationUnit usedAstRoot= this.astRoot;
 		if (usedAstRoot == null) {
-			ASTParser parser= ASTParser.newParser(AST.JLS15);
+			ASTParser parser= ASTParser.newParser(AST.JLS_Latest);
 			parser.setSource(this.compilationUnit);
 			parser.setFocalPosition(0); // reduced AST
 			parser.setResolveBindings(false);

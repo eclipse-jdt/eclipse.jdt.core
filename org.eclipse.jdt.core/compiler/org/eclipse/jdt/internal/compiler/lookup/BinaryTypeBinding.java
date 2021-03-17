@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -529,20 +529,6 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 					this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 				}
 			}
-
-			this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;
-			char[][] permittedSubtypeNames = binaryType.getPermittedSubtypeNames();
-			if (permittedSubtypeNames != null) {
-				this.modifiers |= ExtraCompilerModifiers.AccSealed;
-				int size = permittedSubtypeNames.length;
-				if (size > 0) {
-					this.permittedSubtypes = new ReferenceBinding[size];
-					for (short i = 0; i < size; i++)
-						// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
-						this.permittedSubtypes[i] = this.environment.getTypeFromConstantPoolName(permittedSubtypeNames[i], 0, -1, false, missingTypeNames, toplevelWalker.toSupertype(i, superclassName));
-					this.extendedTagBits |= ExtendedTagBits.HasUnresolvedPermittedSubtypes;
-				}
-			}
 		} else {
 			// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
 			this.superclass = (ReferenceBinding) this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames,
@@ -575,6 +561,18 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.extendedTagBits |= ExtendedTagBits.HasUnresolvedPermittedSubtypes;
 			}
 
+		}
+		// fall back, in case we haven't got them from signature
+		char[][] permittedSubtypeNames = binaryType.getPermittedSubtypeNames();
+		if (this.permittedSubtypes == Binding.NO_PERMITTEDTYPES && permittedSubtypeNames != null) {
+			this.modifiers |= ExtraCompilerModifiers.AccSealed;
+			int size = permittedSubtypeNames.length;
+			if (size > 0) {
+				this.permittedSubtypes = new ReferenceBinding[size];
+				for (short i = 0; i < size; i++)
+					// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
+					this.permittedSubtypes[i] = this.environment.getTypeFromConstantPoolName(permittedSubtypeNames[i], 0, -1, false, missingTypeNames, toplevelWalker.toSupertype(i, null));
+			}
 		}
 		boolean canUseNullTypeAnnotations = this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled && this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8;
 		if (canUseNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {

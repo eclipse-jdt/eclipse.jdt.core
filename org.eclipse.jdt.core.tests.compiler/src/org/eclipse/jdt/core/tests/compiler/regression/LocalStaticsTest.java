@@ -7,10 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1346,5 +1342,122 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			"	^\n" +
 			"Cannot make a static reference to the non-static type T\n" +
 			"----------\n");
+	}
+	public void testBug566774_001() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n"+
+					" static String a;\n"+
+					" String b;\n"+
+					" static String concat() {\n"+
+					"        return a + b;\n"+
+					" }\n"+
+					" }"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	return a + b;\n" +
+				"	           ^\n" +
+				"Cannot make a static reference to the non-static field b\n" +
+				"----------\n");
+	}
+	public void testBug566774_002() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n"+
+					" static String a;\n"+
+					" String b;\n"+
+					" int index() {\n"+
+					"     interface I {\n"+
+					"		class Matcher {\n" +
+					"			void check() {\n" +
+					"				if (a == null || b == null) {\n" +
+					"					throw new IllegalArgumentException();\n" +
+					"				}\n" +
+					"			}\n" +
+					"		}\n" +
+					"	   }\n" +
+					"	I.Matcher matcher = new I.Matcher();\n" +
+					"	matcher.check();\n" +
+					"	return 0;\n" +
+					" }\n"+
+					" }"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	if (a == null || b == null) {\n" +
+				"	                 ^\n" +
+				"Cannot make a static reference to the non-static field b\n" +
+				"----------\n");
+	}
+
+	public void testBug566774_003() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n"+
+					" public static void main(String[] args) {\n"+
+					" 	class Checker1 {\n"+
+					" 		void checkWhitespace(int x) {\n"+
+					"     		String arg = args[x];\n"+
+					"			if (!arg.trim().equals(arg)) {\n" +
+					"				throw new IllegalArgumentException();\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"	final Checker1 c1 = new Checker1();\n" +
+					"	for (int i = 1; i < args.length; i++) {\n" +
+					"		Runnable r = () -> {\n" +
+					"			c1.checkWhitespace(i);\n" +
+					"		};\n" +
+					"	}\n" +
+					" }\n"+
+					" }"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 14)\n" +
+				"	c1.checkWhitespace(i);\n" +
+				"	                   ^\n" +
+				"Local variable i defined in an enclosing scope must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug566774_004() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						" public static void main(String[] args) {\n"+
+						" 	interface I {\n"+
+						" 		class Checker2 {\n"+
+						" 			void checkFlag(int x) {\n"+
+						"     			String arg = args[x];\n"+
+						"				if (!arg.startsWith(\"-\")) {\n" +
+						"					throw new IllegalArgumentException();\n" +
+						"				}\n" +
+						"			}\n" +
+						"		}\n" +
+						"	}\n" +
+						"	I.Checker2 c2 = new I.Checker2();\n" +
+						"	for (int i = 1; i < args.length; i++) {\n" +
+						"		Runnable r = () -> {\n" +
+						"			c2.checkFlag(i);\n" +
+						"		};\n" +
+						"	}\n" +
+						" }\n"+
+						" }"
+					},
+					"----------\n" +
+					"1. ERROR in X.java (at line 6)\n" +
+					"	String arg = args[x];\n" +
+					"	             ^^^^\n" +
+					"Cannot make a static reference to the non-static variable args\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 16)\n" +
+					"	c2.checkFlag(i);\n" +
+					"	             ^\n" +
+					"Local variable i defined in an enclosing scope must be final or effectively final\n" +
+					"----------\n");
 	}
 }
