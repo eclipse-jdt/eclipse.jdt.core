@@ -388,7 +388,7 @@ public final class AST {
 	static final int JLS16_INTERNAL = JLS16;
 
 	/**
-	 * @since 3.24
+	 * @since 3.26
 	 * This provides the latest JLS level.
 	 */
 	public static final int JLS_Latest = JLS16;

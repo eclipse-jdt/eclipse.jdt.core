@@ -693,7 +693,7 @@ public boolean isEnum() throws JavaModelException {
 
 /**
  * @see IType#isRecord()
- * @since 3.25
+ * @since 3.26
  */
 @Override
 public boolean isRecord() throws JavaModelException {

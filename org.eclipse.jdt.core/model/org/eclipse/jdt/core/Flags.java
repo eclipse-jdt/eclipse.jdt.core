@@ -189,7 +189,7 @@ public final class Flags {
 	 * Note that this flag's value is internal and is not defined in the
 	 * Virtual Machine specification.
 	 * </p>
-	 * @since 3.25
+	 * @since 3.26
 	 */
 	public static final int  AccRecord = ExtraCompilerModifiers.AccRecord;
 	/**

@@ -2207,7 +2207,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS16
-	 * @since 3.24
+	 * @since 3.26
 	 */
 	final void unsupportedBelow16() {
 		if (this.ast.apiLevel < AST.JLS16_INTERNAL) {
@@ -2339,7 +2339,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS15
-	 * @since 3.24
+	 * @since 3.26
 	 */
 	final void supportedOnlyIn16() {
 		if (this.ast.apiLevel != AST.JLS16_INTERNAL) {

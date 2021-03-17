@@ -2259,105 +2259,103 @@ void setSourceStart(int sourceStart);
 	/* Java 15 errors begin */
 	/* records - begin */
 
-	/** @since 3.22
-	 * @noreference preview feature error */
+	/** @since 3.26 */
 	int RecordIllegalModifierForInnerRecord = TypeRelated + 1730;
-	/** @since 3.22
-	 * @noreference preview feature error */
+	/** @since 3.26 */
 	int RecordIllegalModifierForRecord = TypeRelated + 1731;
-	/** @since 3.22
+	/** @since 3.26
 	 * JLS 14 Sec 8.10.1
 	 * it is always a compile-time error for a record header to declare a record component with the name
 	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
 	int RecordIllegalComponentNameInRecord = TypeRelated + 1732;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordNonStaticFieldDeclarationInRecord = TypeRelated + 1733;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordAccessorMethodHasThrowsClause = TypeRelated + 1734;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCanonicalConstructorHasThrowsClause = TypeRelated + 1735;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RecordCanonicalConstructorVisibilityReduced = TypeRelated + 1736;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordMultipleCanonicalConstructors = TypeRelated + 1737;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCompactConstructorHasReturnStatement = TypeRelated + 1738;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordDuplicateComponent = TypeRelated + 1739;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordIllegalNativeModifierInRecord = TypeRelated + 1740;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordInstanceInitializerBlockInRecord = TypeRelated + 1741;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RestrictedTypeName = TypeRelated + 1742;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordIllegalAccessorReturnType = TypeRelated + 1743;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordAccessorMethodShouldNotBeGeneric = TypeRelated + 1744;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordAccessorMethodShouldBePublic = TypeRelated + 1745;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCanonicalConstructorShouldNotBeGeneric = TypeRelated + 1746;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCanonicalConstructorHasReturnStatement = TypeRelated + 1747;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCanonicalConstructorHasExplicitConstructorCall = TypeRelated + 1748;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCompactConstructorHasExplicitConstructorCall = TypeRelated + 1749;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordNestedRecordInherentlyStatic = TypeRelated + 1750;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordAccessorMethodShouldNotBeStatic= TypeRelated + 1751;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCannotExtendRecord= TypeRelated + 1752;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordComponentCannotBeVoid= TypeRelated + 1753;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordIllegalVararg= TypeRelated + 1754;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordStaticReferenceToOuterLocalVariable= TypeRelated + 1755;
-	/** @since 3.22
+	/** @since 3.26
 	 */
 	int RecordCannotDefineRecordInLocalType= TypeRelated + 1756;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RecordComponentsCannotHaveModifiers= TypeRelated + 1757;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RecordIllegalParameterNameInCanonicalConstructor = TypeRelated + 1758;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RecordIllegalExplicitFinalFieldAssignInCompactConstructor = TypeRelated + 1759;
-	/** @since 3.23
+	/** @since 3.26
 	 */
 	int RecordMissingExplicitConstructorCallInNonCanonicalConstructor= TypeRelated + 1760;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RecordIllegalStaticModifierForLocalClassOrInterface = TypeRelated + 1761;
-	/** @since 3.24
+	/** @since 3.26
 	 */
 	int RecordIllegalModifierForLocalRecord = TypeRelated + 1762;
 	/** @since 3.26
