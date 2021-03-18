@@ -171,7 +171,7 @@ public abstract class AbstractLeakTest extends BuilderTests {
 		// -a : to "and" all following options
 		// -b :to avoid blocking calls
 		// -p <pid>: to select process with opened files
-		List<String> lines = readLsofLines("lsof -F n -a -p " + pid + " / -b ", true);
+		List<String> lines = readLsofLines("lsof -F n -a -p " + pid + " -b", true);
 		return lines;
 	}
 

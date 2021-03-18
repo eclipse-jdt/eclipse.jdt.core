@@ -31,22 +31,18 @@ public class LeakTestsAfter9 extends AbstractLeakTest {
 		return CompilerOptions.VERSION_9;
 	}
 
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=571640
-	 * Commenting out the super calls as a workaround
-	 */
 	@Override
 	public void testLeaksOnCleanBuild() throws Exception {
-		//super.testLeaksOnCleanBuild();
+		super.testLeaksOnCleanBuild();
 	}
 
 	@Override
 	public void testLeaksOnFullBuild() throws Exception {
-		//super.testLeaksOnFullBuild();
+		super.testLeaksOnFullBuild();
 	}
 
 	@Override
 	public void testLeaksOnIncrementalBuild() throws Exception {
-		//super.testLeaksOnIncrementalBuild();
+		super.testLeaksOnIncrementalBuild();
 	}
 }
