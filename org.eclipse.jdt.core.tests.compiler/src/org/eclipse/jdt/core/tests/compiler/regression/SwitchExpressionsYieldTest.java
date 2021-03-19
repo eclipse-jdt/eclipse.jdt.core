@@ -4641,6 +4641,45 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"r cannot be resolved to a variable\n" +
 			"----------\n");
 	}
+	public void testBug572121() {
+		Map<String, String> compilerOptions = getCompilerOptions();
+		// must disable this option to trigger compilation restart
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.DISABLED);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						" private void foo(int i) {\n" +
+						" }\n" +
+						"\n" +
+						" private static void bar() {\n" +
+						" }\n" +
+						"\n" +
+						" public static void main(String[] args) {\n" +
+						"  if (f) {\n" +
+						"   Object o = switch (j) {\n" +
+						"    default -> {\n" +
+						"     try {\n" +
+						"      bar();\n" +
+						"     } catch (Throwable e) {\n" +
+						"     }\n" +
+						"     yield null;\n" +
+						"    }\n" +
+						"   };\n" +
+						"  }\n" +
+						"  int i = 0;\n" +
+						"  x.foo(i++);\n" +
+						" }\n" +
+						"\n" +
+						" private static boolean f = true;\n" +
+						" private static int j;\n" +
+						" private static X x = new X();\n" +
+						"}"
+				},
+				"",
+				compilerOptions
+				);
+	}
 	public void testBug562198_001() {
 		runConformTest(
 			new String[] {

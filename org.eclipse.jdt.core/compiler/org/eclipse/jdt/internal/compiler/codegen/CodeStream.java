@@ -4546,6 +4546,9 @@ public void init(ClassFile targetClassFile) {
 	this.stackDepth = 0;
 	this.maxLocals = 0;
 	this.position = 0;
+
+	this.clearTypeBindingStack();
+	this.lastSwitchCumulativeSyntheticVars = 0;
 }
 
 /**
