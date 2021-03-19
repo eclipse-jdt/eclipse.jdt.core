@@ -25,7 +25,12 @@ import java.util.Comparator;
  */
 final class ImportComparator implements Comparator<ImportName> {
 	private static Comparator<ImportName> createQualifiedNameComparator() {
-		return Comparator.comparing(o1 -> o1.qualifiedName);
+		return new Comparator<ImportName>() {
+			@Override
+			public int compare(ImportName o1, ImportName o2) {
+				return o1.qualifiedName.compareTo(o2.qualifiedName);
+			}
+		};
 	}
 
 	private final Comparator<ImportName> importGroupComparator;
