@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -178,8 +178,10 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 				int otherMax = qNameRef.otherBindings == null ? 0 : qNameRef.otherBindings.length;
 				for (int i = 0; i < otherMax; i++)
 					reportDeclaration(qNameRef.otherBindings[i], locator, declPattern.knownFields);
-			} else if (reference instanceof SingleNameReference) {
-				reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator, declPattern.knownFields);
+			} else if (reference instanceof SingleNameReference ) {
+				if(((SingleNameReference) reference).binding instanceof FieldBinding) {
+					reportDeclaration((FieldBinding)((SingleNameReference) reference).binding, locator, declPattern.knownFields);
+				}
 			}
 		}
 	} else if (reference instanceof ImportReference) {

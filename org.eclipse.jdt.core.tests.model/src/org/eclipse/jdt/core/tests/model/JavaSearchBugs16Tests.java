@@ -24,7 +24,11 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.internal.core.search.matching.DeclarationOfAccessedFieldsPattern;
 
 import junit.framework.Test;
 
@@ -422,6 +426,36 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 						+ "src/X.java void X.foo():C#1 [Inter] EXACT_MATCH");
 
 			}
+		public void testBug572100 () throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Bug572100/X.java",
+					"public interface X {\n"+
+				 " interface inter1  {\n"+
+				   " record record1(Class<?> type) implements inter1 {\n"+
+				  "    public record1 {\n"+
+				   "     if (!type.isPrimitive()) {\n"+
+				   "    }\n"+
+				    "  }\n"+
+				   " }\n"+
+				 " }\n"+
+				"}\n"
+				);
+			String str = this.workingCopies[0].getSource();
+			String selection = "inter1";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			SourceType st = (SourceType)elements[0];
+			SearchPattern pattern = new DeclarationOfAccessedFieldsPattern(st);
+			new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+			assertSearchResults(
+					""
+			);
+		}
 }
 
 
