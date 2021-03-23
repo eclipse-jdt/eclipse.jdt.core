@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -374,6 +374,16 @@ public abstract class Annotation extends Expression {
 						FieldBinding field = ((Reference) expr).fieldBinding();
 						if (field != null && field.declaringClass.id == T_JavaLangAnnotationElementType) {
 							tagBits |= getTargetElementType(field.name);
+						}
+					}
+				}
+				break;
+			case TypeIds.T_JdkInternalPreviewFeature :
+				tagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+				for (MemberValuePair memberValuePair : memberValuePairs()) {
+					if (CharOperation.equals(memberValuePair.name, TypeConstants.ESSENTIAL_API)) {
+						if (memberValuePair.value instanceof TrueLiteral) {
+							tagBits |= ExtendedTagBits.EssentialAPI;
 						}
 					}
 				}

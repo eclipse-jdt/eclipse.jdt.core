@@ -20,4 +20,6 @@ public interface ExtendedTagBits {
 	int AreRecordComponentsComplete = ASTNode.Bit1;
 	int HasUnresolvedPermittedSubtypes = ASTNode.Bit2;
 
+	long AnnotationPreviewFeature = ASTNode.Bit32L | ASTNode.Bit33L;
+	long EssentialAPI = ASTNode.Bit11;
 }

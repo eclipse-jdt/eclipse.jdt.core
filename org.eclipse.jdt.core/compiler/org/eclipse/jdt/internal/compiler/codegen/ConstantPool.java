@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -308,6 +308,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] CloneSignature = "()Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] BOOTSTRAP = "bootstrap".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JDK_INTERNAL_PREVIEW_FEATURE = "Ljdk/internal/PreviewFeature;".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * ConstantPool constructor comment.

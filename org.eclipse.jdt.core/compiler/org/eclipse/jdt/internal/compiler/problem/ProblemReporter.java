@@ -707,6 +707,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.UnstableAutoModuleName:
 			return CompilerOptions.UnstableAutoModuleName;
 		case IProblem.PreviewFeatureUsed:
+		case IProblem.PreviewAPIUsed:
 			return CompilerOptions.PreviewFeatureUsed;
 
 		case IProblem.ProblemNotAnalysed:
@@ -9563,6 +9564,17 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 			IProblem.PreviewFeatureUsed,
 			NoArgument,
 			NoArgument,
+			sourceStart,
+			sourceEnd);
+}
+public void previewAPIUsed(int sourceStart, int sourceEnd, boolean isFatal) {
+	if (this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+			IProblem.PreviewAPIUsed,
+			NoArgument,
+			NoArgument,
+			isFatal ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning,
 			sourceStart,
 			sourceEnd);
 }

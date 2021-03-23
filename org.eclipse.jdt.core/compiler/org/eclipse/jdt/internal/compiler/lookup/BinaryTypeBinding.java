@@ -634,12 +634,22 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				}
 			}
 		}
+		IBinaryAnnotation[] declAnnotations = binaryType.getAnnotations();
+		if (declAnnotations != null) {
+			for (IBinaryAnnotation annotation : declAnnotations) {
+				char[] typeName = annotation.getTypeName();
+				if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
+					this.extendedTagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+					break;
+				}
+			}
+		}
 		if (this.environment.globalOptions.storeAnnotations) {
-			setAnnotations(createAnnotations(binaryType.getAnnotations(), this.environment, missingTypeNames), false);
+			setAnnotations(createAnnotations(declAnnotations, this.environment, missingTypeNames), false);
 		} else if (sourceLevel >= ClassFileConstants.JDK9 && isDeprecated() && binaryType.getAnnotations() != null) {
 			// prior to Java 9 all standard annotations were marker annotations, not needing to be stored,
 			// but since Java 9 we need more information from the @Deprecated annotation:
-			for (IBinaryAnnotation annotation : binaryType.getAnnotations()) {
+			for (IBinaryAnnotation annotation : declAnnotations) {
 				if (annotation.isDeprecatedAnnotation()) {
 					AnnotationBinding[] annotationBindings = createAnnotations(new IBinaryAnnotation[] { annotation }, this.environment, missingTypeNames);
 					setAnnotations(annotationBindings, true); // force storing
@@ -730,7 +740,8 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 				for (int i = 0; i < size; i++) {
 					IBinaryField binaryField = iFields[i];
 					char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
-					ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations(), getNullDefaultFrom(binaryField.getAnnotations()));
+					IBinaryAnnotation[] declAnnotations = binaryField.getAnnotations();
+					ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations(), getNullDefaultFrom(declAnnotations));
 					if (sourceLevel >= ClassFileConstants.JDK1_8) { // below 1.8, external annotations will be attached later
 						walker = binaryType.enrichWithExternalAnnotationsFor(walker, iFields[i], this.environment);
 					}
@@ -745,6 +756,15 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 							binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
 							this,
 							binaryField.getConstant());
+					if (declAnnotations != null) {
+						for (IBinaryAnnotation annotation : declAnnotations) {
+							char[] typeName = annotation.getTypeName();
+							if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
+								field.tagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+								break;
+							}
+						}
+					}
 					boolean forceStoreAnnotations = !this.environment.globalOptions.storeAnnotations
 							&& (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK9
 							&& binaryField.getAnnotations() != null
@@ -801,13 +821,14 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 
 	char[][] argumentNames = method.getArgumentNames();
 
+	IBinaryAnnotation[] declAnnotations = method.getAnnotations();
 	final boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, Since a 1.4 project can have a 1.5
 	   type as a super type and the 1.5 type could be generic, we must internalize usages of type
 	   variables properly in order to be able to apply substitutions and thus be able to detect
 	   overriding in the presence of generics. Seeing the erased form is not good enough.
 	 */
-	ITypeAnnotationWalker walker = getTypeAnnotationWalker(method.getTypeAnnotations(), getNullDefaultFrom(method.getAnnotations()));
+	ITypeAnnotationWalker walker = getTypeAnnotationWalker(method.getTypeAnnotations(), getNullDefaultFrom(declAnnotations));
 	char[] methodSignature = method.getGenericSignature(); // always use generic signature, even in 1.4
 	if (methodSignature == null) { // no generics
 		char[] methodDescriptor = method.getMethodDescriptor();   // of the form (I[Ljava/jang/String;)V
@@ -958,6 +979,15 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
 
+	if (declAnnotations != null) {
+		for (IBinaryAnnotation annotation : declAnnotations) {
+			char[] typeName = annotation.getTypeName();
+			if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
+				result.tagBits |= ExtendedTagBits.AnnotationPreviewFeature;
+				break;
+			}
+		}
+	}
 	IBinaryAnnotation[] receiverAnnotations = walker.toReceiver().getAnnotationsAtCursor(this.id, false);
 	if (receiverAnnotations != null && receiverAnnotations.length > 0) {
 		result.receiver = this.environment.createAnnotatedType(this, createAnnotations(receiverAnnotations, this.environment, missingTypeNames));

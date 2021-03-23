@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtendedTagBits;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
@@ -473,7 +474,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public ASTNode concreteStatement() {
 		return this;
 	}
-
+	private void reportPreviewAPI(Scope scope, long modifiers) {
+		if (scope.compilerOptions().enablePreviewFeatures)
+			return;
+		if((modifiers & ExtendedTagBits.AnnotationPreviewFeature) == ExtendedTagBits.AnnotationPreviewFeature) {
+			scope.problemReporter().previewAPIUsed(this.sourceStart, this.sourceEnd,
+					(modifiers & ExtendedTagBits.EssentialAPI) != 0);
+		}
+	}
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, int filteredBits) {
 		if ((this.bits & ASTNode.InsideJavadoc) == 0			// ignore references inside Javadoc comments
 				&& (filteredBits & IsStrictlyAssigned) == 0 	// ignore write access
@@ -486,6 +494,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			else
 				field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
+		reportPreviewAPI(scope, field.tagBits);
 
 		if ((field.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0) {
 			ModuleBinding module = field.declaringClass.module();
@@ -524,6 +533,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	*/
 	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope,
 			boolean isExplicitUse, InvocationSite invocation) {
+
+		reportPreviewAPI(scope, method.tagBits);
+
 		// ignore references insing Javadoc comments
 		if ((this.bits & ASTNode.InsideJavadoc) == 0 && method.isOrEnclosedByPrivateType() && !scope.isDefinedInMethod(method)) {
 			// ignore cases where method is used from inside itself (e.g. direct recursions)
@@ -603,7 +615,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			// ignore cases where type is used from inside itself
 			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
-
+		reportPreviewAPI(scope, type.extendedTagBits);
 		if (refType.hasRestrictedAccess()) {
 			ModuleBinding module = refType.module();
 			LookupEnvironment env = (module == null) ? scope.environment() : module.environment;

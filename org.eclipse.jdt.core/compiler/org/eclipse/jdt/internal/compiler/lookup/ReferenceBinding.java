@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -489,6 +489,8 @@ public void computeId() {
 				case 3: // only one type in this group, yet:
 					if (CharOperation.equals(TypeConstants.ORG_JUNIT_ASSERT, this.compoundName))
 						this.id = TypeIds.T_OrgJunitAssert;
+					else if (CharOperation.equals(TypeConstants.JDK_INTERNAL_PREVIEW_FEATURE, this.compoundName))
+						this.id = TypeIds.T_JdkInternalPreviewFeature;
 					return;
 				case 4:
 					if (!CharOperation.equals(TypeConstants.JAVA, packageName))
@@ -991,8 +993,8 @@ public int depth() {
 }
 
 public boolean detectAnnotationCycle() {
-	if ((this.tagBits & TagBits.EndAnnotationCheck) != 0) return false; // already checked
-	if ((this.tagBits & TagBits.BeginAnnotationCheck) != 0) return true; // in the middle of checking its methods
+	if ((this.tagBits & TagBits.EndAnnotationCheck) == TagBits.EndAnnotationCheck) return false; // already checked
+	if ((this.tagBits & TagBits.BeginAnnotationCheck) == TagBits.BeginAnnotationCheck) return true; // in the middle of checking its methods
 
 	this.tagBits |= TagBits.BeginAnnotationCheck;
 	MethodBinding[] currentMethods = methods();
@@ -1014,6 +1016,7 @@ public boolean detectAnnotationCycle() {
 	}
 	if (inCycle)
 		return true;
+	this.tagBits &= (~TagBits.BeginAnnotationCheck);
 	this.tagBits |= TagBits.EndAnnotationCheck;
 	return false;
 }
