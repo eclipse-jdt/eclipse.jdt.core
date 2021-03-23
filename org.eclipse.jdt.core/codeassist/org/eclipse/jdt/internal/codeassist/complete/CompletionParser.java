@@ -1630,6 +1630,7 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 					for (int i = 0; i < unit.typeCount; i++) {
 						if((unit.types[i].typeDeclaration.modifiers & ClassFileConstants.AccPublic) != 0) {
 							hasNoPublicType = false;
+							break;
 						}
 					}
 					if(hasNoPublicType) {
@@ -4945,6 +4946,7 @@ public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] pr
 	for (int i = 0; i < typeArguments.length; i++) {
 		if(typeArguments[i] != null) {
 			isParameterized = true;
+			break;
 		}
 	}
 	if(!isParameterized) {

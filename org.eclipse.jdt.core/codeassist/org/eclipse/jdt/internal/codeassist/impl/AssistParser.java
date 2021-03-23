@@ -1566,6 +1566,7 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 		for (int i = 0; i < typeArguments.length; i++) {
 			if(typeArguments[i] != null) {
 				isParameterized = true;
+				break;
 			}
 		}
 		if(isParameterized || (assistTypeArguments != null && assistTypeArguments.length > 0)) {

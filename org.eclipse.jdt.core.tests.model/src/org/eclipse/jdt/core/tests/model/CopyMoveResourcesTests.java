@@ -69,6 +69,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] instanceof IPackageDeclaration) {
 						found = true;
+						break;
 					}
 				}
 				assertTrue("Should not find package decl", !found);

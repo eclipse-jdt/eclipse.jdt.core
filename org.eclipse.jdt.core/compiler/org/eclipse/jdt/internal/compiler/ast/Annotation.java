@@ -99,8 +99,10 @@ public abstract class Annotation extends Expression {
 
 			private void inspectAnnotations(Annotation [] annotations) {
 				for (int i = 0, length = annotations == null ? 0 : annotations.length; this.continueSearch && i < length; i++) {
-					if (annotations[i] == this.searchedAnnotation)
+					if (annotations[i] == this.searchedAnnotation) {
 						this.continueSearch = false;
+						break;
+					}
 				}
 			}
 
