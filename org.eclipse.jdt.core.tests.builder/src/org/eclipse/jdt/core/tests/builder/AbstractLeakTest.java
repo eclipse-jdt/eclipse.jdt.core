@@ -14,11 +14,16 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -36,6 +41,8 @@ public abstract class AbstractLeakTest extends BuilderTests {
 	static boolean WINDOWS;
 	static boolean LINUX;
 	static boolean MAC;
+	static boolean lsofCheckDone;
+	
 	static {
 		String os = System.getProperty("os.name").toLowerCase();
 		WINDOWS = os.contains("windows");
@@ -69,6 +76,10 @@ public abstract class AbstractLeakTest extends BuilderTests {
 	}
 
 	private void internalTestUsedLibraryLeaks(int kind) throws Exception {
+		if(LINUX && !lsofCheckDone) {
+			selfTestLsof();
+		}
+
 		String projectName = getName();
 		IPath projectPath = env.addProject(projectName, getCompatibilityLevel());
 		env.setOutputFolder(projectPath, "");
@@ -157,22 +168,42 @@ public abstract class AbstractLeakTest extends BuilderTests {
 	}
 
 	private void checkOpenDescriptors(IFile file) throws Exception {
-		List<String> openDescriptors = getOpenDescriptors();
-		assertFalse("Failed to read opened file descriptors", openDescriptors.isEmpty());
-		if(openDescriptors.contains(file.getLocation().toOSString())) {
+		List<String> processes = getProcessesOpenedFile(Paths.get(file.getLocation().toOSString()));
+		if(!processes.isEmpty()) {
 			throw new IllegalStateException("File leaked during build: " + file);
 		}
 	}
 
-	private static List<String> getOpenDescriptors() throws Exception {
+
+	private void selfTestLsof() throws Exception {
+		Path tempFile = Files.createTempFile("testLsof", "tmp");
+		Files.deleteIfExists(tempFile);
+		Files.write(tempFile, "Hello\nselfTestLsof".getBytes());
+		try(InputStream is = new FileInputStream(tempFile.toFile())){
+			is.read();
+			List<String> list = getProcessesOpenedFile(tempFile);
+			assertEquals("lsof doesn't work in this environment!", 1, list.size());
+			lsofCheckDone = true;
+		}
+	}
+
+	private static List<String> getProcessesOpenedFile(Path path) throws Exception {
 		int pid = getPid();
-		assertTrue("JVM PID must be > 0 : " + pid, pid > 0);
+		// assertTrue("JVM PID must be > 0 : " + pid, pid > 0);
 		// -F n : to print only name column (note: all lines start with "n")
 		// -a : to "and" all following options
 		// -b :to avoid blocking calls
 		// -p <pid>: to select process with opened files
-		List<String> lines = readLsofLines("lsof -F n -a -p " + pid + " -b", true);
-		return lines;
+		// List<String> lines = readLsofLines("lsof -F n -a -p " + pid + " -b", true);
+
+		// Code above seem to hang...
+		List<String> lines = readLsofLines("lsof " + path, true);
+		for (String line : lines) {
+			if(line.contains("" + pid)) {
+				return lines;
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	private static int getPid() throws Exception {
