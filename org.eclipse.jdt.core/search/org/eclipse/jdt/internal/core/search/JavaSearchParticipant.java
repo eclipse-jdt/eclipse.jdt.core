@@ -36,7 +36,19 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 public class JavaSearchParticipant extends SearchParticipant implements IParallelizable {
 
 	private final ThreadLocal indexSelector = new ThreadLocal();
-	private final ThreadLocal<SourceIndexer> sourceIndexer = new ThreadLocal<SourceIndexer>();
+
+	/**
+	 * The only reason this field exist is the unfortunate idea to share created source indexer
+	 * between three calls to this search participant in IndexManager.scheduleDocumentIndexing().
+	 * <p>
+	 * The field is supposed to be set in indexDocument() and potentially reused
+	 * in later calls to resolveDocument() and indexResolvedDocument(), all in the same thread.
+	 * <p>
+	 * This is the only purpose of this field, and allows us not to manage it via ThreadLocal.
+	 * <p>
+	 * See org.eclipse.jdt.internal.core.search.indexing.IndexManager.scheduleDocumentIndexing()
+	 */
+	private SourceIndexer sourceIndexer;
 
 	@Override
 	public void beginSearching() {
@@ -68,8 +80,13 @@ public class JavaSearchParticipant extends SearchParticipant implements IParalle
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
 			SourceIndexer indexer = new SourceIndexer(document);
-			this.sourceIndexer.set(indexer);
 			indexer.indexDocument();
+
+			// if the indexer should index resolved document too, remember it for later
+			// See org.eclipse.jdt.internal.core.search.indexing.IndexManager.scheduleDocumentIndexing()
+			if(document.shouldIndexResolvedDocument()) {
+				this.sourceIndexer = indexer;
+			}
 		} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(documentPath)) {
 			new BinaryIndexer(document).indexDocument();
 		} else if (documentPath.endsWith(TypeConstants.AUTOMATIC_MODULE_NAME)) {
@@ -81,10 +98,13 @@ public class JavaSearchParticipant extends SearchParticipant implements IParalle
 	public void indexResolvedDocument(SearchDocument document, IPath indexPath) {
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
-			SourceIndexer indexer = this.sourceIndexer.get();
-			if (indexer != null)
+			SourceIndexer indexer = this.sourceIndexer;
+			if (indexer != null) {
 				indexer.indexResolvedDocument();
-			this.sourceIndexer.remove();
+				// Cleanup reference, it is not more needed by the IndexManager
+				// See org.eclipse.jdt.internal.core.search.indexing.IndexManager.scheduleDocumentIndexing()
+				this.sourceIndexer = null;
+			}
 		}
 	}
 
@@ -92,7 +112,7 @@ public class JavaSearchParticipant extends SearchParticipant implements IParalle
 	public void resolveDocument(SearchDocument document) {
 		String documentPath = document.getPath();
 		if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(documentPath)) {
-			SourceIndexer indexer = this.sourceIndexer.get();
+			SourceIndexer indexer = this.sourceIndexer;
 			if (indexer != null)
 				indexer.resolveDocument();
 		}
