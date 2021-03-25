@@ -29,7 +29,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug571905"};
+//		TESTS_NAMES = new String[] { "testBug572204"};
 	}
 
 	public static Class<?> testClass() {
@@ -8611,4 +8611,168 @@ public void testBug571905_02() throws Exception {
 			"      )\n" ;
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+public void testBug572204_001() {
+	runNegativeTest(
+			new String[] {
+					"R.java",
+					"record R (@SafeVarargs String... s) {}\n"
+				},
+				"----------\n" +
+				"1. ERROR in R.java (at line 1)\n" +
+				"	record R (@SafeVarargs String... s) {}\n" +
+				"	                                 ^\n" +
+				"@SafeVarargs annotation cannot be applied to record component without explicit accessor method s\n" +
+				"----------\n");
+}
+public void testBug572204_002() {
+	runConformTest(
+			new String[] {
+					"R.java",
+					"record R (@SafeVarargs String... s) {\n" +
+					" public static void main(String[] args) {\n" +
+					"   System.out.println(\"helo\");\n" +
+					" }\n" +
+					" public String[] s() {\n" +
+					"  return this.s;\n" +
+					" }\n" +
+					"}\n"
+				},
+				"helo");
+}
+public void testBug572204_003() {
+	runNegativeTest(
+			new String[] {
+					"R.java",
+					"record R (@SafeVarargs String... s) {\n" +
+					" public static void main(String[] args) {\n" +
+					"   System.out.println(\"helo\");\n" +
+					" }\n" +
+					" R (@SafeVarargs String... s) {\n" +
+					"   this.s=s;\n" +
+					" }\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in R.java (at line 1)\n" +
+				"	record R (@SafeVarargs String... s) {\n" +
+				"	                                 ^\n" +
+				"@SafeVarargs annotation cannot be applied to record component without explicit accessor method s\n" +
+				"----------\n" +
+				"2. ERROR in R.java (at line 5)\n" +
+				"	R (@SafeVarargs String... s) {\n" +
+				"	   ^^^^^^^^^^^^\n" +
+				"The annotation @SafeVarargs is disallowed for this location\n" +
+				"----------\n");
+}
+public void testBug572204_004() {
+	runNegativeTest(
+			new String[] {
+					"R.java",
+					"record R (@SafeVarargs String... s) {\n" +
+					" public static void main(String[] args) {\n" +
+					"   System.out.println(\"helo\");\n" +
+					" }\n" +
+					" R (@SafeVarargs String... s) {\n" +
+					"   this.s=s;\n" +
+					" }\n" +
+					" public String[] s() {\n" +
+					"  return this.s;\n" +
+					" }\n" +
+					"}\n"
+				},
+			"----------\n" +
+			"1. ERROR in R.java (at line 5)\n" +
+			"	R (@SafeVarargs String... s) {\n" +
+			"	   ^^^^^^^^^^^^\n" +
+			"The annotation @SafeVarargs is disallowed for this location\n" +
+			"----------\n");
+}
+public void testBug572204_005() {
+	runNegativeTest(
+			new String[] {
+					"R.java",
+					"record R (@SafeVarargs String... s) {\n" +
+					"@SafeVarargs" +
+					" R (String... s) {\n" +
+					"   this.s = s;\n" +
+					" }\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"1. ERROR in R.java (at line 1)\n" +
+				"	record R (@SafeVarargs String... s) {\n" +
+				"	                                 ^\n" +
+				"@SafeVarargs annotation cannot be applied to record component without explicit accessor method s\n" +
+				"----------\n");
+}
+public void testBug572204_006() {
+	runConformTest(
+			new String[] {
+					"R.java",
+					"record R (@SafeVarargs String... s) {\n" +
+					" public static void main(String[] args) {\n" +
+					"   System.out.println(\"helo\");\n" +
+					" }\n" +
+					"@SafeVarargs" +
+					" R (String... s) {\n" +
+					"   this.s = s;\n" +
+					" }\n" +
+					" public String[] s() {\n" +
+					"  return this.s;\n" +
+					" }\n" +
+					"}\n"
+				},
+			"helo");
+}
+public void testBug572204_007() throws Exception {
+	runConformTest(
+			new String[] {
+					"R.java",
+					"import java.lang.annotation.*;\n" +
+					"@Target(ElementType.PARAMETER) \n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n" +
+					"@interface I {}\r\n" +
+					"record R(@I String... s) {\n" +
+					" public static void main(String[] args) {\n" +
+					"   System.out.println(\"helo\");\n" +
+					" }\n" +
+					"}\n"
+				},
+				"helo");
+	String expectedOutput = // constructor
+			"  \n"	+
+			"  // Method descriptor #8 ([Ljava/lang/String;)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  R(java.lang.String... s);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [s]\n" +
+			"     6  putfield R.s : java.lang.String[] [15]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 5]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: R\n" +
+			"        [pc: 0, pc: 10] local: s index: 1 type: java.lang.String[]\n" +
+			"      Method Parameters:\n" +
+			"        s\n" +
+			"    RuntimeVisibleParameterAnnotations: \n" +
+			"      Number of annotations for parameter 0: 1\n" +
+			"        #10 @I(\n" +
+			"        )\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	expectedOutput = // accessor
+			"  \n" +
+			"  // Method descriptor #38 ()[Ljava/lang/String;\n" +
+	 		"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String[] s();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield R.s : java.lang.String[] [15]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 5]\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+}
+
 }

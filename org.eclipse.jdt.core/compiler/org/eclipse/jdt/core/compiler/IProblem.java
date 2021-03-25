@@ -2363,6 +2363,10 @@ void setSourceStart(int sourceStart);
 	/** @since 3.26
 	 */
 	int RecordIllegalExtendedDimensionsForRecordComponent = Syntax + Internal + 1763;
+	/** @since 3.26
+	 */
+	int SafeVarargsOnSyntheticRecordAccessor = TypeRelated + 1764;
+
 
 	/* records - end */
 	/* Local and Nested Static Declarations - Begin */

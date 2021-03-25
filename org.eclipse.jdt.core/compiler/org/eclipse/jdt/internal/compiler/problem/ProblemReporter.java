@@ -9776,6 +9776,15 @@ public void possibleHeapPollutionFromVararg(AbstractVariableDeclaration vararg) 
 		vararg.sourceStart,
 		vararg.sourceEnd);
 }
+public void safeVarargsOnOnSyntheticRecordAccessor(RecordComponent comp) {
+	String[] arguments = new String[] {new String(comp.name)};
+	this.handle(
+		IProblem.SafeVarargsOnSyntheticRecordAccessor,
+		arguments,
+		arguments,
+		comp.sourceStart,
+		comp.sourceEnd);
+}
 public void variableTypeCannotBeVoid(AbstractVariableDeclaration varDecl) {
 	String[] arguments = new String[] {new String(varDecl.name)};
 	this.handle(
