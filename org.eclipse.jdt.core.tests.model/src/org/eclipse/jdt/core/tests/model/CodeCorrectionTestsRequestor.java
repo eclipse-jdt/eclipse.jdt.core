@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.ICorrectionRequestor;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
-	private class Suggestion {
+	private static class Suggestion {
 		public String text;
 		public int start;
 		public int end;

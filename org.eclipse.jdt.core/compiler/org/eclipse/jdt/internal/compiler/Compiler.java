@@ -499,7 +499,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		});
 	}
 
-	class APTProblem {
+	static class APTProblem {
 		CategorizedProblem problem;
 		ReferenceContext context;
 		APTProblem(CategorizedProblem problem, ReferenceContext context) {

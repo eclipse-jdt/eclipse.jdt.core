@@ -38,7 +38,7 @@ public SelectionTest2(String testName) {
 	super(testName);
 }
 boolean thereWasAnNPE = false;
-class SpecialSelectionParser extends SelectionParser {
+static class SpecialSelectionParser extends SelectionParser {
 	public SpecialSelectionParser(ProblemReporter problemReporter) {
 		super(problemReporter);
 	}

@@ -316,7 +316,7 @@ public class BTree {
 		}
 	}
 
-	private class BTreeKeyNotFoundException extends Exception {
+	private static class BTreeKeyNotFoundException extends Exception {
 		private static final long serialVersionUID = 9065438266175091670L;
 		public BTreeKeyNotFoundException(String msg) {
 			super(msg);

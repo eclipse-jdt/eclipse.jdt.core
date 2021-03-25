@@ -2310,7 +2310,7 @@ public abstract class Scope {
 		}
 	}
 
-	class MethodClashException extends RuntimeException {
+	static class MethodClashException extends RuntimeException {
 		private static final long serialVersionUID = -7996779527641476028L;
 	}
 

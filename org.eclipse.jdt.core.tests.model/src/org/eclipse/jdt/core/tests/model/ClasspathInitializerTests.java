@@ -62,7 +62,7 @@ public static class DefaultVariableInitializer implements VariablesInitializer.I
 
 // Simple container initializer, which keeps setting container to null
 // (30920 - stackoverflow when setting container to null)
-public class NullContainerInitializer implements ContainerInitializer.ITestInitializer {
+public static class NullContainerInitializer implements ContainerInitializer.ITestInitializer {
 	public boolean hasRun = false;
 	@Override
 	public boolean allowFailureContainer() {

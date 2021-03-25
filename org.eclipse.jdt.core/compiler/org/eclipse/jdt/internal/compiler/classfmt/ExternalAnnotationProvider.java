@@ -212,7 +212,7 @@ public class ExternalAnnotationProvider {
 		return sb.toString();
 	}
 
-	abstract class SingleMarkerAnnotation implements IBinaryAnnotation {
+	abstract static class SingleMarkerAnnotation implements IBinaryAnnotation {
 		@Override
 		public IBinaryElementValuePair[] getElementValuePairs() {
 			return ElementValuePairInfo.NoMembers;

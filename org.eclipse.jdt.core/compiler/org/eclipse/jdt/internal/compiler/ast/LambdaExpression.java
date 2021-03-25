@@ -937,7 +937,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return CompatibilityResult.COMPATIBLE;
 	}
 
-	class CopyFailureException extends RuntimeException {
+	static class CopyFailureException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 	}
 

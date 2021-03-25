@@ -46,7 +46,7 @@ public class TargetInterface {
 	 */
 	Socket socket;
 
-	public class Result {
+	public static class Result {
 		public char[] displayString;
 		public char[] typeName;
 	}

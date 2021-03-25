@@ -1002,7 +1002,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 	}
 
-	abstract class Property {
+	abstract static class Property {
 
 		/**
 		 * Indicates whether this property is compulsory, in that every node

@@ -42,7 +42,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 
 	ICompilationUnit workingCopy = null;
 
-	public class TestWorkingCopyOwner extends WorkingCopyOwner {
+	public static class TestWorkingCopyOwner extends WorkingCopyOwner {
 
 		public String toString() {
 			return "Test working copy owner";

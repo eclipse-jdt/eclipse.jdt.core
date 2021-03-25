@@ -175,7 +175,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/**
 	 * Controls display of items in the Processor Options list control.
 	 */
-	private class ProcessorOptionsLabelProvider extends LabelProvider implements ITableLabelProvider {
+	private static class ProcessorOptionsLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 		/* (non-Javadoc)
 		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)

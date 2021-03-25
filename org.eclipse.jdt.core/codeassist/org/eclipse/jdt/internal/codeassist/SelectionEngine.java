@@ -142,7 +142,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	private static class SelectionTypeNameMatchRequestorWrapper extends TypeNameMatchRequestorWrapper {
 
-		class AcceptedType {
+		static class AcceptedType {
 			public int modifiers;
 			public char[] packageName;
 			public char[] simpleTypeName;

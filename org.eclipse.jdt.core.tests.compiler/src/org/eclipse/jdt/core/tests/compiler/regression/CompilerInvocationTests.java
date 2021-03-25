@@ -149,7 +149,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		}
 	}
 
-	class TasksReader implements ICompilerRequestor {
+	static class TasksReader implements ICompilerRequestor {
 		CompilationResult result;
 
 		public void acceptResult(CompilationResult compilationResult) {

@@ -31,7 +31,7 @@ import junit.framework.*;
 public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
 	public static List COMPLETION_SUITES = null;
 	protected static IJavaProject COMPLETION_PROJECT;
-	protected class CompletionResult {
+	protected static class CompletionResult {
 		public String proposals;
 		public String context;
 		public int cursorLocation;

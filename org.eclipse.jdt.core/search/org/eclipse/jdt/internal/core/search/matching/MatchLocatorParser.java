@@ -40,7 +40,7 @@ public static MatchLocatorParser createParser(ProblemReporter problemReporter, M
 /**
  * An ast visitor that visits local type declarations.
  */
-public class NoClassNoMethodDeclarationVisitor extends ASTVisitor {
+public static class NoClassNoMethodDeclarationVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		return (constructorDeclaration.bits & ASTNode.HasLocalType) != 0; // continue only if it has local type

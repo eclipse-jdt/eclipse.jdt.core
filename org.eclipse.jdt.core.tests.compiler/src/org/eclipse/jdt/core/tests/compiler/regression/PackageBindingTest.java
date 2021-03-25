@@ -93,7 +93,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 		assertFalse(nameEnvWithProgress.isTypeSearchWithSearchWithSecondaryTypes); //... but without the search for secondary types
 	}
 
-	private class NameEnvironmentDummy implements INameEnvironment
+	private static class NameEnvironmentDummy implements INameEnvironment
 	{
 		private final boolean isPackage;
 		boolean isPackageSearchExecuted;
@@ -126,7 +126,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 		}
 	}
 
-	private class NameEnvironmentWithProgressDummy implements INameEnvironmentWithProgress
+	private static class NameEnvironmentWithProgressDummy implements INameEnvironmentWithProgress
 	{
 		boolean isTypeSearchWithSearchWithSecondaryTypes;
 		boolean isTypeSearchExecutedWithSearchWithSecondaryTypes;

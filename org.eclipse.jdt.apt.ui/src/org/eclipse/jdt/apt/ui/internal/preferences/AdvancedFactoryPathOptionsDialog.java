@@ -47,7 +47,7 @@ public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
 	private final static int LIST_WIDTH= 70; // width (in chars) of factory list
 	private final static int LIST_HEIGHT= 10; // number of lines in factory list
 
-	private class FieldAdapter implements IDialogFieldListener {
+	private static class FieldAdapter implements IDialogFieldListener {
 		public void dialogFieldChanged(DialogField field) {
 		}
 	}

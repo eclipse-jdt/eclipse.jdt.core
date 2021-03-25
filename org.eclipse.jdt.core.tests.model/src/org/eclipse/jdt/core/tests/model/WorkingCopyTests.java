@@ -32,7 +32,7 @@ public class WorkingCopyTests extends ModifyingResourceTests {
 	ICompilationUnit cu = null;
 	ICompilationUnit copy = null;
 
-	public class TestWorkingCopyOwner extends WorkingCopyOwner {
+	public static class TestWorkingCopyOwner extends WorkingCopyOwner {
 		public IBuffer createBuffer(ICompilationUnit workingCopy) {
 			return new TestBuffer(workingCopy);
 		}
