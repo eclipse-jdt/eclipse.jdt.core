@@ -210,7 +210,7 @@ public abstract class AbstractLeakTest extends BuilderTests {
         String jvmName = ManagementFactory.getRuntimeMXBean().getName();
         int indexOfAt = jvmName.indexOf('@');
         String pidSubstring = jvmName.substring(0, indexOfAt);
-        int pid = Integer.valueOf(pidSubstring);
+        int pid = Integer.parseInt(pidSubstring);
         return pid;
 	}
 

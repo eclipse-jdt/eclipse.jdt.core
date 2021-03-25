@@ -162,7 +162,7 @@ public class UserLibrary {
 			throw new IOException(Messages.file_badFormat);
 		}
 		String version= cpElement.getAttribute(TAG_VERSION);
-		boolean isSystem= Boolean.valueOf(cpElement.getAttribute(TAG_SYSTEMLIBRARY)).booleanValue();
+		boolean isSystem= Boolean.parseBoolean(cpElement.getAttribute(TAG_SYSTEMLIBRARY));
 
 		NodeList list= cpElement.getChildNodes();
 		int length = list.getLength();

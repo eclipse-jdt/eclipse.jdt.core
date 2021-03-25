@@ -458,7 +458,7 @@ public abstract class BaseConfigurationBlock {
 	}
 
 	protected boolean getBooleanValue(Key key) {
-		return Boolean.valueOf(getValue(key)).booleanValue();
+		return Boolean.parseBoolean(getValue(key));
 	}
 
 	protected Button getCheckBox(Key key) {
