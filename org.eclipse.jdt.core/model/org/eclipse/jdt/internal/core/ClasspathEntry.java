@@ -1038,7 +1038,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				return null;
 			}
 			inputStream = zip.getInputStream(manifest);
-			char[] chars = getInputStreamAsCharArray(inputStream, -1, UTF_8);
+			char[] chars = getInputStreamAsCharArray(inputStream, UTF_8);
 			return chars;
 		} finally {
 			if (inputStream != null) {
