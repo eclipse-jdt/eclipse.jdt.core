@@ -4047,4 +4047,213 @@ public void testBug570593_MultiTypeParam_NestedMultiParam_OnSecond() throws Java
             requestor.getResults());
 }
 
+public void testBug572315_OnFieldAboveAnnotatedMember_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	private List<String> \n" +
+            "	@Deprecated \n" +
+            "	private void test(){ \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnFieldAboveParameterizedAnnotatedMember_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	private List<String> \n" +
+            "	@SuppressWarnings({\"unchecked\"}) \n" +
+            "	private void test(){ \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnField_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	private List<String> \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnFieldAboveMember_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	private List<String> \n" +
+            "	private int count;" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnFieldAboveAnnotatedField_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	private List<String> \n" +
+            "	@Deprecated \n" +
+            "	private int count;" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnFieldAboveAnnotatedMemberWithSemicolon_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	private List<String> ;\n" +
+            "	@Deprecated \n" +
+            "	private int count;" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnFieldAboveAnnotatedMemberWhichIsAnnotated_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "	@Deprecated \n" +
+            "	private List<String> \n" +
+            "	@Deprecated \n" +
+            "	private int count;" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
+
+public void testBug572315_OnLocalVariableAboveAnnotatedMember_VariableNameSuggestion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug570593.java",
+            "import java.util.List;\n" +
+            "\n" +
+            "public class Bug572315 {\n" +
+            "   private void foo() {\n" +
+            "   List<String> \n" +
+            "   @Deprecated()\n" +
+            "   Integer age;\n" +
+            "   }\n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "List<String> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "list[VARIABLE_DECLARATION]{list, null, Ljava.util.List<Ljava.lang.String;>;, list, null, 48}\n"
+            + "strings[VARIABLE_DECLARATION]{strings, null, Ljava.util.List<Ljava.lang.String;>;, strings, null, 48}",
+            requestor.getResults());
+}
 }

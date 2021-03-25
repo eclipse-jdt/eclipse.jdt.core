@@ -4004,6 +4004,15 @@ protected void consumeToken(int token) {
 
 		}
 	}
+
+	// this is to handle field definitions which doesn't end with a ';'.
+	if(previous == TokenNameIdentifier && token == TokenNameAT308 && this.currentElement == null
+			&& this.identifierStack[this.previousIdentifierPtr] == assistIdentifier()
+			&& !isIndirectlyInsideFieldInitialization() && isInsideType()) {
+		pushOnElementStack(K_FIELD_INITIALIZER_DELIMITER);
+		this.scanner.eofPosition = this.cursorLocation < Integer.MAX_VALUE ? this.cursorLocation+1 : this.cursorLocation;
+	}
+
 	super.consumeToken(token);
 
 	// if in field initializer (directly or not), on the completion identifier and not in recovery mode yet
