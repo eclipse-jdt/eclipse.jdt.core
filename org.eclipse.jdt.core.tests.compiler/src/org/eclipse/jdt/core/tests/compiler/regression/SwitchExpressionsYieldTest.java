@@ -26,7 +26,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug565844_yy" };
+//		TESTS_NAMES = new String[] { "571833" };
 	}
 
 	public static Class<?> testClass() {
@@ -5996,5 +5996,28 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error, insert \";\" to complete BlockStatements\n" +
 				"----------\n"
 				);
+	}
+	public void testBug571833_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static int foo(int a) {\n"+
+				"   int b = (int) switch (a) {\n"+
+				"     case 1 -> 1.0;\n"+
+				"     default -> 0;\n"+
+				"   };\n"+
+				"   return b;\n"+
+				" }\n"+
+				"\n"+
+				" public static void main(String[] args) {\n"+
+				"   int b = foo(2);\n"+
+				"   System.out.println(b);\n"+
+				" }\n"+
+				"}"
+			},
+			"0"
+		);
+
 	}
 }

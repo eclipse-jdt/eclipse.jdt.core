@@ -345,6 +345,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					codeStream.pop();
 					break;
 			}
+		} else {
+			if (!this.isPolyExpression()) // not in invocation or assignment contexts
+				codeStream.generateImplicitConversion(this.implicitConversion);
 		}
 	}
 	protected boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
