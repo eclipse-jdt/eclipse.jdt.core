@@ -168,7 +168,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 				try (ZipFile zipFile = new ZipFile(jarFile)) {
 					ZipEntry entry = zipFile.getEntry(PATH_JAVA_CORE_JAVA);
 					try (InputStream inputStream = zipFile.getInputStream(entry)) {
-						sourceChars = Util.getInputStreamAsCharArray(inputStream, (int)entry.getSize(), null);
+						sourceChars = Util.getInputStreamAsCharArray(inputStream, null);
 					}
 				}
 			}

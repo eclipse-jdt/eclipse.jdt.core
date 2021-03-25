@@ -44,7 +44,7 @@ public class ClasspathSourceJar extends ClasspathJar {
 				char[] contents = null;
 				try {
 					stream = this.zipFile.getInputStream(sourceEntry);
-					contents = Util.getInputStreamAsCharArray(stream, -1, this.encoding);
+					contents = Util.getInputStreamAsCharArray(stream, this.encoding);
 				} finally {
 					if (stream != null)
 						stream.close();

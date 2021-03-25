@@ -1190,21 +1190,6 @@ public class Util {
 		// Get file length
 		// workaround https://bugs.eclipse.org/bugs/show_bug.cgi?id=130736 by using java.io.File if possible
 		IPath location = file.getLocation();
-		long length;
-		if (location == null) {
-			// non local file
-			try {
-				URI locationURI = file.getLocationURI();
-				if (locationURI == null)
-					throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.bind(Messages.file_notFound, file.getFullPath().toString())));
-				length = EFS.getStore(locationURI).fetchInfo().getLength();
-			} catch (CoreException e) {
-				throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
-			}
-		} else {
-			// local file
-			length = location.toFile().length();
-		}
 
 		// Get resource contents
 		InputStream stream= null;
@@ -1214,7 +1199,7 @@ public class Util {
 			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
 		try {
-			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, (int) length, encoding);
+			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, encoding);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} finally {
