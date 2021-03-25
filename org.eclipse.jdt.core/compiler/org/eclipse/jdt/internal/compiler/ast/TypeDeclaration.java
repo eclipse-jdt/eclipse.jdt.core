@@ -723,6 +723,12 @@ public void generateCode(ClassFile enclosingClassFile) {
 			enclosingClassFile.recordInnerClasses(this.binding);
 			classFile.recordInnerClasses(this.binding);
 		}
+		SourceTypeBinding nestHost = this.binding.getNestHost();
+		if (nestHost != null && !TypeBinding.equalsEquals(nestHost, this.binding)) {
+			ClassFile ocf = enclosingClassFile.outerMostEnclosingClassFile();
+			if (ocf != null)
+				ocf.recordNestMember(this.binding);
+		}
 		TypeVariableBinding[] typeVariables = this.binding.typeVariables();
 		for (int i = 0, max = typeVariables.length; i < max; i++) {
 			TypeVariableBinding typeVariableBinding = typeVariables[i];
@@ -1518,7 +1524,7 @@ public void resolve() {
 				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 			}
 		}
-		updateNestInfo();
+		updateNestHost();
 		FieldDeclaration[] fieldsDecls = this.fields;
 		if (fieldsDecls != null) {
 			for (FieldDeclaration fieldDeclaration : fieldsDecls)
@@ -1859,13 +1865,12 @@ private SourceTypeBinding findNestHost() {
 	return classScope != null ? classScope.referenceContext.binding : null;
 }
 
-void updateNestInfo() {
+void updateNestHost() {
 	if (this.binding == null)
 		return;
 	SourceTypeBinding nestHost = findNestHost();
 	if (nestHost != null && !this.binding.equals(nestHost)) {// member
 		this.binding.setNestHost(nestHost);
-		nestHost.addNestMember(this.binding);
 	}
 }
 public boolean isPackageInfo() {

@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -162,6 +163,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	// that collection contains all the remaining bytes of the .class file
 	public int headerOffset;
 	public Map<TypeBinding, Boolean> innerClassesBindings;
+	public Set<SourceTypeBinding> nestMembers;
 	public List<ASTNode> bootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
@@ -2829,7 +2831,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	private int generateNestMembersAttribute() {
 
 		int localContentsOffset = this.contentsOffset;
-		List<String> nestedMembers = this.referenceBinding.getNestMembers();
+		List<String> nestedMembers = getNestMembers();
 		int numberOfNestedMembers = nestedMembers != null ? nestedMembers.size() : 0;
 		if (numberOfNestedMembers == 0) // JVMS 11 4.7.29 says "at most one" NestMembers attribute - return if none.
 			return 0;
@@ -6037,6 +6039,25 @@ public class ClassFile implements TypeConstants, TypeIds {
 			enclosingType = enclosingType.enclosingType();
 		}
 	}
+	public void recordNestMember(SourceTypeBinding binding) {
+		SourceTypeBinding nestHost = binding != null ? binding.getNestHost() : null;
+		if (nestHost != null && !binding.equals(nestHost)) {// member
+			if (this.nestMembers == null) {
+				this.nestMembers = new HashSet<>(NESTED_MEMBER_SIZE);
+			}
+			this.nestMembers.add(binding);
+		}
+	}
+	public List<String> getNestMembers() {
+		if (this.nestMembers == null)
+			return null;
+		List<String> list = this.nestMembers
+								.stream()
+								.map(s -> new String(s.constantPoolName()))
+								.sorted()
+								.collect(Collectors.toList());
+		return list;
+	}
 
 	public int recordBootstrapMethod(FunctionalExpression expression) {
 		if (this.bootstrapMethods == null) {
@@ -6095,6 +6116,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.methodCountOffset = 0;
 		if (this.innerClassesBindings != null) {
 			this.innerClassesBindings.clear();
+		}
+		if (this.nestMembers != null) {
+			this.nestMembers.clear();
 		}
 		if (this.bootstrapMethods != null) {
 			this.bootstrapMethods.clear();

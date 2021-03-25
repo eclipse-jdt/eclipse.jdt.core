@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation and others.
+ * Copyright (c) 2018, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -47,7 +47,7 @@ protected void setUp() throws Exception {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//	TESTS_NAMES = new String[] { "test055" };
+	TESTS_NAMES = new String[] { "testBug572190" };
 //	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
@@ -1427,6 +1427,79 @@ public void testBug545387_01() throws Exception {
 
 	String XSub1Sub2 = getClassFileContents("pack1/X$Sub1$Sub2.class", ClassFileBytesDisassembler.SYSTEM);
 	verifyOutputPositive(XSub1Sub2, "Nest Host: #29 pack1/X");
+}
+
+public void testBug572190_01() throws Exception {
+
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"       public void foo() {\n"+
+				"               new Thread(() -> {\n"+
+				"                       new Object() {\n"+
+				"                       };\n"+
+				"               });\n"+
+				"       }\n"+
+				"       public static void main(String[] args) {\n"+
+				"               System.out.println(0);\n"+
+				"       }\n"+
+				"}",
+			},
+			"0"
+	);
+
+	String XFile = getClassFileContents("X.class", ClassFileBytesDisassembler.SYSTEM);
+	String expected = "Nest Members:\n" +
+			"   #41 X$1\n" +
+			"Bootstrap methods:\n" ;
+	String unexpectedOutput = "Nest Members:\n" +
+			 "   #41 X$1,\n" +
+			 "   #68 X$2\n" +
+			 "Bootstrap methods:\n";
+	verifyOutputPositive(XFile, expected);
+
+	verifyOutputNegative(XFile, unexpectedOutput);
+}
+
+public void testBug572190_02() throws Exception {
+
+	this.runConformTest(
+			new String[] {
+				"pack1/X.java",
+				"package pack1;\n"+
+				"\n"+
+				"import pack1.XB.EF;\n"+
+				"\n"+
+				"public class X {\n"+
+				"       private static int foo() {\n"+
+				"               return  EF.values().length;\n"+
+				"       }\n"+
+				"    public static void main(String argv[])   {\n"+
+				"       System.out.println(X.foo());\n"+
+				"    }\n"+
+				"    public enum ch { }\n"+
+				"}\n",
+				"pack1/XA.java",
+				"package pack1;\n"+
+				"public class XA {\n"+
+				"    public enum EC {}\n"+
+				"}",
+				"pack1/XB.java",
+				"package pack1;\n"+
+				"public class XB {\n"+
+				"    protected enum EF {}\n"+
+				"}",
+			},
+			"0"
+	);
+
+	String XFile = getClassFileContents("pack1/XB.class", ClassFileBytesDisassembler.SYSTEM);
+	String expected = "Nest Members:\n" +
+			"   #17 pack1/XB$EF\n" +
+			"}";
+	verifyOutputPositive(XFile, expected);
+
 }
 
 public static Class testClass() {

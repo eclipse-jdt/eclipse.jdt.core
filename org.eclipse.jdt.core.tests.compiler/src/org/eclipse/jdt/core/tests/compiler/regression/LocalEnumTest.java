@@ -19,6 +19,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -27,6 +28,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -153,6 +155,35 @@ public class LocalEnumTest extends AbstractComparableTest {
 //			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
 //		runner.runWarningTest();
 //	}
+
+	private void verifyClassFile(String expectedOutput, String classFileName, int mode, boolean positive) throws IOException, ClassFormatException {
+		String result = getClassFileContents(classFileName, mode);
+		verifyOutput(result, expectedOutput, positive);
+	}
+	private String getClassFileContents( String classFileName, int mode) throws IOException,
+	ClassFormatException {
+		File f = new File(OUTPUT_DIR + File.separator + classFileName);
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		return result;
+	}
+	private void verifyOutput(String result, String expectedOutput, boolean positive) {
+		int index = result.indexOf(expectedOutput);
+		if (positive) {
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+				System.out.println("...");
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} else {
+			if (index != -1) {
+				assertEquals("Unexpected contents", "", result);
+			}
+		}
+	}
 
 // test simple valid enum and its usage
 public void test000() {
@@ -6538,37 +6569,14 @@ public void test166() throws Exception {
 		false,
 		false);
 	// check for presence of #valueOf(...) in problem type
-	String expectedOutput =
-		"public class X {\n" +
-		"  \n" +
-		"  // Method descriptor #6 ()V\n" +
-		"  // Stack: 1, Locals: 1\n" +
-		"  public X();\n" +
-		"    0  aload_0 [this]\n" +
-		"    1  invokespecial java.lang.Object() [8]\n" +
-		"    4  return\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 1]\n" +
-		"      Local variable table:\n" +
-		"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
-		"  \n" +
-		"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-		"  // Stack: 3, Locals: 1\n" +
+	String expectedPartialOutput =
 		"  public static void main(java.lang.String[] arg0);\n" +
 		"     0  new java.lang.Error [16]\n" +
 		"     3  dup\n" +
 		"     4  ldc <String \"Unresolved compilation problems: \\n\\tThe enum Y already defines the method valueOf(String) implicitly\\n\\tType mismatch: cannot convert from Y to int\\n\"> [18]\n" +
 		"     6  invokespecial java.lang.Error(java.lang.String) [20]\n" +
-		"     9  athrow\n" +
-		"      Line numbers:\n" +
-		"        [pc: 0, line: 5]\n" +
-		"\n" +
-		"\n" +
-		"Nest Members:\n" +
-		"   #26 X$1Y\n" +
-		"}";
-
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		"     9  athrow\n" ;
+	verifyClassFile(expectedPartialOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251814 - variation
 public void test167() throws Exception {

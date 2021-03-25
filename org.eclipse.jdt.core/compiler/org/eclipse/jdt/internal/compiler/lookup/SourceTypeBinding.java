@@ -3407,22 +3407,6 @@ public boolean isNestmateOf(SourceTypeBinding other) {
 			TypeBinding.equalsEquals(this.nestHost == null ? this : this.nestHost,
 					otherHost == null ? other : otherHost);
 }
-public void addNestMember(SourceTypeBinding member) {
-	if (this.nestMembers == null) {
-		this.nestMembers = new HashSet<>();
-	}
-	this.nestMembers.add(member);
-}
-public List<String> getNestMembers() {
-	if (this.nestMembers == null)
-		return null;
-	List<String> list = this.nestMembers
-							.stream()
-							.map(s -> new String(s.constantPoolName()))
-							.sorted()
-							.collect(Collectors.toList());
-	return list;
-}
 /* Get the field bindings in the order of record component declaration
  * should be called only after a called to fields() */
 public FieldBinding[] getImplicitComponentFields() {
