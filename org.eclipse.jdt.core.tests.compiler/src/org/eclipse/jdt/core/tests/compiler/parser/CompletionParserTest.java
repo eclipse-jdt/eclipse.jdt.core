@@ -155,10 +155,10 @@ public void testAA_2() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    int maxUnits;\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      CompilationUnitResult unitResult = new CompilationUnitResult(<CompleteOnName:n>);\n" +
-		"    }\n" +
+		"    for (int i;; (i < maxUnits); i ++) \n" +
+		"      {\n" +
+		"        CompilationUnitResult unitResult = new CompilationUnitResult(<CompleteOnName:n>, i, maxUnits);\n" +
+		"      }\n" +
 		"  }\n" +
 		"}\n";
 
@@ -205,10 +205,10 @@ public void testAA_3() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    int maxUnits;\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      CompilationUnitResult unitResult = new CompilationUnitResult(null, <CompleteOnName:i>);\n" +
-		"    }\n" +
+		"    for (int i;; (i < maxUnits); i ++) \n" +
+		"      {\n" +
+		"        CompilationUnitResult unitResult = new CompilationUnitResult(null, <CompleteOnName:i>, maxUnits);\n" +
+		"      }\n" +
 		"  }\n" +
 		"}\n";
 
@@ -255,10 +255,10 @@ public void testAA_4() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    int maxUnits;\n" +
-		"    int i;\n" +
-		"    {\n" +
-		"      CompilationUnitResult unitResult = new CompilationUnitResult(null, i, <CompleteOnName:max>);\n" +
-		"    }\n" +
+		"    for (int i;; (i < maxUnits); i ++) \n" +
+		"      {\n" +
+		"        CompilationUnitResult unitResult = new CompilationUnitResult(null, i, <CompleteOnName:max>);\n" +
+		"      }\n" +
 		"  }\n" +
 		"}\n";
 
@@ -637,7 +637,7 @@ public void testBC_1FJ4GSG_1() {
 	String completeBehind = "BC.";
 	String expectedCompletionNodeToString = "<CompleteOnName:BC.>";
 	String completionIdentifier = "";
-	String expectedReplacedSource = "BC.";
+	String expectedReplacedSource = "BC.Constants.OK";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" +
@@ -653,7 +653,7 @@ public void testBC_1FJ4GSG_1() {
 		"  public BC() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    Vector v = new Vector(Value1, <CompleteOnName:BC.>);\n" +
+		"    Vector v = new Vector(Value1, (<CompleteOnName:BC.> | BC.Constants.CANCEL));\n" +
 		"  }\n" +
 		"}\n";
 
@@ -693,7 +693,7 @@ public void testBC_1FJ4GSG_2() {
 	String completeBehind = "| BC.Constants.";
 	String expectedCompletionNodeToString = "<CompleteOnName:BC.Constants.>";
 	String completionIdentifier = "";
-	String expectedReplacedSource = "BC.Constants.";
+	String expectedReplacedSource = "BC.Constants.CANCEL";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" +
@@ -709,7 +709,7 @@ public void testBC_1FJ4GSG_2() {
 		"  public BC() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    Vector v = (BC.Constants.OK | <CompleteOnName:BC.Constants.>);\n" +
+		"    Vector v = new Vector(Value1, (BC.Constants.OK | <CompleteOnName:BC.Constants.>));\n" +
 		"  }\n" +
 		"}\n";
 
@@ -882,7 +882,7 @@ public void testCB_1FHSKQ9_1() {
 		"    int i;\n" +
 		"    int[] tab1;\n" +
 		"    int j;\n" +
-		"    (\" \" + <CompleteOnName:i>);\n" +
+		"    System.out.println((\" \" + (<CompleteOnName:i> + 1)));\n" +
 		"  }\n" +
 		"}\n";
 
@@ -1209,9 +1209,9 @@ public void testDA_3() {
 
 	String testName = "<complete on method selector into anonymous declaration>";
 	String completeBehind = "r";
-	String expectedCompletionNodeToString = "<CompleteOnFieldName:void r>;";
+	String expectedCompletionNodeToString = "<CompletionOnMethodName:protected void r()>";
 	String completionIdentifier = "r";
-	String expectedReplacedSource = "runTest";
+	String expectedReplacedSource = "runTest()";
 	int cursorLocation = str.indexOf("runTest") + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" +
@@ -1220,9 +1220,7 @@ public void testDA_3() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    new TestCase(\"error\") {\n" +
-		"      <CompleteOnFieldName:void r>;\n" +
-		"      {\n" +
-		"      }\n" +
+		"      <CompletionOnMethodName:protected void r()>\n" +
 		"    };\n" +
 		"  }\n" +
 		"}\n";
@@ -1251,7 +1249,7 @@ public void testDA_4() {
 
 	String testName = "<complete on local variable type into anonymous declaration>";
 	String completeBehind = "V";
-	String expectedCompletionNodeToString = "<CompleteOnName:V>";
+	String expectedCompletionNodeToString = "<CompleteOnType:V>";
 	String completionIdentifier = "V";
 	String expectedReplacedSource = "Vector";
 	int cursorLocation = str.indexOf("Vector v11111") + completeBehind.length() - 1;
@@ -1263,7 +1261,7 @@ public void testDA_4() {
 		"  void foo() {\n" +
 		"    new TestCase(\"error\") {\n" +
 		"      protected void runTest() {\n" +
-		"        <CompleteOnName:V>;\n" +
+		"        <CompleteOnType:V> v11111;\n" +
 		"      }\n" +
 		"    };\n" +
 		"  }\n" +
@@ -4192,10 +4190,11 @@ public void testNB() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    int iOutside;\n" +
-		"    {\n" +
-		"      int i;\n" +
-		"      -- <CompleteOnName:i>;\n" +
-		"    }\n" +
+		"    if ((i != 0))\n" +
+		"        {\n" +
+		"          for (int i;; ((-- <CompleteOnName:i>) >= 0); ) \n" +
+		"            unit[i].parseMethod(parser, unit);\n" +
+		"        }\n" +
 		"  }\n" +
 		"}\n";
 
@@ -4394,7 +4393,7 @@ public void testOB_1() {
 
 	String testName = "<complete on keyword>";
 	String completeBehind = "b";
-	String expectedCompletionNodeToString = "<CompleteOnName:b>";
+	String expectedCompletionNodeToString = "<CompleteOnType:b>";
 	String completionIdentifier = "b";
 	String expectedReplacedSource = "break";
 	int cursorLocation = str.indexOf("break") + completeBehind.length() - 1;
@@ -4404,9 +4403,10 @@ public void testOB_1() {
 		"  public OB() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    {\n" +
-		"      <CompleteOnName:b>;\n" +
-		"    }\n" +
+		"    label: while (true)  {\n" +
+		"    System.out.println(\"\");\n" +
+		"    <CompleteOnType:b> label;\n" +
+		"  }\n" +
 		"  }\n" +
 		"}\n";
 
@@ -4848,7 +4848,7 @@ public void testQA_1() {
 
 	String testName = "<complete on method/field>";
 	String completeBehind = "new QAHelper().new Y().m";
-	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:new QAHelper().new Y().m>";
+	String expectedCompletionNodeToString = "<CompleteOnMessageSendName:new QAHelper().new Y().m()>";
 	String completionIdentifier = "m";
 	String expectedReplacedSource = "main";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
@@ -4876,7 +4876,7 @@ public void testQA_1() {
 		"  public QA() {\n" +
 		"  }\n" +
 		"  void check() {\n" +
-		"    <CompleteOnMemberAccess:new QAHelper().new Y().m>;\n" +
+		"    <CompleteOnMessageSendName:new QAHelper().new Y().m()>;\n" +
 		"  }\n" +
 		"  public static void main(String[] args) {\n" +
 		"  }\n" +
@@ -5012,9 +5012,9 @@ public void testQA_3() {
 
 	String testName = "<complete on method/field of object creation>";
 	String completeBehind = "new QAHelper().new Y().";
-	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:new QAHelper().new Y().>";
+	String expectedCompletionNodeToString = "<CompleteOnMessageSendName:new QAHelper().new Y().()>";
 	String completionIdentifier = "";
-	String expectedReplacedSource = "";
+	String expectedReplacedSource = "main";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" +
@@ -5040,7 +5040,7 @@ public void testQA_3() {
 		"  public QA() {\n" +
 		"  }\n" +
 		"  void check() {\n" +
-		"    <CompleteOnMemberAccess:new QAHelper().new Y().>;\n" +
+		"    <CompleteOnMessageSendName:new QAHelper().new Y().()>;\n" +
 		"  }\n" +
 		"  public static void main(String[] args) {\n" +
 		"  }\n" +
@@ -5738,7 +5738,7 @@ public void testTA_1FHISJJ_1() {
 		"  public TA() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    Object[] items = {<CompleteOnName:n>};\n" +
+		"    Object[] items = {\"Mark unublishable\", <CompleteOnName:n>, \"Properties...\"};\n" +
 		"  }\n" +
 		"}\n";
 
@@ -6757,7 +6757,7 @@ public void testX_1FGGV8C_1() {
 		"    int locale;\n" +
 		"    int errorThreshold;\n" +
 		"    int preserveAllLocalVariables;\n" +
-		"    new Y(\"debug.vars\", <CompleteOnName:t>);\n" +
+		"    new Y(\"debug.vars\", <CompleteOnName:t>, locale, (((produceDebugAttributes & Vars) != 0) ? 0 : 1));\n" +
 		"  }\n" +
 		"}\n";
 
@@ -6959,7 +6959,7 @@ public void testX_1FGGV8C_3() {
 		"    int locale;\n" +
 		"    int errorThreshold;\n" +
 		"    int preserveAllLocalVariables;\n" +
-		"    new YZA[]{new <CompleteOnType:Y>()};\n" +
+		"    new YZA[]{new <CompleteOnType:Y>(\"debug.vars\", this, locale, (((produceDebugAttributes & Vars) != 0) ? 0 : 1)), new YZA(\"debug.lines\", this, locale, (((produceDebugAttributes & Lines) != 0) ? 0 : 1)), new YZA(\"debug.source\", this, locale, (((produceDebugAttributes & Source) != 0) ? 0 : 1)), new YZA(\"debug.preserveAllLocals\", this, locale, (preserveAllLocalVariables ? 0 : 1)), new YZA(\"optionalError.unReachableCode\", this, locale, (((errorThreshold & UnreachableCode) != 0) ? 0 : 1))};\n" +
 		"  }\n" +
 		"}\n";
 
@@ -7578,9 +7578,9 @@ public void testXB_1FIYM5I_3() {
 
 	String testName = "<complete on method/field of explicit this access>";
 	String completeBehind = "this.b";
-	String expectedCompletionNodeToString = "<CompleteOnMemberAccess:this.b>";
+	String expectedCompletionNodeToString = "<CompleteOnMessageSendName:this.b()>";
 	String completionIdentifier = "b";
-	String expectedReplacedSource = "this.bar";
+	String expectedReplacedSource = "bar";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
 	String expectedUnitDisplayString =
 		"package p;\n" +
@@ -7589,7 +7589,7 @@ public void testXB_1FIYM5I_3() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    XB xb;\n" +
-		"    <CompleteOnMemberAccess:this.b>;\n" +
+		"    <CompleteOnMessageSendName:this.b()>;\n" +
 		"  }\n" +
 		"  String bar() {\n" +
 		"  }\n" +
@@ -8917,7 +8917,7 @@ public void testBug346454b(){
 
 	String testName = "<complete after diamond type>";
 	String completeBehind = "new Test<>().new T2<>(";
-	String expectedCompletionNodeToString = "<CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>";
+	String expectedCompletionNodeToString = "<CompleteOnName:>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
 	String expectedUnitDisplayString =
@@ -8929,7 +8929,47 @@ public void testBug346454b(){
 		"  public Test() {\n" +
 		"  }\n" +
 		"  public void foo() {\n" +
-		"    Test<String>.T2<String> t = <CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>()>;\n" +
+		"    Test<String>.T2<String> t = new Test<>().new T2<>(<CompleteOnName:>);\n" + // outer allocation is illegal to begin with
+		"  }\n" +
+		"}\n";
+
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
+	checkMethodParse(
+		str.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		testName);
+}
+public void testBug346454b2(){
+	// TODO: unsuccessful attempt to show that completion would work right after "<>" but for that
+	// CompletionParser.checkClassInstanceCreation would need to handle parameterized types, which it never did
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	String str =
+		"public class Test<T> {\n" +
+		"	public class T2<Z>{}\n" +
+		"	public void foo() {\n" +
+		"      Test<String>.T2<String> t = new Test<String>().new T2<>()\n" +
+		"   }" +
+		"}\n";
+
+	String testName = "<complete after diamond type>";
+	String completeBehind = "new Test<String>().new T2<>";
+	String expectedCompletionNodeToString = "<NONE>"; // TODO: improve
+	String completionIdentifier = "";
+	String expectedReplacedSource = "<NONE>";
+	String expectedUnitDisplayString =
+		"public class Test<T> {\n" +
+		"  public class T2<Z> {\n" +
+		"    public T2() {\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public Test() {\n" +
+		"  }\n" +
+		"  public void foo() {\n" + // TODO improve
 		"  }\n" +
 		"}\n";
 

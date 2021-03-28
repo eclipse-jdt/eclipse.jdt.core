@@ -70,7 +70,7 @@ public void test001() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"first[LOCAL_VARIABLE_REF]{first, null, I, first, null, " + (R_DEFAULT + 22) + "}",
+			"first[LOCAL_VARIABLE_REF]{first, null, I, first, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}",
 			requestor.getResults());
 }
 public void test002() throws JavaModelException {
@@ -93,7 +93,7 @@ public void test002() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"first[LOCAL_VARIABLE_REF]{first, null, I, first, null, " + (R_DEFAULT + 22) + "}",
+			"first[LOCAL_VARIABLE_REF]{first, null, I, first, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}",
 			requestor.getResults());
 }
 public void test003() throws JavaModelException {
@@ -664,8 +664,8 @@ public void test018() throws JavaModelException { // computing visible elements 
 			"completion range=[233, 232]\n" +
 			"completion token=\"\"\n" +
 			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures=null\n" +
-			"expectedTypesKeys=null\n" +
+			"expectedTypesSignatures={Z,C,I,J,F,D,[C,Ljava.lang.String;,Ljava.lang.Object;}\n" +
+			"expectedTypesKeys={Z,C,I,J,F,D,[C,Ljava/lang/String;,Ljava/lang/Object;}\n" +
 			"completion token location=UNKNOWN\n" +
 			"visibleElements={\n" +
 			"	xField {key=LX;.xField)LX;} [in X [in [Working copy] X.java [in <default> [in src [in Completion]]]]],\n" +
@@ -1179,8 +1179,8 @@ public void test428735() throws JavaModelException {
 	String completeBehind = "p.get";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [186, 189], " + (R_DEFAULT + 30) + "}\n" +
-                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [186, 189], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [186, 189], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}\n" +
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [186, 189], " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
 public void test428735a() throws JavaModelException {
@@ -1234,7 +1234,7 @@ public void test428735b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [293, 296], " + (R_DEFAULT + 30) + "}\n" +
-                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [293, 296], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+                  "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [293, 296], " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
 public void test428735c() throws JavaModelException {
@@ -2621,7 +2621,7 @@ public void testBug481215a() throws JavaModelException {
 			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, " + (R_DEFAULT + 9) + "}\n" +
-			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + 22) + "}", requestor.getResults());
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}", requestor.getResults());
 }
 public void testBug481215b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2653,7 +2653,7 @@ public void testBug481215b() throws JavaModelException {
 			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, " + (R_DEFAULT + 9) + "}\n" +
-			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + 22) + "}", requestor.getResults());
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}", requestor.getResults());
 }
 public void testBug481215c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2685,7 +2685,7 @@ public void testBug481215c() throws JavaModelException {
 			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, " + (R_DEFAULT + 9) + "}\n" +
-			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + 22) + "}", requestor.getResults());
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}", requestor.getResults());
 }
 public void testBug481215d() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2725,8 +2725,8 @@ public void testBug481215d() throws JavaModelException {
 			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, " + (R_DEFAULT + 9) + "}\n" +
 			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, " + (R_DEFAULT + 9) + "}\n" +
-			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + 22) + "}\n" +
-			"result2[LOCAL_VARIABLE_REF]{result2, null, Ljava.lang.String;, result2, null, " + (R_DEFAULT + 22) + "}", requestor.getResults());
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}\n" +
+			"result2[LOCAL_VARIABLE_REF]{result2, null, Ljava.lang.String;, result2, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}", requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=484479
 public void test484479() throws JavaModelException {
@@ -3113,7 +3113,7 @@ public void test485492b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], 52}",
+			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], 82}",
 			requestor.getResults());
 }
 public void test485492c() throws JavaModelException {
@@ -4367,6 +4367,34 @@ public void testBug530556() throws JavaModelException {
             "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
             "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
             "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+            requestor.getResults());
+}
+public void testBug539685a() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"Completion/src/ReproduceHang.java",
+		"import java.util.Objects;\n" +
+		"import java.util.function.Function;\n" +
+		"\n" +
+		"public class ReproduceHang {\n" +
+		"    public static void main(String[] args) {\n" +
+		"        Function<String, Object> localVar = (value -> new Object() {\n" +
+		"            private final int i = Objects.requireNull(1);\n" +
+		"        });\n" +
+		"    }\n" +
+		"}\n");
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Objects.r";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;)TT;, requireNonNull, (arg0), 51}\n" +
+            "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.lang.String;)TT;, requireNonNull, (arg0, arg1), 51}\n" +
+            "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.util.function.Supplier<Ljava.lang.String;>;)TT;, requireNonNull, (arg0, arg1), 51}",
             requestor.getResults());
 }
 }

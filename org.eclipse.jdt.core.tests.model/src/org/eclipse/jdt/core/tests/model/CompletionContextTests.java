@@ -5223,9 +5223,9 @@ public void test0172() throws JavaModelException {
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
 		"completion token=\"format\"\n" +
 		"completion token kind=TOKEN_KIND_NAME\n" +
-		"expectedTypesSignatures=null\n" +
-		"expectedTypesKeys=null\n" +
-		"completion token location={STATEMENT_START}\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}\n" +
+		"completion token location=UNKNOWN\n" +
 		"enclosingElement=foo() {key=Ltest/X;.foo()V} [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]\n" +
 		"visibleElements={\n" +
 		"	fooBar [in foo() [in X [in [Working copy] X.java [in test [in src3 [in Completion]]]]]],\n" +

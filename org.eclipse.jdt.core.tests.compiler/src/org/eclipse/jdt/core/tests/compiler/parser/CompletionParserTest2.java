@@ -7280,7 +7280,9 @@ public void test0111_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    (1 == <CompleteOnName:zzz>);\n" +
+			"    if ((1 == <CompleteOnName:zzz>))\n" +
+			"        {\n" +
+			"        }\n" +
 			"  }\n" +
 			"}\n";
 
@@ -7344,14 +7346,16 @@ public void test0112_Method(){
 	String expectedCompletionNodeToString = "<CompleteOnName:zzz>";
 	String expectedParentNodeToString = "(1 == <CompleteOnName:zzz>)";
 	String completionIdentifier = "zzz";
-	String expectedReplacedSource = "zzz";
+	String expectedReplacedSource = "(zzz)";
 	String expectedUnitDisplayString =
 			"package p;\n" +
 			"public class X {\n" +
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo() {\n" +
-			"    (1 == <CompleteOnName:zzz>);\n" +
+			"    if ((1 == <CompleteOnName:zzz>))\n" +
+			"        {\n" +
+			"        }\n" +
 			"  }\n" +
 			"}\n";
 
@@ -7422,7 +7426,9 @@ public void test0113_Method(){
 			"  public X() {\n" +
 			"  }\n" +
 			"  void foo(Object x) {\n" +
-			"    (x instanceof <CompleteOnType:ZZZ>);\n" +
+			"    if ((x instanceof <CompleteOnType:ZZZ>))\n" +
+			"        {\n" +
+			"        }\n" +
 			"  }\n" +
 			"}\n";
 
@@ -8815,7 +8821,12 @@ public void test0132_Method(){
 	String completeBehind = "\"2\");";
 	int cursorLocation = str.indexOf("\"2\");") + completeBehind.length() - 1;
 	String expectedCompletionNodeToString = "<CompleteOnName:>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString =
+			"new A(str1, str2) {\n" +
+			"  {\n" +
+			"    <CompleteOnName:>;\n" +
+			"  }\n" +
+			"}";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "";
 	String expectedUnitDisplayString =
@@ -9166,7 +9177,7 @@ public void test0137_Method(){
 	String expectedCompletionNodeToString = "<CompleteOnMessageSend:super.zzz()>";
 	String expectedParentNodeToString = "<NONE>";
 	String completionIdentifier = "";
-	String expectedReplacedSource = "zzz(";
+	String expectedReplacedSource = "zzz()";
 	String expectedUnitDisplayString =
 			"public class X {\n" +
 			"  public X() {\n" +
@@ -11771,10 +11782,10 @@ public void test0178_Method() {
 			"  public P() {\n" +
 			"  }\n" +
 			"  private void foo(String key) {\n" +
-			"    {\n" +
-			"      if ((key != null))\n" +
+			"    if ((key != null))\n" +
+			"        {\n" +
 			"          String[] keys = {<CompleteOnName:k>};\n" +
-			"    }\n" +
+			"        }\n" +
 			"  }\n" +
 			"}\n";
 
