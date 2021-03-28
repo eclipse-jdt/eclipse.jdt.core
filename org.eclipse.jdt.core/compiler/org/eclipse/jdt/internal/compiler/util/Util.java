@@ -16,21 +16,23 @@ package org.eclipse.jdt.internal.compiler.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
@@ -547,6 +549,14 @@ public class Util implements SuffixConstants {
 		return (byteBuf.length == byteCount) ? byteBuf : Arrays.copyOf(byteBuf, byteCount);
 	}
 
+	private static Map<String, byte[]> bomByEncoding = new HashMap<String, byte[]>();
+	static {
+		// org.eclipse.core.runtime.content.IContentDescription.BOM_UTF_8:
+		bomByEncoding.put("UTF-8", new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF }); //$NON-NLS-1$
+		// XXX UTF-16, UTF-32 may have BOM too
+		// @see org.eclipse.core.runtime.content.IContentDescription.BOM_UTF_16BE ,..
+	}
+
 	/**
 	 * Returns the given input stream's contents as a character array.
 	 * Note this doesn't close the stream.
@@ -554,55 +564,54 @@ public class Util implements SuffixConstants {
 	 */
 	public static char[] getInputStreamAsCharArray(InputStream stream,  String encoding)
 			throws IOException {
-		//XXX java.nio.file.Files.readString().toCharArray() is faster on recent JDKs
-		BufferedReader reader = null;
+		byte[] byteContents =  getInputStreamAsByteArray(stream);
+
+		Charset charset;
 		try {
-			reader = encoding == null
-						? new BufferedReader(new InputStreamReader(stream))
-						: new BufferedReader(new InputStreamReader(stream, encoding));
-		} catch (UnsupportedEncodingException e) {
+			charset = Charset.forName(encoding);
+		} catch (IllegalArgumentException e) {
 			// encoding is not supported
-			reader =  new BufferedReader(new InputStreamReader(stream));
-		}
-		char[] contents = CharOperation.NO_CHAR;
-		int totalRead = 0;
-
-		while (true) {
-			int amountRequested;
-			{
-				// reading beyond known length
-				int current = reader.read();
-				if (current < 0) break;
-
-				amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
-
-				// resize contents if needed
-				if (totalRead + 1 + amountRequested > contents.length)
-					System.arraycopy(contents, 	0, 	contents = new char[totalRead + 1 + amountRequested], 0, totalRead);
-
-				// add current character
-				contents[totalRead++] = (char) current; // coming from totalRead==length
-			}
-			// read as many chars as possible
-			int amountRead = reader.read(contents, totalRead, amountRequested);
-			if (amountRead < 0) break;
-			totalRead += amountRead;
+			charset = Charset.defaultCharset();
 		}
 
-		// Do not keep first character for UTF-8 BOM encoding
-		int start = 0;
-		if (totalRead > 0 && UTF_8.equals(encoding)) {
-			if (contents[0] == 0xFEFF) { // if BOM char then skip
-				totalRead--;
-				start = 1;
-			}
+		// check for BOM in encoded byte content
+		// (instead of after decoding to avoid array copy after decoding):
+		byte[] bom = bomByEncoding.get(charset.name());
+		int start;
+		if (bom != null && startsWith(byteContents, bom)) {
+			start = bom.length; // skip BOM
+		} else {
+			start = 0;
 		}
 
-		// resize contents if necessary
-		if (totalRead < contents.length)
-			System.arraycopy(contents, start, contents = new char[totalRead], 	0, 	totalRead);
+		return decode(byteContents, start, byteContents.length - start, charset);
+	}
 
-		return contents;
+	/**
+	 * conversionless inmplementation of
+	 *
+	 * @return new String(srcBytes, start, length, charset).toCharArray();
+	 **/
+	private static char[] decode(byte[] srcBytes, int start, int length, Charset charset) {
+		ByteBuffer srcBuffer = ByteBuffer.wrap(srcBytes, start, length);
+		CharBuffer destBuffer = charset.decode(srcBuffer);
+		char[] dst = destBuffer.array();
+		int chars = destBuffer.remaining();
+		if (chars != dst.length) {
+			dst = Arrays.copyOf(dst, chars);
+		}
+		return dst;
+	}
+
+	private static boolean startsWith(byte[] a, byte[] start) {
+		if (a.length < start.length) {
+			return false;
+		}
+		for (int i = 0; i < start.length; i++) {
+			if (a[i] != start[i])
+				return false;
+		}
+		return true;
 	}
 
 	/**
