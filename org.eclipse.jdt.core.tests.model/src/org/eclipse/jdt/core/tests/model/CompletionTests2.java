@@ -189,7 +189,7 @@ public static Test suite() {
 	return buildModelTestSuite(CompletionTests2.class);
 }
 
-File createFile(File parent, String name, String content) throws IOException {
+static File createFile(File parent, String name, String content) throws IOException {
 	File file = new File(parent, name);
 	FileOutputStream out = new FileOutputStream(file);
 	try {
@@ -199,11 +199,29 @@ File createFile(File parent, String name, String content) throws IOException {
 	}
 	return file;
 }
-File createDirectory(File parent, String name) {
+
+static File createDirectory(File parent, String name) {
 	File dir = new File(parent, name);
 	dir.mkdirs();
 	return dir;
 }
+
+/**
+ * @return monitor that will answer {@code isCancelled() == true} after one minute
+ */
+static NullProgressMonitor createSelfCancellingMonitor() {
+	NullProgressMonitor monitor = new NullProgressMonitor() {
+		long start = System.currentTimeMillis();
+
+		public boolean isCanceled() {
+	        long time = System.currentTimeMillis() - this.start;
+	        return time > 60_000; // cancel after 1 minute
+	    }
+
+	};
+	return monitor;
+}
+
 /**
  * Test for bug 29832
  */
@@ -5181,15 +5199,7 @@ public void testBug281598() throws Exception {
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
-		NullProgressMonitor monitor = new NullProgressMonitor() {
-			long start = System.currentTimeMillis();
-
-			public boolean isCanceled() {
-	            long time = System.currentTimeMillis() - this.start;
-	            return time > 1000; // cancel after 1 sec
-            }
-
-		};
+		NullProgressMonitor monitor = createSelfCancellingMonitor();
 
 	    String str = this.workingCopies[0].getSource();
 	    String completeBehind = "sys";
@@ -5224,15 +5234,7 @@ public void testBug281598b() throws Exception {
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
-		NullProgressMonitor monitor = new NullProgressMonitor() {
-			long start = System.currentTimeMillis();
-
-			public boolean isCanceled() {
-	            long time = System.currentTimeMillis() - this.start;
-	            return time > 1000; // cancel after 1 sec
-            }
-
-		};
+		NullProgressMonitor monitor = createSelfCancellingMonitor();
 
 	    String str = this.workingCopies[0].getSource();
 	    String completeBehind = "String";
@@ -5272,15 +5274,7 @@ public void testBug281598c() throws Exception {
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
-		NullProgressMonitor monitor = new NullProgressMonitor() {
-			long start = System.currentTimeMillis();
-
-			public boolean isCanceled() {
-	            long time = System.currentTimeMillis() - this.start;
-	            return time > 1000; // cancel after 1 sec
-            }
-
-		};
+		NullProgressMonitor monitor = createSelfCancellingMonitor();
 
 	    String completeBehind = "Strin";
 	    int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
