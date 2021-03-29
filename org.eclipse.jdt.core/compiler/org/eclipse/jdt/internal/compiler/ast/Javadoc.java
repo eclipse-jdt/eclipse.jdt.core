@@ -609,10 +609,11 @@ public class Javadoc extends ASTNode {
 				for (int i = 0; i < argumentsSize; i++) {
 					Argument arg = methodDecl.arguments[i];
 					boolean found = false;
-					for (int j = 0; j < maxBindings && !found; j++) {
+					for (int j = 0; j < maxBindings; j++) {
 						LocalVariableBinding binding = bindings[j];
 						if (arg.binding == binding) {
 							found = true;
+							break;
 						}
 					}
 					if (!found) {
