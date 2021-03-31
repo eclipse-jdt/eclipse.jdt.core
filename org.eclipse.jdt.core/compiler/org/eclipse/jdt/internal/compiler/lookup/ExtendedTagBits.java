@@ -22,4 +22,8 @@ public interface ExtendedTagBits {
 
 	long AnnotationPreviewFeature = ASTNode.Bit32L | ASTNode.Bit33L;
 	long EssentialAPI = ASTNode.Bit11;
+	/** From Java 16
+	 *  Flag used to identify the annotation jdk.internal.ValueBased
+	 */
+	int AnnotationValueBased = ASTNode.Bit3;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -201,6 +201,10 @@ public void resolve(BlockScope upperScope) {
 			case T_null :
 				this.scope.problemReporter().invalidNullToSynchronize(this.expression);
 				break;
+			default :
+				if (type.hasValueBasedTypeAnnotation()) {
+					this.scope.problemReporter().discouragedValueBasedTypeToSynchronize(this.expression, type);
+				}
 			}
 			//continue even on errors in order to have the TC done into the statements
 			this.synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, ClassFileConstants.AccDefault, false);

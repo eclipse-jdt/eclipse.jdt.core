@@ -2396,6 +2396,9 @@ void setSourceStart(int sourceStart);
 	 */
 	int PatternVariableRedeclared = Internal + 1784;
 
+	/** @since 3.26
+	 * @noreference */
+	int DiscouragedValueBasedTypeSynchronization = Internal + 1820;
 
 	/** @since 3.24
 	 * @noreference preview feature error */

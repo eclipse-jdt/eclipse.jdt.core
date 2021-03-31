@@ -209,6 +209,7 @@ public static Test suite() {
 	 since_16.add(LocalEnumTest.class);
 	 since_16.add(LocalStaticsTest.class);
 	 since_16.add(PreviewFeatureTest.class);
+	 since_16.add(ValueBasedAnnotationTests.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

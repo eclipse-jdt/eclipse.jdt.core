@@ -1556,6 +1556,10 @@ public final boolean hasTypeAnnotations() {
 	return (this.tagBits & TagBits.HasTypeAnnotations) != 0;
 }
 
+public boolean hasValueBasedTypeAnnotation() {
+	return (this.extendedTagBits & ExtendedTagBits.AnnotationValueBased) != 0;
+}
+
 /**
  * Answer the qualified name of the receiver's package separated by periods
  * or an empty string if its the default package.

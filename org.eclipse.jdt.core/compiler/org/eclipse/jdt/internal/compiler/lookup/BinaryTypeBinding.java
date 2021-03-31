@@ -656,6 +656,9 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 		IBinaryAnnotation[] declAnnotations = binaryType.getAnnotations();
 		if (declAnnotations != null) {
+			if (hasValueBasedTypeAnnotation(declAnnotations)) {
+				this.extendedTagBits |= ExtendedTagBits.AnnotationValueBased;
+			}
 			for (IBinaryAnnotation annotation : declAnnotations) {
 				char[] typeName = annotation.getTypeName();
 				if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
@@ -732,6 +735,27 @@ private ITypeAnnotationWalker getTypeAnnotationWalker(IBinaryTypeAnnotation[] an
 			return new NonNullDefaultAwareTypeAnnotationWalker(annotations, nullness, this.environment);
 	}
 	return new TypeAnnotationWalker(annotations);
+}
+
+private boolean hasValueBasedTypeAnnotation(IBinaryAnnotation[] declAnnotations) {
+	boolean hasValueBasedAnnotation = false;
+	if (declAnnotations != null && declAnnotations.length > 0) {
+		for (IBinaryAnnotation annot : declAnnotations) {
+			char[] typeName= annot.getTypeName();
+			if ( typeName == null || typeName.length < 25 || typeName[0] != 'L')
+				continue;
+			char[][] name = CharOperation.splitOn('/', typeName, 1, typeName.length-1);
+			try {
+				if (CharOperation.equals(name,TypeConstants.JDK_INTERNAL_VALUEBASED)) {
+					hasValueBasedAnnotation= true;
+					break;
+				}
+			} catch (Exception e) {
+				//do nothing
+			}
+		}
+	}
+	return hasValueBasedAnnotation;
 }
 
 private int getNullDefaultFrom(IBinaryAnnotation[] declAnnotations) {
