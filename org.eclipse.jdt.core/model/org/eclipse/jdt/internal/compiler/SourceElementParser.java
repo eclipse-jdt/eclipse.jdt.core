@@ -1039,7 +1039,7 @@ protected QualifiedNameReference newQualifiedNameReference(char[][] tokens, long
 protected SingleNameReference newSingleNameReference(char[] source, long positions) {
 	return new SingleNameReference(source, positions);
 }
-private class DummyTypeReference extends TypeReference {
+private static class DummyTypeReference extends TypeReference {
 	char[] token;
 	DummyTypeReference(char[] name) {
 		this.token = name;

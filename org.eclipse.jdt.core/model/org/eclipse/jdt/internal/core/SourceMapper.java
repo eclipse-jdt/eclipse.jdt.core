@@ -478,7 +478,7 @@ public class SourceMapper
 		return -1;
 	}
 
-	class JrtPackageNamesAdderVisitor implements JRTUtil.JrtFileVisitor<java.nio.file.Path> {
+	static class JrtPackageNamesAdderVisitor implements JRTUtil.JrtFileVisitor<java.nio.file.Path> {
 
 		public final HashSet firstLevelPackageNames;
 		final IPackageFragmentRoot root;

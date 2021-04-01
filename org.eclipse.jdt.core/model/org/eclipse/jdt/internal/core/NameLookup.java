@@ -113,7 +113,7 @@ public class NameLookup implements SuffixConstants {
 		}
 	}
 
-	private class Selector implements IJavaElementRequestor {
+	private static class Selector implements IJavaElementRequestor {
 		public List<IPackageFragment> pkgFragments;
 
 		public Selector(String moduleName) {

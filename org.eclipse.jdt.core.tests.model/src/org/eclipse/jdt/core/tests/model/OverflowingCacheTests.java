@@ -40,7 +40,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	 * A OverflowingTestBuffer is created with/without saved changes (determined
 	 * by client), and is opened on creation.
 	 */
-	public class OverflowingTestBuffer implements IBuffer {
+	public static class OverflowingTestBuffer implements IBuffer {
 		/**
 		 * True if this buffer is open, otherwise false.
 		 */

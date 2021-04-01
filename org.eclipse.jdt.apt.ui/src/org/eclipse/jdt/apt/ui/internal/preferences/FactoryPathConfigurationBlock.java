@@ -129,7 +129,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 
 	}
 
-	private class FactoryPathLabelProvider extends LabelProvider implements ITableLabelProvider {
+	private static class FactoryPathLabelProvider extends LabelProvider implements ITableLabelProvider {
 
 		public Image getColumnImage(Object element, int columnIndex) {
 			return null;

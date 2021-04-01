@@ -85,7 +85,7 @@ public class ClasspathTests extends ModifyingResourceTests {
 	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_TRUE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "true");
 	private static final IClasspathAttribute ATTR_IGNORE_OPTIONAL_PROBLEMS_FALSE = JavaCore.newClasspathAttribute(IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS, "false");
 
-	public class TestContainer implements IClasspathContainer {
+	public static class TestContainer implements IClasspathContainer {
 		IPath path;
 		IClasspathEntry[] entries;
 		TestContainer(IPath path, IClasspathEntry[] entries){

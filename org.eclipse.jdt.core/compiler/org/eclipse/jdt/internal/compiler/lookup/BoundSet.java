@@ -60,7 +60,7 @@ class BoundSet {
 	 * with a relation in { SUPERTYPE, SAME, SUBTYPE }.
 	 * These are internally stored in three sets, one for each of the relations.
 	 */
-	private class ThreeSets {
+	private static class ThreeSets {
 		Set<TypeBound> superBounds;
 		Set<TypeBound> sameBounds;
 		Set<TypeBound> subBounds;

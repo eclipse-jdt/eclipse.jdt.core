@@ -222,7 +222,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Delta listener
 	 */
-	protected class DeltaListener implements IElementChangedListener, IResourceChangeListener {
+	protected static class DeltaListener implements IElementChangedListener, IResourceChangeListener {
 		/**
 		 * Deltas received from the java model. See
 		 * <code>#startDeltas</code> and

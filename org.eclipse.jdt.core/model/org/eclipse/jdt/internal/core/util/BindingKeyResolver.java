@@ -62,7 +62,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 public class BindingKeyResolver extends BindingKeyParser {
 
 	/** Synthetic bindings for local variables (method arguments) restored from a binding key. */
-	private final class SyntheticLocalVariableBinding extends LocalVariableBinding {
+	private static final class SyntheticLocalVariableBinding extends LocalVariableBinding {
 
 		private final MethodBinding enclosingMethod;
 		private int paramPosition;

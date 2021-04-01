@@ -33,7 +33,7 @@ public interface IUpdatableModule {
 	 */
 	enum UpdateKind { MODULE, PACKAGE }
 
-	class AddExports implements Consumer<IUpdatableModule> {
+	static class AddExports implements Consumer<IUpdatableModule> {
 
 		char[] name;
 		char[][] targets;
@@ -86,7 +86,7 @@ public interface IUpdatableModule {
 
 	}
 
-	class AddReads implements Consumer<IUpdatableModule> {
+	static class AddReads implements Consumer<IUpdatableModule> {
 
 		char[] targetModule;
 
@@ -124,7 +124,7 @@ public interface IUpdatableModule {
 		}
 	}
 	/** Structure for update operations, sorted by {@link UpdateKind}. */
-	class UpdatesByKind {
+	static class UpdatesByKind {
 		List<Consumer<IUpdatableModule>> moduleUpdates = Collections.emptyList();
 		List<Consumer<IUpdatableModule>> packageUpdates = Collections.emptyList();
 		public List<Consumer<IUpdatableModule>> getList(UpdateKind kind, boolean create) {

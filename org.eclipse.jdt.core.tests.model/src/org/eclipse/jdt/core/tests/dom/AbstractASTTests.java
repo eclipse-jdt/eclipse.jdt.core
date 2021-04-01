@@ -106,7 +106,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * Removes the *start* and *end* markers from the given source
 	 * and remembers the positions.
 	 */
-	public class MarkerInfo {
+	public static class MarkerInfo {
 		String path;
 		String source;
 
@@ -204,7 +204,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 
 	}
 
-	public class BindingRequestor extends ASTRequestor {
+	public static class BindingRequestor extends ASTRequestor {
 		HashMap bindings = new HashMap();
 		public void acceptBinding(String bindingKey, IBinding binding) {
 			this.bindings.put(bindingKey, binding);

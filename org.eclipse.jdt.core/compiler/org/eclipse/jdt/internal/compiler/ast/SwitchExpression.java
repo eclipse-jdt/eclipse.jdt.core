@@ -384,7 +384,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return true;
 	}
-	class OOBLFlagger extends ASTVisitor {
+	static class OOBLFlagger extends ASTVisitor {
 		Set<String> labelDecls;
 		Set<BreakStatement> referencedBreakLabels;
 		Set<ContinueStatement> referencedContinueLabels;

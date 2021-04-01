@@ -49,7 +49,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
-	public class TestASTRequestor extends ASTRequestor {
+	public static class TestASTRequestor extends ASTRequestor {
 		public ArrayList asts = new ArrayList();
 		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 			this.asts.add(ast);

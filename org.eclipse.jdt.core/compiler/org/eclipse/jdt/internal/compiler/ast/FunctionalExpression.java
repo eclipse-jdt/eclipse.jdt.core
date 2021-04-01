@@ -239,7 +239,7 @@ public abstract class FunctionalExpression extends Expression {
 		return null;
 	}
 
-	class VisibilityInspector extends TypeBindingVisitor {
+	static class VisibilityInspector extends TypeBindingVisitor {
 
 		private Scope scope;
 		private boolean shouldChatter;

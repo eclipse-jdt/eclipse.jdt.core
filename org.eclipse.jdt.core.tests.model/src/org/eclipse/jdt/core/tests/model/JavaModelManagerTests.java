@@ -97,7 +97,7 @@ public class JavaModelManagerTests extends AbstractJavaModelTests {
 		return threads;
 	}
 
-	class CheckIfTypeExists implements Runnable {
+	static class CheckIfTypeExists implements Runnable {
 
 		private final IJavaProject project;
 		private final CountDownLatch latch;

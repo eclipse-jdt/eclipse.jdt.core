@@ -254,7 +254,7 @@ public class BTreeTests extends BaseTestCase {
 		}
 	}
 
-	private class BTMockRecordComparator implements IBTreeComparator {
+	private static class BTMockRecordComparator implements IBTreeComparator {
 		public BTMockRecordComparator() {
 		}
 
