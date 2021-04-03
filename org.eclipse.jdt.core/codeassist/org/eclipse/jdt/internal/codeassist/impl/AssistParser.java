@@ -2203,7 +2203,8 @@ public void recoveryTokenCheck() {
 					popElement(K_FIELD_INITIALIZER_DELIMITER);
 				}
 				if(this.currentElement != oldElement
-					&& topKnownElementKind(ASSIST_PARSER) != K_METHOD_DELIMITER) {
+					&& topKnownElementKind(ASSIST_PARSER) != K_METHOD_DELIMITER
+					&& topKnownElementKind(ASSIST_PARSER) != K_LAMBDA_EXPRESSION_DELIMITER) {
 					pushOnElementStack(K_METHOD_DELIMITER);
 				}
 			}
