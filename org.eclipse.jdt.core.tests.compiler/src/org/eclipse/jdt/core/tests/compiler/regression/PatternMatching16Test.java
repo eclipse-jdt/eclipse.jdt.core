@@ -1046,7 +1046,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X20.java (at line 6)\n" +
 				"	boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
 				"	                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Pattern type cannot be a subtype of the expression type\n" +
+				"Expression type cannot be a subtype of the Pattern type\n" +
 				"----------\n",
 				"",
 				null,
@@ -2422,7 +2422,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 					"1. ERROR in X.java (at line 4)\n" +
 					"	if (null instanceof T t) {\n" +
 					"	    ^^^^^^^^^^^^^^^^^^^\n" +
-					"Pattern type cannot be a subtype of the expression type\n" +
+					"Expression type cannot be a subtype of the Pattern type\n" +
 					"----------\n",
 				"",
 				null,
