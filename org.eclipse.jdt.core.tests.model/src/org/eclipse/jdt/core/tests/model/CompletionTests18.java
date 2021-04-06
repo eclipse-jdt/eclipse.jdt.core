@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
-//@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
 static {
@@ -128,19 +127,19 @@ public void test003() throws JavaModelException {
 			"CASE_INSENSITIVE_ORDER[FIELD_REF]{CASE_INSENSITIVE_ORDER, Ljava.lang.String;, Ljava.util.Comparator<Ljava.lang.String;>;, CASE_INSENSITIVE_ORDER, null, " + (R_DEFAULT + 9) + "}\n" +
 			"copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), " + (R_DEFAULT + 19) + "}\n" +
 			"copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), " + (R_DEFAULT + 19) + "}\n" +
-			"charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), " + (R_DEFAULT + 30) + "}\n" +
 			"chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, " + (R_DEFAULT + 30) + "}\n" +
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + 30) + "}\n" +
-			"codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), " + (R_DEFAULT + 30) + "}\n" +
-			"codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), " + (R_DEFAULT + 30) + "}\n" +
-			"codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), " + (R_DEFAULT + 30) + "}\n" +
 			"codePoints[METHOD_REF]{codePoints(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, " + (R_DEFAULT + 30) + "}\n" +
-			"compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), " + (R_DEFAULT + 30) + "}\n" +
-			"compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), " + (R_DEFAULT + 30) + "}\n" +
 			"concat[METHOD_REF]{concat(), Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), " + (R_DEFAULT + 30) + "}\n" +
 			"contains[METHOD_REF]{contains(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), " + (R_DEFAULT + 30) + "}\n" +
 			"contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), " + (R_DEFAULT + 30) + "}\n" +
-			"contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), " + (R_DEFAULT + 30) + "}",
+			"contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), " + (R_DEFAULT + 30) + "}\n" +
+			"charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}\n" +
+			"codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}\n" +
+			"codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}\n" +
+			"codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}\n" +
+			"compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}\n" +
+			"compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}",
 			requestor.getResults());
 }
 public void test004() throws JavaModelException {
@@ -897,7 +896,7 @@ public void testBug405125a() throws JavaModelException {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	    assertResults(
-	    	"bars[METHOD_REF]{bars(), LB;, ()I, bars, null, " + (R_DEFAULT + 22) + "}",
+	    	"bars[METHOD_REF]{bars(), LB;, ()I, bars, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}",
 	    	requestor.getResults());
 }
 public void testBug405125b() throws JavaModelException {
@@ -925,7 +924,7 @@ public void testBug405125b() throws JavaModelException {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	    assertResults(
-	    	"another[FIELD_REF]{another, LB;, I, another, null, " + (R_DEFAULT + 22) + "}",
+	    	"another[FIELD_REF]{another, LB;, I, another, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 22) + "}",
 	    	requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425084, [1.8][completion] Eclipse freeze while autocompleting try block in lambda.
@@ -1860,7 +1859,7 @@ public void test435219e() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("doubleToLongBits[METHOD_REF]{doubleToLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToLongBits, (arg0), [355, 358], " + (R_DEFAULT + 19) + "}\n" +
 			"doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [355, 358], " + (R_DEFAULT + 19) + "}\n" +
-			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [355, 358], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [355, 358], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 public void test435219f() throws JavaModelException {
@@ -1933,7 +1932,7 @@ public void test435682() throws JavaModelException {
 	String completeBehind = "so.tr";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [237, 239], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [237, 239], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression
 public void test435682a() throws JavaModelException {
@@ -1955,7 +1954,7 @@ public void test435682a() throws JavaModelException {
 	String completeBehind = "so.tr";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [246, 248], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [246, 248], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430667, [1.8][content assist] no proposals around lambda as a field
 public void test430667() throws JavaModelException {
@@ -2086,8 +2085,8 @@ public void test444300() throws JavaModelException {
 	String completeBehind = "so.ch";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, null, null, charAt, (arg0), [232, 234], " + (R_DEFAULT + 30) + "}\n" +
-			"chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, null, null, chars, null, [232, 234], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+	assertResults("charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, null, null, charAt, (arg0), [232, 234], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}\n" +
+			"chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, null, null, chars, null, [232, 234], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
@@ -2175,7 +2174,7 @@ public void test435219j() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("doubleToLongBits[METHOD_REF]{doubleToLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToLongBits, (arg0), [235, 238], " + (R_DEFAULT + 19) + "}\n" +
 			"doubleToRawLongBits[METHOD_REF]{doubleToRawLongBits(), Ljava.lang.Double;, (D)J, null, null, doubleToRawLongBits, (arg0), [235, 238], " + (R_DEFAULT + 19) + "}\n" +
-			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [235, 238], " + (R_DEFAULT + 30) + "}", requestor.getResults());
+			"doubleValue[METHOD_REF]{doubleValue(), Ljava.lang.Double;, ()D, null, null, doubleValue, null, [235, 238], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields
@@ -3023,25 +3022,26 @@ public void testBug493705() throws JavaModelException {
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	// TODO: compute relevances
-	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
-	int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_STATIC;
+	int relevance1 =  R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int relevance2a = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_STATIC + R_VOID;
+	int relevance2 =  R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_STATIC;
 	assertResults(
 			"create[METHOD_REF]{create(), LSwtUI<LLabel;>;, <T:LControl;>(Ljava.util.function.BiFunction<LComposite;Ljava.lang.Integer;TT;>;)LSwtUI<TT;>;, null, null, create, (ctor), [853, 853], "+relevance1+"}\n" +
 			"new[KEYWORD]{new, null, null, null, null, new, null, [853, 853], "+relevance1+"}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [853, 853], "+relevance2a+"}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [853, 853], "+relevance2a+"}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [853, 853], "+relevance2a+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [853, 853], "+relevance2a+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [853, 853], "+relevance2a+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [853, 853], "+relevance2a+"}\n" +
 			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LControlSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" +
 			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LViewerSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" +
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [853, 853], "+relevance2+"}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [853, 853], "+relevance2+"}\n" +
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [853, 853], "+relevance2+"}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [853, 853], "+relevance2+"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [853, 853], "+relevance2+"}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [853, 853], "+relevance2+"}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [853, 853], "+relevance2+"}\n" +
 			"text[METHOD_REF]{text(), LSwtUI<LLabel;>;, (Ljava.lang.String;)LSwtUI<LLabel;>;, null, null, text, (text), [853, 853], "+relevance2+"}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [853, 853], "+relevance2+"}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [853, 853], "+relevance2+"}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [853, 853], "+relevance2+"}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [853, 853], "+relevance2+"}"
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [853, 853], "+relevance2+"}"
 			, requestor.getResults());
 }
 // https://bugs.eclipse.org/515809 - Syso shortcut lambda expression
@@ -3113,7 +3113,7 @@ public void test485492b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], 82}",
+			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], "+(R_EXACT_EXPECTED_TYPE+52)+"}",
 			requestor.getResults());
 }
 public void test485492c() throws JavaModelException {
@@ -4395,6 +4395,118 @@ public void testBug539685a() throws Exception {
             "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;)TT;, requireNonNull, (arg0), 51}\n" +
             "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.lang.String;)TT;, requireNonNull, (arg0, arg1), 51}\n" +
             "requireNonNull[METHOD_REF]{requireNonNull, Ljava.util.Objects;, <T:Ljava.lang.Object;>(TT;Ljava.util.function.Supplier<Ljava.lang.String;>;)TT;, requireNonNull, (arg0, arg1), 51}",
+            requestor.getResults());
+}
+public void testBug558530() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug558530.java",
+            "import java.util.function.Function;\n" +
+            "\n" +
+            "public class LambdaCrash {\n" +
+            "\n" +
+            "    public enum Problem {\n" +
+            "        ONE(s -> s.trim())\n" +
+            "        TWO(k -> k." +
+            "        ;\n" +
+            "\n" +
+            "        private final Function<String, String> function;\n" +
+            "\n" +
+            "        private Problem(Function<String, String> function) {\n" +
+            "            this.function = function;\n" +
+            "        }\n" +
+            "\n" +
+            "    }\n" +
+            "\n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "k -> k.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    assertResults(
+            "CASE_INSENSITIVE_ORDER[FIELD_REF]{CASE_INSENSITIVE_ORDER, Ljava.lang.String;, Ljava.util.Comparator<Ljava.lang.String;>;, CASE_INSENSITIVE_ORDER, null, 49}\n" +
+            "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n" +
+            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (II[BI)V, getBytes, (arg0, arg1, arg2, arg3), 55}\n" +
+            "getChars[METHOD_REF]{getChars(), Ljava.lang.String;, (II[CI)V, getChars, (arg0, arg1, arg2, arg3), 55}\n" +
+            "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n" +
+            "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n" +
+            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n" +
+            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n" +
+            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n" +
+            "charAt[METHOD_REF]{charAt(), Ljava.lang.String;, (I)C, charAt, (arg0), 60}\n" +
+            "chars[METHOD_REF]{chars(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, chars, null, 60}\n" +
+            "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+            "codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (arg0), 60}\n" +
+            "codePointBefore[METHOD_REF]{codePointBefore(), Ljava.lang.String;, (I)I, codePointBefore, (arg0), 60}\n" +
+            "codePointCount[METHOD_REF]{codePointCount(), Ljava.lang.String;, (II)I, codePointCount, (arg0, arg1), 60}\n" +
+            "codePoints[METHOD_REF]{codePoints(), Ljava.lang.CharSequence;, ()Ljava.util.stream.IntStream;, codePoints, null, 60}\n" +
+            "compareTo[METHOD_REF]{compareTo(), Ljava.lang.String;, (Ljava.lang.String;)I, compareTo, (arg0), 60}\n" +
+            "compareToIgnoreCase[METHOD_REF]{compareToIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)I, compareToIgnoreCase, (arg0), 60}\n" +
+            "contains[METHOD_REF]{contains(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contains, (arg0), 60}\n" +
+            "contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.CharSequence;)Z, contentEquals, (arg0), 60}\n" +
+            "contentEquals[METHOD_REF]{contentEquals(), Ljava.lang.String;, (Ljava.lang.StringBuffer;)Z, contentEquals, (arg0), 60}\n" +
+            "endsWith[METHOD_REF]{endsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, endsWith, (arg0), 60}\n" +
+            "equals[METHOD_REF]{equals(), Ljava.lang.String;, (Ljava.lang.Object;)Z, equals, (arg0), 60}\n" +
+            "equalsIgnoreCase[METHOD_REF]{equalsIgnoreCase(), Ljava.lang.String;, (Ljava.lang.String;)Z, equalsIgnoreCase, (arg0), 60}\n" +
+            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, ()[B, getBytes, null, 60}\n" +
+            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.lang.String;)[B, getBytes, (arg0), 60}\n" +
+            "getBytes[METHOD_REF]{getBytes(), Ljava.lang.String;, (Ljava.nio.charset.Charset;)[B, getBytes, (arg0), 60}\n" +
+            "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 60}\n" +
+            "hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, hashCode, null, 60}\n" +
+            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (I)I, indexOf, (arg0), 60}\n" +
+            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (II)I, indexOf, (arg0, arg1), 60}\n" +
+            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, indexOf, (arg0), 60}\n" +
+            "indexOf[METHOD_REF]{indexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, indexOf, (arg0, arg1), 60}\n" +
+            "isEmpty[METHOD_REF]{isEmpty(), Ljava.lang.String;, ()Z, isEmpty, null, 60}\n" +
+            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), 60}\n" +
+            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), 60}\n" +
+            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), 60}\n" +
+            "lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), 60}\n" +
+            "length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n" +
+            "matches[METHOD_REF]{matches(), Ljava.lang.String;, (Ljava.lang.String;)Z, matches, (arg0), 60}\n" +
+            "offsetByCodePoints[METHOD_REF]{offsetByCodePoints(), Ljava.lang.String;, (II)I, offsetByCodePoints, (arg0, arg1), 60}\n" +
+            "regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3), 60}\n" +
+            "regionMatches[METHOD_REF]{regionMatches(), Ljava.lang.String;, (ZILjava.lang.String;II)Z, regionMatches, (arg0, arg1, arg2, arg3, arg4), 60}\n" +
+            "split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;)[Ljava.lang.String;, split, (arg0), 60}\n" +
+            "split[METHOD_REF]{split(), Ljava.lang.String;, (Ljava.lang.String;I)[Ljava.lang.String;, split, (arg0, arg1), 60}\n" +
+            "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 60}\n" +
+            "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 60}\n" +
+            "subSequence[METHOD_REF]{subSequence(), Ljava.lang.String;, (II)Ljava.lang.CharSequence;, subSequence, (arg0, arg1), 60}\n" +
+            "toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, toCharArray, null, 60}\n" +
+            "copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, copyValueOf, (arg0), 79}\n" +
+            "copyValueOf[METHOD_REF]{copyValueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, copyValueOf, (arg0, arg1, arg2), 79}\n" +
+            "format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1), 79}\n" +
+            "format[METHOD_REF]{format(), Ljava.lang.String;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.lang.String;, format, (arg0, arg1, arg2), 79}\n" +
+            "join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.Iterable<+Ljava.lang.CharSequence;>;)Ljava.lang.String;, join, (arg0, arg1), 79}\n" +
+            "join[METHOD_REF]{join(), Ljava.lang.String;, (Ljava.lang.CharSequence;[Ljava.lang.CharSequence;)Ljava.lang.String;, join, (arg0, arg1), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (C)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (D)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (F)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (I)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (J)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Ljava.lang.Object;)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, (Z)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([C)Ljava.lang.String;, valueOf, (arg0), 79}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.String;, ([CII)Ljava.lang.String;, valueOf, (arg0, arg1, arg2), 79}\n" +
+            "concat[METHOD_REF]{concat(), Ljava.lang.String;, (Ljava.lang.String;)Ljava.lang.String;, concat, (arg0), 90}\n" +
+            "intern[METHOD_REF]{intern(), Ljava.lang.String;, ()Ljava.lang.String;, intern, null, 90}\n" +
+            "replace[METHOD_REF]{replace(), Ljava.lang.String;, (CC)Ljava.lang.String;, replace, (arg0, arg1), 90}\n" +
+            "replace[METHOD_REF]{replace(), Ljava.lang.String;, (Ljava.lang.CharSequence;Ljava.lang.CharSequence;)Ljava.lang.String;, replace, (arg0, arg1), 90}\n" +
+            "replaceAll[METHOD_REF]{replaceAll(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceAll, (arg0, arg1), 90}\n" +
+            "replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), 90}\n" +
+            "substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), 90}\n" +
+            "substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), 90}\n" +
+            "toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, ()Ljava.lang.String;, toLowerCase, null, 90}\n" +
+            "toLowerCase[METHOD_REF]{toLowerCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toLowerCase, (arg0), 90}\n" +
+            "toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, 90}\n" +
+            "toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, ()Ljava.lang.String;, toUpperCase, null, 90}\n" +
+            "toUpperCase[METHOD_REF]{toUpperCase(), Ljava.lang.String;, (Ljava.util.Locale;)Ljava.lang.String;, toUpperCase, (arg0), 90}\n" +
+            "trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, trim, null, 90}",
             requestor.getResults());
 }
 }

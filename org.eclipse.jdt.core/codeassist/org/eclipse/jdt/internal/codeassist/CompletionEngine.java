@@ -1718,7 +1718,7 @@ public final class CompletionEngine
 		}
 	}
 	private void addExpectedType(TypeBinding type, Scope scope){
-		if (type == null || !type.isValidBinding() || type == TypeBinding.NULL) return;
+		if (type == null || !type.isValidBinding() || type == TypeBinding.NULL || type == TypeBinding.VOID) return;
 
 		// do not add twice the same type
 		for (int i = 0; i <= this.expectedTypesPtr; i++) {
@@ -4074,6 +4074,16 @@ public final class CompletionEngine
 				TypeBinding binding = methodBinding  == null ? null : methodBinding.returnType;
 				if (binding != null) {
 					addExpectedType(binding, scope);
+				}
+			}
+		} else if (parent instanceof LambdaExpression) {
+			LambdaExpression lambda = (LambdaExpression) parent;
+			if (lambda.body == node) {
+				if (lambda.binding != null) {
+					TypeBinding returnType = lambda.binding.returnType;
+					if (returnType != null) {
+						addExpectedType(returnType, scope);
+					}
 				}
 			}
 		} else if(parent instanceof CastExpression) {

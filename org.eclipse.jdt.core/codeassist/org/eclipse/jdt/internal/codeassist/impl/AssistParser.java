@@ -506,7 +506,16 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	boolean lambdaClosed = false;
 	int statementStart, statementEnd;
 	statementStart = statement.sourceStart;
-	statementEnd = statement instanceof AbstractVariableDeclaration ? ((AbstractVariableDeclaration)statement).declarationSourceEnd : statement.sourceEnd;
+	if (statement instanceof AbstractVariableDeclaration) {
+		AbstractVariableDeclaration variable = (AbstractVariableDeclaration)statement;
+		if (variable.initialization != null && variable.initialization.sourceEnd == 0) {
+			statementEnd = Integer.MAX_VALUE; // variable end is not yet known, don't make it a limiting factor
+		} else {
+			statementEnd = variable.declarationSourceEnd;
+		}
+	} else {
+		statementEnd = statement.sourceEnd;
+	}
 	for (int i = this.elementPtr; i >= 0; --i) {
 		if (this.elementKindStack[i] != K_LAMBDA_EXPRESSION_DELIMITER)
 			continue;
