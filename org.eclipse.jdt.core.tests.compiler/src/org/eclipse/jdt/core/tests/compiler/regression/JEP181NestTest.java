@@ -47,7 +47,7 @@ protected void setUp() throws Exception {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-	TESTS_NAMES = new String[] { "testBug572190" };
+//	TESTS_NAMES = new String[] { "testBug572190" };
 //	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
