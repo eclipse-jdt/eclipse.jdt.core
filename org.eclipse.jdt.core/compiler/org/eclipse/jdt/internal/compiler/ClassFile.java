@@ -163,6 +163,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	// that collection contains all the remaining bytes of the .class file
 	public int headerOffset;
 	public Map<TypeBinding, Boolean> innerClassesBindings;
+	public Set<String> innerClassConstantPoolNames;
 	public Set<SourceTypeBinding> nestMembers;
 	public List<ASTNode> bootstrapMethods = null;
 	public int methodCount;
@@ -6030,7 +6031,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.innerClassesBindings == null) {
 			this.innerClassesBindings = new HashMap<>(INNER_CLASSES_SIZE);
 		}
+		if (this.innerClassConstantPoolNames == null) {
+			this.innerClassConstantPoolNames = new HashSet<>();
+		}
 		ReferenceBinding innerClass = (ReferenceBinding) binding;
+		char[] name = innerClass.constantPoolName();
+		if (name == null || !this.innerClassConstantPoolNames.add(new String(name)))
+			return;
 		this.innerClassesBindings.put(innerClass.erasure().unannotated(), onBottomForBug445231);  // should not emit yet another inner class for Outer.@Inner Inner.
 		ReferenceBinding enclosingType = innerClass.enclosingType();
 		while (enclosingType != null
@@ -6116,6 +6123,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.methodCountOffset = 0;
 		if (this.innerClassesBindings != null) {
 			this.innerClassesBindings.clear();
+		}
+		if (this.innerClassConstantPoolNames != null) {
+			this.innerClassConstantPoolNames.clear();
 		}
 		if (this.nestMembers != null) {
 			this.nestMembers.clear();
