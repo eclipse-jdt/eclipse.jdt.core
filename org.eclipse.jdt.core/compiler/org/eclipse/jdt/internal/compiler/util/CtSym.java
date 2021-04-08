@@ -22,6 +22,7 @@ import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,9 +135,11 @@ public class CtSym {
 		}
 		if (fst == null) {
 			try {
-				fst = FileSystems.newFileSystem(uri, new HashMap<>());
+				fst = FileSystems.newFileSystem(uri, new HashMap<>(), ClassLoader.getSystemClassLoader());
 			} catch (FileSystemAlreadyExistsException e) {
 				fst = FileSystems.getFileSystem(uri);
+			} catch (ProviderNotFoundException e) {
+				throw new IOException("Failed to create ct.sym file system for " + this.ctSymFile, e); //$NON-NLS-1$
 			}
 		}
 		this.fs = fst;
