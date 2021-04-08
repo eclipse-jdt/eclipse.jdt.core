@@ -330,6 +330,14 @@ public interface TypeConstants {
 		"LongStream".toCharArray(), //$NON-NLS-1$
 		"IntStream".toCharArray() //$NON-NLS-1$
 	};
+	char[][] ONE_UTIL_STREAMEX = { "one".toCharArray(), UTIL, "streamex".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$
+	char[][] RESOURCE_FREE_CLOSEABLE_STREAMEX = {
+		"StreamEx".toCharArray(), //$NON-NLS-1$
+		"IntStreamEx".toCharArray(), //$NON-NLS-1$
+		"DoubleStreamEx".toCharArray(), //$NON-NLS-1$
+		"LongStreamEx".toCharArray(), //$NON-NLS-1$
+		"EntryStream".toCharArray() //$NON-NLS-1$
+	};
 
 	// closeable classes containing one or more 'fluent' methods (returning 'this'):
 	char[] CHANNELS = "channels".toCharArray(); //$NON-NLS-1$

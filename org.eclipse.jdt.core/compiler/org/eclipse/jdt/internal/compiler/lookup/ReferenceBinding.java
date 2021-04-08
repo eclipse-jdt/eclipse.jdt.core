@@ -2156,12 +2156,29 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 protected int applyCloseableInterfaceWhitelists() {
 	switch (this.compoundName.length) {
 		case 4:
-			for (int i=0; i<2; i++)
-				if (!CharOperation.equals(this.compoundName[i], TypeConstants.JAVA_UTIL_STREAM[i]))
-					return 0;
-			for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_J_U_STREAMS)
-				if (CharOperation.equals(this.compoundName[3], streamName))
-					return TypeIds.BitResourceFreeCloseable;
+			if (CharOperation.equals(this.compoundName[0], TypeConstants.JAVA_UTIL_STREAM[0])) {
+				for (int i=1; i<3; i++) {
+					if (!CharOperation.equals(this.compoundName[i], TypeConstants.JAVA_UTIL_STREAM[i])) {
+						return 0;
+					}
+				}
+				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_J_U_STREAMS) {
+					if (CharOperation.equals(this.compoundName[3], streamName)) {
+						return TypeIds.BitResourceFreeCloseable;
+					}
+				}
+			} else {
+				for (int i=0; i<3; i++) {
+					if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
+						return 0;
+					}
+				}
+				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
+					if (CharOperation.equals(this.compoundName[3], streamName)) {
+						return TypeIds.BitResourceFreeCloseable;
+					}
+				}
+			}
 			break;
 	}
 	return 0;
