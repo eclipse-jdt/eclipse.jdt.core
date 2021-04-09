@@ -49,6 +49,7 @@ import javax.lang.model.util.ElementFilter;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 
 @SupportedAnnotationTypes("*")
+@SuppressWarnings("preview")
 public class RecordElementProcessor extends BaseElementProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
@@ -374,8 +375,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 							String annotationString = getAnnotationString(mirror1);
 							assertTrue("must contain target METHOD", annotationString.contains("METHOD"));
 							assertTrue("must contain target TYPE_USE", annotationString.contains("TYPE_USE"));
-							// Order of the element kind enums is not as per the declaration. Known issue.
-							//assertEquals("Invalid annotation value", "@Target(value=METHOD,TYPE_USE)", getAnnotationString(mirror1));
+							assertEquals("Invalid annotation value", "@Target(value=METHOD,TYPE_USE)", getAnnotationString(mirror1));
 						}
 					}
 				}

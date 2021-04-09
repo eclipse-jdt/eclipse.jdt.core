@@ -76,7 +76,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	}
 
 	static {
-//		TESTS_NAMES = new String[] { "testConvertedSourceType1" };
+		TESTS_NAMES = new String[] { "testTargetTypeUse" };
 	}
 
 	/**
@@ -965,8 +965,18 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			IType nonNull = project.findType(NonNull.class.getName());
 			IAnnotation annot = nonNull.getAnnotation(Target.class.getName());
 			for (IMemberValuePair memberValuePair : annot.getMemberValuePairs()) {
-				if (memberValuePair.getValue().equals(ElementType.class.getName()+'.'+ElementType.TYPE_USE))
-					return;
+				Object value = memberValuePair.getValue();
+				if(value instanceof Object[]) {
+					Object[] arr = (Object[]) value;
+					for (Object object : arr) {
+						if (object.equals(ElementType.class.getName()+'.'+ElementType.TYPE_USE)) {
+							return;
+						}
+					}
+				} else {
+					if (value.equals(ElementType.class.getName()+'.'+ElementType.TYPE_USE))
+						return;
+				}
 			}
 			fail("TYPE_USE target not found");
 		} finally {
