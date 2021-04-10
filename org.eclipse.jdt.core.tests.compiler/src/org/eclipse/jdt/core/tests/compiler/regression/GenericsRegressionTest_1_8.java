@@ -1741,10 +1741,10 @@ public void testBug427164() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in NNLambda.java (at line 1)\n" +
+		"1. ERROR in NNLambda.java (at line 12)\n" +
 		"	printem((i) -> {\n" +
 		"	^^^^^^^\n" +
-		"The method printem(FInter, INP) in the type NNLambda is not applicable for the arguments (FInter, String)\n" +
+		"The method printem(FInter, INP) in the type NNLambda is not applicable for the arguments ((<no type> i) -> {}, String)\n" +
 		"----------\n" +
 		"2. ERROR in NNLambda.java (at line 13)\n" +
 		"	Collections.<String>singletonList(\"const\")\n" +
@@ -2938,7 +2938,7 @@ public void testBug430296() {
 		"1. ERROR in AnnotationCollector.java (at line 9)\n" +
 		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" +
 		"	                                  ^^^^^\n" +
-		"The method toMap(Function<? super T,? extends K>, Function<? super T,? extends U>, BinaryOperator<U>) in the type Collectors is not applicable for the arguments ((Person p) -> {}, Function::identity, BinaryOperator<U>)\n" +
+		"The method toMap(Function<? super T,? extends K>, Function<? super T,? extends U>, BinaryOperator<U>) in the type Collectors is not applicable for the arguments ((Person p) -> {}, Function::identity, (<no type> p1, <no type> p2) -> {})\n" +
 		"----------\n" +
 		"2. ERROR in AnnotationCollector.java (at line 9)\n" +
 		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" +
