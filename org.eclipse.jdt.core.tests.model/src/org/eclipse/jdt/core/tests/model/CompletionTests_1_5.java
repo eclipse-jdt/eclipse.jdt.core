@@ -14647,4 +14647,29 @@ public void test565386() throws JavaModelException {
 	assertTrue(requestor.getResults().equals(""));
 
 }
+public void testBug532366() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Color.java",
+			"package test;\n" +
+			"public enum Color {\n" +
+			"	GREEN, BLUE;\n" +
+			"}"
+			);
+	this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/Foo.java",
+			"package test;\n" +
+	 		"public enum Foo {\n" +
+	 		"	Bar(Color.G /* Ctrl+space and nothing happens here */);\n" +
+	 		"	Foo(Color color) {}\n" +
+	 		"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[1].getSource();
+	String completeBehind = "Color.G";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertEquals("GREEN[FIELD_REF]{GREEN, Ltest.Color;, Ltest.Color;, null, null, GREEN, null, replace[43, 44], token[43, 44], 81}",
+			requestor.getResults());
+}
 }
