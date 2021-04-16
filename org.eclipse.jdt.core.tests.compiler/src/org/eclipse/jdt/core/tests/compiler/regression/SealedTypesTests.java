@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -38,7 +42,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		return SealedTypesTests.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_16);
+		return buildMinimalComplianceTestSuite(testClass(), F_17);
 	}
 	public SealedTypesTests(String testName){
 		super(testName);
@@ -47,9 +51,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17); // FIXME
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -68,12 +72,12 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("17");
 		runner.runConformTest();
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("16"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("17"));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -1378,7 +1382,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 					"public final class Z extends Y{}",
 				},
 				lib1Path,
-				JavaCore.VERSION_16,
+				JavaCore.VERSION_17,
 				true);
 		String[] libs = getDefaultClassPaths();
 		int len = libs.length;
@@ -2861,7 +2865,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. WARNING in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
 			"	         ^^^^^^^\n" +
-			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
@@ -4594,7 +4598,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"2. WARNING in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
 			"	         ^^^^^^\n" +
-			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +

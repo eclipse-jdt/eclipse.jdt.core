@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -661,7 +665,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			}
 			for (IBinaryAnnotation annotation : declAnnotations) {
 				char[] typeName = annotation.getTypeName();
-				if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
+				if (CharOperation.endsWith(typeName, ConstantPool.PREVIEW_FEATURE)) {
 					this.tagBits |= TagBits.AnnotationPreviewFeature;
 					break;
 				}
@@ -811,7 +815,7 @@ private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binar
 					if (declAnnotations != null) {
 						for (IBinaryAnnotation annotation : declAnnotations) {
 							char[] typeName = annotation.getTypeName();
-							if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
+							if (CharOperation.endsWith(typeName, ConstantPool.PREVIEW_FEATURE)) {
 								field.tagBits |= TagBits.AnnotationPreviewFeature;
 								break;
 							}
@@ -1035,7 +1039,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	if (declAnnotations != null) {
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[] typeName = annotation.getTypeName();
-			if (CharOperation.equals(typeName, ConstantPool.JDK_INTERNAL_PREVIEW_FEATURE)) {
+			if (CharOperation.endsWith(typeName, ConstantPool.PREVIEW_FEATURE)) {
 				result.tagBits |= TagBits.AnnotationPreviewFeature;
 				break;
 			}

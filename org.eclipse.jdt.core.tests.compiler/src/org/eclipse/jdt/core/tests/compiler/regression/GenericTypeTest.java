@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -5403,7 +5407,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	public void test0178a() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
