@@ -10951,7 +10951,11 @@ protected void consumeRecordDeclaration() {
 		/* create canonical constructor - check for the clash later at binding time */
 		cd = typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
 	} else {
-		cd.bits |= ASTNode.IsCanonicalConstructor;
+		if (cd instanceof CompactConstructorDeclaration
+			|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
+			&& (cd.arguments == null || cd.arguments.length == 0))) {
+			cd.bits |= ASTNode.IsCanonicalConstructor;
+		}
 	}
 
 	if (this.scanner.containsAssertKeyword) {
