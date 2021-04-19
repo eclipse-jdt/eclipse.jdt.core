@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation.
+ * Copyright (c) 2020, 2021 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,6 +46,7 @@ public class RecordComponentElementImpl extends VariableElementImpl implements R
 		}
 		return null;
 	}
+	@SuppressWarnings("preview")
 	@Override
 	public <R, P> R accept(ElementVisitor<R, P> visitor, P param) {
 		return visitor.visitRecordComponent(this, param);
