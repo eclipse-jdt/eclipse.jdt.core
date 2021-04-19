@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.ArrayList;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -898,7 +898,7 @@ class BoundSet {
 		return getBoundsStream(firstBounds, nextBounds)
 				.filter(bound -> bound.relation == ReductionResult.SAME)
 				.filter(bound -> bound.right.isProperType(true))
-				.collect(toMap(bound -> bound.left, Function.identity(),
+				.collect(toMap(bound -> bound.left, identity(),
 						// If nextBounds and firstBounds have a bound for the IV, prefer the newer one from nextBounds.
 						(boundFromNextBounds, boundFromFirstBounds) -> boundFromNextBounds));
 	}
