@@ -35,16 +35,12 @@ import junit.framework.Test;
 public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTest {
 
 
-	public ASTRewritingInstanceOfPatternExpressionTest(String name) {
-		super(name, 16);
-	}
-
 	public ASTRewritingInstanceOfPatternExpressionTest(String name, int apiLevel) {
 		super(name, apiLevel);
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class);
+		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class, 16);
 	}
 
 	@Override

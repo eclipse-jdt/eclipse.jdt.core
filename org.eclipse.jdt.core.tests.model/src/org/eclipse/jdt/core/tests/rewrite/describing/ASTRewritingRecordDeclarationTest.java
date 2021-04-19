@@ -56,7 +56,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingRecordDeclarationTest.class);
+		return createSuite(ASTRewritingRecordDeclarationTest.class, 16);
 	}
 
 	@Override
