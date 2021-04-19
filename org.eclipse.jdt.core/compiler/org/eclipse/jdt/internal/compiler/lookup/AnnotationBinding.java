@@ -78,8 +78,13 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 	int index = recordedAnnotations.length;
 	AnnotationBinding[] result = new AnnotationBinding[index + count];
 	System.arraycopy(recordedAnnotations, 0, result, 0, index);
-	if (!hasTarget && (annotationTagBits & TagBits.AnnotationTargetMASK) != 0)
-		result[index++] = buildTargetAnnotation(annotationTagBits, env);
+	if ((annotationTagBits & TagBits.AnnotationTargetMASK) != 0) {
+		// Build it anyway to ensure all necessary bindings are resolved
+		AnnotationBinding targetAnnot = buildTargetAnnotation(annotationTagBits, env);
+		if (!hasTarget) {
+			result[index++] = targetAnnot;
+		}
+	}
 	if ((annotationTagBits & TagBits.AnnotationRetentionMASK) != 0)
 		result[index++] = buildRetentionAnnotation(annotationTagBits, env);
 	if (!haveDeprecated && (annotationTagBits & TagBits.AnnotationDeprecated) != 0)
