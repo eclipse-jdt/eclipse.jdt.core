@@ -98,6 +98,10 @@ public class ClassScope extends Scope {
 					problemReporter().superTypeCannotUseWildcard(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+				} if (supertype.isSealed()) {
+					problemReporter().sealedAnonymousClassCannotExtendSealedType(typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+					anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 				}
 			}
 		} else {
