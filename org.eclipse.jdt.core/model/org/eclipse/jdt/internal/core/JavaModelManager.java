@@ -141,12 +141,6 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.db.Database;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
@@ -1900,16 +1894,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				JavaModelManager.ZIP_ACCESS_VERBOSE = debug && options.getBooleanOption(ZIP_ACCESS_DEBUG, false);
 				SourceMapper.VERBOSE = debug && options.getBooleanOption(SOURCE_MAPPER_DEBUG_VERBOSE, false);
 				DefaultCodeFormatter.DEBUG = debug && options.getBooleanOption(FORMATTER_DEBUG, false);
-				Database.DEBUG_FREE_SPACE = debug && options.getBooleanOption(INDEX_DEBUG_LARGE_CHUNKS, false);
-				Database.DEBUG_PAGE_CACHE = debug && options.getBooleanOption(INDEX_DEBUG_PAGE_CACHE, false);
-				Indexer.DEBUG = debug && options.getBooleanOption(INDEX_INDEXER_DEBUG, false);
-				Indexer.DEBUG_INSERTIONS = debug  && options.getBooleanOption(INDEX_INDEXER_INSERTIONS, false);
-				Indexer.DEBUG_ALLOCATIONS = debug && options.getBooleanOption(INDEX_INDEXER_SPACE, false);
-				Indexer.DEBUG_TIMING = debug && options.getBooleanOption(INDEX_INDEXER_TIMING, false);
-				Indexer.DEBUG_SCHEDULING = debug && options.getBooleanOption(INDEX_INDEXER_SCHEDULING, false);
-				Indexer.DEBUG_SELFTEST = debug && options.getBooleanOption(INDEX_INDEXER_SELFTEST, false);
-				Indexer.DEBUG_LOG_SIZE_MB = debug ? options.getIntegerOption(INDEX_INDEXER_LOG_SIZE_MEGS, 0) : 0;
-				Nd.sDEBUG_LOCKS = debug && options.getBooleanOption(INDEX_LOCKS_DEBUG, false);
 
 				// configure performance options
 				if(PerformanceStats.ENABLED) {
@@ -2864,24 +2848,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return;
 		}
 		throwExceptionIfArchiveInvalid(path);
-		// Check if we can determine the archive's validity by examining the index
-		if (JavaIndex.isEnabled()) {
-			JavaIndex index = JavaIndex.getIndex();
-			String location = JavaModelManager.getLocalFile(path).getAbsolutePath();
-			try (IReader reader = index.getNd().acquireReadLock()) {
-				NdResourceFile resourceFile = index.getResourceFile(location.toCharArray());
-				if (index.isUpToDate(resourceFile)) {
-					// We have this file in the index and the index is up-to-date, so we can determine the file's
-					// validity without touching the filesystem.
-					if (resourceFile.isCorruptedZipFile()) {
-						throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1,
-								Messages.status_IOException, new ZipException()));
-					}
-					return;
-				}
-			}
-		}
-
 		ZipFile file = getZipFile(path);
 		closeZipFile(file);
 	}

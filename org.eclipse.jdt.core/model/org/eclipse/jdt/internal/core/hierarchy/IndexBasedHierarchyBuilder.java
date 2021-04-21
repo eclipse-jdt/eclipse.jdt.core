@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -21,12 +20,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -57,19 +53,9 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.JavaNames;
-import org.eclipse.jdt.internal.core.nd.java.NdType;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
-import org.eclipse.jdt.internal.core.search.UnindexedSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
@@ -517,91 +503,8 @@ public static void searchAllPossibleSubTypes(
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
 	final IProgressMonitor monitor) {
 
-	if (JavaIndex.isEnabled()) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		newSearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
-				subMonitor.split(1));
-		legacySearchAllPossibleSubTypes(type, UnindexedSearchScope.filterEntriesCoveredByTheNewIndex(scope),
-				binariesFromIndexMatches, pathRequestor, waitingPolicy, subMonitor.split(1));
-	} else {
-		legacySearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
-				monitor);
-	}
-}
-
-private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope scope2, Map binariesFromIndexMatches2,
-		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
-	SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 2);
-	JavaIndex index = JavaIndex.getIndex();
-
-	Indexer.getInstance().waitForIndex(waitingPolicy, subMonitor.split(1));
-
-	Nd nd = index.getNd();
-	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
-
-	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-
-	try (IReader reader = nd.acquireReadLock()) {
-		NdTypeId foundType = index.findType(fieldDefinition);
-
-		if (foundType == null) {
-			return;
-		}
-
-		ArrayDeque<NdType> typesToVisit = new ArrayDeque<>();
-		Set<NdType> discoveredTypes = new HashSet<>();
-		typesToVisit.addAll(foundType.getTypes());
-		discoveredTypes.addAll(typesToVisit);
-
-		while (!typesToVisit.isEmpty()) {
-			NdType nextType = typesToVisit.removeFirst();
-			NdTypeId typeId = nextType.getTypeId();
-
-			String typePath = new String(JavaNames.getIndexPathFor(nextType, root));
-			if (!scope2.encloses(typePath)) {
-				continue;
-			}
-
-			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 3000)).split(1);
-
-			boolean isLocalClass = nextType.isLocal() || nextType.isAnonymous();
-			pathRequestor.acceptPath(typePath, isLocalClass);
-
-			HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches2.get(typePath);
-			if (binaryType == null) {
-				binaryType = createBinaryTypeFrom(nextType);
-				binariesFromIndexMatches2.put(typePath, binaryType);
-			}
-
-			for (NdType subType : typeId.getSubTypes()) {
-				if (discoveredTypes.add(subType)) {
-					typesToVisit.add(subType);
-				}
-			}
-		}
-	}
-}
-
-private static HierarchyBinaryType createBinaryTypeFrom(NdType type) {
-	char[] enclosingTypeName = null;
-	NdTypeSignature enclosingType = type.getDeclaringType();
-	if (enclosingType != null) {
-		enclosingTypeName = enclosingType.getRawType().getBinaryName();
-	}
-	char[][] typeParameters = type.getTypeParameterSignatures();
-	NdTypeId typeId = type.getTypeId();
-	HierarchyBinaryType result = new HierarchyBinaryType(type.getModifiers(), typeId.getBinaryName(),
-		type.getSourceName(), enclosingTypeName, typeParameters.length == 0 ? null : typeParameters);
-
-	NdTypeSignature superClass = type.getSuperclass();
-	if (superClass != null) {
-		result.recordSuperclass(superClass.getRawType().getBinaryName());
-	}
-
-	for (NdTypeInterface interf : type.getInterfaces()) {
-		result.recordInterface(interf.getInterface().getRawType().getBinaryName());
-	}
-	return result;
+	legacySearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
+			monitor);
 }
 
 private static void legacySearchAllPossibleSubTypes(

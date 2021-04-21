@@ -191,7 +191,6 @@ import org.eclipse.jdt.internal.core.SetVariablesOperation;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.ModuleInfoBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -5826,9 +5825,6 @@ public final class JavaCore extends Plugin {
 		IndexManager manager = JavaModelManager.getIndexManager();
 		manager.deleteIndexFiles(subMonitor.split(1));
 		manager.reset();
-		// New index is disabled, see bug 544898.
-		// However we keep this call here to cleanup the possibly existing database
-		Indexer.getInstance().rebuildIndex(subMonitor.split(95));
 		updateLegacyIndex(subMonitor.split(4));
 	}
 

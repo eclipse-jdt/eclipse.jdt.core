@@ -73,9 +73,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.DOMException;
@@ -1012,22 +1009,6 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	private static char[] getManifestContents(IPath jarPath) throws CoreException, IOException {
-		// Try to read a cached manifest from the index
-		if (JavaIndex.isEnabled()) {
-			JavaIndex index = JavaIndex.getIndex();
-			String location = JavaModelManager.getLocalFile(jarPath).getAbsolutePath();
-			try (IReader reader = index.getNd().acquireReadLock()) {
-				NdResourceFile resourceFile = index.getResourceFile(location.toCharArray());
-				if (index.isUpToDate(resourceFile)) {
-					char[] manifestContent = resourceFile.getManifestContent().getChars();
-					if (manifestContent.length == 0) {
-						return null;
-					}
-					return manifestContent;
-				}
-			}
-		}
-
 		ZipFile zip = null;
 		InputStream inputStream = null;
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();

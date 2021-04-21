@@ -21,23 +21,46 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.ISafeRunnable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IElementChangedListener;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
-import org.eclipse.jdt.internal.core.nd.indexer.IndexerEvent;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Keep the global states used during Java element delta processing.
  */
-public class DeltaProcessingState implements IResourceChangeListener, Indexer.Listener {
+public class DeltaProcessingState implements IResourceChangeListener {
 
 	/*
 	 * Collection of listeners for Java element deltas
@@ -641,17 +664,6 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 					}
 				}
 			}
-		}
-	}
-
-	@Override
-	public void consume(IndexerEvent event) {
-		if (JavaIndex.isEnabled()) {
-			DeltaProcessor processor = getDeltaProcessor();
-			JavaElementDelta delta = (JavaElementDelta) event.getDelta();
-			delta.ignoreFromTests = true;
-			processor.notifyAndFire(delta);
-			this.deltaProcessors.set(null);
 		}
 	}
 

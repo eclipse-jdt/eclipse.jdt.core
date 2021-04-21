@@ -43,11 +43,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
-import org.eclipse.jdt.internal.core.nd.java.NdType;
-import org.eclipse.jdt.internal.core.nd.java.NdZipEntry;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -126,82 +121,51 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			// always create the default package
 			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
-			boolean usedIndex = false;
-			if (JavaIndex.isEnabled()) {
-				JavaIndex index = JavaIndex.getIndex();
-				try (IReader reader = index.getNd().acquireReadLock()) {
-					IPath resourcePath = JavaIndex.getLocationForElement(this);
-					if (!resourcePath.isEmpty()) {
-						NdResourceFile resourceFile = index.getResourceFile(resourcePath.toString().toCharArray());
-						if (index.isUpToDate(resourceFile)) {
-							usedIndex = true;
-							long level = resourceFile.getJdkLevel();
-							String compliance = CompilerOptions.versionFromJdkLevel(level);
-							// Locate all the non-classfile entries
-							for (NdZipEntry next : resourceFile.getZipEntries()) {
-								String filename = next.getFileName().getString();
-								initRawPackageInfo(rawPackageInfo, filename, filename.endsWith("/"), compliance); //$NON-NLS-1$
-							}
+			Object file = JavaModel.getTarget(getPath(), true);
+			long classLevel = Util.getJdkLevel(file);
+			String projectCompliance = this.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			long projectLevel = CompilerOptions.versionToJdkLevel(projectCompliance);
+			ZipFile jar = null;
+			try {
+				jar = getJar();
+				String version = "META-INF/versions/";  //$NON-NLS-1$
+				List<String> versions = new ArrayList<>();
+				if (projectLevel >= ClassFileConstants.JDK9 && jar.getEntry(version) != null) {
+					int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
+					long latestJDK = CompilerOptions.releaseToJDKLevel(projectCompliance);
+					int latestJavaVer = (int) (latestJDK >> 16);
 
-							// Locate all the classfile entries
-							for (NdType type : resourceFile.getTypes()) {
-								String path = new String(type.getTypeId().getBinaryName()) + ".class"; //$NON-NLS-1$
-								initRawPackageInfo(rawPackageInfo, path, false, compliance);
-							}
+					for(int i = latestJavaVer; i >= earliestJavaVersion; i--) {
+						String s = "" + + (i - 44); //$NON-NLS-1$
+						String versionPath = version + s;
+						if (jar.getEntry(versionPath) != null) {
+							versions.add(s);
 						}
 					}
 				}
-			}
 
-			// If we weren't able to compute the set of children from the index (either the index was disabled or didn't
-			// contain an up-to-date entry for this .jar) then fetch it directly from the .jar
-			if (!usedIndex) {
-				Object file = JavaModel.getTarget(getPath(), true);
-				long classLevel = Util.getJdkLevel(file);
-				String projectCompliance = this.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
-				long projectLevel = CompilerOptions.versionToJdkLevel(projectCompliance);
-				ZipFile jar = null;
-				try {
-					jar = getJar();
-					String version = "META-INF/versions/";  //$NON-NLS-1$
-					List<String> versions = new ArrayList<>();
-					if (projectLevel >= ClassFileConstants.JDK9 && jar.getEntry(version) != null) {
-						int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
-						long latestJDK = CompilerOptions.releaseToJDKLevel(projectCompliance);
-						int latestJavaVer = (int) (latestJDK >> 16);
-
-						for(int i = latestJavaVer; i >= earliestJavaVersion; i--) {
-							String s = "" + + (i - 44); //$NON-NLS-1$
-							String versionPath = version + s;
-							if (jar.getEntry(versionPath) != null) {
-								versions.add(s);
-							}
-						}
-					}
-
-					String[] supportedVersions = versions.toArray(new String[versions.size()]);
-					if (supportedVersions.length > 0) {
-						this.multiVersion = true;
-					}
-					int length = version.length();
-					for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
-						ZipEntry member= e.nextElement();
-						String name = member.getName();
-						if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
-							int end = name.indexOf('/', length);
-							if (end >= name.length()) continue;
-							String versionPath = name.substring(0, end);
-							String ver = name.substring(length, end);
-							if(versions.contains(ver) && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
-								name = name.substring(end + 1);
-								overridden.put(name, versionPath);
-							}
-						}
-						initRawPackageInfo(rawPackageInfo, name, member.isDirectory(), CompilerOptions.versionFromJdkLevel(classLevel));
-					}
-				}  finally {
-					JavaModelManager.getJavaModelManager().closeZipFile(jar);
+				String[] supportedVersions = versions.toArray(new String[versions.size()]);
+				if (supportedVersions.length > 0) {
+					this.multiVersion = true;
 				}
+				int length = version.length();
+				for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
+					ZipEntry member= e.nextElement();
+					String name = member.getName();
+					if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
+						int end = name.indexOf('/', length);
+						if (end >= name.length()) continue;
+						String versionPath = name.substring(0, end);
+						String ver = name.substring(length, end);
+						if(versions.contains(ver) && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+							name = name.substring(end + 1);
+							overridden.put(name, versionPath);
+						}
+					}
+					initRawPackageInfo(rawPackageInfo, name, member.isDirectory(), CompilerOptions.versionFromJdkLevel(classLevel));
+				}
+			}  finally {
+				JavaModelManager.getJavaModelManager().closeZipFile(jar);
 			}
 			// loop through all of referenced packages, creating package fragments if necessary
 			// and cache the entry names in the rawPackageInfo table
