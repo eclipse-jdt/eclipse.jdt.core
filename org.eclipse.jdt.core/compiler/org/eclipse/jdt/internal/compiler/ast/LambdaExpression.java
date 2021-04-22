@@ -1478,8 +1478,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	static class LocalTypeSubstitutor extends Substitutor {
 		Map<Integer,LocalTypeBinding> localTypes2;
 
-		public LocalTypeSubstitutor(Map<Integer, LocalTypeBinding> localTypes) {
+		public LocalTypeSubstitutor(Map<Integer, LocalTypeBinding> localTypes, MethodBinding methodBinding) {
 			this.localTypes2 = localTypes;
+			if (methodBinding != null && methodBinding.isStatic())
+				this.staticContext = methodBinding.declaringClass;
 		}
 
 		@Override
@@ -1504,7 +1506,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean updateLocalTypes() {
 		if (this.descriptor == null || this.localTypes == null)
 			return false;
-		LocalTypeSubstitutor substor = new LocalTypeSubstitutor(this.localTypes);
+		LocalTypeSubstitutor substor = new LocalTypeSubstitutor(this.localTypes, null/*lambda method is never static*/);
 		NullSubstitution subst = new NullSubstitution(this.scope.environment());
 		updateLocalTypesInMethod(this.binding, substor, subst);
 		updateLocalTypesInMethod(this.descriptor, substor, subst);
@@ -1519,7 +1521,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean updateLocalTypesInMethod(MethodBinding method) {
 		if (this.localTypes == null)
 			return false;
-		updateLocalTypesInMethod(method, new LocalTypeSubstitutor(this.localTypes), new NullSubstitution(this.scope.environment()));
+		updateLocalTypesInMethod(method, new LocalTypeSubstitutor(this.localTypes, method), new NullSubstitution(this.scope.environment()));
 		return true;
 	}
 

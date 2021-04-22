@@ -301,7 +301,7 @@ public void test1G8DE30() {
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
-		"",
+		"Bar",
 		// test name
 		"<1G8DE30>"
 	);
@@ -614,7 +614,7 @@ public void testMethodInvocationAnonymousInnerClass() {
 		// expectedCompletionIdentifier:
 		"",
 		// expectedReplacedSource:
-		"x.",
+		"x.y.z",
 		// test name
 		"<complete inside anonymous inner class inside method invocation 1>"
 	);

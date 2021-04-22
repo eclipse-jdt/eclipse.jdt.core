@@ -102,7 +102,7 @@ public void test0002() {
 	int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:fi>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "System.out.print(<CompleteOnName:fi>)";
 	String completionIdentifier = "fi";
 	String expectedReplacedSource = "fi";
 	String expectedUnitDisplayString =
@@ -176,7 +176,10 @@ public void test0004() {
 	int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:x>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString =
+			"(<no type> x5, <no type> x6) -> {\n" +
+			"  <CompleteOnName:x>;\n" +
+			"}";
 	String completionIdentifier = "x";
 	String expectedReplacedSource = "x";
 	String expectedUnitDisplayString =
@@ -267,7 +270,10 @@ public void test0006() {
 	int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:arg>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString =
+			"(<no type> argument) -> {\n" +
+			"  <CompleteOnName:arg>;\n" +
+			"}";
 	String completionIdentifier = "arg";
 	String expectedReplacedSource = "arg";
 	String expectedUnitDisplayString =
@@ -518,7 +524,12 @@ public void testLocalsPromotion() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:lam>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString =
+					"(<no type> x) -> {\n" +
+					"  int lambdaLocal;\n" +
+					"  System.out.println(\"Statement inside lambda\");\n" +
+					"  <CompleteOnName:lam>;\n" +
+					"}";
 			String completionIdentifier = "lam";
 			String expectedReplacedSource = "lam";
 			String expectedUnitDisplayString =
@@ -733,7 +744,10 @@ public void testUnspecifiedReference() {  // verify that completion works on uns
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:Str>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString =
+					"(<no type> StringParameter) -> {\n" +
+					"  <CompleteOnName:Str>;\n" +
+					"}";
 			String completionIdentifier = "Str";
 			String expectedReplacedSource = "Str";
 			String expectedUnitDisplayString =
@@ -785,7 +799,10 @@ public void testBrokenMethodCall() {  // verify that completion works when the c
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:Str>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString =
+					"(<no type> StringParameter) -> {\n" +
+					"  <CompleteOnName:Str>;\n" +
+					"}";
 			String completionIdentifier = "Str";
 			String expectedReplacedSource = "Str";
 			String expectedUnitDisplayString =
@@ -917,7 +934,10 @@ public void test425084b() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:try>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString =
+					"() -> {\n" +
+					"  <CompleteOnName:try>;\n" +
+					"}";
 			String completionIdentifier = "try";
 			String expectedReplacedSource = "try";
 			String expectedUnitDisplayString =
@@ -1265,7 +1285,7 @@ public void test428735a() {
 			"		people.stream().forEach(p -> System.out.println(p.)); // NOK\n" +
 			"	}\n" +
 			"   void test2(List<Person> people) {\n" +
-			"       people.sort((x,y) -> x.|);  // OK\n" +
+			"       people.sort((x,y) -> x.);  // OK\n" +
 			"   }\n" +
 			"}\n";
 
@@ -1474,7 +1494,7 @@ public void test428735e() { // field
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:y.get>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "x.getLastName().compareTo(<CompleteOnName:y.get>)";
 			String completionIdentifier = "get";
 			String expectedReplacedSource = "y.get";
 			String expectedUnitDisplayString =
@@ -1692,7 +1712,7 @@ public void test430656() {
 					"  }\n" +
 					"  public void bar() {\n" +
 					"    List<Person> people;\n" +
-					"    Comparator.comparing(<CompletionOnReferenceExpressionName:Person::get>);\n" +
+					"    Collections.sort(people, Comparator.comparing(<CompletionOnReferenceExpressionName:Person::get>));\n" +
 					"  }\n" +
 					"}\n" +
 					"class Person {\n" +
@@ -1992,7 +2012,7 @@ public void test430667c() {
 			int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:anot>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "(int x5, int x2) -> <CompleteOnName:anot>";
 			String completionIdentifier = "anot";
 			String expectedReplacedSource = "anot";
 			String expectedUnitDisplayString =

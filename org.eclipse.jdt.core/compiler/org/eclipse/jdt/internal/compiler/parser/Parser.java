@@ -2233,6 +2233,10 @@ protected void consumeBlock() {
 		block.sourceStart = this.intStack[this.intPtr--];
 		block.sourceEnd = this.endStatementPosition;
 	}
+	if (this.currentElement instanceof RecoveredBlock && this.currentElement.getLastStart() == block.sourceStart) {
+		// in assist scenarii we cannot guarantee uniqueness of equal blocks, so simply update the duplicate, too:
+		this.currentElement.updateSourceEndIfNecessary(block.sourceEnd);
+	}
 	pushOnAstStack(block);
 }
 protected void consumeBlockStatement() {
@@ -10951,7 +10955,11 @@ protected void consumeRecordDeclaration() {
 		/* create canonical constructor - check for the clash later at binding time */
 		cd = typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
 	} else {
-		cd.bits |= ASTNode.IsCanonicalConstructor;
+		if (cd instanceof CompactConstructorDeclaration
+			|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
+			&& (cd.arguments == null || cd.arguments.length == 0))) {
+			cd.bits |= ASTNode.IsCanonicalConstructor;
+		}
 	}
 
 	if (this.scanner.containsAssertKeyword) {
@@ -12835,7 +12843,7 @@ try {
 				this.recordStringLiterals = oldValue;
 			}
 			try {
-				this.currentToken = this.scanner.getNextToken();
+				this.currentToken = fetchNextToken();
 			} catch(InvalidInputException e){
 				if (!this.hasReportedError){
 					problemReporter().scannerError(this, e.getMessage());
@@ -12864,7 +12872,7 @@ try {
 					this.recordStringLiterals = oldValue;
 				}
 				try{
-					this.currentToken = this.scanner.getNextToken();
+					this.currentToken = fetchNextToken();
 				} catch(InvalidInputException e){
 					if (!this.hasReportedError){
 						problemReporter().scannerError(this, e.getMessage());
@@ -12970,6 +12978,9 @@ try {
 	}
 	this.problemReporter.referenceContext = null; // Null this so we won't escalate problems needlessly (bug 393192)
 	if (DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
+}
+protected int fetchNextToken() throws InvalidInputException {
+	return this.scanner.getNextToken();
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, boolean recordLineSeparator) {
 	//only parse the method body of cd

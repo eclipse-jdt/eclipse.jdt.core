@@ -23519,8 +23519,7 @@ public void testBug346454f() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<Ljava.lang.Object;>.T2<>;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Test<java.lang.Object>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<Ljava.lang.Object;>.T2<>;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"", // nothing useful can be proposed since type inference will inevitably fail on "new Test<>()."
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -23566,8 +23565,7 @@ public void testBug346454g() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2<>;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"Test<>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2<>;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				"", // nothing useful can be proposed since type inference will inevitably fail on "new pack.Test<>()."
 				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -23662,9 +23660,129 @@ public void testBug346454i() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2<>;, (TU;)V, T2, (u), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-				"Test<>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2<>;, (TU;)V, null, (u), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+				"", // nothing useful can be proposed since enclosing instance "new <String> Test<>()' is illegal (and thus can never be type infered)
 				requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+//Qualified allocation case. Corrected case (need explicit type arg of outer instance).
+public void testBug346454j() throws JavaModelException {
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;" +
+			"import pack.Test;\n"+
+			"public class X {\n" +
+			"	public void foo(String str) {\n" +
+			"     Test<String>.T2<String> t = new Test<String>().new T2<>()\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public class T2<Z> {\n" +
+				"		public T2(Z z){}\n" +
+				"   }" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = ".new T2<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			// TODO: it would be great if type inference could narrow this down to only proposals of type String
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.X;, (Ljava.lang.String;)V, foo, (str), 47}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
+			"X[TYPE_REF]{X, test, Ltest.X;, null, null, 72}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 72}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 72}\n" +
+			"str[LOCAL_VARIABLE_REF]{str, null, Ljava.lang.String;, str, null, 72}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 72}\n" +
+			"Z[TYPE_REF]{pack.Z, pack, TZ;, null, null, 79}",
+			requestor.getResults());
+	} finally {
+		// Restore compliance settings.
+		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		options.put(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOptions(options);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
+//Qualified allocation case. Corrected case (using ctor-arg for inference).
+public void testBug346454k() throws JavaModelException {
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	try {
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+		COMPLETION_PROJECT.setOptions(options);
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;" +
+			"import pack.Test;\n"+
+			"public class X {\n" +
+			"	public void foo(String str) {\n" +
+			"     Test<String>.T2<String> t = new Test<>(\"\").new T2<>()\n" +
+			"   }" +
+			"}\n");
+
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/pack/Test.java",
+				"package pack;"+
+				"public class Test<T> {\n" +
+				"	public Test(T t) {}\n" +
+				"	public class T2<Z> {\n" +
+				"		public T2(Z z){}\n" +
+				"   }" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = ".new T2<>(";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			// TODO: it would be great if type inference could narrow this down to only proposals of type String
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.X;, (Ljava.lang.String;)V, foo, (str), 47}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
+			"X[TYPE_REF]{X, test, Ltest.X;, null, null, 72}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 72}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 72}\n" +
+			"str[LOCAL_VARIABLE_REF]{str, null, Ljava.lang.String;, str, null, 72}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 72}\n" +
+			"Z[TYPE_REF]{pack.Z, pack, TZ;, null, null, 79}",
+			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
 		options.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);

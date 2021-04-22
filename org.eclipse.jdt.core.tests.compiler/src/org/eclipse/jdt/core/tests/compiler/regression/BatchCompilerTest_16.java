@@ -81,4 +81,31 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                         }
                 }
         }
+        public void testBug570399(){
+        	this.runConformTest(
+        		new String[] {
+                    "src/X.java",
+                    "public class X {\n"+
+                    "    public static void main(String argv[]) {\n"+
+                    "       new R(3);\n"+
+                    "       new R();\n"+
+                    "    }\n"+
+                    "}\n",
+                    "src/R.java",
+                    "record R(int x) {\n"+
+                    "       R() {\n"+
+                    "       this(0);\n"+
+                    "       }\n"+
+                    "}",
+                },
+                "\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+                + " \"" + OUTPUT_DIR +  File.separator + "src/R.java\""
+                    + " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+            + " --release 16 --enable-preview -g -preserveAllLocals"
+            + " -proceedOnError -referenceInfo"
+            + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+            "",
+                "",
+                true);
+        }
 }

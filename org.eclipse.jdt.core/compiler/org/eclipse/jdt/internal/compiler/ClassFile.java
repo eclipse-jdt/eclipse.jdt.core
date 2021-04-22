@@ -1145,6 +1145,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 						case SyntheticMethodBinding.SerializableMethodReference:
 							// Nothing to be done
 							break;
+						case SyntheticMethodBinding.RecordCanonicalConstructor:
+							addSyntheticRecordCanonicalConstructor(typeDecl, syntheticMethod);
+							break;
 						case SyntheticMethodBinding.RecordOverrideEquals:
 						case SyntheticMethodBinding.RecordOverrideHashCode:
 						case SyntheticMethodBinding.RecordOverrideToString:
@@ -1180,6 +1183,30 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
+	private void addSyntheticRecordCanonicalConstructor(TypeDeclaration typeDecl, SyntheticMethodBinding methodBinding) {
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		this.codeStream.generateSyntheticBodyForRecordCanonicalConstructor(methodBinding);
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
+	}
+
 	private void addSyntheticRecordOverrideMethods(TypeDeclaration typeDecl, SyntheticMethodBinding methodBinding, int purpose) {
 		if (this.bootstrapMethods == null)
 			this.bootstrapMethods = new ArrayList<>(3);
@@ -1196,6 +1223,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateCodeAttributeHeader();
 		this.codeStream.init(this);
 		switch (purpose) {
+			case SyntheticMethodBinding.RecordCanonicalConstructor:
+				this.codeStream.generateSyntheticBodyForRecordCanonicalConstructor(methodBinding);
+				break;
 			case SyntheticMethodBinding.RecordOverrideEquals:
 				this.codeStream.generateSyntheticBodyForRecordEquals(methodBinding, index);
 				break;

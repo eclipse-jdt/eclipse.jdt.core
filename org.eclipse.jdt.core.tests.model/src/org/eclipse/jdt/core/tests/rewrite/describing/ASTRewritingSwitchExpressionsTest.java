@@ -42,16 +42,12 @@ import junit.framework.Test;
 public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 
-	public ASTRewritingSwitchExpressionsTest(String name) {
-		super(name, 14);
-	}
-
 	public ASTRewritingSwitchExpressionsTest(String name, int apiLevel) {
 		super(name, apiLevel);
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingSwitchExpressionsTest.class);
+		return createSuite(ASTRewritingSwitchExpressionsTest.class, 14);
 	}
 
 	@Override

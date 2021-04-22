@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -2203,7 +2204,17 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			ITypeBinding typeBinding = typeDecl.resolveBinding();
 			IAnnotationBinding[] annotations = typeBinding.getAnnotations()[0].getAnnotationType().getAnnotations();
 			assertTrue("Should be 2", annotations.length == 2);
-			assertEquals("Annotation mismatch", "@Target(value = {public static final java.lang.annotation.ElementType TYPE_USE})", annotations[0].toString());
+			IMemberValuePairBinding[] allMemberValuePairs = annotations[0].getAllMemberValuePairs();
+			assertEquals("Annotations mismatch", 1, allMemberValuePairs.length);
+			Object value= allMemberValuePairs[0].getValue();
+			if(value instanceof Object[]) {
+				Object[] valueArr = (Object[]) value;
+				assertEquals("Annotations mismatch", 1, valueArr.length);
+				assertEquals("Annotations mismatch", "public static final java.lang.annotation.ElementType TYPE_USE", valueArr[0].toString());
+			} else {
+				assertEquals("Annotation mismatch", "@Target(value = {public static final java.lang.annotation.ElementType TYPE_USE})", annotations[0].toString());
+			}
+
 			assertEquals("Annotation mismatch", "@Deprecated()", annotations[1].toString());
 		} finally {
 			removeLibrary(javaProject, jarName, srcName);

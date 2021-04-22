@@ -52888,21 +52888,21 @@ public void testBug543480WithoutNullPointerExceptionDuringBytecodeGeneration() {
 }
 
 protected void assertCompileTimes(final List<Duration> shortTimes, final double factor, final List<Duration> longTimes) {
-	final double shortTimesAverage = averageExcludingBoundaries(shortTimes);
-	final double longTimesAverage = averageExcludingBoundaries(longTimes);
-	final String message = "Potential fluctuation of a performance test: average long compile time "
-			+ longTimesAverage + "ms should be less than " + factor + "x the average short compile time " + shortTimesAverage +"ms\n"
+	final double shortTimesAverage = minExcludingBoundaries(shortTimes);
+	final double longTimesAverage = minExcludingBoundaries(longTimes);
+	final String message = "Potential fluctuation of a performance test: minimum long compile time "
+			+ longTimesAverage + "ms should be less than " + factor + "x the minimum short compile time " + shortTimesAverage +"ms\n"
 			+ "long compile times: "+longTimes+"\n"
 			+ "short compile times: "+shortTimes;
 	assertTrue(message,longTimesAverage < factor*shortTimesAverage);
 	System.out.println(message);
 }
 
-protected double averageExcludingBoundaries(final List<Duration> durations) {
+protected double minExcludingBoundaries(final List<Duration> durations) {
 	return durations.stream()
 			.filter(duration -> !duration.isExcluded)
 			.mapToLong(duration -> duration.durationMs)
-			.average().orElse(-1);
+			.min().orElse(-1);
 }
 
 protected List<Duration> compileTimesAfterWarmup(final Runnable compileTask) {
@@ -52921,10 +52921,23 @@ protected List<Duration> compileTimesAfterWarmup(final Runnable compileTask) {
 
 protected static IntFunction<Duration> duration(final Runnable runnable) {
 	return index -> {
-		final long startMs = System.currentTimeMillis();
+		java.time.Duration s00 = ProcessHandle.current().info().totalCpuDuration().get();
+		// wait for a OS scheduler slice begin to increase probability to finish within a single slice:
+		java.time.Duration s0;
+		java.lang.Thread.yield();
+		do {
+			java.lang.Thread.onSpinWait();
+			s0 = ProcessHandle.current().info().totalCpuDuration().get();
+		} while (s0.equals(s00));
+		long t0 = System.nanoTime();
 		runnable.run();
-		final long endMs = System.currentTimeMillis();
-		final long duration = endMs-startMs;
+		long t1 = System.nanoTime();
+		long tdiff = (t1 - t0) / 1000_000;
+		java.time.Duration s1 = ProcessHandle.current().info().totalCpuDuration().get();
+		java.time.Duration diff = s1.minus(s0);
+		long duration = diff.toMillis();
+		// if more then one slice we better take the OS value:
+		duration = duration == 0 ? tdiff : Math.min(duration, tdiff);
 		return new Duration(index, duration);
 	};
 }

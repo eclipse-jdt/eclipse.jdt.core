@@ -34,7 +34,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug572204"};
+//		TESTS_NAMES = new String[] { "testBug550750_025"};
+//		TESTS_NAMES = new String[] { "testBug570399_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -5232,12 +5233,7 @@ public void testBug564672_022() {
 		"	              ^\n" +
 		"Syntax error, insert \")\" to complete MethodDeclaration\n" +
 		"----------\n" +
-		"7. ERROR in X.java (at line 11)\n" +
-		"	Point record=new Point(i,j);\n" +
-		"	             ^^^^^^^^^^^^^^\n" +
-		"The constructor X.Point(int, int) is undefined\n" +
-		"----------\n" +
-		"8. ERROR in X.java (at line 12)\n" +
+		"7. ERROR in X.java (at line 12)\n" +
 		"	record.a(1);\n" +
 		"	       ^\n" +
 		"The method a(int) is undefined for the type X.Point\n" +
@@ -8455,6 +8451,43 @@ public void testBug571454() {
 	        + "The body of a compact constructor must not contain an explicit constructor call\n"
 	        + "----------\n");
 }
+public void testBug570399_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			" public static void main(String[] args) {\n"+
+			"    R r1 = new R( 2, 3); // Wrong error: The constructor MyRecord(int, int) is undefined\n"+
+			"    R r2 = new R();      // works\n"+
+			"    int total = r1.x()+r2.x()+r1.y()+r2.y();\n"+
+			"    System.out.println(\"Hi\"+total);\n"+
+			"  }\n"+
+			"}",
+			"R.java",
+			"public record R(int x, int y) {\n"+
+			"    R() {\n"+
+			"        this(0, 0);\n"+
+			"    }\n"+
+			"}",
+		},
+	 "Hi5");
+}
+public void testBug570399_002() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"record R(int x) {\n"+
+			"}\n" +
+			"public class X {\n"+
+			" public static void main(String[] args) {\n"+
+			"    R r2 = new R(5);      // works\n"+
+			"    int total = r2.x();\n"+
+			"    System.out.println(\"Hi\"+total);\n"+
+			"  }\n"+
+			"}",
+		},
+	 "Hi5");
+}
 public void testBug571141_1() {
 	runConformTest(new String[] { "X.java",
 			"public class X {\n" +
@@ -8508,6 +8541,88 @@ public void testBug571141_3() throws IOException, ClassFormatException {
 			 + "";
 	String rFile = getClassFileContents("MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 	verifyOutputNegative(rFile, unExpectedOutput);
+}
+public void testBugLazyCanon_001() throws IOException, ClassFormatException {
+	runConformTest(new String[] { "X.java",
+			"record X(int xyz, int y2k) {\n"+
+					" public X(int xyz, int y2k) {\n"+
+					"     this.xyz = xyz;\n"+
+					"     this.y2k = y2k;\n"+
+					"   }\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(new X(33,1).xyz());\n"+
+					" }\n"+
+					"}"
+	},
+		"33");
+}
+public void testBugLazyCanon_002() throws IOException, ClassFormatException {
+	runConformTest(new String[] { "X.java",
+			"record X(int xyz, int y2k) {\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(new X(33,1).xyz());\n"+
+					" }\n"+
+					"}"
+	},
+		"33");
+}
+public void testBugLazyCanon_003() throws IOException, ClassFormatException {
+	runConformTest(new String[] { "X.java",
+			"class X {\n"+
+					"  record Point (int  args) {\n"+
+					"    Point (String s, int t) {\n"+
+					"      this(t);\n"+
+					"    }\n"+
+					"  }\n"+
+					"   public static void main(String[] args) {\n"+
+					"    System.out.println(new X.Point(null, 33).args());\n"+
+					"    \n"+
+					"   }\n"+
+					"}"
+	},
+	"33");
+}
+public void testBugLazyCanon_004() throws IOException, ClassFormatException {
+	runConformTest(new String[] {
+			"X.java",
+			"record X<T> (T args) {\n"+
+			" public static void main(String[] args) {\n"+
+			"   System.out.println(new X<Integer>(100).args());\n"+
+			"   \n"+
+			" }\n"+
+			"}"
+	},
+	"100");
+}
+public void testBugLazyCanon_005() throws IOException, ClassFormatException {
+	runConformTest(new String[] {
+			"X.java",
+			"record X<T> (T args) {\n"+
+			" X(String s, T t) {\n"+
+			"   this(t);\n"+
+			" }\n"+
+			" public static void main(String[] args) {\n"+
+			"   System.out.println(100);\n"+
+			"   \n"+
+			" }\n"+
+			"}"
+	},
+	"100");
+}
+public void testBugLazyCanon_006() throws IOException, ClassFormatException {
+	runConformTest(new String[] {
+			"X.java",
+			"record X<T> (T args) {\n"+
+			" X(String s, T t) {\n"+
+			"   this(t);\n"+
+			" }\n"+
+			" public static void main(String[] args) {\n"+
+			"   System.out.println(new X<Integer>(100).args());\n"+
+			"   \n"+
+			" }\n"+
+			"}"
+	},
+	"100");
 }
 public void testBug571765_001() {
 	this.runNegativeTest(

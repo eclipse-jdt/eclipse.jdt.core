@@ -10205,4 +10205,30 @@ public void testBug508834_comment0() {
 				"Main.Inner cannot be resolved to a type\n" +
 				"----------\n");
 	}
+	public void testBug562324comment31() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.util.stream.Collectors.*;\n" +
+				"import static java.util.stream.Stream.*;\n" +
+				"\n" +
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    public void hello() {\n" +
+				"    	Runnable r = new Runnable () {\n" +
+				"    		@Override\n" +
+				"    		public void run() {\n" +
+				"    		}\n" +
+				"    	};\n" +
+				"    	r.run();\n" +
+				"    }\n" +
+				"\n" +
+				"    static void bug() {\n" +
+				"        Stream<String> stream = of(\"\"); // error here\n" +
+				"    }\n" +
+				"}\n"
+			});
+	}
 }

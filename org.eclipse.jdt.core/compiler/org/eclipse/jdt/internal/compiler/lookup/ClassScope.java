@@ -98,6 +98,10 @@ public class ClassScope extends Scope {
 					problemReporter().superTypeCannotUseWildcard(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
+				} if (supertype.isSealed()) {
+					problemReporter().sealedAnonymousClassCannotExtendSealedType(typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+					anonymousType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 				}
 			}
 		} else {
@@ -209,6 +213,9 @@ public class ClassScope extends Scope {
 		if (count != componentBindings.length)
 			System.arraycopy(componentBindings, 0, componentBindings = new RecordComponentBinding[count], 0, count);
 		sourceType.setComponents(componentBindings);
+		if (size > 0) {
+			sourceType.isVarArgs = recComps[size-1].isVarArgs();
+		}
 	}
 	private void checkAndSetModifiersForComponents(RecordComponentBinding compBinding, RecordComponent comp) {
 		int modifiers = compBinding.modifiers;
@@ -473,6 +480,9 @@ public class ClassScope extends Scope {
 						methodBindings[count++] = methodBinding;
 						hasAbstractMethods = hasAbstractMethods || methodBinding.isAbstract();
 						hasNativeMethods = hasNativeMethods || methodBinding.isNative();
+						if (methods[i].isCanonicalConstructor()) {
+							methodBinding.tagBits |= TagBits.IsCanonicalConstructor;
+						}
 					}
 				}
 			}

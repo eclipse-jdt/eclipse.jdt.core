@@ -602,7 +602,7 @@ public void record(LocalTypeBinding localType) {
 public void updateLocalTypesInMethod(MethodBinding methodBinding) {
 	if (this.localTypes == Collections.EMPTY_MAP)
 		return;
-	LambdaExpression.updateLocalTypesInMethod(methodBinding, new LocalTypeSubstitutor(this.localTypes), new NullSubstitution(this.scope.environment()));
+	LambdaExpression.updateLocalTypesInMethod(methodBinding, new LocalTypeSubstitutor(this.localTypes, methodBinding), new NullSubstitution(this.scope.environment()));
 }
 
 /*

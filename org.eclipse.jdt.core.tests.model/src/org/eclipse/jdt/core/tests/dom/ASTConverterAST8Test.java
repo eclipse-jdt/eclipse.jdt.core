@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 IBM Corporation and others.
+ * Copyright (c) 2011, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9802,5 +9802,24 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		assertEquals("Wrong number of types", 2, typeBounds.length);
 		assertEquals("Wrong first type", "LtestBug496596/Test~Cmp;", typeBounds[0].getKey());
 		assertEquals("Wrong second type", "LtestBug496596/Test~Serial;", typeBounds[1].getKey());
+	}
+
+	/**
+	 * byte i; ==> VariableDeclarationFragment
+	 */
+	public void test0722() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0722", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
+		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
+		VariableDeclarationFragment frag = (VariableDeclarationFragment) ((FieldDeclaration) node).fragments().get(0);
+
+		Name name = frag.getName();
+		Object constant = name.resolveConstantExpressionValue();
+		assertNotNull("No constant", constant);
+		assertEquals("Wrong value", "12", String.valueOf(constant));
+
 	}
 }

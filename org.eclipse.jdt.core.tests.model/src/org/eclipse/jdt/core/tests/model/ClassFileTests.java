@@ -53,7 +53,7 @@ public static Test suite() {
 @Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL15_LIB", "/P/lib"}, "", JavaCore.VERSION_1_5);
+	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL15_LIB", "/P/lib"}, "", JavaCore.VERSION_9);
 	String[] pathAndContents = new String[] {
 		"nongeneric/A.java",
 		"package nongeneric;\n" +
@@ -437,7 +437,7 @@ public void testAnnotations16() throws JavaModelException {
 public void testAnnotations17() throws JavaModelException {
 	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("Y.class").getType();
 	assertAnnotationsEqual(
-		"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE})\n" +
+		"@java.lang.annotation.Target({java.lang.annotation.ElementType.PACKAGE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.PARAMETER})\n" +
 		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n" +
 		"@java.lang.Deprecated\n" +
 		"@java.lang.annotation.Documented\n" +
