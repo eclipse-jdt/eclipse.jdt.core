@@ -3771,9 +3771,10 @@ public final class CompletionEngine
 			if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 				char[][] alreadyDefinedName = computeAlreadyDefinedName((BlockScope)scope, singleNameReference);
 
+				int end = Math.min(singleNameReference.sourceEnd, this.actualCompletionPosition);
 				findUnresolvedReference(
 						singleNameReference.sourceStart,
-						singleNameReference.sourceEnd,
+						end,
 						(BlockScope)scope,
 						alreadyDefinedName);
 			}
