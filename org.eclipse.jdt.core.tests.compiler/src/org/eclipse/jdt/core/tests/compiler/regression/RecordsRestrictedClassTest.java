@@ -8889,5 +8889,86 @@ public void testBug572204_007() throws Exception {
 			"        [pc: 0, line: 5]\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
-
+public void testBug572934_001() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.ENABLED);
+	//This test should not report any error
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public record X(int param) {\n" +
+			"	public X(int param) {\n" +
+			"		this.param = param;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X abc= new X(10);\n" +
+			"		System.out.println(abc.param());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"10",
+		options
+	);
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
+}
+public void testBug572934_002() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X(int param) {\n" +
+			"	public X(int param) {\n" +
+			"		this.param = param;\n" +
+			"	}\n" +
+			"	public void main(int param) {\n" +
+			"		System.out.println(param);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	public void main(int param) {\n" +
+		"	                     ^^^^^\n" +
+		"The parameter param is hiding a field from type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
+}
+public void testBug572934_003() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public record X(int param) {\n" +
+			"	public X(int param) {\n" +
+			"		this.param = param;\n" +
+			"	}" +
+			"	public void setParam(int param) {\n" +
+			"		\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	}	public void setParam(int param) {\n" +
+		"	 	                         ^^^^^\n" +
+		"The parameter param is hiding a field from type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
+}
 }
