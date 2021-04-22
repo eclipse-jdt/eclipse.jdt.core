@@ -4632,4 +4632,65 @@ public void testBug548779() throws JavaModelException {
             "startsWith[METHOD_REF]{startsWith, Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 90}",
     		requestor.getResults());
 }
+public void testBug543617() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/test/Test.java",
+            "package test.module;\n" +
+            "\n" +
+            "import java.util.Collections;\n" +
+            "import java.util.Iterator;\n" +
+            "import java.util.List;\n" +
+            "\n" +
+            "public class TestApp {\n" +
+            "	private <E> void print(Iterator<E> iterator) {\n" +
+            "                // doesn't shows chain proposals\n" +
+            "		iterator.forEachRemaining(e -> load(C1)); \n" +
+            "\n" +
+            "		this.load(C2); \n" +
+            "	}\n" +
+            "\n" +
+            "	public List<String> findAll() {\n" +
+            "		return load(Collections.EMPTY_LIST);\n" +
+            "	}\n" +
+            "\n" +
+            "	public List<String> load(List<Long> ids) {\n" +
+            "		return null;\n" +
+            "	}\n" +
+            "}\n");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "e -> load(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    int normalRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+    int voidRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_VOID;
+    int expectedTypeRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+
+    assertResults(
+            "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+voidRelevance+"}\n" +
+            "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+voidRelevance+"}\n" +
+            "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+voidRelevance+"}\n" +
+            "print[METHOD_REF]{print(), Ltest.TestApp;, <E:Ljava.lang.Object;>(Ljava.util.Iterator<TE;>;)V, print, (iterator), "+voidRelevance+"}\n" +
+            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+voidRelevance+"}\n" +
+            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+voidRelevance+"}\n" +
+            "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+voidRelevance+"}\n" +
+            "E[TYPE_REF]{E, null, TE;, null, null, "+normalRelevance+"}\n" +
+            "TestApp[TYPE_REF]{TestApp, test, Ltest.TestApp;, null, null, "+normalRelevance+"}\n" +
+            "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+normalRelevance+"}\n" +
+            "e[LOCAL_VARIABLE_REF]{e, null, TE;, e, null, "+normalRelevance+"}\n" +
+            "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+normalRelevance+"}\n" +
+            "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, "+normalRelevance+"}\n" +
+            "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+normalRelevance+"}\n" +
+            "iterator[LOCAL_VARIABLE_REF]{iterator, null, Ljava.util.Iterator<TE;>;, iterator, null, "+normalRelevance+"}\n" +
+            "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+normalRelevance+"}\n" +
+            "List<java.lang.Long>[TYPE_REF]{List, java.util, Ljava.util.List<Ljava.lang.Long;>;, null, null, "+expectedTypeRelevance+"}\n" +
+            "findAll[METHOD_REF]{findAll(), Ltest.TestApp;, ()Ljava.util.List<Ljava.lang.String;>;, findAll, null, "+expectedTypeRelevance+"}\n" +
+            "load[METHOD_REF]{load(), Ltest.TestApp;, (Ljava.util.List<Ljava.lang.Long;>;)Ljava.util.List<Ljava.lang.String;>;, load, (ids), "+expectedTypeRelevance+"}",
+    		requestor.getResults());
+}
 }
