@@ -32,111 +32,111 @@ public class RecordElementsTests extends TestCase {
 
 	public void testPreviewFlagTrue() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testPreviewFlagTrue", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "testPreviewFlagTrue", null, "records", true);
 	}
 	public void testRecords1() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords1", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords1", null, "records", false);
 	}
 	public void testRecords1Javac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords1", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords1", null, "records", false);
 	}
 	public void testRecords2() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords2", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords2", null, "records", false);
 	}
 	public void testRecords2Javac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords2", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords2", null, "records", false);
 	}
 	public void testRecords3() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3", null, "records", false);
 	}
 	public void testRecords3Javac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3", null, "records", false);
 	}
 	public void testRecords3a() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3a", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3a", null, "records", false);
 	}
 	public void testRecords3aJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3a", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords3a", null, "records", false);
 	}
 	public void testRecords4() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4", null, "records", false);
 	}
 	public void testRecords4Javac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4", null, "records", false);
 	}
 	public void testRecords4a() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", true, true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", false, true);
 	}
 	public void _testRecords4aJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", true, true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords4a", null, "records", false, true);
 	}
 	public void testRecords5() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5", null, "records", false);
 	}
 	public void testRecords5Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5", null, "records", false);
 	}
 	public void testRecords5a() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5a", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5a", null, "records", false);
 	}
 	public void testRecords5aJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5a", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords5a", null, "records", false);
 	}
 	public void testRecords6() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords6", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords6", null, "records", false);
 	}
 	public void testRecords6Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords6", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords6", null, "records", false);
 	}
 	public void testRecords7() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords7", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords7", null, "records", false);
 	}
 	public void testRecords7Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords7", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords7", null, "records", false);
 	}
 	public void testRecords8() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords8", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords8", null, "records", false);
 	}
 	public void testRecords8Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords8", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords8", null, "records", false);
 	}
 	public void testRecords9() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords9", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords9", null, "records", false);
 	}
 	public void testRecords9Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords9", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords9", null, "records", false);
 	}
 	public void testRecords10() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords10", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords10", null, "records", false);
 	}
 	public void testRecords10Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords10", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords10", null, "records", false);
 	}
 
 	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,

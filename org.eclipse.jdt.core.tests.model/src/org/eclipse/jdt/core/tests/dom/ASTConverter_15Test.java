@@ -60,9 +60,9 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		this.ast = AST.newAST(getAST15(), false);
 		this.currentProject = getJavaProject("Converter_15");
 		if (this.ast.apiLevel() == AST.JLS15 ) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_17);
 
 		}
 	}

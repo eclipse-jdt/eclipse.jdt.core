@@ -45,6 +45,7 @@ import javax.lang.model.util.ElementScanner14;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
+@SuppressWarnings("preview")
 @SupportedAnnotationTypes("*")
 abstract class BaseElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;

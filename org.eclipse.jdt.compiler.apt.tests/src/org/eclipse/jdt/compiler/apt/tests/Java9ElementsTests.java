@@ -239,7 +239,7 @@ public class Java9ElementsTests extends TestCase {
 		}
 		internalTest2(compiler, MODULE_PROC, "testModuleJavaBase5", null);
 	}
-	public void testModuleJavaBase5() throws IOException {
+	public void _testModuleJavaBase5() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest2(compiler, MODULE_PROC, "testModuleJavaBase5", null);
 	}

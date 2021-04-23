@@ -70,6 +70,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre17;
 	boolean isJre12;
 	boolean isJre11;
 	boolean isJre10;
@@ -89,7 +90,14 @@ public class Java9ElementProcessor extends BaseProcessor {
 			if (property.indexOf(c) == -1) {
 				int ver12 = Integer.parseInt(CompilerOptions.VERSION_12);
 				int current = Integer.parseInt(property);
-				if (current >= ver12) this.isJre12 = true;
+				if (current >= ver12) {
+					int ver17 = Integer.parseInt(CompilerOptions.VERSION_17);
+					if (current >= ver17) {
+						this.isJre17 = true;
+					} else {
+						this.isJre12 = true;
+					}
+				}
 			}
 		}
 	}
@@ -501,7 +509,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.PROVIDES);
-		assertEquals("incorrect no of provides", 1 , filterDirective.size());
+		assertEquals("incorrect no of provides", (isJre17 ? 4 : 1), filterDirective.size());
 		ProvidesDirective provides = (ProvidesDirective) filterDirective.get(0);
 		assertEquals("incorrect service name", "java.nio.file.spi.FileSystemProvider", provides.getService().getQualifiedName().toString());
 		List<? extends TypeElement> implementations = provides.getImplementations();
@@ -539,7 +547,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.sql module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.REQUIRES);
-		assertEquals("Incorrect no of requires", (this.isJre11 || this.isJre12) ? 4 : 3, filterDirective.size());
+		assertEquals("Incorrect no of requires", (this.isJre11 || this.isJre12 || this.isJre17) ? 4 : 3, filterDirective.size());
 		RequiresDirective req = null;
 		for (Directive directive : filterDirective) {
 			if (((RequiresDirective) directive).getDependency().getQualifiedName().toString().equals("java.logging")) {
