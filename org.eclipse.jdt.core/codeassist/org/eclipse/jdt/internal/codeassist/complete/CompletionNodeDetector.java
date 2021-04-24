@@ -34,6 +34,7 @@ public class CompletionNodeDetector extends ASTVisitor {
 	private ASTNode enclosingNode;
 	private boolean result;
 	private ASTNode blockedNode;
+	private boolean containsPotentialPolyExpression = false;
 
 	public CompletionNodeDetector(ASTNode searchedNode, ASTNode visitedAst){
 		this.searchedNode = searchedNode;
@@ -471,10 +472,16 @@ public class CompletionNodeDetector extends ASTVisitor {
 	}
 
 	protected void checkUpdateOuter(ASTNode astNode) {
-		if (this.parent instanceof LambdaExpression && astNode instanceof Invocation) {
-			// when lambda is nested in an invocation we need to preserve the invocation for type inference
+		if (this.containsPotentialPolyExpression && astNode instanceof Expression) {
+			// resolving a contained poly expression can only benefit from any additional expression context
 			this.outerExpression = (Expression) astNode;
+		} else {
+			this.containsPotentialPolyExpression |= isPotentiallyPolyExpression(astNode);
+			// resetting containsPotentialPolyExpression could become necessary when we search the outerExpression within
+			// a node larger than expressions, but currently CompletionParser.attachOrphanCompletionNode() is the only client
+			// interested in outerExpression and only passes an expression for visiting.
 		}
+
 		if (!this.interestingEnclosings.isEmpty()) {
 			// prepare enclosingNode for use in CompletionEngine.findFieldsAndMethodsFromCastedReceiver(..)
 			ASTNode enclosing = this.interestingEnclosings.peek();
@@ -494,6 +501,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 			this.enclosingNode = astNode;
 			throw new StopTraversal();
 		}
+	}
+	private boolean isPotentiallyPolyExpression(ASTNode node) {
+		// these expressions may need more enclosing context for resolution:
+		return node instanceof Invocation || node instanceof FunctionalExpression || node instanceof ConditionalExpression;
 	}
 	private boolean visit(ASTNode astNode) {
 		if (this.result) {

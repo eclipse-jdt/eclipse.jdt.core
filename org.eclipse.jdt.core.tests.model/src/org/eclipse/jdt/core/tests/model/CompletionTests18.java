@@ -4837,4 +4837,151 @@ public void testBug546097() throws Exception {
             "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+exactExpectedTypeRelevance+"}",
     		requestor.getResults());
 }
+public void testBug573105_OnLambdaParamAtNestedMethodInvocationInsideLambda_MemberCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573105.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.nio.file.Files;\n" +
+            "import java.nio.file.Paths;\n" +
+            "\n" +
+            "public class Bug573105 {\n" +
+            "	private void test(){ \n" +
+            "		Stream.of(new Element()).map(element -> Files.lines(Paths.get(element.)))\n"+
+            "	} \n" +
+            "	private class Element {\n"+
+            "		public java.net.URI foo(){return null;}\n"+
+            "	}\n"+
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "element.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn''t contain method foo (%s)", result),
+    		result.contains("foo[METHOD_REF]{foo(), LBug573105$Element;, ()Ljava.net.URI;, foo, null, 60}\n"));
+}
+
+public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambda_MemberCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573105.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.nio.file.Paths;\n" +
+            "\n" +
+            "public class Bug573105 {\n" +
+            "	private void test(){ \n" +
+            "		Stream.of(new Element()).map(element -> Paths.get(element.))\n"+
+            "	} \n" +
+            "	private class Element {\n"+
+            "		public java.net.URI foo(){return null;}\n"+
+            "	}\n"+
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "element.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn''t contain method foo (%s)", result),
+    		result.contains("foo[METHOD_REF]{foo(), LBug573105$Element;, ()Ljava.net.URI;, foo, null, 60}\n"));
+}
+public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaWithSemicolon_MemberCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573105.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.nio.file.Files;\n" +
+            "import java.nio.file.Paths;\n" +
+            "\n" +
+            "public class Bug573105 {\n" +
+            "	private void test(){ \n" +
+            "		Stream.of(new Element()).map(element -> Files.lines(Paths.get(element.)));\n"+
+            "	} \n" +
+            "	private class Element {\n"+
+            "		public java.net.URI foo(){return null;}\n"+
+            "	}\n"+
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "element.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn''t contain method foo (%s)", result),
+    		result.contains("foo[METHOD_REF]{foo(), LBug573105$Element;, ()Ljava.net.URI;, foo, null, 60}\n"));
+}
+
+public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaBlock_MemberCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573105.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.nio.file.Files;\n" +
+            "import java.nio.file.Paths;\n" +
+            "\n" +
+            "public class Bug573105 {\n" +
+            "	private void test(){ \n" +
+            "		Stream.of(new Element()).map(element -> {" +
+            "			return Files.lines(Paths.get(element.)))\n" +
+            "		}"+
+            "	} \n" +
+            "	private class Element {\n"+
+            "		public java.net.URI foo(){return null;}\n"+
+            "	}\n"+
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "element.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn''t contain method foo (%s)", result),
+    		result.contains("foo[METHOD_REF]{foo(), LBug573105$Element;, ()Ljava.net.URI;, foo, null, 60}\n"));
+}
+public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaInConditional_MemberCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573105.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.nio.file.Paths;\n" +
+            "\n" +
+            "public class Bug573105 {\n" +
+            "	private void test(boolean flag){ \n" +
+            "		Stream.of(new Element()).map(flag ? null : element -> Paths.get(element.))\n"+
+            "	} \n" +
+            "	private class Element {\n"+
+            "		public java.net.URI foo(){return null;}\n"+
+            "	}\n"+
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "element.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn''t contain method foo (%s)", result),
+    		result.contains("foo[METHOD_REF]{foo(), LBug573105$Element;, ()Ljava.net.URI;, foo, null, 60}\n"));
+}
 }
