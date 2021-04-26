@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2020 IBM Corporation.
+ * Copyright (c) 2017, 2021 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -75,11 +79,15 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean isJre11;
 	boolean isJre10;
 	int roundNo = 0;
+	boolean isJavac;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		_typeUtils = processingEnv.getTypeUtils();
 		_messager = processingEnv.getMessager();
+		if (!(processingEnv.getClass().getSimpleName().equals("BatchProcessingEnvImpl"))) {
+			this.isJavac = true;
+		}
 		String property = System.getProperty("java.specification.version");
 		if (property.equals(CompilerOptions.VERSION_10)) {
 			this.isJre10 = true;
@@ -509,7 +517,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.PROVIDES);
-		assertEquals("incorrect no of provides", (isJre17 ? 4 : 1), filterDirective.size());
+		assertEquals("incorrect no of provides", (isJre17 ? (this.isJavac ? 4 : 2) : 1), filterDirective.size());
 		ProvidesDirective provides = (ProvidesDirective) filterDirective.get(0);
 		assertEquals("incorrect service name", "java.nio.file.spi.FileSystemProvider", provides.getService().getQualifiedName().toString());
 		List<? extends TypeElement> implementations = provides.getImplementations();

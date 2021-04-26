@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.lang.model.SourceVersion;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -31,8 +36,11 @@ public class RecordElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.RecordElementProcessor";
 
 	public void testPreviewFlagTrue() throws IOException {
+		if (!isRunning17()) {
+			return;
+		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "testPreviewFlagTrue", null, "records", true);
+		internalTestWithPreview(compiler, MODULE_PROC, CompilerOptions.getLatestVersion(), "testPreviewFlagTrue", null, "records", true);
 	}
 	public void testRecords1() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -174,9 +182,21 @@ public class RecordElementsTests extends TestCase {
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));
 	}
+	public boolean isRunning17() {
+		try {
+			SourceVersion.valueOf("RELEASE_17");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
 	public boolean isRunning16() {
-		String specVersion = System.getProperty("java.specification.version");
-		return CompilerOptions.VERSION_16.equals(specVersion);
+		try {
+			SourceVersion.valueOf("RELEASE_16");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
