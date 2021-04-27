@@ -4795,4 +4795,46 @@ public void testBug473654_comment33() throws Exception {
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
 			requestor.getResults());
 }
+public void testBug546097() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/TestClass.java",
+            "import java.util.concurrent.Callable;\n" +
+            "\n" +
+            "\n" +
+            "public class TestClass {\n" +
+            "	public enum TestEnum {\n" +
+            "		ENUM1(() -> ),\n" +
+            "		ENUM2(() -> );\n" +
+            "\n" +
+            "		private Callable<Object> callable;\n" +
+            "\n" +
+            "		private TestEnum(Callable<Object> callable) {\n" +
+            "		{\n" +
+            "			this.callable = callable;\n" +
+            "		}\n" +
+            "	}\n" +
+            "}\n");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "ENUM1(() -> ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    int expectedTypeRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXPECTED_TYPE;
+    int exactExpectedTypeRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+
+    assertResults(
+            "ENUM1[FIELD_REF]{ENUM1, LTestClass$TestEnum;, LTestClass$TestEnum;, ENUM1, null, "+expectedTypeRelevance+"}\n" +
+            "ENUM2[FIELD_REF]{ENUM2, LTestClass$TestEnum;, LTestClass$TestEnum;, ENUM2, null, "+expectedTypeRelevance+"}\n" +
+            "TestClass[TYPE_REF]{TestClass, , LTestClass;, null, null, "+expectedTypeRelevance+"}\n" +
+            "valueOf[METHOD_REF]{valueOf(), LTestClass$TestEnum;, (Ljava.lang.String;)LTestClass$TestEnum;, valueOf, (arg0), "+expectedTypeRelevance+"}\n" +
+            "valueOf[METHOD_REF]{valueOf(), Ljava.lang.Enum<LTestClass$TestEnum;>;, <T:Ljava.lang.Enum<TT;>;>(Ljava.lang.Class<TT;>;Ljava.lang.String;)TT;, valueOf, (arg0, arg1), "+expectedTypeRelevance+"}\n" +
+            "values[METHOD_REF]{values(), LTestClass$TestEnum;, ()[LTestClass$TestEnum;, values, null, "+expectedTypeRelevance+"}\n" +
+            "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+exactExpectedTypeRelevance+"}",
+    		requestor.getResults());
+}
 }
