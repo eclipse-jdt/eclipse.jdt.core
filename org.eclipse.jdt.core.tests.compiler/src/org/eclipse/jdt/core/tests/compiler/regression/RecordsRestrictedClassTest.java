@@ -29,8 +29,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_025"};
-//		TESTS_NAMES = new String[] { "testBug570399_001"};
+//		TESTS_NAMES = new String[] { "testBug73195_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -8970,5 +8969,34 @@ public void testBug572934_003() {
 	);
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
+}
+public void testBug573195_001() throws Exception {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    protected record R(int i) {\n"+
+					"        public R(int i, int j) {\n"+
+					"            this(i);\n"+
+					"        }\n"+
+					"    }\n"+
+					"    public static void main(String[] args) {\n"+
+					"   R r = new R(1, 2);\n"+
+					"   System.out.println(r.i());\n"+
+					" }\n"+
+					"}"
+				},
+				"1");
+	String expectedOutput = // constructor
+			"  // Method descriptor #12 (I)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  protected X$R(int arg0);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  iload_1 [arg0]\n" +
+			"     6  putfield X$R.i : int [20]\n" +
+			"     9  return\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }
