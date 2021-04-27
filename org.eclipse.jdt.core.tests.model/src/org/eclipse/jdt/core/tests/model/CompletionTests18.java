@@ -4741,4 +4741,58 @@ public void testBug539617_msg() throws JavaModelException {
 			"meth[METHOD_REF]{, LCodeCompletion;, (Ljava.lang.String;)Ljava.lang.Double;, meth, (arg), "+relevanceExpectedType+"}",
 			requestor.getResults());
 }
+public void testBug473654_comment33() throws Exception {
+	this.workingCopies = new ICompilationUnit[4];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GenericThing.java",
+			"public class GenericThing {}\n");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/SpecificThing.java",
+			"public class SpecificThing extends GenericThing {}\n");
+	this.workingCopies[2] = getWorkingCopy("/Completion/src/CodeCompletion.java",
+			"import java.util.function.Supplier;\n" +
+			"public class TestCase<S extends GenericThing> {\n" +
+			"	TestCase(Supplier<S> s) {}\n" +
+			"}\n");
+	this.workingCopies[3] = getWorkingCopy("/Completion/src/Test.java",
+			"public class Test extends TestCase<SpecificThing> {\n" +
+			"	private final Foo foo;\n" +
+			"	public Test(Foo foo, Bar bar) {\n" +
+			"		super(() -> new SpecificThing(foo, bar) {\n" +
+			"				// press Ctrl+Space before the comment\n" +
+			"		});\n" +
+			"		this.foo = foo;\n" +
+			"	}\n" +
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[3].getSource();
+	String completeBefore = "// press Ctrl+Space before the comment";
+	int cursorLocation = str.indexOf(completeBefore);
+	this.workingCopies[3].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int newMethodRelevance =  R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED;
+	int keywordRelevance = newMethodRelevance + R_CASE;
+	int fieldTypeRelevance =  keywordRelevance + R_UNQUALIFIED;
+	int overrideRelevance = keywordRelevance + R_METHOD_OVERIDE;
+	assertResults(
+			"[POTENTIAL_METHOD_DECLARATION]{, LSpecificThing;, ()V, , null, "+newMethodRelevance+"}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" +
+			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" +
+			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" +
+			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" +
+			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" +
+			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" +
+			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" +
+			"Test[TYPE_REF]{Test, , LTest;, null, null, "+fieldTypeRelevance+"}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" +
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
+			requestor.getResults());
+}
 }
