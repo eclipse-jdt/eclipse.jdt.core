@@ -38,8 +38,8 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
         public BatchCompilerTest_16(String name) {
                 super(name);
         }
-        public void _testBug571454_001(){
-        		if (AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
+        public void testBug571454_001(){
+        		if (!AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
         			return;
                 String currentWorkingDirectoryPath = System.getProperty("user.dir");
                 if (currentWorkingDirectoryPath == null) {
@@ -69,7 +69,7 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                                     "\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
                                     + " \"" + OUTPUT_DIR +  File.separator + "src/R.java\""
                                         + " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-                                + " --release 16 --enable-preview -g -preserveAllLocals"
+                                + " --release 16 -g -preserveAllLocals"
                                 + " -proceedOnError -referenceInfo"
                                 + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
                                 "",
@@ -85,8 +85,8 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                         }
                 }
         }
-        public void _testBug570399(){
-    		if (AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
+        public void testBug570399(){
+    		if (!AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
     			return;
         	this.runConformTest(
         		new String[] {
@@ -107,7 +107,7 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                 "\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
                 + " \"" + OUTPUT_DIR +  File.separator + "src/R.java\""
                     + " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
-            + " --release 16 --enable-preview -g -preserveAllLocals"
+            + " --release 16 -g -preserveAllLocals"
             + " -proceedOnError -referenceInfo"
             + " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
             "",

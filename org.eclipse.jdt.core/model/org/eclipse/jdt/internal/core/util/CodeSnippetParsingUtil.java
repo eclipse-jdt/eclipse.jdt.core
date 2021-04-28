@@ -129,8 +129,7 @@ public class CodeSnippetParsingUtil {
 
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		final CompilationUnitDeclaration compilationUnitDeclaration = new CompilationUnitDeclaration(problemReporter, compilationResult, source.length);
-//		ASTNode[] result = parser.parseRecordBodyDeclarations(source, offset, length, compilationUnitDeclaration);
-		ASTNode[] result = parser.parseClassBodyDeclarations(source, offset, length, compilationUnitDeclaration);
+		ASTNode[] result = parser.parseRecordBodyDeclarations(source, offset, length, compilationUnitDeclaration);
 
 		if (recordParsingInformation) {
 			this.recordedParsingInformation = getRecordedParsingInformation(compilationResult, compilationUnitDeclaration.comments);
