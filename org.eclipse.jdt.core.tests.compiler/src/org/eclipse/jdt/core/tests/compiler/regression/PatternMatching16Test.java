@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -14,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -39,18 +44,16 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews,
-				preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
-		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		if (this.complianceLevel >= ClassFileConstants.getLatestJDKLevel()
+				&& preview) {
+			defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		}
 		return defaultOptions;
 	}
 
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE15Plus)
+		if(!isJRE16Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
@@ -88,7 +91,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level "+ AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL +" and above\n" +
+				"The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level 16 and above\n" +
 				"----------\n",
 				null,
 				true,
@@ -98,6 +101,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 	}
 	public void test000b() {
+		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+			return;
 		Map<String, String> options = getCompilerOptions(true);
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
@@ -116,7 +121,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 0)\n" +
 				"	public class X1 {\n" +
 				"	^\n" +
-				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
+				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level 17\n" +
 				"----------\n",
 				null,
 				true,

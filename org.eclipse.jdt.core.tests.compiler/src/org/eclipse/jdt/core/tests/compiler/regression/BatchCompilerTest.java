@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -59,8 +63,10 @@ import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 
@@ -588,6 +594,14 @@ public void test011_classpath(){
         "",
         true);
 }
+private String getVersionOptions() {
+	StringBuilder builder = new StringBuilder();
+	String template = "    -15 -15.0          use 15  compliance (-source 15  -target 15)\n";
+	for(int i = ClassFileConstants.MAJOR_VERSION_15; i <= ClassFileConstants.MAJOR_LATEST_VERSION; i++) {
+		builder.append(template.replace("15", "" + (i - ClassFileConstants.MAJOR_VERSION_0)));
+	}
+	return builder.toString();
+}
 // command line - help
 // amended for https://bugs.eclipse.org/bugs/show_bug.cgi?id=141512 (checking
 // width)
@@ -674,10 +688,10 @@ public void test012(){
         "    -12 -12.0          use 12  compliance (-source 12  -target 12)\n" +
         "    -13 -13.0          use 13  compliance (-source 13  -target 13)\n" +
         "    -14 -14.0          use 14  compliance (-source 14  -target 14)\n" +
-        "    -15 -15.0          use 15  compliance (-source 15  -target 15)\n" +
-        "    -source <version>  set source level: 1.3 to 1.9, 10 to 15\n" +
+        getVersionOptions() +
+        "    -source <version>  set source level: 1.3 to 1.9, 10 to "+ CompilerOptions.getLatestVersion() +"\n" +
         "                       (or 6, 6.0, etc)\n" +
-        "    -target <version>  set classfile target: 1.3 to 1.9, 10 to 15\n" +
+        "    -target <version>  set classfile target: 1.3 to 1.9, 10 to "+ CompilerOptions.getLatestVersion() +"\n" +
         "                       (or 6, 6.0, etc)\n" +
         "                       cldc1.1 can also be used to generate the StackMap\n" +
         "                       attribute\n" +
@@ -13226,5 +13240,16 @@ public void testUnusedObjectAllocation() {
 		"1 problem (1 error)\n",
 		true);
 
+}
+public void testBug573153() {
+	String output = MAIN.bind("configure.source", "10");
+	String template = "source level should be in '1.1'...'1.8','9'...'15' (or '5.0'..'15.0'): 10";
+	template = template.replace("15", CompilerOptions.getLatestVersion());
+	assertEquals("configure.source is not updated", template, output);
+
+	output = MAIN.bind("configure.targetJDK", "10");
+	template = "target level should be in '1.1'...'1.8','9'...'15' (or '5.0'..'15.0') or cldc1.1: 10";
+	template = template.replace("15", CompilerOptions.getLatestVersion());
+	assertEquals("configure.source is not updated", template, output);
 }
 }

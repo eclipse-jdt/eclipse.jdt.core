@@ -205,7 +205,6 @@ Goal ::= '?' PackageDeclaration
 Goal ::= '+' TypeDeclaration
 Goal ::= '/' GenericMethodDeclaration
 Goal ::= '&' ClassBodyDeclarations
-Goal ::= '-' RecordBodyDeclarations
 -- code snippet
 Goal ::= '%' Expression
 Goal ::= '%' ArrayInitializer
@@ -1223,7 +1222,7 @@ CompactConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier'
 -----------------------------------------------
 
 -----------------------------------------------
--- 14 preview feature : instanceof pattern matching
+-- 16 feature : instanceof pattern matching
 -----------------------------------------------
 
 InstanceofExpression -> RelationalExpression
@@ -1240,12 +1239,19 @@ InstanceofClassic ::= 'instanceof' Modifiersopt Type
 /.$putCase consumeInstanceOfClassic(); $break ./
 /:$readableName InstanceofClassic:/
 
-InstanceofPattern ::=  InstanceofClassic Identifier
+InstanceofPattern ::=  'instanceof' Pattern
 /.$putCase consumeInstanceofPattern(); $break ./
 /:$readableName InstanceofPattern:/
 
+Pattern -> TypePattern
+/:$readableName Pattern:/
+
+TypePattern ::= Modifiersopt Type 'Identifier' 
+/.$putCase consumeTypePattern(); $break ./
+/:$readableName TypePattern:/
+
 -----------------------------------------------
--- 14 preview feature : end of instanceof pattern matching
+-- 16 feature : end of instanceof pattern matching
 -----------------------------------------------
 
 ConstantDeclaration -> FieldDeclaration

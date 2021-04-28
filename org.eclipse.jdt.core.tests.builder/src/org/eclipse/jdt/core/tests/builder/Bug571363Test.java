@@ -48,7 +48,7 @@ public class Bug571363Test extends BuilderTests {
 		return null;
 	}
 
-	public void testBug571363() throws JavaModelException, Exception {
+	public void _testBug571363() throws JavaModelException, Exception {
 		IPath projectPath = env.addProject("Bug571364Test", "12"); //$NON-NLS-1$
 		env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
 		env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);

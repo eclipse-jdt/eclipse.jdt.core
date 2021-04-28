@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -9585,8 +9589,6 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 			sourceEnd);
 }
 public void previewAPIUsed(int sourceStart, int sourceEnd, boolean isFatal) {
-	if (this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 			IProblem.PreviewAPIUsed,
 			NoArgument,

@@ -38,7 +38,7 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
         public BatchCompilerTest_16(String name) {
                 super(name);
         }
-        public void testBug571454_001(){
+        public void _testBug571454_001(){
         		if (AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
         			return;
                 String currentWorkingDirectoryPath = System.getProperty("user.dir");
@@ -85,7 +85,7 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                         }
                 }
         }
-        public void testBug570399(){
+        public void _testBug570399(){
     		if (AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
     			return;
         	this.runConformTest(
