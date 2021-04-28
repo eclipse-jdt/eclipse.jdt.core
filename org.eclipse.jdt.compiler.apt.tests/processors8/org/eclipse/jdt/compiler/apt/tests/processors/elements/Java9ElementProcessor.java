@@ -56,6 +56,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -895,6 +896,30 @@ public class Java9ElementProcessor extends BaseProcessor {
 			this.reportSuccessAlready = true;
 		}
 		return false;
+	}
+	public void testBug572673() {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		Set<ModuleElement> modulesIn = ElementFilter.modulesIn(rootElements);
+		assertEquals("incorrect modules" , 1, modulesIn.size());
+		boolean found = false;
+		for (ModuleElement moduleElement : modulesIn) {
+			if (moduleElement.getQualifiedName().toString().equals("mod.one")) {
+				found = true;
+				List<? extends Directive> directives = moduleElement.getDirectives();
+				List<Directive> requires = filterDirective(directives, DirectiveKind.REQUIRES);
+				assertEquals("incorrect requires" , 2, requires.size());
+				for (Directive r : requires) {
+					RequiresDirective req = (RequiresDirective) r;
+					ModuleElement depModule = req.getDependency();
+					if (_elementUtils.isAutomaticModule(depModule)) {
+						assertEquals("incorrect auto-module", "lib.x", depModule.getQualifiedName().toString());
+					} else {
+						assertEquals("incorrect non auto-module", "java.base", depModule.getQualifiedName().toString());
+					}
+				}
+			}
+		}
+		assertTrue("module not found", found);
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();
