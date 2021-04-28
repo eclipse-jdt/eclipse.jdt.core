@@ -1212,15 +1212,17 @@ class ASTConverter {
 		return assignment;
 	}
 
-	/*
-	 * Internal use only
-	 * Used to convert class body declarations
-	 */
-	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes) {
-		final TypeDeclaration typeDecl = new TypeDeclaration(this.ast);
+	public RecordDeclaration convertToRecord(org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes) {
+		final RecordDeclaration typeDecl = new RecordDeclaration(this.ast);
 		ASTNode oldReferenceContext = this.referenceContext;
 		this.referenceContext = typeDecl;
-		typeDecl.setInterface(false);
+		getAbstractTypeDeclarationDetails(nodes, typeDecl);
+		this.referenceContext = oldReferenceContext;
+		return typeDecl;
+	}
+
+	private void getAbstractTypeDeclarationDetails(org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes,
+			final AbstractTypeDeclaration typeDecl) {
 		int nodesLength = nodes.length;
 		for (int i = 0; i < nodesLength; i++) {
 			org.eclipse.jdt.internal.compiler.ast.ASTNode node = nodes[i];
@@ -1230,8 +1232,6 @@ class ASTConverter {
 				initializer.setBody(convert(oldInitializer.block));
 				setModifiers(initializer, oldInitializer);
 				initializer.setSourceRange(oldInitializer.declarationSourceStart, oldInitializer.sourceEnd - oldInitializer.declarationSourceStart + 1);
-//				setJavaDocComment(initializer);
-//				initializer.setJavadoc(convert(oldInitializer.javadoc));
 				convert(oldInitializer.javadoc, initializer);
 				typeDecl.bodyDeclarations().add(initializer);
 			} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
@@ -1262,6 +1262,17 @@ class ASTConverter {
 				}
 			}
 		}
+	}
+	/*
+	 * Internal use only
+	 * Used to convert class body declarations
+	 */
+	public TypeDeclaration convert(org.eclipse.jdt.internal.compiler.ast.ASTNode[] nodes) {
+		final TypeDeclaration typeDecl = new TypeDeclaration(this.ast);
+		ASTNode oldReferenceContext = this.referenceContext;
+		this.referenceContext = typeDecl;
+		typeDecl.setInterface(false);
+		getAbstractTypeDeclarationDetails(nodes, typeDecl);
 		this.referenceContext = oldReferenceContext;
 		return typeDecl;
 	}

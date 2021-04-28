@@ -13277,4 +13277,12 @@ public void testBug570220() {
 		"	};\n" +
 		"}");
 }
+
+public void _testBug562818() {
+	String source = "public Record   {}\n";
+	formatSource(source,
+		"public Record {\n" +
+		"}",
+		CodeFormatter.K_RECORD_BODY_DECLARATIONS);
+}
 }
