@@ -3359,4 +3359,34 @@ public void testBug559210() throws CoreException {
 		deleteProject("P");
 	}
 }
+/**
+ * @bug 457813: StackOverflowError while computing launch button tooltip
+ * @test Verify that StackOverflowException does no longer occur with the given test case
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=457813"
+ */
+public void testBug457813() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "src" }, new String[] { "JCL_LIB", "/TypeHierarchy/test457813.jar" },
+				"bin");
+		createFolder("/P/src/hierarchy");
+		createFile(
+				"/P/src/hierarchy/X.java",
+				"pakage hierarchy;\n" +
+				"public class X extends aspose.b.a.a {\n" +
+				"}"
+			);
+		IType type = getCompilationUnit("P", "src", "hierarchy", "X.java").getType("X");
+		assertTrue("Type should exist!", type.exists());
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a stack overflow happened here...
+		assertHierarchyEquals(
+				"Focus: X [in X.java [in hierarchy [in src [in P]]]]\n" +
+				"Super types:\n" +
+				"Sub types:\n",
+				hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+
 }
