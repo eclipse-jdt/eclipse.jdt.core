@@ -891,7 +891,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			stream = new BufferedInputStream(connection.getInputStream());
 
 			String encoding = connection.getContentEncoding();
-			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, connection.getContentLength());
+			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 			if (encoding == null) {
 				int index = getIndexOf(contents, META_START, 0, -1);
 				if (index != -1) {

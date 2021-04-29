@@ -1159,7 +1159,7 @@ public class Util {
 			throw new JavaModelException(e);
 		}
 		try {
-			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, -1);
+			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		} finally {

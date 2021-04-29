@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -400,7 +401,7 @@ public class Util implements SuffixConstants {
 		InputStream stream = null;
 		try {
 			stream = new BufferedInputStream(new FileInputStream(file));
-			return getInputStreamAsByteArray(stream, (int) file.length());
+			return getInputStreamAsByteArray(stream);
 		} finally {
 			if (stream != null) {
 				try {
@@ -460,82 +461,90 @@ public class Util implements SuffixConstants {
 		}
 	}
 
-	/*
-	 * NIO support to get input stream as byte array.
-	 * Not used as with JDK 1.4.2 this support is slower than standard IO one...
-	 * Keep it as comment for future in case of next JDK versions improve performance
-	 * in this area...
-	 *
-	public static byte[] getInputStreamAsByteArray(FileInputStream stream, int length)
-		throws IOException {
-
-		FileChannel channel = stream.getChannel();
-		int size = (int)channel.size();
-		if (length >= 0 && length < size) size = length;
-		byte[] contents = new byte[size];
-		ByteBuffer buffer = ByteBuffer.wrap(contents);
-		channel.read(buffer);
-		return contents;
-	}
-	*/
 	/**
 	 * Returns the given input stream's contents as a byte array.
-	 * If a length is specified (i.e. if length != -1), only length bytes
-	 * are returned. Otherwise all bytes in the stream are returned.
+	 * All bytes in the stream are returned.
 	 * Note this doesn't close the stream.
-	 * @throws IOException if a problem occured reading the stream.
+	 * @throws IOException if a problem occurred reading the stream.
 	 */
-	public static byte[] getInputStreamAsByteArray(InputStream stream, int length)
-			throws IOException {
-		byte[] contents;
-		if (length == -1) {
-			contents = new byte[0];
-			int contentsLength = 0;
-			int amountRead = -1;
-			do {
-				int amountRequested = Math.max(stream.available(), DEFAULT_READING_SIZE);  // read at least 8K
+	public static byte[] getInputStreamAsByteArray(InputStream input) throws IOException {
+		if (input instanceof ByteArrayInputStream) {
+			// not available in java 8: ((ByteArrayInputStream) input).readAllBytes();
+			int length = ((ByteArrayInputStream) input).available();
+			return readNBytes(input, length);
+		}
+		if (input instanceof FileInputStream) {
+			long length = ((FileInputStream) input).getChannel().size();
+			return readNBytes(input, length);
+		}
+		return readAllBytes(input);
+	}
 
-				// resize contents if needed
-				if (contentsLength + amountRequested > contents.length) {
-					System.arraycopy(
-						contents,
-						0,
-						contents = new byte[contentsLength + amountRequested],
-						0,
-						contentsLength);
-				}
-
-				// read as many bytes as possible
-				amountRead = stream.read(contents, contentsLength, amountRequested);
-
-				if (amountRead > 0) {
-					// remember length of contents
-					contentsLength += amountRead;
-				}
-			} while (amountRead != -1);
-
-			// resize contents if necessary
-			if (contentsLength < contents.length) {
-				System.arraycopy(
-					contents,
-					0,
-					contents = new byte[contentsLength],
-					0,
-					contentsLength);
+	private static byte[] readAllBytes(InputStream input) throws IOException {
+		ArrayList<byte[]> byteBufList = new ArrayList<byte[]>(3);
+		int totalByteCount = 0;
+		int bytesJustRead;
+		do {
+			int bufLength = Math.max(input.available(), DEFAULT_READING_SIZE); // read at least 8K
+			byte[] byteBuf = new byte[bufLength];
+			int bytesInBuf = 0;
+			int byteTransferSize = bufLength;
+			while ((bytesJustRead = input.read(byteBuf, bytesInBuf, byteTransferSize)) >= 0) {
+				bytesInBuf += bytesJustRead;
+				totalByteCount += bytesJustRead;
+				byteTransferSize = bufLength - bytesInBuf;
+				if (byteTransferSize <= 0)
+					break;
 			}
-		} else {
-			contents = new byte[length];
-			int len = 0;
-			int readSize = 0;
-			while ((readSize != -1) && (len != length)) {
-				// See PR 1FMS89U
-				// We record first the read size. In this case len is the actual read size.
-				len += readSize;
-				readSize = stream.read(contents, len, length - len);
+			if (bytesInBuf>0)
+				byteBufList.add(byteBuf);
+		} while (bytesJustRead >= 0);
+		// final concatenation of buffers:
+		if (byteBufList.size()==1) {
+			byte[] firstBuf = byteBufList.get(0);
+			if (firstBuf.length >= totalByteCount) { // fast path
+				return (firstBuf.length == totalByteCount) ? firstBuf : Arrays.copyOf(firstBuf, totalByteCount);
 			}
 		}
+		byte[] result = new byte[totalByteCount];
+		int byteCount = 0;
+		for (byte[] byteBuf : byteBufList) {
+			int byteTransferSize = Math.min(totalByteCount - byteCount, byteBuf.length);
+			System.arraycopy(byteBuf, 0, result, byteCount, byteTransferSize);
+			byteCount += byteTransferSize;
+		}
+		return result;
+	}
 
-		return contents;
+	public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - 8;
+
+	public static byte[] readNBytes(java.io.InputStream input, long length) throws IOException {
+		if (length > MAX_ARRAY_LENGTH) // fail fast
+			throw new OutOfMemoryError("File too large for array: " + length); //$NON-NLS-1$
+		return readNBytes(input, (int) length);
+	}
+
+	/**
+	 * Returns the given input stream's first bytes as array.
+	 * Note this doesn't close the stream.
+	 * @throws IOException if a problem occurred reading the stream.
+	 */
+	public static byte[] readNBytes(InputStream input, int byteLength) throws IOException {
+		// InputStream.readNBytes() only available after java 11
+		if (byteLength == 0)
+			return new byte[0];
+		byte[] byteBuf = new byte[byteLength]; // exact buffer size
+		int byteCount = 0;
+		int byteTransferSize = byteBuf.length;
+		int bytesRead;
+		while ((bytesRead = input.read(byteBuf, byteCount, byteTransferSize)) >= 0) {
+			byteCount += bytesRead;
+			byteTransferSize = byteBuf.length - byteCount;
+			if (byteTransferSize <= 0) {
+				break;
+			}
+		}
+		return (byteBuf.length == byteCount) ? byteBuf : Arrays.copyOf(byteBuf, byteCount);
 	}
 
 	/**
@@ -665,7 +674,7 @@ public class Util implements SuffixConstants {
 			InputStream inputStream = zip.getInputStream(ze);
 			if (inputStream == null) throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
 			stream = new BufferedInputStream(inputStream);
-			return getInputStreamAsByteArray(stream, (int) ze.getSize());
+			return readNBytes(stream, (int) ze.getSize());
 		} finally {
 			if (stream != null) {
 				try {
