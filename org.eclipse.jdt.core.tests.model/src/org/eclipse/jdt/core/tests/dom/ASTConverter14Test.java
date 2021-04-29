@@ -56,6 +56,7 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST14(), false);
+		this.currentProject = getJavaProject("Converter14");
 		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
 		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
 		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
