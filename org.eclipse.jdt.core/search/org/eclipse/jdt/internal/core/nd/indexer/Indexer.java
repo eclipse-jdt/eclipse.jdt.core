@@ -750,7 +750,7 @@ public final class Indexer {
 
 								if (fileName.equals(TypeConstants.META_INF_MANIFEST_MF)) {
 									try (InputStream inputStream = zipFile.getInputStream(member)) {
-										char[] chars = getInputStreamAsCharArray(inputStream, UTF_8);
+										char[] chars = getInputStreamAsCharArray(inputStream, -1, UTF_8);
 
 										resourceFile.setManifestContent(chars);
 									}

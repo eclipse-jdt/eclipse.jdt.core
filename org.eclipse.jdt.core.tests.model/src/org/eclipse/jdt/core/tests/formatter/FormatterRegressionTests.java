@@ -151,7 +151,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			zipFile = new ZipFile(fileName);
 			ZipEntry zipEntry = zipFile.getEntry(zipEntryName);
 			inputStream = new BufferedInputStream(zipFile.getInputStream(zipEntry));
-			return new String(org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(inputStream, null));
+			return new String(org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(inputStream, -1, null));
 		} catch (IOException e) {
 		} finally {
 			try {

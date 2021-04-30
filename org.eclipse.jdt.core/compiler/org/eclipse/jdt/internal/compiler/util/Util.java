@@ -363,7 +363,7 @@ public class Util implements SuffixConstants {
 	 */
 	public static char[] bytesToChar(byte[] bytes, String encoding) throws IOException {
 
-		return getInputStreamAsCharArray(new ByteArrayInputStream(bytes), encoding);
+		return getInputStreamAsCharArray(new ByteArrayInputStream(bytes), bytes.length, encoding);
 
 	}
 
@@ -420,7 +420,7 @@ public class Util implements SuffixConstants {
 		InputStream stream = null;
 		try {
 			stream = new FileInputStream(file);
-			return getInputStreamAsCharArray(stream, encoding);
+			return getInputStreamAsCharArray(stream, (int) file.length(), encoding);
 		} finally {
 			if (stream != null) {
 				try {
@@ -538,14 +538,37 @@ public class Util implements SuffixConstants {
 		return contents;
 	}
 
+	/*
+	 * NIO support to get input stream as char array.
+	 * Not used as with JDK 1.4.2 this support is slower than standard IO one...
+	 * Keep it as comment for future in case of next JDK versions improve performance
+	 * in this area...
+	public static char[] getInputStreamAsCharArray(FileInputStream stream, int length, String encoding)
+		throws IOException {
+
+		FileChannel channel = stream.getChannel();
+		int size = (int)channel.size();
+		if (length >= 0 && length < size) size = length;
+		Charset charset = encoding==null?systemCharset:Charset.forName(encoding);
+		if (charset != null) {
+			MappedByteBuffer bbuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, size);
+		    CharsetDecoder decoder = charset.newDecoder();
+		    CharBuffer buffer = decoder.decode(bbuffer);
+		    char[] contents = new char[buffer.limit()];
+		    buffer.get(contents);
+		    return contents;
+		}
+		throw new UnsupportedCharsetException(SYSTEM_FILE_ENCODING);
+	}
+	*/
 	/**
 	 * Returns the given input stream's contents as a character array.
+	 * If a length is specified (i.e. if length != -1), this represents the number of bytes in the stream.
 	 * Note this doesn't close the stream.
 	 * @throws IOException if a problem occured reading the stream.
 	 */
-	public static char[] getInputStreamAsCharArray(InputStream stream,  String encoding)
+	public static char[] getInputStreamAsCharArray(InputStream stream, int length, String encoding)
 			throws IOException {
-		//XXX java.nio.file.Files.readString().toCharArray() is faster on recent JDKs
 		BufferedReader reader = null;
 		try {
 			reader = encoding == null
@@ -555,12 +578,21 @@ public class Util implements SuffixConstants {
 			// encoding is not supported
 			reader =  new BufferedReader(new InputStreamReader(stream));
 		}
-		char[] contents = CharOperation.NO_CHAR;
+		char[] contents;
 		int totalRead = 0;
+		if (length == -1) {
+			contents = CharOperation.NO_CHAR;
+		} else {
+			// length is a good guess when the encoding produces less or the same amount of characters than the file length
+			contents = new char[length]; // best guess
+		}
 
 		while (true) {
 			int amountRequested;
-			{
+			if (totalRead < length) {
+				// until known length is met, reuse same array sized eagerly
+				amountRequested = length - totalRead;
+			} else {
 				// reading beyond known length
 				int current = reader.read();
 				if (current < 0) break;

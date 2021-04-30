@@ -722,8 +722,7 @@ public class EncodingTests extends ModifyingResourceTests {
 						return result;
 					}
 				};
-				char[] result = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(in,
-						org.eclipse.jdt.internal.compiler.util.Util.UTF_8);
+				char[] result = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(in, (int) file.getLocation().toFile().length(), "UTF-8");
 				assertSourceEquals(
 					"Unexpected source",
 					"abcdefghijklmn",
