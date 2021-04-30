@@ -123,7 +123,7 @@ public class JarClassLoader extends ClassLoader {
 		// Define the package if necessary
 		String pkgName = getPackageName(name);
 		if (pkgName != null) {
-			Package pkg = getPackage(pkgName);
+			Package pkg = getPackage(pkgName); // note: getDefinedPackage is only available on jdk>=9
 			if (pkg == null) {
 				definePackage(pkgName, null, null, null, null, null, null, null);
 			}

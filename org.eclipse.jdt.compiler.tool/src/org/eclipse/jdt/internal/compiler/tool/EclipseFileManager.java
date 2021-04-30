@@ -267,6 +267,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
 	 */
+	@SuppressWarnings("resource") // URLClassLoader is closed in EclipseFileManager.close()
 	@Override
 	public ClassLoader getClassLoader(Location location) {
 		validateNonModuleLocation(location);
