@@ -5590,7 +5590,8 @@ protected MessageSend newMessageSendWithTypeArguments() {
 }
 private MessageSend internalNewMessageSend() {
 	MessageSend m = null;
-	if (this.assistNode == null && this.lParenPos > this.cursorLocation) {
+	long nameStart = this.identifierPositionStack[this.identifierPtr] >>> 32;
+	if (this.assistNode == null && this.lParenPos > this.cursorLocation && nameStart <= this.cursorLocation + 1) {
 		m = new CompletionOnMessageSendName(null, 0, 0); // positions will be set in consumeMethodInvocationName(), if that's who called us
 	} else if (this.assistNode != null && this.lParenPos == this.assistNode.sourceEnd) {
 		// this branch corresponds to work done in checkParemeterizedMethodName(), just the latter isn't called in absence of a syntax error
