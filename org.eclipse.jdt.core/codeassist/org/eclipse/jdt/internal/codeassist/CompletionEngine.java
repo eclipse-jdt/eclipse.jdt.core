@@ -4500,15 +4500,21 @@ public final class CompletionEngine
 				continue nextMethod;
 
 			int length = arguments.length - 1;
+			int completionArgIndex = arguments.length - 1;
 
 			for (int j = 0; j < length; j++) {
 				Expression argument = arguments[j];
 				TypeBinding argType = argument.resolvedType;
 				if(argType != null && !argType.erasure().isCompatibleWith(parameters[j].erasure()))
 					continue nextMethod;
+
+				if((argument.sourceStart >= this.startPosition)
+						&& (argument.sourceEnd <= this.endPosition)) {
+					completionArgIndex = j;
+				}
 			}
 
-			TypeBinding expectedType = method.parameters[arguments.length - 1];
+			TypeBinding expectedType = method.parameters[completionArgIndex];
 			if(expectedType != null) {
 				addExpectedType(expectedType, scope);
 			}

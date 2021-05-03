@@ -5095,4 +5095,280 @@ public void testBug574215_withToken() throws CoreException {
 			"found[FIELD_REF]{found, Ljdt.S;, I, found, null, 60}",
 			requestor.getResults());
 }
+public void testBug573313_MethodParametersCompletions_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5, SE, null);\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = ", SE";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	assertResults("SECONDS[FIELD_REF]{TimeUnit.SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 104}",
+			requestor.getResults());
+}
+public void testBug573313_MethodParametersCompletions_QualifiedName_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5, TimeUnit.SE, null);\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = ", TimeUnit.SE";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	assertResults("SECONDS[FIELD_REF]{SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 81}",
+			requestor.getResults());
+}
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSend_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5, SE);\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = ", SE";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	assertResults("SECONDS[FIELD_REF]{TimeUnit.SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 104}",
+			requestor.getResults());
+}
+
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnLastParamWithToken_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5, () -> \"call\", SE);\n"+
+            "	} \n" +
+            "	private void foo(int i, Callable<String> callback, TimeUnit unit) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = ", SE";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	assertResults("SECONDS[FIELD_REF]{TimeUnit.SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 104}",
+			requestor.getResults());
+}
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMiddleParam_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5, , null);\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "5, ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn''t contain enum literal SECONDS (%s)", result),
+    		result.contains("SECONDS[FIELD_REF]{TimeUnit.SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 104}"));
+
+}
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMiddleParamNoSpace_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5,, null);\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "5,";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn''t contain enum literal SECONDS (%s)", result),
+    		result.contains("SECONDS[FIELD_REF]{TimeUnit.SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 104}"));
+
+}
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnLastParam_CorrectCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5,null,);\n"+
+            "	} \n" +
+            "	private void foo(int i, Callable<String> callback, TimeUnit unit) { \n" +
+            "	} \n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "5,null,";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn''t contain enum literal SECONDS (%s)", result),
+    		result.contains("SECONDS[FIELD_REF]{TimeUnit.SECONDS, Ljava.util.concurrent.TimeUnit;, Ljava.util.concurrent.TimeUnit;, SECONDS, null, 104}"));
+
+}
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMiddleParam_MethodCompletionsForType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5,defaultParam();\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "	private TimeUnit defaultParam(int amout) {\n" +
+            "		return null;" +
+            "	}" +
+            "	private Callable defaultParam() {\n" +
+            "		return null;" +
+            "	}" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "5,defaultParam(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn''t contain enum literal SECONDS (%s)", result),
+    		result.contains("defaultParam[METHOD_REF]{, LBug573313;, (I)Ljava.util.concurrent.TimeUnit;, defaultParam, (amout), 86}"));
+
+}
+public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMiddleParam_MethodCompletionsForType_2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug573313.java",
+            "import java.util.stream.Stream;\n" +
+            "import java.util.ArrayList;\n" +
+            "import java.util.concurrent.Callable;\n" +
+            "import java.util.concurrent.TimeUnit;\n" +
+            "\n" +
+            "public class Bug573313 {\n" +
+            "	private void test(){ \n" +
+            "		foo(5,defaultParam(),null);\n"+
+            "	} \n" +
+            "	private void foo(int i, TimeUnit unit, Callable<String> callback) { \n" +
+            "	} \n" +
+            "	private TimeUnit defaultParam1(int amout) {\n" +
+            "		return null;" +
+            "	}" +
+            "	private Callable defaultParam2() {\n" +
+            "		return null;" +
+            "	}" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "5,defaultParam";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    int relevance = R_DEFAULT + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_RESOLVED + R_NON_STATIC;
+    assertEquals(
+    		"defaultParam2[METHOD_REF]{defaultParam2, LBug573313;, ()Ljava.util.concurrent.Callable;, defaultParam2, null, "+relevance+"}\n" +
+    		"defaultParam1[METHOD_REF]{defaultParam1, LBug573313;, (I)Ljava.util.concurrent.TimeUnit;, defaultParam1, (amout), "+(relevance + R_EXACT_EXPECTED_TYPE)+"}",
+    		requestor.getResults());
+}
 }

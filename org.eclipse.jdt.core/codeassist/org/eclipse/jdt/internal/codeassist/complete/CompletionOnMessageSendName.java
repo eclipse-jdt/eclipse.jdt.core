@@ -38,9 +38,6 @@ public class CompletionOnMessageSendName extends MessageSend {
 
 		this.constant = Constant.NotAConstant;
 
-		if (this.receiver.isImplicitThis())
-			throw new CompletionNodeFound();
-
 		this.actualReceiverType = this.receiver.resolveType(scope);
 		if (this.actualReceiverType == null || this.actualReceiverType.isBaseType() || this.actualReceiverType.isArrayType())
 			throw new CompletionNodeFound();
