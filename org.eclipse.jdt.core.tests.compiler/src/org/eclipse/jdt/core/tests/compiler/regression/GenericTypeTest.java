@@ -52883,6 +52883,29 @@ public void testBug543480WithoutNullPointerExceptionDuringBytecodeGeneration() {
 	}
 }
 
+public void testBugBug571785_001() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.Collection;\n"+
+				"\n" +
+				"public class Test {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new testclass();\n" +
+				"	}\n" +
+				"}\n" +
+				"class testclass {\n" +
+				"	public void update(final Collection<? extends byte[]> inputs) {\n" +
+				"		inputs.forEach(this::update);\n" +
+				"	}\n" +
+				"	public void update(final byte[] input) {\n" +
+				"	}\n" +
+				"}\n"
+			});
+	}
+}
+
 protected void assertCompileTimes(final List<Duration> shortTimes, final double factor, final List<Duration> longTimes) {
 	final double shortTimesAverage = minExcludingBoundaries(shortTimes);
 	final double longTimesAverage = minExcludingBoundaries(longTimes);
