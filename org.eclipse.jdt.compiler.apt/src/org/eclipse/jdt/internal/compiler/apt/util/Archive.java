@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.util;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -29,7 +30,7 @@ import java.util.zip.ZipFile;
 /**
  * Used as a zip file cache.
  */
-public class Archive {
+public class Archive implements Closeable {
 
 	public static final Archive UNKNOWN_ARCHIVE = new Archive();
 
@@ -106,6 +107,7 @@ public class Archive {
 		this.packagesCache = null;
 	}
 
+	@Override
 	public void close() {
 		try {
 			if (this.zipFile != null) {

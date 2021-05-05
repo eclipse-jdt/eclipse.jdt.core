@@ -147,11 +147,6 @@ public class JrtFileSystem extends Archive {
 		}
 
 		@Override
-		protected void finalize() throws Throwable {
-			// Nothing to do here
-		}
-
-		@Override
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {

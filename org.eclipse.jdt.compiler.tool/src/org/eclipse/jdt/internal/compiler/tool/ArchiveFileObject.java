@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,26 +40,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 public class ArchiveFileObject implements JavaFileObject {
 	protected String entryName;
 	protected File file;
-	private ZipFile zipFile;
 	protected Charset charset;
 
 	public ArchiveFileObject(File file, String entryName, Charset charset) {
 		this.entryName = entryName;
 		this.file = file;
 		this.charset = charset;
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	protected void finalize() throws Throwable {
-		if (this.zipFile != null) {
-			try {
-				this.zipFile.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
-		super.finalize();
 	}
 
 	/* (non-Javadoc)
@@ -216,12 +203,13 @@ public class ArchiveFileObject implements JavaFileObject {
 	 */
 	@Override
 	public InputStream openInputStream() throws IOException {
-		if (this.zipFile == null) {
-			this.zipFile = new ZipFile(this.file);
+		try (ZipFile zipFile = new ZipFile(this.file);
+				InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(this.entryName));) {
+			ByteArrayInputStream buffer = new ByteArrayInputStream(inputStream.readAllBytes());
+			return buffer;
 		}
-		ZipEntry zipEntry = this.zipFile.getEntry(this.entryName);
-		return this.zipFile.getInputStream(zipEntry);
 	}
+
 
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openOutputStream()
