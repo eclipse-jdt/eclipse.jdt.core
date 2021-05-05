@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2019, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -74,6 +74,12 @@ public class TextBlock extends Expression {
 	 * literal for the empty string.
 	 */
 	private String escapedValue = "\"\"";//$NON-NLS-1$
+
+	/**
+	 * The literal string without the quotes and the applicable preceding and
+	 * trailing whitespace if any ; defaults to empty string.
+	 */
+	private String literalValue = "";//$NON-NLS-1$
 
 	/**
 	 * Creates a new unparented TextBlock node owned by the given AST.
@@ -197,7 +203,15 @@ public class TextBlock extends Expression {
 		this.escapedValue = token;
 		postValueChange(ESCAPED_VALUE_PROPERTY);
 	}
-
+	/*
+	 * Internal method, only for use in ASTConverter. Not to be used
+	 * by clients.
+	 */
+	void internalSetLiteralValue(String literal) {
+		preValueChange(ESCAPED_VALUE_PROPERTY);
+		this.literalValue = literal;
+		postValueChange(ESCAPED_VALUE_PROPERTY);
+	}
 	/**
 	 * Returns the value of this literal node.
 	 * <p>
@@ -217,6 +231,9 @@ public class TextBlock extends Expression {
 	 * @since 3.24
 	 */
 	public String getLiteralValue() {
+		if (!this.literalValue.isEmpty()) {
+			return this.literalValue;
+		}
 		char[] escaped = getEscapedValue().toCharArray();
 		int len = escaped.length;
 		if (len < 7) {
