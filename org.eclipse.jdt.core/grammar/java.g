@@ -1491,11 +1491,20 @@ SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 /. $putCase consumeCaseLabelExpr(); $break ./
 /:$readableName SwitchLabelExpr:/
 
-SwitchLabelCaseLhs ::= 'case' ConstantExpressions
+SwitchLabelCaseLhs ::= 'case' CaseLabelElements
 /. $putCase consumeSwitchLabelCaseLhs(); $break ./
 /:$readableName SwitchLabelCaseLhs:/
 
 -- END SwitchExpression (JEP 325) --
+
+CaseLabelElements -> CaseLabelElement
+CaseLabelElements ::= CaseLabelElements ',' CaseLabelElement
+/.$putCase consumeCaseLabelElements(); $break ./
+/:$readableName CaseLabelElements:/
+
+CaseLabelElement -> ConstantExpression
+/.$putCase consumeCaseLabelElement(); $break ./
+/:$readableName CaseLabelElement:/
 
 YieldStatement ::= RestrictedIdentifierYield Expression ;
 /.$putCase consumeStatementYield() ; $break ./
@@ -2206,11 +2215,6 @@ Expressionopt ::= $empty
 /.$putCase consumeEmptyExpression(); $break ./
 Expressionopt -> Expression
 /:$readableName Expression:/
-
-ConstantExpressions -> ConstantExpression
-ConstantExpressions ::= ConstantExpressions ',' ConstantExpression
-/.$putCase consumeConstantExpressions(); $break ./
-/:$readableName ConstantExpressions:/
 
 ConstantExpression -> Expression
 /:$readableName ConstantExpression:/
