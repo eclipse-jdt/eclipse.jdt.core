@@ -52890,8 +52890,12 @@ protected void assertCompileTimes(final List<Duration> shortTimes, final double 
 			+ longTimesAverage + "ms should be less than " + factor + "x the minimum short compile time " + shortTimesAverage +"ms\n"
 			+ "long compile times: "+longTimes+"\n"
 			+ "short compile times: "+shortTimes;
-	assertTrue(message,longTimesAverage < factor*shortTimesAverage);
-	System.out.println(message);
+	if (PERFORMANCE_ASSERTS) {
+		assertTrue(message,longTimesAverage < factor*shortTimesAverage);
+		System.out.println(message);
+	} else if (longTimesAverage >= factor*shortTimesAverage) {
+		System.out.println(message);
+	}
 }
 
 protected double minExcludingBoundaries(final List<Duration> durations) {
