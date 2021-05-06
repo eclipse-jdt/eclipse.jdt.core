@@ -196,19 +196,12 @@ public class TextBlock extends Expression {
 	}
 
 	/* (omit javadoc for this method)
-	 * This method is a copy of setEscapedValue(String) that doesn't do any validation.
+	 * This method is does what setEscapedValue(String) does but without any validation.
+	 * In addition, it also sets the literalValue property.
 	 */
-	void internalSetEscapedValue(String token) {
+	void internalSetEscapedValue(String token, String literal) {
 		preValueChange(ESCAPED_VALUE_PROPERTY);
 		this.escapedValue = token;
-		postValueChange(ESCAPED_VALUE_PROPERTY);
-	}
-	/*
-	 * Internal method, only for use in ASTConverter. Not to be used
-	 * by clients.
-	 */
-	void internalSetLiteralValue(String literal) {
-		preValueChange(ESCAPED_VALUE_PROPERTY);
 		this.literalValue = literal;
 		postValueChange(ESCAPED_VALUE_PROPERTY);
 	}

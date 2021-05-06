@@ -3141,8 +3141,9 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
-		literal.internalSetEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
-		literal.internalSetLiteralValue(new String(expression.source()));
+		literal.internalSetEscapedValue(
+				new String(this.compilationUnitSource, sourceStart, length),
+				new String(expression.source()));
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;
 	}
