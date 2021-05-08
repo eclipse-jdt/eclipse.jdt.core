@@ -46,9 +46,9 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
 				"public seal class X permits Y{\n"
-		+ " public static void main(String[] args){\n"
-		+ "    interf;\n}\n}\n"
-		+ "	");
+						+ " public static void main(String[] args){\n"
+						+ "    interf;\n}\n}\n"
+						+ "	");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -65,9 +65,9 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/X.java",
 				"public seal class X permits Y{\n"
-		+ " public static void main(String[] args){\n"
-		+ "    enu;\n}\n}\n"
-		+ "	");
+						+ " public static void main(String[] args){\n"
+						+ "    enu;\n}\n}\n"
+						+ "	");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -86,11 +86,11 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public class Point {\n" +
-				"private void method(Object o) throws Exception{\n" +
-				"if ((o instanceof fina Record xvar )) \n" +
-				"{\n" +
-				"}\n" +
-				"}\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if ((o instanceof fina Record xvar )) \n" +
+						"{\n" +
+						"}\n" +
+						"}\n" +
 				"}");
 		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -105,34 +105,292 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 
 	}
 	// completion for final keyword in instanceof pattern variable at higher relevance than Fin* classes
-		public void test004() throws JavaModelException {
-			this.workingCopies = new ICompilationUnit[2];
-			this.workingCopies[0] = getWorkingCopy(
-					"/Completion/src/Point.java",
-					"public class Point {\n" +
-					"private void method(Object o) throws Exception{\n" +
-					"if ((o instanceof fina Record xvar )) \n" +
-					"{\n" +
+	public void test004() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if ((o instanceof fina Record xvar )) \n" +
+						"{\n" +
+						"}\n" +
+						"}\n" +
+				"}");
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/Bug460411.java",
+				"package abc;" +
+						"public class FinalCl {\n"+
+				"}\n");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "fina";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("FinalCl[TYPE_REF]{abc.FinalCl, abc, Labc.FinalCl;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_NON_RESTRICTED+R_EXPECTED_TYPE)+"}\n"
+				+ "final[KEYWORD]{final, null, null, final, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_NON_RESTRICTED+R_FINAL+R_EXPECTED_TYPE)+"}",
+				requestor.getResults());
+
+
+	}
+
+	// completion for instanceof pattern variable for false condition - inside the instanceof block
+	public void test005() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if (!(o instanceof Record xvar )) \n" +
+						"{\n" +
+						" System.out.println(xvar.);\n" +
+						" throw new Exception();\n" +
+						"}\n" +
+
+				"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("",
+				requestor.getResults());
+
+	}
+	// completion for instanceof pattern variable for true condition - outside the instanceof block
+	public void test006() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if ((o instanceof Record xvar )) \n" +
+						"{\n" +
+						" throw new Exception();\n" +
+						"}\n" +
+						" System.out.println(xvar.);\n" +
+						"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("",
+				requestor.getResults());
+
+	}
+	// completion for instanceof pattern variable for false condition - outside the instanceof block - in do-while loop
+	public void test007() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"do { \n" +
+						"} while (!(o instanceof Record var1));\n" +
+						"System.out.println(var1.);\n" +
+
 					"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "var1.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
+	}
+	// completion for instanceof pattern variable - double negation
+	public void test008() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if (!!(o instanceof Record xvar )) \n" +
+						"{\n" +
+						" throw new Exception();\n" +
+						"}\n" +
+						" System.out.println(xvar.);\n" +
+						"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("",
+				requestor.getResults());
+
+	}
+	// completion for instanceof pattern variable - triple negation
+	public void test009() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if (!!!(o instanceof Record xvar )) \n" +
+						"{\n" +
+						" throw new Exception();\n" +
+						"}\n" +
+						" System.out.println(xvar.);\n" +
+						"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
+
+	}
+	// completion for instanceof pattern variable - double negation
+	public void test010() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if (!!(o instanceof Record xvar )) \n" +
+						"{\n" +
+						" System.out.println(xvar.);\n" +
+						"}\n" +
+
 					"}\n" +
-					"}");
-			this.workingCopies[1] = getWorkingCopy(
-					"/Completion/src/Bug460411.java",
-					"package abc;" +
-					"public class FinalCl {\n"+
-					"}\n");
-			this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
-			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-			requestor.allowAllRequiredProposals();
-			String str = this.workingCopies[0].getSource();
-			String completeBehind = "fina";
-			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			assertResults("FinalCl[TYPE_REF]{abc.FinalCl, abc, Labc.FinalCl;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_NON_RESTRICTED+R_EXPECTED_TYPE)+"}\n"
-					+ "final[KEYWORD]{final, null, null, final, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_NON_RESTRICTED+R_FINAL+R_EXPECTED_TYPE)+"}",
-					requestor.getResults());
 
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
 
-		}
+	}
+	// completion for instanceof pattern variable for false condition
+	public void test011() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) throws Exception{\n" +
+						"if (!(o instanceof Record xvar )) \n" +
+						"{\n" +
+						" throw new Exception();\n" +
+						"}\n" +
+						" System.out.println(xvar.);\n" +
+						"}\n" +
 
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
+
+	}
+
+	// completion for instanceof pattern variable for true condition
+	public void test012() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public class Point {\n" +
+						"private void method(Object o) {\n" +
+						"if ((o instanceof Record xvar )) \n" +
+						"{\n" +
+						" System.out.println(xvar.);\n" +
+						"}\n" +
+
+						"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "xvar.";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Record;, ()I, hashCode, null, 90}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
+
+	}
 }
