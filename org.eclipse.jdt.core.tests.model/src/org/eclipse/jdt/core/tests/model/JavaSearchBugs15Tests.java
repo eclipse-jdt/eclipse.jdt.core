@@ -648,11 +648,11 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof IField);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
-				"src/X.java void Point.method() [comp_()] EXACT_MATCH");
+				"src/Point.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_()] EXACT_MATCH");
 	}
 	//selection  - select CC type
 	public void testBug558812_018() throws CoreException {
