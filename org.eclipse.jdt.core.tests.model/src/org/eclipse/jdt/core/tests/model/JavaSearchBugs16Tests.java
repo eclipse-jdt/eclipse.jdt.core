@@ -456,6 +456,39 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 					""
 			);
 		}
+		public void testBug573388 () throws CoreException {
+			this.workingCopies = new ICompilationUnit[3];
+			this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/b573388/X.java",
+				"package b573388;\n\n" +
+				"public class X {\n"+
+					"public static void main() {\n" +
+					"		R r= new R(7);\n"+
+					"		C c= new C();\n"+
+					"}\n"+
+				"}\n"
+				);
+			this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/b573388/C.java",
+					"package b573388;\n\n" +
+					"public class C {\n"+
+					"}\n"
+					);
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b573388/R.java",
+				"package b573388;\n\n" +
+				"public record R(int a) {\n"+
+				"}\n"
+				);
+			String str = this.workingCopies[2].getSource();
+			String selection = "X";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+			IJavaElement[] elements = this.workingCopies[2].codeSelect(start, length);
+			SourceType st = (SourceType)elements[0];
+			new SearchEngine(this.workingCopies).searchDeclarationsOfReferencedTypes(st, this.resultCollector, null);
+			assertSearchResults(
+					"src/b573388/R.java b573388.R [R] EXACT_MATCH\n" +
+					"src/b573388/C.java b573388.C [C] EXACT_MATCH"
+			);
+		}
 }
 
 

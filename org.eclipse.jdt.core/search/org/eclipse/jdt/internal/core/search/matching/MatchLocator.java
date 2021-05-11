@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1666,6 +1666,8 @@ protected IType lookupType(ReferenceBinding typeBinding) {
 		acceptFlag = NameLookup.ACCEPT_ENUMS;
 	} else if (typeBinding.isInterface()) {
 		acceptFlag = NameLookup.ACCEPT_INTERFACES;
+	} else if (typeBinding.isRecord()) {
+		acceptFlag = NameLookup.ACCEPT_RECORDS;
 	} else if (typeBinding.isClass()) {
 		acceptFlag = NameLookup.ACCEPT_CLASSES;
 	}
