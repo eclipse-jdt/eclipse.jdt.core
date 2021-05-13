@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1448,9 +1448,9 @@ public class ClassScope extends Scope {
 				environment().typesBeingConnected.add(sourceType);
 				boolean noProblems = connectSuperclass();
 				noProblems &= connectSuperInterfaces();
-				connectPermittedTypes();
 				environment().typesBeingConnected.remove(sourceType);
 				sourceType.tagBits |= TagBits.EndHierarchyCheck;
+				connectPermittedTypes();
 				noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
 				sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
 				if (noProblems && sourceType.isHierarchyInconsistent())
@@ -1507,9 +1507,9 @@ public class ClassScope extends Scope {
 			environment().typesBeingConnected.add(sourceType);
 			boolean noProblems = connectSuperclass();
 			noProblems &= connectSuperInterfaces();
-			connectPermittedTypes();
 			environment().typesBeingConnected.remove(sourceType);
 			sourceType.tagBits |= TagBits.EndHierarchyCheck;
+			connectPermittedTypes();
 			noProblems &= connectTypeVariables(this.referenceContext.typeParameters, false);
 			sourceType.tagBits |= TagBits.TypeVariablesAreConnected;
 			if (noProblems && sourceType.isHierarchyInconsistent())

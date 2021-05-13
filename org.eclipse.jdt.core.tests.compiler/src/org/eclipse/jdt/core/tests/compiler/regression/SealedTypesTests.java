@@ -31,7 +31,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug572205"};
+		TESTS_NAMES = new String[] { "testBug573450"};
 	}
 
 	public static Class<?> testClass() {
@@ -5867,5 +5867,96 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Sealed class or interface lacks the permits clause and no class or interface from the same compilation unit declares Shape as its direct superclass or superinterface\n" +
 			"----------\n");
 	}
+	public void testBug573450_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"sealed interface Foo permits Foo.Bar {\n" +
+					"	interface Interface {}\n" +
+					"	record Bar() implements Foo, Interface { }\n" +
+					"}\n" +
+					"public class X { \n" +
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}",
+				},
+				"0");
+	}
 
+	public void testBug573450_002() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"interface Interface {}\n" +
+					"sealed interface Foo extends Interface permits Foo.Bar {\n" +
+					"	record Bar() implements Foo, Interface {}\n" +
+					"}\n" +
+					"public class X { \n" +
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}"
+				},
+				"0");
+	}
+	public void testBug573450_003() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"sealed interface Interface extends Foo{}\n" +
+					"sealed interface Foo extends Interface permits Foo.Bar, Interface {\n" +
+					"	record Bar() implements Foo, Interface {} \n" +
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	sealed interface Interface extends Foo{}\n" +
+				"	                 ^^^^^^^^^\n" +
+				"The hierarchy of the type Interface is inconsistent\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	sealed interface Foo extends Interface permits Foo.Bar, Interface {\n" +
+				"	                             ^^^^^^^^^\n" +
+				"Cycle detected: a cycle exists in the type hierarchy between Foo and Interface\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 3)\n" +
+				"	record Bar() implements Foo, Interface {} \n" +
+				"	       ^^^\n" +
+				"The hierarchy of the type Bar is inconsistent\n" +
+				"----------\n");
+	}
+	public void testBug573450_004() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public sealed class X permits X.Y {\n" +
+					"	final class Y extends X {}\n" +
+					"	public static void main(String[] args){\n"+
+					"		System.out.println(0);\n" +
+					"	}\n"+
+					"}"
+				},
+				"0");
+	}
+	public void testBug573450_005() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public sealed class X permits Y {\n" +
+					"	final class Y extends X {}\n" +
+					"}"
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 1)\n"
+				+ "	public sealed class X permits Y {\n"
+				+ "	                              ^\n"
+				+ "Y cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 2)\n"
+				+ "	final class Y extends X {}\n"
+				+ "	                      ^\n"
+				+ "The type Y extending a sealed class X should be a permitted subtype of X\n"
+				+ "----------\n");
+	}
 }

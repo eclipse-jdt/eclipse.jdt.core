@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -54,7 +54,7 @@ public class TypeHierarchyTests extends ModifyingResourceTests {
 	ITypeHierarchy typeHierarchy;
 
 static {
-//	TESTS_NAMES= new String[] { "testBug329663a" };
+//	TESTS_NAMES= new String[] { "testBug573450" };
 }
 public static Test suite() {
 	return buildModelTestSuite(TypeHierarchyTests.class, BYTECODE_DECLARATION_ORDER);
@@ -3383,6 +3383,62 @@ public void testBug457813() throws CoreException {
 				"Super types:\n" +
 				"Sub types:\n",
 				hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug573450_001() throws CoreException {
+	if (!isJRE16) return;
+	try {
+		IJavaProject proj = createJava16Project("P", new String[] {"src"});
+		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		createFolder("/P/src/hierarchy");
+		createFile(
+				"/P/src/hierarchy/X.java",
+				"@SuppressWarnings(\"preview\")\n" +
+				"public sealed class X permits X.Y {\n" +
+				"	final class Y extends X {}\n" +
+				"}"
+			);
+		IType type = getCompilationUnit("P", "src", "hierarchy", "X.java").getType("X");
+		assertTrue("Type should exist!", type.exists());
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a stack overflow happened here...
+		assertHierarchyEquals(
+				"Focus: X [in X.java [in hierarchy [in src [in P]]]]\n" +
+				"Super types:\n" +
+				"  Object [in Object.class [in java.lang [in <module:java.base>]]]\n" +
+				"Sub types:\n" +
+				"  Y [in X [in X.java [in hierarchy [in src [in P]]]]]\n",
+				hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug573450_002() throws CoreException {
+	if (!isJRE16) return;
+	try {
+		IJavaProject proj = createJava16Project("P", new String[] {"src"});
+		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		createFolder("/P/src/hierarchy");
+		createFile(
+				"/P/src/hierarchy/Foo.java",
+				"@SuppressWarnings(\"preview\")\n" +
+				"sealed interface Foo permits Foo.Bar {\n" +
+				"	interface Interface {}\n" +
+				"	record Bar() implements Foo, Interface {}\n" +
+				"}"
+			);
+		IType type1 = getCompilationUnit("P", "src", "hierarchy", "Foo.java").getType("Foo");
+		assertTrue("Type should exist!", type1.exists());
+		ITypeHierarchy hierarchy1 = type1.newTypeHierarchy(null);
+		assertHierarchyEquals(
+				"Focus: Foo [in Foo.java [in hierarchy [in src [in P]]]]\n" +
+				"Super types:\n" +
+				"Sub types:\n" +
+				"  Bar [in Foo [in Foo.java [in hierarchy [in src [in P]]]]]\n",
+				hierarchy1);
 	} finally {
 		deleteProject("P");
 	}
