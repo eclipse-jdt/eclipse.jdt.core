@@ -67,8 +67,20 @@ public class Util {
      * To avoid too many loops while waiting, the ten first ones are done waiting
      * 10ms before repeating, the ten loops after are done waiting 100ms and
      * the other loops are done waiting 1s...
+     * <br>
+     * If you wish to avoid retrying file deletion during tests altogether, activate
+     * {@link #SKIP_RETRY_DELETE_FILE}.
      */
     public static int DELETE_MAX_WAIT = 10000;
+    /**
+     * If you wish to avoid retrying file deletion during tests altogether, set the value to true.
+     * Then each undeleted file will be registered for deletion during JVM shutdown via
+     * {@link File#deleteOnExit()} instead of waiting for {@link #DELETE_MAX_WAIT} ms.
+     * <br>
+     * Please note: This flag only influences the behaviour of {@link #delete(File)} and
+     * {@link #delete(String)}. It is being ignored by {@link #delete(IResource)}.
+     */
+    public static boolean SKIP_RETRY_DELETE_FILE = false;
 
     private static final boolean DEBUG = false;
     /**
@@ -511,8 +523,17 @@ public static boolean delete(File file) {
 	// remove file or empty directory
 	if (file.delete()) {
 		return true;
+	} else {
+		if (SKIP_RETRY_DELETE_FILE) {
+			System.out.println();
+			System.out.println("WARNING in test: "+getTestName());
+			System.out.println("	- cannot delete " + file + " -> registering for deletion on JVM exit");
+			file.deleteOnExit();
+			return false;
+		} else {
+			return waitUntilFileDeleted(file);
+		}
 	}
-	return waitUntilFileDeleted(file);
 }
 /**
  * Delete a file or directory and insure that the file is no longer present
