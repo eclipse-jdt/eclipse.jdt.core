@@ -501,16 +501,15 @@ public static void createSourceDir(String[] pathsAndContents, String sourcesPath
  * on file system. In case of directory, delete all the hierarchy underneath.
  *
  * @param file The file or directory to delete
- * @return true iff the file was really delete, false otherwise
+ * @return true if the file was really deleted, false otherwise
  */
 public static boolean delete(File file) {
 	// flush all directory content
-	if (file.isDirectory()) {
-		flushDirectoryContent(file);
+	if (file.isDirectory() && !flushDirectoryContent(file)) {
+		return false;
 	}
-	// remove file
-	file.delete();
-	if (isFileDeleted(file)) {
+	// remove file or empty directory
+	if (file.delete()) {
 		return true;
 	}
 	return waitUntilFileDeleted(file);
@@ -765,13 +764,22 @@ public static void fileContentToDisplayString(String sourceFilePath, int indent,
 /**
  * Flush content of a given directory (leaving it empty),
  * no-op if not a directory.
+ *
+ * @return {@code true} if all files (if any) inside the directory were deleted successfully;
+ *         {@code false} if there are leftover files or if {@code dir} is not itself a directory
  */
-public static void flushDirectoryContent(File dir) {
+public static boolean flushDirectoryContent(File dir) {
     File[] files = dir.listFiles();
-    if (files == null) return;
-    for (int i = 0, max = files.length; i < max; i++) {
-        delete(files[i]);
+    if (files == null) {
+        return false;
     }
+    boolean allDeleted = true;
+    for (File file : files) {
+        if (!delete(file)) {
+            allDeleted = false;
+    }
+}
+    return allDeleted;
 }
 private static Map getCompileOptions(String compliance) {
     Map options = new HashMap();
