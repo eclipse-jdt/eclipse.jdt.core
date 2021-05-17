@@ -147,6 +147,11 @@ public abstract class JobManager implements Runnable {
 				this.jobStart = 0;
 				this.jobEnd = -1;
 			}
+			if (awaitingJobsCount() == 0) {
+				synchronized (this) {
+					this.notifyAll();
+				}
+			}
 		}
 	}
 	/**
@@ -245,12 +250,14 @@ public abstract class JobManager implements Runnable {
 									lastJobsCount = awaitingJobsCount;
 									previousJob = currentJob;
 								}
-								try {
-									if (VERBOSE)
-										Util.verbose("-> GOING TO SLEEP - " + searchJob);//$NON-NLS-1$
-									Thread.sleep(50);
-								} catch (InterruptedException e) {
-									// ignore
+								synchronized (this) {
+									if (awaitingJobsCount() > 0) {
+										try {
+											this.wait(50); // avoid Thread.sleep! wait is informed by notifyAll
+										} catch (InterruptedException e) {
+											// ignore
+										}
+									}
 								}
 							}
 						} finally {
@@ -360,10 +367,14 @@ public abstract class JobManager implements Runnable {
 							.toString();
 						monitor.subTask(taskName);
 						setName(taskName);
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							// ignore
+						synchronized (JobManager.this) {
+							if (currentJob() != null) {
+								try {
+									JobManager.this.wait(500);
+								} catch (InterruptedException e) {
+									// ignore
+								}
+							}
 						}
 						job = currentJob();
 					}
