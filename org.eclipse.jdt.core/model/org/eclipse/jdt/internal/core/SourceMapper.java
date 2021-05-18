@@ -58,6 +58,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -347,6 +348,9 @@ public class SourceMapper
 			System.arraycopy(name, 0, (name = new char[nameLength + 2]), 0, nameLength);
 			name[nameLength] = '.';
 			name[nameLength + 1] = '*';
+		}
+		if(Flags.isStatic(modifiers)) {
+			name = CharOperation.concatAll(Keywords.STATIC, name, ' ');
 		}
 		imports[importsCounter++] = name;
 		this.importsTable.put(this.binaryTypeOrModule, imports);
