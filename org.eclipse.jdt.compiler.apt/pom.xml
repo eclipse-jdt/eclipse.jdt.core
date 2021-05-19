@@ -38,6 +38,7 @@
             <showWarnings>true</showWarnings>
             <excludeResources>
               <exclude>**/package.html</exclude>
+              <exclude>**/*api.jar</exclude>
             </excludeResources>
             <useProjectSettings>false</useProjectSettings>
           </configuration>
