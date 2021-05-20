@@ -4012,8 +4012,8 @@ protected void consumeSwitchLabeledBlock() {
 protected int fetchNextToken() throws InvalidInputException {
 	int token = this.scanner.getNextToken();
 	if (!this.diet && token != TerminalTokens.TokenNameEOF) {
-		if (!requireExtendedRecovery() && this.expressionPtr == -1) {
-			if (this.scanner.currentPosition > this.cursorLocation) {
+		if (!requireExtendedRecovery() && this.scanner.currentPosition > this.cursorLocation) {
+			if (!hasPendingExpression(token)) {
 				this.scanner.eofPosition = this.cursorLocation + 1; // revert to old strategy where we stop parsing right at the cursor
 
 				// stop immediately or deferred?
@@ -4027,6 +4027,26 @@ protected int fetchNextToken() throws InvalidInputException {
 		}
 	}
 	return token;
+}
+private boolean hasPendingExpression(int token) {
+	if (this.expressionPtr == -1)
+		return false;
+	if (token == TerminalTokens.TokenNameDOT) {
+		// at '.' we are more eager to send early EOF to avoid seeing a qualified type reference in this pattern:
+		//   foo.|
+		//   bar ...
+		Expression expression = this.expressionStack[this.expressionPtr];
+		int elPtr = this.elementPtr;
+		while (elPtr >= 0) {
+			if (this.elementKindStack[elPtr] == K_BLOCK_DELIMITER) {
+				if (this.elementObjectInfoStack[elPtr] == expression) {
+					return false; // top expr on expressionStack belongs to a block statement (e.g., an if-condition)
+				}
+			}
+			elPtr--;
+		}
+	}
+	return true;
 }
 @Override
 protected void consumeToken(int token) {
@@ -4291,10 +4311,19 @@ protected void consumeToken(int token) {
 					if (kind == K_CONTROL_STATEMENT_DELIMITER) {
 						int info = topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER);
 						popElement(K_CONTROL_STATEMENT_DELIMITER);
-						if (info == IF) {
-							pushOnElementStack(K_BLOCK_DELIMITER, IF, this.expressionStack[this.expressionPtr]);
-						} else {
-							pushOnElementStack(K_BLOCK_DELIMITER, info);
+						switch (info) {
+							case IF:
+								// include top-expression of these just for the benefit of hasPendingExpression():
+								// (TRY is not included, even Java9-t-w-r doesn't own an *expression*)
+							case FOR:
+							case WHILE:
+								if (this.expressionPtr > -1) {
+									pushOnElementStack(K_BLOCK_DELIMITER, info, this.expressionStack[this.expressionPtr]);
+									break;
+								}
+								//$FALL-THROUGH$
+							default:
+								pushOnElementStack(K_BLOCK_DELIMITER, info);
 						}
 					} else {
 						switch(previous) {

@@ -1636,4 +1636,42 @@ public void testBug560606() throws CoreException {
 		deleteProject(project1);
 	}
 }
+public void testBug573632d() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB", "org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin", "9");
+	try {
+		project1.open(null);
+		CompletionResult result = complete(
+			"/Completion9_1/src/Foo.java",
+			"package test;\n" +
+			"import java.io.InputStream;\n" +
+			"public class Foo {\n" +
+			"	Foo f;\n" +
+			"	public void foo() {\n" +
+			"		InputStream is = new InputStream(null);\n" +
+			"		try (is) {\n" +
+			"			f.\n" +
+			"			f = null;\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n",
+			"f.");
+		assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			result.proposals);
+	} finally {
+		deleteProject(project1);
+	}
+}
 }
