@@ -17,32 +17,28 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public abstract class Pattern extends ASTNode {
+public class PatternExpression extends Expression {
 
-	public enum PatternKind {
-		TYPE_PATTERN,
-		GUARDED_PATTERN,
-		NOT_A_PATTERN
+	public Pattern pattern;
+
+	public PatternExpression(Pattern pattern) {
+		this.pattern = pattern;
 	}
 
-	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
+	@Override
+	public StringBuffer print(int indent, StringBuffer output) {
+		return this.printExpression(indent, output);
+	}
 
-	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
-
-	// TODO: Recheck whether we need this in Pattern
-	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
-
-	public abstract void resolve(BlockScope scope);
-
-	public abstract TypeBinding resolveType(BlockScope scope);
-
-	public PatternKind kind() {
-		return PatternKind.NOT_A_PATTERN;
+	@Override
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		return this.pattern != null ? this.pattern.print(indent, output) : output;
+	}
+	@Override
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		// do nothing by default
 	}
 }

@@ -119,6 +119,7 @@ $Terminals
 	RestrictedIdentifierrecord
 	RestrictedIdentifiersealed
 	RestrictedIdentifierpermits
+	BeginCaseElement
 
 --    BodyMarker
 
@@ -228,7 +229,8 @@ Goal ::= '->' SwitchLabelCaseLhs
 -- JSR 360 Restricted
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedSubclasses
-
+-- jsr 406 --
+Goal ::= BeginCaseElement Pattern
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -1232,7 +1234,8 @@ InstanceofExpression ::= InstanceofExpression InstanceofRHS
 /:$readableName Expression:/
 
 InstanceofRHS -> InstanceofClassic
-InstanceofRHS -> InstanceofPattern
+InstanceofRHS -> InstanceofPrimaryTypePattern
+InstanceofRHS -> InstanceofPrimaryParenPattern
 /.$putCase consumeInstanceOfRHS(); $break ./
 /:$readableName Expression:/
 
@@ -1240,16 +1243,30 @@ InstanceofClassic ::= 'instanceof' Modifiersopt Type
 /.$putCase consumeInstanceOfClassic(); $break ./
 /:$readableName InstanceofClassic:/
 
-InstanceofPattern ::=  'instanceof' Pattern
-/.$putCase consumeInstanceofPattern(); $break ./
-/:$readableName InstanceofPattern:/
+InstanceofPrimaryTypePattern ::=  'instanceof' Modifiersopt Type 'Identifier'
+/.$putCase consumeInstanceofPrimaryTypePattern(); $break ./
+/:$readableName InstanceofPrimaryTypePattern:/
 
-Pattern -> TypePattern
+InstanceofPrimaryParenPattern ::=  'instanceof' '(' PrimaryPattern ')'
+/.$putCase consumeInstanceofPrimaryParenPattern(); $break ./
+/:$readableName InstanceofPrimaryParenPattern:/
+
+Pattern -> PrimaryPattern
+Pattern -> GuardedPattern
 /:$readableName Pattern:/
 
-TypePattern ::= Modifiersopt Type 'Identifier' 
+PrimaryPattern -> TypePattern
+PrimaryPattern ::= '(' Pattern ')'
+/.$putCase consumePrimaryPattern(); $break ./
+/:$readableName PrimaryPattern:/
+
+TypePattern ::= Modifiersopt Type 'Identifier'
 /.$putCase consumeTypePattern(); $break ./
 /:$readableName TypePattern:/
+
+GuardedPattern ::= PrimaryPattern '&&' ConditionalAndExpression
+/.$putCase consumeGuardedPattern(); $break ./
+/:$readableName GuardedPattern:/
 
 -----------------------------------------------
 -- 16 feature : end of instanceof pattern matching
@@ -1502,8 +1519,20 @@ CaseLabelElements ::= CaseLabelElements ',' CaseLabelElement
 /.$putCase consumeCaseLabelElements(); $break ./
 /:$readableName CaseLabelElements:/
 
-CaseLabelElement -> ConstantExpression
-/.$putCase consumeCaseLabelElement(); $break ./
+-- Production name hardcoded in parser. Must be ::= and not -> (need to hook at cCLE)
+CaseLabelElement ::= ConstantExpression
+/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_EXPRESSION); $break ./
+/:$readableName CaseLabelElement:/
+
+ -- following 'null' in CASE_EXPRESSION - passes through existing grammar
+ -- CaseLabelElement ->  'null'
+  
+CaseLabelElement ::= 'default'
+/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_DEFAULT); $break ./
+/:$readableName CaseLabelElement:/
+
+CaseLabelElement ::= BeginCaseElement Pattern
+/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
 /:$readableName CaseLabelElement:/
 
 YieldStatement ::= RestrictedIdentifierYield Expression ;

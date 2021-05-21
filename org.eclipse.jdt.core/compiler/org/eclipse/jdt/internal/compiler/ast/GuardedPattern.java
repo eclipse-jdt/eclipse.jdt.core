@@ -24,17 +24,19 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class TypePattern extends Pattern {
+public class GuardedPattern extends Pattern {
 
-	public LocalDeclaration local;
+	public Pattern primaryPattern;
+	public Expression conditionalAndExpression;
 
-	public TypePattern(LocalDeclaration local) {
-		this.local = local;
+	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
+		this.primaryPattern = primaryPattern;
+		this.conditionalAndExpression = conditionalAndExpression;
 	}
 
 	@Override
 	public PatternKind kind() {
-		return PatternKind.TYPE_PATTERN;
+		return PatternKind.GUARDED_PATTERN;
 	}
 
 	@Override
@@ -69,14 +71,17 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
-		return this.local != null ? this.local.printAsExpression(indent, output) : output;
+		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
+		return this.conditionalAndExpression.print(indent, output);
 	}
 
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (this.local != null)
-				this.local.traverse(visitor, scope);
+			if (this.primaryPattern != null)
+				this.primaryPattern.traverse(visitor, scope);
+			if (this.conditionalAndExpression != null)
+				this.conditionalAndExpression.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
