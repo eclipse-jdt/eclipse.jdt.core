@@ -4984,4 +4984,38 @@ public void testBug573105_OnLambdaParamAtMethodInvocationInsideLambdaInCondition
     assertTrue(String.format("Result doesn''t contain method foo (%s)", result),
     		result.contains("foo[METHOD_REF]{foo(), LBug573105$Element;, ()Ljava.net.URI;, foo, null, 60}\n"));
 }
+public void testBug482663() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/CompletionParserResumeFailure.java",
+			"import java.util.Map;\n" +
+			"import java.util.stream.Stream;\n" +
+			"class Path {}\n" +
+			"public class CompletionParserResumeFailure\n" +
+			"{\n" +
+			"    Stream<Path> list(Path dir) throws IOException { return null; }\n" +
+			"    public void freeze()\n" +
+			"    {\n" +
+			"        list(null).map(p -> new Object()\n" +
+			"            {\n" +
+			"                public String name = p.getFileName().toString();\n" +
+			"                public Map<String, Date> clients = p;\n" +
+			"            });\n" +
+			"    }\n" +
+			"}\n");
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "Date";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	assertResults(
+			"DateFormat[TYPE_REF]{java.text.DateFormat, java.text, Ljava.text.DateFormat;, null, null, 69}\n" +
+			"DateFormatSymbols[TYPE_REF]{java.text.DateFormatSymbols, java.text, Ljava.text.DateFormatSymbols;, null, null, 69}\n" +
+			"Date[TYPE_REF]{java.sql.Date, java.sql, Ljava.sql.Date;, null, null, 73}\n" +
+			"Date[TYPE_REF]{java.util.Date, java.util, Ljava.util.Date;, null, null, 73}",
+			requestor.getResults());
+}
 }
