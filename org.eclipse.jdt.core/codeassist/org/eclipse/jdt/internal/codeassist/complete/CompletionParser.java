@@ -5411,11 +5411,61 @@ protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLe
 }
 @Override
 protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
-	NameReference nameReference = super.getUnspecifiedReference(rejectTypeAnnotations);
-	if (this.record) {
-		recordReference(nameReference);
+	// code copied from super, but conditionally creating CompletionOn* nodes:
+
+	/* build a (unspecified) NameReference which may be qualified*/
+	if (rejectTypeAnnotations) { // Compensate for overpermissive grammar.
+		consumeNonTypeUseName();
 	}
-	return nameReference;
+	int length;
+	NameReference ref;
+	if ((length = this.identifierLengthStack[this.identifierLengthPtr--]) == 1) {
+		// single variable reference
+		char[] token = this.identifierStack[this.identifierPtr];
+		long position = this.identifierPositionStack[this.identifierPtr--];
+		int start = (int) (position >>> 32), end = (int) position;
+		if (this.assistNode == null && start < this.cursorLocation && end >= this.cursorLocation) {
+			ref = new CompletionOnSingleNameReference(token, position, isInsideAttributeValue());
+			this.assistNode = ref;
+		} else {
+			ref = new SingleNameReference(token, position);
+		}
+	} else {
+		//Qualified variable reference
+		char[][] tokens = new char[length][];
+		this.identifierPtr -= length;
+		System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+		long[] positions = new long[length];
+		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
+		int start = (int) (positions[0] >>> 32), end = (int) positions[length-1];
+		if (this.assistNode == null && start < this.cursorLocation && end >= this.cursorLocation) {
+			// find the token at cursorLocation:
+			int previousCount = 0;
+			for (int i=0; i<length; i++) {
+				if (((int) positions[i]) < this.cursorLocation)
+					previousCount = i + 1;
+			}
+			if (previousCount > 0) {
+				char[][] subset = new char[previousCount][];
+				System.arraycopy(tokens, 0, subset, 0, previousCount);
+				ref = new CompletionOnQualifiedNameReference(subset, tokens[previousCount], positions, isInsideAttributeValue());
+			} else {
+				// with only one token up-to cursorLocation avoid a bogus qualifiedNameReference (simply skipping the remainder):
+				ref = new CompletionOnSingleNameReference(tokens[0], positions[0], isInsideAttributeValue());
+			}
+			this.assistNode = ref;
+		} else {
+			ref =
+				new QualifiedNameReference(tokens,
+					positions,
+					(int) (this.identifierPositionStack[this.identifierPtr + 1] >> 32), // sourceStart
+					(int) this.identifierPositionStack[this.identifierPtr + length]); // sourceEnd
+		}
+	}
+	if (this.record) {
+		recordReference(ref);
+	}
+	return ref;
 }
 @Override
 protected void consumePostfixExpression() {

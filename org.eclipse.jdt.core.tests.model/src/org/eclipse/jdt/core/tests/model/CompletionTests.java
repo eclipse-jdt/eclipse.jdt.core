@@ -26231,4 +26231,148 @@ public void testBug573632c() throws Exception {
 			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
 			requestor.getResults());
 }
+public void testBug573702() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"\n" +
+			"  public static void boo(Map<String, String> data) {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(data";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"data[LOCAL_VARIABLE_REF]{data, null, LMap;, data, null, 56}",
+			requestor.getResults());
+}
+public void testBug573702_fieldRef() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(this.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(this.data";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"data[FIELD_REF]{data, LApp;, LMap;, data, null, 64}",
+			requestor.getResults());
+}
+public void testBug573702_qualifiedName() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  static Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(App.data";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"data[FIELD_REF]{data, LApp;, LMap;, data, null, 55}",
+			requestor.getResults());
+}
+public void testBug573702_qualifiedName_firstSegment() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  static Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(App";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"App[TYPE_REF]{App, , LApp;, null, null, 56}",
+			requestor.getResults());
+}
 }
