@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation.
+ * Copyright (c) 2020, 2021 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -53,11 +53,10 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		};
 	}
 	public static Test suite() {
-		return buildModelTestSuite(AbstractCompilerTest.F_15, SealedTypeModelTests.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_17, SealedTypeModelTests.class);
 	}
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
-		createJavaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "17");
 		return createJavaProject;
 	}
 	// Check types with neither sealed nor non-sealed don't return those modifiers
@@ -65,8 +64,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("SealedTypes");
 			project.open(null);
-			String fileContent =  "@SuppressWarnings(\"preview\")\n" +
-									"interface I {}\n" +
+			String fileContent =  "interface I {}\n" +
 									"public class X implements I {}\n" +
 									"interface Y extends I {}\n";
 
@@ -178,7 +176,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "sealed.jar";
-			Util.createJar(sources, jarPath, "15", true);
+			Util.createJar(sources, jarPath, "17", true);
 
 			IJavaProject project = createJavaProject("SealedTypes");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
@@ -239,7 +237,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "sealed.jar";
-			Util.createJar(sources, jarPath, "15", true);
+			Util.createJar(sources, jarPath, "17", true);
 
 			IJavaProject project = createJavaProject("SealedTypes");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));

@@ -55,7 +55,7 @@ public enum JavaFeature {
 	SEALED_CLASSES(ClassFileConstants.JDK17,
 			Messages.bind(Messages.sealed_types),
 			new char[][] {TypeConstants.SEALED, TypeConstants.PERMITS},
-			true),
+			false),
     ;
 
 	final long compliance;

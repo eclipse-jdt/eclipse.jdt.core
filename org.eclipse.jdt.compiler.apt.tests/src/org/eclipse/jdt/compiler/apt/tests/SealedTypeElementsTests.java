@@ -32,7 +32,7 @@ public class SealedTypeElementsTests extends TestCase {
 
 	public void test001() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test001", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test001", null, "sealed", false);
 	}
 	public void test001Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -40,7 +40,7 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test002() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test002", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test002", null, "sealed", false);
 	}
 	public void test002Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -48,7 +48,7 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test003() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test003", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test003", null, "sealed", false);
 	}
 	public void test003Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -56,7 +56,7 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test004() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test004", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test004", null, "sealed", false);
 	}
 	public void test004Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -64,7 +64,7 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test005Src() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Src", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Src", null, "sealed", false);
 	}
 	public void test005SrcJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -72,7 +72,7 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test005Binary() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Binary", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Binary", null, "sealed", false);
 	}
 	public void test005BinaryJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -80,7 +80,7 @@ public class SealedTypeElementsTests extends TestCase {
 	}
 	public void test006() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test006", null, "sealed", true);
+		internalTestWithPreview(compiler, MODULE_PROC, "17", "test006", null, "sealed", false);
 	}
 	public void test006Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();

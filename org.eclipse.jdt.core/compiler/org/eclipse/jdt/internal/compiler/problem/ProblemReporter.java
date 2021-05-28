@@ -11967,8 +11967,6 @@ public void illegalModifierForLocalEnumDeclaration(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 private void sealedMissingModifier(int problem, SourceTypeBinding type, TypeDeclaration typeDecl, TypeBinding superTypeBinding) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -11988,8 +11986,6 @@ public void sealedMissingInterfaceModifier(SourceTypeBinding type, TypeDeclarati
 	sealedMissingModifier(IProblem.SealedMissingInterfaceModifier, type, typeDecl, superTypeBinding);
 }
 public void sealedDisAllowedNonSealedModifierInClass(SourceTypeBinding type, TypeDeclaration typeDecl) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	this.handle(
 			IProblem.SealedDisAllowedNonSealedModifierInClass,
@@ -12000,8 +11996,6 @@ public void sealedDisAllowedNonSealedModifierInClass(SourceTypeBinding type, Typ
 }
 
 private void sealedSuperTypeDoesNotPermit(int problem, SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -12018,8 +12012,6 @@ public void sealedSuperClassDoesNotPermit(SourceTypeBinding type, TypeReference 
 	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperClassDoesNotPermit, type, superType, superTypeBinding);
 }
 public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -12034,16 +12026,12 @@ public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeRefere
 }
 
 public void sealedMissingSealedModifier(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	this.handle(IProblem.SealedMissingSealedModifier, new String[] { name }, new String[] { name }, node.sourceStart,
 			node.sourceEnd);
 }
 
 public void sealedDuplicateTypeInPermits(SourceTypeBinding type, TypeReference reference, ReferenceBinding superType) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 		IProblem.SealedDuplicateTypeInPermits,
 		new String[] {
@@ -12057,8 +12045,6 @@ public void sealedDuplicateTypeInPermits(SourceTypeBinding type, TypeReference r
 }
 
 public void sealedNotDirectSuperClass(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 		IProblem.SealedNotDirectSuperClass,
 		new String[] {
@@ -12071,8 +12057,6 @@ public void sealedNotDirectSuperClass(ReferenceBinding type, TypeReference refer
 		reference.sourceEnd);
 }
 public void sealedPermittedTypeOutsideOfModule(ReferenceBinding permType, SourceTypeBinding type, ASTNode node, ModuleBinding moduleBinding) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String permTypeName = new String(permType.sourceName);
 	String name = new String(type.sourceName());
 	String moduleName = new String(moduleBinding.name());
@@ -12084,16 +12068,12 @@ public void sealedPermittedTypeOutsideOfModule(ReferenceBinding permType, Source
 			node.sourceEnd);
 }
 public void sealedPermittedTypeOutsideOfModule(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	this.handle(IProblem.SealedPermittedTypeOutsideOfModule, new String[] { name }, new String[] { name },
 			node.sourceStart, node.sourceEnd);
 }
 
 public void sealedPermittedTypeOutsideOfPackage(ReferenceBinding permType, SourceTypeBinding type, ASTNode node, PackageBinding packageBinding) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String permTypeName = new String(permType.sourceName);
 	String name = new String(type.sourceName());
 	String packageName = packageBinding.compoundName == CharOperation.NO_CHAR_CHAR ? "default" : //$NON-NLS-1$
@@ -12107,16 +12087,12 @@ public void sealedPermittedTypeOutsideOfPackage(ReferenceBinding permType, Sourc
 }
 
 public void sealedSealedTypeMissingPermits(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	this.handle(IProblem.SealedSealedTypeMissingPermits, new String[] { name }, new String[] { name }, node.sourceStart,
 			node.sourceEnd);
 }
 
 public void sealedInterfaceIsSealedAndNonSealed(SourceTypeBinding type, ASTNode node) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	this.handle(IProblem.SealedInterfaceIsSealedAndNonSealed,
 			new String[] { name },
@@ -12126,8 +12102,6 @@ public void sealedInterfaceIsSealedAndNonSealed(SourceTypeBinding type, ASTNode 
 }
 
 public void sealedDisAllowedNonSealedModifierInInterface(SourceTypeBinding type, TypeDeclaration typeDecl) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	this.handle(
 			IProblem.SealedDisAllowedNonSealedModifierInInterface,
@@ -12138,8 +12112,6 @@ public void sealedDisAllowedNonSealedModifierInInterface(SourceTypeBinding type,
 }
 
 public void sealedNotDirectSuperInterface(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 		IProblem.SealedNotDirectSuperInterface,
 		new String[] {
@@ -12153,8 +12125,6 @@ public void sealedNotDirectSuperInterface(ReferenceBinding type, TypeReference r
 }
 
 public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -12167,8 +12137,6 @@ public void sealedLocalDirectSuperTypeSealed(SourceTypeBinding type, TypeReferen
 		superclass.sourceEnd);
 }
 public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, TypeBinding type) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 			IProblem.SealedAnonymousClassCannotExtendSealedType,
 			new String[] {new String(type.readableName())},

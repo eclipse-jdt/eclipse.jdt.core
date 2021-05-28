@@ -2174,6 +2174,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
 					javaProject.setOptions(options);
+				} else if ("17".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+					javaProject.setOptions(options);
 				}
 
 				result[0] = javaProject;
@@ -3453,6 +3459,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("16".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
+				setupExternalJCL("jclMin14");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL14_LIB", "JCL14_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("14"), getExternalJCLSourcePath("14"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("17".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
 				setupExternalJCL("jclMin14");
 				JavaCore.setClasspathVariables(
