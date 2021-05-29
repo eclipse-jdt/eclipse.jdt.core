@@ -158,7 +158,6 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
@@ -3228,15 +3227,6 @@ public final class CompletionEngine
 
 			this.insideQualifiedReference = true;
 			this.completionToken = messageSend.selector;
-			boolean onlyStatic = false;
-			if (messageSend.receiver instanceof NameReference) {
-				onlyStatic = ((NameReference)messageSend.receiver).isTypeReference();
-			} else if (!(messageSend.receiver instanceof MessageSend) &&
-					!(messageSend.receiver instanceof FieldReference) &&
-					!(messageSend.receiver.isThis()) &&
-					!(messageSend.receiver.isSuper())) {
-				onlyStatic = true;
-			}
 
 			TypeBinding receiverType = (TypeBinding)qualifiedBinding;
 
@@ -3250,7 +3240,7 @@ public final class CompletionEngine
 							(ReferenceBinding)receiverType.capture(scope, messageSend.receiver.sourceStart, messageSend.receiver.sourceEnd),
 							scope,
 							new ObjectVector(),
-							onlyStatic,
+							messageSend.receiver.isType(),
 							false,
 							messageSend,
 							scope,

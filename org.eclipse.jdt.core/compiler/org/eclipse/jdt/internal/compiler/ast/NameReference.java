@@ -114,4 +114,9 @@ public void checkEffectiveFinality(VariableBinding localBinding, Scope scope) {
 		}
 	}
 }
+
+@Override
+public boolean isType() {
+	return (this.bits & Binding.TYPE) != 0;
+}
 }

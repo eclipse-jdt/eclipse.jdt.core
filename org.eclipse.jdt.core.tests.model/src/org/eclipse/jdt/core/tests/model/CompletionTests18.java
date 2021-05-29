@@ -5371,4 +5371,156 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMid
     		"defaultParam1[METHOD_REF]{defaultParam1, LBug573313;, (I)Ljava.util.concurrent.TimeUnit;, defaultParam1, (amout), "+(relevance + R_EXACT_EXPECTED_TYPE)+"}",
     		requestor.getResults());
 }
+public void testBug573789_atFirstChainMethodWithToken() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"public class App {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		(new StringBuilder()).append(1).append(2).toString();\n"+
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "(new StringBuilder()).app";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't match actual:  (%s)", result),
+    		result.contains("appendCodePoint[METHOD_REF]{appendCodePoint, Ljava.lang.StringBuilder;, (I)Ljava.lang.StringBuilder;, appendCodePoint, (arg0), 60}"));
+}
+public void testBug573789_atFirstChainMethod() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"public class App {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		(new StringBuilder()).append(1).append(2).toString();\n"+
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "(new StringBuilder()).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't match actual: (%s)", result),
+    		result.contains("appendCodePoint[METHOD_REF]{appendCodePoint, Ljava.lang.StringBuilder;, (I)Ljava.lang.StringBuilder;, appendCodePoint, (arg0), 60}"));
+}
+public void testBug573789_atSecondChainMethodWithToken() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"public class App {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		(new StringBuilder()).append(1).append(2).toString();\n"+
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "append(1).app";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't match actual:  (%s)", result),
+    		result.contains("appendCodePoint[METHOD_REF]{appendCodePoint, Ljava.lang.StringBuilder;, (I)Ljava.lang.StringBuilder;, appendCodePoint, (arg0), 60}"));
+}
+public void testBug573789_atFirstChainMethod_noBraces() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"public class App {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		new StringBuilder().append(1).append(2).toString();\n"+
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new StringBuilder().";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't match actual: (%s)", result),
+    		result.contains("appendCodePoint[METHOD_REF]{appendCodePoint, Ljava.lang.StringBuilder;, (I)Ljava.lang.StringBuilder;, appendCodePoint, (arg0), 60}"));
+}
+public void testBug573789_staticOnlyMethodCompletion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"public class App {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		App.\n"+
+			"	}\n" +
+			"	" +
+			"	public static App foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	" +
+			"	public static App boo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	" +
+			"	public App moo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "App.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+    String result = requestor.getResults();
+    assertResults("boo[METHOD_REF]{boo(), LApp;, ()LApp;, boo, null, 51}\n"
+    		+ "class[FIELD_REF]{class, null, Ljava.lang.Class<LApp;>;, class, null, 51}\n"
+    		+ "foo[METHOD_REF]{foo(), LApp;, ()LApp;, foo, null, 51}\n"
+    		+ "main[METHOD_REF]{main(), LApp;, ([Ljava.lang.String;)V, main, (args), 51}", result);
+}
+public void testBug573789_allMethodCompletion_withToken() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"public class App {\n" +
+			"	public static void main(String[] args) {\n"+
+			"		App.xfoo().x\n"+
+			"	}\n" +
+			"	" +
+			"	public static App xfoo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	" +
+			"	public static App xboo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	" +
+			"	public App xmoo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "App.xfoo().";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+    String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't match actual:  (%s)", result),
+    		result.contains("xboo[METHOD_REF]{xboo(), LApp;, ()LApp;, xboo, null, 49}\n"
+    				+ "xfoo[METHOD_REF]{xfoo(), LApp;, ()LApp;, xfoo, null, 49}\n"));
+
+    assertTrue(String.format("Result doesn't match actual:  (%s)", result),
+    		result.contains("xmoo[METHOD_REF]{xmoo(), LApp;, ()LApp;, xmoo, null, 60}"));
+}
 }
