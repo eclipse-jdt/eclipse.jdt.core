@@ -29,7 +29,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test001" };
+//		TESTS_NAMES = new String[] { "test005" };
 	}
 
 	public static Class<?> testClass() {
@@ -137,6 +137,25 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"public class X {\n" +
 				"  public static void foo(Object obj) {\n" +
 				"		if (obj instanceof ((((String s))))) {\n" +
+				"			System.out.println(s);\n" +
+				"		}\n " +
+				"	}\n" +
+				"  public static void main(String[] obj) {\n" +
+				"		foo(\"Hello World!\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"Hello World!",
+			options);
+	}
+	public void test005() {
+		Map<String, String> options = getCompilerOptions(true);
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void foo(Object obj) {\n" +
+				"		if (obj instanceof (String s) && (s.length() > 0)) {\n" +
 				"			System.out.println(s);\n" +
 				"		}\n " +
 				"	}\n" +

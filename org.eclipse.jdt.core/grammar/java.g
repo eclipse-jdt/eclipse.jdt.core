@@ -1247,7 +1247,7 @@ InstanceofPrimaryTypePattern ::=  'instanceof' Modifiersopt Type 'Identifier'
 /.$putCase consumeInstanceofPrimaryTypePattern(); $break ./
 /:$readableName InstanceofPrimaryTypePattern:/
 
-InstanceofPrimaryParenPattern ::=  'instanceof' '(' PrimaryPattern ')'
+InstanceofPrimaryParenPattern ::=  'instanceof'  ParenthesizedPattern 
 /.$putCase consumeInstanceofPrimaryParenPattern(); $break ./
 /:$readableName InstanceofPrimaryParenPattern:/
 
@@ -1256,9 +1256,13 @@ Pattern -> GuardedPattern
 /:$readableName Pattern:/
 
 PrimaryPattern -> TypePattern
-PrimaryPattern ::= '(' Pattern ')'
+PrimaryPattern -> ParenthesizedPattern
 /.$putCase consumePrimaryPattern(); $break ./
 /:$readableName PrimaryPattern:/
+
+ParenthesizedPattern ::= PushLPAREN Pattern PushRPAREN
+/.$putCase consumeParenthesizedPattern(); $break ./
+/:$readableName ParenthesizedPattern:/
 
 TypePattern ::= Modifiersopt Type 'Identifier'
 /.$putCase consumeTypePattern(); $break ./

@@ -31,6 +31,9 @@ public abstract class Pattern extends ASTNode {
 		NOT_A_PATTERN
 	}
 
+	public int parenthesisSourceStart;
+	public int parenthesisSourceEnd;
+
 	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
