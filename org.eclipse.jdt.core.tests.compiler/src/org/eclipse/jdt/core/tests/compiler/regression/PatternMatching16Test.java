@@ -3707,25 +3707,4 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				options);
 	}
-	public void testBug572431() {
-		Map<String, String> options = getCompilerOptions(false);
-		runConformTest(
-				new String[] {
-						"X.java",
-						"public class X {\n"
-						+ "			   static public void something () {\n"
-						+ "			      boolean bool = true;\n"
-						+ "			      Object object = null;\n"
-						+ "			      if (object instanceof String string) {\n"
-						+ "			      } else if (bool && object instanceof Integer integer) {\n"
-						+ "			      }\n"
-						+ "			   }\n"
-						+ "			   static public void main (String[] args) throws Exception {\n"
-						+ "			   }\n"
-						+ "			}",
-				},
-				"",
-				options);
-
-	}
 }
