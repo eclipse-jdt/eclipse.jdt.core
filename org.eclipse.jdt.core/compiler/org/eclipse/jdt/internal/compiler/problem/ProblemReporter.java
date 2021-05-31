@@ -150,6 +150,7 @@ import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
 import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
@@ -12143,5 +12144,15 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			new String[] {new String(type.shortReadableName())},
 			reference.sourceStart,
 			reference.sourceEnd);
+}
+public void SwitchPatternPatternKindNotAllowed(Pattern pattern) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+			IProblem.SwitchPatternPatternKindNotAllowed,
+			new String[] {pattern.getKindName()},
+			new String[] {pattern.getKindName()},
+			pattern.sourceStart,
+			pattern.sourceEnd);
 }
 }

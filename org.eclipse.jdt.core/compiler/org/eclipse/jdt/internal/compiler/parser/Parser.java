@@ -4648,13 +4648,13 @@ protected void consumeInstanceofPattern() {
 	Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 	switch (pattern.kind()) {
 		case TYPE_PATTERN:
-			TypePattern typePattern = (TypePattern) pattern;
-			pushOnPatternStack(typePattern.local);
+		case GUARDED_PATTERN: // guarded pattern will be reached only via primary parent
+			pushOnPatternStack(pattern.getPatternVariables()[0]);
 			break;
-		default:
-			assert false; //code should not reach here - no other pattern yet (more expected in future)
-			// following line is just a place holder to forcibly fail
-			pushOnPatternStack(((TypePattern) pattern).local);
+		case ANY_PATTERN:
+		default: //code should not reach here - no other pattern yet (more expected in future)
+			this.problemReporter().SwitchPatternPatternKindNotAllowed(pattern);
+			pushOnPatternStack(pattern.getPatternVariables()[0]); // TODO: decide whether to push
 			break;
 	}
 	// Only if we are not inside a block
@@ -10801,7 +10801,7 @@ protected void consumeGuardedPattern() {
 	this.astLengthPtr--;
 	Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 	Expression expr = this.expressionStack[this.expressionPtr--];
-	this.expressionLengthPtr -- ;
+	this.expressionLengthPtr--;
 	pushOnAstStack(new GuardedPattern(pattern, expr));
 }
 protected void consumeTypePattern() {
@@ -10820,15 +10820,16 @@ protected void consumeTypePattern() {
 	TypeReference type = (TypeReference) this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
 
-	TypePattern typePattern = new TypePattern(local);
-	typePattern.sourceStart = this.intStack[this.intPtr--];
-
 	local.type = type;
+
+	AbstractTypePattern aTypePattern = AbstractTypePattern.createPattern(local);
+	aTypePattern.sourceStart = this.intStack[this.intPtr--];
 	local.modifiers =  this.intStack[this.intPtr--];
-	local.declarationSourceStart = typePattern.sourceStart;
+	local.declarationSourceStart = aTypePattern.sourceStart;
+	aTypePattern.sourceEnd = local.sourceEnd;
 
 	problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart, local.declarationEnd);
-	pushOnAstStack(typePattern);
+	pushOnAstStack(aTypePattern);
 }
 protected void consumeZeroAdditionalBounds() {
 	if (this.currentToken == TokenNameRPAREN)  // Signal zero additional bounds - do this only when the cast type is fully seen (i.e not in error path)

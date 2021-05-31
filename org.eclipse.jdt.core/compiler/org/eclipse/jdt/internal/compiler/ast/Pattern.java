@@ -26,9 +26,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public abstract class Pattern extends ASTNode {
 
 	public enum PatternKind {
-		TYPE_PATTERN,
+		ANY_PATTERN,
 		GUARDED_PATTERN,
-		NOT_A_PATTERN
+		TYPE_PATTERN,
+		NOT_A_PATTERN,
 	}
 
 	public int parenthesisSourceStart;
@@ -38,14 +39,17 @@ public abstract class Pattern extends ASTNode {
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
 
+	public abstract AbstractVariableDeclaration[] getPatternVariables();
+
 	// TODO: Recheck whether we need this in Pattern
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
+
+	public abstract String getKindName(); // convenience method.
+
+	public abstract PatternKind kind();
 
 	public abstract void resolve(BlockScope scope);
 
 	public abstract TypeBinding resolveType(BlockScope scope);
 
-	public PatternKind kind() {
-		return PatternKind.NOT_A_PATTERN;
-	}
 }

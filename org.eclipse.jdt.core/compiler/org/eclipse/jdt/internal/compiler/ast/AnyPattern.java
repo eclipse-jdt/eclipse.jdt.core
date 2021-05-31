@@ -21,20 +21,20 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
-public class TypePattern extends AbstractTypePattern {
+public class AnyPattern extends AbstractTypePattern {
 
-	public TypePattern(LocalDeclaration local) {
+	public AnyPattern(LocalDeclaration local) {
 		this.local = local;
 	}
 
 	@Override
 	public PatternKind kind() {
-		return PatternKind.TYPE_PATTERN;
+		return PatternKind.ANY_PATTERN;
 	}
 
 	@Override
 	public String getKindName() {
-		return TypeConstants.TYPE_PATTERN_STRING;
+		return TypeConstants.ANY_PATTERN_STRING;
 	}
 
 	@Override
@@ -45,4 +45,5 @@ public class TypePattern extends AbstractTypePattern {
 		}
 		visitor.endVisit(this, scope);
 	}
+
 }

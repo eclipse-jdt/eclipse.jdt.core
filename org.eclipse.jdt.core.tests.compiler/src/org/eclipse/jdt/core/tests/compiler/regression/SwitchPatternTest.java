@@ -28,7 +28,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug572205"};
+
 	}
+
+	private static String previewLevel = "17";
 
 	public static Class<?> testClass() {
 		return SwitchPatternTest.class;
@@ -64,12 +67,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("17");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
 		runner.runConformTest();
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("17"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -85,8 +88,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("16") :
-			JavacTestOptions.forReleaseWithPreview("16", javacAdditionalTestOptions);
+		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel) :
+			JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel, javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 
@@ -365,6 +368,38 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" private static void foo(Object o) {\n"+
 				"   switch (o.hashCode()) {\n"+
 				"     case String s, default : System.out.println(\"Error should be flagged for String and default\");\n"+
+				"     default : System.out.println(\"Object\");\n"+
+				"   }\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello World\");\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class Y {}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	// TODO: Change the error messages after implementing post grammar processing parts
+	// Enable after code gen is fixed for switch pattern case default
+	public void _testBug573516_011() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o.hashCode()) {\n"+
+				"     case var s : System.out.println(\"Error should be ANY_PATTERN\");\n"+
 				"     default : System.out.println(\"Object\");\n"+
 				"   }\n"+
 				" }\n"+

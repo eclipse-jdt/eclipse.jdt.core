@@ -51,6 +51,10 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 		return defaultOptions;
 	}
 
+	protected Map<String, String> getCompilerOptions() {
+		return getCompilerOptions(true);
+	}
+
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE17Plus)
@@ -166,5 +170,104 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			},
 			"Hello World!",
 			options);
+	}
+	public void test006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void foo(Object obj) {\n" +
+				"		if (obj instanceof (String s && s.length() > 0)) {\n" +
+				"			System.out.println(s);\n" +
+				"		}\n " +
+				"	}\n" +
+				"  public static void main(String[] obj) {\n" +
+				"		foo(\"Hello World!\");\n" +
+				"		Zork();\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void test007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void foo(Object obj) {\n" +
+				"		if (obj instanceof var s) {\n" +
+				"			System.out.println(s);\n" +
+				"		}\n " +
+				"	}\n" +
+				"  public static void main(String[] obj) {\n" +
+				"		foo(\"Hello World!\");\n" +
+				"		Zork();\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (obj instanceof var s) {\n" +
+			"	                   ^^^^^\n" +
+			"A pattern of kind ANY_PATTERN is not allowed here\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	if (obj instanceof var s) {\n" +
+			"	                   ^^^\n" +
+			"\'var\' is not allowed here\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	if (obj instanceof var s) {\n" +
+			"	                       ^\n" +
+			"Cannot use \'var\' on variable without initializer\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 9)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void test008() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void foo(Object obj) {\n" +
+				"		if (obj instanceof (((var s)))) {\n" +
+				"			System.out.println(s);\n" +
+				"		}\n " +
+				"	}\n" +
+				"  public static void main(String[] obj) {\n" +
+				"		foo(\"Hello World!\");\n" +
+				"		Zork();\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (obj instanceof (((var s)))) {\n" +
+			"	                      ^^^^^\n" +
+			"A pattern of kind ANY_PATTERN is not allowed here\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 3)\n" +
+			"	if (obj instanceof (((var s)))) {\n" +
+			"	                      ^^^\n" +
+			"\'var\' is not allowed here\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
+			"	if (obj instanceof (((var s)))) {\n" +
+			"	                          ^\n" +
+			"Cannot use \'var\' on variable without initializer\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 9)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
 	}
 }

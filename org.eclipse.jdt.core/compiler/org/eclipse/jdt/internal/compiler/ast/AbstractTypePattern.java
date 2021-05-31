@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -25,28 +25,16 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
-public class GuardedPattern extends Pattern {
+public abstract class AbstractTypePattern extends Pattern {
 
-	public Pattern primaryPattern;
-	public Expression conditionalAndExpression;
+	public LocalDeclaration local;
 
-	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
-		this.primaryPattern = primaryPattern;
-		this.conditionalAndExpression = conditionalAndExpression;
-		this.sourceStart = primaryPattern.sourceStart;
-		this.sourceEnd = conditionalAndExpression.sourceEnd;
+	public static AbstractTypePattern createPattern(LocalDeclaration local) {
+		char[][] name = (local != null && local.type != null) ? local.type.getTypeName() : null;
+		return name != null &&  CharOperation.toString(name).equals(TypeConstants.VAR_STRING) ?
+				new AnyPattern(local)
+				: new TypePattern(local);
 	}
-
-	@Override
-	public PatternKind kind() {
-		return PatternKind.GUARDED_PATTERN;
-	}
-
-	@Override
-	public String getKindName() {
-		return TypeConstants.GUARDED_PATTERN_STRING;
-	}
-
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// TODO Auto-generated method stub
@@ -54,14 +42,14 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public AbstractVariableDeclaration[] getPatternVariables() {
-		return this.primaryPattern.getPatternVariables();
-	}
-
-	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public AbstractVariableDeclaration[] getPatternVariables() {
+		return new LocalDeclaration[] { this.local };
 	}
 
 	@Override
@@ -84,19 +72,7 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
-		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
-		return this.conditionalAndExpression.print(indent, output);
-	}
-
-	@Override
-	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		if (visitor.visit(this, scope)) {
-			if (this.primaryPattern != null)
-				this.primaryPattern.traverse(visitor, scope);
-			if (this.conditionalAndExpression != null)
-				this.conditionalAndExpression.traverse(visitor, scope);
-		}
-		visitor.endVisit(this, scope);
+		return this.local != null ? this.local.printAsExpression(indent, output) : output;
 	}
 
 }

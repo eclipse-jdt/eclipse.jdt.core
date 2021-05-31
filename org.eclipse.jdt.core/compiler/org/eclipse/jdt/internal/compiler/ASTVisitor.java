@@ -44,6 +44,9 @@ public abstract class ASTVisitor {
 			ClassScope classScope) {
 			// do nothing by default
 	}
+	public void endVisit(AnyPattern anyPattern, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(Argument argument, BlockScope scope) {
 		// do nothing by default
 	}
@@ -550,6 +553,9 @@ public abstract class ASTVisitor {
 	public boolean visit(
 			AnnotationMethodDeclaration annotationTypeDeclaration,
 			ClassScope classScope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(AnyPattern anyPattern, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Argument argument, BlockScope scope) {

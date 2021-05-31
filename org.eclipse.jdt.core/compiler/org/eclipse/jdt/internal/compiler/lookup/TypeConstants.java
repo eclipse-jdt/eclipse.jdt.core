@@ -122,7 +122,8 @@ public interface TypeConstants {
     char[] UPPER_RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
 
     // JEP 286
-	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
+    String VAR_STRING = "var"; //$NON-NLS-1$
+	char[] VAR = VAR_STRING.toCharArray();
     // JEP 359 Records
 	char[] RECORD_RESTRICTED_IDENTIFIER = "record".toCharArray(); //$NON-NLS-1$
 	char[] RECORD_CLASS = "Record".toCharArray(); //$NON-NLS-1$
@@ -135,6 +136,11 @@ public interface TypeConstants {
     // jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_PARAMETER_TARGET = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
+
+	// patterns
+	String ANY_PATTERN_STRING = "ANY_PATTERN"; //$NON-NLS-1$
+	String GUARDED_PATTERN_STRING = "GUARDED_PATTERN"; //$NON-NLS-1$
+	String TYPE_PATTERN_STRING = "TYPE_PATTERN"; //$NON-NLS-1$
 
     // common 3rd party package components:
     char[] ORG = "org".toCharArray(); //$NON-NLS-1$
