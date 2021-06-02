@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 IBM Corporation and others.
+ * Copyright (c) 2015, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,7 @@ import junit.framework.Test;
 public class LambdaRegressionTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test001"};
+//	TESTS_NAMES = new String[] { "test572873a", "test572873b"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1162,6 +1162,60 @@ public void testBug543778() {
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED); // bug happens due to type annotation handling
 	runner.runConformTest();
+}
+public void test572873a() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Iterator;\n" +
+				"\n" +
+				"public class X {\n" +
+				"    static <T> Iterable<T> iterable() {\n" +
+				"        return () -> new Iterator<T>() {\n" +
+				"            @Override\n" +
+				"            public boolean hasNext() {\n" +
+				"                return false;\n" +
+				"            }\n" +
+				"\n" +
+				"            @Override\n" +
+				"            public T next() {\n" +
+				"                return null;\n" +
+				"            }\n" +
+				"        };\n" +
+				"    }\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"test T\");\n" +
+				"	}\n" +
+				"}",
+			},
+			"test T"
+			);
+}
+public void test572873b() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Consumer;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static <T> void build(T element) {\n" +
+				"        new Thread(() -> {\n" +
+				"            new Consumer<T>() {\n" +
+				"\n" +
+				"                @Override\n" +
+				"                public void accept(T t) {" +
+				"\n" +
+				"                }\n" +
+				"            };\n" +
+				"        });\n" +
+				"	}" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"test T\");\n" +
+				"	}\n" +
+				"}",
+			},
+			"test T"
+			);
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;
