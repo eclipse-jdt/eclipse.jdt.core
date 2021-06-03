@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -246,7 +246,16 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.elseStatement.generateCode(currentScope, codeStream);
 	} else {
 		// generate condition side-effects
-		this.condition.generateCode(currentScope, codeStream, false);
+		if (this.condition.containsPatternVariable()) {
+			this.condition.generateOptimizedBoolean(
+				currentScope,
+				codeStream,
+				endifLabel,
+				null,
+				cst == Constant.NotAConstant);
+		} else {
+			this.condition.generateCode(currentScope, codeStream, false);
+		}
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	// May loose some local variable initializations : affecting the local variable attributes
@@ -285,7 +294,7 @@ private void resolveIfStatement(BlockScope scope) {
 }
 @Override
 public void resolve(BlockScope scope) {
-	if (this.condition.containsPatternVariable()) {
+	if (containsPatternVariable()) {
 		this.condition.collectPatternVariablesToScope(null, scope);
 		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
 		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
@@ -307,6 +316,11 @@ public void resolve(BlockScope scope) {
 	} else {
 		resolveIfStatement(scope);
 	}
+}
+
+@Override
+public boolean containsPatternVariable() {
+	return this.condition.containsPatternVariable();
 }
 
 @Override

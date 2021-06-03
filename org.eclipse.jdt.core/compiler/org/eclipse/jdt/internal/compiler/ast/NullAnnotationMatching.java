@@ -793,16 +793,15 @@ public class NullAnnotationMatching {
 		return mainType;
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	public String toString() {
-		if (this == NULL_ANNOTATIONS_OK) return "OK";
-		if (this == NULL_ANNOTATIONS_MISMATCH) return "MISMATCH";
-		if (this == NULL_ANNOTATIONS_OK_NONNULL) return "OK NonNull";
-		if (this == NULL_ANNOTATIONS_UNCHECKED) return "UNCHECKED";
+		if (this == NULL_ANNOTATIONS_OK) return "OK"; //$NON-NLS-1$
+		if (this == NULL_ANNOTATIONS_MISMATCH) return "MISMATCH"; //$NON-NLS-1$
+		if (this == NULL_ANNOTATIONS_OK_NONNULL) return "OK NonNull"; //$NON-NLS-1$
+		if (this == NULL_ANNOTATIONS_UNCHECKED) return "UNCHECKED"; //$NON-NLS-1$
 		StringBuilder buf = new StringBuilder();
-		buf.append("Analysis result: severity="+this.severity);
-		buf.append(" nullStatus="+this.nullStatus);
+		buf.append("Analysis result: severity="+this.severity); //$NON-NLS-1$
+		buf.append(" nullStatus="+this.nullStatus); //$NON-NLS-1$
 		return buf.toString();
 	}
 }

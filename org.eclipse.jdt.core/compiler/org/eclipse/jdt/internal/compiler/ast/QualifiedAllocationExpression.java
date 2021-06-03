@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -693,5 +693,24 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.anonymousType.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
+	}
+	@Override
+	protected void reportTypeArgumentRedundancyProblem(ParameterizedTypeBinding allocationType, final BlockScope scope) {
+		if (checkDiamondOperatorCanbeRemoved(scope)) {
+			scope.problemReporter().redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
+		}
+	}
+	private boolean checkDiamondOperatorCanbeRemoved(final BlockScope scope) {
+		if (this.anonymousType != null &&
+				this.anonymousType.methods != null &&
+				this.anonymousType.methods.length > 0) {
+			//diamond operator is allowed for anonymous types only from java 9
+			if (scope.compilerOptions().complianceLevel < ClassFileConstants.JDK9) return false;
+			for (AbstractMethodDeclaration method : this.anonymousType.methods) {
+				if ( method.binding != null && (method.binding.modifiers & ExtraCompilerModifiers.AccOverriding) == 0)
+					return false;
+			}
+		}
+		return true;
 	}
 }

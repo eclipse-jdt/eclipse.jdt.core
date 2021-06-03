@@ -44,7 +44,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No
 	 */
-	public void test001() {
+	public void _test001() {
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
@@ -89,7 +89,7 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=yes
 	 */
-	public void test002() {
+	public void _test002() {
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);

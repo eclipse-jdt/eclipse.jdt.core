@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 IBM Corporation and others.
+ * Copyright (c) 2007, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -143,9 +143,26 @@ public class EclipseCompilerImpl extends Main {
 					if (knownFileNames.get(charName) != null)
 						throw new IllegalArgumentException(this.bind("unit.more", name)); //$NON-NLS-1$
 					knownFileNames.put(charName, charName);
-					File file = new File(name);
-					if (!file.exists())
-						throw new IllegalArgumentException(this.bind("unit.missing", name)); //$NON-NLS-1$
+
+					boolean found = false;
+					try {
+						if (this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
+							found = this.fileManager.contains(StandardLocation.SOURCE_PATH, javaFileObject);
+						}
+						if (!found) {
+							if (this.fileManager.hasLocation(StandardLocation.MODULE_SOURCE_PATH)) {
+								found = this.fileManager.contains(StandardLocation.MODULE_SOURCE_PATH, javaFileObject);
+							}
+						}
+					} catch (IOException e) {
+						// Not found.
+					}
+					if (!found) {
+						File file = new File(name);
+						if (!file.exists())
+							throw new IllegalArgumentException(this.bind("unit.missing", name)); //$NON-NLS-1$
+					}
+
 					CompilationUnit cu = new CompilationUnit(null,
 							name,
 							null,

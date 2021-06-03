@@ -10148,6 +10148,7 @@ protected void consumeSwitchLabeledRuleToBlockStatement() {
 protected void consumeSwitchLabeledExpression() {
 	consumeExpressionStatement();
 	Expression expr = (Expression) this.astStack[this.astPtr];
+	expr.bits &= ~ASTNode.InsideExpressionStatement;
 	YieldStatement yieldStatement = new YieldStatement(
 			expr,
 			expr.sourceStart,

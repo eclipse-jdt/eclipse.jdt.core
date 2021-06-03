@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -949,6 +949,27 @@ public void testEmptyAttribute() throws CoreException, IOException {
 		assertTrue("Should have seen an archive", archiveSeen);
 	} finally {
 		deleteProject("Test");
+	}
+}
+public void testBug573147() throws CoreException, IOException {
+	try {
+		createJavaProject("Test`", new String[] {"src"}, null, "bin", "1.8", false);
+		createFile(
+				"/Test`/src/X.java",
+				"public class X<T> {\n" +
+				"  void foo() {\n" +
+				"    X<String> var = null;\n" +
+				"  }\n" +
+				"}"
+			);
+		ILocalVariable localVar = getLocalVariable(getCompilationUnit("/Test`/src/X.java"), "var", "var");
+		String memento = localVar.getHandleIdentifier();
+		IJavaElement restored = JavaCore.create(memento);
+		assertNotNull("element should not be null", restored);
+		String restoredMemento = restored.getHandleIdentifier();
+		assertEquals("Unexpected restored memento", memento, restoredMemento);
+	} finally {
+		deleteProject("Test`");
 	}
 }
 }

@@ -917,6 +917,10 @@ public void computeId() {
 								}
 							}
 							return;
+						case 'j':
+							if (CharOperation.equals(TypeConstants.ORG_JUNIT_JUPITER_API_ASSERTIONS, this.compoundName))
+								this.id = TypeIds.T_OrgJunitJupiterApiAssertions;
+							return;
 					}
 					return;
 				case 'c':

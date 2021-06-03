@@ -26078,4 +26078,301 @@ public void testBug496354() throws Exception {
 	        "val2[ANNOTATION_ATTRIBUTE_REF]{val2=, LT;, I, val2, null, 52}",
 			requestor.getResults());
 }
+public void testBug573632() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Foo.java",
+			"package test;\n" +
+			"public class Foo {\n" +
+			"	Foo f;\n" +
+			"	public void foo() {\n" +
+			"		if (f != null) {\n" +
+			"			f.\n" +
+			"			f = null;\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "f.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			requestor.getResults());
+}
+public void testBug573632a() throws Exception {
+	// variation: nested ifs
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Foo.java",
+			"package test;\n" +
+			"public class Foo {\n" +
+			"	Foo f;\n" +
+			"	public void foo() {\n" +
+			"		if (f != null) {\n" +
+			"			if (f != null) {\n" +
+			"				f.\n" +
+			"				f = null;\n" +
+			"			}\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "f.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			requestor.getResults());
+}
+public void testBug573632b() throws Exception {
+	// variation: for
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Foo.java",
+			"package test;\n" +
+			"public class Foo {\n" +
+			"	Foo f;\n" +
+			"	public void foo() {\n" +
+			"		for (int i = 0; f != null; i++) {\n" +
+			"			f.\n" +
+			"			f = null;\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "f.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			requestor.getResults());
+}
+public void testBug573632c() throws Exception {
+	// variation: while
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Foo.java",
+			"package test;\n" +
+			"public class Foo {\n" +
+			"	Foo f;\n" +
+			"	public void foo() {\n" +
+			"		while (f != null) {\n" +
+			"			f.\n" +
+			"			f = null;\n" +
+			"		}\n" +
+			"	};\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "f.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			requestor.getResults());
+}
+public void testBug573702() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"\n" +
+			"  public static void boo(Map<String, String> data) {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(data";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"data[LOCAL_VARIABLE_REF]{data, null, LMap;, data, null, 56}",
+			requestor.getResults());
+}
+public void testBug573702_fieldRef() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(this.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(this.data";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"data[FIELD_REF]{data, LApp;, LMap;, data, null, 64}",
+			requestor.getResults());
+}
+public void testBug573702_qualifiedName() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  static Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(App.data";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"data[FIELD_REF]{data, LApp;, LMap;, data, null, 55}",
+			requestor.getResults());
+}
+public void testBug573702_qualifiedName_firstSegment() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  static Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(App";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"App[TYPE_REF]{App, , LApp;, null, null, 56}",
+			requestor.getResults());
+}
 }

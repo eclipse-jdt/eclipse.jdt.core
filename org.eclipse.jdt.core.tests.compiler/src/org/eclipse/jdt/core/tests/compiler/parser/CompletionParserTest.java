@@ -6757,7 +6757,11 @@ public void testX_1FGGV8C_1() {
 		"    int locale;\n" +
 		"    int errorThreshold;\n" +
 		"    int preserveAllLocalVariables;\n" +
-		"    new Y(\"debug.vars\", <CompleteOnName:t>, locale, (((produceDebugAttributes & Vars) != 0) ? 0 : 1));\n" +
+		"    new Y[]{new Y(\"debug.vars\", <CompleteOnName:t>, locale, (((produceDebugAttributes & Vars) != 0) ? 0 : 1))," +
+		" new Y(\"debug.lines\", this, locale, (((produceDebugAttributes & Lines) != 0) ? 0 : 1))," +
+		" new Y(\"debug.source\", this, locale, (((produceDebugAttributes & Source) != 0) ? 0 : 1))," +
+		" new Y(\"debug.preserveAllLocals\", this, locale, (preserveAllLocalVariables ? 0 : 1))," +
+		" new Y(\"optionalError.unReachableCode\", this, locale, (((errorThreshold & UnreachableCode) != 0) ? 0 : 1))};\n" +
 		"  }\n" +
 		"}\n";
 
@@ -8410,7 +8414,7 @@ public void test011(){
 		"  public X() {\n" +
 		"  }\n" +
 		"  void foo() {\n" +
-		"    bar(<CompleteOnName:zzz>);\n" +
+		"    new Object[]{bar(<CompleteOnName:zzz>)};\n" +
 		"  }\n" +
 		"}\n";
 

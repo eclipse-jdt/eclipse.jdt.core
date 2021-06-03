@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8899,6 +8899,7 @@ public void testBug185452() throws CoreException {
 		"src/b142044 b142044\n" +
 		"src/b163984 b163984\n" +
 		"src/b201064 b201064\n" +
+		"src/b573388 b573388\n" +
 		"src/b81556 b81556\n" +
 		"src/b81556/a b81556.a\n" +
 		"src/b86380 b86380\n" +

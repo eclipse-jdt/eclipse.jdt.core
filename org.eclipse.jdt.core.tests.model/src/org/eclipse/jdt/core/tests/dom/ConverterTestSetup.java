@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -757,6 +757,8 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			Initializer initializer = (Initializer) bodyDeclaration;
 			Block block = initializer.getBody();
 			return (ASTNode) block.statements().get(statementIndex);
+		} else if (bodyDeclaration instanceof FieldDeclaration) {
+			return bodyDeclaration;
 		}
 		return null;
 	}

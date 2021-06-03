@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2018 IBM Corporation and others.
+ * Copyright (c) 2004, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -121,8 +121,6 @@ public class MementoTokenizer {
 					if (buffer == null) buffer = new StringBuffer();
 					buffer.append(this.memento, start, this.index - start);
 					start = ++this.index;
-					if (this.memento[this.index] == JavaElement.JEM_MODULE)
-						return buffer.toString();
 					break;
 				case JavaElement.JEM_COUNT:
 				case JavaElement.JEM_JAVAPROJECT:

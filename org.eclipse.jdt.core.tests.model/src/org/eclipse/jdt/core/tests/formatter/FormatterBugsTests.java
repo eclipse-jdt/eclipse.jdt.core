@@ -13283,6 +13283,6 @@ public void _testBug562818() {
 	formatSource(source,
 		"public Record {\n" +
 		"}",
-		CodeFormatter.K_RECORD_BODY_DECLARATIONS);
+		CodeFormatter.K_CLASS_BODY_DECLARATIONS);
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 IBM Corporation and others.
+ * Copyright (c) 2006, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,6 +27,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(CompilerToolTests.class);
 		suite.addTestSuite(CompilerToolJava9Tests.class);
 		suite.addTest(CompilerInvocationTests.suite());
+		suite.addTestSuite(InMemoryCompilationTest.class);
 		return suite;
 	}
 }

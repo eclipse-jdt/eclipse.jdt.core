@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c)  2020 IBM Corporation and others.
+ * Copyright (c)  2020, 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -621,6 +621,39 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
+	//
+	public void testBug572467() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/Point.java",
+				"public record Point(int comp_) { \n" +
+						"	public Point  {\n" +
+						"	  comp_=11;\n" +
+						"	}\n" +
+						"public void method ( ) {	  \n"+
+						"	  int  var1=comp_;\n" +
+						"	  int  var2=comp_;\n" +
+						"	  int  var3=this.comp_;\n" +
+						"	  int  accMethod=this.comp_();\n" +
+						"} \n"+
+						"}\n"
+				);
+
+		String str = this.workingCopies[0].getSource();
+		String selection =  "comp_";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+		assertTrue(elements.length ==1);
+		assertTrue(elements[0] instanceof IField);
+		search(elements[0], REFERENCES, EXACT_RULE);
+		assertSearchResults(
+				"src/Point.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/Point.java void Point.method() [comp_()] EXACT_MATCH");
+	}
 	//selection  - select CC type
 	public void testBug558812_018() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];

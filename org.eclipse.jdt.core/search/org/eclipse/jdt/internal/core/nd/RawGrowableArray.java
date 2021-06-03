@@ -113,7 +113,7 @@ public final class RawGrowableArray {
 		ARRAY_HEADER_BYTES = type.size();
 	}
 
-	private static class GrowableBlockHeader {
+	static class GrowableBlockHeader {
 		public static final FieldInt ARRAY_SIZE;
 		public static final FieldInt ALLOCATED_SIZE;
 		public static final int GROWABLE_BLOCK_HEADER_BYTES;
@@ -134,10 +134,13 @@ public final class RawGrowableArray {
 			MAX_GROWABLE_SIZE = (Database.MAX_SINGLE_BLOCK_MALLOC_SIZE - GROWABLE_BLOCK_HEADER_BYTES)
 					/ Database.PTR_SIZE;
 		}
+
+		static StructDef<GrowableBlockHeader> getType() {
+			return type;
+		}
 	}
 
-	@SuppressWarnings("synthetic-access")
-	private static final class MetaBlockHeader extends GrowableBlockHeader {
+	static final class MetaBlockHeader extends GrowableBlockHeader {
 		/**
 		 * Holds the number of pages used for the metablock. Note that the start of the metablock array needs to be
 		 * 4-byte aligned. Since all malloc calls are always 2 bytes away from 4-byte alignment, we need to use at
@@ -149,7 +152,7 @@ public final class RawGrowableArray {
 		private static final StructDef<MetaBlockHeader> type;
 
 		static {
-			type = StructDef.createAbstract(MetaBlockHeader.class, GrowableBlockHeader.type);
+			type = StructDef.createAbstract(MetaBlockHeader.class, GrowableBlockHeader.getType());
 
 			METABLOCK_NUM_PAGES = type.addShort();
 			type.done();

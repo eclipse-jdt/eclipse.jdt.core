@@ -374,6 +374,7 @@ public interface TypeConstants {
 
 	// different assertion utilities:
 	char[] ASSERT_CLASS = "Assert".toCharArray(); //$NON-NLS-1$
+	char[] ASSERTIONS_CLASS = "Assertions".toCharArray(); //$NON-NLS-1$
 	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, ASSERT_CLASS };
 	// ... methods:
 	char[] IS_NOTNULL = "isNotNull".toCharArray(); //$NON-NLS-1$
@@ -383,8 +384,10 @@ public interface TypeConstants {
 	char[] JUPITER = "jupiter".toCharArray(); //$NON-NLS-1$
 	char[] PARAMS = "params".toCharArray(); //$NON-NLS-1$
 	char[] PROVIDER = "provider".toCharArray(); //$NON-NLS-1$
+	char[] API = "api".toCharArray(); //$NON-NLS-1$
 	char[][] JUNIT_FRAMEWORK_ASSERT = new char[][] { JUNIT, FRAMEWORK, ASSERT_CLASS };
 	char[][] ORG_JUNIT_ASSERT = new char[][] { ORG, JUNIT, ASSERT_CLASS };
+	char[][] ORG_JUNIT_JUPITER_API_ASSERTIONS = new char[][] { ORG, JUNIT, JUPITER, API, ASSERTIONS_CLASS };
 	// ... methods:
 	char[] ASSERT_NULL = "assertNull".toCharArray(); //$NON-NLS-1$
 	char[] ASSERT_NOTNULL = "assertNotNull".toCharArray(); //$NON-NLS-1$
