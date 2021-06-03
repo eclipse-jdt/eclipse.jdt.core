@@ -33,14 +33,17 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CaseStatement extends Statement {
 
-	public Expression constantExpression;
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions
 	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isExpr = false;
 
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
-	this.constantExpression = constantExpression;
+	this(sourceEnd, sourceStart, constantExpression != null ? new Expression[] {constantExpression} : null);
+}
+
+public CaseStatement(int sourceEnd, int sourceStart, Expression[] constantExpressions) {
+	this.constantExpressions = constantExpressions;
 	this.sourceEnd = sourceEnd;
 	this.sourceStart = sourceStart;
 }
@@ -50,13 +53,9 @@ public FlowInfo analyseCode(
 	BlockScope currentScope,
 	FlowContext flowContext,
 	FlowInfo flowInfo) {
-	if (this.constantExpressions != null && this.constantExpressions.length > 1) {
+	if (this.constantExpressions != null) {
 		for (Expression e : this.constantExpressions) {
 			analyseConstantExpression(currentScope, flowContext, flowInfo, e);
-		}
-	} else {
-		if (this.constantExpression != null) {
-			analyseConstantExpression(currentScope, flowContext, flowInfo, this.constantExpression);
 		}
 	}
 	return flowInfo;
@@ -76,18 +75,14 @@ private void analyseConstantExpression(
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	printIndent(tab, output);
-	if (this.constantExpression == null) {
+	if (this.constantExpressions == null) {
 		output.append("default "); //$NON-NLS-1$
 		output.append(this.isExpr ? "->" : ":"); //$NON-NLS-1$ //$NON-NLS-2$
 	} else {
 		output.append("case "); //$NON-NLS-1$
-		if (this.constantExpressions != null && this.constantExpressions.length > 0) {
-			for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
-				this.constantExpressions[i].printExpression(0, output);
-				if (i < l -1) output.append(',');
-			}
-		} else {
-			this.constantExpression.printExpression(0, output);
+		for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
+			this.constantExpressions[i].printExpression(0, output);
+			if (i < l -1) output.append(',');
 		}
 		output.append(this.isExpr ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -130,8 +125,9 @@ public void resolve(BlockScope scope) {
 public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
-
-	if (this.constantExpression == null) {
+	Expression[] constExprs = this.constantExpressions;
+	Expression constExpr = constExprs != null && constExprs.length > 0 ? constExprs[0] : null;
+	if (constExpr == null) {
 		// remember the default case into the associated switch statement
 		if (switchStatement.defaultCase != null)
 			scope.problemReporter().duplicateDefaultCase(this);
@@ -142,33 +138,30 @@ public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType
 	}
 	// add into the collection of cases of the associated switch statement
 	switchStatement.cases[switchStatement.caseCount++] = this;
-	if (switchExpressionType != null && switchExpressionType.isEnum() && (this.constantExpression instanceof SingleNameReference)) {
-		((SingleNameReference) this.constantExpression).setActualReceiverType((ReferenceBinding)switchExpressionType);
+	if (switchExpressionType != null && switchExpressionType.isEnum() && (constExpr instanceof SingleNameReference)) {
+		((SingleNameReference) constExpr).setActualReceiverType((ReferenceBinding)switchExpressionType);
 	}
-	TypeBinding caseType = this.constantExpression.resolveType(scope);
+	TypeBinding caseType = constExpr.resolveType(scope);
 	if (caseType == null || switchExpressionType == null) return Constant.NotAConstantList;
 	// tag constant name with enum type for privileged access to its members
 
-	if (this.constantExpressions != null && this.constantExpressions.length > 1) {
-		List<Constant> cases = new ArrayList<>();
-		for (Expression e : this.constantExpressions) {
-			if (e != this.constantExpression) {
-				if (switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
-					((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
-				}
-				e.resolveType(scope);
+	List<Constant> cases = new ArrayList<>();
+	for (Expression e : constExprs) {
+		if (e != constExpr) {
+			if (switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
+				((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
 			}
-			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
-			if (con != Constant.NotAConstant) {
-				cases.add(con);
-			}
+			e.resolveType(scope);
 		}
-		if (cases.size() > 0) {
-			return cases.toArray(new Constant[cases.size()]);
+		Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
+		if (con != Constant.NotAConstant) {
+			cases.add(con);
 		}
-	} else {
-		return new Constant[] { resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, this.constantExpression) };
 	}
+	if (cases.size() > 0) {
+		return cases.toArray(new Constant[cases.size()]);
+	}
+
 	return Constant.NotAConstantList;
 }
 public Constant resolveConstantExpression(BlockScope scope,
@@ -202,19 +195,17 @@ public Constant resolveConstantExpression(BlockScope scope,
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 		return expression.constant;
 	}
-	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, this.constantExpression, switchStatement.expression);
+	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, expression, switchStatement.expression);
 	return Constant.NotAConstant;
 }
 
 @Override
 public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
-		if (this.constantExpressions != null && this.constantExpressions.length > 1) {
+		if (this.constantExpressions != null) {
 			for (Expression e : this.constantExpressions) {
 				e.traverse(visitor, blockScope);
 			}
-		} else {
-			if (this.constantExpression != null) this.constantExpression.traverse(visitor, blockScope);
 		}
 
 	}

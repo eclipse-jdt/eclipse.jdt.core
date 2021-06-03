@@ -20,6 +20,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -281,28 +282,7 @@ public class SwitchStatement extends Expression {
 			 */
 			final boolean hasCases = this.caseCount != 0;
 			int constSize = hasCases ? this.stringConstants.length : 0;
-			BranchLabel[] sourceCaseLabels;
-			if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK12) {
-				for (int i = 0, max = this.caseCount; i < max; i++) {
-					int l = this.cases[i].constantExpressions.length;
-					this.cases[i].targetLabels = new BranchLabel[l];
-				}
-				sourceCaseLabels = new BranchLabel[this.nConstants];
-				int j = 0;
-				for (int i = 0, max = this.caseCount; i < max; i++) {
-					CaseStatement stmt = this.cases[i];
-					for (int k = 0, l = stmt.constantExpressions.length; k < l; ++k) {
-						stmt.targetLabels[k] = (sourceCaseLabels[j] = new BranchLabel(codeStream));
-						sourceCaseLabels[j++].tagBits |= BranchLabel.USED;
-					}
-				}
-			} else {
-				sourceCaseLabels = new BranchLabel[this.caseCount];
-				for (int i = 0, max = this.caseCount; i < max; i++) {
-					this.cases[i].targetLabel = (sourceCaseLabels[i] = new BranchLabel(codeStream));  // A branch label, not a case label.
-					sourceCaseLabels[i].tagBits |= BranchLabel.USED;
-				}
-			}
+			BranchLabel[] sourceCaseLabels = this.<BranchLabel>gatherLabels(codeStream, new BranchLabel[this.nConstants], BranchLabel::new);
 			StringSwitchCase [] stringCases = new StringSwitchCase[constSize]; // may have to shrink later if multiple strings hash to same code.
 			CaseLabel [] hashCodeCaseLabels = new CaseLabel[constSize];
 			this.constants = new int[constSize];  // hashCode() values.
@@ -421,8 +401,20 @@ public class SwitchStatement extends Expression {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
-
-
+	private <T extends BranchLabel>T[] gatherLabels(CodeStream codeStream, T[] caseLabels,
+			Function<CodeStream, T> newLabel)
+	{
+		for (int i = 0, j = 0, max = this.caseCount; i < max; i++) {
+			CaseStatement stmt = this.cases[i];
+			int l = stmt.constantExpressions.length;
+			stmt.targetLabels = new BranchLabel[l];
+			for (int k = 0; k < l; ++k) {
+				stmt.targetLabels[k] = (caseLabels[j] = newLabel.apply(codeStream));
+				caseLabels[j++].tagBits |= BranchLabel.USED;
+			}
+		}
+		return caseLabels;
+	}
 	/**
 	 * Switch code generation
 	 *
@@ -444,30 +436,7 @@ public class SwitchStatement extends Expression {
 			// prepare the labels and constants
 			this.breakLabel.initialize(codeStream);
 			int constantCount = this.constants == null ? 0 : this.constants.length;
-			int nCaseLabels = 0;
-			CaseLabel[] caseLabels;
-			if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK12) {
-				for (int i = 0, max = this.caseCount; i < max; i++) {
-					int l = this.cases[i].constantExpressions.length;
-					nCaseLabels += l;
-					this.cases[i].targetLabels = new BranchLabel[l];
-				}
-				caseLabels = new CaseLabel[nCaseLabels];
-				int j = 0;
-				for (int i = 0, max = this.caseCount; i < max; i++) {
-					CaseStatement stmt = this.cases[i];
-					for (int k = 0, l = stmt.constantExpressions.length; k < l; ++k) {
-						stmt.targetLabels[k] = (caseLabels[j] = new CaseLabel(codeStream));
-						caseLabels[j++].tagBits |= BranchLabel.USED;
-					}
-				}
-			} else {
-				caseLabels = new CaseLabel[this.caseCount];
-				for (int i = 0, max = this.caseCount; i < max; i++) {
-					this.cases[i].targetLabel = (caseLabels[i] = new CaseLabel(codeStream));
-					caseLabels[i].tagBits |= BranchLabel.USED;
-				}
-			}
+			CaseLabel[] caseLabels = this.<CaseLabel>gatherLabels(codeStream, new CaseLabel[this.nConstants], CaseLabel::new);
 
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
 			final boolean hasCases = this.caseCount != 0;
@@ -637,12 +606,10 @@ public class SwitchStatement extends Expression {
 		int n = 0;
 		for (int i = 0, l = this.statements.length; i < l; ++i) {
 			final Statement statement = this.statements[i];
-			if (!(statement instanceof CaseStatement))  {
-				continue;
+			if (statement instanceof CaseStatement)  {
+				Expression[] exprs = ((CaseStatement) statement).constantExpressions;
+				n += exprs != null ? exprs.length : 0;
 			}
-			CaseStatement caseStmt = (CaseStatement) statement;
-			n += caseStmt.constantExpressions != null ? caseStmt.constantExpressions.length :
-				caseStmt.constantExpression != null ? 1 : 0;
 		}
 		return n;
 	}
