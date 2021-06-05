@@ -1414,7 +1414,9 @@ class ASTConverter {
 				}
 			}
 		} else {
-			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = statement.constantExpression;
+			org.eclipse.jdt.internal.compiler.ast.Expression[] constantExpressions = statement.constantExpressions;
+			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression =
+					constantExpressions != null && constantExpressions.length > 0 ? constantExpressions[0] : null;
 			if (constantExpression == null) {
 				internalSetExpression(switchCase, null);
 			} else {

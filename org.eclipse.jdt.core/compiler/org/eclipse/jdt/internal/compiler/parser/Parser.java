@@ -2288,13 +2288,12 @@ protected void consumeCaseLabel() {
 	} else {
 		// TODO : ERROR
 	}
-	CaseStatement caseStatement = new CaseStatement(constantExpressions[0], constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--]);
+	CaseStatement caseStatement = new CaseStatement(constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--], constantExpressions);
 	if (constantExpressions.length > 1) {
 		if (!this.parsingJava14Plus) {
 			problemReporter().multiConstantCaseLabelsNotSupported(caseStatement);
 		}
 	}
-	caseStatement.constantExpressions = constantExpressions;
 	// Look for $fall-through$ tag in leading comment for case statement
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
 		caseStatement.bits |= ASTNode.DocumentedFallthrough;

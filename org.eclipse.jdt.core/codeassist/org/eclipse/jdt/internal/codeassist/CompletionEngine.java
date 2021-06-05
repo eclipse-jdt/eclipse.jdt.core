@@ -6462,10 +6462,12 @@ public final class CompletionEngine
 			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
 			int alreadyUsedConstantCount = 0;
 			for (int i = 0; i < switchStatement.caseCount; i++) {
-				Expression caseExpression = cases[i].constantExpression;
+				Expression[] caseExpressions = cases[i].constantExpressions;
+				Expression caseExpression = caseExpressions != null && caseExpressions.length > 0 ?
+						caseExpressions[0] : null;
 				if((caseExpression instanceof SingleNameReference)
 						&& (caseExpression.resolvedType != null && caseExpression.resolvedType.isEnum())) {
-					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)cases[i].constantExpression).token;
+					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)caseExpression).token;
 				}
 			}
 
