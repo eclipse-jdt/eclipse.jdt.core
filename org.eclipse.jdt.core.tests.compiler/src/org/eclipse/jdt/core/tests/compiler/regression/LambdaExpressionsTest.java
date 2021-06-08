@@ -1954,11 +1954,6 @@ public void testReferenceExpressionInference3b() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" +
-		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from I<Object,Object> to I<X,String>\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 7)\n" +
-		"	I<X,String> x2s = compose(this::bar, this::i2s);\n" +
 		"	                                     ^^^^^^^^^\n" +
 		"The type X does not define i2s(Object) that is applicable here\n" +
 		"----------\n");

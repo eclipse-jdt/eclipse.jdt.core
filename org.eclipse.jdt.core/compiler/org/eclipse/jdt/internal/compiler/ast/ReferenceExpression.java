@@ -1255,8 +1255,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		ReferenceExpression copy = cachedResolvedCopy(targetType);
 		if (copy == null) {
 			return contextHasSyntaxError(); // in case of syntax error avoid secondary errors
+		} else if (copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding()) {
+			return true;
 		} else {
-			return copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding();
+			return !isPertinentToApplicability(targetType, null); // not mentioned in JLS (see prior art in LE.internalIsCompatibleWith()
 		}
 	}
 
