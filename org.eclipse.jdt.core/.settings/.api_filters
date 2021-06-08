@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
     <resource path="META-INF/MANIFEST.MF">
-        <filter comment="Java 17 BETA work" id="924844039">
+        <filter comment="Needed for Java 17" id="931135546">
             <message_arguments>
-                <message_argument value="3.26.50"/>
+                <message_argument value="3.26.150"/>
                 <message_argument value="3.26.0"/>
             </message_arguments>
         </filter>
