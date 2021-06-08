@@ -70,7 +70,7 @@ public int getFlags() throws JavaModelException {
  */
 @Override
 protected void getHandleMemento(StringBuffer buff) {
-	((JavaElement)getParent()).getHandleMemento(buff);
+	getParent().getHandleMemento(buff);
 	escapeMementoName(buff, getElementName());
 	if (this.occurrenceCount > 1) {
 		buff.append(JEM_COUNT);
@@ -93,8 +93,8 @@ public ISourceRange getNameRange() throws JavaModelException {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
-	CompilationUnit cu = (CompilationUnit)this.parent.getParent();
+public JavaElement getPrimaryElement(boolean checkOwner) {
+	CompilationUnit cu = (CompilationUnit)this.getParent().getParent();
 	if (checkOwner && cu.isPrimary()) return this;
 	return cu.getImport(getElementName());
 }

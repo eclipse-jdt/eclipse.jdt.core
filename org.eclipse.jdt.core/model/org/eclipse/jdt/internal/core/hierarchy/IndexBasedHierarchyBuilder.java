@@ -253,7 +253,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 				// local or anonymous type
 				Openable openable;
 				if (declaringMember.isBinary()) {
-					openable = (Openable)declaringMember.getClassFile();
+					openable = declaringMember.getClassFile();
 				} else {
 					openable = (Openable)declaringMember.getCompilationUnit();
 				}

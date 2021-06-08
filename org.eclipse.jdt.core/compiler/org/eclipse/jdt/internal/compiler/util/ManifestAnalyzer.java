@@ -43,7 +43,7 @@ public class ManifestAnalyzer {
 	 * @throws IOException if an exception occurs while analyzing the file
 	 */
 	public boolean analyzeManifestContents(InputStream inputStream) throws IOException {
-		char[] chars = Util.getInputStreamAsCharArray(inputStream, -1, Util.UTF_8);
+		char[] chars = Util.getInputStreamAsCharArray(inputStream, Util.UTF_8);
 		return analyzeManifestContents(chars);
 	}
 

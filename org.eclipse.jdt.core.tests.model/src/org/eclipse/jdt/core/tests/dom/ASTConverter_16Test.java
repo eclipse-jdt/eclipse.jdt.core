@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
@@ -576,7 +577,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		IfStatement ifStatement = (IfStatement) node;
 		Expression expression = ifStatement.getExpression();
 		checkSourceRange(expression, "o instanceof String s", contents);
-		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
 		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
@@ -611,9 +612,9 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		Expression expression = ifStatement.getExpression();
 		checkSourceRange(expression, "o instanceof String", contents);
 		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
-		assertNull(var);
+		InstanceofExpression instanceofExpression = (InstanceofExpression) expression;
+		Expression var = instanceofExpression.getLeftOperand();
+		assertNotNull(var);
 	}
 
 	public void testPatternInstanceOfExpression003() throws JavaModelException {
@@ -644,7 +645,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		IfStatement ifStatement = (IfStatement) node;
 		Expression expression = ifStatement.getExpression();
 		checkSourceRange(expression, "o instanceof String s", contents);
-		assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
+		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
 		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
@@ -757,12 +758,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 			"		BLEU, \n" +
 			"		BLANC, \n" +
 			"		ROUGE,\n" +
-			"		BLEU;\n" +
-			"		public static void main(String[] args) {\n" +
-			"			for(Y1 y: Y1.values()) {\n" +
-			"				System.out.print(y);\n" +
-			"			}\n" +
-			"		}\n" +
+			"		BLEUN;\n" +
 			"	 }\n" +
 			"	}\n" +
 			"	}\n";
@@ -774,7 +770,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		assertProblemsSize(compilationUnit, 0);
 		node = getASTNode(compilationUnit, 0, 0, 0);
-		assertEquals("Not an enum statement", ASTNode.ENUM_DECLARATION, node.getNodeType());
+		assertEquals("Not an enum statement", ASTNode.ENUM_DECLARATION, ((TypeDeclarationStatement)node).getDeclaration().getNodeType());
 	}
 
 

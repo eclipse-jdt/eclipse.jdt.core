@@ -52,7 +52,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 @SuppressWarnings({"rawtypes"})
-public class ClassFile extends AbstractClassFile implements IOrdinaryClassFile {
+public class ClassFile extends AbstractClassFile  {
 
 	protected BinaryType binaryType = null;
 
@@ -340,7 +340,7 @@ public void close() throws JavaModelException {
  * @see IMember
  */
 @Override
-public IClassFile getClassFile() {
+public ClassFile getClassFile() {
 	return this;
 }
 /**

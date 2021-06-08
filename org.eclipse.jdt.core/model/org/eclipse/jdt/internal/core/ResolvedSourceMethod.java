@@ -54,7 +54,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 
 	@Override
 	public JavaElement unresolved() {
-		SourceRefElement handle = new SourceMethod(this.parent, this.name, this.parameterTypes);
+		SourceRefElement handle = new SourceMethod(this.getParent(), this.name, this.parameterTypes);
 		handle.occurrenceCount = this.occurrenceCount;
 		return handle;
 	}

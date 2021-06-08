@@ -1481,7 +1481,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			// create new parser and lookup environment if this is a new project
 			IResource resource = null;
 			openable = getCloserOpenable(openable, pathString);
-			JavaProject javaProject = (JavaProject) openable.getJavaProject();
+			JavaProject javaProject = openable.getJavaProject();
 			resource = workingCopy != null ? workingCopy.getResource() : openable.getResource();
 			if (resource == null)
 				resource = javaProject.getProject(); // case of a file in an external jar or external folder
@@ -1553,7 +1553,7 @@ private IJavaSearchScope getSubScope(String optionString, long value, boolean re
 private Openable getCloserOpenable(Openable openable, String pathString) {
 	if (this.pattern instanceof TypeDeclarationPattern &&
 			((TypeDeclarationPattern) this.pattern).moduleNames != null) {
-		JavaProject javaProject = (JavaProject) openable.getJavaProject();
+		JavaProject javaProject = openable.getJavaProject();
 		PackageFragmentRoot root = openable.getPackageFragmentRoot();
 		if (root instanceof JarPackageFragmentRoot) {
 			JarPackageFragmentRoot jpkf = (JarPackageFragmentRoot) root;

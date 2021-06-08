@@ -474,7 +474,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					}
 				}
 			}
-			boolean containsReadOnlySubPackageFragments = createNeededPackageFragments((IContainer) source.parent.resource(), root, newFragName, shouldMoveFolder);
+			boolean containsReadOnlySubPackageFragments = createNeededPackageFragments((IContainer) source.getParent().resource(), root, newFragName, shouldMoveFolder);
 			boolean sourceIsReadOnly = Util.isReadOnly(srcFolder);
 
 			// Process resources
@@ -558,7 +558,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			if (isMove()) {
 				// delete remaining files in this package (.class file in the case where Proj=src=bin)
 				// in case of a copy
-				updateReadOnlyPackageFragmentsForMove((IContainer) source.parent.resource(), root, newFragName, sourceIsReadOnly);
+				updateReadOnlyPackageFragmentsForMove((IContainer) source.getParent().resource(), root, newFragName, sourceIsReadOnly);
 				if (srcFolder.exists()) {
 					IResource[] remaining = srcFolder.members();
 					for (int i = 0, length = remaining.length; i < length; i++) {
@@ -579,7 +579,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 					if (destPath.isPrefixOf(srcFolder.getFullPath())) {
 						rootResource = newFrag.resource();
 					} else {
-						rootResource =  source.parent.resource();
+						rootResource =  source.getParent().resource();
 					}
 
 					// delete recursively empty folders
@@ -587,7 +587,7 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				}
 			} else if (containsReadOnlySubPackageFragments) {
 				// in case of a copy
-				updateReadOnlyPackageFragmentsForCopy((IContainer) source.parent.resource(), root, newFragName);
+				updateReadOnlyPackageFragmentsForCopy((IContainer) source.getParent().resource(), root, newFragName);
 			}
 			// workaround for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=24505
 			if (isEmpty && isMove() && !(Util.isExcluded(source) || Util.isExcluded(newFrag))) {

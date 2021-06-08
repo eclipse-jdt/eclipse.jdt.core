@@ -14,8 +14,6 @@
 
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.IJavaElement;
-
 public class BinaryLambdaMethod extends LambdaMethod {
 
 	BinaryLambdaMethod(JavaElement parent, String name, String key, int sourceStart, String [] parameterTypes, String [] parameterNames, String returnType, SourceMethodElementInfo elementInfo) {
@@ -23,7 +21,7 @@ public class BinaryLambdaMethod extends LambdaMethod {
 	}
 
 	@Override
-	public IJavaElement getPrimaryElement(boolean checkOwner) {
+	public JavaElement getPrimaryElement(boolean checkOwner) {
 		return this;
 	}
 

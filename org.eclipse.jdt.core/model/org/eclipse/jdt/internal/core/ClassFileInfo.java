@@ -412,7 +412,7 @@ void removeBinaryChildren() throws JavaModelException {
 		for (int i = 0; i <this.binaryChildren.length; i++) {
 			JavaElement child = this.binaryChildren[i];
 			if (child instanceof BinaryType) {
-				manager.removeInfoAndChildren((JavaElement)child.getParent());
+				manager.removeInfoAndChildren(child.getParent());
 			} else {
 				manager.removeInfoAndChildren(child);
 			}

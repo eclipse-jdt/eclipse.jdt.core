@@ -760,7 +760,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 						IJavaElement element = this.resultElements[i];
 						Openable openable = (Openable) element.getOpenable();
 						if (!(openable instanceof CompilationUnit) || !((CompilationUnit) openable).isWorkingCopy()) { // a working copy must remain a child of its parent even after a move
-							((JavaElement) openable.getParent()).close();
+							openable.getParent().close();
 						}
 						switch (element.getElementType()) {
 							case IJavaElement.PACKAGE_FRAGMENT_ROOT:

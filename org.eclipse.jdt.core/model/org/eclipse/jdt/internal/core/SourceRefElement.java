@@ -201,7 +201,7 @@ public IPath getPath() {
  */
 @Override
 public IResource resource() {
-	return this.parent.resource();
+	return this.getParent().resource();
 }
 /**
  * @see ISourceReference

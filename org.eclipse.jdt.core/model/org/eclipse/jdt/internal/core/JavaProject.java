@@ -2394,6 +2394,11 @@ public class JavaProject
 		return this.project;
 	}
 
+	@Override
+	public JavaProject getJavaProject() {
+		return this;
+	}
+
 	@Deprecated
 	public ProjectCache getProjectCache() throws JavaModelException {
 		return getProjectCache(false);
@@ -3535,7 +3540,8 @@ public class JavaProject
 	public void setProject(IProject project) {
 
 		this.project = project;
-		this.parent = JavaModelManager.getJavaModelManager().getJavaModel();
+		setParent(JavaModelManager.getJavaModelManager().getJavaModel());
+
 	}
 
 	/**

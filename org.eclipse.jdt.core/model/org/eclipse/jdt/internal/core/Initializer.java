@@ -53,7 +53,7 @@ public int getElementType() {
  */
 @Override
 protected void getHandleMemento(StringBuffer buff) {
-	((JavaElement)getParent()).getHandleMemento(buff);
+	getParent().getHandleMemento(buff);
 	buff.append(getHandleMementoDelimiter());
 	buff.append(this.occurrenceCount);
 }
@@ -66,7 +66,7 @@ protected char getHandleMementoDelimiter() {
 }
 @Override
 public int hashCode() {
-	return Util.combineHashCodes(this.parent.hashCode(), this.occurrenceCount);
+	return Util.combineHashCodes(this.getParent().hashCode(), this.occurrenceCount);
 }
 /**
  */
@@ -91,13 +91,13 @@ public ISourceRange getNameRange() {
 }
 
 @Override
-public IJavaElement getPrimaryElement(boolean checkOwner) {
+public JavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
 		CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 		if (cu == null || cu.isPrimary()) return this;
 	}
-	IJavaElement primaryParent = this.parent.getPrimaryElement(false);
-	return ((IType)primaryParent).getInitializer(this.occurrenceCount);
+	IJavaElement primaryParent = this.getParent().getPrimaryElement(false);
+	return (JavaElement) ((IType) primaryParent).getInitializer(this.occurrenceCount);
 }
 /**
  * @private Debugging purposes

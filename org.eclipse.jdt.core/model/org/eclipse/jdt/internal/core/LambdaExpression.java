@@ -188,7 +188,7 @@ public class LambdaExpression extends SourceType {
 
 	protected void getHandleMemento(StringBuffer buff, boolean serializeParent, boolean serializeChild) {
 		if (serializeParent)
-			((JavaElement)getParent()).getHandleMemento(buff);
+			getParent().getHandleMemento(buff);
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 		appendEscapedDelimiter(buff, JEM_STRING);
 		escapeMementoName(buff, this.interphase);
@@ -258,7 +258,7 @@ public class LambdaExpression extends SourceType {
 
 	@Override
 	public JavaElement resolved(Binding binding) {
-		ResolvedLambdaExpression resolvedHandle = new ResolvedLambdaExpression(this.parent, this, new String(binding.computeUniqueKey()));
+		ResolvedLambdaExpression resolvedHandle = new ResolvedLambdaExpression(this.getParent(), this, new String(binding.computeUniqueKey()));
 		return resolvedHandle;
 	}
 
@@ -285,18 +285,18 @@ public class LambdaExpression extends SourceType {
 	}
 
 	@Override
-	public IJavaElement getPrimaryElement(boolean checkOwner) {
+	public JavaElement getPrimaryElement(boolean checkOwner) {
 		if (checkOwner) {
 			CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);
 			if (cu == null || cu.isPrimary()) return this;
 		}
-		IJavaElement primaryParent = this.parent.getPrimaryElement(false);
+		IJavaElement primaryParent = this.getParent().getPrimaryElement(false);
 		if (primaryParent instanceof JavaElement) {
 			JavaElement ancestor = (JavaElement) primaryParent;
 			StringBuffer buffer = new StringBuffer(32);
 			getHandleMemento(buffer, false, true);
 			String memento = buffer.toString();
-			return ancestor.getHandleFromMemento(new MementoTokenizer(memento), DefaultWorkingCopyOwner.PRIMARY).getParent();
+			return (JavaElement) ancestor.getHandleFromMemento(new MementoTokenizer(memento), DefaultWorkingCopyOwner.PRIMARY).getParent();
 		}
 		return this;
 	}

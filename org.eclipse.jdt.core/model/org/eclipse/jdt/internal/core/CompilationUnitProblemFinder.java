@@ -246,7 +246,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			IProgressMonitor monitor)
 		throws JavaModelException {
 
-		JavaProject project = (JavaProject) unitElement.getJavaProject();
+		JavaProject project = unitElement.getJavaProject();
 		CancelableNameEnvironment environment = null;
 		CancelableProblemFactory problemFactory = null;
 		CompilationUnitProblemFinder problemFinder = null;
