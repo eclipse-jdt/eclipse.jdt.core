@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public abstract class AbstractTypePattern extends Pattern {
@@ -52,11 +51,6 @@ public abstract class AbstractTypePattern extends Pattern {
 		return new LocalDeclaration[] { this.local };
 	}
 
-	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void resolve(BlockScope scope) {
@@ -65,13 +59,7 @@ public abstract class AbstractTypePattern extends Pattern {
 	}
 
 	@Override
-	public TypeBinding resolveType(BlockScope scope) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuffer printPattern(int indent, StringBuffer output) {
 		return this.local != null ? this.local.printAsExpression(indent, output) : output;
 	}
 

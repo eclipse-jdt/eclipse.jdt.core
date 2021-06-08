@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class GuardedPattern extends Pattern {
@@ -63,13 +62,6 @@ public class GuardedPattern extends Pattern {
 		// TODO Auto-generated method stub
 
 	}
-
-	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		// TODO Auto-generated method stub
-
-	}
-
 	@Override
 	public void resolve(BlockScope scope) {
 		// TODO Auto-generated method stub
@@ -77,13 +69,7 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public TypeBinding resolveType(BlockScope scope) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuffer printPattern(int indent, StringBuffer output) {
 		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
 		return this.conditionalAndExpression.print(indent, output);
 	}

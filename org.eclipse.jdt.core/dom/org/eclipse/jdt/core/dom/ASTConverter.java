@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -17,6 +21,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -51,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
@@ -1404,8 +1410,14 @@ class ASTConverter {
 
 	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = new SwitchCase(this.ast);
+		org.eclipse.jdt.internal.compiler.ast.AbstractExPatNode[] aepNodes = statement.caseLabelElements;
+		if (aepNodes != null && aepNodes.length > 0 && (aepNodes[0] instanceof Pattern)) {
+			switchCase.expressions().clear();
+			return switchCase;
+		}
+		org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = aepNodes == null ? null :
+				Arrays.asList(aepNodes).toArray(new org.eclipse.jdt.internal.compiler.ast.Expression[0]);
 		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
-			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
 			if (expressions == null || expressions.length == 0) {
 				switchCase.expressions().clear();
 			} else {
@@ -1414,9 +1426,8 @@ class ASTConverter {
 				}
 			}
 		} else {
-			org.eclipse.jdt.internal.compiler.ast.Expression[] constantExpressions = statement.constantExpressions;
 			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression =
-					constantExpressions != null && constantExpressions.length > 0 ? constantExpressions[0] : null;
+					expressions != null && expressions.length > 0 ? expressions[0] : null;
 			if (constantExpression == null) {
 				internalSetExpression(switchCase, null);
 			} else {

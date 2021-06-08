@@ -17,30 +17,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-public abstract class Pattern extends AbstractExPatNode {
-
-	public enum PatternKind {
-		ANY_PATTERN,
-		GUARDED_PATTERN,
-		TYPE_PATTERN,
-		NOT_A_PATTERN,
-	}
-
-	public int parenthesisSourceStart;
-	public int parenthesisSourceEnd;
-
-	public abstract AbstractVariableDeclaration[] getPatternVariables();
-
-	public abstract String getKindName(); // convenience method.
-
-	public abstract PatternKind kind();
+/**
+ * Abstract parent of Expression and Pattern
+ */
+public abstract class AbstractExPatNode extends Statement {
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		return printPattern(indent, output);
+	public StringBuffer printStatement(int indent, StringBuffer output) {
+		return print(indent, output).append(";"); //$NON-NLS-1$
 	}
-
-	public abstract StringBuffer printPattern(int indent, StringBuffer output);
-
 }

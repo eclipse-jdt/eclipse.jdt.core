@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,12 +8,17 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -34,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class CaseStatement extends Statement {
 
 	public BranchLabel targetLabel;
-	public Expression[] constantExpressions; // case with multiple expressions
+	public AbstractExPatNode[] caseLabelElements;
 	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isExpr = false;
 
@@ -42,8 +47,8 @@ public CaseStatement(Expression constantExpression, int sourceEnd, int sourceSta
 	this(sourceEnd, sourceStart, constantExpression != null ? new Expression[] {constantExpression} : null);
 }
 
-public CaseStatement(int sourceEnd, int sourceStart, Expression[] constantExpressions) {
-	this.constantExpressions = constantExpressions;
+public CaseStatement(int sourceEnd, int sourceStart, AbstractExPatNode[] caseLabelElements) {
+	this.caseLabelElements = caseLabelElements;
 	this.sourceEnd = sourceEnd;
 	this.sourceStart = sourceStart;
 }
@@ -53,9 +58,13 @@ public FlowInfo analyseCode(
 	BlockScope currentScope,
 	FlowContext flowContext,
 	FlowInfo flowInfo) {
-	if (this.constantExpressions != null) {
-		for (Expression e : this.constantExpressions) {
-			analyseConstantExpression(currentScope, flowContext, flowInfo, e);
+	if (this.caseLabelElements != null) {
+		for (AbstractExPatNode aep : this.caseLabelElements) {
+			if (aep instanceof Expression)
+				analyseConstantExpression(currentScope, flowContext, flowInfo, (Expression) aep);
+			else if (aep instanceof Pattern)
+				analysePattern(currentScope, flowContext, flowInfo, (Pattern) aep);
+			// TODO: what about case default, case null - should be covered in expressions - check
 		}
 	}
 	return flowInfo;
@@ -72,16 +81,24 @@ private void analyseConstantExpression(
 	e.analyseCode(currentScope, flowContext, flowInfo);
 }
 
+private void analysePattern(
+		BlockScope currentScope,
+		FlowContext flowContext,
+		FlowInfo flowInfo,
+		Pattern p) {
+	p.analyseCode(currentScope, flowContext, flowInfo);
+}
+
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	printIndent(tab, output);
-	if (this.constantExpressions == null) {
+	if (this.caseLabelElements == null) {
 		output.append("default "); //$NON-NLS-1$
 		output.append(this.isExpr ? "->" : ":"); //$NON-NLS-1$ //$NON-NLS-2$
 	} else {
 		output.append("case "); //$NON-NLS-1$
-		for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
-			this.constantExpressions[i].printExpression(0, output);
+		for (int i = 0, l = this.caseLabelElements.length; i < l; ++i) {
+			this.caseLabelElements[i].print(0, output);
 			if (i < l -1) output.append(',');
 		}
 		output.append(this.isExpr ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -125,9 +142,10 @@ public void resolve(BlockScope scope) {
 public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
-	Expression[] constExprs = this.constantExpressions;
-	Expression constExpr = constExprs != null && constExprs.length > 0 ? constExprs[0] : null;
-	if (constExpr == null) {
+	AbstractExPatNode[] aepNodes = this.caseLabelElements;
+	AbstractExPatNode aepNode = aepNodes != null && aepNodes.length > 0 ? aepNodes[0] : null;
+
+	if (aepNode == null) { // TODO check the case for patterns
 		// remember the default case into the associated switch statement
 		if (switchStatement.defaultCase != null)
 			scope.problemReporter().duplicateDefaultCase(this);
@@ -136,6 +154,14 @@ public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType
 		switchStatement.defaultCase = this;
 		return Constant.NotAConstantList;
 	}
+	if (aepNode instanceof Pattern) {
+		return resolvePatternCase(scope, switchExpressionType, switchStatement);
+	}
+	// TODO : This needs a revamp - currently we are assuming that mix of pattern and expressions
+	// will not be available here and will be tagged as error and bailed out earlier.
+	// to do this while taking up resolution.
+	Expression[] constExprs = Arrays.asList(aepNodes).toArray(new Expression[0]);
+	Expression constExpr = (Expression) aepNode;
 	// add into the collection of cases of the associated switch statement
 	switchStatement.cases[switchStatement.caseCount++] = this;
 	if (switchExpressionType != null && switchExpressionType.isEnum() && (constExpr instanceof SingleNameReference)) {
@@ -199,11 +225,16 @@ public Constant resolveConstantExpression(BlockScope scope,
 	return Constant.NotAConstant;
 }
 
+// TODO: Just a placeholder - refactor and add code for patterns;
+private Constant[] resolvePatternCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
+	return Constant.NotAConstantList;
+}
+
 @Override
 public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
-		if (this.constantExpressions != null) {
-			for (Expression e : this.constantExpressions) {
+		if (this.caseLabelElements != null) {
+			for (AbstractExPatNode e : this.caseLabelElements) {
 				e.traverse(visitor, blockScope);
 			}
 		}

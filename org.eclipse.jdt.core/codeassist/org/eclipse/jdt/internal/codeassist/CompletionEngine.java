@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Timo Kinnunen - Contributions for bug 377373 - [subwords] known limitations with JDT 3.8
  *     							Bug 420953 - [subwords] Constructors that don't match prefix not found
@@ -122,6 +126,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractExPatNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
@@ -6462,12 +6467,14 @@ public final class CompletionEngine
 			char[][] alreadyUsedConstants = new char[switchStatement.caseCount][];
 			int alreadyUsedConstantCount = 0;
 			for (int i = 0; i < switchStatement.caseCount; i++) {
-				Expression[] caseExpressions = cases[i].constantExpressions;
-				Expression caseExpression = caseExpressions != null && caseExpressions.length > 0 ?
-						caseExpressions[0] : null;
-				if((caseExpression instanceof SingleNameReference)
-						&& (caseExpression.resolvedType != null && caseExpression.resolvedType.isEnum())) {
-					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)caseExpression).token;
+				AbstractExPatNode[] caseLabelElements = cases[i].caseLabelElements;
+				AbstractExPatNode caseLabelElement = caseLabelElements != null && caseLabelElements.length > 0 ?
+						caseLabelElements[0] : null;
+				if(caseLabelElement instanceof SingleNameReference) {
+					SingleNameReference ref = (SingleNameReference) caseLabelElement;
+					if(ref.resolvedType != null && ref.resolvedType.isEnum()) {
+						alreadyUsedConstants[alreadyUsedConstantCount++] = ref.token;
+					}
 				}
 			}
 

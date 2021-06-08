@@ -406,7 +406,7 @@ public class SwitchStatement extends Expression {
 	{
 		for (int i = 0, j = 0, max = this.caseCount; i < max; i++) {
 			CaseStatement stmt = this.cases[i];
-			int l = stmt.constantExpressions.length;
+			int l = stmt.caseLabelElements.length;
 			stmt.targetLabels = new BranchLabel[l];
 			for (int k = 0; k < l; ++k) {
 				stmt.targetLabels[k] = (caseLabels[j] = newLabel.apply(codeStream));
@@ -607,8 +607,8 @@ public class SwitchStatement extends Expression {
 		for (int i = 0, l = this.statements.length; i < l; ++i) {
 			final Statement statement = this.statements[i];
 			if (statement instanceof CaseStatement)  {
-				Expression[] exprs = ((CaseStatement) statement).constantExpressions;
-				n += exprs != null ? exprs.length : 0;
+				ASTNode[] nodes = ((CaseStatement) statement).caseLabelElements;
+				n += nodes != null ? nodes.length : 0;
 			}
 		}
 		return n;

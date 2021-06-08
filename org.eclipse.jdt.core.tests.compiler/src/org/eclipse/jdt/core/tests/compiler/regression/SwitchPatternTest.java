@@ -422,4 +422,35 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	public void _testBug573516_012() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o.hashCode()) {\n"+
+				"     case 1 : System.out.println(\"Error mix n match\");\n"+
+				"     case var s : System.out.println(\"Error should be ANY_PATTERN\");\n"+
+				"     default : System.out.println(\"Object\");\n"+
+				"   }\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello World\");\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class Y {}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
 }
