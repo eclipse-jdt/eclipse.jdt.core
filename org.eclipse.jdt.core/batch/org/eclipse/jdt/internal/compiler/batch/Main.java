@@ -2199,7 +2199,7 @@ public void configure(String[] argv) {
 					mode = INSIDE_SYSTEM;
 					continue;
 				}
-				if (currentArg.equals("--module-path") || currentArg.equals("-p") || currentArg.equals("--processor-module-path")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				if (currentArg.equals("--module-path") || currentArg.equals("-p")) { //$NON-NLS-1$ //$NON-NLS-2$
 					mode = INSIDE_MODULEPATH_start;
 					continue;
 				}
