@@ -124,8 +124,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	private JavaElement parent;
 
 	/* cached result */
-	private JavaModel model;
-	/* cached result */
 	private JavaProject project;
 
 	protected static final String[] NO_STRINGS = new String[0];
@@ -381,7 +379,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	@Override
 	public JavaModel getJavaModel() {
-		return this.model;
+		return getJavaProject().getJavaModel();
 	}
 
 	/**
@@ -415,7 +413,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 
 	protected void setParent(JavaElement parent) {
 		// invalidate caches:
-		this.model = parent==null?null:parent.getJavaModel();
 		this.project = parent==null?null:parent.getJavaProject();
 		// now the real task:
 		this.parent = parent;
