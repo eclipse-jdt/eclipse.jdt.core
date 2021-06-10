@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
@@ -101,7 +102,7 @@ public class BinaryTypeFactory {
 				workspacePath.toString().toCharArray(), indexPath.toCharArray());
 	}
 
-	public static BinaryTypeDescriptor createDescriptor(IOrdinaryClassFile classFile) {
+	public static BinaryTypeDescriptor createDescriptor(IClassFile classFile) {
 		ClassFile concreteClass = (ClassFile)classFile;
 		PackageFragment parent = (PackageFragment) classFile.getParent();
 

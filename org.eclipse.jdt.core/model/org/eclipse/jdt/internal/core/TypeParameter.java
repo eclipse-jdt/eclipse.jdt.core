@@ -142,7 +142,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	}
 
 	@Override
-	public AbstractClassFile getClassFile() {
+	public IClassFile getClassFile() {
 		return (getParent()).getClassFile();
 	}
 

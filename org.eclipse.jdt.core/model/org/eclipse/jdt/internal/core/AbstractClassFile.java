@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * Common parts of ClassFile (containing a BinaryType) and ModularClassFile (containing a BinaryModule).
  * Prior to Java 9, most of this content was directly in ClassFile.
  */
-public abstract class AbstractClassFile extends Openable implements IOrdinaryClassFile, SuffixConstants  {
+public abstract class AbstractClassFile extends Openable implements IClassFile, SuffixConstants  {
 
 	protected String name;
 

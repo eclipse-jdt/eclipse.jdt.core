@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -295,7 +296,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * @see IMember
 	 */
-	public AbstractClassFile getClassFile() {
+	public IClassFile getClassFile() {
 		return null;
 	}
 	/**

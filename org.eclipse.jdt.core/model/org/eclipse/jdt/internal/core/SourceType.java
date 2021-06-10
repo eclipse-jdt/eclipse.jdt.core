@@ -261,7 +261,7 @@ public IType getDeclaringType() {
 	return null;
 }
 @Override
-public AbstractClassFile getClassFile() {
+public IOrdinaryClassFile getClassFile() {
 	return null;
 }
 /**

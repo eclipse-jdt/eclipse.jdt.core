@@ -52,7 +52,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 
 @SuppressWarnings({"rawtypes"})
-public class ClassFile extends AbstractClassFile  {
+public class ClassFile extends AbstractClassFile implements IOrdinaryClassFile {
 
 	protected BinaryType binaryType = null;
 
