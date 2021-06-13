@@ -83,7 +83,8 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	 */
 	// For upcoming M builds we make sure meta index is enabled by default, but if this cause problems we will make this
 	// disabled by default for final release.
-	private static final boolean DISABLE_META_INDEX = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+	// disabled by default until Bug574171 is fixed.
+	private static final boolean DISABLE_META_INDEX = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "true")); //$NON-NLS-1$ //$NON-NLS-2$
 
 	// key = containerPath, value = indexLocation path
 	// indexLocation path is created by appending an index file name to the getJavaPluginWorkingLocation() path

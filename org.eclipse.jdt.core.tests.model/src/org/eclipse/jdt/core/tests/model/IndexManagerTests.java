@@ -44,6 +44,7 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 import junit.framework.Test;
 
 public class IndexManagerTests extends ModifyingResourceTests {
+	private static final boolean SKIP_TESTS = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "true"));
 
 	private IJavaProject project;
 	private IndexManager indexManager;
@@ -82,6 +83,8 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	}
 
 	public void testAddingNewSourceFile_ShouldUpdate_MetaIndex() throws CoreException {
+		if(SKIP_TESTS) return;
+
 		Optional<Set<String>> indexNames = searchInMetaIndex("java.util.ArrayList");
 		assertTrue("No meta index", indexNames.isPresent());
 		int size = indexNames.get().size();
@@ -95,6 +98,8 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	}
 
 	public void testAddingRemoveSourceFile_ShouldUpdate_MetaIndex() throws CoreException {
+		if(SKIP_TESTS) return;
+
 		createFile("/IndexProject/src/Q1.java", "public class Q1<E> extends java.util.ArrayList<E> {\n" + "}");
 		waitUntilIndexesReady();
 
@@ -113,6 +118,8 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	}
 
 	public void testUpdateSourceFile_ShouldUpdate_MetaIndex() throws CoreException {
+		if(SKIP_TESTS) return;
+
 		Optional<Set<String>> indexNames = searchInMetaIndex("java.util.ArrayList");
 		assertTrue("No meta index", indexNames.isPresent());
 		int size = indexNames.get().size();
@@ -130,6 +137,8 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	}
 
 	public void testAddJarFile_ShouldUpdate_MetaIndex() throws CoreException {
+		if(SKIP_TESTS) return;
+
 		Optional<Set<String>> indexNames = searchInMetaIndex("binary.Deep");
 		assertTrue("No meta index", indexNames.isPresent());
 
@@ -144,6 +153,8 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	}
 
 	public void testRemoveJarFile_ShouldUpdate_MetaIndex() throws CoreException {
+		if(SKIP_TESTS) return;
+
 		String jarPath = Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "lib.jar").toFile().getAbsolutePath();
 		addLibraryEntry(this.project, jarPath, false);
 		waitUntilIndexesReady();
