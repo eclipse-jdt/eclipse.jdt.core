@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 import junit.framework.Test;
 
 public class IndexManagerTests extends ModifyingResourceTests {
-	private static final boolean SKIP_TESTS = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "true"));
+	private static final boolean SKIP_TESTS = Boolean.parseBoolean(System.getProperty("org.eclipse.jdt.disableMetaIndex", "false"));
 
 	private IJavaProject project;
 	private IndexManager indexManager;
@@ -71,6 +71,7 @@ public class IndexManagerTests extends ModifyingResourceTests {
 
 	@Override
 	protected void setUp() throws Exception {
+		this.indexDisabledForTest = false;
 		super.setUp();
 		this.project = createJavaProject("IndexProject", new String[] { "src" }, new String[0], "bin", "1.8");
 		addClasspathEntry(this.project, getJRTLibraryEntry());
@@ -90,25 +91,22 @@ public class IndexManagerTests extends ModifyingResourceTests {
 		int size = indexNames.get().size();
 
 		createFile("/IndexProject/src/Q1.java", "public class Q1<E> extends java.util.ArrayList<E> {\n" + "}");
-		waitUntilIndexesReady();
 		indexNames = searchInMetaIndex("java.util.ArrayList");
 
 		assertTrue("No meta index", indexNames.isPresent());
-		assertEquals("Expected number of indexes are not found for ArrayList", size + 2, indexNames.get().size());
+		assertEquals("Expected number of indexes are not found for ArrayList", size + 1, indexNames.get().size());
 	}
 
 	public void testAddingRemoveSourceFile_ShouldUpdate_MetaIndex() throws CoreException {
 		if(SKIP_TESTS) return;
 
 		createFile("/IndexProject/src/Q1.java", "public class Q1<E> extends java.util.ArrayList<E> {\n" + "}");
-		waitUntilIndexesReady();
 
 		Optional<Set<String>> indexNames = searchInMetaIndex("java.util.ArrayList");
 		assertTrue("No meta index", indexNames.isPresent());
 		int size = indexNames.get().size();
 
 		deleteFile("/IndexProject/src/Q1.java");
-		waitUntilIndexesReady();
 
 		indexNames = searchInMetaIndex("java.util.ArrayList");
 
@@ -128,12 +126,11 @@ public class IndexManagerTests extends ModifyingResourceTests {
 		waitUntilIndexesReady();
 
 		changeFile("/IndexProject/src/Q1.java", "public class Q1<E> extends java.util.ArrayList<E> {\n" + "}");
-		waitUntilIndexesReady();
 
 		indexNames = searchInMetaIndex("java.util.ArrayList");
 
 		assertTrue("No meta index", indexNames.isPresent());
-		assertEquals("Expected number of indexes are not found for ArrayList", size + 2, indexNames.get().size());
+		assertEquals("Expected number of indexes are not found for ArrayList", size + 1, indexNames.get().size());
 	}
 
 	public void testAddJarFile_ShouldUpdate_MetaIndex() throws CoreException {
@@ -144,7 +141,6 @@ public class IndexManagerTests extends ModifyingResourceTests {
 
 		addLibraryEntry(this.project,
 				Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "lib.jar").toFile().getAbsolutePath(), false);
-		waitUntilIndexesReady();
 
 		indexNames = searchInMetaIndex("binary.Deep");
 
@@ -157,14 +153,12 @@ public class IndexManagerTests extends ModifyingResourceTests {
 
 		String jarPath = Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "lib.jar").toFile().getAbsolutePath();
 		addLibraryEntry(this.project, jarPath, false);
-		waitUntilIndexesReady();
 
 		Optional<Set<String>> indexNames = searchInMetaIndex("binary.Deep");
 		assertTrue("No meta index", indexNames.isPresent());
 		int size = indexNames.get().size();
 
 		removeClasspathEntry(this.project, new Path(jarPath));
-		waitUntilIndexesReady();
 
 		indexNames = searchInMetaIndex("binary.Deep");
 
@@ -187,6 +181,7 @@ public class IndexManagerTests extends ModifyingResourceTests {
 	}
 
 	private Optional<Set<String>> searchInMetaIndex(String indexQualifier) {
+		waitUntilIndexesReady();
 		Optional<MetaIndex> index = null;
 		try {
 			index = this.indexManager.getMetaIndex();
