@@ -473,6 +473,104 @@ public class CompilerToolJava9Tests extends TestCase {
 			assertEquals("option -source is not supported when --release is used", iae.getMessage());
 		}
 	}
+	public void testOptionRelease4() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = _tmpFolder;
+		File inputFile = new File(tmpFolder, "X.java");
+		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
+			writer.write(
+				"package p;\n" +
+				"import java.nio.Buffer;\n" +
+				"import java.nio.ByteBuffer;\n" +
+				"public class X {\n" +
+				"  public Buffer buf() {\n" +
+				"    ByteBuffer buffer = ByteBuffer.allocate(10);\n" +
+				"    return buffer.flip();\n" +
+				"  }\n" +
+				"}\n");
+		}
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("--release");
+		options.add("8");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+ 		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+ 		// check the classpath location
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+ 		ClassFileReader reader = null;
+ 		try {
+			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), false);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNotNull("No reader", reader);
+		// This needs fix. This test case by design will produce different output every compiler version.
+ 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+ 		// check that the correct call was generated: must return a Buffer, not a ByteBuffer
+ 		boolean found = false;
+ 		int[] offsets = reader.getConstantPoolOffsets();
+ 		for (int i = 0; i < offsets.length; i++) {
+ 			int tag = reader.u1At(offsets[i]);
+ 			if (tag == ClassFileConstants.MethodRefTag || tag ==  ClassFileConstants.InterfaceMethodRefTag) {
+ 				char[] name = extractName(offsets, reader, i);
+ 				char[] className = extractClassName(offsets, reader, i);
+ 				String fullName = new String(className) + '.' + new String(name);
+ 				char[] typeName = extractType(offsets, reader, i);
+ 				if ("java/nio/ByteBuffer.flip".equals(fullName)) {
+ 					found = true;
+ 					assertEquals(fullName + "()Ljava/nio/Buffer;", fullName + new String(typeName));
+ 					break;
+ 				}
+ 			}
+ 		}
+ 		assertTrue("No call to ByteBuffer.flip()", found);
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
+	}
+	private char[] extractClassName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+		// the entry at i has to be a field ref or a method/interface method ref.
+		int class_index = reader.u2At(constantPoolOffsets[index] + 1);
+		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[class_index] + 1)];
+		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
+	}
+	private char[] extractName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+		int nameAndTypeIndex = reader.u2At(constantPoolOffsets[index] + 3);
+		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[nameAndTypeIndex] + 1)];
+		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
+	}
+	private char[] extractType(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+		int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 3);
+		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 3)];
+		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
+	}
 	public void testClassOutputLocationForModule_1() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
