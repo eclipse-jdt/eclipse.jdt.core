@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1871,7 +1871,7 @@ public void testBug65174a() {
 	);
 }
 public void testBug65174b() {
-	runConformTest(
+	runNegativeTest(
 		new String[] {
 			"Test.java",
 			"/**\n" +
@@ -1884,7 +1884,19 @@ public void testBug65174b() {
 				"	 */\n" +
 				"	void foo() {}\n" +
 				"}\n"
-		}
+		},
+		"----------\n" +
+		"1. ERROR in Test.java (at line 2)\r\n" +
+		"	* Comment with no error: {@link java.lang.\r\n" +
+		"	                               ^^^^^^^^^^^\n" +
+		"Javadoc: Invalid reference\n" +
+		"----------\n" +
+		"2. ERROR in Test.java (at line 6)\r\n" +
+		"	/** Comment previously with error: {@link java.lang.\r\n" +
+		"	                                         ^^^^^^^^^^^\n" +
+		"Javadoc: Invalid reference\n" +
+		"----------\n"
+
 	);
 }
 public void testBug65174c() {

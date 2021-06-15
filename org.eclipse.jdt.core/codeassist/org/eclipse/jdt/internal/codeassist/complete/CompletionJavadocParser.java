@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -62,6 +62,7 @@ public class CompletionJavadocParser extends JavadocParser {
 		this.scanner = new CompletionScanner(ClassFileConstants.JDK1_3);
 		this.kind = COMPLETION_PARSER | TEXT_PARSE;
 		initLevelTags();
+		setSourceComplianceLevel();
 	}
 
 	/*
@@ -341,133 +342,140 @@ public class CompletionJavadocParser extends JavadocParser {
 		long[] dimPositions = new long[20]; // assume that there won't be more than 20 dimensions...
 		char[] name = null;
 		long argNamePos = -1;
+		boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
+		this.scanner.tokenizeWhiteSpace = false;
 
-		// Parse arguments declaration if method reference
-		nextArg : while (this.index < this.scanner.eofPosition) {
+		try {
+			// Parse arguments declaration if method reference
+			nextArg : while (this.index < this.scanner.eofPosition) {
 
-			// Read argument type reference
-			try {
-				typeRef = parseQualifiedName(false);
-				if (this.abort) return null; // May be aborted by specialized parser
-			} catch (InvalidInputException e) {
-				break nextArg;
-			}
-			boolean firstArg = modulo == 0;
-			if (firstArg) { // verify position
-				if (iToken != 0)
+				// Read argument type reference
+				try {
+					typeRef = parseQualifiedName(false);
+					if (this.abort) return null; // May be aborted by specialized parser
+				} catch (InvalidInputException e) {
 					break nextArg;
-			} else if ((iToken % modulo) != 0) {
-					break nextArg;
-			}
-			if (typeRef == null) {
-				if (firstArg && getCurrentTokenType() == TerminalTokens.TokenNameRPAREN) {
-					this.lineStarted = true;
-					return createMethodReference(receiver, null);
 				}
-				Object methodRef = createMethodReference(receiver, arguments);
-				return syntaxRecoverEmptyArgumentType(methodRef);
-			}
-			if (this.index >= this.scanner.eofPosition) {
-				int argumentStart = ((ASTNode)typeRef).sourceStart;
-				Object argument = createArgumentReference(this.scanner.getCurrentIdentifierSource(), 0, false, typeRef, null, (((long)argumentStart)<<32)+this.tokenPreviousPosition-1);
-				return syntaxRecoverArgumentType(receiver, arguments, argument);
-			}
-			if (this.index >= this.cursorLocation) {
-				if (this.completionNode instanceof CompletionOnJavadocSingleTypeReference) {
-					CompletionOnJavadocSingleTypeReference singleTypeReference = (CompletionOnJavadocSingleTypeReference) this.completionNode;
-					if (singleTypeReference.token == null || singleTypeReference.token.length == 0) {
-						Object methodRef = createMethodReference(receiver, arguments);
-						return syntaxRecoverEmptyArgumentType(methodRef);
-					}
-				}
-				if (this.completionNode instanceof CompletionOnJavadocQualifiedTypeReference) {
-					CompletionOnJavadocQualifiedTypeReference qualifiedTypeReference = (CompletionOnJavadocQualifiedTypeReference) this.completionNode;
-					if (qualifiedTypeReference.tokens == null || qualifiedTypeReference.tokens.length < qualifiedTypeReference.sourcePositions.length) {
-						Object methodRef = createMethodReference(receiver, arguments);
-						return syntaxRecoverEmptyArgumentType(methodRef);
-					}
-				}
-			}
-			iToken++;
-
-			// Read possible additional type info
-			dim = 0;
-			isVarargs = false;
-			if (readToken() == TerminalTokens.TokenNameLBRACKET) {
-				// array declaration
-				int dimStart = this.scanner.getCurrentTokenStartPosition();
-				while (readToken() == TerminalTokens.TokenNameLBRACKET) {
-					consumeToken();
-					if (readToken() != TerminalTokens.TokenNameRBRACKET) {
-						break nextArg;
-					}
-					consumeToken();
-					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
-				}
-			} else if (readToken() == TerminalTokens.TokenNameELLIPSIS) {
-				// ellipsis declaration
-				int dimStart = this.scanner.getCurrentTokenStartPosition();
-				dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
-				consumeToken();
-				isVarargs = true;
-			}
-
-			// Read argument name
-			argNamePos = -1;
-			if (readToken() == TerminalTokens.TokenNameIdentifier) {
-				consumeToken();
+				boolean firstArg = modulo == 0;
 				if (firstArg) { // verify position
-					if (iToken != 1)
+					if (iToken != 0)
 						break nextArg;
-				} else if ((iToken % modulo) != 1) {
+				} else if ((iToken % modulo) != 0) {
 						break nextArg;
 				}
-				if (argName == null) { // verify that all arguments name are declared
-					if (!firstArg) {
+				if (typeRef == null) {
+					if (firstArg && getCurrentTokenType() == TerminalTokens.TokenNameRPAREN) {
+						this.lineStarted = true;
+						return createMethodReference(receiver, null);
+					}
+					Object methodRef = createMethodReference(receiver, arguments);
+					return syntaxRecoverEmptyArgumentType(methodRef);
+				}
+				if (this.index >= this.scanner.eofPosition) {
+					int argumentStart = ((ASTNode)typeRef).sourceStart;
+					Object argument = createArgumentReference(this.scanner.getCurrentIdentifierSource(), 0, false, typeRef, null, (((long)argumentStart)<<32)+this.tokenPreviousPosition-1);
+					return syntaxRecoverArgumentType(receiver, arguments, argument);
+				}
+				if (this.index >= this.cursorLocation) {
+					if (this.completionNode instanceof CompletionOnJavadocSingleTypeReference) {
+						CompletionOnJavadocSingleTypeReference singleTypeReference = (CompletionOnJavadocSingleTypeReference) this.completionNode;
+						if (singleTypeReference.token == null || singleTypeReference.token.length == 0) {
+							Object methodRef = createMethodReference(receiver, arguments);
+							return syntaxRecoverEmptyArgumentType(methodRef);
+						}
+					}
+					if (this.completionNode instanceof CompletionOnJavadocQualifiedTypeReference) {
+						CompletionOnJavadocQualifiedTypeReference qualifiedTypeReference = (CompletionOnJavadocQualifiedTypeReference) this.completionNode;
+						if (qualifiedTypeReference.tokens == null || qualifiedTypeReference.tokens.length < qualifiedTypeReference.sourcePositions.length) {
+							Object methodRef = createMethodReference(receiver, arguments);
+							return syntaxRecoverEmptyArgumentType(methodRef);
+						}
+					}
+				}
+				iToken++;
+
+				// Read possible additional type info
+				dim = 0;
+				isVarargs = false;
+				if (readToken() == TerminalTokens.TokenNameLBRACKET) {
+					// array declaration
+					int dimStart = this.scanner.getCurrentTokenStartPosition();
+					while (readToken() == TerminalTokens.TokenNameLBRACKET) {
+						consumeToken();
+						if (readToken() != TerminalTokens.TokenNameRBRACKET) {
+							break nextArg;
+						}
+						consumeToken();
+						dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
+					}
+				} else if (readToken() == TerminalTokens.TokenNameELLIPSIS) {
+					// ellipsis declaration
+					int dimStart = this.scanner.getCurrentTokenStartPosition();
+					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
+					consumeToken();
+					isVarargs = true;
+				}
+
+				// Read argument name
+				argNamePos = -1;
+				if (readToken() == TerminalTokens.TokenNameIdentifier) {
+					consumeToken();
+					if (firstArg) { // verify position
+						if (iToken != 1)
+							break nextArg;
+					} else if ((iToken % modulo) != 1) {
+							break nextArg;
+					}
+					if (argName == null) { // verify that all arguments name are declared
+						if (!firstArg) {
+							break nextArg;
+						}
+					}
+					argName = this.scanner.getCurrentIdentifierSource();
+					argNamePos = (((long)this.scanner.getCurrentTokenStartPosition())<<32)+this.scanner.getCurrentTokenEndPosition();
+					iToken++;
+				} else if (argName != null) { // verify that no argument name is declared
+					break nextArg;
+				}
+
+				// Verify token position
+				if (firstArg) {
+					modulo = iToken + 1;
+				} else {
+					if ((iToken % modulo) != (modulo - 1)) {
 						break nextArg;
 					}
 				}
-				argName = this.scanner.getCurrentIdentifierSource();
-				argNamePos = (((long)this.scanner.getCurrentTokenStartPosition())<<32)+this.scanner.getCurrentTokenEndPosition();
-				iToken++;
-			} else if (argName != null) { // verify that no argument name is declared
-				break nextArg;
-			}
 
-			// Verify token position
-			if (firstArg) {
-				modulo = iToken + 1;
-			} else {
-				if ((iToken % modulo) != (modulo - 1)) {
-					break nextArg;
+				// Read separator or end arguments declaration
+				int token = readToken();
+				name = argName == null ? CharOperation.NO_CHAR : argName;
+				if (token == TerminalTokens.TokenNameCOMMA) {
+					// Create new argument
+					Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+					if (this.abort) return null; // May be aborted by specialized parser
+					arguments.add(argument);
+					consumeToken();
+					iToken++;
+				} else if (token == TerminalTokens.TokenNameRPAREN) {
+					// Create new argument
+					Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+					if (this.abort) return null; // May be aborted by specialized parser
+					arguments.add(argument);
+					consumeToken();
+					return createMethodReference(receiver, arguments);
+				} else {
+					Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
+					return syntaxRecoverArgumentType(receiver, arguments, argument);
 				}
 			}
 
-			// Read separator or end arguments declaration
-			int token = readToken();
-			name = argName == null ? CharOperation.NO_CHAR : argName;
-			if (token == TerminalTokens.TokenNameCOMMA) {
-				// Create new argument
-				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
-				if (this.abort) return null; // May be aborted by specialized parser
-				arguments.add(argument);
-				consumeToken();
-				iToken++;
-			} else if (token == TerminalTokens.TokenNameRPAREN) {
-				// Create new argument
-				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
-				if (this.abort) return null; // May be aborted by specialized parser
-				arguments.add(argument);
-				consumeToken();
-				return createMethodReference(receiver, arguments);
-			} else {
-				Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
-				return syntaxRecoverArgumentType(receiver, arguments, argument);
-			}
+			// Something wrong happened => Invalid input
+			throw new InvalidInputException();
+		} finally {
+			// we have to make sure that this is reset to the previous value even if an exception occurs
+			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 		}
-
-		// Something wrong happened => Invalid input
-		throw new InvalidInputException();
 	}
 
 		@Override
