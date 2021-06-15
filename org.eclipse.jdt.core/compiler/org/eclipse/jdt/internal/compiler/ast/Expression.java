@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -69,7 +65,7 @@ import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
-public abstract class Expression extends AbstractExPatNode {
+public abstract class Expression extends Statement {
 
 	public Constant constant;
 
@@ -1105,6 +1101,11 @@ public StringBuffer print(int indent, StringBuffer output) {
 }
 
 public abstract StringBuffer printExpression(int indent, StringBuffer output);
+
+@Override
+public StringBuffer printStatement(int indent, StringBuffer output) {
+	return print(indent, output).append(";"); //$NON-NLS-1$
+}
 
 @Override
 public void resolve(BlockScope scope) {

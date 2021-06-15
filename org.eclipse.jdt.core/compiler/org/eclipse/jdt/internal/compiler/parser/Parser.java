@@ -2266,26 +2266,30 @@ protected void consumeBlockStatements() {
 	concatNodeLists();
 }
 protected void consumeCaseLabel() {
-	// SwitchLabel ::= 'case' ConstantExpression ':'
-
-	int length = this.expressionLengthStack[this.expressionLengthPtr--];
-	AbstractExPatNode[] caseLabelElements = new AbstractExPatNode[length];
-	this.expressionPtr -= length;
-	int delta = this.expressionPtr + 1;
-	for (int i = 0; i < length; ++i) {
-		Expression expression = this.expressionStack[i + delta];
-		caseLabelElements[i] = expression;
+//	// SwitchLabel ::= 'case' ConstantExpression ':'
+//	this.expressionLengthPtr--;
+//	Expression expression = this.expressionStack[this.expressionPtr--];
+//	CaseStatement caseStatement = new CaseStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--]);
+//	// Look for $fall-through$ tag in leading comment for case statement
+//	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
+//		caseStatement.bits |= ASTNode.DocumentedFallthrough;
+//	}
+//	pushOnAstStack(caseStatement);
+	Expression[] constantExpressions = null;
+	int length = 0;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		this.expressionPtr -= length;
+		System.arraycopy(
+			this.expressionStack,
+			this.expressionPtr + 1,
+			constantExpressions = new Expression[length],
+			0,
+			length);
+	} else {
+		// TODO : ERROR
 	}
-
-	System.arraycopy(
-		this.expressionStack,
-		this.expressionPtr + 1,
-		caseLabelElements,
-		0,
-		length);
-
-	CaseStatement caseStatement = new CaseStatement(caseLabelElements[length - 1].sourceEnd, this.intStack[this.intPtr--], caseLabelElements);
-	if (caseLabelElements.length > 1) {
+	CaseStatement caseStatement = new CaseStatement(constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--], constantExpressions);
+	if (constantExpressions.length > 1) {
 		if (!this.parsingJava14Plus) {
 			problemReporter().multiConstantCaseLabelsNotSupported(caseStatement);
 		}

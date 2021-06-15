@@ -17,7 +17,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-public abstract class Pattern extends AbstractExPatNode {
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
+public abstract class Pattern extends ASTNode {
 
 	public enum PatternKind {
 		ANY_PATTERN,
@@ -29,18 +35,21 @@ public abstract class Pattern extends AbstractExPatNode {
 	public int parenthesisSourceStart;
 	public int parenthesisSourceEnd;
 
+	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
+
+	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
+
 	public abstract AbstractVariableDeclaration[] getPatternVariables();
+
+	// TODO: Recheck whether we need this in Pattern
+	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
 
 	public abstract String getKindName(); // convenience method.
 
 	public abstract PatternKind kind();
 
-	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		return printPattern(indent, output);
-	}
+	public abstract void resolve(BlockScope scope);
 
-	public abstract StringBuffer printPattern(int indent, StringBuffer output);
+	public abstract TypeBinding resolveType(BlockScope scope);
 
 }

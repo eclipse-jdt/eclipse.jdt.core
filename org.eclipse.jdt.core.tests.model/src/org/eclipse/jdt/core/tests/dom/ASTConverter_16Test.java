@@ -50,11 +50,6 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
-	static {
-//		TESTS_NUMBERS = new int[] { 19 };
-//		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"testPatternInstanceOfExpression002"};
-	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST16(), false);
