@@ -20,10 +20,11 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 
 @SuppressWarnings({ "rawtypes" })
-public class ClassFileReaderTest_15 extends AbstractRegressionTest {
+public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	static {
 	}
 
@@ -31,10 +32,10 @@ public class ClassFileReaderTest_15 extends AbstractRegressionTest {
 		return buildMinimalComplianceTestSuite(testClass(), F_17);
 	}
 	public static Class testClass() {
-		return ClassFileReaderTest_15.class;
+		return ClassFileReaderTest_17.class;
 	}
 
-	public ClassFileReaderTest_15(String name) {
+	public ClassFileReaderTest_17(String name) {
 		super(name);
 	}
 
@@ -43,7 +44,6 @@ public class ClassFileReaderTest_15 extends AbstractRegressionTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.complianceLevel = ClassFileConstants.JDK17;
-		this.enablePreview = true;
 	}
 
 	public void testBug564227_001() throws Exception {
@@ -108,5 +108,39 @@ public class ClassFileReaderTest_15 extends AbstractRegressionTest {
 
 		int modifiers = classFileReader.getModifiers();
 		assertTrue("sealed modifier expected", (modifiers & ExtraCompilerModifiers.AccSealed) != 0);
+	}
+	public void testBug545510_1() throws Exception {
+		String source =
+				"strictfp class X {\n"+
+				"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+
+		int modifiers = classFileReader.getModifiers();
+		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+	}
+	public void testBug545510_2() throws Exception {
+		String source =
+				"class X {\n"+
+				"  strictfp void foo() {}\n"+
+				"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methods = classFileReader.getMethods();
+		IBinaryMethod method = methods[1];
+		int modifiers = method.getModifiers();
+		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+	}
+	public void testBug545510_3() throws Exception {
+		String source =
+				"strictfp class X {\n"+
+				"  void foo() {}\n"+
+				"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methods = classFileReader.getMethods();
+		IBinaryMethod method = methods[1];
+		int modifiers = method.getModifiers();
+		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
 	}
 }

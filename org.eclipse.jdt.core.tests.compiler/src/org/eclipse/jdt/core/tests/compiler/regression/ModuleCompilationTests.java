@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -846,7 +850,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
-				"   java.lang.SecurityManager man = null;\n" +
+				"   java.lang.SecurityException ex = null;\n" +
 				"}",
 				"module-info.java",
 				"module mod.one { \n" +

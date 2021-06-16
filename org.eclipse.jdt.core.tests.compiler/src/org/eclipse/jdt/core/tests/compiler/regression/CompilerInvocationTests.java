@@ -560,6 +560,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierForArgument", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("StrictfpNotRequired", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("IllegalModifierForEnum", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForEnumConstant", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForEnumConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1620,6 +1621,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierForArgument", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForClass", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForConstructor", SKIP);
+		expectedProblemAttributes.put("StrictfpNotRequired", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForEnum", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForEnumConstant", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForEnumConstructor", SKIP);

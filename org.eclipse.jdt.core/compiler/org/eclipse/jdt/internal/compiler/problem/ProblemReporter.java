@@ -1667,6 +1667,7 @@ public int computeSeverity(int problemID){
  		case IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning:
  		case IProblem.SwitchExpressionsYieldRestrictedGeneralWarning:
  		case IProblem.SwitchExpressionsYieldTypeDeclarationWarning:
+ 		case IProblem.StrictfpNotRequired:
  			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Error;
@@ -12155,4 +12156,10 @@ public void SwitchPatternPatternKindNotAllowed(Pattern pattern) {
 			pattern.sourceStart,
 			pattern.sourceEnd);
 }
+public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
+	this.handle(
+			IProblem.StrictfpNotRequired,
+			NoArgument, NoArgument,
+			sourceStart, sourceEnd);
+	}
 }

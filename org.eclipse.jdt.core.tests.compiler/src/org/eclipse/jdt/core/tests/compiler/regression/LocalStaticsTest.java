@@ -1002,7 +1002,12 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. WARNING in X.java (at line 3)\n" +
+			"	public strictfp enum I {}\n" +
+			"	       ^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
 			"	Zork;\n" +
 			"	^^^^\n" +
 			"Syntax error, insert \"VariableDeclarators\" to complete LocalVariableDeclaration\n" +

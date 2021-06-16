@@ -4309,6 +4309,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
 			accessFlags &= ~ClassFileConstants.AccPrivate;
 		}
+		if (this.targetJDK >= ClassFileConstants.JDK17) {
+			accessFlags &= ~(ClassFileConstants.AccStrictfp);
+		}
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
 		int nameIndex = this.constantPool.literalIndex(methodBinding.selector);

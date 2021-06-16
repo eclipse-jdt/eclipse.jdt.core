@@ -985,6 +985,7 @@ protected boolean parsingJava8Plus;
 protected boolean parsingJava9Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
+protected boolean parsingJava17Plus;
 protected boolean previewEnabled;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
@@ -1010,6 +1011,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
 	this.parsingJava15Plus = this.options.sourceLevel >= ClassFileConstants.JDK15;
+	this.parsingJava17Plus = this.options.sourceLevel >= ClassFileConstants.JDK17;
 	this.previewEnabled = this.options.sourceLevel == ClassFileConstants.getLatestJDKLevel() && this.options.enablePreviewFeatures;
 	this.astLengthStack = new int[50];
 	this.patternLengthStack = new int[20];
@@ -1227,6 +1229,9 @@ protected void checkAndSetModifiers(int flag){
 	of a list of several modifiers. The startPosition
 	is zeroed when a copy of modifiers-buffer is push
 	onto the this.astStack. */
+	if (flag == ClassFileConstants.AccStrictfp && this.parsingJava17Plus) {
+		problemReporter().StrictfpNotRequired(this.scanner.startPosition, this.scanner.currentPosition - 1);
+	}
 
 	if ((this.modifiers & flag) != 0){ // duplicate modifier
 		this.modifiers |= ExtraCompilerModifiers.AccAlternateModifierProblem;

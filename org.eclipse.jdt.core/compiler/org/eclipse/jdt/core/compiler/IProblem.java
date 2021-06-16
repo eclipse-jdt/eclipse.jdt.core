@@ -1584,6 +1584,12 @@ void setSourceStart(int sourceStart);
 	int UnboxingConversion = Internal + 721;
 
 	/**
+	 * Modifiers
+	 * @since 3.26 BETA_JAVA17
+	 */
+	int StrictfpNotRequired = Syntax + Internal + 741;
+
+	/**
 	 * Enum
 	 */
 	/** @since 3.1 */

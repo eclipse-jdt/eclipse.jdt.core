@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2019 IBM Corporation and others.
+ * Copyright (c) 2011, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -473,6 +473,13 @@ public void test013() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384595, Reject illegal modifiers on lambda arguments.
 public void test014() {
+	String extra = this.complianceLevel < ClassFileConstants.JDK17 ? "" :
+		"----------\n" +
+		"2. WARNING in X.java (at line 5)\n" +
+		"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
+		"	                                              ^^^^^^^^\n" +
+		"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n";
+	int offset = this.complianceLevel < ClassFileConstants.JDK17 ? 0 : 1;
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -490,23 +497,24 @@ public void test014() {
 				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
 				"	                             ^^^^^^^^^\n" +
 				"Undefined cannot be resolved to a type\n" +
+				extra +
 				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
+				(2 + offset) + ". ERROR in X.java (at line 5)\n" +
 				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
 				"	                                                              ^^^^^^\n" +
 				"Lambda expression\'s parameter o is expected to be of type int\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
+				(3 + offset) + ". ERROR in X.java (at line 5)\n" +
 				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
 				"	                                                                     ^\n" +
 				"Illegal modifier for parameter o; only final is permitted\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" +
+				(4 + offset) + ". ERROR in X.java (at line 5)\n" +
 				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
 				"	                                                                                            ^\n" +
 				"Illegal modifier for parameter p; only final is permitted\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 5)\n" +
+				(5 + offset) + ". ERROR in X.java (at line 5)\n" +
 				"	I i = (final @Marker int x, @Undefined static strictfp public Object o, static volatile int p) -> x;\n" +
 				"	                                                                                                  ^\n" +
 				"Void methods cannot return a value\n" +
