@@ -56,6 +56,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.sealed_types),
 			new char[][] {TypeConstants.SEALED, TypeConstants.PERMITS},
 			false),
+	PATTERN_MATCHING_IN_SWITCH(ClassFileConstants.JDK17,
+			Messages.bind(Messages.pattern_matching_switch),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;

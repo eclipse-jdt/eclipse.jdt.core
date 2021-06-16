@@ -121,6 +121,7 @@ public final class Messages {
 	public static String pattern_matching_instanceof;
 	public static String records;
 	public static String sealed_types;
+	public static String pattern_matching_switch;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

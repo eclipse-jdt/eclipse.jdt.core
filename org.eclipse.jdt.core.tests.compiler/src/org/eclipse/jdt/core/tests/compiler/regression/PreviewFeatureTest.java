@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 import junit.framework.Test;
 
@@ -193,6 +194,22 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 					null,
 					true,
 					options);
+		} finally {
+			options.put(CompilerOptions.OPTION_EnablePreviews, old);
+		}
+	}
+	public void test005() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
+		if (this.complianceLevel == ClassFileConstants.getLatestJDKLevel())
+			options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		try {
+			if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+				assertFalse(JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(new CompilerOptions(options)));
+			else
+				assertTrue(JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(new CompilerOptions(options)));
 		} finally {
 			options.put(CompilerOptions.OPTION_EnablePreviews, old);
 		}
