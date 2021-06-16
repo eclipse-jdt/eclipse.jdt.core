@@ -3723,6 +3723,16 @@ public final class CompletionEngine
 			// replace to the end of the completion identifier
 			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 		}
+		if (ref.tokens.length == 1 && this.parser.assistNodeParent != null) {
+			// additionally check if 'prefix.' should be interpreted as a variable receiver rather then part of a type reference:
+			Binding variable = scope.getBinding(ref.tokens[0], Binding.VARIABLE, FakeInvocationSite, true);
+			if (variable instanceof VariableBinding) {
+				TypeBinding receiverType = ((VariableBinding) variable).type;
+				if (receiverType != null && receiverType.isValidBinding()) {
+					findFieldsAndMethods(this.completionToken, receiverType, scope, new ObjectVector(), new ObjectVector(), FakeInvocationSite, scope, false, false, null, null, null, false, null, ref.sourceStart, (int)ref.sourcePositions[0]);
+				}
+			}
+		}
 	}
 
 	private void completionOnProvidesInterfacesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {

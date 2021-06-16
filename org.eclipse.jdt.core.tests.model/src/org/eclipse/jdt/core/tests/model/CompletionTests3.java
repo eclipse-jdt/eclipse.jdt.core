@@ -692,4 +692,162 @@ public void testBug547256() throws CoreException {
 		deleteProject("P");
 	}
 }
+public void testBug574215() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/jdt/Something.java",
+				"package jdt;\n" +
+				"class S {\n" +
+				"	void foo() {}\n" +
+				"	String bar;\n" +
+				"}\n" +
+				"public class Something {\n" +
+				"	private void test(S s, int i) {\n" +
+				"		if (i > 2) {\n" +
+				"			System.out.println(\"a\");\n" +
+				"		} else {\n" +
+				"			s. // <--\n" +
+				"			System.out.println(\"b\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "s.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}\n" +
+				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+				"foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}\n" +
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574215_field() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/jdt/Something.java",
+				"package jdt;\n" +
+				"class S {\n" +
+				"	void foo() {}\n" +
+				"	String bar;\n" +
+				"}\n" +
+				"public class Something {\n" +
+				"	S s;\n" +
+				"	private void test(int i) {\n" +
+				"		if (i > 2) {\n" +
+				"			System.out.println(\"a\");\n" +
+				"		} else {\n" +
+				"			s. // <--\n" +
+				"			System.out.println(\"b\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "s.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"bar[FIELD_REF]{bar, Ljdt.S;, Ljava.lang.String;, bar, null, 60}\n" +
+				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+				"foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}\n" +
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574215_type_not_field() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/jdt/Something.java",
+				"package jdt;\n" +
+				"public class Something {\n" +
+				"	String jdt;\n" +
+				"	private void test(jdt.) {\n" +
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "(jdt.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Something[TYPE_REF]{Something, jdt, Ljdt.Something;, null, null, 49}",
+				requestor.getResults());
+
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574215_withToken() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/jdt/Something.java",
+				"package jdt;\n" +
+				"class S {\n" +
+				"	void foo() {}\n" +
+				"	int found;\n" +
+				"	String bar;\n" +
+				"}\n" +
+				"public class Something {\n" +
+				"	private void test(S s, int i) {\n" +
+				"		if (i > 2) {\n" +
+				"			System.out.println(\"a\");\n" +
+				"		} else {\n" +
+				"			s.fo // <--\n" +
+				"			System.out.println(\"b\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "s.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"foo[METHOD_REF]{foo(), Ljdt.S;, ()V, foo, null, 60}\n" +
+				"found[FIELD_REF]{found, Ljdt.S;, I, found, null, 60}",
+				requestor.getResults());
+
+	} finally {
+		deleteProject("P");
+	}
+}
 }
