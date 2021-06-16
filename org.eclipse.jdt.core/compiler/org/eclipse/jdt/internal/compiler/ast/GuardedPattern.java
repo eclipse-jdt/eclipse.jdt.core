@@ -21,7 +21,10 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.GuardedPatternBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
@@ -71,15 +74,34 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public void resolve(BlockScope scope) {
-		// TODO Auto-generated method stub
+	public boolean isTotalForType(TypeBinding type) {
+		Constant cst = this.conditionalAndExpression.optimizedBooleanConstant();
+		return this.primaryPattern.isTotalForType(type) && cst != Constant.NotAConstant && cst.booleanValue() == true;
 
 	}
 
 	@Override
+	public void resolve(BlockScope scope) {
+		this.resolveType(scope);
+	}
+
+	@Override
 	public TypeBinding resolveType(BlockScope scope) {
-		// TODO Auto-generated method stub
-		return null;
+		if (this.resolvedType != null || this.primaryPattern == null)
+			return this.resolvedType;
+		this.resolvedType = this.primaryPattern.resolveType(scope);
+		this.resolvedPattern = new GuardedPatternBinding(this.primaryPattern.resolvedPattern);
+		return this.resolvedType;
+	}
+
+	@Override
+	public PatternBinding resolveAtType(BlockScope scope, TypeBinding u) {
+		if (this.resolvedPattern == null || this.primaryPattern == null)
+			return null;
+		if (this.primaryPattern.isTotalForType(u))
+			return this.primaryPattern.resolveAtType(scope, u);
+
+		return this.resolvedPattern; //else leave the pattern untouched for now.
 	}
 
 	@Override

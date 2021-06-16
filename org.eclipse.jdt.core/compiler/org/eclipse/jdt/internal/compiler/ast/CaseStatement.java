@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 //import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -170,6 +171,13 @@ public Constant resolveConstantExpression(BlockScope scope,
 											SwitchStatement switchStatement,
 											Expression expression) {
 
+	if (expression instanceof PatternExpression)
+		return resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement,
+				(PatternExpression) expression);
+
+	boolean boxing = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions()) ||
+			switchStatement.isAllowedType(switchExpressionType);
+
 	if (expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
 			|| caseType.isCompatibleWith(switchExpressionType)) {
 		if (caseType.isEnum()) {
@@ -191,12 +199,32 @@ public Constant resolveConstantExpression(BlockScope scope,
 		} else {
 			return expression.constant;
 		}
-	} else if (isBoxingCompatible(caseType, switchExpressionType, expression, scope)) {
+	} else if (boxing && isBoxingCompatible(caseType, switchExpressionType, expression, scope)) {
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
 		return expression.constant;
 	}
 	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, expression, switchStatement.expression);
 	return Constant.NotAConstant;
+}
+
+private Constant resolveConstantExpression(BlockScope scope,
+		TypeBinding caseType,
+		TypeBinding switchExpressionType,
+		SwitchStatement switchStatement,
+		PatternExpression e) {
+	Constant constant = Constant.NotAConstant;
+	TypeBinding type = e.resolveType(scope);
+	if (type != null) {
+		switchStatement.caseLabelElements.add(e);
+		constant = IntConstant.fromValue(switchStatement.caseLabelElements.size()); //TODO: should we assign 0 to default?
+		Pattern p = e.pattern;
+		if (p.resolvedPattern != null) {
+			// 14.30.2 at compile-time we "resolve" the pattern with respect to the (compile-time) type
+			// of the expression being pattern matched
+			p.resolveAtType(scope, switchStatement.expression.resolvedType);
+		}
+	}
+	return constant;
 }
 
 @Override

@@ -996,6 +996,7 @@ private boolean expectTypeAnnotation = false;
 private boolean reparsingLambdaExpression = false;
 
 private Map<TypeDeclaration, Integer[]> recordNestedMethodLevels;
+private Map<Integer, Boolean> recordPatternSwitches;
 
 public Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
@@ -1027,6 +1028,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.variablesCounter = new int[30];
 
 	this.recordNestedMethodLevels = new HashMap<>();
+	this.recordPatternSwitches = new HashMap<>();
 
 	// javadoc support
 	this.javadocParser = createJavadocParser();
@@ -9724,6 +9726,7 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	//OpenBlock just makes the semantic action blockStart()
 	//the block is inlined but a scope need to be created
 	//if some declaration occurs.
+	Boolean isPatternSwitch = this.recordPatternSwitches.remove(this.switchNestingLevel);
 	this.nestedType--;
 	this.switchNestingLevel--;
 	this.scanner.breakPreviewAllowed = this.switchNestingLevel > 0;
@@ -9741,6 +9744,7 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 				length);
 	}
 	switchStatement.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
+	switchStatement.containsPatterns = isPatternSwitch != null ? isPatternSwitch.booleanValue() : false;
 	pushOnAstStack(switchStatement);
 	switchStatement.blockStart = this.intStack[this.intPtr--];
 	switchStatement.sourceStart = this.intStack[this.intPtr--];
@@ -10124,6 +10128,7 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 			Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 			PatternExpression expression = new PatternExpression(pattern);
 			pushOnExpressionStack(expression);
+			this.recordPatternSwitches.put(this.switchNestingLevel, Boolean.TRUE);
 			break;
 		case CASE_DEFAULT:
 			pushOnExpressionStack(new FakeDefaultLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1));
@@ -14338,6 +14343,7 @@ protected void resetStacks() {
 	this.genericsPtr = -1;
 	this.valueLambdaNestDepth = -1;
 	this.recordNestedMethodLevels = new HashMap<>();
+	this.recordPatternSwitches = new HashMap<>();
 }
 /*
  * Reset context so as to resume to regular parse loop

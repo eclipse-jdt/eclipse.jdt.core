@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug572205"};
+//		TESTS_NAMES = new String[] { "testBug573516_001"};
 
 	}
 
@@ -101,6 +101,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
 				"   switch (o) {\n"+
+				"     case Integer i     -> System.out.println(\"String:\");\n"+
 				"     case String s     -> System.out.println(\"String:\");\n"+
 				"     default       -> System.out.println(\"Object\");\n"+
 				"   }\n"+
@@ -131,12 +132,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -162,12 +158,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -192,12 +183,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -223,12 +209,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -254,12 +235,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -415,6 +391,37 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	switch (o) {\n" +
 			"	        ^\n" +
 			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 10)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	// TODO: Change the error messages after implementing post grammar processing parts
+	// Enable after code gen is fixed for switch pattern case default
+	public void testBug574228_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case 1: System.out.println(\"Integer\"); break;\n"+
+				"     default : System.out.println(\"Object\");\n"+
+				"   }\n"+
+				" }\n"+
+				"   public static void main(String[] args) {\n"+
+				"   foo(\"Hello World\");\n"+
+				"     Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case 1: System.out.println(\"Integer\"); break;\n" +
+			"	     ^\n" +
+			"Type mismatch: cannot convert from int to Object\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +

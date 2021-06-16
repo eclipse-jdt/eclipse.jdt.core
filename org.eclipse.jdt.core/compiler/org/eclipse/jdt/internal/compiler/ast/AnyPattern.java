@@ -18,7 +18,10 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.AnyPatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class AnyPattern extends AbstractTypePattern {
@@ -38,6 +41,11 @@ public class AnyPattern extends AbstractTypePattern {
 	}
 
 	@Override
+	public boolean isTotalForType(TypeBinding type) {
+		return true;
+	}
+
+	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.local != null)
@@ -46,4 +54,12 @@ public class AnyPattern extends AbstractTypePattern {
 		visitor.endVisit(this, scope);
 	}
 
+	@Override
+	public PatternBinding resolveAtType(BlockScope scope, TypeBinding u) {
+		if (this.resolvedPattern != null)
+			return this.resolvedPattern;
+
+		//14.30.2 An any pattern, p, is resolved to p.
+		return this.resolvedPattern = new AnyPatternBinding(this.local.binding);
+	}
 }

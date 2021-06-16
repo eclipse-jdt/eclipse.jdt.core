@@ -18,8 +18,12 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.AnyPatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypePatternBinding;
 
 public class TypePattern extends AbstractTypePattern {
 
@@ -38,6 +42,26 @@ public class TypePattern extends AbstractTypePattern {
 	}
 
 	@Override
+	public boolean isTotalForType(TypeBinding type) {
+		if (this.resolvedType == null || type == null)
+			return false;
+		return type.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
+	}
+
+	/*
+	 * A type pattern, p, declaring a pattern variable x of type T, that is total for U,
+	 * is resolved to an any pattern that declares x of type T;
+	 * otherwise it is resolved to p.
+	 */
+	@Override
+	public PatternBinding resolveAtType(BlockScope scope, TypeBinding u) {
+		if (this.resolvedPattern == null) {
+			this.resolvedPattern = new TypePatternBinding(this.local.binding);
+		}
+		return this.isTotalForType(u) ? new AnyPatternBinding(this.local.binding) : this.resolvedPattern;
+	}
+
+	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.local != null)
@@ -45,4 +69,5 @@ public class TypePattern extends AbstractTypePattern {
 		}
 		visitor.endVisit(this, scope);
 	}
+
 }

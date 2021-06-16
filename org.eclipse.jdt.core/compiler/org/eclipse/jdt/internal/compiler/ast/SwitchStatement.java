@@ -19,7 +19,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -33,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.SwitchFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -61,6 +64,8 @@ public class SwitchStatement extends Expression {
 	public boolean switchLabeledRules = false; // true if case ->, false if case :
 	public int nConstants;
 
+	public boolean containsPatterns = false;
+
 	// fallthrough
 	public final static int CASE = 0;
 	public final static int FALLTHROUGH = 1;
@@ -80,6 +85,8 @@ public class SwitchStatement extends Expression {
 	CaseStatement[] duplicateCaseStatements = null;
 	int duplicateCaseStatementsCounter = 0;
 	private LocalVariableBinding dispatchStringCopy = null;
+
+	/* package */ List<Expression> caseLabelElements = new ArrayList<>(0);
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if (this.switchLabeledRules) {
@@ -616,8 +623,8 @@ public class SwitchStatement extends Expression {
 	protected void addSecretTryResultVariable() {
 		// do nothing
 	}
-	@Override
-	public void resolve(BlockScope upperScope) {
+//	@Override
+	public void _resolve(BlockScope upperScope) {
 		try {
 			boolean isEnumSwitch = false;
 			boolean isStringSwitch = false;
@@ -649,6 +656,176 @@ public class SwitchStatement extends Expression {
 					}
 					upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
 					expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+				}
+			}
+			if (isStringSwitch) {
+				// the secret variable should be created before iterating over the switch's statements that could
+				// create more locals. This must be done to prevent overlapping of locals
+				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=356002
+				this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), ClassFileConstants.AccDefault, false);
+				upperScope.addLocalVariable(this.dispatchStringCopy);
+				this.dispatchStringCopy.setConstant(Constant.NotAConstant);
+				this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
+			}
+			if (this.statements != null) {
+				this.scope = new BlockScope(upperScope);
+//				addSecretTryResultVariable();
+				int length;
+				// collection of cases is too big but we will only iterate until caseCount
+				this.cases = new CaseStatement[length = this.statements.length];
+				this.nConstants = getNConstants();
+				if (!isStringSwitch) {
+					this.constants = new int[this.nConstants];
+					this.constMapping = new int[this.nConstants];
+				} else {
+					this.stringConstants = new String[this.nConstants];
+					this.constMapping = new int[this.nConstants];
+				}
+				int counter = 0;
+				int caseCounter = 0;
+				for (int i = 0; i < length; i++) {
+					Constant[] constantsList;
+					int[] caseIndex = new int[this.nConstants];
+					final Statement statement = this.statements[i];
+					if (!(statement instanceof CaseStatement))  {
+						statement.resolve(this.scope);
+						continue;
+					}
+					if ((constantsList = statement.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstantList) {
+						for (Constant con : constantsList) {
+							if (con == Constant.NotAConstant)
+								continue;
+							if (!isStringSwitch) {
+								int key = con.intValue();
+								//----check for duplicate case statement------------
+								for (int j = 0; j < counter; j++) {
+									if (this.constants[j] == key) {
+										reportDuplicateCase((CaseStatement) statement, this.cases[caseIndex[j]], length);
+									}
+								}
+								this.constants[counter] = key;
+							} else {
+								String key = con.stringValue();
+								//----check for duplicate case statement------------
+								for (int j = 0; j < counter; j++) {
+									if (this.stringConstants[j].equals(key)) {
+										reportDuplicateCase((CaseStatement) statement, this.cases[caseIndex[j]], length);
+									}
+								}
+								this.stringConstants[counter] = key;
+							}
+							this.constMapping[counter] = counter;
+							caseIndex[counter] = caseCounter;
+							counter++;
+						}
+					}
+					caseCounter++;
+				}
+				if (length != counter) { // resize constants array
+					if (!isStringSwitch) {
+						System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);
+					} else {
+						System.arraycopy(this.stringConstants, 0, this.stringConstants = new String[counter], 0, counter);
+					}
+					System.arraycopy(this.constMapping, 0, this.constMapping = new int[counter], 0, counter);
+				}
+			} else {
+				if ((this.bits & UndocumentedEmptyBlock) != 0) {
+					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
+				}
+			}
+			reportMixingCaseTypes();
+			// check default case for all kinds of switch:
+			if (this.defaultCase == null) {
+				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
+					if (isEnumSwitch) {
+						upperScope.methodScope().hasMissingSwitchDefault = true;
+					}
+				} else {
+					upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
+				}
+			}
+			// for enum switch, check if all constants are accounted for (perhaps depending on existence of a default case)
+			if (isEnumSwitch && compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5) {
+				if (this.defaultCase == null || compilerOptions.reportMissingEnumCaseDespiteDefault) {
+					int constantCount = this.constants == null ? 0 : this.constants.length; // could be null if no case statement
+					if (constantCount >= this.caseCount
+							&& constantCount != ((ReferenceBinding)expressionType).enumConstantCount()) {
+						FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
+						for (int i = 0, max = enumFields.length; i <max; i++) {
+							FieldBinding enumConstant = enumFields[i];
+							if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
+							findConstant : {
+								for (int j = 0; j < constantCount; j++) {
+									if ((enumConstant.id + 1) == this.constants[j]) // zero should not be returned see bug 141810
+										break findConstant;
+								}
+								// enum constant did not get referenced from switch
+								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
+								if (!suppress) {
+									reportMissingEnumConstantCase(upperScope, enumConstant);
+								}
+							}
+						}
+					}
+				}
+			}
+		} finally {
+			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
+		}
+	}
+	/* package */ boolean isAllowedType(TypeBinding type) {
+		if (type == null)
+			return false;
+		switch (type.id) {
+			case TypeIds.T_char:
+			case TypeIds.T_byte:
+			case TypeIds.T_short:
+			case TypeIds.T_int:
+			case TypeIds.T_JavaLangCharacter :
+			case TypeIds.T_JavaLangByte :
+			case TypeIds.T_JavaLangShort :
+			case TypeIds.T_JavaLangInteger :
+				return true;
+			default: break;
+		}
+		return false;
+	}
+	@Override
+	public void resolve(BlockScope upperScope) {
+		try {
+			boolean isEnumSwitch = false;
+			boolean isStringSwitch = false;
+			TypeBinding expressionType = this.expression.resolveType(upperScope);
+			CompilerOptions compilerOptions = upperScope.compilerOptions();
+			if (expressionType != null) {
+				this.expression.computeConversion(upperScope, expressionType, expressionType);
+				checkType: {
+					if (!expressionType.isValidBinding()) {
+						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+						break checkType;
+					} else if (expressionType.isBaseType()) {
+						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
+							break checkType;
+						if (expressionType.isCompatibleWith(TypeBinding.INT))
+							break checkType;
+					} else if (expressionType.isEnum()) {
+						isEnumSwitch = true;
+						if (compilerOptions.complianceLevel < ClassFileConstants.JDK1_5) {
+							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
+						}
+						break checkType;
+					} else if (upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
+						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
+						break checkType;
+					} else if (compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7 && expressionType.id == TypeIds.T_JavaLangString) {
+						isStringSwitch = true;
+						break checkType;
+					}
+					if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)) {
+						upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
+						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+					}
 				}
 			}
 			if (isStringSwitch) {

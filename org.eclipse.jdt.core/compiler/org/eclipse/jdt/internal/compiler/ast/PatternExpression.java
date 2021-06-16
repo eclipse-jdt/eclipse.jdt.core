@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class PatternExpression extends Expression {
 
@@ -26,6 +27,12 @@ public class PatternExpression extends Expression {
 
 	public PatternExpression(Pattern pattern) {
 		this.pattern = pattern;
+	}
+
+	@Override
+	public TypeBinding resolveType(BlockScope scope) {
+		// by default... subclasses should implement a better TB if required.
+		return this.pattern != null ? this.pattern.resolveType(scope) : null;
 	}
 
 	@Override

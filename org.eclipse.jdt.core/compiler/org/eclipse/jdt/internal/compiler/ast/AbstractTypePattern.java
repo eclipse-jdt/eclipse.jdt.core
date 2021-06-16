@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypePatternBinding;
 
 public abstract class AbstractTypePattern extends Pattern {
 
@@ -60,14 +61,20 @@ public abstract class AbstractTypePattern extends Pattern {
 
 	@Override
 	public void resolve(BlockScope scope) {
-		// TODO Auto-generated method stub
-
+		this.resolveType(scope);
 	}
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
-		// TODO Auto-generated method stub
-		return null;
+		if (this.resolvedType != null || this.local == null)
+			return this.resolvedType;
+
+		this.local.resolve(scope);
+		if (this.local.binding != null) {
+			this.resolvedType = this.local.binding.type;
+			this.resolvedPattern = new TypePatternBinding(this.local.binding);
+		}
+		return this.resolvedType;
 	}
 
 	@Override
