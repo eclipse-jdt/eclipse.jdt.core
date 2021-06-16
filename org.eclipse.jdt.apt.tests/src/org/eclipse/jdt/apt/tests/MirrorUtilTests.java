@@ -82,6 +82,7 @@ public class MirrorUtilTests extends APTTestBase {
 
 	public void testMirrorUtils() throws Exception
 	{
-		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+		assertEquals("Unexpected errors: " + ProcessorTestStatus.getErrors(), ProcessorTestStatus.NO_ERRORS,
+				ProcessorTestStatus.getErrors());
 	}
 }

@@ -85,10 +85,15 @@ public class GeneratedSourceFolderManager {
 	 * on when we get notified of relevant changes and on what locks we are
 	 * able to obtain.
 	 */
-	private IFolder _generatedSourceFolder = null;
+	private volatile IFolder _generatedSourceFolder;
 
 	private final boolean _isTestCode;
-
+	
+	/**
+	 * Reflects whether apt is enabled as soon as it is enabled.
+	 * Only write access this in the thread which receives preferenceChanged:
+	 */
+	private volatile boolean _aptEnabled;
 
 	/**
 	 * Should be constructed only by AptProject.  Other clients should call
@@ -103,7 +108,8 @@ public class GeneratedSourceFolderManager {
 		// Set _generatedSourceFolder only if APT is enabled, the folder exists,
 		// and the folder is on the classpath.
 		// Otherwise leave it null, which will cause us to try to fix things later on.
-		if (AptConfig.isEnabled(javaProject)) {
+		_aptEnabled = AptConfig.isEnabled(javaProject);
+		if (_aptEnabled) {
 			final IFolder folder = getFolder();
 			if (folder.exists()) {
 				if (isOnClasspath(folder)) {
@@ -200,7 +206,7 @@ public class GeneratedSourceFolderManager {
 	 */
 	public void ensureFolderExists(){
 		// If APT is disabled, do nothing.
-		if (!AptConfig.isEnabled(_aptProject.getJavaProject())) {
+		if (!_aptEnabled) {
 			return;
 		}
 
@@ -259,13 +265,18 @@ public class GeneratedSourceFolderManager {
 	{
 		final boolean enable = AptConfig.isEnabled(_aptProject.getJavaProject());
 		// Short-circuit if nothing changed.
-		if (enable == (_generatedSourceFolder != null)) {
+		if (enable == _aptEnabled) {
 			if( AptPlugin.DEBUG ) {
 				AptPlugin.trace("enabledChanged() doing nothing; state is already " + enable); //$NON-NLS-1$
 			}
 			// no change in state
 			return;
 		}
+		enabledPreferenceChangedTo(enable);
+	}
+
+	private void enabledPreferenceChangedTo(final boolean enable) {
+		_aptEnabled = enable;
 
 		if ( AptPlugin.DEBUG ) {
 			AptPlugin.trace("enabledChanged() changing state to " + enable +  //$NON-NLS-1$
@@ -290,8 +301,7 @@ public class GeneratedSourceFolderManager {
 	public void folderNamePreferenceChanged()
 	{
 		// if APT is disabled, we don't need to do anything
-		final boolean aptEnabled = AptConfig.isEnabled(_aptProject.getJavaProject());
-		if (!aptEnabled) {
+		if (!_aptEnabled) {
 			return;
 		}
 
