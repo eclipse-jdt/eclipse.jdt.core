@@ -234,7 +234,6 @@ public class Util implements SuffixConstants {
 		String displayString(Object o);
 	}
 
-	private static final int DEFAULT_READING_SIZE = 8192;
 	private static final int DEFAULT_WRITING_SIZE = 1024;
 	public final static String UTF_8 = "UTF-8";	//$NON-NLS-1$
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
@@ -470,61 +469,9 @@ public class Util implements SuffixConstants {
 	 * @throws IOException if a problem occurred reading the stream.
 	 */
 	public static byte[] getInputStreamAsByteArray(InputStream input) throws IOException {
-		if (input instanceof ByteArrayInputStream) {
-			// not available in java 8: ((ByteArrayInputStream) input).readAllBytes();
-			int length = ((ByteArrayInputStream) input).available();
-			return readNBytes(input, length);
-		}
-		if (input instanceof FileInputStream) {
-			long length = ((FileInputStream) input).getChannel().size();
-			return readNBytes(input, length);
-		}
-		return readAllBytes(input);
+		return input.readAllBytes(); // will have even slighly better performance as of JDK17+ see JDK-8264777
 	}
 
-	private static byte[] readAllBytes(InputStream input) throws IOException {
-		ArrayList<byte[]> byteBufList = new ArrayList<byte[]>(3);
-		int totalByteCount = 0;
-		int bytesJustRead;
-		do {
-			int bufLength = Math.max(input.available(), DEFAULT_READING_SIZE); // read at least 8K
-			byte[] byteBuf = new byte[bufLength];
-			int bytesInBuf = 0;
-			int byteTransferSize = bufLength;
-			while ((bytesJustRead = input.read(byteBuf, bytesInBuf, byteTransferSize)) >= 0) {
-				bytesInBuf += bytesJustRead;
-				totalByteCount += bytesJustRead;
-				byteTransferSize = bufLength - bytesInBuf;
-				if (byteTransferSize <= 0)
-					break;
-			}
-			if (bytesInBuf>0)
-				byteBufList.add(byteBuf);
-		} while (bytesJustRead >= 0);
-		// final concatenation of buffers:
-		if (byteBufList.size()==1) {
-			byte[] firstBuf = byteBufList.get(0);
-			if (firstBuf.length >= totalByteCount) { // fast path
-				return (firstBuf.length == totalByteCount) ? firstBuf : Arrays.copyOf(firstBuf, totalByteCount);
-			}
-		}
-		byte[] result = new byte[totalByteCount];
-		int byteCount = 0;
-		for (byte[] byteBuf : byteBufList) {
-			int byteTransferSize = Math.min(totalByteCount - byteCount, byteBuf.length);
-			System.arraycopy(byteBuf, 0, result, byteCount, byteTransferSize);
-			byteCount += byteTransferSize;
-		}
-		return result;
-	}
-
-	public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - 8;
-
-	public static byte[] readNBytes(java.io.InputStream input, long length) throws IOException {
-		if (length > MAX_ARRAY_LENGTH) // fail fast
-			throw new OutOfMemoryError("File too large for array: " + length); //$NON-NLS-1$
-		return readNBytes(input, (int) length);
-	}
 
 	/**
 	 * Returns the given input stream's first bytes as array.
@@ -532,21 +479,7 @@ public class Util implements SuffixConstants {
 	 * @throws IOException if a problem occurred reading the stream.
 	 */
 	public static byte[] readNBytes(InputStream input, int byteLength) throws IOException {
-		// InputStream.readNBytes() only available after java 11
-		if (byteLength == 0)
-			return new byte[0];
-		byte[] byteBuf = new byte[byteLength]; // exact buffer size
-		int byteCount = 0;
-		int byteTransferSize = byteBuf.length;
-		int bytesRead;
-		while ((bytesRead = input.read(byteBuf, byteCount, byteTransferSize)) >= 0) {
-			byteCount += bytesRead;
-			byteTransferSize = byteBuf.length - byteCount;
-			if (byteTransferSize <= 0) {
-				break;
-			}
-		}
-		return (byteBuf.length == byteCount) ? byteBuf : Arrays.copyOf(byteBuf, byteCount);
+		return input.readNBytes(byteLength);
 	}
 
 	private static Map<String, byte[]> bomByEncoding = new HashMap<String, byte[]>();
