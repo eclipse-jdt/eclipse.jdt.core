@@ -43,8 +43,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
@@ -191,20 +193,26 @@ public class TestUtil
      * @param state the value to be set for autobuilding.
      * @return the old value of the autobuild state
      */
-    public static boolean enableAutoBuild(boolean state) {
+    public static boolean enableAutoBuild(boolean state) throws CoreException {
         IWorkspace workspace= ResourcesPlugin.getWorkspace();
         IWorkspaceDescription desc= workspace.getDescription();
         boolean isAutoBuilding= desc.isAutoBuilding();
         if (isAutoBuilding != state) {
             desc.setAutoBuilding(state);
-            try {
-				workspace.setDescription(desc);
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
+            workspace.setDescription(desc);
+            waitForBuildEvents();
         }
         return isAutoBuilding;
     }
+
+	public static void waitForBuildEvents() {
+		try {
+			Thread.sleep(50);
+			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+		} catch (OperationCanceledException | InterruptedException e) {
+			// ignore
+		}
+	}
 
 	public static IPath getProjectPath( IJavaProject project )
 	{
