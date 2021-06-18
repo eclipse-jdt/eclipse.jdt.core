@@ -1254,7 +1254,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private Iterable<? extends File> getFiles(final Iterable<? extends Path> paths) {
 		if (paths == null)
 			return null;
-		return () -> new Iterator<File>() {
+		return () -> new Iterator<>() {
 			Iterator<? extends Path> original = paths.iterator();
 			@Override
 			public boolean hasNext() {
@@ -1269,7 +1269,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private Iterable<? extends Path> getPaths(final Iterable<? extends File> files) {
 		if (files == null)
 			return null;
-		return () -> new Iterator<Path>() {
+		return () -> new Iterator<>() {
 			Iterator<? extends File> original = files.iterator();
 			@Override
 			public boolean hasNext() {

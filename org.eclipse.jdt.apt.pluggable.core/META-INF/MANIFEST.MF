@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.pluggable.core;singleton:=true
-Bundle-Version: 1.2.500.qualifier
+Bundle-Version: 1.3.0.qualifier
 Bundle-Activator: org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin
 Bundle-Vendor: %providerName
 Require-Bundle: org.eclipse.core.runtime,
@@ -18,6 +18,6 @@ Import-Package: org.eclipse.jdt.internal.compiler.tool,
  org.eclipse.jdt.internal.compiler.apt.dispatch,
  org.eclipse.jdt.internal.compiler.apt.model,
  org.eclipse.jdt.internal.compiler.apt.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: org.eclipse.jdt.apt.pluggable.core
 
