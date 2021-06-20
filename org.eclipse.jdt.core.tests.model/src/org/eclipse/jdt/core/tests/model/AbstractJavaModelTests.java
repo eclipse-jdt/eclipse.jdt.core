@@ -234,7 +234,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		private ByteArrayOutputStream stackTraces;
 
-		private boolean gotResourceDelta;
+		private volatile boolean gotResourceDelta;
 
 		public DeltaListener() {
 			flush();
@@ -281,6 +281,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 * If the boolean is true returns the first delta found.
 		 */
 		public synchronized IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
+			if (this.deltas == null) waitForResourceDelta();
 			if (this.deltas == null) return null;
 			IJavaElementDelta result = null;
 			for (int i = 0; i < this.deltas.length; i++) {
@@ -343,7 +344,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		}
         	}
         }
-		public void resourceChanged(IResourceChangeEvent event) {
+		public synchronized void resourceChanged(IResourceChangeEvent event) {
 			this.gotResourceDelta = true;
 		}
 		/**
@@ -408,7 +409,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			long start = System.currentTimeMillis();
 			while (!this.gotResourceDelta) {
 				try {
-					Thread.sleep(200);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
 				if ((System.currentTimeMillis() - start) > 10000/*wait 10 s max*/) {
