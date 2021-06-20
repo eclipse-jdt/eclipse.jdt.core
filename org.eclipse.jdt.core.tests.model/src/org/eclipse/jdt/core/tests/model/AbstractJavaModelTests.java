@@ -3482,6 +3482,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
 		}
+		logInfo("SETUP " + getName());
 	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
@@ -3657,8 +3658,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	@Override
 	protected void tearDown() throws Exception {
-
-		super.tearDown();
+		logInfo("TEARDOWN " + getName());
 		if (this.workingCopies != null) {
 			discardWorkingCopies(this.workingCopies);
 			this.workingCopies = null;
@@ -3672,6 +3672,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			"Workspace options should be back to their default",
 			new CompilerOptions(defaultOptions).toString(),
 			new CompilerOptions(options).toString());
+		super.tearDown();
 	}
 
 	protected IPath getJRE9Path() {
@@ -3745,6 +3746,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			ILog log = plugin.getLog();
 			Status status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, errorMessage, e);
 			log.log(status);
+		}
+	}
+
+	private static void logInfo(String message) {
+		Plugin plugin = JavaCore.getPlugin();
+		if (plugin != null) {
+			plugin.getLog().log(new Status(IStatus.INFO, JavaCore.PLUGIN_ID, message));
 		}
 	}
 }
