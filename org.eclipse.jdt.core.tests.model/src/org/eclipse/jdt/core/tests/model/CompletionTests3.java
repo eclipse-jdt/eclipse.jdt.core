@@ -850,4 +850,82 @@ public void testBug574215_withToken() throws CoreException {
 		deleteProject("P");
 	}
 }
+public void testBug574338() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/Snippet.java",
+				"public class Snippet {\n" +
+				"	private boolean flag;\n" +
+				"\n" +
+				"	private void test(List<String> c) {\n" +
+				"		if (flag) {\n" +
+				"			// content assist here\n" +
+				"			List<String> scs = c.subList(0, 1);\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	String test() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}"
+				);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBefore = "// content assist here";
+		int cursorLocation = str.indexOf(completeBefore);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assertEquals(
+				"Snippet[TYPE_REF]{Snippet, , LSnippet;, null, null, null, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"c[LOCAL_VARIABLE_REF]{c, null, LList<Ljava.lang.String;>;, null, null, c, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"flag[FIELD_REF]{flag, LSnippet;, Z, null, null, flag, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, null, null, getClass, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"test[METHOD_REF]{test(), LSnippet;, ()Ljava.lang.String;, null, null, test, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"test[METHOD_REF]{test(), LSnippet;, (LList<Ljava.lang.String;>;)V, null, null, test, (c), replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), replace[101, 101], token[101, 101], "+relevance+"}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), replace[101, 101], token[101, 101], "+relevance+"}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574338_from574215c14() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/a/Bug574338.java",
+			"package a;\n" +
+			"public class Bug574338 {\n" +
+			"	public void name(String fooo) {\n" +
+			"    if (fooo != null) {\n" +
+			"      fo\n" +
+			"      System.err.println(\"Done\");\n" +
+			"    }\n" +
+			"}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"fooo[LOCAL_VARIABLE_REF]{fooo, null, Ljava.lang.String;, fooo, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

@@ -3713,7 +3713,8 @@ public final class CompletionEngine
 			// replace to the end of the completion identifier
 			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 		}
-		if (ref.tokens.length == 1 && this.parser.assistNodeParent != null) {
+		ASTNode parentNode = this.parser.assistNodeParent;
+		if (ref.tokens.length == 1 && parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == ref) {
 			// additionally check if 'prefix.' should be interpreted as a variable receiver rather then part of a type reference:
 			Binding variable = scope.getBinding(ref.tokens[0], Binding.VARIABLE, FakeInvocationSite, true);
 			if (variable instanceof VariableBinding) {
@@ -3872,6 +3873,15 @@ public final class CompletionEngine
 				null,
 				false);
 		}
+		ASTNode parentNode = this.parser.assistNodeParent;
+		if (parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == singleRef) {
+			// additionally check if this identifier should be interpreted as the beginning of an expression rather than the type of a variable declaration.
+			TypeBinding receiverType = scope.enclosingReceiverType();
+			if (receiverType != null && receiverType.isValidBinding()) {
+				findVariablesAndMethods(this.completionToken, scope, FakeInvocationSite, scope, false, false);
+			}
+		}
+
 	}
 
 	private void completionOnProvidesInterfacesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
