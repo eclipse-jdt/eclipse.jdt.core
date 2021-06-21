@@ -5523,4 +5523,110 @@ public void testBug573789_allMethodCompletion_withToken() throws JavaModelExcept
     assertTrue(String.format("Result doesn't match actual:  (%s)", result),
     		result.contains("xmoo[METHOD_REF]{xmoo(), LApp;, ()LApp;, xmoo, null, 60}"));
 }
+public void test574366_onParameterizedClassConstructor_insideLambda() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug574366.java",
+            "import java.util.ArrayList;\n" +
+            "import java.util.Arrays;\n" +
+			"public class Temp {\n"
+			+ "    public static void main(String[] args) {\n"
+			+ "    	Arrays.asList(1,2,3).stream()\n"
+			+ "    		.map(i -> {\n"
+			+ "    			return new ArrayList<>(1);\n"
+			+ "    		}).toArray();\n"
+			+ "    }\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "new ArrayList<>(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn''t contain ArrayList constructor (%s)", result),
+    		result.contains("ArrayList<>[ANONYMOUS_CLASS_DECLARATION]{, Ljava.util.ArrayList<>;, (I)V, null, (arg0), 39}\n"
+    				+ "ArrayList<>[ANONYMOUS_CLASS_DECLARATION]{, Ljava.util.ArrayList<>;, (Ljava.util.Collection<+TE;>;)V, null, (arg0), 39}"));
+}
+public void test574366_onParameterizedInterfaceConstructor_insideLambda() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug574366.java",
+            "import java.util.List;\n" +
+            "import java.util.Arrays;\n" +
+			"public class Temp {\n"
+			+ "    public static void main(String[] args) {\n"
+			+ "    	Arrays.asList(1,2,3).stream()\n"
+			+ "    		.map(i -> {\n"
+			+ "    			return new List<>(1);\n"
+			+ "    		}).toArray();\n"
+			+ "    }\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "new List<>(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain List constructor (%s)", result),
+    		result.contains("List<>[ANONYMOUS_CLASS_DECLARATION]{, Ljava.util.List<>;, ()V, null, null, 39}"));
+}
+public void test574366_onParameterizedClassConstructor_enclosedInstance() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug574366.java",
+			"public class Temp {\n"
+			+ "    public void foo() {\n"
+			+ "			Enclosed<String> list = new Temp().new Enclosed<>(1);"
+			+ "    }\n"
+			+ "	public class Enclosed<T> {"
+			+ "		public Enclosed(int i){}\n"
+			+ "	}\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "new Temp().new Enclosed<>(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected constructor (%s)", result),
+    		result.contains("Enclosed[METHOD_REF<CONSTRUCTOR>]{, LTemp$Enclosed<>;, (I)V, Enclosed, (i), 39}\n"
+    				+ "Temp.Enclosed<>[ANONYMOUS_CLASS_DECLARATION]{, LTemp$Enclosed<>;, (I)V, null, (i), 39}"));
+}
+public void test574366_onParameterizedInterfaceConstructor_enclosedInstance() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug574366.java",
+			"public class Temp {\n"
+			+ "    public void foo() {\n"
+			+ "			Enclosed<String> list = new Temp().new Enclosed<>(1);"
+			+ "    }\n"
+			+ "	public interface Enclosed<T> {"
+			+ "		public Enclosed(int i){}\n"
+			+ "	}\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "new Temp().new Enclosed<>(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected constructor (%s)", result),
+    		result.contains("Temp.Enclosed<java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, LTemp$Enclosed<Ljava.lang.String;>;, ()V, null, null, 39}"));
+}
 }
