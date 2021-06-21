@@ -300,6 +300,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			return this.deltas[this.deltas.length - 1];
 		}
 
+		public synchronized List<IJavaElementDelta> getAllDeltas() {
+			return List.of(this.deltas);
+		}
+
 		public synchronized void flush() {
 			this.deltas = new IJavaElementDelta[0];
 			this.stackTraces = new ByteArrayOutputStream();
