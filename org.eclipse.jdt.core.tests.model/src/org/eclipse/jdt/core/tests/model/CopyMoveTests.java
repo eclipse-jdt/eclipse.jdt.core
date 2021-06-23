@@ -82,6 +82,9 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		//ensure correct position
 		if (element.getElementType() > IJavaElement.COMPILATION_UNIT) {
 			ensureCorrectPositioning((IParent) container, sibling, copy);
+			if (copy.getElementType() != IJavaElement.IMPORT_DECLARATION) {
+				ensureChildExists((IParent) container, copy);
+			}
 		} else {
 			if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
 			} else {

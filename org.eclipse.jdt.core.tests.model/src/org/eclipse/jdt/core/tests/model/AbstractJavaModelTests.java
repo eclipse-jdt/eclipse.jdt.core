@@ -281,6 +281,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 * If the boolean is true returns the first delta found.
 		 */
 		public synchronized IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
+			Indexer.getInstance().waitForIndex(null);
 			if (this.deltas == null) waitForResourceDelta();
 			if (this.deltas == null) return null;
 			IJavaElementDelta result = null;
@@ -358,11 +359,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (delta == null) {
 				return null;
 			}
-			if (delta.getElement().equals(element)) {
+			IJavaElement deltaElement = delta.getElement();
+			if (deltaElement.equals(element)) {
 				return delta;
 			}
-			for (int i= 0; i < delta.getAffectedChildren().length; i++) {
-				IJavaElementDelta child= searchForDelta(element, delta.getAffectedChildren()[i]);
+			IJavaElementDelta[] affectedChildren = delta.getAffectedChildren();
+			for (IJavaElementDelta affectedChild : affectedChildren) {
+				IJavaElementDelta child= searchForDelta(element, affectedChild);
 				if (child != null) {
 					return child;
 				}
@@ -2319,6 +2322,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("Did not find sibling", found);
 		}
 	}
+
+	/**
+	 * Ensure given child exists in the parent
+	 */
+	public void ensureChildExists(IParent container, IJavaElement child) throws JavaModelException {
+		IJavaElement[] children = container.getChildren();
+		if (child != null) {
+			// find the sibling
+			boolean found = false;
+			for (IJavaElement child2 : children) {
+				if (child2.equals(child)) {
+					found = true;
+					break;
+				}
+			}
+			assertTrue("Did not find child: " + child + " in parent container: " + container, found);
+		}
+	}
+
 	protected String[] getJCL15PlusLibraryIfNeeded(String compliance) throws JavaModelException, IOException {
 		if (compliance.charAt(compliance.length()-1) >= '8' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) != 0) {
 			// ensure that the JCL 18 lib is setup (i.e. that the jclMin18.jar is copied)
