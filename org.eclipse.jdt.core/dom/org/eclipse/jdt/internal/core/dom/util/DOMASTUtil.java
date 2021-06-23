@@ -86,6 +86,8 @@ public class DOMASTUtil {
 		switch (featureName) {
 			case Modifier.SEALED:
 				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+			case Modifier.NON_SEALED:
+				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
 		}
 		return false;
 	}
@@ -109,6 +111,8 @@ public class DOMASTUtil {
 	public static boolean isFeatureSupportedinAST(int apiLevel, boolean previewEnabled, int featureName) {
 		switch (featureName) {
 			case Modifier.SEALED:
+				return isPreviewEnabled(apiLevel, previewEnabled);
+			case Modifier.NON_SEALED:
 				return isPreviewEnabled(apiLevel, previewEnabled);
 		}
 		return false;
@@ -140,10 +144,6 @@ public class DOMASTUtil {
 
 	public static boolean isPatternInstanceofExpressionSupported(AST ast) {
 		return isNodeTypeSupportedinAST(ast, ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
-	}
-
-	public static boolean isSealedTypeSupported(AST ast) {
-		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
 	}
 
 	@SuppressWarnings("deprecation")
