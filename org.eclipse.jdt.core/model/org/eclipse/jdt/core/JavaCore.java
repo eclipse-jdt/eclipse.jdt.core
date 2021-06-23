@@ -4584,7 +4584,7 @@ public final class JavaCore extends Plugin {
 				}
 			}
 		} finally {
-			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
+			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.remove();
 		}
 
 		// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )

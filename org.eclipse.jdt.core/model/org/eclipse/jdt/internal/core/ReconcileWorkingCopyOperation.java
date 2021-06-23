@@ -228,7 +228,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	    	// else JavaProject has lost its nature (or most likely was closed/deleted) while reconciling -> ignore
 	    	// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=100919)
 	    } finally {
-			JavaModelManager.getJavaModelManager().abortOnMissingSource.set(null);
+			JavaModelManager.getJavaModelManager().abortOnMissingSource.remove();
 	        if (unit != null) {
 	            unit.cleanUp();
 	        }

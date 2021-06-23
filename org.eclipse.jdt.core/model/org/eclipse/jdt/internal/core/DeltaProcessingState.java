@@ -84,7 +84,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 	public void doNotUse() {
 		// reset the delta processor of the current thread to avoid to keep it in memory
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=269476
-		this.deltaProcessors.set(null);
+		this.deltaProcessors.remove();
 	}
 
 	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo */

@@ -375,7 +375,7 @@ public class ClasspathChange {
 					} catch (JavaModelException e) {
 						pkgFragmentRoots =  new PackageFragmentRoot[] {};
 					} finally {
-						JrtPackageFragmentRoot.workingOnOldClasspath.set(null);
+						JrtPackageFragmentRoot.workingOnOldClasspath.remove();
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);

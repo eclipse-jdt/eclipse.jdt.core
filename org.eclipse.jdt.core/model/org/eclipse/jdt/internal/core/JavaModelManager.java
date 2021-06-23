@@ -713,7 +713,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (perPathContainers.size() == 0)
 			perProjectContainers.remove(project);
 		if (perProjectContainers.size() == 0)
-			this.containersBeingInitialized.set(null);
+			this.containersBeingInitialized.remove();
 		return container;
 	}
 
@@ -921,7 +921,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (projectInitializations.size() == 0)
 			initializations.remove(project);
 		if (initializations.size() == 0)
-			this.containerInitializationInProgress.set(null);
+			this.containerInitializationInProgress.remove();
 	}
 
 	private synchronized void containersReset(String[] containerIDs) {
@@ -2031,7 +2031,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// the owner will be responsible for flushing the cache
 		// we want to check object identity to make sure this is the owner that created the cache
 		if (zipCache.owner == owner) {
-			this.zipFiles.set(null);
+			this.zipFiles.remove();
 			zipCache.flush();
 		} else {
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -3050,7 +3050,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							while (perProjectContainers != null && !perProjectContainers.isEmpty()) {
 								initKnownContainers(perProjectContainers, monitor);
 							}
-							JavaModelManager.this.containersBeingInitialized.set(null);
+							JavaModelManager.this.containersBeingInitialized.remove();
 						} finally {
 							if (monitor != null)
 								monitor.done();
@@ -3101,7 +3101,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				// if we're being traversed by an exception, ensure that that containers are
 				// no longer marked as initialization in progress
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=66437)
-				this.containerInitializationInProgress.set(null);
+				this.containerInitializationInProgress.remove();
 			}
 		}
 
@@ -4301,7 +4301,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Resets the temporary cache for newly created elements to null.
 	 */
 	public void resetTemporaryCache() {
-		this.temporaryCache.set(null);
+		this.temporaryCache.remove();
 	}
 
 	/**

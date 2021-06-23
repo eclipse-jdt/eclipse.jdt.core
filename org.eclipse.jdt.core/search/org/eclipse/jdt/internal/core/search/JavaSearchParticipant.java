@@ -53,12 +53,12 @@ public class JavaSearchParticipant extends SearchParticipant implements IParalle
 	@Override
 	public void beginSearching() {
 		super.beginSearching();
-		this.indexSelector.set(null);
+		this.indexSelector.remove();
 	}
 
 	@Override
 	public void doneSearching() {
-		this.indexSelector.set(null);
+		this.indexSelector.remove();
 		super.doneSearching();
 	}
 

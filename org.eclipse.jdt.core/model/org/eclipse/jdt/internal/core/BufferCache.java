@@ -62,7 +62,7 @@ public class BufferCache<K> extends OverflowingLRUCache<K, IBuffer> {
 		List<IBuffer> buffers = this.buffersToClose.get();
 		if (buffers == null)
 			return;
-		this.buffersToClose.set(null);
+		this.buffersToClose.remove();
 		for (int i = 0, length = buffers.size(); i < length; i++) {
 			buffers.get(i).close();
 		}

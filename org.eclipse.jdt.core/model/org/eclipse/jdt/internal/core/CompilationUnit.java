@@ -1148,7 +1148,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boo
 			return null;
 		}
 	} finally {
-		JavaModelManager.getJavaModelManager().abortOnMissingSource.set(null);
+		JavaModelManager.getJavaModelManager().abortOnMissingSource.remove();
 	}
 }
 /**
