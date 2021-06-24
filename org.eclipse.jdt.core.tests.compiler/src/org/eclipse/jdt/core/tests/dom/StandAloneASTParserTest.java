@@ -65,7 +65,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 
-	private static final int AST_JLS_LATEST = AST.JLS_Latest;
+	private static final int AST_JLS_LATEST = AST.getJLSLatest();
 
 	public ASTNode runConversion(
 			int astLevel,

@@ -176,7 +176,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for the latest AST level.
 	 *
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS_Latest;
+	protected static final int AST_INTERNAL_LATEST = AST.getJLSLatest();
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}

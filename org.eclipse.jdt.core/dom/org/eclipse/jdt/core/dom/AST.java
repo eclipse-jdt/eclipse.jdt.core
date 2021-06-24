@@ -121,7 +121,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.0
-	 * @deprecated Clients should use the  {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the  {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS2 = 2;
 
@@ -145,7 +145,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.1
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS3 = 3;
 
@@ -169,7 +169,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.7.1
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS4 = 4;
 
@@ -193,7 +193,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.10
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS8 = 8;
 
@@ -217,7 +217,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.14
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS9 = 9;
 
@@ -241,7 +241,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.14
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS10 = 10;
 
@@ -264,7 +264,7 @@ public final class AST {
 	 * up to and including Java SE 11 (aka JDK 11).
 	 * </p>
 	 *
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.16
 	 */
 	public static final int JLS11 = 11;
@@ -287,7 +287,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 12 (aka JDK 12).
 	 * </p>
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.18
 	 */
 	public static final int JLS12 = 12;
@@ -309,9 +309,9 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 13 (aka JDK 13).
 	 * </p>
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.20
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
 	public static final int JLS13 = 13;
 
@@ -333,7 +333,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 14(aka JDK 14).
 	 * </p>
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.22
 	 */
 	public static final int JLS14 = 14;
@@ -356,7 +356,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 15(aka JDK 15).
 	 * </p>
-	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.24
 	 */
 	public static final int JLS15 = 15;
@@ -388,10 +388,17 @@ public final class AST {
 	static final int JLS16_INTERNAL = JLS16;
 
 	/**
-	 * @since 3.26
+	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	public static final int JLS_Latest = JLS16;
+	private static final int JLS_INTERNAL_Latest = JLS16;
+
+	/**
+	 * @since 3.26
+	 * This provides the latest JLS level.
+	 * @deprecated use {@link #getJLSLatest()}
+	 */
+	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -3763,9 +3770,19 @@ public final class AST {
 	 * @since 3.19
 	 */
 	public boolean isPreviewEnabled() {
-		if (this.apiLevel == AST.JLS_Latest && this.previewEnabled) {
+		if (this.apiLevel == AST.JLS_INTERNAL_Latest && this.previewEnabled) {
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns latest supportd JLS level
+	 *
+	 * @return the latest supported JLS level
+	 * @since 3.27
+	 */
+	public static int getJLSLatest() {
+		return JLS_INTERNAL_Latest;
 	}
 }

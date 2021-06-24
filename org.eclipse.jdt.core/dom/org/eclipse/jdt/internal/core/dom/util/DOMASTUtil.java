@@ -148,8 +148,8 @@ public class DOMASTUtil {
 
 	@SuppressWarnings("deprecation")
 	public static void checkASTLevel(int level) {
-		// Clients can use AST.JLS_Latest
-		if(level >=AST.JLS8 && level <= AST.JLS_Latest )
+		// Clients can use AST.getJLSLatest()
+		if(level >=AST.JLS8 && level <= AST.getJLSLatest() )
 			return;
 		switch (level) {
 	        case AST.JLS2 :
