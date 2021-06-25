@@ -941,6 +941,13 @@ private char[] readStreamChars(InputStream stream) throws IOException {
 		// all the characters must already be in the buffer if we're at the end of the stream
 		if (charsInBuffer > length || stream == null  || (this.bufferEnd != this.streamBuffer.length && stream.available() == 0))
 			charsInBuffer = length;
+		{ // optimization for the typical case of pure ASCII chars:
+			byte b;
+			while (i < charsInBuffer && (b = this.streamBuffer[this.bufferIndex]) >= 0) {
+				word[i++] = (char) b;
+				this.bufferIndex++;
+			}
+		}
 		while (i < charsInBuffer) {
 			byte b = this.streamBuffer[this.bufferIndex++];
 			switch (b & 0xF0) {
