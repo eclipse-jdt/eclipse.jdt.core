@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -192,6 +196,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JavaLangIllegalArgumentExceptionConstantPoolName = "java/lang/IllegalArgumentException".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangVoidConstantPoolName = "java/lang/Void".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaUtilIteratorConstantPoolName = "java/util/Iterator".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaUtilObjectsConstantPoolName = "java/util/Objects".toCharArray(); //$NON-NLS-1$
 	public static final char[] LongConstrSignature = "(J)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] longLongSignature = "(J)Ljava/lang/Long;".toCharArray(); //$NON-NLS-1$
 	public static final char[] LONGVALUE_LONG_METHOD_NAME = "longValue".toCharArray(); //$NON-NLS-1$
@@ -206,6 +211,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] Ordinal = "ordinal".toCharArray(); //$NON-NLS-1$
 	public static final char[] OrdinalSignature = "()I".toCharArray(); //$NON-NLS-1$
 	public static final char[] Out = "out".toCharArray(); //$NON-NLS-1$
+	public static final char[] RequireNonNull = "requireNonNull".toCharArray();//$NON-NLS-1$
+	public static final char[] RequireNonNullSignature = "(Ljava/lang/Object;)Ljava/lang/Object;".toCharArray();//$NON-NLS-1$
 	public static final char[] SET_BOOLEAN_METHOD_NAME = "setBoolean".toCharArray(); //$NON-NLS-1$
 	public static final char[] SET_BOOLEAN_METHOD_SIGNATURE = "(Ljava/lang/Object;Z)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] SET_BYTE_METHOD_NAME = "setByte".toCharArray(); //$NON-NLS-1$
@@ -309,6 +316,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] BOOTSTRAP = "bootstrap".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] PREVIEW_FEATURE = "/PreviewFeature;".toCharArray(); //$NON-NLS-1$
+	public static final char[] TYPESWITCH = "typeSwitch".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_TYPESWITCH_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * ConstantPool constructor comment.

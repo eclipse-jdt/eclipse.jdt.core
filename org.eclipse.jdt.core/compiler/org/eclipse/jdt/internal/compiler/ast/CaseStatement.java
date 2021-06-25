@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,6 +33,8 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -38,6 +44,8 @@ public class CaseStatement extends Statement {
 	public Expression[] constantExpressions; // case with multiple expressions
 	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isExpr = false;
+//	public BlockScope scope;
+	/* package */ int patternIndex = -1; // points to first pattern var index [only one pattern variable allowed now - should be 0]
 
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 	this(sourceEnd, sourceStart, constantExpression != null ? new Expression[] {constantExpression} : null);
@@ -47,6 +55,18 @@ public CaseStatement(int sourceEnd, int sourceStart, Expression[] constantExpres
 	this.constantExpressions = constantExpressions;
 	this.sourceEnd = sourceEnd;
 	this.sourceStart = sourceStart;
+	initPatterns();
+}
+
+private void initPatterns() {
+	int l = this.constantExpressions == null ? 0 : this.constantExpressions.length;
+	for (int i = 0; i < l; ++i) {
+		Expression e = this.constantExpressions[i];
+		if (e instanceof PatternExpression) {
+			this.patternIndex = i;
+			break;
+		}
+	}
 }
 
 @Override
@@ -73,6 +93,10 @@ private void analyseConstantExpression(
 	e.analyseCode(currentScope, flowContext, flowInfo);
 }
 
+@Override
+public boolean containsPatternVariable() {
+	return this.patternIndex != -1;
+}
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	printIndent(tab, output);
@@ -107,7 +131,17 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	} else {
 		this.targetLabel.place();
 	}
+	casePatternExpressionGenerateCode(currentScope, codeStream);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
+}
+
+private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStream codeStream) {
+	if (this.patternIndex != -1) {
+		LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
+		codeStream.load(local);
+		PatternExpression patternExpression = ((PatternExpression) this.constantExpressions[this.patternIndex]);
+		patternExpression.generateCode(currentScope, codeStream);
+	}
 }
 
 /**
@@ -142,6 +176,7 @@ public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType
 	if (switchExpressionType != null && switchExpressionType.isEnum() && (constExpr instanceof SingleNameReference)) {
 		((SingleNameReference) constExpr).setActualReceiverType((ReferenceBinding)switchExpressionType);
 	}
+//	this.scope = new BlockScope(scope);
 	TypeBinding caseType = constExpr.resolveType(scope);
 	if (caseType == null || switchExpressionType == null) return Constant.NotAConstantList;
 	// tag constant name with enum type for privileged access to its members
@@ -215,18 +250,33 @@ private Constant resolveConstantExpression(BlockScope scope,
 	Constant constant = Constant.NotAConstant;
 	TypeBinding type = e.resolveType(scope);
 	if (type != null) {
+		constant = IntConstant.fromValue(switchStatement.caseLabelElements.size());
 		switchStatement.caseLabelElements.add(e);
-		constant = IntConstant.fromValue(switchStatement.caseLabelElements.size()); //TODO: should we assign 0 to default?
 		Pattern p = e.pattern;
+		p.setTargetSupplier(switchStatement::getGuardedPatternThen);
 		if (p.resolvedPattern != null) {
 			// 14.30.2 at compile-time we "resolve" the pattern with respect to the (compile-time) type
 			// of the expression being pattern matched
-			p.resolveAtType(scope, switchStatement.expression.resolvedType);
+			PatternBinding pb = p.resolveAtType(scope, switchStatement.expression.resolvedType);
+			if (pb != null) switchStatement.caseLabelElementTypes.add(pb.getType());
 		}
 	}
 	return constant;
 }
 
+/* package */ void patternCaseRemovePatternLocals(CodeStream codeStream) {
+	for (Expression e : this.constantExpressions) {
+		if (e instanceof PatternExpression) {
+			Pattern p = ((PatternExpression) e).pattern;
+			LocalDeclaration[] patternLocals = p.getPatternVariables();
+			if (patternLocals == null) return;
+			for (LocalDeclaration local : patternLocals) {
+				if (local == null || local.binding == null) continue;
+				codeStream.removeVariable(local.binding);
+			}
+		}
+	}
+}
 @Override
 public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -1963,6 +1967,9 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) expression);
 		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.PatternExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.PatternExpression) expression);
+		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.PrefixExpression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.PrefixExpression) expression);
 		}
@@ -2739,6 +2746,12 @@ class ASTConverter {
 		return postfixExpression;
 	}
 
+	// TODO: A placeholder BUG 573941 TO ADDRESS THIS
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.PatternExpression expression) {
+		Expression expr = new NullLiteral(this.ast);
+		expr.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return expr;
+	}
 	public PrefixExpression convert(org.eclipse.jdt.internal.compiler.ast.PrefixExpression expression) {
 		final PrefixExpression prefixExpression = new PrefixExpression(this.ast);
 		if (this.resolveBindings) {

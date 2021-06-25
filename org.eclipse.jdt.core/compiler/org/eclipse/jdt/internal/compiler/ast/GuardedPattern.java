@@ -17,7 +17,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.function.Supplier;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -31,11 +34,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 public class GuardedPattern extends Pattern {
 
 	public Pattern primaryPattern;
-	public Expression conditionalAndExpression;
+	public Expression condition;
+	private Supplier<BranchLabel> targetSupplier;
 
 	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
 		this.primaryPattern = primaryPattern;
-		this.conditionalAndExpression = conditionalAndExpression;
+		this.condition = conditionalAndExpression;
 		this.sourceStart = primaryPattern.sourceStart;
 		this.sourceEnd = conditionalAndExpression.sourceEnd;
 	}
@@ -50,21 +54,30 @@ public class GuardedPattern extends Pattern {
 		return TypeConstants.GUARDED_PATTERN_STRING;
 	}
 
+	// TODO: BUG 573940 to implement this method - THIS IS A PLACEHOLDER
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		// TODO Auto-generated method stub
-		return null;
+		flowInfo = this.primaryPattern.analyseCode(currentScope, flowContext, flowInfo);
+		return this.condition.analyseCode(currentScope, flowContext, flowInfo);
 	}
 
 	@Override
-	public AbstractVariableDeclaration[] getPatternVariables() {
+	public LocalDeclaration[] getPatternVariables() {
 		return this.primaryPattern.getPatternVariables();
 	}
 
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		// TODO Auto-generated method stub
+ 		this.primaryPattern.generateCode(currentScope, codeStream);
 
+		Constant cst =  this.condition.optimizedBooleanConstant();
+
+		this.condition.generateOptimizedBoolean(
+				currentScope,
+				codeStream,
+				this.targetSupplier.get(),
+				null,
+				cst == Constant.NotAConstant);
 	}
 
 	@Override
@@ -75,7 +88,7 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public boolean isTotalForType(TypeBinding type) {
-		Constant cst = this.conditionalAndExpression.optimizedBooleanConstant();
+		Constant cst = this.condition.optimizedBooleanConstant();
 		return this.primaryPattern.isTotalForType(type) && cst != Constant.NotAConstant && cst.booleanValue() == true;
 
 	}
@@ -90,6 +103,7 @@ public class GuardedPattern extends Pattern {
 		if (this.resolvedType != null || this.primaryPattern == null)
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
+		this.condition.resolveType(scope);
 		this.resolvedPattern = new GuardedPatternBinding(this.primaryPattern.resolvedPattern);
 		return this.resolvedType;
 	}
@@ -107,7 +121,12 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
-		return this.conditionalAndExpression.print(indent, output);
+		return this.condition.print(indent, output);
+	}
+
+	@Override
+	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
+		this.targetSupplier = targetSupplier;
 	}
 
 	@Override
@@ -115,8 +134,8 @@ public class GuardedPattern extends Pattern {
 		if (visitor.visit(this, scope)) {
 			if (this.primaryPattern != null)
 				this.primaryPattern.traverse(visitor, scope);
-			if (this.conditionalAndExpression != null)
-				this.conditionalAndExpression.traverse(visitor, scope);
+			if (this.condition != null)
+				this.condition.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}

@@ -256,6 +256,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIME_OBJECTMETHODS = {JAVA, LANG, RUNTIME, "ObjectMethods".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS = {JAVA, LANG, RUNTIME, "SwitchBootstraps".toCharArray()}; //$NON-NLS-1$
 	// known helper functions for closing a Closeable (all receive a Closeable as their first argument):
 	public static class CloseMethodRecord {
 		public char[][] typeName;

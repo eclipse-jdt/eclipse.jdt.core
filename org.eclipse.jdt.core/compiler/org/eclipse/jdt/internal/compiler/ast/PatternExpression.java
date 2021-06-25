@@ -18,6 +18,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -27,8 +30,21 @@ public class PatternExpression extends Expression {
 
 	public PatternExpression(Pattern pattern) {
 		this.pattern = pattern;
+		this.sourceStart = pattern.sourceStart();
+		this.sourceEnd = pattern.sourceEnd();
 	}
 
+	@Override
+	public FlowInfo analyseCode(
+		BlockScope currentScope,
+		FlowContext flowContext,
+		FlowInfo flowInfo) {
+		return this.pattern.analyseCode(currentScope, flowContext, flowInfo);
+	}
+	@Override
+	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		this.pattern.generateCode(currentScope, codeStream);
+	}
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// by default... subclasses should implement a better TB if required.
@@ -46,6 +62,10 @@ public class PatternExpression extends Expression {
 	}
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		// do nothing by default
+		if (visitor.visit(this, scope)) {
+			if (this.pattern != null)
+				this.pattern.traverse(visitor, scope);
+		}
+		visitor.endVisit(this, scope);
 	}
 }

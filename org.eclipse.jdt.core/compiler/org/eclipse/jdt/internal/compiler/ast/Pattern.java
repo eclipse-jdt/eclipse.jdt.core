@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.function.Supplier;
+
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -44,7 +47,7 @@ public abstract class Pattern extends ASTNode {
 
 	PatternBinding resolvedPattern;
 
-	public abstract AbstractVariableDeclaration[] getPatternVariables();
+	public abstract LocalDeclaration[] getPatternVariables();
 
 	// TODO: Recheck whether we need this in Pattern
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
@@ -60,4 +63,8 @@ public abstract class Pattern extends ASTNode {
 	public abstract TypeBinding resolveType(BlockScope scope);
 
 	public abstract PatternBinding resolveAtType(BlockScope scope, TypeBinding type);
+
+	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
+		// default implementation does nothing
+	}
 }

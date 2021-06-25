@@ -345,6 +345,9 @@ public abstract class ASTVisitor {
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(PatternExpression patternExpression, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
 		// do nothing by default
 	}
@@ -876,6 +879,9 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(PatternExpression patternExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(PostfixExpression postfixExpression, BlockScope scope) {

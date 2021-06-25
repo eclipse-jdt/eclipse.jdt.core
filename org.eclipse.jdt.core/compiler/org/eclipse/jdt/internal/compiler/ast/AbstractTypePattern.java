@@ -36,10 +36,12 @@ public abstract class AbstractTypePattern extends Pattern {
 				new AnyPattern(local)
 				: new TypePattern(local);
 	}
+
+	// TODO: BUG 573940 to implement this method - THIS IS A PLACEHOLDER
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		// TODO Auto-generated method stub
-		return null;
+		flowInfo.markAsDefinitelyAssigned(this.local.binding);
+		return flowInfo;
 	}
 
 	@Override
@@ -49,7 +51,7 @@ public abstract class AbstractTypePattern extends Pattern {
 	}
 
 	@Override
-	public AbstractVariableDeclaration[] getPatternVariables() {
+	public LocalDeclaration[] getPatternVariables() {
 		return new LocalDeclaration[] { this.local };
 	}
 

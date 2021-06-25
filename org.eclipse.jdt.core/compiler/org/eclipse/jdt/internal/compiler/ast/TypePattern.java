@@ -18,8 +18,10 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.AnyPatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -48,6 +50,16 @@ public class TypePattern extends AbstractTypePattern {
 		return type.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
 	}
 
+	@Override
+	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		if (this.local != null) {
+			LocalVariableBinding localBinding = this.local.binding;
+			codeStream.checkcast(localBinding.type);
+			this.local.generateCode(currentScope, codeStream);
+			codeStream.store(localBinding, false);
+			localBinding.recordInitializationStartPC(codeStream.position);
+		}
+	}
 	/*
 	 * A type pattern, p, declaring a pattern variable x of type T, that is total for U,
 	 * is resolved to an any pattern that declares x of type T;

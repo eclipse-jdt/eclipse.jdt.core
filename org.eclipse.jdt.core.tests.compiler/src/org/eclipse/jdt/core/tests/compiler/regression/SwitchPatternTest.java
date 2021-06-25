@@ -94,7 +94,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 
 	// TODO: Change the error messages after implementing post grammar processing parts
-	public void _testBug573516_001() {
+	public void testBug573516_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -102,7 +102,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" private static void foo(Object o) {\n"+
 				"   switch (o) {\n"+
 				"     case Integer i     -> System.out.println(\"String:\");\n"+
-				"     case String s     -> System.out.println(\"String:\");\n"+
+				"     case String s     -> System.out.println(\"String: Hello World!\");\n"+
 				"     default       -> System.out.println(\"Object\");\n"+
 				"   }\n"+
 				" }\n"+
@@ -111,7 +111,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" }\n"+
 				"}",
 			},
-			"0");
+			"String: Hello World!");
 	}
 	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_002() {
@@ -216,7 +216,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	// TODO: Change the error messages after implementing post grammar processing parts
-	public void testBug573516_006() {
+	public void _testBug573516_006() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -427,6 +427,196 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+
+	public void _testBug573936_01() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer I: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(I); \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
+					"       System.out.println(s); \n"+
+					"       break;// error no fallthrough allowed in pattern\n"+
+					"     case X x:\n"+
+					"       System.out.println(\"X\"); \n"+
+					"       System.out.println(x);\n"+
+					"       break;\n"+
+					"     default : System.out.println(\"Object\"); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					"     foo(\"H\");\n"+
+					"   foo(bar());\n"+
+					" }\n"+
+					"   public static Object bar() { return new Object();}\n"+
+					"}",
+				},
+				"ERROR: NO FALL THROUGH ALLOWED IN PATTERN CASES");
+		}
+	public void testBug573939_01() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer s : System.out.println(\"Integer\");\n"+
+					"     case String s1: System.out.println(\"String \");\n"+
+					"     default : System.out.println(\"Object\");\n"+
+					"   }\n"+
+					" }\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello World\");\n"+
+					"   Zork();\n"+
+					" }\n"+
+					"}\n"+
+					"class Y {}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n");
+		}
+	public void testBug573939_02() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer I: System.out.println(\"Integer\"); break;\n"+
+					"     case String s && s.length()>1: System.out.println(\"String > 1\"); break;\n"+
+					"     case String s1: System.out.println(\"String\"); break;\n"+
+					"     case X x: System.out.println(\"X\"); break;\n"+
+					"     default : System.out.println(\"Object\");\n"+
+					"   }\n"+
+					" }\n"+
+					"   public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					"   foo(\"H\");\n"+
+					"   foo(bar());\n"+
+					" }\n"+
+					"   public static Object bar() { return new Object();}\n"+
+					"}",
+				},
+				"String > 1\n" +
+				"String\n" +
+				"Object");
+		}
+	public void testBug573939_03() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer I: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(I); \n"+
+					"       break; \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
+					"       System.out.println(s); \n"+
+					"       break;\n"+
+					"     case String s1: \n"+
+					"       System.out.println(\"String\"); \n"+
+					"       System.out.println(s1);\n"+
+					"       break; \n"+
+					"     case X x:\n"+
+					"       System.out.println(\"X\"); \n"+
+					"       System.out.println(x);\n"+
+					"       break;\n"+
+					"     default : System.out.println(\"Object\"); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					"     foo(\"H\");\n"+
+					"   foo(bar());\n"+
+					" }\n"+
+					"   public static Object bar() { return new Object();}\n"+
+					"}",
+				},
+				"String s && s.length()>1\n" +
+				"Hello World!\n" +
+				"String\n" +
+				"H\n" +
+				"Object");
+		}
+	// same local variable name in case pattern - scope
+	// TODO: Bug 573937 to take care
+	public void _testBug573939_03b() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer I: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(I); \n"+
+					"       break; \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
+					"       System.out.println(s); \n"+
+					"       break;\n"+
+					"     case String s: \n"+
+					"       System.out.println(\"String\"); \n"+
+					"       System.out.println(s);\n"+
+					"       break; \n"+
+					"     case X x:\n"+
+					"       System.out.println(\"X\"); \n"+
+					"       System.out.println(x);\n"+
+					"       break;\n"+
+					"     default : System.out.println(\"Object\"); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					"     foo(\"H\");\n"+
+					"   foo(bar());\n"+
+					" }\n"+
+					"   public static Object bar() { return new Object();}\n"+
+					"}",
+				},
+				"String s && s.length()>1\n" +
+				"Hello World!\n" +
+				"String\n" +
+				"H\n" +
+				"Object");
+		}
+	public void test045() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public abstract class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    switch (args.length) {\n" +
+				"      case 1:\n" +
+				"        final int j = 1;\n" +
+				"      case 2:\n" +
+				"        switch (5) {\n" +
+				"          case j:\n" +
+				"        }\n" +
+				"    }\n" +
+				"  }\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case j:\n" +
+			"	     ^\n" +
+			"The local variable j may not have been initialized\n" +
 			"----------\n");
 	}
 }
