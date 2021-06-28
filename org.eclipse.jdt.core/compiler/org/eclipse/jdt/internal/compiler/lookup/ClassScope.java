@@ -1440,9 +1440,9 @@ public class ClassScope extends Scope {
 
 	void connectTypeHierarchy() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		CompilationUnitScope compilationUnitScope = compilationUnitScope();
-		boolean wasAlreadyConnecting = compilationUnitScope.connectingHierarchy;
-		compilationUnitScope.connectingHierarchy = true;
+		CompilationUnitScope compilationUnitScopeLocal = compilationUnitScope();
+		boolean wasAlreadyConnecting = compilationUnitScopeLocal.connectingHierarchy;
+		compilationUnitScopeLocal.connectingHierarchy = true;
 		try {
 			if ((sourceType.tagBits & TagBits.BeginHierarchyCheck) == 0) {
 				sourceType.tagBits |= TagBits.BeginHierarchyCheck;
@@ -1459,7 +1459,7 @@ public class ClassScope extends Scope {
 			}
 			connectMemberTypes();
 		} finally {
-			compilationUnitScope.connectingHierarchy = wasAlreadyConnecting;
+			compilationUnitScopeLocal.connectingHierarchy = wasAlreadyConnecting;
 		}
 		LookupEnvironment env = environment();
 		try {
@@ -1500,9 +1500,9 @@ public class ClassScope extends Scope {
 		if ((sourceType.tagBits & TagBits.BeginHierarchyCheck) != 0)
 			return;
 
-		CompilationUnitScope compilationUnitScope = compilationUnitScope();
-		boolean wasAlreadyConnecting = compilationUnitScope.connectingHierarchy;
-		compilationUnitScope.connectingHierarchy = true;
+		CompilationUnitScope compilationUnitScopeLocal = compilationUnitScope();
+		boolean wasAlreadyConnecting = compilationUnitScopeLocal.connectingHierarchy;
+		compilationUnitScopeLocal.connectingHierarchy = true;
 		try {
 			sourceType.tagBits |= TagBits.BeginHierarchyCheck;
 			environment().typesBeingConnected.add(sourceType);
@@ -1516,7 +1516,7 @@ public class ClassScope extends Scope {
 			if (noProblems && sourceType.isHierarchyInconsistent())
 				problemReporter().hierarchyHasProblems(sourceType);
 		} finally {
-			compilationUnitScope.connectingHierarchy = wasAlreadyConnecting;
+			compilationUnitScopeLocal.connectingHierarchy = wasAlreadyConnecting;
 		}
 	}
 

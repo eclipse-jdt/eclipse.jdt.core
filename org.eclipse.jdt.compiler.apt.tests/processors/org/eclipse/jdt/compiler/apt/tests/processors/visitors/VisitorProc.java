@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2018 BEA Systems, Inc.
+ * Copyright (c) 2007, 2021 BEA Systems, Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    IBM Corporation - bug fixes
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.visitors;
@@ -50,7 +51,6 @@ public class VisitorProc extends BaseProcessor
 	 * This visitor is invoked on the top-level types in resources/targets/model.
 	 * We expect to see each of the visitX() methods get hit as a result.
 	 */
-	@SuppressWarnings("deprecation")
 	private static class ElementVisitorTester extends ElementScanner6<Void, Void> {
 
 		public enum Visited { TYPE, EXECUTABLE, VARIABLE, TYPEPARAM, PACKAGE, UNKNOWN }
@@ -133,7 +133,6 @@ public class VisitorProc extends BaseProcessor
 	/*
 	 * The specific values checked by this visitor correspond to values in targets.model.pc.TypedAnnos.java
 	 */
-	@SuppressWarnings("deprecation")
 	private static class AnnotationVisitorTester extends AbstractAnnotationValueVisitor6<Void, Void> {
 
 		public enum Visited { ANNOTATION, ARRAY, BOOLEAN, BYTE, CHAR, DOUBLE, ENUMCONSTANT, FLOAT, INT, LONG, SHORT, STRING, TYPE }
