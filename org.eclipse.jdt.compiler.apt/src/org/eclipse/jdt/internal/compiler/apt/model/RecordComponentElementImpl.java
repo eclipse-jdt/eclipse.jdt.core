@@ -47,7 +47,6 @@ public class RecordComponentElementImpl extends VariableElementImpl implements R
 		return null;
 	}
 
-	@SuppressWarnings("preview")
 	@Override
 	public <R, P> R accept(ElementVisitor<R, P> visitor, P param) {
 		return visitor.visitRecordComponent(this, param);

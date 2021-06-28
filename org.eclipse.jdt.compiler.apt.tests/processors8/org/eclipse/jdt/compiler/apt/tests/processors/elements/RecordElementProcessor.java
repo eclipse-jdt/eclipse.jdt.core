@@ -49,7 +49,6 @@ import javax.lang.model.util.ElementFilter;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 
 @SupportedAnnotationTypes("*")
-@SuppressWarnings("preview")
 public class RecordElementProcessor extends BaseElementProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
