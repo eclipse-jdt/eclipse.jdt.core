@@ -143,13 +143,13 @@ public String[] getCategories() throws JavaModelException {
  * @see IMember
  */
 @Override
-public AbstractClassFile getClassFile() {
+public IClassFile getClassFile() {
 	JavaElement element = getParent();
 	while (element instanceof Member) {
 		element= element.getParent();
 	}
 	if (element instanceof IClassFile) {
-		return (AbstractClassFile) element;
+		return (IClassFile) element;
 	}
 	return null;
 }

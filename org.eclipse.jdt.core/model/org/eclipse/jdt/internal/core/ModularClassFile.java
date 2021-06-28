@@ -109,6 +109,15 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 		return false;
 	}
 
+	/**
+	 * @return never returns.
+	 * @throws UnsupportedOperationException
+	 *             always.
+	 * @deprecated should only be used as {@link IOrdinaryClassFile#getType()}.
+	 * @see IClassFile#getType()
+	 */
+
+	@Deprecated
 	@Override
 	public IType getType() {
 		throw new UnsupportedOperationException("IClassFile#getType() cannot be used on an IModularClassFile"); //$NON-NLS-1$

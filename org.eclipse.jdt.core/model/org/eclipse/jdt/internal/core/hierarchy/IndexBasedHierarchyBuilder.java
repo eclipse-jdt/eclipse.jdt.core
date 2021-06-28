@@ -72,6 +72,8 @@ import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
 import org.eclipse.jdt.internal.core.search.UnindexedSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
+import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery.QueryCategory;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -103,36 +105,47 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 	 * Collection used to queue subtype index queries
 	 */
 	static class Queue {
-		public char[][] names = new char[10][];
+		public SubtypeQuery[] entries = new SubtypeQuery[10];
 		public int start = 0;
 		public int end = -1;
-		public void add(char[] name){
-			if (++this.end == this.names.length){
+		public void add(SubtypeQuery entry){
+			if (++this.end == this.entries.length){
 				this.end -= this.start;
-				System.arraycopy(this.names, this.start, this.names = new char[this.end*2][], 0, this.end);
+				System.arraycopy(this.entries, this.start, this.entries = new SubtypeQuery[this.end*2], 0, this.end);
 				this.start = 0;
 			}
-			this.names[this.end] = name;
+			this.entries[this.end] = entry;
 		}
-		public char[] retrieve(){
+		public SubtypeQuery retrieve(){
 			if (this.start > this.end) return null; // none
 
-			char[] name = this.names[this.start++];
+			SubtypeQuery entry = this.entries[this.start++];
 			if (this.start > this.end){
 				this.start = 0;
 				this.end = -1;
 			}
-			return name;
+			return entry;
 		}
 		@Override
 		public String toString(){
 			StringBuffer buffer = new StringBuffer("Queue:\n"); //$NON-NLS-1$
 			for (int i = this.start; i <= this.end; i++){
-				buffer.append(this.names[i]).append('\n');
+				buffer.append(this.entries[i]).append('\n');
 			}
 			return buffer.toString();
 		}
 	}
+
+	private static class SubtypeQuery {
+		SubtypeQuery(char[] qualifiedName, char[] simpleName) {
+			this.simpleName = simpleName;
+			this.qualifiedName = qualifiedName;
+		}
+
+		final char[] simpleName;
+		final char[] qualifiedName;
+	}
+
 public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scope) throws JavaModelException {
 	super(hierarchy);
 	this.cuToHandle = new HashMap(5);
@@ -253,7 +266,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 				// local or anonymous type
 				Openable openable;
 				if (declaringMember.isBinary()) {
-					openable = declaringMember.getClassFile();
+					openable = (Openable) declaringMember.getClassFile();
 				} else {
 					openable = (Openable)declaringMember.getCompilationUnit();
 				}
@@ -615,11 +628,12 @@ private static void legacySearchAllPossibleSubTypes(
 			boolean isLocalOrAnonymous = record.enclosingTypeName == IIndexConstants.ONE_ZERO;
 			pathRequestor.acceptPath(documentPath, isLocalOrAnonymous);
 			char[] typeName = record.simpleName;
+			char[] enclosingTypeName = null;
 			if (documentPath.toLowerCase().endsWith(SUFFIX_STRING_class)) {
 			    int suffix = documentPath.length()-SUFFIX_STRING_class.length();
 				HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches.get(documentPath);
 				if (binaryType == null){
-					char[] enclosingTypeName = record.enclosingTypeName;
+					enclosingTypeName = record.enclosingTypeName;
 					if (isLocalOrAnonymous) {
 						int lastSlash = documentPath.lastIndexOf('/');
 						int lastDollar = documentPath.lastIndexOf('$');
@@ -638,10 +652,12 @@ private static void legacySearchAllPossibleSubTypes(
 				}
 				binaryType.recordSuperType(record.superSimpleName, record.superQualification, record.superClassOrInterface);
 			}
+
+			char[] fqnSuperName = CharOperation.concatNonEmpty(record.pkgName, '.', enclosingTypeName, '$', typeName);
 			if (!isLocalOrAnonymous // local or anonymous types cannot have subtypes outside the cu that define them
-					&& !foundSuperNames.containsKey(typeName)){
-				foundSuperNames.put(typeName, typeName);
-				queue.add(typeName);
+					&& !foundSuperNames.containsKey(fqnSuperName)){
+				foundSuperNames.put(fqnSuperName, fqnSuperName);
+				queue.add(new SubtypeQuery(fqnSuperName , typeName));
 			}
 			return true;
 		}
@@ -662,16 +678,24 @@ private static void legacySearchAllPossibleSubTypes(
 		scope,
 		searchRequestor);
 
-	queue.add(type.getElementName().toCharArray());
+	queue.add(new SubtypeQuery(type.getFullyQualifiedName().toCharArray(), type.getElementName().toCharArray()));
 	long startTime = System.currentTimeMillis();
 	try {
 		while (queue.start <= queue.end) {
 			subMonitor.setWorkRemaining(Math.max(queue.end - queue.start + 1, 100));
 
 			// all subclasses of OBJECT are actually all types
-			char[] currentTypeName = queue.retrieve();
-			if (CharOperation.equals(currentTypeName, IIndexConstants.OBJECT))
+			SubtypeQuery query = queue.retrieve();
+			char[] currentTypeName = query.simpleName;
+			char[] qualifiedTypeName = query.qualifiedName != null ? query.qualifiedName
+					: QualifierQuery.NO_CHARS;
+
+			if (CharOperation.equals(currentTypeName, IIndexConstants.OBJECT)) {
 				currentTypeName = null;
+			} else {
+				MatchLocator.setIndexQualifierQuery(pattern, QualifierQuery
+						.encodeQuery(new QueryCategory[] { QueryCategory.SUPER }, currentTypeName, qualifiedTypeName));
+			}
 
 			// search all index references to a given supertype
 			pattern.superSimpleName = currentTypeName;

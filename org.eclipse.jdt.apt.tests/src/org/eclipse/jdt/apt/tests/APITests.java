@@ -168,7 +168,7 @@ public class APITests extends APTTestBase {
 		_logListener.clear();
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
-		assertTrue(_logListener.getList().isEmpty());
+		assertTrue(_logListener.getList().toString(), _logListener.getList().isEmpty());
 	}
 
 	/**

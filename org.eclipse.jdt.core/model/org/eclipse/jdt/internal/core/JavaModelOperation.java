@@ -155,7 +155,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	}
 
 	protected int getLatestASTLevel() {
-		return AST.JLS_Latest;
+		return AST.getJLSLatest();
 	}
 	/*
 	 * Registers the given action at the end of the list of actions to run.

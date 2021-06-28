@@ -508,7 +508,7 @@ public class AnnotationProcessorFactoryLoader {
 		try
 		{
 			Class<?> c = cl.loadClass( factoryName );
-			f = c.newInstance();
+			f = c.getDeclaredConstructor().newInstance();
 		}
 		catch( Exception e )
 		{

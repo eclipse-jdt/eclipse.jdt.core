@@ -126,6 +126,30 @@ private String className(byte[] classDefinition) {
 				case 12 : // NameAndTypeTag
 					constantPoolOffsets[i] = readOffset;
 					readOffset += 5; // ConstantNameAndType.fixedSize
+					break;
+				case 15 : // MethodHandleTag
+					constantPoolOffsets[i] = readOffset;
+					readOffset += 4; // MethodHandle.fixedSize
+					break;
+				case 16 : // MethodTypeTag
+					constantPoolOffsets[i] = readOffset;
+					readOffset += 3; // MethodType.fixedSize
+					break;
+				case 17 : // DynamicTag
+					constantPoolOffsets[i] = readOffset;
+					readOffset += 5; // Dynamic.fixedSize
+					break;
+				case 18 : // InvokeDynamicTag
+					constantPoolOffsets[i] = readOffset;
+					readOffset += 5; // InvokeDynamic.fixedSize
+					break;
+				case 19 : // ModuleTag
+					constantPoolOffsets[i] = readOffset;
+					readOffset += 3; // Module.fixedSize
+					break;
+				case 20 : // PackageTag
+					constantPoolOffsets[i] = readOffset;
+					readOffset += 3; // Package.fixedSize
 			}
 		}
 		// Skip access flags

@@ -93,6 +93,7 @@ import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.*;
+import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -231,6 +232,14 @@ public static SearchDocument[] addWorkingCopies(SearchPattern pattern, SearchDoc
 
 public static void setFocus(SearchPattern pattern, IJavaElement focus) {
 	pattern.focus = focus;
+}
+
+/**
+ * Sets the qualifier queries into pattern.
+ * @see QualifierQuery#encodeQuery(org.eclipse.jdt.internal.core.search.indexing.QualifierQuery.QueryCategory[], char[], char[])
+ */
+public static void setIndexQualifierQuery(SearchPattern pattern, char[] queries) {
+	pattern.indexQualifierQuery = queries;
 }
 
 /*

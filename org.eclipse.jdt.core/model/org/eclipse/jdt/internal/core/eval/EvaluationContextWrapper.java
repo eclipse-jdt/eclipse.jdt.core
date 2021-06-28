@@ -18,10 +18,12 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.core.eval.IGlobalVariable;
+import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -209,7 +211,12 @@ public void evaluateCodeSnippet(
 			if (importsLength != 0) {
 				char[][] importsNames = new char[importsLength][];
 				for (int i = 0; i < importsLength; i++) {
-					importsNames[i] = imports[i].getElementName().toCharArray();
+					IImportDeclaration importDecl = imports[i];
+					if(Flags.isStatic(importDecl.getFlags())) {
+						importsNames[i] = CharOperation.concatAll(Keywords.STATIC, importDecl.getElementName().toCharArray(), ' ');
+					} else {
+						importsNames[i] = importDecl.getElementName().toCharArray();
+					}
 				}
 				this.context.setImports(importsNames);
 				// turn off import complaints for implicitly added ones

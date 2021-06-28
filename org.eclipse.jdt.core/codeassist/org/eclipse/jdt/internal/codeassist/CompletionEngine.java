@@ -158,7 +158,6 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
@@ -3228,15 +3227,6 @@ public final class CompletionEngine
 
 			this.insideQualifiedReference = true;
 			this.completionToken = messageSend.selector;
-			boolean onlyStatic = false;
-			if (messageSend.receiver instanceof NameReference) {
-				onlyStatic = ((NameReference)messageSend.receiver).isTypeReference();
-			} else if (!(messageSend.receiver instanceof MessageSend) &&
-					!(messageSend.receiver instanceof FieldReference) &&
-					!(messageSend.receiver.isThis()) &&
-					!(messageSend.receiver.isSuper())) {
-				onlyStatic = true;
-			}
 
 			TypeBinding receiverType = (TypeBinding)qualifiedBinding;
 
@@ -3250,7 +3240,7 @@ public final class CompletionEngine
 							(ReferenceBinding)receiverType.capture(scope, messageSend.receiver.sourceStart, messageSend.receiver.sourceEnd),
 							scope,
 							new ObjectVector(),
-							onlyStatic,
+							messageSend.receiver.isType(),
 							false,
 							messageSend,
 							scope,
@@ -3723,6 +3713,17 @@ public final class CompletionEngine
 			// replace to the end of the completion identifier
 			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 		}
+		ASTNode parentNode = this.parser.assistNodeParent;
+		if (ref.tokens.length == 1 && parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == ref) {
+			// additionally check if 'prefix.' should be interpreted as a variable receiver rather then part of a type reference:
+			Binding variable = scope.getBinding(ref.tokens[0], Binding.VARIABLE, FakeInvocationSite, true);
+			if (variable instanceof VariableBinding) {
+				TypeBinding receiverType = ((VariableBinding) variable).type;
+				if (receiverType != null && receiverType.isValidBinding()) {
+					findFieldsAndMethods(this.completionToken, receiverType, scope, new ObjectVector(), new ObjectVector(), FakeInvocationSite, scope, false, false, null, null, null, false, null, ref.sourceStart, (int)ref.sourcePositions[0]);
+				}
+			}
+		}
 	}
 
 	private void completionOnProvidesInterfacesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
@@ -3872,6 +3873,15 @@ public final class CompletionEngine
 				null,
 				false);
 		}
+		ASTNode parentNode = this.parser.assistNodeParent;
+		if (parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == singleRef) {
+			// additionally check if this identifier should be interpreted as the beginning of an expression rather than the type of a variable declaration.
+			TypeBinding receiverType = scope.enclosingReceiverType();
+			if (receiverType != null && receiverType.isValidBinding()) {
+				findVariablesAndMethods(this.completionToken, scope, FakeInvocationSite, scope, false, false);
+			}
+		}
+
 	}
 
 	private void completionOnProvidesInterfacesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
@@ -4490,15 +4500,21 @@ public final class CompletionEngine
 				continue nextMethod;
 
 			int length = arguments.length - 1;
+			int completionArgIndex = arguments.length - 1;
 
 			for (int j = 0; j < length; j++) {
 				Expression argument = arguments[j];
 				TypeBinding argType = argument.resolvedType;
 				if(argType != null && !argType.erasure().isCompatibleWith(parameters[j].erasure()))
 					continue nextMethod;
+
+				if((argument.sourceStart >= this.startPosition)
+						&& (argument.sourceEnd <= this.endPosition)) {
+					completionArgIndex = j;
+				}
 			}
 
-			TypeBinding expectedType = method.parameters[arguments.length - 1];
+			TypeBinding expectedType = method.parameters[completionArgIndex];
 			if(expectedType != null) {
 				addExpectedType(expectedType, scope);
 			}

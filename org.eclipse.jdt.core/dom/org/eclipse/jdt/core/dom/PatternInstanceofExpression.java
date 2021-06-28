@@ -24,7 +24,6 @@ import java.util.List;
  * </pre>
  *
  * @noinstantiate This class is not intended to be instantiated by clients.
- * @noreference This class is not intended to be referenced by clients as this has been added to support Java 16 features and may change in future.
  */
 @SuppressWarnings("rawtypes")
 public class PatternInstanceofExpression extends Expression {
@@ -65,6 +64,7 @@ public class PatternInstanceofExpression extends Expression {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.27
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -157,6 +157,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * Returns the left operand of this Patterninstanceof expression.
 	 *
 	 * @return the left operand node
+	 * @since 3.27
 	 */
 	public Expression getLeftOperand() {
 		if (this.leftOperand  == null) {
@@ -182,6 +183,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @since 3.27
 	 */
 	public void setLeftOperand(Expression expression) {
 		if (expression == null) {
@@ -197,6 +199,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * Returns the right operand of this instanceof expression.
 	 *
 	 * @return the right operand node
+	 * @since 3.27
 	 */
 	public SingleVariableDeclaration getRightOperand() {
 		if (this.rightOperand  == null) {
@@ -222,6 +225,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @since 3.27
 	 */
 	public void setRightOperand(SingleVariableDeclaration referenceDeclaration) {
 		if (referenceDeclaration == null) {

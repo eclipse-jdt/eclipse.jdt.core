@@ -60,18 +60,21 @@ public abstract class APTTestBase extends BuilderTests{
 	{
 		runFinalizers();
 		ProcessorTestStatus.reset();
+		TestUtil.enableAutoBuild(false);
 
 		super.setUp();
 
 		env.resetWorkspace();
-		TestUtil.enableAutoBuild(false);
-
 		// project will be deleted by super-class's tearDown() method
 		final String projectName = getProjectName();
-		if( projectName == null )
+		if( projectName == null ) {
 			throw new IllegalStateException();
+		}
+		AptPlugin.cleanProjectCache();
 		_jproj = createJavaProject(projectName);
 		AptConfig.setEnabled(_jproj, true);
+		assertTrue(AptConfig.isEnabled(_jproj));
+		TestUtil.waitForBuildEvents();
 	}
 
 	/**

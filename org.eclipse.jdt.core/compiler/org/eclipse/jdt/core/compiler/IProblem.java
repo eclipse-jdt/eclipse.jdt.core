@@ -1585,7 +1585,7 @@ void setSourceStart(int sourceStart);
 
 	/**
 	 * Modifiers
-	 * @since 3.26 BETA_JAVA17
+	 * @since 3.27 BETA_JAVA17
 	 */
 	int StrictfpNotRequired = Syntax + Internal + 741;
 
@@ -2460,7 +2460,7 @@ void setSourceStart(int sourceStart);
 	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
 	/* Java15 errors - end */
 
-	/** @since 3.26 BETA_JAVA17
+	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int SwitchPatternPatternKindNotAllowed = PreviewRelated + 1900;
 }

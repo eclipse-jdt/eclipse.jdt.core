@@ -90,6 +90,8 @@ public class DOMASTUtil {
 		switch (featureName) {
 			case Modifier.SEALED:
 				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+			case Modifier.NON_SEALED:
+				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
 		}
 		return false;
 	}
@@ -113,6 +115,8 @@ public class DOMASTUtil {
 	public static boolean isFeatureSupportedinAST(int apiLevel, boolean previewEnabled, int featureName) {
 		switch (featureName) {
 			case Modifier.SEALED:
+				return isPreviewEnabled(apiLevel, previewEnabled);
+			case Modifier.NON_SEALED:
 				return isPreviewEnabled(apiLevel, previewEnabled);
 		}
 		return false;
@@ -146,14 +150,10 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(ast, ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
 	}
 
-	public static boolean isSealedTypeSupported(AST ast) {
-		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
-	}
-
 	@SuppressWarnings("deprecation")
 	public static void checkASTLevel(int level) {
-		// Clients can use AST.JLS_Latest
-		if(level >=AST.JLS8 && level <= AST.JLS_Latest )
+		// Clients can use AST.getJLSLatest()
+		if(level >=AST.JLS8 && level <= AST.getJLSLatest() )
 			return;
 		switch (level) {
 	        case AST.JLS2 :

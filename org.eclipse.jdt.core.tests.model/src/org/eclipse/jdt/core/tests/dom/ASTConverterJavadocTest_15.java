@@ -111,7 +111,7 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
 	// AST Level
-	protected int astLevel = AST.JLS_Latest;
+	protected int astLevel = AST.getJLSLatest();
 	protected int savedLevel;
 	// Debug
 	protected String prefix = "";

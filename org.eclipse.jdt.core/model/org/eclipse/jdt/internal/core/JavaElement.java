@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -122,8 +123,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	private JavaElement parent;
 
-	/* cached result */
-	private JavaModel model;
 	/* cached result */
 	private JavaProject project;
 
@@ -295,7 +294,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * @see IMember
 	 */
-	public AbstractClassFile getClassFile() {
+	public IClassFile getClassFile() {
 		return null;
 	}
 	/**
@@ -380,7 +379,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	@Override
 	public JavaModel getJavaModel() {
-		return this.model;
+		return getJavaProject().getJavaModel();
 	}
 
 	/**
@@ -414,7 +413,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 
 	protected void setParent(JavaElement parent) {
 		// invalidate caches:
-		this.model = parent==null?null:parent.getJavaModel();
 		this.project = parent==null?null:parent.getJavaProject();
 		// now the real task:
 		this.parent = parent;
@@ -890,7 +888,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			stream = new BufferedInputStream(connection.getInputStream());
 
 			String encoding = connection.getContentEncoding();
-			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, connection.getContentLength());
+			byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 			if (encoding == null) {
 				int index = getIndexOf(contents, META_START, 0, -1);
 				if (index != -1) {

@@ -122,7 +122,7 @@ public static ClassFileReader read(InputStream stream, String fileName) throws C
 }
 
 public static ClassFileReader read(InputStream stream, String fileName, boolean fullyInitialize) throws ClassFormatException, IOException {
-	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream, -1);
+	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream);
 	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, fileName.toCharArray());
 	if (fullyInitialize) {
 		classFileReader.initialize();

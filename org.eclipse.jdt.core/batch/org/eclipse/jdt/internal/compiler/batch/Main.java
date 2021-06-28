@@ -4669,12 +4669,12 @@ protected void initializeAnnotationProcessorManager() {
 	String className = "org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager"; //$NON-NLS-1$
 	try {
 		Class<?> c = Class.forName(className);
-		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.newInstance();
+		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.getDeclaredConstructor().newInstance();
 		annotationManager.configure(this, this.expandedCommandLine);
 		annotationManager.setErr(this.err);
 		annotationManager.setOut(this.out);
 		this.batchCompiler.annotationProcessorManager = annotationManager;
-	} catch (ClassNotFoundException | InstantiationException e) {
+	} catch (ClassNotFoundException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
 		this.logger.logUnavaibleAPT(className);
 		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
 	} catch (IllegalAccessException e) {

@@ -82,6 +82,9 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		//ensure correct position
 		if (element.getElementType() > IJavaElement.COMPILATION_UNIT) {
 			ensureCorrectPositioning((IParent) container, sibling, copy);
+			if (copy.getElementType() != IJavaElement.IMPORT_DECLARATION) {
+				ensureChildExists((IParent) container, copy);
+			}
 		} else {
 			if (container.getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT) {
 			} else {
@@ -113,7 +116,9 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		if (copy.getElementType() == IJavaElement.IMPORT_DECLARATION)
 			container = ((ICompilationUnit) container).getImportContainer();
 		IJavaElementDelta destDelta = listener.getDeltaFor(container, true);
-		assertTrue("No delta", destDelta != null);
+		if(destDelta == null) {
+			fail("No delta found for " + container + ", all deltas: " + listener.getAllDeltas());
+		}
 		assertTrue("Destination container not changed", destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 		assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(copy));
@@ -358,7 +363,9 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				IJavaElementDelta destDelta = null;
 				if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
 					destDelta = listener.getDeltaFor(moved.getParent());
-					assertTrue("No delta", destDelta != null);
+					if(destDelta == null) {
+						fail("No delta found for " + moved.getParent() + ", all deltas: " + listener.getAllDeltas());
+					}
 					assertTrue("Renamed compilation unit as result of main type not added", destDelta.getKind() == IJavaElementDelta.ADDED);
 					assertTrue("flag should be F_MOVED_FROM", (destDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 					assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(element.getParent()));

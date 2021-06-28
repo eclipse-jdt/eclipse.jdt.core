@@ -638,6 +638,16 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return true;
 	}
 
+
+	/**
+	 * Returns whether this node represents a binding of type {@link Binding#TYPE}
+	 *
+	 * @return <code>true</code> if the node represents a {@link Binding#TYPE} binding type.
+	 */
+	public boolean isType() {
+		return false;
+	}
+
 	public abstract StringBuffer print(int indent, StringBuffer output);
 
 	public static StringBuffer printAnnotations(Annotation[] annotations, StringBuffer output) {

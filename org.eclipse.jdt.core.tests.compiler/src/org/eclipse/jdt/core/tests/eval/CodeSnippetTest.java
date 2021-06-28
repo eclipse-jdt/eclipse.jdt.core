@@ -967,4 +967,83 @@ public void testBug464656() {
 			"return s.findFirst();"}),
 			"Optional[a]".toCharArray());
 }
+
+public void testBug571310_ThisReciever() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"class Outer {",
+			"	public int outerFoo() {",
+			"		return 10;",
+			"	}",
+			"	public int boo() {",
+			"		java.util.function.Function<Integer,Integer> f = i -> this.outerFoo() + i;",
+			"		return f.apply(5);",
+			"	}",
+			"};",
+			"(new Outer()).boo();"}),
+			"15".toCharArray());
+}
+
+public void testBug571310_LocalVarReciever() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"class Outer {",
+			"	public int outerFoo(){",
+			"		return 10;",
+			"	}",
+			"	public int boo() {",
+			"		Outer thisVar = this;",
+			"		java.util.function.Function<Integer,Integer> f = (i) -> thisVar.outerFoo() + i;",
+			"		return f.apply(5);",
+			"	}",
+			"};",
+			"new Outer().boo();"}),
+			"15".toCharArray());
+}
+
+public void testBug571310_QualifiedReciever() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"class Outer {",
+			"	public int outerFoo(){",
+			"		return 10;",
+			"	}",
+			"	public java.util.function.Supplier<Integer> boo() {",
+			"		return new java.util.function.Supplier<Integer>() {",
+			"			public Integer get() {",
+			"				java.util.function.Function<Integer,Integer> f = (i) -> Outer.this.outerFoo() + i;",
+			"				return f.apply(5);",
+			"			}",
+			"		};",
+			"	}",
+			"};",
+			"new Outer().boo().get();"}),
+			"15".toCharArray());
+}
+public void testBug571310_SynthVarReciever() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"class Outer {",
+			"	Integer intField = 10;",
+			"	public java.util.function.Supplier<Integer> boo() {",
+			"		intField ++;",
+			"		return new java.util.function.Supplier<Integer>() {",
+			"			public Integer get() {",
+			"				java.util.function.Function<Integer,Integer> f = (i) -> intField.intValue() + i;",
+			"				return f.apply(5);",
+			"			}",
+			"		};",
+			"	}",
+			"};",
+			"new Outer().boo().get();"}),
+			"16".toCharArray());
+}
 }

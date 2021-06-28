@@ -768,6 +768,11 @@ public class AptConfig {
 				enabled ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED);
 		// backward compatibility: also save old setting
 		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
+		if (enabled) {
+			AptProject aptProject = AptPlugin.getAptProject(jproject);
+			aptProject.getGeneratedSourceFolderManager(true).ensureFolderExists();
+			aptProject.getGeneratedSourceFolderManager(false).ensureFolderExists();
+		}
 	}
 
 	/**

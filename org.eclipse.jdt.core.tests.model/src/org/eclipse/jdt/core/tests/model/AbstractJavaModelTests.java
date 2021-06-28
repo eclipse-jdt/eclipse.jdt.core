@@ -184,7 +184,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for the latest AST level.
 	 *
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS_Latest;
+	protected static final int AST_INTERNAL_LATEST = AST.getJLSLatest();
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -242,7 +242,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		private ByteArrayOutputStream stackTraces;
 
-		private boolean gotResourceDelta;
+		private volatile boolean gotResourceDelta;
 
 		public DeltaListener() {
 			flush();
@@ -289,6 +289,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 * If the boolean is true returns the first delta found.
 		 */
 		public synchronized IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
+			Indexer.getInstance().waitForIndex(null);
+			if (this.deltas == null) waitForResourceDelta();
 			if (this.deltas == null) return null;
 			IJavaElementDelta result = null;
 			for (int i = 0; i < this.deltas.length; i++) {
@@ -305,6 +307,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		public synchronized IJavaElementDelta getLastDelta() {
 			return this.deltas[this.deltas.length - 1];
+		}
+
+		public synchronized List<IJavaElementDelta> getAllDeltas() {
+			return List.of(this.deltas);
 		}
 
 		public synchronized void flush() {
@@ -351,7 +357,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         		}
         	}
         }
-		public void resourceChanged(IResourceChangeEvent event) {
+		public synchronized void resourceChanged(IResourceChangeEvent event) {
 			this.gotResourceDelta = true;
 		}
 		/**
@@ -361,11 +367,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			if (delta == null) {
 				return null;
 			}
-			if (delta.getElement().equals(element)) {
+			IJavaElement deltaElement = delta.getElement();
+			if (deltaElement.equals(element)) {
 				return delta;
 			}
-			for (int i= 0; i < delta.getAffectedChildren().length; i++) {
-				IJavaElementDelta child= searchForDelta(element, delta.getAffectedChildren()[i]);
+			IJavaElementDelta[] affectedChildren = delta.getAffectedChildren();
+			for (IJavaElementDelta affectedChild : affectedChildren) {
+				IJavaElementDelta child= searchForDelta(element, affectedChild);
 				if (child != null) {
 					return child;
 				}
@@ -416,7 +424,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			long start = System.currentTimeMillis();
 			while (!this.gotResourceDelta) {
 				try {
-					Thread.sleep(200);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 				}
 				if ((System.currentTimeMillis() - start) > 10000/*wait 10 s max*/) {
@@ -2328,6 +2336,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("Did not find sibling", found);
 		}
 	}
+
+	/**
+	 * Ensure given child exists in the parent
+	 */
+	public void ensureChildExists(IParent container, IJavaElement child) throws JavaModelException {
+		IJavaElement[] children = container.getChildren();
+		if (child != null) {
+			// find the sibling
+			boolean found = false;
+			for (IJavaElement child2 : children) {
+				if (child2.equals(child)) {
+					found = true;
+					break;
+				}
+			}
+			assertTrue("Did not find child: " + child + " in parent container: " + container, found);
+		}
+	}
+
 	protected String[] getJCL15PlusLibraryIfNeeded(String compliance) throws JavaModelException, IOException {
 		if (compliance.charAt(compliance.length()-1) >= '8' && (AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) != 0) {
 			// ensure that the JCL 18 lib is setup (i.e. that the jclMin18.jar is copied)
@@ -3503,6 +3530,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
 		}
+		logInfo("SETUP " + getName());
 	}
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
@@ -3678,8 +3706,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	@Override
 	protected void tearDown() throws Exception {
-
-		super.tearDown();
+		logInfo("TEARDOWN " + getName());
 		if (this.workingCopies != null) {
 			discardWorkingCopies(this.workingCopies);
 			this.workingCopies = null;
@@ -3693,6 +3720,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			"Workspace options should be back to their default",
 			new CompilerOptions(defaultOptions).toString(),
 			new CompilerOptions(options).toString());
+		super.tearDown();
 	}
 
 	protected IPath getJRE9Path() {
@@ -3766,6 +3794,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			ILog log = plugin.getLog();
 			Status status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, errorMessage, e);
 			log.log(status);
+		}
+	}
+
+	private static void logInfo(String message) {
+		Plugin plugin = JavaCore.getPlugin();
+		if (plugin != null) {
+			plugin.getLog().log(new Status(IStatus.INFO, JavaCore.PLUGIN_ID, message));
 		}
 	}
 }

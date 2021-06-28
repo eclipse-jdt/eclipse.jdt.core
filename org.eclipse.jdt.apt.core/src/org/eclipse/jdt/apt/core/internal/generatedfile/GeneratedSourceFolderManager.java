@@ -15,6 +15,8 @@
 
 package org.eclipse.jdt.apt.core.internal.generatedfile;
 
+import java.util.Objects;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -27,6 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -85,10 +88,15 @@ public class GeneratedSourceFolderManager {
 	 * on when we get notified of relevant changes and on what locks we are
 	 * able to obtain.
 	 */
-	private IFolder _generatedSourceFolder = null;
+	private volatile IFolder _generatedSourceFolder;
 
 	private final boolean _isTestCode;
-
+	
+	/**
+	 * Reflects whether apt is enabled as soon as it is enabled.
+	 * Only write access this in the thread which receives preferenceChanged:
+	 */
+	private volatile boolean _aptEnabled;
 
 	/**
 	 * Should be constructed only by AptProject.  Other clients should call
@@ -103,7 +111,8 @@ public class GeneratedSourceFolderManager {
 		// Set _generatedSourceFolder only if APT is enabled, the folder exists,
 		// and the folder is on the classpath.
 		// Otherwise leave it null, which will cause us to try to fix things later on.
-		if (AptConfig.isEnabled(javaProject)) {
+		_aptEnabled = AptConfig.isEnabled(javaProject);
+		if (_aptEnabled) {
 			final IFolder folder = getFolder();
 			if (folder.exists()) {
 				if (isOnClasspath(folder)) {
@@ -148,9 +157,10 @@ public class GeneratedSourceFolderManager {
 	 * or classpath.
 	 */
 	private void configure() {
-
-		assert(_generatedSourceFolder == null): "Should have already removed old folder by now"; //$NON-NLS-1$
+		IFolder sourceFolder = _generatedSourceFolder;
 		IFolder srcFolder = getFolderPreference();
+		boolean same = Objects.equals(sourceFolder, srcFolder);
+		assert(sourceFolder == null || same): "Should have already removed old folder by now: " + sourceFolder; //$NON-NLS-1$
 		if (srcFolder == null) {
 			IStatus status = AptPlugin.createStatus(null, "Could not create generated source folder (" + //$NON-NLS-1$
 					AptConfig.getGenSrcDir(_aptProject.getJavaProject()) + ")"); //$NON-NLS-1$
@@ -200,7 +210,7 @@ public class GeneratedSourceFolderManager {
 	 */
 	public void ensureFolderExists(){
 		// If APT is disabled, do nothing.
-		if (!AptConfig.isEnabled(_aptProject.getJavaProject())) {
+		if (!_aptEnabled) {
 			return;
 		}
 
@@ -259,13 +269,18 @@ public class GeneratedSourceFolderManager {
 	{
 		final boolean enable = AptConfig.isEnabled(_aptProject.getJavaProject());
 		// Short-circuit if nothing changed.
-		if (enable == (_generatedSourceFolder != null)) {
+		if (enable == _aptEnabled) {
 			if( AptPlugin.DEBUG ) {
 				AptPlugin.trace("enabledChanged() doing nothing; state is already " + enable); //$NON-NLS-1$
 			}
 			// no change in state
 			return;
 		}
+		enabledPreferenceChangedTo(enable);
+	}
+
+	private void enabledPreferenceChangedTo(final boolean enable) {
+		_aptEnabled = enable;
 
 		if ( AptPlugin.DEBUG ) {
 			AptPlugin.trace("enabledChanged() changing state to " + enable +  //$NON-NLS-1$
@@ -275,7 +290,7 @@ public class GeneratedSourceFolderManager {
 			configure();
 		}
 		else {
-			removeFolder();
+			removeFolder(false);
 		}
 	}
 
@@ -290,8 +305,7 @@ public class GeneratedSourceFolderManager {
 	public void folderNamePreferenceChanged()
 	{
 		// if APT is disabled, we don't need to do anything
-		final boolean aptEnabled = AptConfig.isEnabled(_aptProject.getJavaProject());
-		if (!aptEnabled) {
+		if (!_aptEnabled) {
 			return;
 		}
 
@@ -304,7 +318,7 @@ public class GeneratedSourceFolderManager {
 			return;
 		}
 
-		removeFolder();
+		removeFolder(true);
 		configure();
 	}
 
@@ -433,13 +447,8 @@ public class GeneratedSourceFolderManager {
 	 * Remove a folder from disk and from the classpath.
 	 * @param srcFolder
 	 */
-	private void removeFolder() {
-		final IFolder srcFolder;
-		synchronized ( this )
-		{
-			srcFolder = _generatedSourceFolder;
-			_generatedSourceFolder = null;
-		}
+	private void removeFolder(boolean waitForWorkspaceEvents) {
+		final IFolder srcFolder = _generatedSourceFolder;
 		if (srcFolder == null) {
 			return;
 		}
@@ -492,6 +501,20 @@ public class GeneratedSourceFolderManager {
 	    }catch(CoreException e){
 			AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+	    if(waitForWorkspaceEvents) {
+			try {
+				Thread.sleep(50);
+				// wait for workspace events *after* delete task is done
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+			} catch (OperationCanceledException | InterruptedException e) {
+				// ignore
+			}
+		}
+	    synchronized ( this ) {
+	    	if(srcFolder.equals(_generatedSourceFolder)) {
+				_generatedSourceFolder = null;
+			}
+	    }
 	}
 
 	/**

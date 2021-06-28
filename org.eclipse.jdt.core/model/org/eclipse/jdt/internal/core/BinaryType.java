@@ -228,12 +228,12 @@ protected ClassFileInfo getClassFileInfo() throws JavaModelException {
 	return (ClassFileInfo) this.getParent().getElementInfo();
 }
 @Override
-public AbstractClassFile getClassFile() {
-	return super.getClassFile();
+public IOrdinaryClassFile getClassFile() {
+	return (IOrdinaryClassFile) super.getClassFile();
 }
 @Override
 public IType getDeclaringType() {
-	IOrdinaryClassFile classFile = getClassFile();
+	IClassFile classFile = getClassFile();
 	if (classFile.isOpen()) {
 		try {
 			char[] enclosingTypeName = ((IBinaryType) getElementInfo()).getEnclosingTypeName();

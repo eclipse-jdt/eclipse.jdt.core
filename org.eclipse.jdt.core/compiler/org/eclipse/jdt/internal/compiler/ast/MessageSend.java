@@ -744,7 +744,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		if (this.actualReceiverType instanceof InferenceVariable) {
 				return null; // not yet ready for resolving
 		}
-		this.receiverIsType = this.receiver instanceof NameReference && (((NameReference) this.receiver).bits & Binding.TYPE) != 0;
+		this.receiverIsType = this.receiver.isType();
 		if (receiverCast && this.actualReceiverType != null) {
 			// due to change of declaring class with receiver type, only identity cast should be notified
 			TypeBinding resolvedType2 = ((CastExpression)this.receiver).expression.resolvedType;

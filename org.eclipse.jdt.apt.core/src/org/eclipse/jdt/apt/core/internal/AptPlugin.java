@@ -245,6 +245,12 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			}
 		}
 	}
+	
+	public static void cleanProjectCache() {
+		synchronized(PROJECT_MAP){
+			PROJECT_MAP.clear();
+		}
+	}
 
 	public static AptProject getAptProject(IJavaProject javaProject) {
 		return getAptProject(javaProject, true);

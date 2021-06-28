@@ -1352,4 +1352,8 @@ private void writeStreamInt(FileOutputStream stream, int val) throws IOException
 	this.streamBuffer[this.bufferIndex++] = (byte) val;
 	this.streamEnd += 4;
 }
+
+synchronized int getCacheUserCount() {
+	return this.cacheUserCount;
+}
 }

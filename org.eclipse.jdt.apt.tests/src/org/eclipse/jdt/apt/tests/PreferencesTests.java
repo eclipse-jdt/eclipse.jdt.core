@@ -362,7 +362,7 @@ public class PreferencesTests extends APTTestBase {
 		testFolderName = testSrcFolder.getProjectRelativePath().toOSString();
 		// test 12: make sure we deleted the source folder when we disable apt
 		assertEquals(false, srcFolder.exists());
-		assertEquals(false, testSrcFolder.exists());
+		assertEquals("testSrcFolder '"+testSrcFolder+"' does still exist",false, testSrcFolder.exists());
 		// test 13: make sure we didn't overwrite the configure folder name
 		assertEquals(newName, folderName);
 		assertEquals(newTestName, testFolderName);

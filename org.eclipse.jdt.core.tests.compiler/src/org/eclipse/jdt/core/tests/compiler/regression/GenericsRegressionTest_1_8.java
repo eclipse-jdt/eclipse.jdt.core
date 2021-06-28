@@ -10231,4 +10231,42 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug573933() {
+		runConformTest(
+			new String[] {
+				"B.java",
+				"import java.util.List;\n" +
+				"import java.util.function.Function;\n" +
+				"import java.util.stream.Collectors;\n" +
+				"public class B {\n" +
+				 "   List<M> r;\n" +
+				  "  B(final RC c) {\n" +
+				  "  	r = m(c.getRI(), i -> t(i, x -> new M(x))); // no error\n" +
+				  "  	r = m(c.getRI(), i -> t(i, M::new)); \n" +
+				  "  } \n" +
+				  "  static <T, U> U m(T t, Function<T, U> f) {\n" +
+				  "      return f.apply(t);\n" +
+				  "  }\n" +
+				  "  static <T, R> List<R> t(final List<T> list, final Function<T, R> function) {\n" +
+				  "      return list.stream().map(function).collect(Collectors.toList());\n" +
+				  "  }\n" +
+				"}\n" +
+				"class RC {\n" +
+				"    List<Integer> getRI() { return null; }\n" +
+				"}\n" +
+				"class M {\n" +
+				 "   Integer r;\n" +
+				 "   public M(final Integer r) {\n" +
+				  "  	this.r = r;\n" +
+				  "  }\n" +
+
+				    // Removing this constructor makes the problem go away
+				  "  public M(final RC i) {\n" +
+				  "  	this.r = 3;\n" +
+				  "  }\n" +
+				  "}"
+			});
+
+	}
+
 }

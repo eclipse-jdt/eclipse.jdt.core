@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
@@ -101,7 +102,7 @@ public class BinaryTypeFactory {
 				workspacePath.toString().toCharArray(), indexPath.toCharArray());
 	}
 
-	public static BinaryTypeDescriptor createDescriptor(IOrdinaryClassFile classFile) {
+	public static BinaryTypeDescriptor createDescriptor(IClassFile classFile) {
 		ClassFile concreteClass = (ClassFile)classFile;
 		PackageFragment parent = (PackageFragment) classFile.getParent();
 
@@ -187,7 +188,7 @@ public class BinaryTypeFactory {
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(new String(descriptor.workspacePath)));
 			byte[] contents;
 			try (InputStream stream = file.getContents(true)) {
-				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, -1);
+				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 			} catch (CoreException e) {
 				IStatus status = e.getStatus();
 				if (status.getCode() == IResourceStatus.RESOURCE_NOT_FOUND) {

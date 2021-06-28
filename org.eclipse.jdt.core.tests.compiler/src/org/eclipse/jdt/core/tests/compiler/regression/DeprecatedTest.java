@@ -370,10 +370,10 @@ public void test008() {
 // variation of test008 on behalf of Bug 526335 - [9][hovering] Deprecation warning should show the new 'since' deprecation value
 // verify that we don't attempt to access java.lang.Deprecated in a 1.4 based compilation.
 public void test008a() throws IOException {
-	String jarPath = LIB_DIR+File.separator+"p008"+File.separator+"x.jar";
+	String jarPath = LIB_DIR+File.separator+"p008a"+File.separator+"x.jar";
 	Util.createJar(new String[] {
 			"X.java",
-			"package p008;\n" +
+			"package p008a;\n" +
 			"@Deprecated\n" +
 			"public class X {\n" +
 			"}\n",
@@ -387,7 +387,7 @@ public void test008a() throws IOException {
 			"Y.java",
 			"public class Y {\n" +
 			"  void foo() {\n" +
-			"    p008.X x;\n" +
+			"    p008a.X x;\n" +
 			"  }\n" +
 			"}\n",
 		};
@@ -398,8 +398,8 @@ public void test008a() throws IOException {
 	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. WARNING in Y.java (at line 3)\n" +
-		"	p008.X x;\n" +
-		"	     ^\n" +
+		"	p008a.X x;\n" +
+		"	      ^\n" +
 		"The type X is deprecated\n" +
 		"----------\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {

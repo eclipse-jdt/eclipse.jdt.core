@@ -54,6 +54,7 @@ public class Bug510118Processor extends AbstractProcessor {
 	private abstract static class CastingTypeVisitor<T> extends SimpleTypeVisitor6<T, Void> {
 		private final String label;
 
+		@SuppressWarnings("deprecation")
 		CastingTypeVisitor(String label) {
 			this.label = label;
 		}

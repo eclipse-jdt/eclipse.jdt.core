@@ -119,6 +119,21 @@ public void setUpSuite() throws Exception {
 	setupExternalJCL("jclMin");
 	setupExternalJCL("jclMin1.5");
 }
+
+void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
+	preferences.setAutoBuilding(autoBuild);
+	getWorkspace().setDescription(preferences);
+	if(autoBuild) {
+		try {
+			// wait before autobuild job will be scheduled
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// ignore
+		}
+	}
+	waitForAutoBuild();
+}
+
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants, boolean includeAffected) throws CoreException {
 	waitForAutoBuild();
 	StringBuffer expected = new StringBuffer("{");
@@ -5912,8 +5927,11 @@ public void testBug55992b() throws CoreException {
 			"Source attachment path \'tmp.zip\' for IClasspathEntry must be absolute",
 			javaProject);
 	} finally {
-		this.deleteProject("P");
-		preferences.setAutoBuilding(autoBuild);
+		try {
+			this.deleteProject("P");
+		} finally {
+			restoreAutobuild(preferences, autoBuild);
+		}
 	}
 }
 /*
@@ -6154,9 +6172,12 @@ public void testBug300136() throws Exception {
 				"",
 				project);
 	} finally {
-		preferences.setAutoBuilding(autoBuild);
-		deleteProject("P");
-		JavaCore.removeClasspathVariable("INVALID_LIB", null);
+		try {
+			deleteProject("P");
+			JavaCore.removeClasspathVariable("INVALID_LIB", null);
+		} finally {
+			restoreAutobuild(preferences, autoBuild);
+		}
 	}
 }
 /**
@@ -6198,9 +6219,12 @@ public void testBug300136a() throws Exception {
 				"Unbound classpath variable: \'UNBOUND_VAR\' in project \'P\'",
 				project);
 	} finally {
-		preferences.setAutoBuilding(autoBuild);
-		deleteProject("P");
-		JavaCore.removeClasspathVariable("INVALID_LIB", null);
+		try {
+			deleteProject("P");
+			JavaCore.removeClasspathVariable("INVALID_LIB", null);
+		} finally {
+			restoreAutobuild(preferences, autoBuild);
+		}
 	}
 }
 /**
@@ -7205,9 +7229,11 @@ public void testBug220928b() throws CoreException {
 		state = (State) JavaModelManager.getJavaModelManager().getLastBuiltState(getJavaProject("P").getProject(), null);
 		assertFalse(state.sourceLocations[0].ignoreOptionalProblems);
 	} finally {
-		preferences.setAutoBuilding(autoBuild);
-		getWorkspace().setDescription(preferences);
-		deleteProject("P");
+		try {
+			deleteProject("P");
+		} finally {
+			restoreAutobuild(preferences, autoBuild);
+		}
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=396299
@@ -7244,9 +7270,11 @@ public void testBug396299() throws Exception {
 				"Incompatible .class files version in required binaries. Project \'P1\' is targeting a 1.1 runtime, but is compiled against \'P1/abc.jar\' which requires a 1.4 runtime", proj1);
 		 eclipsePreferences.removePreferenceChangeListener(prefListener);
 	} finally {
-		preferences.setAutoBuilding(autoBuild);
-		getWorkspace().setDescription(preferences);
-		deleteProject("P1");
+		try {
+			deleteProject("P1");
+		} finally {
+			restoreAutobuild(preferences, autoBuild);
+		}
 	}
 }
 /**

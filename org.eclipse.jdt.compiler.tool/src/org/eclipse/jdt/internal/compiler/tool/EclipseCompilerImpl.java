@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.Processor;
 import javax.lang.model.SourceVersion;
@@ -71,6 +74,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class EclipseCompilerImpl extends Main {
 	private static final CompilationUnit[] NO_UNITS = new CompilationUnit[0];
+	private static final String RELEASE_FILE = "release"; //$NON-NLS-1$
+	private static final String JAVA_VERSION = "JAVA_VERSION"; //$NON-NLS-1$
 	private HashMap<CompilationUnit, JavaFileObject> javaFileObjectMap;
 	Iterable<? extends JavaFileObject> compilationUnits;
 	public JavaFileManager fileManager;
@@ -229,7 +234,7 @@ public class EclipseCompilerImpl extends Main {
 				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
 				Diagnostic<JavaFileObject> diagnostic = null;
 				if (diagListener != null) {
-					diagnostic = new Diagnostic<JavaFileObject>() {
+					diagnostic = new Diagnostic<>() {
 						@Override
 						public String getCode() {
 							return Integer.toString(problemId);
@@ -306,7 +311,7 @@ public class EclipseCompilerImpl extends Main {
 				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
 				Diagnostic<JavaFileObject> diagnostic = null;
 				if (diagListener != null) {
-					diagnostic = new Diagnostic<JavaFileObject>() {
+					diagnostic = new Diagnostic<>() {
 						@Override
 						public String getCode() {
 							return Integer.toString(problemId);
@@ -552,18 +557,10 @@ public class EclipseCompilerImpl extends Main {
 			File javaHome = Util.getJavaHome();
 			long jdkLevel = Util.getJDKLevel(javaHome);
 			if (jdkLevel >= ClassFileConstants.JDK9) {
-				Classpath system = null;
-				if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
-					String versionFromJdkLevel = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
-					if (versionFromJdkLevel.length() >= 3) {
-						versionFromJdkLevel = versionFromJdkLevel.substring(2);
-					}
-					// TODO: Revisit for access rules
-					system = FileSystem.getOlderSystemRelease(javaHome.getAbsolutePath(), versionFromJdkLevel, null);
-				} else {
-					system = FileSystem.getJrtClasspath(javaHome.toString(), null, null, null);
-				}
-				Classpath classpath = new ClasspathJsr199(system, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+				Classpath systemClasspath = getSystemClasspath(fileSystemClasspaths, javaHome, jdkLevel);
+				Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
+				fileSystemClasspaths.add(classpath);
+				classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
 				fileSystemClasspaths.add(classpath);
 			} else {
 				Classpath classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
@@ -605,6 +602,40 @@ public class EclipseCompilerImpl extends Main {
 						fileSystemClasspaths.add(classpath);
 						haveClassPaths = true;
 					}
+				}
+			}
+			locationFiles = standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
+			if (locationFiles != null) {
+				for (File file : locationFiles) {
+					String javaVersion = getJavaVersion(file);
+					long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+					Classpath systemClasspath = getSystemClasspath(fileSystemClasspaths, file, jdkLevel);
+					Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+					fileSystemClasspaths.add(classpath);
+					// Copy over to modules location as well
+					if (standardJavaFileManager.getLocation(StandardLocation.SYSTEM_MODULES) == null) {
+						classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
+						fileSystemClasspaths.add(classpath);
+					}
+					haveClassPaths = true;
+					break; //unlikely to have more than one path
+				}
+			}
+			locationFiles = standardJavaFileManager.getLocation(StandardLocation.SYSTEM_MODULES);
+			if (locationFiles != null) {
+				for (File file : locationFiles) {
+					String javaVersion = getJavaVersion(file);
+					long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+					Classpath systemClasspath = getSystemClasspath(fileSystemClasspaths, file, jdkLevel);
+					Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
+					fileSystemClasspaths.add(classpath);
+					// Copy over to platform location as well
+					if (standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH) == null) {
+						classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+						fileSystemClasspaths.add(classpath);
+					}
+					haveClassPaths = true;
+					break; //unlikely to have more than one path
 				}
 			}
 			if (SourceVersion.latest().compareTo(SourceVersion.RELEASE_8) > 0) {
@@ -675,10 +706,6 @@ public class EclipseCompilerImpl extends Main {
 				if (this.fileManager.hasLocation(StandardLocation.UPGRADE_MODULE_PATH)) {
 					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.UPGRADE_MODULE_PATH);
 				}
-				if (this.fileManager.hasLocation(StandardLocation.SYSTEM_MODULES)) {
-					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.SYSTEM_MODULES);
-					fileSystemClasspaths.add(classpath);
-				}
 				if (this.fileManager.hasLocation(StandardLocation.PATCH_MODULE_PATH)) {
 					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PATCH_MODULE_PATH);
 					fileSystemClasspaths.add(classpath);
@@ -714,6 +741,37 @@ public class EclipseCompilerImpl extends Main {
 			}
 		}
 	}
+	private String getJavaVersion(File javaHome) {
+		String version = ""; //$NON-NLS-1$
+		if (Files.notExists(Paths.get(javaHome.getAbsolutePath(), RELEASE_FILE))) {
+			return version;
+		}
+		try (Stream<String> lines = Files.lines(Paths.get(javaHome.getAbsolutePath(), RELEASE_FILE), Charset.defaultCharset()).filter(s -> s.contains(JAVA_VERSION))) {
+			Optional<String> hasVersion = lines.findFirst();
+			if (hasVersion.isPresent()) {
+				String line = hasVersion.get();
+				version = line.substring(14, line.length() - 1); // length of JAVA_VERSION + 2 in JAVA_VERSION="9"
+			}
+		}
+		catch (Exception e) {
+			// return default
+		}
+		return version;
+	}
+	private Classpath getSystemClasspath(ArrayList<FileSystem.Classpath> fileSystemClasspaths, File jdkHome, long jdkLevel) {
+		Classpath system;
+		if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
+			String versionFromJdkLevel = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
+			if (versionFromJdkLevel.length() >= 3) {
+				versionFromJdkLevel = versionFromJdkLevel.substring(2);
+			}
+			// TODO: Revisit for access rules
+			system = FileSystem.getOlderSystemRelease(jdkHome.getAbsolutePath(), versionFromJdkLevel, null);
+		} else {
+			system = FileSystem.getJrtClasspath(jdkHome.toString(), null, null, null);
+		}
+		return system;
+	}
 
 	protected List<Classpath> getPlatformLocations(ArrayList<FileSystem.Classpath> fileSystemClasspaths, File file) {
 		List<Classpath> platformLibraries = Util.collectPlatformLibraries(file);
@@ -726,7 +784,7 @@ public class EclipseCompilerImpl extends Main {
 			Iterator iterator = this.extraProblems.iterator(); iterator.hasNext(); ) {
 			final CategorizedProblem problem = (CategorizedProblem) iterator.next();
 			if (this.diagnosticListener != null && !isIgnored(problem)) {
-				Diagnostic<JavaFileObject> diagnostic = new Diagnostic<JavaFileObject>() {
+				Diagnostic<JavaFileObject> diagnostic = new Diagnostic<>() {
 					@Override
 					public String getCode() {
 						return null;

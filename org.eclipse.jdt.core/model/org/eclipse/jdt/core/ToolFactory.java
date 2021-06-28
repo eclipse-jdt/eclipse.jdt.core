@@ -311,7 +311,7 @@ public class ToolFactory {
 	 */
 	public static IClassFileReader createDefaultClassFileReader(InputStream stream, int decodingFlag) {
 		try {
-			return new ClassFileReader(Util.getInputStreamAsByteArray(stream, -1), decodingFlag);
+			return new ClassFileReader(Util.getInputStreamAsByteArray(stream), decodingFlag);
 		} catch(ClassFormatException | IOException e) {
 			return null;
 		}

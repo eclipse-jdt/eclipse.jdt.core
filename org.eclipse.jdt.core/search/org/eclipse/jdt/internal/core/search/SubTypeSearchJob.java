@@ -15,13 +15,16 @@ package org.eclipse.jdt.internal.core.search;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.index.MetaIndex;
 
 public class SubTypeSearchJob extends PatternSearchJob {
 
@@ -35,6 +38,16 @@ public void finished() {
 }
 @Override
 public Index[] getIndexes(IProgressMonitor progressMonitor) {
+	// qualifier index will narrow down indexes each iteration. Therefore alway request from super.
+	Optional<Index> qualifierIndex = JavaModelManager.getIndexManager().getMetaIndex().map(MetaIndex::getIndex);
+	if(qualifierIndex.isPresent()) {
+		if(this.indexes.add(qualifierIndex.get())) {
+			qualifierIndex.get().startQuery();
+		}
+		return super.getIndexes(progressMonitor);
+	}
+
+	// fallback if qualifier index is not present.
 	if (this.indexes.isEmpty()) {
 		return super.getIndexes(progressMonitor);
 	}

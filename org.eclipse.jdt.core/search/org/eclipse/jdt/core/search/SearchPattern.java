@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchScope;
 import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.matching.ConstructorPattern;
 import org.eclipse.jdt.internal.core.search.matching.FieldPattern;
@@ -288,6 +289,21 @@ public abstract class SearchPattern {
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public IJavaElement focus;
+
+	/**
+	 * The encoded index qualifier query which is used to narrow down number of indexes to search based on the qualifier.
+	 * This is optional. In absence all indexes provided by scope will be searched.
+	 * <br>
+	 * The encoded query format is as following
+	 * <pre>
+	 * CATEGORY1[,CATEGORY2]:SIMPLE_KEY:QUALIFIED_KEY
+	 * </pre>
+	 * if the category is not provided, then the index qualifier search will be done for all type of qualifiers.
+	 *
+	 * @noreference This field is not intended to be referenced by clients.
+	 * @see QualifierQuery#encodeQuery(org.eclipse.jdt.internal.core.search.indexing.QualifierQuery.QueryCategory[], char[], char[])
+	 */
+	public char[] indexQualifierQuery;
 
 	/**
 	 * @noreference This field is not intended to be referenced by clients.

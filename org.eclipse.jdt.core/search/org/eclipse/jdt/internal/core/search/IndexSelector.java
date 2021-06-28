@@ -16,6 +16,10 @@ package org.eclipse.jdt.internal.core.search;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -33,9 +37,12 @@ import org.eclipse.jdt.internal.core.builder.ReferenceCollection;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.ModulePattern;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Selects the indexes that correspond to projects in a given search scope
@@ -296,7 +303,22 @@ public IndexLocation[] getIndexLocations() {
 	if (this.indexLocations == null) {
 		initializeIndexLocations();
 	}
-	return this.indexLocations;
+
+	IndexLocation[] filtered = this.indexLocations;
+	if(this.pattern != null && this.pattern.indexQualifierQuery != null && this.pattern.indexQualifierQuery.length > 0) {
+		Optional<Set<String>> indexNamesResult = JavaModelManager.getIndexManager()
+				.findMatchingIndexNames(QualifierQuery.fromEncodedQuery(this.pattern.indexQualifierQuery));
+		if(indexNamesResult.isPresent()) {
+			Set<String> indexNames = indexNamesResult.get();
+			filtered = Stream.of(this.indexLocations).filter(l -> indexNames.contains(l.fileName()))
+					.toArray(IndexLocation[]::new);
+		}
+	}
+	if (JobManager.VERBOSE) {
+		Util.verbose(String.format("-> selected %s indexes out of total indexes %s after qualify filtering - %s",  //$NON-NLS-1$
+				filtered.length, this.indexLocations.length, this.toString()));
+	}
+	return filtered;
 }
 
 /**

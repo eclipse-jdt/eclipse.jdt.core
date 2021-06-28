@@ -715,7 +715,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		byte[] bytes = null;
 		try {
 			stream = new BufferedInputStream(stream);
-			bytes = Util.getInputStreamAsByteArray(stream, -1);
+			bytes = Util.getInputStreamAsByteArray(stream);
 		} finally {
 			try {
 				stream.close();
@@ -736,7 +736,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		byte[] bytes = null;
 		try {
 			stream = new BufferedInputStream(stream);
-			bytes = Util.getInputStreamAsByteArray(stream, -1);
+			bytes = Util.getInputStreamAsByteArray(stream);
 		} finally {
 			try {
 				stream.close();
@@ -816,7 +816,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		byte[] bytes = null;
 		try {
 			stream = new BufferedInputStream(stream);
-			bytes = Util.getInputStreamAsByteArray(stream, -1);
+			bytes = Util.getInputStreamAsByteArray(stream);
 		} finally {
 			try {
 				stream.close();

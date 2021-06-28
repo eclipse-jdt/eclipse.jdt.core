@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 import junit.framework.Test;
@@ -3444,5 +3445,227 @@ public void testBug573450_002() throws CoreException {
 	}
 }
 
+private void setupQualifierProject() throws Exception {
+	IJavaProject projectQ = createJavaProject("TypeHierarchyQ", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+	addClasspathEntry(projectQ, getJRTLibraryEntry());
+	addClasspathEntry(projectQ, JavaCore.newProjectEntry(getProject("TypeHierarchy15").getFullPath()));
+	addLibraryEntry(projectQ, Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "test57007.jar").toFile().getAbsolutePath(), false);
+
+	// source file for index qualifier tests
+	createFile(
+			"/TypeHierarchyQ/src/Q1.java",
+			"public class Q1<E> extends util.ArrayList<E> {\n" +
+			"}"
+	);
+	createFile(
+			"/TypeHierarchyQ/src/Q2.java",
+			"public class Q2<E> implements util.List<E> {\n" +
+			"}"
+	);
+	createFile(
+			"/TypeHierarchyQ/src/Q3.java",
+			"public class Q3 {\n" +
+			"	public util.List<String> listOf() {\n" +
+			"		return new util.List(){};\n" +
+			"	}\n"+
+			"	private class Q3List implements util.List {\n" +
+			"	}\n"+
+			"}"
+	);
+	createFile(
+			"/TypeHierarchyQ/src/Q4.java",
+			"public class Q4 {\n" +
+			"	public Runnable job() {\n" +
+			"		return new Runnable(){\n" +
+			"			public void run(){}" +
+			"		};\n" +
+			"	}\n"+
+			"	private class Q4Job implements Runnable {\n" +
+			"			public void run(){}" +
+			"	}\n"+
+			"	public java.util.function.Function<String, String> func() {\n" +
+			"		return i -> {\n" +
+			"			return \"i\";"+
+			"		};\n" +
+			"	}\n"+
+			"}"
+	);
+
+	createFolder("/TypeHierarchyQ/src/p1");
+	createFile(
+			"/TypeHierarchyQ/src/p1/COuter.java",
+			"package p1;\n" +
+			"public class COuter {\n" +
+			"	protected class Inner {}\n" +
+			"}"
+	);
+
+	createFolder("/TypeHierarchyQ/src/p2");
+	createFile(
+			"/TypeHierarchyQ/src/p2/Middle.java",
+			"package p2;\n" +
+			"import p1.COuter;\n" +
+			"public class Middle extends COuter {}\n"
+	);
+
+	IJavaProject projectR = createJavaProject("TypeHierarchyR", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+	addClasspathEntry(projectR, JavaCore.newProjectEntry(getProject("TypeHierarchyQ").getFullPath()));
+	addClasspathEntry(projectR, getJRTLibraryEntry());
+	createFolder("/TypeHierarchyR/src/p3");
+	createFile(
+			"/TypeHierarchyR/src/p3/Final.java",
+			"package p3;" +
+			"public class Final extends p2.Middle {\n"+
+			"	private class FinalInner extends Inner {}\n"+
+			"	private void exec() {\n"+
+			"		new Thread(()-> {});\n"+
+			"	}\n"+
+			"}\n"
+	);
+
+}
+
+private void deleteQualifierProject() throws CoreException {
+	deleteProject("TypeHierarchyQ");
+	deleteProject("TypeHierarchyR");
+}
+
+public void testIndexQualificationFQNReferences() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getPackageFragmentRoot("/TypeHierarchy15/lib15.jar").getPackageFragment("util")
+				.getOrdinaryClassFile("List.class").getType();
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+		assertHierarchyEquals("Focus: List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n"
+				+ "Super types:\n"
+				+ "Sub types:\n"
+				+ "  <anonymous #1> [in listOf() [in Q3 [in Q3.java [in <default> [in src [in TypeHierarchyQ]]]]]]\n"
+				+ "  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n"
+				+ "    Q1 [in Q1.java [in <default> [in src [in TypeHierarchyQ]]]]\n"
+				+ "    X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n"
+				+ "    Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n"
+				+ "  Q2 [in Q2.java [in <default> [in src [in TypeHierarchyQ]]]]\n"
+				+ "  Q3List [in Q3 [in Q3.java [in <default> [in src [in TypeHierarchyQ]]]]]\n"
+				+ "  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n"
+				+ "  Y [in Y.java [in <default> [in src [in TypeHierarchy15]]]]\n"
+				, hierarchy);
+	} finally {
+		deleteQualifierProject();
+	}
+}
+
+public void testIndexQualificationJavaLangReferences() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getJavaProject("TypeHierarchyQ").findType("java.lang.Runnable");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+
+		String actual = hierarchy.toString();
+		assertTrue("Actual (<anonymous #1> [in job()]): ".concat(actual), actual.contains("<anonymous #1> [in job() [in Q4 [in Q4.java [in <default> [in src [in TypeHierarchyQ]]]]]]"));
+		assertTrue("Actual (Q4Job): ".concat(actual), actual.contains("Q4Job [in Q4 [in Q4.java [in <default> [in src [in TypeHierarchyQ]]]]]"));
+	} finally {
+		deleteQualifierProject();
+	}
+}
+
+public void testIndexQualificationLambdaReferences_AsReturnTypes() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getJavaProject("TypeHierarchyQ").findType("java.util.function.Function");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+
+		String actual = hierarchy.toString();
+		assertTrue("Actual (<lambda #1> [in func()]): ".concat(actual), actual.contains("<lambda #1> [in func() [in Q4 [in Q4.java [in <default> [in src [in TypeHierarchyQ]]]]]]"));
+	} finally {
+		deleteQualifierProject();
+	}
+}
+
+public void testIndexQualificationLambdaReferences_AsParameters() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getJavaProject("TypeHierarchyR").findType("java.lang.Runnable");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+
+		String actual = hierarchy.toString();
+		assertTrue("Actual <lambda #1> [in exec()]): ".concat(actual), actual.contains("<lambda #1> [in exec() [in Final [in Final.java [in p3 [in src [in TypeHierarchyR]]]]]]"));
+	} finally {
+		deleteQualifierProject();
+	}
+}
+
+public void testIndexQualificationInnerClassInheritence() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getJavaProject("TypeHierarchyQ").findType("p1.COuter.Inner");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+
+		assertHierarchyEquals("Focus: Inner [in COuter [in COuter.java [in p1 [in src [in TypeHierarchyQ]]]]]\n"
+				+ "Super types:\n"
+				+ "  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.8") + "]]]\n"
+				+ "Sub types:\n"
+				+ "  FinalInner [in Final [in Final.java [in p3 [in src [in TypeHierarchyR]]]]]\n"
+				, hierarchy);
+	} finally {
+		deleteQualifierProject();
+	}
+}
+
+public void testIndexQualificationBinaryNestedSubTypes() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getJavaProject("TypeHierarchyQ").findType("meta.Future");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+
+		String jarPath = Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "test57007.jar").toFile().getAbsolutePath();
+		assertHierarchyEquals("Focus: Future [in Future.class [in meta [in " + jarPath + "]]]\n"
+				+ "Super types:\n"
+				+ "  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.8") + "]]]\n"
+				+ "Sub types:\n"
+				+ "  <anonymous> [in Future$1.class [in meta [in " + jarPath + "]]]\n"
+				+ "  AsyncFuture [in Future$AsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "    NestedAsyncFuture [in Future$NestedAsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "    NestedNestedAsyncFuture [in Future$NestedAsyncFuture$NestedNestedAsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "      <anonymous> [in Future$NestedAsyncFuture$NestedNestedAsyncFuture$1.class [in meta [in " + jarPath + "]]]\n"
+				+ "  AsyncFuture [in FutureX$AsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "    NestedAsyncFuture [in FutureX$NestedAsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "    NestedNestedAsyncFuture [in FutureX$NestedAsyncFuture$NestedNestedAsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				, hierarchy);
+
+
+	} finally {
+		deleteQualifierProject();
+	}
+}
+
+public void testIndexQualificationBinaryNestedSubTypes_SearchForNestedSuperType() throws Exception {
+	setupQualifierProject();
+	waitUntilIndexesReady();
+	try {
+		IType type = getJavaProject("TypeHierarchyQ").findType("meta.Future.AsyncFuture");
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
+
+		String jarPath = Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "test57007.jar").toFile().getAbsolutePath();
+		assertHierarchyEquals("Focus: AsyncFuture [in Future$AsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "Super types:\n"
+				+ "  Future [in Future.class [in meta [in "+ jarPath + "]]]\n"
+				+ "    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.8") + "]]]\n"
+				+ "Sub types:\n"
+				+ "  NestedAsyncFuture [in Future$NestedAsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "  NestedNestedAsyncFuture [in Future$NestedAsyncFuture$NestedNestedAsyncFuture.class [in meta [in " + jarPath + "]]]\n"
+				+ "    <anonymous> [in Future$NestedAsyncFuture$NestedNestedAsyncFuture$1.class [in meta [in " + jarPath + "]]]\n"
+				, hierarchy);
+
+
+	} finally {
+		deleteQualifierProject();
+	}
+}
 
 }

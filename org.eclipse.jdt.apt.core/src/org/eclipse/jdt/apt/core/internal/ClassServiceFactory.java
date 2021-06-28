@@ -27,14 +27,11 @@ class ClassServiceFactory implements IServiceFactory {
 	@Override
 	public Object newInstance() throws CoreException {
 		try {
-			return _clazz.newInstance();
-		} catch (InstantiationException e) {
+			return _clazz.getDeclaredConstructor().newInstance();
+		} catch (Exception e) {
 			throw new CoreException(AptPlugin.createWarningStatus(e,
 					"Unable to create instance of annotation processor " + _clazz.getName())); //$NON-NLS-1$
-		} catch (IllegalAccessException e) {
-			throw new CoreException(AptPlugin.createWarningStatus(e,
-					"Unable to create instance of annotation processor " + _clazz.getName())); //$NON-NLS-1$
-		}
+		} 
 	}
 
 	@Override

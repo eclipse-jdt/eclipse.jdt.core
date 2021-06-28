@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2020 IBM Corporation and others.
+ * Copyright (c) 2017, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
@@ -66,6 +67,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	private JavaCompiler[] compilers;
 	private String[] compilerNames;
 	private boolean isJREBelow9;
+	private boolean isJREBelow12;
 	private static String _tmpFolder;
 	private static String _tmpSrcFolderName;
 	private static File _tmpSrcDir;
@@ -83,6 +85,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		this.isJREBelow9 = SourceVersion.latest().compareTo(SourceVersion.RELEASE_8) <= 0;
 		if (isJREBelow9)
 			return;
+		isJREBelow12 = SourceVersion.latest().compareTo(SourceVersion.RELEASE_11) <= 0;
 		this.compilers = new JavaCompiler[2];
 		this.compilerNames = new String[2];
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class, EclipseCompiler.class.getClassLoader());
@@ -214,19 +217,8 @@ public class CompilerToolJava9Tests extends TestCase {
 			}
 		}
 	}
-	public void testOptionRelease1() throws IOException {
-		if (this.isJREBelow9) return;
-		JavaCompiler compiler = this.compilers[1];
-		String tmpFolder = _tmpFolder;
-		File inputFile = new File(tmpFolder, "X.java");
-		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
-			writer.write(
-				"package p;\n" +
-				"public class X {}");
-		}
-		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-
-		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
+	public ForwardingJavaFileManager<JavaFileManager> getFileManager(JavaFileManager manager) {
+		return new ForwardingJavaFileManager<JavaFileManager>(manager) {
 			@Override
 			public FileObject getFileForInput(Location location, String packageName, String relativeName)
 					throws IOException {
@@ -259,219 +251,373 @@ public class CompilerToolJava9Tests extends TestCase {
 				return javaFileForOutput;
 			}
 		};
-		// create new list containing input file
-		List<File> files = new ArrayList<File>();
-		files.add(inputFile);
-		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-
-		List<String> options = new ArrayList<String>();
-		options.add("-d");
-		options.add(tmpFolder);
-		options.add("--release");
-		options.add("8");
-		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
-		PrintWriter err = new PrintWriter(errBuffer);
-		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
-			@Override
-			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
-				super.report(diagnostic);
+	}
+	public void testOptionRelease1() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = (manager) -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
+				writer.write(
+					"package p;\n" +
+					"public class X {}");
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
+			List<File> files = new ArrayList<File>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+
+			List<String> options = new ArrayList<String>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release");
+			options.add("8");
+			ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+			PrintWriter err = new PrintWriter(errBuffer);
+			CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+				@Override
+				public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+					JavaFileObject source = diagnostic.getSource();
+					assertNotNull("No source", source);
+					super.report(diagnostic);
+				}
+			};
+	 		CompilationTask task = compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
+	 		// check the classpath location
+	 		assertTrue("Has no location CLASS_OUPUT", getFileManager(manager).hasLocation(StandardLocation.CLASS_OUTPUT));
+			Boolean result = task.call();
+			printWriter.flush();
+			printWriter.close();
+	 		if (!result.booleanValue()) {
+	 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+	 	 		assertTrue("Compilation failed ", false);
+	 		}
+	 		ClassFileReader reader = null;
+	 		try {
+				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
+			} catch (ClassFormatException e) {
+				assertTrue("Should not happen", false);
+			} catch (IOException e) {
+				assertTrue("Should not happen", false);
+			}
+			assertNotNull("No reader", reader);
+			// This needs fix. This test case by design will produce different output every compiler version.
+	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+			// check that the .class file exist for X
+			assertTrue("delete failed", inputFile.delete());
 		};
- 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
- 		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
-		Boolean result = task.call();
-		printWriter.flush();
-		printWriter.close();
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
- 		ClassFileReader reader = null;
- 		try {
-			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
-		} catch (ClassFormatException e) {
-			assertTrue("Should not happen", false);
-		} catch (IOException e) {
-			assertTrue("Should not happen", false);
-		}
-		assertNotNull("No reader", reader);
-		// This needs fix. This test case by design will produce different output every compiler version.
- 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
-		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
 	}
 	public void testOptionRelease2() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
-		String tmpFolder = _tmpFolder;
-		File inputFile = new File(tmpFolder, "X.java");
-		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
-			writer.write(
-				"package p;\n" +
-				"public class X {}");
-		}
-		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = (manager) -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
+				writer.write(
+					"package p;\n" +
+					"public class X {}");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			// create new list containing input file
+			List<File> files = new ArrayList<File>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
 
-		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
-			@Override
-			public FileObject getFileForInput(Location location, String packageName, String relativeName)
-					throws IOException {
-				if (DEBUG) {
-					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+			List<String> options = new ArrayList<String>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release");
+			options.add("8");
+			ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+			PrintWriter err = new PrintWriter(errBuffer);
+			CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+				@Override
+				public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+					JavaFileObject source = diagnostic.getSource();
+					assertNotNull("No source", source);
+					super.report(diagnostic);
 				}
-				return super.getFileForInput(location, packageName, relativeName);
+			};
+	 		CompilationTask task = compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
+	 		// check the classpath location
+	 		assertTrue("Has no location CLASS_OUPUT", getFileManager(manager).hasLocation(StandardLocation.CLASS_OUTPUT));
+			Boolean result = task.call();
+			printWriter.flush();
+			printWriter.close();
+	 		if (!result.booleanValue()) {
+	 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+	 	 		assertTrue("Compilation failed ", false);
+	 		}
+	 		ClassFileReader reader = null;
+	 		try {
+				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
+			} catch (ClassFormatException e) {
+				assertTrue("Should not happen", false);
+			} catch (IOException e) {
+				assertTrue("Should not happen", false);
 			}
-			@Override
-			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
-					throws IOException {
-				if (DEBUG) {
-					System.out.println("Create java file for input : " + className + " in location " + location);
-				}
-				return super.getJavaFileForInput(location, className, kind);
-			}
-			@Override
-			public JavaFileObject getJavaFileForOutput(Location location,
-					String className,
-					Kind kind,
-					FileObject sibling) throws IOException {
-
-				if (DEBUG) {
-					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
-				}
-				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				if (DEBUG) {
-					System.out.println(javaFileForOutput.toUri());
-				}
-				return javaFileForOutput;
-			}
+			assertNotNull("No reader", reader);
+			// This needs fix. This test case by design will produce different output every compiler version.
+	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+			// check that the .class file exist for X
+			assertTrue("delete failed", inputFile.delete());
 		};
-		// create new list containing input file
-		List<File> files = new ArrayList<File>();
-		files.add(inputFile);
-		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
-
-		List<String> options = new ArrayList<String>();
-		options.add("-d");
-		options.add(tmpFolder);
-		options.add("--release");
-		options.add("8");
-		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
-		PrintWriter err = new PrintWriter(errBuffer);
-		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
-			@Override
-			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
-				super.report(diagnostic);
-			}
-		};
- 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
- 		// check the classpath location
- 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
-		Boolean result = task.call();
-		printWriter.flush();
-		printWriter.close();
- 		if (!result.booleanValue()) {
- 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
- 	 		assertTrue("Compilation failed ", false);
- 		}
- 		ClassFileReader reader = null;
- 		try {
-			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
-		} catch (ClassFormatException e) {
-			assertTrue("Should not happen", false);
-		} catch (IOException e) {
-			assertTrue("Should not happen", false);
-		}
-		assertNotNull("No reader", reader);
-		// This needs fix. This test case by design will produce different output every compiler version.
- 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
-		// check that the .class file exist for X
-		assertTrue("delete failed", inputFile.delete());
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
 	}
 	public void testOptionRelease3() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
-		String tmpFolder = _tmpFolder;
-		File inputFile = new File(tmpFolder, "X.java");
-		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
-			writer.write(
-				"package p;\n" +
-				"public class X {}");
-		}
-		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-
-		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
-			@Override
-			public FileObject getFileForInput(Location location, String packageName, String relativeName)
-					throws IOException {
-				if (DEBUG) {
-					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
-				}
-				return super.getFileForInput(location, packageName, relativeName);
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = (manager) -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
+				writer.write(
+					"package p;\n" +
+					"public class X {}");
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			@Override
-			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
-					throws IOException {
-				if (DEBUG) {
-					System.out.println("Create java file for input : " + className + " in location " + location);
-				}
-				return super.getJavaFileForInput(location, className, kind);
-			}
-			@Override
-			public JavaFileObject getJavaFileForOutput(Location location,
-					String className,
-					Kind kind,
-					FileObject sibling) throws IOException {
+			
 
-				if (DEBUG) {
-					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
-				}
-				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
-				if (DEBUG) {
-					System.out.println(javaFileForOutput.toUri());
-				}
-				return javaFileForOutput;
+			// create new list containing input file
+			List<File> files = new ArrayList<File>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+
+			List<String> options = new ArrayList<String>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release");
+			options.add("8");
+			options.add("-source");
+			options.add("7");
+			ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+			PrintWriter err = new PrintWriter(errBuffer);
+			CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err);
+			try {
+				compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
+				fail("compilation didn't fail as expected");
+			} catch(IllegalArgumentException iae) {
+				assertEquals("option -source is not supported when --release is used", iae.getMessage());
+			}
+			// Now with standard file manager
+			try {
+				compiler.getTask(printWriter, manager, listener, options, null, units);
+				fail("compilation didn't fail as expected");
+			} catch(IllegalArgumentException iae) {
+				assertEquals("option -source is not supported when --release is used", iae.getMessage());
 			}
 		};
-		// create new list containing input file
-		List<File> files = new ArrayList<File>();
-		files.add(inputFile);
-		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
-		StringWriter stringWriter = new StringWriter();
-		PrintWriter printWriter = new PrintWriter(stringWriter);
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
+	}
+	public void testOptionRelease4() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = (manager) -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
+				writer.write(
+					"package p;\n" +
+					"import java.nio.Buffer;\n" +
+					"import java.nio.ByteBuffer;\n" +
+					"public class X {\n" +
+					"  public Buffer buf() {\n" +
+					"    ByteBuffer buffer = ByteBuffer.allocate(10);\n" +
+					"    return buffer.flip();\n" +
+					"  }\n" +
+					"}\n");
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 
-		List<String> options = new ArrayList<String>();
-		options.add("-d");
-		options.add(tmpFolder);
-		options.add("--release");
-		options.add("8");
-		options.add("-source");
-		options.add("7");
-		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
-		PrintWriter err = new PrintWriter(errBuffer);
-		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err);
-//		{ bug 533830 removed: an option error has no source associated with it, so the below was copied wrongly.
-//			@Override
-//			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-//				JavaFileObject source = diagnostic.getSource();
-//				assertNotNull("No source", source);
-//				super.report(diagnostic);
-//			}
-//		};
-		try {
-			compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
-			fail("compilation didn't fail as expected");
-		} catch(IllegalArgumentException iae) {
-			assertEquals("option -source is not supported when --release is used", iae.getMessage());
-		}
+			// create new list containing input file
+			List<File> files = new ArrayList<File>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+
+			List<String> options = new ArrayList<String>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release");
+			options.add("8");
+			ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+			PrintWriter err = new PrintWriter(errBuffer);
+			CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+				@Override
+				public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+					JavaFileObject source = diagnostic.getSource();
+					assertNotNull("No source", source);
+					super.report(diagnostic);
+				}
+			};
+			
+	 		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+	 		// check the classpath location
+			Boolean result = task.call();
+			printWriter.flush();
+			printWriter.close();
+	 		if (!result.booleanValue()) {
+	 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+	 	 		assertTrue("Compilation failed ", false);
+	 		}
+	 		ClassFileReader reader = null;
+	 		try {
+				reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), false);
+			} catch (ClassFormatException e) {
+				assertTrue("Should not happen", false);
+			} catch (IOException e) {
+				assertTrue("Should not happen", false);
+			}
+			assertNotNull("No reader", reader);
+			// This needs fix. This test case by design will produce different output every compiler version.
+	 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+	 		// check that the correct call was generated: must return a Buffer, not a ByteBuffer
+	 		boolean found = false;
+	 		int[] offsets = reader.getConstantPoolOffsets();
+	 		for (int i = 0; i < offsets.length; i++) {
+	 			int tag = reader.u1At(offsets[i]);
+	 			if (tag == ClassFileConstants.MethodRefTag || tag ==  ClassFileConstants.InterfaceMethodRefTag) {
+	 				char[] name = extractName(offsets, reader, i);
+	 				char[] className = extractClassName(offsets, reader, i);
+	 				String fullName = new String(className) + '.' + new String(name);
+	 				char[] typeName = extractType(offsets, reader, i);
+	 				if ("java/nio/ByteBuffer.flip".equals(fullName)) {
+	 					found = true;
+	 					assertEquals(fullName + "()Ljava/nio/Buffer;", fullName + new String(typeName));
+	 					break;
+	 				}
+	 			}
+	 		}
+	 		assertTrue("No call to ByteBuffer.flip()", found);
+			// check that the .class file exist for X
+			assertTrue("delete failed", inputFile.delete());
+		};
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
+	}
+	public void testOptionRelease5() throws IOException {
+		if (this.isJREBelow12) return;
+		JavaCompiler compiler = this.compilers[1];
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = (manager) -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
+				writer.write(
+						"public class X { \n" +
+						"	public Module getModule(String name) {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			// create new list containing input file
+			List<File> files = new ArrayList<File>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			List<String> options = new ArrayList<String>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release");
+			options.add("8");
+			ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+			PrintWriter err = new PrintWriter(errBuffer);
+			CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err);
+			CompilationTask task = compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
+			Boolean result = task.call();
+			printWriter.flush();
+			printWriter.close();
+			System.err.println(stringWriter.getBuffer().toString());
+			if (result.booleanValue()) {
+				System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
+				assertTrue("Compilation did not fail as expected", false);
+			}
+		};
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
+	}
+	public void testOptionRelease6() throws IOException {
+		if (this.isJREBelow12) return;
+		JavaCompiler compiler = this.compilers[1];
+		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Consumer<JavaFileManager> cons = (manager) -> {
+			String tmpFolder = _tmpFolder;
+			File inputFile = new File(tmpFolder, "X.java");
+			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
+				writer.write(
+						"public class X { \n" +
+						"	public Module getModule(String name) {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			// create new list containing input file
+			List<File> files = new ArrayList<File>();
+			files.add(inputFile);
+			Iterable<? extends JavaFileObject> units = standardManager.getJavaFileObjectsFromFiles(files);
+			StringWriter stringWriter = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(stringWriter);
+			List<String> options = new ArrayList<String>();
+			options.add("-d");
+			options.add(tmpFolder);
+			options.add("--release");
+			options.add("10");
+			ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+			PrintWriter err = new PrintWriter(errBuffer);
+			CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err);
+			CompilationTask task = compiler.getTask(printWriter, getFileManager(manager), listener, options, null, units);
+			Boolean result = task.call();
+			printWriter.flush();
+			printWriter.close();
+			if (!result.booleanValue()) {
+				System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+				assertTrue("Compilation failed", false);
+			}
+		};
+		cons.accept(standardManager);
+		cons.accept(getFileManager(standardManager));
+	}
+	private char[] extractClassName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+		// the entry at i has to be a field ref or a method/interface method ref.
+		int class_index = reader.u2At(constantPoolOffsets[index] + 1);
+		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[class_index] + 1)];
+		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
+	}
+	private char[] extractName(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+		int nameAndTypeIndex = reader.u2At(constantPoolOffsets[index] + 3);
+		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[nameAndTypeIndex] + 1)];
+		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
+	}
+	private char[] extractType(int[] constantPoolOffsets, ClassFileReader reader, int index) {
+		int constantPoolIndex = reader.u2At(constantPoolOffsets[index] + 3);
+		int utf8Offset = constantPoolOffsets[reader.u2At(constantPoolOffsets[constantPoolIndex] + 3)];
+		return reader.utf8At(utf8Offset + 3, reader.u2At(utf8Offset + 1));
 	}
 	public void testClassOutputLocationForModule_1() throws IOException {
 		if (this.isJREBelow9) return;
@@ -583,7 +729,7 @@ public class CompilerToolJava9Tests extends TestCase {
  			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
  		}
- 		
+ 
  		// Try using the same outut as module-path and compile the new module (mod.test)
 		manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
@@ -620,7 +766,7 @@ public class CompilerToolJava9Tests extends TestCase {
  			System.err.println("Compilation failed unexpectedly: " + stringWriter.getBuffer().toString());
  	 		assertTrue("Compilation failed ", false);
  		}
- 		
+ 
  		// Delete the module-info.class from the previously compiled modules
  		// and try compiling the same module mod.test
  		File file = new File(tmpFolder + File.separator + "mod.test" + File.separator + "module-info.class");

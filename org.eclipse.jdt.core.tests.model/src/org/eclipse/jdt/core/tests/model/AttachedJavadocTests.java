@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModularClassFile;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -1359,6 +1360,26 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertTrue("Should contain", javadoc.contains("Some package description"));
 		} catch (IndexOutOfBoundsException e) {
 			assertTrue("Should not happen", false);
+		}
+	}
+	@SuppressWarnings("deprecation")
+	public void testBug574115() throws JavaModelException {
+		IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug521256.jar"), null,
+				null, null, null, true);
+		this.project.setRawClasspath(new IClasspathEntry[] { newEntry }, null);
+		this.project.getResolvedClasspath(false);
+
+		IPackageFragmentRoot jarRoot = this.project
+				.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug521256.jar"));
+		IModularClassFile modularClassFile = jarRoot.getPackageFragment("").getModularClassFile();
+		// Bug574115: jdt.ui calls getType() on IOrdinaryClassFile.
+		assertFalse("wrong type", modularClassFile instanceof IOrdinaryClassFile);
+		try {
+			modularClassFile.getType(); // note: it would be better to remove the deprecated methods from interface
+										// - but its API
+			fail("UnsupportedOperationException expected");
+		} catch (UnsupportedOperationException e) {
+			// expected
 		}
 	}
 	public void testBug546945() throws JavaModelException {

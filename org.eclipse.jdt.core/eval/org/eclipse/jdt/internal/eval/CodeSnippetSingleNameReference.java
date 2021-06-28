@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -57,34 +56,6 @@ public class CodeSnippetSingleNameReference extends SingleNameReference implemen
 public CodeSnippetSingleNameReference(char[] source, long pos, EvaluationContext evaluationContext) {
 	super(source, pos);
 	this.evaluationContext = evaluationContext;
-}
-@Override
-public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, boolean valueRequired) {
-
-	switch (this.bits & RestrictiveFlagMASK) {
-		case Binding.FIELD : // reading a field
-			// check if reading a final blank field
-			FieldBinding fieldBinding;
-			if ((fieldBinding = (FieldBinding) this.binding).isBlankFinal()
-					&& currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
-				FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
-				if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
-					currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
-				}
-			}
-			break;
-		case Binding.LOCAL : // reading a local variable
-			LocalVariableBinding localBinding;
-			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
-			}
-			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
-				localBinding.useFlag = LocalVariableBinding.USED;
-			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
-				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
-			}
-	}
-	return flowInfo;
 }
 /**
  * Check and/or redirect the field access to the delegate receiver if any
@@ -261,9 +232,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 						// managing private access
 						if (!codegenField.isStatic()) {
 							if ((this.bits & DepthMASK) != 0) {
-								// internal error, per construction we should have found it
-								// not yet supported
-								currentScope.problemReporter().needImplementation(this);
+								ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & DepthMASK) >> DepthSHIFT);
+								Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
+								codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
 							} else {
 								generateReceiver(codeStream);
 							}

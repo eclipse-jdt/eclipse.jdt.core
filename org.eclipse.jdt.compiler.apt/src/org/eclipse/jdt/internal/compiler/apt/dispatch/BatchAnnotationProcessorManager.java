@@ -150,7 +150,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 				String proc = _commandLineProcessorIter.next();
 				try {
 					Class<?> clazz = _procLoader.loadClass(proc);
-					Object o = clazz.newInstance();
+					Object o = clazz.getDeclaredConstructor().newInstance();
 					Processor p = (Processor) o;
 					p.init(_processingEnv);
 					ProcessorInfo pi = new ProcessorInfo(p);
