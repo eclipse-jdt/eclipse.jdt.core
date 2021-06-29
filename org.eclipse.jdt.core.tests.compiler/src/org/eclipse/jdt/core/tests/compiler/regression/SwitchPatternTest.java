@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug573516_001"};
+//		TESTS_NAMES = new String[] { "testBug574525_01"};
 
 	}
 
@@ -619,4 +619,123 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The local variable j may not have been initialized\n" +
 			"----------\n");
 	}
+	public void testBug574525_01() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer I: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(I); \n"+
+					"       break; \n"+
+					"     case null:\n"+
+					"       System.out.println(\"NULL\"); \n"+
+					"       break;\n"+
+					"     default : System.out.println(\"Object\"); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"     foo(null);\n"+
+					" }\n"+
+					"}",
+				},
+				"NULL");
+		}
+	public void testBug574525_02() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case Integer I: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(I); \n"+
+					"       break; \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
+					"       System.out.println(s); \n"+
+					"       break;\n"+
+					"     case String s1: \n"+
+					"       System.out.println(\"String\"); \n"+
+					"       System.out.println(s1);\n"+
+					"       break; \n"+
+					"     case X x:\n"+
+					"       System.out.println(\"X\"); \n"+
+					"       System.out.println(x);\n"+
+					"       break;\n"+
+					"     case null:\n"+
+					"       System.out.println(\"NULL\"); \n"+
+					"       break;\n"+
+					"     default : System.out.println(\"Object\"); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					"   foo(null);\n"+
+					"   foo(bar());\n"+
+					" }\n"+
+					"   public static Object bar() { return new Object();}\n"+
+					"}",
+				},
+				"String s && s.length()>1\n" +
+				"Hello World!\n" +
+				"NULL\n" +
+				"Object");
+		}
+	public void testBug574525_03() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Integer o) {\n"+
+					"   switch (o) {\n"+
+					"     case 10: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(o); \n"+
+					"       break; \n"+
+					"     case null:\n"+
+					"       System.out.println(\"NULL\"); \n"+
+					"       break;\n"+
+					"     default : System.out.println(o); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"     foo(0);\n"+
+					" }\n"+
+					"}",
+				},
+				"0");
+		}
+	public void testBug574525_04() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(int o) {\n"+
+					"   switch (o) {\n"+
+					"     case 10: \n"+
+					"       System.out.println(\"Integer\"); \n"+
+					"       System.out.println(o); \n"+
+					"       break; \n"+
+					"     case null:\n"+
+					"       System.out.println(\"NULL\"); \n"+
+					"       break;\n"+
+					"     default : System.out.println(o); \n"+
+					"   }\n"+
+					" }   \n"+
+					"   public static void main(String[] args) {\n"+
+					"     foo(0);\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case null:\n" +
+				"	     ^^^^\n" +
+				"Type mismatch: cannot convert from null to int\n" +
+				"----------\n");
+		}
 }

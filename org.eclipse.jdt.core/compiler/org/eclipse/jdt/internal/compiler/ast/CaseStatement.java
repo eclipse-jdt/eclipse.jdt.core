@@ -88,7 +88,10 @@ private void analyseConstantExpression(
 		Expression e) {
 	if (e.constant == Constant.NotAConstant
 			&& !e.resolvedType.isEnum()) {
-		currentScope.problemReporter().caseExpressionMustBeConstant(e);
+		boolean caseNullAllowed = e instanceof NullLiteral
+				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(currentScope.compilerOptions());
+		if (!caseNullAllowed) // TODO: Narrow this further for pattern switches only
+			currentScope.problemReporter().caseExpressionMustBeConstant(e);
 	}
 	e.analyseCode(currentScope, flowContext, flowInfo);
 }
@@ -206,11 +209,21 @@ public Constant resolveConstantExpression(BlockScope scope,
 											SwitchStatement switchStatement,
 											Expression expression) {
 
-	if (expression instanceof PatternExpression)
-		return resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement,
-				(PatternExpression) expression);
+	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
+	if (patternSwitchAllowed) {
+		if (expression instanceof PatternExpression)
+			return resolveConstantExpression(scope, caseType, switchExpressionType,
+					switchStatement,(PatternExpression) expression);
+		if (expression instanceof NullLiteral) {
+			if (switchExpressionType.isBaseType()) {
+				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchExpressionType, expression, null);
+			}
+			switchStatement.containsCaseNull = true;
+			return IntConstant.fromValue(-1);
+		}
+	}
 
-	boolean boxing = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions()) ||
+	boolean boxing = !patternSwitchAllowed ||
 			switchStatement.isAllowedType(switchExpressionType);
 
 	if (expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)

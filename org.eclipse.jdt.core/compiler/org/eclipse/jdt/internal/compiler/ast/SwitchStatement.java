@@ -65,6 +65,7 @@ public class SwitchStatement extends Expression {
 	public int nConstants;
 
 	public boolean containsPatterns = false;
+	/* package */ boolean containsCaseNull = false;
 	private BranchLabel switchPatternRestartTarget;
 	private BranchLabel guardedPatternThen;
 
@@ -613,7 +614,9 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void generateCodePatternCaseEpilogue(CodeStream codeStream, int caseIndex, CaseStatement caseStatement) {
-		if (this.switchPatternRestartTarget != null && caseStatement != null) {
+		if (this.switchPatternRestartTarget != null && caseStatement != null
+				&& caseStatement.patternIndex != -1 // for null
+				) {
 			Pattern pattern = ((PatternExpression) caseStatement.constantExpressions[caseStatement.patternIndex]).pattern;
 			if (pattern instanceof GuardedPattern) {
 				codeStream.loadInt(caseIndex);
@@ -625,9 +628,12 @@ public class SwitchStatement extends Expression {
 	}
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		codeStream.dup();
-		codeStream.invokeJavaUtilObjectsrequireNonNull();
-		codeStream.pop();
+		if (!this.containsCaseNull) {
+			codeStream.dup();
+			codeStream.invokeJavaUtilObjectsrequireNonNull();
+			codeStream.pop();
+
+		}
 
 		codeStream.store(this.dispatchPatternCopy, false);
 		codeStream.addVariable(this.dispatchPatternCopy);
