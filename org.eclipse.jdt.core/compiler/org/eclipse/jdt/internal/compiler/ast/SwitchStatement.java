@@ -67,7 +67,6 @@ public class SwitchStatement extends Expression {
 	public boolean containsPatterns = false;
 	/* package */ boolean containsCaseNull = false;
 	private BranchLabel switchPatternRestartTarget;
-	private BranchLabel guardedPatternThen;
 
 	// fallthrough
 	public final static int CASE = 0;
@@ -622,7 +621,7 @@ public class SwitchStatement extends Expression {
 				codeStream.loadInt(caseIndex);
 				codeStream.store(this.restartIndexLocal, false);
 				codeStream.goto_(this.switchPatternRestartTarget);
-				this.guardedPatternThen.place();
+				((GuardedPattern) pattern).thenTarget.place();
 			}
 		}
 	}
@@ -643,7 +642,6 @@ public class SwitchStatement extends Expression {
 		codeStream.store(this.restartIndexLocal, false);
 		codeStream.addVariable(this.restartIndexLocal);
 
-		this.guardedPatternThen = new BranchLabel(codeStream);
 		this.switchPatternRestartTarget = new BranchLabel(codeStream);
 		this.switchPatternRestartTarget.place();
 
@@ -1192,8 +1190,5 @@ public class SwitchStatement extends Expression {
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		return printStatement(indent, output);
-	}
-	public BranchLabel getGuardedPatternThen() {
-		return this.guardedPatternThen;
 	}
 }

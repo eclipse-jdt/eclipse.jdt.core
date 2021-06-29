@@ -738,4 +738,55 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type mismatch: cannot convert from null to int\n" +
 				"----------\n");
 		}
+	public void testBug574538_01() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(11));\n"+
+					"   foo(Integer.valueOf(9));\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i && i>10:\n"+
+					"     System.out.println(\"Greater than 10:\" + o);\n"+
+					"     break;\n"+
+					"   case Integer j && j>0:\n"+
+					"     System.out.println(\"Greater than 0:\" + o);\n"+
+					"     break;\n"+
+					"   default:\n"+
+					"     System.out.println(\"Object\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"Greater than 10:11\n" +
+				"Greater than 0:9");
+		}
+	public void testBug574538_02() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo1(Integer.valueOf(10));\n"+
+					"   foo1(Integer.valueOf(11));\n"+
+					"   foo1(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo1(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i&&i>10 -> System.out.println(\"Greater than 10:\");\n"+
+					"   case String s&&s.equals(\"ff\") -> System.out.println(\"String:\" + s);\n"+
+					"   default -> System.out.println(\"Object:\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"Object:10\n" +
+				"Greater than 10:\n" +
+				"Object:Hello World!");
+		}
 }

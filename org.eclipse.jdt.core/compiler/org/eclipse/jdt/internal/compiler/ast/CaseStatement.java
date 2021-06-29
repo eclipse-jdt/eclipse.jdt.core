@@ -266,7 +266,6 @@ private Constant resolveConstantExpression(BlockScope scope,
 		constant = IntConstant.fromValue(switchStatement.caseLabelElements.size());
 		switchStatement.caseLabelElements.add(e);
 		Pattern p = e.pattern;
-		p.setTargetSupplier(switchStatement::getGuardedPatternThen);
 		if (p.resolvedPattern != null) {
 			// 14.30.2 at compile-time we "resolve" the pattern with respect to the (compile-time) type
 			// of the expression being pattern matched

@@ -17,8 +17,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.Supplier;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -35,7 +33,7 @@ public class GuardedPattern extends Pattern {
 
 	public Pattern primaryPattern;
 	public Expression condition;
-	private Supplier<BranchLabel> targetSupplier;
+	/* package */ BranchLabel thenTarget;
 
 	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
 		this.primaryPattern = primaryPattern;
@@ -71,11 +69,12 @@ public class GuardedPattern extends Pattern {
  		this.primaryPattern.generateCode(currentScope, codeStream);
 
 		Constant cst =  this.condition.optimizedBooleanConstant();
+		this.thenTarget = new BranchLabel(codeStream);
 
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
-				this.targetSupplier.get(),
+				this.thenTarget,
 				null,
 				cst == Constant.NotAConstant);
 	}
@@ -122,11 +121,6 @@ public class GuardedPattern extends Pattern {
 	public StringBuffer print(int indent, StringBuffer output) {
 		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
 		return this.condition.print(indent, output);
-	}
-
-	@Override
-	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
-		this.targetSupplier = targetSupplier;
 	}
 
 	@Override
