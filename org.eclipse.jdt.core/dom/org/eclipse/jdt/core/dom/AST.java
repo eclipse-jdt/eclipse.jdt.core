@@ -415,7 +415,7 @@ public final class AST {
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS16;
+	private static final int JLS_INTERNAL_Latest = JLS17;
 
 	/**
 	 * @since 3.26
