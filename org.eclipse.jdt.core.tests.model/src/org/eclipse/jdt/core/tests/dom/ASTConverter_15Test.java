@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -940,7 +943,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
-	public void testSealed001() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -986,7 +990,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed002() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed002() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1022,7 +1027,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed003() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed003() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1067,7 +1073,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed004() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed004() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;

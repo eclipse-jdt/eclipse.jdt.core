@@ -89,9 +89,9 @@ public class DOMASTUtil {
 	public static boolean isFeatureSupportedinAST(AST ast, int featureName) {
 		switch (featureName) {
 			case Modifier.SEALED:
-				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+				return ast.apiLevel() >= AST.JLS17;
 			case Modifier.NON_SEALED:
-				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+				return ast.apiLevel() >= AST.JLS17;
 		}
 		return false;
 	}
@@ -115,15 +115,39 @@ public class DOMASTUtil {
 	public static boolean isFeatureSupportedinAST(int apiLevel, boolean previewEnabled, int featureName) {
 		switch (featureName) {
 			case Modifier.SEALED:
-				return isPreviewEnabled(apiLevel, previewEnabled);
+				return apiLevel >= AST.JLS17;
 			case Modifier.NON_SEALED:
-				return isPreviewEnabled(apiLevel, previewEnabled);
+				return apiLevel >= AST.JLS17;
 		}
 		return false;
 	}
 
-	private static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
-		return (apiLevel == AST.JLS16 && previewEnabled);
+	/**
+	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
+	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
+	 * <code>true></code> for nodes added before JLS14.
+	 *
+	 * @param apiLevel
+	 *            the level to be checked
+	 * @param featureName
+	 *            the feature name constant indicating the feature to be evaluated
+	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
+	 *         <code>false</code>
+	 * @see ASTNode#getNodeType()
+	 * @since 3.27 BETA_JAVA17
+	 */
+	public static boolean isFeatureSupportedinAST(int apiLevel, int featureName) {
+		switch (featureName) {
+			case Modifier.SEALED:
+				return apiLevel >= AST.JLS17;
+			case Modifier.NON_SEALED:
+				return apiLevel >= AST.JLS17;
+		}
+		return false;
+	}
+
+	public static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
+		return (apiLevel == AST.JLS17 && previewEnabled);
 	}
 
 	public static boolean isSwitchExpressionSupported(AST ast) {

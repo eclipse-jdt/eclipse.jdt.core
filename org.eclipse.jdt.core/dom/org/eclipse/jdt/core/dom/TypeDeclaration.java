@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -221,27 +223,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_2_0;
-		} else {
-			return PROPERTY_DESCRIPTORS_3_0;
-		}
-	}
-
-	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @param previewEnabled the previewEnabled flag
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.22
-	 */
-	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (DOMASTUtil.isFeatureSupportedinAST(apiLevel, previewEnabled, Modifier.SEALED)) {
+		if (DOMASTUtil.isFeatureSupportedinAST(apiLevel, Modifier.SEALED)) {
 			return PROPERTY_DESCRIPTORS_15;
 		} else if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
@@ -337,11 +319,6 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
-	}
-
-	@Override
-	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
-		return propertyDescriptors(apiLevel, previewEnabled);
 	}
 
 	@Override
@@ -745,20 +722,19 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * Returns the live ordered list of permits of this type
-	 * declaration (added in JLS15 API). For a type declaration, these are the
+	 * declaration (added in JLS17 API). For a type declaration, these are the
 	 * permitted types which can implement/extend this sealed type.
 	 *
 	 *
 	 * @return the live list of types
 	 *    (element type: {@link Type})
-	 * @exception UnsupportedOperationException if this operation is not used with Java 16 and preview enabled
-	 * @since 3.24
+	 * @exception UnsupportedOperationException if this operation is not used with Java 17 and above
+	 * @since 3.27 BETA_JAVA17
 	 */
 	public List permittedTypes() {
 		// more efficient than just calling unsupportedIn2() to check
 		if (this.permittedTypes == null) {
-			supportedOnlyIn16();
-			unsupportedWithoutPreviewError();
+			unsupportedBelow17();
 		}
 		return this.permittedTypes;
 	}
@@ -891,8 +867,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 *
-	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.27 BETA_JAVA17
 	 */
 	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
 		if (restrictedIdentifierStartPosition < 0) {
@@ -907,8 +882,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 *
-	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.27 BETA_JAVA17
 	 */
 	public int getRestrictedIdentifierStartPosition() {
 		return this.restrictedIdentifierStartPosition;
