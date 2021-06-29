@@ -1129,7 +1129,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	buffer.append(super.toString());
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
 	int count = 0;

@@ -181,7 +181,7 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
 					@Override
 					public String displayString(Object o) {
-						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						StringBuilder buffer = new StringBuilder("		"); //$NON-NLS-1$
 						if (o == null) {
 							buffer.append("<null>"); //$NON-NLS-1$
 							return buffer.toString();

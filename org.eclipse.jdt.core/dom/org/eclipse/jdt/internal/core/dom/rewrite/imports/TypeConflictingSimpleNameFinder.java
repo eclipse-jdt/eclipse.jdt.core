@@ -32,7 +32,7 @@ import java.util.Set;
 final class TypeConflictingSimpleNameFinder implements ConflictingSimpleNameFinder {
 	private static class ConflictAccumulatingTypeRequestor extends TypeNameRequestor {
 		private static String buildContainerName(char[] packageName, char[][] enclosingTypeNames) {
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append(packageName);
 			for (char[] enclosingTypeName : enclosingTypeNames) {
 				if (buf.length() > 0)

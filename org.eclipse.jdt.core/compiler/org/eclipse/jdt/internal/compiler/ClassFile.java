@@ -797,7 +797,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		int codeAttributeOffset = this.contentsOffset;
 		generateCodeAttributeHeader();
-		StringBuffer buffer = new StringBuffer(25);
+		StringBuilder buffer = new StringBuilder(25);
 		buffer.append("\t"  + problem.getMessage() + "\n" ); //$NON-NLS-1$ //$NON-NLS-2$
 		buffer.insert(0, Messages.compilation_unresolvedProblem);
 		String problemString = buffer.toString();
@@ -839,7 +839,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int problemLine = 0;
 		if (problems != null) {
 			int max = problems.length;
-			StringBuffer buffer = new StringBuffer(25);
+			StringBuilder buffer = new StringBuilder(25);
 			int count = 0;
 			for (int i = 0; i < max; i++) {
 				CategorizedProblem problem = problems[i];
@@ -905,7 +905,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int problemLine = 0;
 		if (problems != null) {
 			int max = problems.length;
-			StringBuffer buffer = new StringBuffer(25);
+			StringBuilder buffer = new StringBuilder(25);
 			int count = 0;
 			for (int i = 0; i < max; i++) {
 				CategorizedProblem problem = problems[i];
@@ -989,7 +989,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int problemLine = 0;
 		if (problems != null) {
 			int max = problems.length;
-			StringBuffer buffer = new StringBuffer(25);
+			StringBuilder buffer = new StringBuilder(25);
 			int count = 0;
 			for (int i = 0; i < max; i++) {
 				CategorizedProblem problem = problems[i];

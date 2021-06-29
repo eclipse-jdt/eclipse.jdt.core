@@ -527,7 +527,7 @@ public final class Flags {
 	 * @return the standard string representation of the given flags
 	 */
 	public static String toString(int flags) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		if (isPublic(flags))
 			sb.append("public "); //$NON-NLS-1$

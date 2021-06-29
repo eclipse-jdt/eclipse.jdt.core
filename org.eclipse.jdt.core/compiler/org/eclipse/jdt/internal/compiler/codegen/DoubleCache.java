@@ -136,7 +136,7 @@ public int putIfAbsent(double key, int value) {
 @Override
 public String toString() {
 	int max = this.elementSize;
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	buf.append("{"); //$NON-NLS-1$
 	for (int i = 0; i < max; ++i) {
 		if ((this.keyTable[i] != 0) || ((this.keyTable[i] == 0) &&(this.valueTable[i] != 0))) {

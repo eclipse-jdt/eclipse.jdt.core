@@ -89,7 +89,7 @@ class CodeSnippetToCuMapper implements EvaluationConstants {
 	buildCUSource(lineSeparator);
 }
 private void buildCUSource(String lineSeparator) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 
 	// package declaration
 	if (this.snippetPackageName != null && this.snippetPackageName.length != 0) {

@@ -146,7 +146,7 @@ public class LRUCache<K, V> implements Cloneable {
 			} else {
 				seconds = (int) ageInSeconds;
 			}
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			if (days > 0) {
 				buffer.append(days);
 				buffer.append(" days "); //$NON-NLS-1$
@@ -177,7 +177,7 @@ public class LRUCache<K, V> implements Cloneable {
 			if (numberOfElements == 0) {
 				return "No elements in cache"; //$NON-NLS-1$
 			}
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 
 			buffer.append("Number of elements in cache: "); //$NON-NLS-1$
 			buffer.append(numberOfElements);
@@ -672,7 +672,7 @@ public class LRUCache<K, V> implements Cloneable {
 	 * is for debugging purposes only.
 	 */
 	protected String toStringContents() {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		ToStringSorter<K> sorter = new ToStringSorter<>(o -> o instanceof JavaElement ? ((JavaElement) o).getElementName() : o.toString());
 		List<Pair<K>> sortedObjects = sorter.sort(this.entryTable.keySet());
 		for (Pair<K> pair : sortedObjects) {
@@ -687,7 +687,7 @@ public class LRUCache<K, V> implements Cloneable {
 	}
 
 	public String toStringFillingRation(String cacheName) {
-		StringBuffer buffer = new StringBuffer(cacheName);
+		StringBuilder buffer = new StringBuilder(cacheName);
 		buffer.append('[');
 		buffer.append(getSpaceLimit());
 		buffer.append("]: "); //$NON-NLS-1$

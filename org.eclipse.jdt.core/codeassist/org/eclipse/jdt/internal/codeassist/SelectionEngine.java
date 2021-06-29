@@ -777,7 +777,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private boolean checkTypeArgument(Scanner scanner) {
 		int depth = 1;
 		int token;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		do {
 			try {
 				token = scanner.getNextToken();
@@ -814,7 +814,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						buffer.getChars(0, length, typeRef, 0);
 						try {
 							Signature.createTypeSignature(typeRef, true);
-							buffer = new StringBuffer();
+							buffer = new StringBuilder();
 						} catch(IllegalArgumentException e) {
 							return false;
 						}

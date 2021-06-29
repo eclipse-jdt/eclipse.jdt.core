@@ -121,7 +121,7 @@ public final class HashSetOfInt implements Cloneable {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int element;
 		for (int i = 0, length = this.set.length; i < length; i++)
 			if ((element = this.set[i]) != 0) {

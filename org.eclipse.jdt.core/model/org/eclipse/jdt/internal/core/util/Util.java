@@ -302,7 +302,7 @@ public class Util {
 		return compoundChars;
 	}
 	public static String concatenateName(String name1, String name2, char separator) {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		if (name1 != null && name1.length() > 0) {
 			buf.append(name1);
 		}
@@ -338,7 +338,7 @@ public class Util {
 	 * @return the concatenation of the given array parts using the given separator between each part
 	 */
 	public static final String concatWith(String[] array, char separator) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = array.length; i < length; i++) {
 			buffer.append(array[i]);
 			if (i < length - 1)
@@ -388,7 +388,7 @@ public class Util {
 
 		if (array == null || array.length == 0) return name;
 		if (name == null || name.length() == 0) return concatWith(array, separator);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = array.length; i < length; i++) {
 			buffer.append(array[i]);
 			buffer.append(separator);
@@ -1972,7 +1972,7 @@ public class Util {
 	 * @param complianceLevel the compliance level
 	 */
 	public static String packageName(IPath pkgPath, String sourceLevel, String complianceLevel) {
-		StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
+		StringBuilder pkgName = new StringBuilder(IPackageFragment.DEFAULT_PACKAGE_NAME);
 		for (int j = 0, max = pkgPath.segmentCount(); j < max; j++) {
 			String segment = pkgPath.segment(j);
 			if (!isValidFolderNameForPackage(segment, sourceLevel, complianceLevel)) {
@@ -2444,7 +2444,7 @@ public class Util {
 	 * Converts a char[][] to String, where segments are separated by '.'.
 	 */
 	public static String toString(char[][] c) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0, max = c.length; i < max; ++i) {
 			if (i != 0) sb.append('.');
 			sb.append(c[i]);
@@ -2457,7 +2457,7 @@ public class Util {
 	 */
 	public static String toString(char[][] c, char[] d) {
 		if (c == null) return new String(d);
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0, max = c.length; i < max; ++i) {
 			sb.append(c[i]);
 			sb.append('.');

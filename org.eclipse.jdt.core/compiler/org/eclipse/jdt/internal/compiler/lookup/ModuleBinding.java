@@ -726,7 +726,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer(30);
+		StringBuilder buffer = new StringBuilder(30);
 		if (isOpen())
 			buffer.append("open "); //$NON-NLS-1$
 		buffer.append("module " + new String(readableName())); //$NON-NLS-1$

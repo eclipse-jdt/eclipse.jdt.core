@@ -89,7 +89,7 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	 */
 	@Override
 	public char [][] getParameterizedTypeName(){
-		StringBuffer buffer = new StringBuffer(5);
+		StringBuilder buffer = new StringBuilder(5);
 		buffer.append(this.token).append('<');
 		for (int i = 0, length = this.typeArguments.length; i < length; i++) {
 			if (i > 0) buffer.append(',');

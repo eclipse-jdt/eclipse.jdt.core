@@ -490,7 +490,7 @@ private void removeElementInfo(IJavaElement element) {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append("Built delta:\n"); //$NON-NLS-1$
 	buffer.append(this.delta == null ? "<null>" : this.delta.toString()); //$NON-NLS-1$
 	return buffer.toString();

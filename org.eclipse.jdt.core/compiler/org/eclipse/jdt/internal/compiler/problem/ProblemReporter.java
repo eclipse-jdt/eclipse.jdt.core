@@ -2353,8 +2353,8 @@ public void enumSwitchCannotTargetField(Reference reference, FieldBinding field)
 			nodeSourceEnd(field, reference));
 }
 public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeBinding[] params) {
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	for (int i = 0, length = params.length; i < length; i++) {
 		if (i != 0){
 			buffer.append(", "); //$NON-NLS-1$
@@ -2373,8 +2373,8 @@ public void errorNoMethodFor(MessageSend messageSend, TypeBinding recType, TypeB
 		messageSend.sourceEnd);
 }
 public void errorNoMethodFor(Expression expression, TypeBinding recType, char [] selector, TypeBinding[] params) {
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	for (int i = 0, length = params.length; i < length; i++) {
 		if (i != 0){
 			buffer.append(", "); //$NON-NLS-1$
@@ -2847,7 +2847,7 @@ public void illegalGenericArray(TypeBinding leafComponentType, ASTNode location)
 }
 public void illegalInstanceOfGenericType(TypeBinding checkedType, ASTNode location) {
 	TypeBinding erasedType = checkedType.leafComponentType().erasure();
-	StringBuffer recommendedFormBuffer = new StringBuffer(10);
+	StringBuilder recommendedFormBuffer = new StringBuilder(10);
 	if (erasedType instanceof ReferenceBinding) {
 		ReferenceBinding referenceBinding = (ReferenceBinding) erasedType;
 		recommendedFormBuffer.append(referenceBinding.qualifiedSourceName());
@@ -3536,13 +3536,13 @@ public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBi
 			type.sourceEnd());
 }
 public void incompatibleReturnType(MethodBinding currentMethod, MethodBinding inheritedMethod) {
-	StringBuffer methodSignature = new StringBuffer();
+	StringBuilder methodSignature = new StringBuilder();
 	methodSignature
 		.append(inheritedMethod.declaringClass.readableName())
 		.append('.')
 		.append(inheritedMethod.readableName());
 
-	StringBuffer shortSignature = new StringBuffer();
+	StringBuilder shortSignature = new StringBuilder();
 	shortSignature
 		.append(inheritedMethod.declaringClass.shortReadableName())
 		.append('.')
@@ -3718,12 +3718,12 @@ public void inheritedDefaultMethodConflictsWithOtherInherited(SourceTypeBinding 
 			typeDecl.sourceEnd);
 }
 private void inheritedMethodReducesVisibility(int sourceStart, int sourceEnd, MethodBinding concreteMethod, MethodBinding[] abstractMethods) {
-	StringBuffer concreteSignature = new StringBuffer();
+	StringBuilder concreteSignature = new StringBuilder();
 	concreteSignature
 		.append(concreteMethod.declaringClass.readableName())
 		.append('.')
 		.append(concreteMethod.readableName());
-	StringBuffer shortSignature = new StringBuffer();
+	StringBuilder shortSignature = new StringBuilder();
 	shortSignature
 		.append(concreteMethod.declaringClass.shortReadableName())
 		.append('.')
@@ -3747,8 +3747,8 @@ public void inheritedMethodReducesVisibility(TypeParameter typeParameter, Method
 	inheritedMethodReducesVisibility(typeParameter.sourceStart(), typeParameter.sourceEnd(), concreteMethod, abstractMethods);
 }
 public void inheritedMethodsHaveIncompatibleReturnTypes(ASTNode location, MethodBinding[] inheritedMethods, int length) {
-	StringBuffer methodSignatures = new StringBuffer();
-	StringBuffer shortSignatures = new StringBuffer();
+	StringBuilder methodSignatures = new StringBuilder();
+	StringBuilder shortSignatures = new StringBuilder();
 	for (int i = length; --i >= 0;) {
 		methodSignatures
 			.append(inheritedMethods[i].declaringClass.readableName())
@@ -3774,8 +3774,8 @@ public void inheritedMethodsHaveIncompatibleReturnTypes(ASTNode location, Method
 		location.sourceEnd);
 }
 public void inheritedMethodsHaveIncompatibleReturnTypes(SourceTypeBinding type, MethodBinding[] inheritedMethods, int length, boolean[] isOverridden) {
-	StringBuffer methodSignatures = new StringBuffer();
-	StringBuffer shortSignatures = new StringBuffer();
+	StringBuilder methodSignatures = new StringBuilder();
+	StringBuilder shortSignatures = new StringBuilder();
 	for (int i = length; --i >= 0;) {
 		if (isOverridden[i]) continue;
 		methodSignatures
@@ -5351,8 +5351,8 @@ public void javadocErrorNoMethodFor(MessageSend messageSend, TypeBinding recType
 	int id = recType.isArrayType() ? IProblem.JavadocNoMessageSendOnArrayType : IProblem.JavadocNoMessageSendOnBaseType;
 	int severity = computeSeverity(id);
 	if (severity == ProblemSeverities.Ignore) return;
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	for (int i = 0, length = params.length; i < length; i++) {
 		if (i != 0){
 			buffer.append(", "); //$NON-NLS-1$
@@ -7459,7 +7459,7 @@ public void parameterAssignment(LocalVariableBinding local, ASTNode location) {
 		nodeSourceEnd(local, location)); // should never be a qualified name reference
 }
 private String parameterBoundAsString(TypeVariableBinding typeVariable, boolean makeShort) {
-    StringBuffer nameBuffer = new StringBuffer(10);
+    StringBuilder nameBuffer = new StringBuilder(10);
     if (TypeBinding.equalsEquals(typeVariable.firstBound, typeVariable.superclass)) {
         nameBuffer.append(makeShort ? typeVariable.superclass.shortReadableName() : typeVariable.superclass.readableName());
     }
@@ -7523,7 +7523,7 @@ public void parseError(
 	}
 
 	//build a list of probable right tokens
-	StringBuffer list = new StringBuffer(20);
+	StringBuilder list = new StringBuilder(20);
 	for (int i = 0, max = possibleTokens.length; i < max; i++) {
 		if (i > 0)
 			list.append(", "); //$NON-NLS-1$
@@ -8653,7 +8653,7 @@ private String typesAsString(MethodBinding methodBinding, TypeBinding[] paramete
 	if (methodBinding.isPolymorphic()) {
 		// get the original polymorphicMethod method
 		TypeBinding[] types = methodBinding.original().parameters;
-		StringBuffer buffer = new StringBuffer(10);
+		StringBuilder buffer = new StringBuilder(10);
 		for (int i = 0, length = types.length; i < length; i++) {
 			if (i != 0) {
 				buffer.append(", "); //$NON-NLS-1$
@@ -8673,7 +8673,7 @@ private String typesAsString(MethodBinding methodBinding, TypeBinding[] paramete
 		}
 		return buffer.toString();
 	}
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0) {
 			buffer.append(", "); //$NON-NLS-1$
@@ -8697,7 +8697,7 @@ private String typesAsString(TypeBinding[] types, boolean makeShort) {
 	return typesAsString(types, makeShort, false);
 }
 private String typesAsString(TypeBinding[] types, boolean makeShort, boolean showNullAnnotations) {
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	for (int i = 0, length = types.length; i < length; i++) {
 		if (i != 0) {
 			buffer.append(", "); //$NON-NLS-1$
@@ -10359,13 +10359,13 @@ public void illegalParameterRedefinition(Argument argument, ReferenceBinding dec
 public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDecl, MethodBinding inheritedMethod, char[][] nonNullAnnotationName) {
 	// nonNullAnnotationName is not used in 1.8-mode
 	MethodDeclaration methodDecl = (MethodDeclaration) abstractMethodDecl;
-	StringBuffer methodSignature = new StringBuffer();
+	StringBuilder methodSignature = new StringBuilder();
 	methodSignature
 		.append(inheritedMethod.declaringClass.readableName())
 		.append('.')
 		.append(inheritedMethod.readableName());
 
-	StringBuffer shortSignature = new StringBuffer();
+	StringBuilder shortSignature = new StringBuilder();
 	shortSignature
 		.append(inheritedMethod.declaringClass.shortReadableName())
 		.append('.')
@@ -10410,12 +10410,12 @@ public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDe
 }
 public void referenceExpressionArgumentNullityMismatch(ReferenceExpression location, TypeBinding requiredType, TypeBinding providedType,
 		MethodBinding descriptorMethod, int idx, NullAnnotationMatching status) {
-	StringBuffer methodSignature = new StringBuffer();
+	StringBuilder methodSignature = new StringBuilder();
 	methodSignature
 		.append(descriptorMethod.declaringClass.readableName())
 		.append('.')
 		.append(descriptorMethod.readableName());
-	StringBuffer shortSignature = new StringBuffer();
+	StringBuilder shortSignature = new StringBuilder();
 	shortSignature
 		.append(descriptorMethod.declaringClass.shortReadableName())
 		.append('.')
@@ -11078,8 +11078,8 @@ public void descriptorHasInvisibleType(FunctionalExpression expression, Referenc
 public void methodReferenceSwingsBothWays(ReferenceExpression expression, MethodBinding instanceMethod, MethodBinding nonInstanceMethod) {
 	char [] selector = instanceMethod.selector;
 	TypeBinding receiverType = instanceMethod.declaringClass;
-	StringBuffer buffer1 = new StringBuffer();
-	StringBuffer shortBuffer1 = new StringBuffer();
+	StringBuilder buffer1 = new StringBuilder();
+	StringBuilder shortBuffer1 = new StringBuilder();
 	TypeBinding [] parameters = instanceMethod.parameters;
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0){
@@ -11089,8 +11089,8 @@ public void methodReferenceSwingsBothWays(ReferenceExpression expression, Method
 		buffer1.append(new String(parameters[i].readableName()));
 		shortBuffer1.append(new String(parameters[i].shortReadableName()));
 	}
-	StringBuffer buffer2 = new StringBuffer();
-	StringBuffer shortBuffer2 = new StringBuffer();
+	StringBuilder buffer2 = new StringBuilder();
+	StringBuilder shortBuffer2 = new StringBuilder();
 	parameters = nonInstanceMethod.parameters;
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0){
@@ -11113,8 +11113,8 @@ public void methodReferenceSwingsBothWays(ReferenceExpression expression, Method
 public void methodMustBeAccessedStatically(ReferenceExpression expression, MethodBinding nonInstanceMethod) {
 	TypeBinding receiverType = nonInstanceMethod.declaringClass;
 	char [] selector = nonInstanceMethod.selector;
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	TypeBinding [] parameters = nonInstanceMethod.parameters;
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0){
@@ -11136,8 +11136,8 @@ public void methodMustBeAccessedStatically(ReferenceExpression expression, Metho
 public void methodMustBeAccessedWithInstance(ReferenceExpression expression, MethodBinding instanceMethod) {
 	TypeBinding receiverType = instanceMethod.declaringClass;
 	char [] selector = instanceMethod.selector;
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	TypeBinding [] parameters = instanceMethod.parameters;
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0) {
@@ -11157,8 +11157,8 @@ public void methodMustBeAccessedWithInstance(ReferenceExpression expression, Met
 }
 
 public void invalidArrayConstructorReference(ReferenceExpression expression, TypeBinding lhsType, TypeBinding[] parameters) {
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0) {
 			buffer.append(", "); //$NON-NLS-1$
@@ -11186,8 +11186,8 @@ public void constructedArrayIncompatible(ReferenceExpression expression, TypeBin
 }
 
 public void danglingReference(ReferenceExpression expression, TypeBinding receiverType, char[] selector, TypeBinding[] descriptorParameters) {
-	StringBuffer buffer = new StringBuffer();
-	StringBuffer shortBuffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
+	StringBuilder shortBuffer = new StringBuilder();
 	TypeBinding [] parameters = descriptorParameters;
 	for (int i = 0, length = parameters.length; i < length; i++) {
 		if (i != 0) {
@@ -11223,8 +11223,8 @@ public void incompatibleReturnType(ReferenceExpression expression, MethodBinding
 				expression.sourceEnd);
 
 	} else {
-		StringBuffer buffer = new StringBuffer();
-		StringBuffer shortBuffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
+		StringBuilder shortBuffer = new StringBuilder();
 		TypeBinding [] parameters = method.parameters;
 		for (int i = 0, length = parameters.length; i < length; i++) {
 			if (i != 0) {

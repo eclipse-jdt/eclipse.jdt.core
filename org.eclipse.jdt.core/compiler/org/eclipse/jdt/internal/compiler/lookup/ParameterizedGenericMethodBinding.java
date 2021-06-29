@@ -624,7 +624,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(this.originalMethod.computeUniqueKey(false/*not a leaf*/));
 		buffer.append('%');
 		buffer.append('<');

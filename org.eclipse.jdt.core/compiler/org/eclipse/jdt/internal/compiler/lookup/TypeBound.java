@@ -84,7 +84,7 @@ public class TypeBound extends ReductionResult {
 	@Override
 	public String toString() {
 		boolean isBound = this.right.isProperType(true);
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append(isBound ? "TypeBound  " : "Dependency "); //$NON-NLS-1$ //$NON-NLS-2$
 		buf.append(this.left.sourceName);
 		buf.append(relationToString(this.relation));

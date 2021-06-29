@@ -1078,7 +1078,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	 * Returns a printable string for the array.
 	 */
 	protected String toStringCharChar(char[][] names) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < names.length; i++) {
 			result.append(toStringChar(names[i]));
 		}

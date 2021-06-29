@@ -190,7 +190,7 @@ public String getText(int offset, int length) {
 			int gapLength = this.gapEnd - this.gapStart;
 			return new String(this.contents, offset + gapLength, length);
 		}
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append(this.contents, offset, this.gapStart - offset);
 		buf.append(this.contents, this.gapEnd, offset + length - this.gapStart);
 		return buf.toString();
@@ -469,7 +469,7 @@ protected void setReadOnly(boolean readOnly) {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append("Owner: " + ((JavaElement)this.owner).toStringWithAncestors()); //$NON-NLS-1$
 	buffer.append("\nHas unsaved changes: " + hasUnsavedChanges()); //$NON-NLS-1$
 	buffer.append("\nIs readonly: " + isReadOnly()); //$NON-NLS-1$

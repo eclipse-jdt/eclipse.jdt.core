@@ -115,7 +115,7 @@ protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) t
 			SimpleName oldName = rename(this.createdNode, newName);
 			int nameStart = oldName.getStartPosition();
 			int nameEnd = nameStart + oldName.getLength();
-			StringBuffer newSource = new StringBuffer();
+			StringBuilder newSource = new StringBuilder();
 			if (this.source.equals(createdNodeSource)) {
 				newSource.append(createdNodeSource.substring(0, nameStart));
 				newSource.append(this.alteredName);
@@ -166,7 +166,7 @@ protected abstract SimpleName rename(ASTNode node, SimpleName newName);
  */
 protected String generateSyntaxIncorrectAST() {
 	//create some dummy source to generate an ast node
-	StringBuffer buff = new StringBuffer();
+	StringBuilder buff = new StringBuilder();
 	IType type = getType();
 	String lineSeparator = org.eclipse.jdt.internal.core.util.Util.getLineSeparator(this.source, type == null ? null : type.getJavaProject());
 	buff.append(lineSeparator + " public class A {" + lineSeparator); //$NON-NLS-1$

@@ -278,7 +278,7 @@ public class BasicSearchEngine {
 		if (matchRule == 0) {
 			return "R_EXACT_MATCH"; //$NON-NLS-1$
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i=1; i<=16; i++) {
 			int bit = matchRule & (1<<(i-1));
 			if (bit != 0 && buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$
@@ -1587,7 +1587,7 @@ public class BasicSearchEngine {
 		try {
 			if (VERBOSE) {
 				Util.verbose("BasicSearchEngine.searchAllSecondaryTypeNames(IPackageFragmentRoot[], IRestrictedAccessTypeRequestor, boolean, IProgressMonitor)"); //$NON-NLS-1$
-				StringBuffer buffer = new StringBuffer("	- source folders: "); //$NON-NLS-1$
+				StringBuilder buffer = new StringBuilder("	- source folders: "); //$NON-NLS-1$
 				int length = sourceFolders.length;
 				for (int i=0; i<length; i++) {
 					if (i==0) {

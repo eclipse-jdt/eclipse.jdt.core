@@ -249,7 +249,7 @@ public void place() { // Currently lacking wide support.
 public String toString() {
 	String basic = getClass().getName();
 	basic = basic.substring(basic.lastIndexOf('.')+1);
-	StringBuffer buffer = new StringBuffer(basic);
+	StringBuilder buffer = new StringBuilder(basic);
 	buffer.append('@').append(Integer.toHexString(hashCode()));
 	buffer.append("(position=").append(this.position); //$NON-NLS-1$
 	if (this.delegate != null) buffer.append("delegate=").append(this.delegate); //$NON-NLS-1$

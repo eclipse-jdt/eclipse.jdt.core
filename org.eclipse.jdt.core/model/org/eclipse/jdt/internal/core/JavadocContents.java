@@ -440,7 +440,7 @@ public class JavadocContents {
 		String typeQualifiedName = null;
 		if (this.type.isMember()) {
 			IType currentType = this.type;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while (currentType != null) {
 				buffer.insert(0, currentType.getElementName());
 				currentType = currentType.getDeclaringType();

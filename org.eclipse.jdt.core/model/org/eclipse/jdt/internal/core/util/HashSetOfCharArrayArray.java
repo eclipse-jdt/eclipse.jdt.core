@@ -136,7 +136,7 @@ public final class HashSetOfCharArrayArray implements Cloneable {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = this.set.length; i < length; i++) {
 			char[][] arrayArray = this.set[i];
 			if (arrayArray != null) {

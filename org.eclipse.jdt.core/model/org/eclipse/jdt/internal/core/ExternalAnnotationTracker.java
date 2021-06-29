@@ -95,7 +95,7 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 
 		@Override
 		public String toString() {
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			if (this.classFiles != null)
 				buf.append("annotation base "); //$NON-NLS-1$
 			buf.append("directory\n"); //$NON-NLS-1$

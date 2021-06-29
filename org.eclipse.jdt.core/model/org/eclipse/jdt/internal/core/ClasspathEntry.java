@@ -1563,7 +1563,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Object target = JavaModel.getTarget(getPath(), true);
 		if (target instanceof File)
 			buffer.append(getPath().toOSString());

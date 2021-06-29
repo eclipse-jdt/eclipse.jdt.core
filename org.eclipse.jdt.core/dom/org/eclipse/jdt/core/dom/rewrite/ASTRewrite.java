@@ -874,7 +874,7 @@ public class ASTRewrite {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("Events:\n"); //$NON-NLS-1$
 		// be extra careful of uninitialized or mangled instances
 		if (this.eventStore != null) {

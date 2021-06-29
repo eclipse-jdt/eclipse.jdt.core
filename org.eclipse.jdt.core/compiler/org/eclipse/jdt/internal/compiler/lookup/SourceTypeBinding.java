@@ -1080,7 +1080,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 			end = CharOperation.indexOf(';', uniqueKey, start);
 		char[] topLevelType = CharOperation.subarray(uniqueKey, start, end);
 		if (!CharOperation.equals(topLevelType, mainTypeName)) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(uniqueKey, 0, start);
 			buffer.append(mainTypeName);
 			buffer.append('~');
@@ -1548,9 +1548,9 @@ public char[] genericSignature() {
 	if (!isPrototype())
 		return this.prototype.genericSignature();
 
-    StringBuffer sig = null;
+    StringBuilder sig = null;
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
-	    sig = new StringBuffer(10);
+	    sig = new StringBuilder(10);
 	    sig.append('<');
 	    for (int i = 0, length = this.typeVariables.length; i < length; i++)
 	        sig.append(this.typeVariables[i].genericSignature());
@@ -1563,7 +1563,7 @@ public char[] genericSignature() {
 					break noSignature;
 	        return null;
 	    }
-	    sig = new StringBuffer(10);
+	    sig = new StringBuilder(10);
 	}
 	if (this.superclass != null)
 		sig.append(this.superclass.genericTypeSignature());
@@ -3309,7 +3309,7 @@ public String toString() {
 		return annotatedDebugName();
     }
 
-	StringBuffer buffer = new StringBuffer(30);
+	StringBuilder buffer = new StringBuilder(30);
     buffer.append("(id="); //$NON-NLS-1$
     if (this.id == TypeIds.NoId)
         buffer.append("NoId"); //$NON-NLS-1$

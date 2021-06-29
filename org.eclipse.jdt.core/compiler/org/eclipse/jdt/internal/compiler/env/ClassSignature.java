@@ -39,7 +39,7 @@ public char[] getTypeName() {
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(this.className);
 	buffer.append(".class"); //$NON-NLS-1$
 	return buffer.toString();

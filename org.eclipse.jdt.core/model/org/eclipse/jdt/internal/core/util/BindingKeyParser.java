@@ -416,7 +416,7 @@ public class BindingKeyParser {
 
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			switch (this.token) {
 				case START:
 					buffer.append("START: "); //$NON-NLS-1$

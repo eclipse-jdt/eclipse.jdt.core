@@ -173,7 +173,7 @@ TypeBinding [] additionalBounds() {
 
 public String annotatedDebugName() {
 	TypeBinding enclosingType = enclosingType();
-	StringBuffer buffer = new StringBuffer(16);
+	StringBuilder buffer = new StringBuilder(16);
 	if (enclosingType != null) {
 		buffer.append(enclosingType.annotatedDebugName());
 		buffer.append('.');

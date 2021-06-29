@@ -282,7 +282,7 @@ public final class IndentManipulation {
 				return code;
 			}
 
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 
 			for (int i= 0; i < nLines; i++) {
 				IRegion region= tracker.getLineInformation(i);

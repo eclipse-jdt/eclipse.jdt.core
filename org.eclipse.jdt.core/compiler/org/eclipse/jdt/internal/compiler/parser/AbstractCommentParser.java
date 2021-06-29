@@ -1749,7 +1749,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int startPos = this.scanner.currentPosition<this.index ? this.scanner.currentPosition : this.index;
 		int endPos = this.scanner.currentPosition<this.index ? this.index : this.scanner.currentPosition;
 		if (startPos == this.source.length)

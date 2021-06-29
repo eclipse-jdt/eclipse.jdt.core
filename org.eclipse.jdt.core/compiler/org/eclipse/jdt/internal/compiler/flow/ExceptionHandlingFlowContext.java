@@ -213,7 +213,7 @@ public FlowContext getInitializationContext() {
 
 @Override
 public String individualToString() {
-	StringBuffer buffer = new StringBuffer("Exception flow context"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("Exception flow context"); //$NON-NLS-1$
 	int length = this.handledExceptions.length;
 	for (int i = 0; i < length; i++) {
 		int cacheIndex = i / ExceptionHandlingFlowContext.BitCacheSize;

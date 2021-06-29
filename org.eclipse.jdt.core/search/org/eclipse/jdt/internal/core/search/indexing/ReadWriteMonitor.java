@@ -99,7 +99,7 @@ public synchronized void exitWriteEnterRead() {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (this.status == 0) {
 		buffer.append("Monitor idle "); //$NON-NLS-1$
 	} else if (this.status < 0) {

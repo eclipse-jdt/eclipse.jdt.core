@@ -102,7 +102,7 @@ public class SetClasspathOperation extends ChangeClasspathOperation {
 
 	@Override
 	public String toString(){
-		StringBuffer buffer = new StringBuffer(20);
+		StringBuilder buffer = new StringBuilder(20);
 		buffer.append("SetClasspathOperation\n"); //$NON-NLS-1$
 		buffer.append(" - classpath : "); //$NON-NLS-1$
 		buffer.append("{"); //$NON-NLS-1$

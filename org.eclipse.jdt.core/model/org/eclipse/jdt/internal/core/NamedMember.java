@@ -75,7 +75,7 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getKey(IField field, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuilder key = new StringBuilder();
 
 		// declaring class
 		String declaringKey = getKey((IType) field.getParent(), forceOpen);
@@ -89,7 +89,7 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getKey(IMethod method, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuilder key = new StringBuilder();
 
 		// declaring class
 		String declaringKey = getKey((IType) method.getParent(), forceOpen);
@@ -141,7 +141,7 @@ public abstract class NamedMember extends Member {
 	}
 
 	protected String getKey(IType type, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuilder key = new StringBuilder();
 		key.append('L');
 		String packageName = type.getPackageFragment().getElementName();
 		key.append(packageName.replace('.', '/'));
@@ -166,7 +166,7 @@ public abstract class NamedMember extends Member {
 		return key.toString();
 	}
 	protected String getKey(IModuleDescription module, boolean forceOpen) throws JavaModelException {
-		StringBuffer key = new StringBuffer();
+		StringBuilder key = new StringBuilder();
 		key.append('"');
 		String modName = module.getElementName();
 		key.append(modName);
@@ -177,7 +177,7 @@ public abstract class NamedMember extends Member {
 		String[] typeArguments = new BindingKey(uniqueKey).getTypeArguments();
 		int length = typeArguments.length;
 		if (length == 0) return fullyQualifiedName;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(fullyQualifiedName);
 		buffer.append('<');
 		for (int i = 0; i < length; i++) {

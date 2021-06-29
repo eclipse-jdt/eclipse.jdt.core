@@ -80,7 +80,7 @@ public final class SourceRange implements ISourceRange {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("[offset="); //$NON-NLS-1$
 		buffer.append(this.offset);
 		buffer.append(", length="); //$NON-NLS-1$

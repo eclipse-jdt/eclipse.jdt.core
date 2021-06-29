@@ -120,7 +120,7 @@ public char[] getFileName() {
 @Override
 public char[] getGenericSignature() {
 	if (this.typeParameterSignatures != null && this.genericSignature == null) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append('<');
 		for (int i = 0, length = this.typeParameterSignatures.length; i < length; i++) {
 			buffer.append(this.typeParameterSignatures[i]);
@@ -292,7 +292,7 @@ public char[] sourceFileName() {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (this.modifiers == ClassFileConstants.AccPublic) {
 		buffer.append("public "); //$NON-NLS-1$
 	}

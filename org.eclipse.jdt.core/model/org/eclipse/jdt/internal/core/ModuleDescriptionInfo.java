@@ -69,7 +69,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 		char[][] target;
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(this.pack);
 			if (this.target != null) {
 				buffer.append(" to "); //$NON-NLS-1$
@@ -105,7 +105,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 		}
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(this.serviceName);
 			buffer.append(" with "); //$NON-NLS-1$
 			for (int i = 0; i < this.implNames.length; i++) {

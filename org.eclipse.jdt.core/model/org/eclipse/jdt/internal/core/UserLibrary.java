@@ -212,7 +212,7 @@ public class UserLibrary {
 	public String toString() {
 		if (this.entries == null)
 			return "null"; //$NON-NLS-1$
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int length = this.entries.length;
 		for (int i=0; i<length; i++) {
 			buffer.append(this.entries[i].toString()+'\n');

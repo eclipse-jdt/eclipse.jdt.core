@@ -575,7 +575,7 @@ protected String getPackageName(IFolder folder) {
 	IPath pkgPath= folder.getFullPath();
 	int mySegmentCount= myPath.segmentCount();
 	int pkgSegmentCount= pkgPath.segmentCount();
-	StringBuffer pkgName = new StringBuffer(IPackageFragment.DEFAULT_PACKAGE_NAME);
+	StringBuilder pkgName = new StringBuilder(IPackageFragment.DEFAULT_PACKAGE_NAME);
 	for (int i= mySegmentCount; i < pkgSegmentCount; i++) {
 		if (i > mySegmentCount) {
 			pkgName.append('.');

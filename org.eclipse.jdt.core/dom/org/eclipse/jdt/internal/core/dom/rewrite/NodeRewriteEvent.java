@@ -81,7 +81,7 @@ public class NodeRewriteEvent extends RewriteEvent {
 
 	@Override
 	public String toString() {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		switch (getChangeKind()) {
 		case INSERTED:
 			buf.append(" [inserted: "); //$NON-NLS-1$

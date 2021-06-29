@@ -73,7 +73,7 @@ public String errorReportSource(char[] unitSource) {
 		|| unitSource.length == 0)
 		return Messages.problem_noSourceInformation;
 
-	StringBuffer errorBuffer = new StringBuffer();
+	StringBuilder errorBuffer = new StringBuilder();
 	errorBuffer.append(' ').append(Messages.bind(Messages.problem_atLine, String.valueOf(this.line)));
 	errorBuffer.append(Util.LINE_SEPARATOR);
 	errorBuffer.append('\t');

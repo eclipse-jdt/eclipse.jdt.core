@@ -638,7 +638,7 @@ private void rehash() {
 
 @Override
 public String toString() {
-	StringBuffer result = new StringBuffer("JavaSearchScope on "); //$NON-NLS-1$
+	StringBuilder result = new StringBuilder("JavaSearchScope on "); //$NON-NLS-1$
 	if (this.elements != null) {
 		result.append("["); //$NON-NLS-1$
 		for (int i = 0, length = this.elements.size(); i < length; i++) {

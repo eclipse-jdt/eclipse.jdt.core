@@ -296,7 +296,7 @@ public class KeyToSignature extends BindingKeyParser {
 		// parameter types
 		int length = this.typeParameters.size();
 		if (length > 0) {
-			StringBuffer typeParametersSig = new StringBuffer();
+			StringBuilder typeParametersSig = new StringBuilder();
 			typeParametersSig.append('<');
 			for (int i = 0; i < length; i++) {
 				char[] typeParameterSig = Signature.createTypeParameterSignature(

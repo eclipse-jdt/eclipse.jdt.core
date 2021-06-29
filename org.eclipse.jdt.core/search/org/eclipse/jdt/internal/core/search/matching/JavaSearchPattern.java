@@ -102,7 +102,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants,
 		if (fineGrain == 0) {
 			return "none"; //$NON-NLS-1$
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i=1; i<=32; i++) {
 			int bit = fineGrain & (1<<(i-1));
 			if (bit != 0 && buffer.length()>0) buffer.append(" | "); //$NON-NLS-1$

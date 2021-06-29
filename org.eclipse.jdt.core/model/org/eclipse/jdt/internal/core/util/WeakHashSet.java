@@ -208,7 +208,7 @@ public class WeakHashSet {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer("{"); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder("{"); //$NON-NLS-1$
 		for (int i = 0, length = this.values.length; i < length; i++) {
 			HashableWeakReference value = this.values[i];
 			if (value != null) {

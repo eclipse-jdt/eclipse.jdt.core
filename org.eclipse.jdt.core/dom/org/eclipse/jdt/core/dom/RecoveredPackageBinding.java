@@ -75,7 +75,7 @@ class RecoveredPackageBinding implements IPackageBinding {
 
 	@Override
 	public String getKey() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("Recovered#"); //$NON-NLS-1$
 		buffer.append(this.binding.computeUniqueKey());
 		return buffer.toString();
@@ -120,7 +120,7 @@ class RecoveredPackageBinding implements IPackageBinding {
 		} else {
 			int length = compoundName.length;
 			this.components = new String[length];
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i = 0; i < length - 1; i++) {
 				this.components[i] = new String(compoundName[i]);
 				buffer.append(compoundName[i]).append(PACKAGE_NAME_SEPARATOR);

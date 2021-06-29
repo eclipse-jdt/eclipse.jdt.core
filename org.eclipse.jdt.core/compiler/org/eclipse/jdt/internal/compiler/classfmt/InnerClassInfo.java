@@ -100,7 +100,7 @@ public char[] getSourceName() {
  */
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (getName() != null) {
 		buffer.append(getName());
 	}

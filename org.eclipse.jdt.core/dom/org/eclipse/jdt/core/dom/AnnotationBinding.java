@@ -262,7 +262,7 @@ class AnnotationBinding implements IAnnotationBinding {
 	@Override
 	public String toString() {
 		ITypeBinding type = getAnnotationType();
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		buffer.append('@');
 		if (type != null)
 			buffer.append(type.getName());

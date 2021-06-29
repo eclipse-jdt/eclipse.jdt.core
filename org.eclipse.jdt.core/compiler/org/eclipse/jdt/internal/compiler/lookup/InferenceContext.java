@@ -79,7 +79,7 @@ public void recordSubstitute(TypeVariableBinding typeVariable, TypeBinding actua
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(20);
+	StringBuilder buffer = new StringBuilder(20);
 	buffer.append("InferenceContex for ");//$NON-NLS-1$
 	for (int i = 0, length = this.genericMethod.typeVariables.length; i < length; i++) {
 		buffer.append(this.genericMethod.typeVariables[i]);

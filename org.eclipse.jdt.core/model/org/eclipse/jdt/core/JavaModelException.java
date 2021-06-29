@@ -171,7 +171,7 @@ public void printStackTrace(PrintWriter output) {
  */
 @Override
 public String toString() {
-	StringBuffer buffer= new StringBuffer();
+	StringBuilder buffer= new StringBuilder();
 	buffer.append("Java Model Exception: "); //$NON-NLS-1$
 	if (getException() != null) {
 		if (getException() instanceof CoreException) {

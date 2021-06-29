@@ -187,7 +187,7 @@ public final class HashtableOfArrayToObject implements Cloneable {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Object[] element;
 		for (int i = 0, length = this.keyTable.length; i < length; i++)
 			if ((element = this.keyTable[i]) != null) {

@@ -128,7 +128,7 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 		}
 		@Override
 		public String toString(){
-			StringBuffer buffer = new StringBuffer("Queue:\n"); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("Queue:\n"); //$NON-NLS-1$
 			for (int i = this.start; i <= this.end; i++){
 				buffer.append(this.entries[i]).append('\n');
 			}
