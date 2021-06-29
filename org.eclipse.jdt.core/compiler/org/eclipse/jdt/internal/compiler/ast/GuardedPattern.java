@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.GuardedPatternBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -41,7 +42,13 @@ public class GuardedPattern extends Pattern {
 		this.sourceStart = primaryPattern.sourceStart;
 		this.sourceEnd = conditionalAndExpression.sourceEnd;
 	}
-
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.primaryPattern.collectPatternVariablesToScope(variables, scope);
+		addPatternVariablesWhenTrue(this.primaryPattern.getPatternVariablesWhenTrue());
+		this.condition.collectPatternVariablesToScope(variables, scope);
+		addPatternVariablesWhenTrue(this.condition.getPatternVariablesWhenTrue());
+	}
 	@Override
 	public PatternKind kind() {
 		return PatternKind.GUARDED_PATTERN;
@@ -118,7 +125,7 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
 		return this.condition.print(indent, output);
 	}
@@ -133,5 +140,4 @@ public class GuardedPattern extends Pattern {
 		}
 		visitor.endVisit(this, scope);
 	}
-
 }

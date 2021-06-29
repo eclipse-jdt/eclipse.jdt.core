@@ -28,7 +28,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug574549_01"};
-
 	}
 
 	private static String previewLevel = "17";
@@ -460,7 +459,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"ERROR: NO FALL THROUGH ALLOWED IN PATTERN CASES");
-		}
+	}
 	public void testBug573939_01() {
 		runNegativeTest(
 				new String[] {
@@ -486,7 +485,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	^^^^\n" +
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
-		}
+	}
 	public void testBug573939_02() {
 		this.runConformTest(
 				new String[] {
@@ -512,7 +511,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"String > 1\n" +
 				"String\n" +
 				"Object");
-		}
+	}
 	public void testBug573939_03() {
 		this.runConformTest(
 				new String[] {
@@ -552,7 +551,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"String\n" +
 				"H\n" +
 				"Object");
-		}
+	}
 	// same local variable name in case pattern - scope
 	// TODO: Bug 573937 to take care
 	public void _testBug573939_03b() {
@@ -594,7 +593,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"String\n" +
 				"H\n" +
 				"Object");
-		}
+	}
 	public void test045() {
 		this.runNegativeTest(
 			new String[] {
@@ -642,7 +641,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"NULL");
-		}
+	}
 	public void testBug574525_02() {
 		this.runConformTest(
 				new String[] {
@@ -684,7 +683,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Hello World!\n" +
 				"NULL\n" +
 				"Object");
-		}
+	}
 	public void testBug574525_03() {
 		this.runConformTest(
 				new String[] {
@@ -708,7 +707,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"0");
-		}
+	}
 	public void testBug574525_04() {
 		this.runNegativeTest(
 				new String[] {
@@ -737,7 +736,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	     ^^^^\n" +
 				"Type mismatch: cannot convert from null to int\n" +
 				"----------\n");
-		}
+	}
 	public void testBug574538_01() {
 		this.runConformTest(
 				new String[] {
@@ -764,7 +763,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Greater than 10:11\n" +
 				"Greater than 0:9");
-		}
+	}
 	public void testBug574538_02() {
 		this.runConformTest(
 				new String[] {
@@ -788,7 +787,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Object:10\n" +
 				"Greater than 10:\n" +
 				"Object:Hello World!");
-		}
+	}
+
 	public void testBug574549_01() {
 		this.runConformTest(
 				new String[] {
@@ -807,7 +807,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"Object: Hello World!");
-		}
+	}
 	public void testBug574549_02() {
 		this.runConformTest(
 				new String[] {
@@ -836,7 +836,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Greater than 10:11\n" +
 				"Greater than 0:9\n" +
 				"Give Me Some SunShine:Hello World!");
-		}
+	}
 	public void testBug574549_03() {
 		this.runNegativeTest(
 				new String[] {
@@ -865,7 +865,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	           ^^\n" +
 				"The default case is already defined\n" +
 				"----------\n");
-		}
+	}
 	public void testBug574549_04() {
 		this.runNegativeTest(
 				new String[] {
@@ -894,5 +894,312 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	^^^^^^^\n" +
 				"The default case is already defined\n" +
 				"----------\n");
+	}
+	// Test that when a pattern variable is unused and when the OPTION_PreserveUnusedLocal
+	// option is used, no issue is reported at runtime.
+	public void testBug573937_1() {
+		Map<String,String> options = getCompilerOptions();
+		String opt = options.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		try {
+			options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.DISABLED);
+			this.runConformTest(
+				new String[] {
+				"X.java",
+					"public class X {\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		System.out.println(\"Hello\");\n"
+						+ "	}\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case String s:\n"
+						+ "				break;\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}",
+					},
+					"Hello",
+					options);
+		} finally {
+			options.put(CompilerOptions.OPTION_PreserveUnusedLocal, opt);
 		}
+	}
+	// A simple pattern variable in a case is not visible in the
+	// following case statement
+	public void testBug573937_2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case String s:\n"
+						+ "				System.out.println(s);\n"
+						+ "				break;\n"
+						+ "			case Integer i:\n"
+						+ "				System.out.println(s);\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	System.out.println(s);\n" +
+				"	                   ^\n" +
+				"s cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	// Same as above, but without break statement
+	public void testBug573937_3() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case String s:\n"
+						+ "				System.out.println(s);\n"
+						+ "			case Integer i:\n"
+						+ "				System.out.println(s);\n"
+						+ "			default:\n"
+						+ "				System.out.println(s);\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	System.out.println(s);\n" +
+				"	                   ^\n" +
+				"s cannot be resolved to a variable\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	System.out.println(s);\n" +
+				"	                   ^\n" +
+				"s cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	// Test that compiler rejects attempts to redeclare local variable
+	// with same name as a pattern variable
+	public void testBug573937_4() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case String s:\n"
+						+ "				String s = null;\n"
+						+ "				System.out.println(s);\n"
+						+ "				break;\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	String s = null;\n" +
+				"	       ^\n" +
+				"Duplicate local variable s\n" +
+				"----------\n");
+	}
+	// Test that compiler allows local variable with same name as a
+	// pattern variable in a different case statement
+	public void testBug573937_5() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ "	public static void foo(Object o) {\n"
+								+ "		switch (o) {\n"
+								+ "			case String s:\n"
+								+ "				System.out.println(s);\n"
+								+ "				break;\n"
+								+ "			default:\n"
+								+ "				String s = null;\n"
+								+ "				break;\n"
+								+ "		}\n"
+								+ "	}\n"
+								+ "	public static void main(String[] args) {\n"
+								+ "		foo(\"hello\");\n"
+								+ "	}\n"
+								+ "}",
+				},
+				"hello");
+	}
+	// Test that a pattern variable can't use name of an already existing local
+	// variable
+	public void testBug573937_6() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case Object o:\n"
+						+ "				System.out.println(o);\n"
+						+ "				break;\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case Object o:\n" +
+				"	            ^\n" +
+				"Duplicate local variable o\n" +
+				"----------\n");
+	}
+	// Test that compiler rejects attempts to redeclare another pattern
+	// variable (instanceof) with same name as that a pattern variable in
+	// that case statement
+	public void testBug573937_7() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case String s1:\n"
+						+ "				if (o instanceof String s1) {\n"
+						+ "					System.out.println(s1);\n"
+						+ "				}\n"
+						+ "				break;\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof String s1) {\n" +
+				"	                        ^^\n" +
+				"Duplicate local variable s1\n" +
+				"----------\n");
+	}
+	// Test that when multiple case statements declare pattern variables
+	// with same name, correct ones are used in their respective scopes.
+	public void testBug573937_8() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case String s1:\n"
+						+ "				System.out.println(s1.length());\n"
+						+ "				break;\n"
+						+ "			case Integer s1:\n"
+						+ "				System.out.println(s1.length());\n"
+						+ "				break;\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	System.out.println(s1.length());\n" +
+				"	                      ^^^^^^\n" +
+				"The method length() is undefined for the type Integer\n" +
+				"----------\n");
+	}
+	// Test that a pattern variable declared in the preceding case statement
+	// can't be used in the case statement itself
+	public void testBug573937_9() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		switch (o) {\n"
+						+ "			case Integer i1:\n"
+						+ "				break;\n"
+						+ "			case String s1 && s1.length() > i1:\n"
+						+ "					System.out.println(s1.length());\n"
+						+ "				break;\n"
+						+ "			default:\n"
+						+ "				break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case String s1 && s1.length() > i1:\n" +
+				"	                                ^^\n" +
+				"i1 cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	// Test that redefining pattern variables with null is allowed
+	// and produce expected result (NPE) when run.
+	public void testBug573937_10() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "@SuppressWarnings(\"null\")"
+				+ "	public static void foo(Object o) {\n"
+				+ "		switch (o) {\n"
+				+ "			case String s1 && s1.length() == 0:\n"
+				+ "					break;"
+				+ "			case String s1:\n"
+				+ "					s1 = null;\n"
+				+ "					System.out.println(s1.length());\n"
+				+ "				break;\n"
+				+ "			default:\n"
+				+ "				break;\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		foo(\"hello\");\n"
+				+ "	}\n"
+				+ "}",
+		};
+		runner.expectedErrorString = "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"String.length()\" because \"s1\" is null\n" +
+										"	at X.foo(X.java:7)\n" +
+										"	at X.main(X.java:14)";
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.customOptions = getCompilerOptions();
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
+		runner.runConformTest();
+	}
+	// Test that a pattern variable is allowed in a switch label throw
+	// statement and when run, produces expected result
+	public void testBug573937_11() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "	public static void foo(Object o) throws Exception {\n"
+				+ "		switch (o) {\n"
+				+ "			case String s1:\n"
+				+ "				throw new Exception(s1);\n"
+				+ "			default:\n"
+				+ "				break;\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	public static void main(String[] args) throws Exception {\n"
+				+ "		foo(\"hello\");\n"
+				+ "	}\n"
+				+ "} ",
+		};
+		runner.expectedErrorString = "Exception in thread \"main\" java.lang.Exception: hello\n" +
+				"	at X.foo(X.java:5)\n" +
+				"	at X.main(X.java:11)";
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.customOptions = getCompilerOptions();
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
+		runner.runConformTest();
+	}
 }

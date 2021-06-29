@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class PatternExpression extends Expression {
@@ -32,6 +33,12 @@ public class PatternExpression extends Expression {
 		this.pattern = pattern;
 		this.sourceStart = pattern.sourceStart();
 		this.sourceEnd = pattern.sourceEnd();
+	}
+
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		this.pattern.collectPatternVariablesToScope(variables, scope);
+		addPatternVariablesWhenTrue(this.pattern.getPatternVariablesWhenTrue());
 	}
 
 	@Override

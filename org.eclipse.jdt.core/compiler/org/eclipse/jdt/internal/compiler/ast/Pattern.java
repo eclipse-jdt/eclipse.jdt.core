@@ -20,14 +20,11 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.function.Supplier;
 
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
-import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public abstract class Pattern extends ASTNode {
+public abstract class Pattern extends Expression {
 
 	public enum PatternKind {
 		ANY_PATTERN,
@@ -39,28 +36,15 @@ public abstract class Pattern extends ASTNode {
 	public int parenthesisSourceStart;
 	public int parenthesisSourceEnd;
 
-	public TypeBinding resolvedType;
-
-	public abstract FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo);
-
-	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
-
 	PatternBinding resolvedPattern;
 
 	public abstract LocalDeclaration[] getPatternVariables();
-
-	// TODO: Recheck whether we need this in Pattern
-	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
 
 	public abstract String getKindName(); // convenience method.
 
 	public abstract boolean isTotalForType(TypeBinding type);
 
 	public abstract PatternKind kind();
-
-	public abstract void resolve(BlockScope scope);
-
-	public abstract TypeBinding resolveType(BlockScope scope);
 
 	public abstract PatternBinding resolveAtType(BlockScope scope, TypeBinding type);
 

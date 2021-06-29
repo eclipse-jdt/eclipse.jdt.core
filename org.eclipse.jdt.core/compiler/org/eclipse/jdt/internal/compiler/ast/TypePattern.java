@@ -49,7 +49,20 @@ public class TypePattern extends AbstractTypePattern {
 			return false;
 		return type.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
 	}
-
+	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+		if (this.resolvedPattern == null) {
+			this.resolveType(scope);
+		}
+		if (this.local != null && this.local.binding != null) {
+			if (this.patternVarsWhenTrue == null) {
+				this.patternVarsWhenTrue = new LocalVariableBinding[1];
+				this.patternVarsWhenTrue[0] = this.local.binding;
+			} else {
+				this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.local.binding});
+			}
+		}
+	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (this.local != null) {
@@ -82,4 +95,10 @@ public class TypePattern extends AbstractTypePattern {
 		visitor.endVisit(this, scope);
 	}
 
+	@Override
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		this.local.type.printExpression(0, output);
+		output.append(' ');
+		return output.append(this.local.name);
+	}
 }

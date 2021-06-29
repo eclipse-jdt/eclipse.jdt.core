@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 //import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
@@ -96,6 +97,14 @@ private void analyseConstantExpression(
 			currentScope.problemReporter().caseExpressionMustBeConstant(e);
 	}
 	e.analyseCode(currentScope, flowContext, flowInfo);
+	if (e instanceof PatternExpression) {
+		Pattern p = ((PatternExpression) e).pattern;
+		LocalDeclaration[] patternLocals = p.getPatternVariables();
+		if (patternLocals == null) return;
+		for (LocalDeclaration local : patternLocals) {
+			flowInfo.markAsDefinitelyAssigned(local.binding);
+		}
+	}
 }
 
 @Override
@@ -163,6 +172,29 @@ public void resolve(BlockScope scope) {
  */
 @Override
 public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
+	if (containsPatternVariable()) {
+		return resolveWithPatternVariablesInScope(this.patternVarsWhenTrue, scope, switchExpressionType, switchStatement);
+	}
+	return resolveCasePrivate(scope, switchExpressionType, switchStatement);
+}
+public Constant[] resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope,
+		BlockScope scope,
+		TypeBinding switchExpressionType,
+		SwitchStatement switchStatement) {
+	if (patternVariablesInScope != null) {
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+		}
+		Constant[] constants = this.resolveCasePrivate(scope, switchExpressionType, switchStatement);
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+		}
+		return constants;
+	} else {
+		return resolveCasePrivate(scope, switchExpressionType, switchStatement);
+	}
+}
+private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
 	Expression[] constExprs = this.constantExpressions;
@@ -200,11 +232,22 @@ public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType
 			cases.add(con);
 		}
 	}
+	this.resolveWithPatternVariablesInScope(this.getPatternVariablesWhenTrue(), scope);
 	if (cases.size() > 0) {
 		return cases.toArray(new Constant[cases.size()]);
 	}
 
 	return Constant.NotAConstantList;
+}
+public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	if (!containsPatternVariable()) {
+		return;
+	}
+	for (Expression e : this.constantExpressions) {
+		e.collectPatternVariablesToScope(variables, scope);
+		LocalVariableBinding[] patternVariables = e.getPatternVariablesWhenTrue();
+		addPatternVariablesWhenTrue(patternVariables);
+	}
 }
 public Constant resolveConstantExpression(BlockScope scope,
 											TypeBinding caseType,

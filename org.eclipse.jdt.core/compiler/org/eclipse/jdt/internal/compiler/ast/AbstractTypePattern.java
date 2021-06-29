@@ -18,10 +18,11 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypePatternBinding;
@@ -45,20 +46,8 @@ public abstract class AbstractTypePattern extends Pattern {
 	}
 
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public LocalDeclaration[] getPatternVariables() {
 		return new LocalDeclaration[] { this.local };
-	}
-
-	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -71,8 +60,11 @@ public abstract class AbstractTypePattern extends Pattern {
 		if (this.resolvedType != null || this.local == null)
 			return this.resolvedType;
 
+		this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 		this.local.resolve(scope);
 		if (this.local.binding != null) {
+			this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.local.binding.useFlag = LocalVariableBinding.USED;
 			this.resolvedType = this.local.binding.type;
 			this.resolvedPattern = new TypePatternBinding(this.local.binding);
 		}
@@ -80,7 +72,7 @@ public abstract class AbstractTypePattern extends Pattern {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuffer printExpression(int indent, StringBuffer output) {
 		return this.local != null ? this.local.printAsExpression(indent, output) : output;
 	}
 
