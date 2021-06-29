@@ -12012,9 +12012,46 @@ private void sealedSuperTypeDoesNotPermit(int problem, SourceTypeBinding type, T
 		superType.sourceEnd);
 }
 
+public void sealedSuperTypeInDifferentPackage(int problem, SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding, PackageBinding superPackageBinding) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String typeName = new String(type.sourceName);
+	String name = new String(superTypeBinding.sourceName());
+	String packageName = superPackageBinding.compoundName == CharOperation.NO_CHAR_CHAR ? "default" : //$NON-NLS-1$
+		CharOperation.toString(superPackageBinding.compoundName);
+	String[] arguments = new String[] {typeName, packageName, name};
+	this.handle(problem,
+			arguments,
+			arguments,
+			curType.sourceStart,
+			curType.sourceEnd);
+}
+
+public void sealedSuperTypeDisallowed(int problem, SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String typeName = new String(type.sourceName);
+	String name = new String(superTypeBinding.sourceName());
+	String[] arguments = new String[] {typeName, name};
+	this.handle(problem,
+			arguments,
+			arguments,
+			curType.sourceStart,
+			curType.sourceEnd);
+}
+
 public void sealedSuperClassDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
 	sealedSuperTypeDoesNotPermit(IProblem.SealedSuperClassDoesNotPermit, type, superType, superTypeBinding);
 }
+
+public void sealedSuperClassInDifferentPackage(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding, PackageBinding superPackageBinding) {
+	sealedSuperTypeInDifferentPackage(IProblem.SealedSuperTypeInDifferentPackage, type, curType, superTypeBinding, superPackageBinding);
+}
+
+public void sealedSuperClassDisallowed(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding) {
+	sealedSuperTypeDisallowed(IProblem.SealedSuperTypeDisallowed, type, curType, superTypeBinding);
+}
+
 public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeReference superType, TypeBinding superTypeBinding) {
 	if (!this.options.enablePreviewFeatures)
 		return;
@@ -12029,6 +12066,14 @@ public void sealedSuperInterfaceDoesNotPermit(SourceTypeBinding type, TypeRefere
 		new String[] {name, superTypeShortName, keyword},
 		superType.sourceStart,
 		superType.sourceEnd);
+}
+
+public void sealedSuperInterfaceInDifferentPackage(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding, PackageBinding superPackageBinding) {
+	sealedSuperTypeInDifferentPackage(IProblem.SealedSuperTypeInDifferentPackage, type, curType, superTypeBinding, superPackageBinding);
+}
+
+public void sealedSuperInterfaceDisallowed(SourceTypeBinding type, TypeReference curType, TypeBinding superTypeBinding) {
+	sealedSuperTypeDisallowed(IProblem.SealedSuperTypeDisallowed, type, curType, superTypeBinding);
 }
 
 public void sealedMissingSealedModifier(SourceTypeBinding type, ASTNode node) {

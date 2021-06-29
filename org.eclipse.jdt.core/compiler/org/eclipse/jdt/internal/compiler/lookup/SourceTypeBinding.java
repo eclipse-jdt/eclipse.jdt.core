@@ -1196,13 +1196,14 @@ private void checkPermitsInType() {
 				this.scope.problemReporter().sealedMissingInterfaceModifier(this, typeDecl, sealedEntry.getValue());
 		}
 		List<SourceTypeBinding> typesInCU = collectAllTypeBindings(typeDecl, this.scope.compilationUnitScope());
-		if (!typeDecl.isRecord() && typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
-			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, typeDecl.superclass, this.superclass);
+		if (!typeDecl.isRecord() && typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU)) {
+			reportSealedSuperTypeDoesNotPermitProblem(typeDecl.superclass, this.superclass);
+		}
 		for (int i = 0, l = this.superInterfaces.length; i < l; ++i) {
 			ReferenceBinding superInterface = this.superInterfaces[i];
 			if (superInterface != null && !checkPermitsAndAdd(superInterface, typesInCU)) {
 				TypeReference superInterfaceRef = typeDecl.superInterfaces[i];
-				this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superInterfaceRef, superInterface);
+				reportSealedSuperTypeDoesNotPermitProblem(superInterfaceRef, superInterface);
 			}
 		}
 	}
@@ -1247,6 +1248,45 @@ private void checkPermitsInType() {
 		}
 	}
 	return;
+}
+
+private void reportSealedSuperTypeDoesNotPermitProblem(TypeReference superTypeRef, TypeBinding superType) {
+	ModuleBinding sourceModuleBinding = this.module();
+	boolean isUnnamedModule = sourceModuleBinding.isUnnamed();
+	boolean problemReported = false;
+	boolean isClass =  false;
+	if (superType.isClass()) {
+		isClass =  true;
+	}
+	if (superType instanceof SourceTypeBinding) {
+		SourceTypeBinding superSourceTypeBinding = (SourceTypeBinding) superType;
+		if (isUnnamedModule) {
+			PackageBinding superTypePackage = superSourceTypeBinding.getPackage();
+			PackageBinding pkg = this.getPackage();
+			if (pkg!= null && !pkg.equals(superTypePackage)) {
+				if (isClass) {
+					this.scope.problemReporter().sealedSuperClassInDifferentPackage(this, superTypeRef, superType, superTypePackage);
+				} else {
+					this.scope.problemReporter().sealedSuperInterfaceInDifferentPackage(this, superTypeRef, superType, superTypePackage);
+				}
+				problemReported = true;
+			}
+		}
+	} else {
+		if (isClass) {
+			this.scope.problemReporter().sealedSuperClassDisallowed(this, superTypeRef, superType);
+		} else {
+			this.scope.problemReporter().sealedSuperInterfaceDisallowed(this, superTypeRef, superType);
+		}
+		problemReported = true;
+	}
+	if (!problemReported) {
+		if (isClass) {
+			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, superTypeRef, superType);
+		} else {
+			this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superTypeRef, superType);
+		}
+	}
 }
 
 private ReferenceBinding getActualType(ReferenceBinding ref) {

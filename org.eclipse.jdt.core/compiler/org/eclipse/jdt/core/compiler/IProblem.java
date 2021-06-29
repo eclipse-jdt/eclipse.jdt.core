@@ -2448,6 +2448,12 @@ void setSourceStart(int sourceStart);
 	/** @since 3.24
 	 * @noreference preview feature error */
 	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int SealedSuperTypeInDifferentPackage = PreviewRelated + 1866;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int SealedSuperTypeDisallowed = PreviewRelated + 1867;
 	/* Java15 errors - end */
 
 	}
