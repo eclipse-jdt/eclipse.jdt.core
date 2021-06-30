@@ -217,23 +217,27 @@ public void run() throws IOException {
 				try {
 					loadAndRun(className);
 					out.writeBoolean(true);
-					System.err.println(VerifyTests.class.getName());
 					System.out.println(VerifyTests.class.getName());
+					System.err.println(VerifyTests.class.getName());
 				} catch (Throwable e) {
 					e.printStackTrace();
 					try {
-						System.err.println(VerifyTests.class.getName());
-						System.out.println(VerifyTests.class.getName());
 						out.writeBoolean(false);
+						System.out.println(VerifyTests.class.getName());
+						System.err.println(VerifyTests.class.getName());
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 				}
+				// Flush all streams, in case the test executor VM is shut down before
+				// the controlling VM receives the responses it depends on
 				try {
 					out.flush();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				System.out.flush();
+				System.err.flush();
 			}
 		};
 		thread.start();
