@@ -5629,4 +5629,137 @@ public void test574366_onParameterizedInterfaceConstructor_enclosedInstance() th
 	assertTrue(String.format("Result doesn't contain expected constructor (%s)", result),
     		result.contains("Temp.Enclosed<java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, LTemp$Enclosed<Ljava.lang.String;>;, ()V, null, null, 39}"));
 }
+public void testBug563020_lambdaWithMethodRef_overloadedMethodRef_expectCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug563020.java",
+			"import java.util.Arrays;\n"
+			+ "public class Bug563020 {\n"
+			+ "    public void foo() {\n"
+			+ "			Arrays.asList(\"1\").stream().map(String::toUpperCase)."
+			+ "    }\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "map(String::toUpperCase).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
+    		result.contains("iterator[METHOD_REF]{iterator(), Ljava.util.stream.BaseStream<Ljava.lang.String;Ljava.util.stream.Stream<Ljava.lang.String;>;>;, ()Ljava.util.Iterator<Ljava.lang.String;>;, iterator, null, 60}\n"
+    				+ "limit[METHOD_REF]{limit(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (J)Ljava.util.stream.Stream<Ljava.lang.String;>;, limit, (arg0), 60}\n"
+    				+ "map[METHOD_REF]{map(), Ljava.util.stream.Stream<Ljava.lang.String;>;, <R:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.String;+TR;>;)Ljava.util.stream.Stream<TR;>;, map, (arg0), 60}\n"
+    				+ "mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}\n"
+    				+ "mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}\n"
+    				+ "mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"));
+}
+public void testBug563020_lambdaWithMethodRef_exactMethodRef_expectCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug563020.java",
+			"import java.util.Arrays;\n"
+			+ "public class Bug563020 {\n"
+			+ "    public void foo() {\n"
+			+ "			Arrays.asList(\"1\").stream().map(String::toString)."
+			+ "    }\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "map(String::toString).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
+    		result.contains("iterator[METHOD_REF]{iterator(), Ljava.util.stream.BaseStream<Ljava.lang.String;Ljava.util.stream.Stream<Ljava.lang.String;>;>;, ()Ljava.util.Iterator<Ljava.lang.String;>;, iterator, null, 60}\n"
+    				+ "limit[METHOD_REF]{limit(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (J)Ljava.util.stream.Stream<Ljava.lang.String;>;, limit, (arg0), 60}\n"
+    				+ "map[METHOD_REF]{map(), Ljava.util.stream.Stream<Ljava.lang.String;>;, <R:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.String;+TR;>;)Ljava.util.stream.Stream<TR;>;, map, (arg0), 60}\n"
+    				+ "mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}\n"
+    				+ "mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}\n"
+    				+ "mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"));
+}
+public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompletionForNextChain() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug563020.java",
+			"import java.util.Arrays;\n"
+			+ "public class Bug563020 {\n"
+			+ "    public void foo() {\n"
+			+ "			Arrays.asList(\"1\").stream().map(String::toUpperCase).sorted("
+			+ "    }\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "map(String::toUpperCase).sorted(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
+    		result.contains("sorted[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.String;>;, ()Ljava.util.stream.Stream<Ljava.lang.String;>;, sorted, null, 56}\n"
+    				+ "sorted[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.Comparator<-Ljava.lang.String;>;)Ljava.util.stream.Stream<Ljava.lang.String;>;, sorted, (arg0), 56}"));
+}
+public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompletionForNextChainWithToken() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug563020.java",
+			"import java.util.Arrays;\n"
+			+ "public class Bug563020 {\n"
+			+ "    public void foo() {\n"
+			+ "			Arrays.asList(\"1\").stream().map(String::toUpperCase).mapTo"
+			+ "    }\n"
+			+ "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "map(String::toUpperCase).mapTo";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
+    		result.contains("mapToDouble[METHOD_REF]{mapToDouble(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToDoubleFunction<-Ljava.lang.String;>;)Ljava.util.stream.DoubleStream;, mapToDouble, (arg0), 60}\n"
+    				+ "mapToInt[METHOD_REF]{mapToInt(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToIntFunction<-Ljava.lang.String;>;)Ljava.util.stream.IntStream;, mapToInt, (arg0), 60}\n"
+    				+ "mapToLong[METHOD_REF]{mapToLong(), Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.function.ToLongFunction<-Ljava.lang.String;>;)Ljava.util.stream.LongStream;, mapToLong, (arg0), 60}"));
+}
+public void testBug563020_methodref_checkParserForBug559677_expectCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Bug563020.java",
+			"public class Bug563020 {\n" +
+			"	private void myRun() {\n" +
+			"	}\n" +
+			"	private void myMethod(final Runnable r) {\n" +
+			"	}\n" +
+			"	public void test() {\n" +
+			"		// second opening brace causes endless loop while saving\n" +
+			"		myMethod((this::myRun);\n" +
+			"	}\n" +
+			"}\n"
+			);
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "myMethod((this::";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
+    		result.contains("myRun[METHOD_NAME_REFERENCE]{myRun, LBug563020;, ()V, myRun, null, 55}"));
+}
 }

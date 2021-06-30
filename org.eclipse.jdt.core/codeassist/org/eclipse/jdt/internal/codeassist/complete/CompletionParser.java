@@ -5724,6 +5724,11 @@ public void parseBlockStatements(AbstractMethodDeclaration md, CompilationUnitDe
 		}
 	}
 	super.parseBlockStatements(md, unit);
+	// if the assist node is parsed at the cursor location, then ignore syntax errors found due to chars such as . and (
+	if((md.bits & ASTNode.HasSyntaxErrors) != 0 && this.lastAct == ERROR_ACTION
+			&& this.assistNode != null && this.assistNode.sourceEnd == this.cursorLocation) {
+		md.bits &= ~ASTNode.HasSyntaxErrors;
+	}
 }
 @Override
 public void parseBlockStatements(
