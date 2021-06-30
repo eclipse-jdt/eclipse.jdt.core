@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -33,6 +36,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST16(), false);
@@ -53,6 +57,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter_PreviewTest.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	static int getAST16() {
 		return AST.JLS16;
 	}
@@ -64,7 +69,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed001() throws CoreException {
+	public void _testSealed001() throws CoreException {
 		if (!isJRE16) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;
@@ -110,7 +115,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed002() throws CoreException {
+	public void _testSealed002() throws CoreException {
 		if (!isJRE16) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;
@@ -146,7 +151,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed003() throws CoreException {
+	public void _testSealed003() throws CoreException {
 		if (!isJRE16) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;
@@ -191,7 +196,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed004() throws CoreException {
+	public void _testSealed004() throws CoreException {
 		if (!isJRE16) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;

@@ -35,7 +35,8 @@ public class ReconcilerTests16 extends ModifyingResourceTests {
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
 
-	/*package*/ static final int JLS_LATEST = AST.JLS16;
+	/*package*/ @SuppressWarnings("deprecation")
+	static final int JLS_LATEST = AST.JLS16;
 
 /**
  */

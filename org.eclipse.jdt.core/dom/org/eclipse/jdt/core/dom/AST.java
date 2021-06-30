@@ -375,7 +375,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 16(aka JDK 16).
 	 * </p>
-	 *
+	 * * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.26
 	 */
 	public static final int JLS16 = 16;
@@ -385,7 +385,7 @@ public final class AST {
 	 * This API is capable of handling all constructs in the
 	 * Java language as described in the Java Language
 	 * Specification, Java SE 17 Edition (JLS17).
-	 * JLS16 is a superset of all earlier versions of the
+	 * JLS17 is a superset of all earlier versions of the
 	 * Java language, and the JLS17 API can be used to manipulate
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 17(aka JDK 17).
@@ -1156,6 +1156,7 @@ public final class AST {
         t.put(JavaCore.VERSION_14, ClassFileConstants.JDK14);
         t.put(JavaCore.VERSION_15, ClassFileConstants.JDK15);
         t.put(JavaCore.VERSION_16, ClassFileConstants.JDK16);
+        t.put(JavaCore.VERSION_17, ClassFileConstants.JDK17);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1176,6 +1177,7 @@ public final class AST {
         t.put(JavaCore.VERSION_14, JLS14_INTERNAL);
         t.put(JavaCore.VERSION_15, JLS15_INTERNAL);
         t.put(JavaCore.VERSION_16, JLS16_INTERNAL);
+        t.put(JavaCore.VERSION_17, JLS17_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
