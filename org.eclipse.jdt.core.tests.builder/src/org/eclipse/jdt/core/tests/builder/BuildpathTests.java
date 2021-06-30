@@ -62,7 +62,7 @@ private String getJdkLevelProblem(String expectedRuntime, String path, int sever
 	Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 	long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 	String jclRuntime = CompilerOptions.versionFromJdkLevel(libraryJDK);
-	StringBuffer jdkLevelProblem = new StringBuffer("Problem : Incompatible .class files version in required binaries. Project 'Project' is targeting a ");
+	StringBuilder jdkLevelProblem = new StringBuilder("Problem : Incompatible .class files version in required binaries. Project 'Project' is targeting a ");
 	jdkLevelProblem.append(expectedRuntime);
 	jdkLevelProblem.append(" runtime, but is compiled against '");
 	jdkLevelProblem.append(path);
@@ -99,7 +99,7 @@ public void testClasspathFileChange() throws JavaModelException {
 	//----------------------------
 	//           Step 2
 	//----------------------------
-	StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
 	buffer.append("<classpath>\n"); //$NON-NLS-1$
 	buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
 	buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change //$NON-NLS-1$

@@ -829,7 +829,7 @@ public void cleanBuild(String projectName) {
 		if (status.isMultiStatus()) {
 			MultiStatus multiStatus = (MultiStatus) status;
 			IStatus[] children = multiStatus.getChildren();
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i = 0, max = children.length; i < max; i++) {
 				IStatus child = children[i];
 				if (child != null) {
