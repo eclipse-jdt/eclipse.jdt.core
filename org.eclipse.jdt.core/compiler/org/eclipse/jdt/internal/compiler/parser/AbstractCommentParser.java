@@ -814,36 +814,42 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				consumeToken();
 				pushIdentifier(true, false);
 			}
-			// Look for next token to know whether it's a field or method reference
-			int previousPosition = this.index;
-			if (readToken() == TerminalTokens.TokenNameLPAREN) {
-				consumeToken();
-				start = this.scanner.getCurrentTokenStartPosition();
-				try {
-					return parseArguments(receiver);
-				} catch (InvalidInputException e) {
-					int end = this.scanner.getCurrentTokenEndPosition() < this.lineEnd ?
-							this.scanner.getCurrentTokenEndPosition() :
-							this.scanner.getCurrentTokenStartPosition();
-					end = end < this.lineEnd ? end : this.lineEnd;
-					if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeReferenceArgs(start, end);
+			boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
+			this.scanner.tokenizeWhiteSpace = false;
+			try {
+				// Look for next token to know whether it's a field or method reference
+				int previousPosition = this.index;
+				if (readToken() == TerminalTokens.TokenNameLPAREN) {
+					consumeToken();
+					start = this.scanner.getCurrentTokenStartPosition();
+					try {
+						return parseArguments(receiver);
+					} catch (InvalidInputException e) {
+						int end = this.scanner.getCurrentTokenEndPosition() < this.lineEnd ?
+								this.scanner.getCurrentTokenEndPosition() :
+								this.scanner.getCurrentTokenStartPosition();
+						end = end < this.lineEnd ? end : this.lineEnd;
+						if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeReferenceArgs(start, end);
+					}
+					return null;
 				}
-				return null;
-			}
 
-			// Reset position: we want to rescan last token
-			this.index = previousPosition;
-			this.scanner.currentPosition = previousPosition;
-			this.currentTokenType = -1;
+				// Reset position: we want to rescan last token
+				this.index = previousPosition;
+				this.scanner.currentPosition = previousPosition;
+				this.currentTokenType = -1;
 
-			// Verify character(s) after identifier (expecting space or end comment)
-			if (!verifySpaceOrEndComment()) {
-				int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
-				if (this.source[end]=='\n') end--;
-				if (this.reportProblems) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, end);
-				return null;
+				// Verify character(s) after identifier (expecting space or end comment)
+				if (!verifySpaceOrEndComment()) {
+					int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
+					if (this.source[end]=='\n') end--;
+					if (this.reportProblems) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, end);
+					return null;
+				}
+				return createFieldReference(receiver);
+			} finally {
+				this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 			}
-			return createFieldReference(receiver);
 		}
 		int end = getTokenEndPosition() - 1;
 		end = start > end ? start : end;

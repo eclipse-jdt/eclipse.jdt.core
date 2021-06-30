@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4999,6 +4999,52 @@ public void testBug493433b() throws CoreException {
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
 		"src/X.java void CallerHierarchyExample.caller() [method] EXACT_MATCH"
+	);
+}
+public void testBug574194() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * This is abc in X\n" +
+		"	 */\n" +
+		"	public void abc(int f, char t) {\n" +
+		"		\n" +
+		"	}\n" +
+		"	\n" +
+		"	/**\n" +
+		"	 * @see X#abc (\n" +
+		"	 * int f, char t)\n" +
+		"	 * @see X#abc ( int f, \n" +
+		"	 * char t)\n" +
+		"	 * @see X#abc(int f, char t)\n" +
+		"	 * @see X#abc (int f , char t)\n" +
+		"	 */\n" +
+		"	public void def() {\n" +
+		"		\n" +
+		"	}\n" +
+		"}"
+		);
+	IType type = this.workingCopies[0].getType("X");
+	assertNotNull("type should not be null", type);
+	IMethod method = null;
+	IMethod[] methods = type.getMethods();
+	for (IMethod iMethod : methods) {
+		if (iMethod.getElementName().equals("abc")) {
+			method = iMethod;
+			break;
+		}
+	}
+	assertNotNull("type should not be null", method);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void X.def() [abc (\n" +
+		"	 * int f, char t)] EXACT_MATCH\n" +
+		"src/X.java void X.def() [abc ( int f, \n" +
+		"	 * char t)] EXACT_MATCH\n" +
+		"src/X.java void X.def() [abc(int f, char t)] EXACT_MATCH\n" +
+		"src/X.java void X.def() [abc (int f , char t)] EXACT_MATCH"
 	);
 }
 // Add new tests in JavaSearchBugs8Tests
