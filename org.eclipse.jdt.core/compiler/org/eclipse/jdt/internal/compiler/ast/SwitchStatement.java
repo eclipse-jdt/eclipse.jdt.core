@@ -690,7 +690,14 @@ public class SwitchStatement extends Expression {
 			final Statement statement = this.statements[i];
 			if (statement instanceof CaseStatement)  {
 				Expression[] exprs = ((CaseStatement) statement).constantExpressions;
-				n += exprs != null ? exprs.length : 0;
+				int count = 0;
+				if (exprs != null) {
+					for (Expression e : exprs) {
+						if (e instanceof FakeDefaultLiteral) continue;
+						++count;
+					}
+				}
+				n += count;
 			}
 		}
 		return n;

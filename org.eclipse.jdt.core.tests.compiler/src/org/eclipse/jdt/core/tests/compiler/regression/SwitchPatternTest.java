@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574525_01"};
+//		TESTS_NAMES = new String[] { "testBug574549_01"};
 
 	}
 
@@ -323,10 +323,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case default : System.out.println(\"Default\");\n" +
-			"	             ^\n" +
-			"Type mismatch: cannot convert from void to int\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	default : System.out.println(\"Object\");\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
@@ -788,5 +788,111 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Object:10\n" +
 				"Greater than 10:\n" +
 				"Object:Hello World!");
+		}
+	public void testBug574549_01() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"    case default:\n"+
+					"     System.out.println(\"Object: \" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"Object: Hello World!");
+		}
+	public void testBug574549_02() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(11));\n"+
+					"   foo(Integer.valueOf(9));\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i && i>10:\n"+
+					"     System.out.println(\"Greater than 10:\" + o);\n"+
+					"     break;\n"+
+					"   case Integer j && j>0:\n"+
+					"     System.out.println(\"Greater than 0:\" + o);\n"+
+					"     break;\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Give Me Some SunShine:\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"Greater than 10:11\n" +
+				"Greater than 0:9\n" +
+				"Give Me Some SunShine:Hello World!");
+		}
+	public void testBug574549_03() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i :\n"+
+					"     System.out.println(\"Integer:\" + o);\n"+
+					"     break;\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Object\" + o);\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	case default:\n" +
+				"	           ^^\n" +
+				"The default case is already defined\n" +
+				"----------\n");
+		}
+	public void testBug574549_04() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i :\n"+
+					"     System.out.println(\"Integer:\" + o);\n"+
+					"     break;\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Object\" + o);\n"+
+					"   default:\n"+
+					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	default:\n" +
+				"	^^^^^^^\n" +
+				"The default case is already defined\n" +
+				"----------\n");
 		}
 }

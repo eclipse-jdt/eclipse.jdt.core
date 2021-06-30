@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -88,9 +89,10 @@ private void analyseConstantExpression(
 		Expression e) {
 	if (e.constant == Constant.NotAConstant
 			&& !e.resolvedType.isEnum()) {
-		boolean caseNullAllowed = e instanceof NullLiteral
-				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(currentScope.compilerOptions());
-		if (!caseNullAllowed) // TODO: Narrow this further for pattern switches only
+		boolean caseNullorDefaultAllowed =
+				JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(currentScope.compilerOptions())
+				&& (e instanceof NullLiteral || e instanceof FakeDefaultLiteral);
+		if (!caseNullorDefaultAllowed)
 			currentScope.problemReporter().caseExpressionMustBeConstant(e);
 	}
 	e.analyseCode(currentScope, flowContext, flowInfo);
@@ -165,7 +167,8 @@ public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType
 	scope.enclosingCase = this; // record entering in a switch case block
 	Expression[] constExprs = this.constantExpressions;
 	Expression constExpr = constExprs != null && constExprs.length > 0 ? constExprs[0] : null;
-	if (constExpr == null) {
+	Predicate<BlockScope> patternSwitchAllowed = (skope) -> JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(skope.compilerOptions());
+	if (constExpr == null || (patternSwitchAllowed.test(scope) && constExpr instanceof FakeDefaultLiteral)) {
 		// remember the default case into the associated switch statement
 		if (switchStatement.defaultCase != null)
 			scope.problemReporter().duplicateDefaultCase(this);
