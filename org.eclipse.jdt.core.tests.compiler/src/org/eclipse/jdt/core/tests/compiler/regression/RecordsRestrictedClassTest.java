@@ -8999,6 +8999,7 @@ public void testBug573195_001() throws Exception {
 			"     9  return\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
+
 public void testBug574284_001() throws Exception {
 	runConformTest(
 			new String[] {
@@ -9053,4 +9054,29 @@ public void testBug574284_002() {
 			},
 		"0");
 }
+
+public void testBug574282_001() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"record Rec(String name) {\n" +
+					"\n" +
+					"    Rec() {\n" +
+					"        this(\"\");\n" +
+					"    }\n" +
+					"\n" +
+					"    @Override\n" +
+					"    public boolean equals(Object obj) {\n" +
+					"        return false;\n" +
+					"    }\n" +
+					"}\n" +
+					"public class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"
+			},
+		"0");
+}
+
 }
