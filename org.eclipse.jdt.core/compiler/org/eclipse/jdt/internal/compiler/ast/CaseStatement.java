@@ -427,4 +427,15 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	}
 	visitor.endVisit(this, blockScope);
 }
+/**
+ * @noreference This method is not intended to be referenced by clients.
+ * To be used in SelectionParser/AssistParser only if containsPatternVariable is positive
+ * @return local declaration in the type pattern if any else null
+ */
+public LocalDeclaration getLocalDeclaration() {
+	Expression cexp = this.constantExpressions[this.patternIndex];
+	LocalDeclaration patternVariableIntroduced = cexp.getPatternVariableIntroduced();
+	return patternVariableIntroduced;
+}
+
 }

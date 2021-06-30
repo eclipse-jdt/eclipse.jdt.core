@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -825,6 +829,17 @@ protected void consumeTypeParameterWithExtends() {
 	if ((this.patternFineGrain & IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE) != 0) {
 		TypeParameter typeParameter = (TypeParameter) this.genericsStack[this.genericsPtr];
 		this.patternLocator.match(typeParameter.type, this.nodeSet);
+	}
+}
+
+@Override
+protected void consumeTypePattern() {
+	super.consumeTypePattern();
+	if (this.patternFineGrain == 0) {
+		TypePattern td = (TypePattern) this.astStack[this.astPtr];
+		if (td.local != null) {
+			this.patternLocator.match(td.local, this.nodeSet);
+		}
 	}
 }
 
