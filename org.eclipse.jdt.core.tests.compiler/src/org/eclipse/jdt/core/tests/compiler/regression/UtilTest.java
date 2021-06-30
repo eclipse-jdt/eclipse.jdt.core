@@ -214,7 +214,7 @@ public void test26() {
 }
 public void test27() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello,world".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}
@@ -222,7 +222,7 @@ public void test27() {
 }
 public void test28() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello , world".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}
@@ -230,7 +230,7 @@ public void test28() {
 }
 public void test29() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello, world   ".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}
@@ -238,7 +238,7 @@ public void test29() {
 }
 public void test30() {
 	char [][] tokens = CharOperation.splitAndTrimOn(','," hello, world   ,zork/, aaa bbb".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}
@@ -246,7 +246,7 @@ public void test30() {
 }
 public void test31() {
 	char [][] tokens = CharOperation.splitAndTrimOn(',',"  ,  ".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}
@@ -254,7 +254,7 @@ public void test31() {
 }
 public void test32() {
 	char [][] tokens = CharOperation.splitAndTrimOn(',',"   ".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}
@@ -262,7 +262,7 @@ public void test32() {
 }
 public void test33() {
 	char [][] tokens = CharOperation.splitAndTrimOn(',',"  , hello  ".toCharArray());
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < tokens.length; i++){
 		buffer.append('[').append(tokens[i]).append(']');
 	}

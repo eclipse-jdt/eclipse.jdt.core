@@ -45,7 +45,7 @@ public J9VMLauncher() {
  * Builds the actual boot class path that is going to be passed to the VM.
  */
 protected String buildBootClassPath() {
-	StringBuffer bootPathString = new StringBuffer();
+	StringBuilder bootPathString = new StringBuilder();
 	char pathSeparator = File.pathSeparatorChar;
 
 	if (this.bootPath != null) {

@@ -900,7 +900,7 @@ static final int LIMIT = 30;
 String cut(String source) {
 	int length;
 	if ((length = source.length()) > LIMIT) {
-		StringBuffer result = new StringBuffer(length);
+		StringBuilder result = new StringBuilder(length);
 		result.append(source.substring(0, LIMIT - 10));
 		result.append("...");
 		result.append(source.substring(length - 7, length));

@@ -337,7 +337,7 @@ private String concatResults(
 		String unitToString,
 		String completionIdentifier,
 		String replacedSource) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append("### Completion node ###\n");
 	buffer.append(completionNode);
 	buffer.append("\n### Parent completion node ###\n");

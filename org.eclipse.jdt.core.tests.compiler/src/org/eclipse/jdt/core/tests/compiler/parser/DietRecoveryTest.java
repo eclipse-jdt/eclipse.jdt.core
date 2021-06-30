@@ -7690,7 +7690,7 @@ public void test125() {
 		"public class Test {\n" +
 		"}\n";
 
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	for (int i = 0; i < 1000; i++) {
 		buf.append("class AClass #\n");
 	}
@@ -7702,7 +7702,7 @@ public void test125() {
 		"  public Test() {\n" +
 		"  }\n" +
 		"}\n";
-	buf = new StringBuffer();
+	buf = new StringBuilder();
 	int max = 256;
 	for (int i = 0; i < max; i++) {
 		String indent = "";
@@ -7730,7 +7730,7 @@ public void test125() {
 		"    super();\n" +
 		"  }\n" +
 		"}\n";
-	buf = new StringBuffer();
+	buf = new StringBuilder();
 	for (int i = 0; i < max; i++) {
 		String indent = "";
 		for (int j = 0; j < i; j++) {

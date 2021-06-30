@@ -70,19 +70,19 @@ public void acceptAnnotationTypeReference(char[] typeName, int sourcePosition) {
 public void acceptConstructorReference(char[] typeName, int argCount, int sourcePosition) {
 	if (this.currentMethod == null) {
 		if (this.currentType != null) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(typeName).append("(").append(argCount).append(")\n");
 			this.currentType.setDefaultConstructor(buffer.toString());
 		}
 		return;
 	}
 	if (this.currentMethod.isConstructor()) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(typeName).append("(").append(argCount).append(")\n");
 		this.currentMethod.setExplicitConstructorCall(buffer.toString());
 	} else {
 		if (this.currentType != null) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(typeName).append("(").append(argCount).append(")\n");
 			this.currentType.setDefaultConstructor(buffer.toString());
 		}
@@ -179,7 +179,7 @@ public void dietParse(String s, String testName, boolean recordLocalDeclaration)
 
 }
 public static String displayModifiers(int modifiers) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 
 	if ((modifiers & ClassFileConstants.AccPublic) != 0)
 		buffer.append("public ");

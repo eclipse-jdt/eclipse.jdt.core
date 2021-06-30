@@ -491,7 +491,7 @@ public void test020() {
 	);
 }
 public void test021() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append("public class X {\n");
 	for (int i = 0; i < 1000; i++) {
 		buffer.append("\tint field_" + i + " = 0; \n");

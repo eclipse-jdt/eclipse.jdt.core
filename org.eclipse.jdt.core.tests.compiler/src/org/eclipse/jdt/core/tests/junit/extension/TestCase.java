@@ -729,7 +729,7 @@ private static File createMemLogFile() {
  */
 protected static String showLineSeparators(String string) {
 	if (string == null) return null;
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	int length = string.length();
 	for (int i = 0; i < length; i++) {
 		char car = string.charAt(i);
@@ -870,7 +870,7 @@ private String format(long number) {
 		q = n / 1000L;
 		values[++m] = (int) (n - q*1000);
 	}
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(values[m]);
 	for (int i=m-1; i>=0; i--) {
 		buffer.append(',').append(DIGIT_FORMAT.format(values[i]));

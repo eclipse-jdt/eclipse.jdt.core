@@ -495,10 +495,10 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			writeFiles(testFiles);
 
 			// Prepare command line
-			StringBuffer cmdLine = new StringBuffer(javadocCommandLineHeader);
+			StringBuilder cmdLine = new StringBuilder(javadocCommandLineHeader);
 			// compute extra classpath
 			String[] classpath = Util.concatWithClassLibs(JAVAC_OUTPUT_DIR_NAME, false);
-			StringBuffer cp = new StringBuffer(" -classpath ");
+			StringBuilder cp = new StringBuilder(" -classpath ");
 			int length = classpath.length;
 			for (int i = 0; i < length; i++) {
 				if (i > 0)

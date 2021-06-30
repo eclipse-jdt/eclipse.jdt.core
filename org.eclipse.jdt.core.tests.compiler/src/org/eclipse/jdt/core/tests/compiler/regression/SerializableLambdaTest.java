@@ -2315,7 +2315,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 			return "";
 		}
 		IConstantPool cp = cfr.getConstantPool();
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		int bmaLength = bootstrapMethodsAttribute.getBootstrapMethodsLength();
 		for (int i=0;i<bmaLength;i++) {
 			IBootstrapMethodsEntry entry = bootstrapMethodsAttribute.getBootstrapMethods()[i];
@@ -2337,7 +2337,7 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	private String printLambdaMethods(String filepath) {
 		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(filepath, IClassFileReader.METHOD_INFOS);
 		IMethodInfo[] methodInfos = cfr.getMethodInfos();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		for (int i = 0, max = methodInfos.length; i < max; i++) {
 			IMethodInfo methodInfo = methodInfos[i];
 			if (!new String(methodInfo.getName()).startsWith("lambda"))

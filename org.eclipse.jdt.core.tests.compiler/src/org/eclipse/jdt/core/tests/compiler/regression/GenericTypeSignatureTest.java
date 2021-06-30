@@ -124,7 +124,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			try {
 				// Compute classpath
 				String[] classpath = getDefaultClassPaths();
-				StringBuffer cp = new StringBuffer();
+				StringBuilder cp = new StringBuilder();
 				int length = classpath.length;
 				for (int i = 0; i < length; i++) {
 					if (classpath[i].indexOf(" ") != -1) {
@@ -143,7 +143,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 				} else {
 					javacPath = jdkDir.append("bin").append("javac.exe");
 				}
-				StringBuffer cmdLine = new StringBuffer(javacPath.toString());
+				StringBuilder cmdLine = new StringBuilder(javacPath.toString());
 				cmdLine.append(" -classpath ");
 				cmdLine.append(cp);
 				cmdLine.append(" -source 1.5 -deprecation -g -Xlint "); // enable recommended warnings

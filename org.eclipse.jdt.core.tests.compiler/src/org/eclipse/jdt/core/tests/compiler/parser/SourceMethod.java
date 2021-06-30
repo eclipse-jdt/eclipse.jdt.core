@@ -56,7 +56,7 @@ public SourceMethod(
 	this.source = source;
 }
 public String displayModifiers() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 
 	if (this.modifiers == 0)
 		return null;
@@ -81,7 +81,7 @@ public String displayModifiers() {
 	return buffer.toString().trim();
 }
 public String getActualName() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(this.source, this.nameSourceStart, this.nameSourceEnd - this.nameSourceStart + 1);
 	return buffer.toString();
 }
@@ -143,7 +143,7 @@ public String toString() {
 	return toString(0);
 }
 public String toString(int tab) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(tabString(tab));
 	String displayModifiers = displayModifiers();
 	if (displayModifiers != null) {

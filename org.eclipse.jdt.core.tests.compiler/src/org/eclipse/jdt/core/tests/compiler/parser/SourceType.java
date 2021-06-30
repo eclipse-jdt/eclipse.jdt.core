@@ -121,7 +121,7 @@ protected void addMethod(SourceMethod sourceMethod) {
 	this.methods[this.numberOfMethods++] = sourceMethod;
 }
 public String displayModifiers() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 
 	if (this.modifiers == 0)
 		return null;
@@ -144,7 +144,7 @@ public String displayModifiers() {
 	return buffer.toString().trim();
 }
 public String getActualName() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(this.source, this.nameSourceStart, this.nameSourceEnd - this.nameSourceStart + 1);
 	return buffer.toString();
 }
@@ -212,7 +212,7 @@ public char[] getPackageName() {
 }
 public char[] getQualifiedName() {
 	if (this.qualifiedName == null) {
-		StringBuffer temp = new StringBuffer();
+		StringBuilder temp = new StringBuilder();
 		temp.append(this.packageName);
 		temp.append('.');
 		temp.append(this.name);
@@ -264,7 +264,7 @@ public String toString() {
 }
 public String toString(int tab) {
 
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (this.packageName != null) {
 		buffer.append(tabString(tab)).append(this.packageName);
 	}

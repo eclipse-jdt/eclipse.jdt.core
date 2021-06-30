@@ -41,7 +41,7 @@ public static Test suite() {
 public void test368435() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	StringBuffer sourceCode = new StringBuffer(
+	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(\"SUCCESS\");\n" +
@@ -72,7 +72,7 @@ public void test368435() {
 public void test368435b() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	StringBuffer sourceCode = new StringBuffer(
+	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(\"SUCCESS\");\n" +
@@ -103,7 +103,7 @@ public void test368435b() {
 public void test368435c() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	StringBuffer sourceCode = new StringBuffer(
+	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(\"SUCCESS\");\n" +
@@ -3702,7 +3702,7 @@ public void test009() {
 // Failed before using a non recursive implementation of deep binary
 // expressions.
 public void test010() {
-	StringBuffer sourceCode = new StringBuffer(
+	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
 			"  void foo(String a, String b, String c, String d, String e) {\n" +
 			"    String s = \n");
@@ -3738,7 +3738,7 @@ public void test010() {
 public void test011() {
 	int length = 3 * 54 * 1000;
 		// the longer the slower, but still needs to reach the limit...
-	StringBuffer veryLongString = new StringBuffer(length + 20);
+	StringBuilder veryLongString = new StringBuilder(length + 20);
 	veryLongString.append('"');
 	Random random = new Random();
 	while (veryLongString.length() < length) {
@@ -3769,7 +3769,7 @@ public void test011() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
 // variant: right member of the topmost expression is left-deep
 public void test012() {
-	StringBuffer sourceCode = new StringBuffer(
+	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
 			"  void foo(String a, String b, String c, String d, String e) {\n" +
 			"    String s = a + (\n");
@@ -11956,7 +11956,7 @@ public void test015() {
 public void test0016() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	// only run in 1.5 or above
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer
 		.append("0123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119")
 		.append("1201211221231241251261271281291301311321331341351361371381391401411421431441451461471481491501511521531541551561571581591601611621631641651661671681691701711721731741751761771781791801811821831841851861871881891901911921931941951961971981992002012022")
@@ -14534,7 +14534,7 @@ public void test0016() {
 public void test0017() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	// only run in 1.5 or above
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer
 		.append("123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119")
 		.append("1201211221231241251261271281291301311321331341351361371381391401411421431441451461471481491501511521531541551561571581591601611621631641651661671681691701711721731741751761771781791801811821831841851861871881891901911921931941951961971981992002012022")
@@ -16595,7 +16595,7 @@ public void test0017() {
 public void test0018() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	// only run in 1.5 or above
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer
 		.append("123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103104105106107108109110111112113114115116117118119")
 		.append("1201211221231241251261271281291301311321331341351361371381391401411421431441451461471481491501511521531541551561571581591601611621631641651661671681691701711721731741751761771781791801811821831841851861871881891901911921931941951961971981992002012022")
@@ -20694,7 +20694,7 @@ public void test0019() {
 }
 public void testBug519070() {
 	int N = 1000;
-	StringBuffer sourceCode = new StringBuffer(
+	StringBuilder sourceCode = new StringBuilder(
 			"public class X {\n" +
 			"    public static void main(String[] args) {\n" +
 			"        System.out.println(\"SUCCESS\");\n" +

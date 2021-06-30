@@ -122,7 +122,7 @@ protected void verifyCompletionInJavadoc(String source, String after) {
 protected void verifyCompletionOnJavadocTag(char[] tag, char[][] expectedTags, boolean inline) {
 	assertTrue("Invalid javadoc completion node!", this.javadoc.getCompletionNode() instanceof CompletionOnJavadocTag);
 	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
-	StringBuffer expected = new StringBuffer("<CompleteOnJavadocTag:");
+	StringBuilder expected = new StringBuilder("<CompleteOnJavadocTag:");
 	if (inline) expected.append('{');
 	expected.append('@');
 	if (tag != null) expected.append(tag);
@@ -142,7 +142,7 @@ protected void verifyCompletionOnJavadocTag(char[] tag, char[][] expectedTags, b
 	} else {
 		String completionTagString = completionTag.toString();
 		StringTokenizer completionTagTokenizer = new StringTokenizer(completionTagString, "\n");
-		StringBuffer completionTagBuffer = new StringBuffer(completionTagString.length());
+		StringBuilder completionTagBuffer = new StringBuilder(completionTagString.length());
 		boolean possibleLine = false, newLine = false;
 		while (completionTagTokenizer.hasMoreTokens()) {
 			String line = completionTagTokenizer.nextToken();

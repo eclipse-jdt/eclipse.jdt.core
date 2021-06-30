@@ -106,7 +106,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 			e.printStackTrace();
 			return;
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer
 			.append("\"")
 			.append(fileName)
@@ -137,7 +137,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 			e.printStackTrace();
 			return;
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer
 			.append("\"")
 			.append(fileName)
@@ -1502,10 +1502,10 @@ public void test032() throws Exception {
 		EvaluationResult result = requestor.results[0];
 		assertTrue("Code snippet should not have problems", result.hasProblems());
 		CategorizedProblem[] problems = result.getProblems();
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
-				if (buffer == null) buffer = new StringBuffer(10);
+				if (buffer == null) buffer = new StringBuilder(10);
 				buffer.append(problems[i].getMessage());
 				buffer.append('|');
 			}
@@ -2594,10 +2594,10 @@ public void testNegative001() throws InstallException {
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		CategorizedProblem[] problems = result.getProblems();
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
-				if (buffer == null) buffer = new StringBuffer(10);
+				if (buffer == null) buffer = new StringBuilder(10);
 				buffer.append(problems[i].getMessage());
 				buffer.append('|');
 			}
@@ -2650,10 +2650,10 @@ public void testNegative002() throws Exception {
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		CategorizedProblem[] problems = result.getProblems();
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
-				if (buffer == null) buffer = new StringBuffer(10);
+				if (buffer == null) buffer = new StringBuilder(10);
 				buffer.append(problems[i].getMessage());
 				buffer.append('|');
 			}
@@ -2706,10 +2706,10 @@ public void testNegative003() throws InstallException {
 		assertTrue("Got one result", requestor.resultIndex == 0);
 		EvaluationResult result = requestor.results[0];
 		CategorizedProblem[] problems = result.getProblems();
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		for (int i = 0, max = problems.length; i < max; i++){
 			if (problems[i].isError()){
-				if (buffer == null) buffer = new StringBuffer(10);
+				if (buffer == null) buffer = new StringBuilder(10);
 				buffer.append(problems[i].getMessage());
 				buffer.append('|');
 			}
@@ -2737,10 +2737,10 @@ public void testNegative004() throws InstallException {
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	CategorizedProblem[] problems = result.getProblems();
-	StringBuffer buffer = null;
+	StringBuilder buffer = null;
 	for (int i = 0, max = problems.length; i < max; i++){
 		if (problems[i].isError()){
-			if (buffer == null) buffer = new StringBuffer(10);
+			if (buffer == null) buffer = new StringBuilder(10);
 			buffer.append(problems[i].getMessage());
 			buffer.append('|');
 		}
@@ -3099,10 +3099,10 @@ public void testNegative005() throws InstallException {
 	assertTrue("Got one result", requestor.resultIndex == 0);
 	EvaluationResult result = requestor.results[0];
 	CategorizedProblem[] problems = result.getProblems();
-	StringBuffer buffer = null;
+	StringBuilder buffer = null;
 	for (int i = 0, max = problems.length; i < max; i++){
 		if (problems[i].isError()){
-			if (buffer == null) buffer = new StringBuffer(10);
+			if (buffer == null) buffer = new StringBuilder(10);
 			buffer.append(problems[i].getMessage());
 			buffer.append('|');
 		}

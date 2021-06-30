@@ -314,7 +314,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		assertTrue("Has problem", result.hasProblems());
 		assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
 		assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
-		StringBuffer problemBuffer = new StringBuffer(20);
+		StringBuilder problemBuffer = new StringBuilder(20);
 		CategorizedProblem[] problems = result.getProblems();
 		for (int i = 0; i < problems.length; i++) {
 			problemBuffer.append(problems[i].getMessage()).append('\n');

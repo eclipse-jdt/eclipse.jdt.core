@@ -350,7 +350,7 @@ public static String[] concatWithClassLibs(String classpath, boolean inFront) {
 public static String convertToIndependantLineDelimiter(String source) {
 	if (source == null) return "";
     if (source.indexOf('\n') == -1 && source.indexOf('\r') == -1) return source;
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     for (int i = 0, length = source.length(); i < length; i++) {
         char car = source.charAt(i);
         if (car == '\r') {
@@ -637,7 +637,7 @@ public static String displayString(String inputString, int indent, boolean shift
     if (inputString == null)
         return "null";
     int length = inputString.length();
-    StringBuffer buffer = new StringBuffer(length);
+    StringBuilder buffer = new StringBuilder(length);
     java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
     for (int i = 0; i < indent; i++) buffer.append("\t");
     if (shift) indent++;
@@ -674,7 +674,7 @@ public static String displayString(String inputString, int indent, boolean shift
             continue;
         }
 
-        StringBuffer tokenBuffer = new StringBuffer();
+        StringBuilder tokenBuffer = new StringBuilder();
         for (int i = 0; i < token.length(); i++){
             char c = token.charAt(i);
             switch (c) {
@@ -727,7 +727,7 @@ public static String fileContent(String sourceFilePath) {
         if (DEBUG) System.out.println(sourceFilePath + " is not a file.");
         return null;
     }
-    StringBuffer sourceContentBuffer = new StringBuffer();
+    StringBuilder sourceContentBuffer = new StringBuilder();
     FileInputStream input = null;
     try {
         input = new FileInputStream(sourceFile);
@@ -942,7 +942,7 @@ private static void addJarEntries(String jreDir, String[] jarNames, ArrayList pa
 }
 public static String getJavaClassLibsAsString() {
 	String[] classLibs = getJavaClassLibs();
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0, max = classLibs.length; i < max; i++) {
 		buffer
 		.append(classLibs[i])
@@ -1047,9 +1047,9 @@ public static String indentString(String inputString, int indent) {
     if (inputString == null)
         return "";
     int length = inputString.length();
-    StringBuffer buffer = new StringBuffer(length);
+    StringBuilder buffer = new StringBuilder(length);
     java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(inputString, "\n\r", true);
-    StringBuffer indentStr = new StringBuffer(indent);
+    StringBuilder indentStr = new StringBuilder(indent);
     for (int i = 0; i < indent; i++) indentStr.append("\t");
     buffer.append(indentStr);
     while (tokenizer.hasMoreTokens()){
@@ -1200,7 +1200,7 @@ public static String toNativePath(String path) {
 }
 public static String toString(String[] strings, boolean addExtraNewLine) {
 	if (strings == null) return "null";
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0, length = strings.length; i < length; i++){
 		buffer.append(strings[i]);
 		if (addExtraNewLine || i < length - 1)
@@ -1534,7 +1534,7 @@ public static void zipFiles(File[] files, String zipPath) throws IOException {
  * @return String the problem log
  */
 public static String getProblemLog(CompilationResult compilationResult, boolean showCategory, boolean showWarningToken) {
-	StringBuffer buffer = new StringBuffer(100);
+	StringBuilder buffer = new StringBuilder(100);
 	if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
 		CategorizedProblem[] problems = compilationResult.getAllProblems();
 		int count = problems.length;

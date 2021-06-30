@@ -117,7 +117,7 @@ public String[] getCommandLine() {
  */
 @Override
 protected String buildBootClassPath() {
-	StringBuffer bootPathString = new StringBuffer();
+	StringBuilder bootPathString = new StringBuilder();
 	char pathSeparator = File.pathSeparatorChar;
 
 	if (this.bootPath != null) {

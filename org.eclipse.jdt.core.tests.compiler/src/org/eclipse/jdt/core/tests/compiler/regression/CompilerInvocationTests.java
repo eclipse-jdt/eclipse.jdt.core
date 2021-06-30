@@ -158,7 +158,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 	}
 
 	static String taskTagsAsCutAndPaste(CategorizedProblem tasks[]) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		String arguments[];
 		for (int i = 0; i < tasks.length - 1; i++) {
 			arguments = tasks[i].getArguments();
@@ -182,7 +182,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 	}
 
 	static String taskTagsAsStrings(CategorizedProblem tasks[]) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		String arguments[];
 		for (int i = 0; i < tasks.length; i++) {
 			arguments = tasks[i].getArguments();
