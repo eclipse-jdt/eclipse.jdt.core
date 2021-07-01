@@ -43,8 +43,7 @@ public class DefaultJavaIndexer {
 		Index index = new Index(indexLocation, pathToJar, false /*reuse index file*/);
 		SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 		index.separator = JAR_SEPARATOR;
-		ZipFile zip = new ZipFile(pathToJar);
-		try {
+		try (ZipFile zip = new ZipFile(pathToJar)) {
 			for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 				// iterate each entry to index it
 				ZipEntry ze = (ZipEntry) e.nextElement();
@@ -57,8 +56,6 @@ public class DefaultJavaIndexer {
 				}
 			}
 			index.save();
-		} finally {
-			zip.close();
 		}
 		return;
 	}

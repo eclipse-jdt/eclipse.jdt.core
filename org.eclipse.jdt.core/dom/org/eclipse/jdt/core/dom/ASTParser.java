@@ -1137,12 +1137,8 @@ public class ASTParser {
 							} catch(JavaModelException e) {
 								// an error occured accessing the java element
 								StringWriter stringWriter = new StringWriter();
-								PrintWriter writer = null;
-								try {
-									writer = new PrintWriter(stringWriter);
+								try (PrintWriter writer = new PrintWriter(stringWriter)) {
 									e.printStackTrace(writer);
-								} finally {
-									if (writer != null) writer.close();
 								}
 								throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
 							}
@@ -1211,12 +1207,8 @@ public class ASTParser {
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
 							StringWriter stringWriter = new StringWriter();
-							PrintWriter writer = null;
-							try {
-								writer = new PrintWriter(stringWriter);
+							try (PrintWriter writer = new PrintWriter(stringWriter)) {
 								e.printStackTrace(writer);
-							} finally {
-								if (writer != null) writer.close();
 							}
 							throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
 						}

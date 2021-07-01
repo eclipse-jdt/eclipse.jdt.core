@@ -4104,22 +4104,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	protected Object readState(IProject project) throws CoreException {
 		File file = getSerializationFile(project);
 		if (file != null && file.exists()) {
-			try {
-				DataInputStream in= new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-				try {
-					String pluginID= in.readUTF();
-					if (!pluginID.equals(JavaCore.PLUGIN_ID))
-						throw new IOException(Messages.build_wrongFileFormat);
-					String kind= in.readUTF();
-					if (!kind.equals("STATE")) //$NON-NLS-1$
-						throw new IOException(Messages.build_wrongFileFormat);
-					if (in.readBoolean())
-						return JavaBuilder.readState(project, in);
-					if (JavaBuilder.DEBUG)
-						System.out.println("Saved state thinks last build failed for " + project.getName()); //$NON-NLS-1$
-				} finally {
-					in.close();
-				}
+			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+				String pluginID = in.readUTF();
+				if (!pluginID.equals(JavaCore.PLUGIN_ID))
+					throw new IOException(Messages.build_wrongFileFormat);
+				String kind = in.readUTF();
+				if (!kind.equals("STATE")) //$NON-NLS-1$
+					throw new IOException(Messages.build_wrongFileFormat);
+				if (in.readBoolean())
+					return JavaBuilder.readState(project, in);
+				if (JavaBuilder.DEBUG)
+					System.out.println("Saved state thinks last build failed for " + project.getName()); //$NON-NLS-1$
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Platform.PLUGIN_ERROR, "Error reading last build state for project "+ project.getName(), e)); //$NON-NLS-1$
@@ -4336,8 +4331,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (file == null) return;
 		long t = System.currentTimeMillis();
 		try {
-			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-			try {
+			try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
 				out.writeUTF(JavaCore.PLUGIN_ID);
 				out.writeUTF("STATE"); //$NON-NLS-1$
 				if (info.savedState == null) {
@@ -4346,8 +4340,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					out.writeBoolean(true);
 					JavaBuilder.writeState(info.savedState, out);
 				}
-			} finally {
-				out.close();
 			}
 		} catch (RuntimeException | IOException e) {
 			try {
