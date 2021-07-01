@@ -61,7 +61,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 	public void testEmptyLineComments() throws Exception {
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("\n");
 
 		LineCommentEndOffsets offsets= new LineCommentEndOffsets(null);
@@ -75,7 +75,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;//comment Y\n");
 		buf.append("public class E//comment Y\n");
 		buf.append("{//comment Y\n");
@@ -135,7 +135,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("/* comment */\n");
 		buf.append("// comment Y\n");
@@ -186,7 +186,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testLineCommentEndOffsetsMixedLineDelimiter() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("/* comment */\r\n");
 		buf.append("// comment Y\n");
@@ -233,7 +233,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testCommentInLists_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E implements A //comment\n");
 		buf.append("{\n");
@@ -254,7 +254,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E implements A //comment\n");
 		buf.append(", B\n");
@@ -266,7 +266,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testCommentInType_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E //comment\n");
 		buf.append("{\n");
@@ -287,7 +287,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E //comment\n");
 		buf.append(" implements B\n");
@@ -299,7 +299,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testBug103340_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E //implements List\n");
 		buf.append("{\n");
@@ -321,7 +321,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E //implements List\n");
 		buf.append("<X>\n");
@@ -333,7 +333,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testBug95839_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -360,7 +360,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -377,7 +377,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testBug114418_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -409,7 +409,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -427,7 +427,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testBug128818_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -452,7 +452,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -468,7 +468,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testBug128422_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -495,7 +495,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -511,7 +511,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testBug128422b_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -541,7 +541,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("  void foo() {\n");
@@ -566,7 +566,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 	public void testCommentAtEnd_since_3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E \n");
 		buf.append("{\n");
@@ -587,7 +587,7 @@ public class LineCommentOffsetsTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E \n");
 		buf.append("{\n");

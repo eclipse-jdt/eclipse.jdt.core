@@ -745,7 +745,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = resources.length; i < length; i++) {
 			if (resources[i] instanceof IResource) {
 				buffer.append(((IResource) resources[i]).getFullPath().toString());
@@ -769,7 +769,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = resources.length; i < length; i++) {
 			if (resources[i] instanceof IResource) {
 				buffer.append(((IResource)resources[i]).getName());
@@ -862,7 +862,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertElementsEqual(message, expected, elements, showResolvedInfo, false);
 	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo, boolean sorted) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
 				JavaElement element = (JavaElement)elements[i];
@@ -929,7 +929,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertMarkers(message, expectedMarkers, markers);
 	}
 	protected void assertMarkers(String message, String expectedMarkers, IMarker[] markers) throws CoreException {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (markers != null) {
 			for (int i = 0, length = markers.length; i < length; i++) {
 				IMarker marker = markers[i];
@@ -1169,7 +1169,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (classpath == null) {
 			actual = "<null>";
 		} else {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			int length = classpath.length;
 			for (int i=0; i<length; i++) {
 				buffer.append(classpath[i]);
@@ -1188,7 +1188,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (roots == null) {
 			actual = "<null>";
 		} else {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			int length = roots.length;
 			for (int i=0; i<length; i++) {
 				buffer.append(roots[i]);
@@ -1334,7 +1334,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void assertTypesEqual(String message, String expected, IType[] types, boolean sort) {
 		if (sort) sortTypes(types);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < types.length; i++){
 			if (types[i] == null)
 				buffer.append("<null>");
@@ -1349,7 +1349,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals(message, expected, actual);
 	}
 	protected void assertTypeParametersEqual(String expected, ITypeParameter[] typeParameters) throws JavaModelException {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < typeParameters.length; i++) {
 			ITypeParameter typeParameter = typeParameters[i];
 			buffer.append(typeParameter.getElementName());
@@ -2930,7 +2930,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		for (int n=0; index >= 0 && n<max; n++) {
 			index = occurences < 0 ? source.lastIndexOf(selection, index) : source.indexOf(selection, index+selection.length());
 		}
-		StringBuffer msg = new StringBuffer("Selection '");
+		StringBuilder msg = new StringBuilder("Selection '");
 		msg.append(selection);
 		if (index >= 0) {
 			if (selection.startsWith("/**")) { // comment is before

@@ -892,7 +892,7 @@ public void testContainerInitializer19() throws CoreException {
 public void testContainerInitializer20() throws CoreException {
 	try {
 		IJavaProject p = createJavaProject("P");
-		final StringBuffer paths = new StringBuffer();
+		final StringBuilder paths = new StringBuilder();
 		DefaultContainerInitializer initializer = new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
 			@Override
 			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
@@ -1161,7 +1161,7 @@ public void testVariableInitializer03() throws CoreException {
 }
 public void testVariableInitializer04() throws CoreException {
 	try {
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
 			@Override
 			public void initialize(String variable) throws JavaModelException {
@@ -1183,7 +1183,7 @@ public void testVariableInitializer04() throws CoreException {
 }
 public void testVariableInitializer05() throws CoreException {
 	try {
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
 			@Override
 			public void initialize(String variable) throws JavaModelException {
@@ -1212,7 +1212,7 @@ public void testVariableInitializer05() throws CoreException {
  */
 public void testVariableInitializer06() throws CoreException {
 	try {
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		VariablesInitializer.setInitializer(new VariablesInitializer.ITestInitializer() {
 			@Override
 			public void initialize(String variable) {
@@ -1600,7 +1600,7 @@ public void testUserLibraryInitializer1() throws Exception {
 		// Modify user library
 		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SWT";
-		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		StringBuilder propertyValue = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
 		propertyValue.append(" path=\""+jarFullPath);
 		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
@@ -1624,7 +1624,7 @@ public void testUserLibraryInitializer1() throws Exception {
 		assertNull("Project 61872 classpath entry should not have any source attached!", entries[0].getSourceAttachmentPath());
 
 		// Modify user library
-		propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		propertyValue = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		String srcFullPath = getWorkspaceRoot().getLocation().append(srcFile.getFullPath()).toString();
 		propertyValue.append(" sourceattachment=\""+srcFullPath);
 		propertyValue.append("\" path=\""+jarFullPath);
@@ -1657,14 +1657,14 @@ public void testBug346002() throws Exception {
 	IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 	String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+ "TEST";
 
-	StringBuffer propertyValue = new StringBuffer(
+	StringBuilder propertyValue = new StringBuilder(
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"2\">\r\n<archive");
 	propertyValue.append(" path=\"" + libPath + "\"/>\r\n");
 	propertyValue.append("</userlibrary>\r\n");
 	preferences.put(propertyName, propertyValue.toString());
 
 	propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX + "INVALID";
-	propertyValue = new StringBuffer(
+	propertyValue = new StringBuilder(
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"2\">\r\n<archive");
 	propertyValue.append(" path=\"\"/>");
 	propertyValue.append("</userlibrary>\r\n");

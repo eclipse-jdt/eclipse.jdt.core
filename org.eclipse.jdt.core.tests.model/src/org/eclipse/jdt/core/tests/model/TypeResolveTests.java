@@ -72,7 +72,7 @@ private String[][] resolveType(String typeName, String sourceTypeName) throws Ja
 	return sourceType.resolveType(typeName);
 }
 protected void assertTypesEqual(String expected, String[][] types) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if(types != null) {
 		for (int i = 0, length = types.length; i < length; i++) {
 			String[] qualifiedName = types[i];

@@ -329,7 +329,7 @@ static public String getPluginDirectoryPath() {
  */
 static public String getPluginDirectoryPath(String type) {
 	try {
-		StringBuffer bundleName = new StringBuffer("org.eclipse.jdt.core.tests");
+		StringBuilder bundleName = new StringBuilder("org.eclipse.jdt.core.tests");
 		if (type != null) {
 			bundleName.append('.');
 			bundleName.append(type);
@@ -382,7 +382,7 @@ static public byte[] read(java.io.File file) throws java.io.IOException {
  */
 public static String removeWhiteSpace(String input) {
 	StringTokenizer tokenizer = new StringTokenizer(input);
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	while (tokenizer.hasMoreTokens()) {
 		buffer.append(tokenizer.nextToken());
 	}
@@ -475,7 +475,7 @@ static public void setUpJCLClasspathVariables(String compliance) throws JavaMode
  */
 public static String trimLinesLeadingWhitespaces(String input) {
 	StringTokenizer tokenizer = new StringTokenizer(input, "\r\n\f");
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	while (tokenizer.hasMoreTokens()) {
 		String line = tokenizer.nextToken();
 		int length = line.length();
@@ -501,7 +501,7 @@ public static String trimLinesLeadingWhitespaces(String input) {
 			if (splitLineIndex > 0) {
 				int commentStart = line.indexOf("/*", splitLineIndex);
 				if (commentStart >= 80-((size*3)/4)) {
-					StringBuffer newLine = new StringBuffer(line.substring(idx-1, splitLineIndex).trim());
+					StringBuilder newLine = new StringBuilder(line.substring(idx-1, splitLineIndex).trim());
 					newLine.append('\n');
 					newLine.append(line.substring(splitLineIndex).trim());
 					newLine.append('\n');

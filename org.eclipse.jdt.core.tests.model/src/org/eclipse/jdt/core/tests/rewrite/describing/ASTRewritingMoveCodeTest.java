@@ -58,7 +58,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMove_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    int x;\n");
@@ -81,7 +81,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -94,7 +94,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveDeclSameLevelCD() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -173,7 +173,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    private /* inner comment */ int i;\n");
@@ -205,7 +205,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveDeclSameLevel() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -280,7 +280,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    private /* inner comment */ int i;\n");
@@ -313,7 +313,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveDeclDifferentLevelCD_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -398,7 +398,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -433,7 +433,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveDeclDifferentLevel_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -513,7 +513,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -548,7 +548,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveStatementsCD() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -620,7 +620,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    public static class EInner {\n");
@@ -651,7 +651,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveStatements() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    private /* inner comment */ int i;\n");
@@ -713,7 +713,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E extends Exception implements Runnable, Serializable {\n");
 		buf.append("    private /* inner comment */ int i;\n");
@@ -739,7 +739,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyFromDeleted() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -780,7 +780,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void goo() {\n");
@@ -795,7 +795,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testChangesInMoveCD() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -846,7 +846,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -864,7 +864,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testChangesInMove() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -916,7 +916,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -934,7 +934,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testSwapCD() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -974,7 +974,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -987,7 +987,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testSwap() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1027,7 +1027,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1041,7 +1041,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMultipleCopiesOfSameNode() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1075,7 +1075,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1093,7 +1093,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyMultipleNodes() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1129,7 +1129,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1147,7 +1147,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyMultipleNodes0() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1193,7 +1193,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1212,7 +1212,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyMultipleNodes1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1260,7 +1260,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1280,7 +1280,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyMultipleNodes2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1316,7 +1316,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1329,7 +1329,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyMultipleNodes3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1370,7 +1370,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1391,7 +1391,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testCopyMultipleNodes4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1436,7 +1436,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1455,7 +1455,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMultipleCopiesOfSameNodeAndMove() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1492,7 +1492,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1510,7 +1510,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveMultipleNodes() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1546,7 +1546,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1562,7 +1562,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveMultipleNodes2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1605,7 +1605,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1623,7 +1623,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveMultipleNodes3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1664,7 +1664,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1681,7 +1681,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveMultipleNodes4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1728,7 +1728,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testReplaceMoveMultiple() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1760,7 +1760,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1777,7 +1777,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveForStatementToForBlockCD() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1809,7 +1809,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1824,7 +1824,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 	public void testMoveForStatementToForBlock() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1856,7 +1856,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -1872,7 +1872,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 	public void testNestedCopies_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo(Object o) {\n");
@@ -1904,7 +1904,7 @@ public class ASTRewritingMoveCodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo(Object o) {\n");

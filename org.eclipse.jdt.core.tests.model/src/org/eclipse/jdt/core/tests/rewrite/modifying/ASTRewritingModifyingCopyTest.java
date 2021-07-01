@@ -61,7 +61,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 	public void test0001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0001", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0001;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -88,7 +88,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0001;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -111,7 +111,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	 */
 	public void test0002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0002", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0002;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -141,7 +141,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0002;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -166,7 +166,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	/** @deprecated using deprecated code */
 	public void test0003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0003", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0003;\n");
 		buf.append("\n");
 		buf.append("public class X extends Z1\n");
@@ -194,7 +194,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0003;\n");
 		buf.append("\n");
 		buf.append("public class X extends Z1\n");
@@ -213,7 +213,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	/** @deprecated using deprecated code */
 	public void test0004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0004", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0004;\n");
 		buf.append("\n");
 		buf.append("public class X extends Z1\n");
@@ -243,7 +243,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0004;\n");
 		buf.append("\n");
 		buf.append("public class X extends Z1\n");
@@ -261,7 +261,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	/** @deprecated using deprecated code */
 	public void test0005() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0005", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0005;\n");
 		buf.append("\n");
 		buf.append("public class X extends Z1\n");
@@ -292,7 +292,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0005;\n");
 		buf.append("\n");
 		buf.append("public class X extends Z1\n");
@@ -309,7 +309,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 	public void test0006() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0006", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0006;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -341,7 +341,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0006;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -363,7 +363,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	/** @deprecated using deprecated code */
 	public void test0007() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test; public class Test { }");
 		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", buf.toString(), false, null);
 
@@ -399,7 +399,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test; public class Test {\n");
 		buf.append("\n");
 		buf.append("    void foo(){this.x;} }");
@@ -408,7 +408,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304656
 	public void test0008() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0008", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0008;\n" +
 				"\n" +
 				"public class TestClass {\n" +
@@ -495,7 +495,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 		}
 		String preview = evaluateRewrite(cu, compilationUnit);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0008;\n");
 		buf.append("\n");
 		buf.append("public class TestClass {\n");
@@ -529,7 +529,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 	public void test0009() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0007", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0007;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -562,7 +562,7 @@ public class ASTRewritingModifyingCopyTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, compilationUnit);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0007;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");

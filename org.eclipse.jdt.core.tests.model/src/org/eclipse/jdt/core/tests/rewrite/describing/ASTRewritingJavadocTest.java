@@ -39,7 +39,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testParamName() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -73,7 +73,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -89,7 +89,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	public void testEmptyParamName() throws Exception {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=560055
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -128,7 +128,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -144,7 +144,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	public void testEmptyThrows() throws Exception {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=560055
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -183,7 +183,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -198,7 +198,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testSeeTag1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -232,7 +232,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -248,7 +248,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testSeeTag2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -282,7 +282,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -299,7 +299,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testSeeTag3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -333,7 +333,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -349,7 +349,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testSeeTagParamInsert1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -386,7 +386,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -402,7 +402,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testSeeTagParamInsert2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -443,7 +443,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -459,7 +459,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagInsert1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -495,7 +495,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -512,7 +512,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagInsert2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -548,7 +548,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -565,7 +565,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagInsert3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -614,7 +614,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -629,7 +629,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagInsert4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -666,7 +666,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -684,7 +684,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagRemove1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -712,7 +712,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -727,7 +727,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagRemove2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -756,7 +756,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -772,7 +772,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagRemove3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -802,7 +802,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -817,7 +817,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testTagRemove4_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("/**\n");
 		buf.append(" * @author xy\n");
 		buf.append(" */\n");
@@ -832,14 +832,14 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		assertEqualString(preview, buf.toString());
 	}
 
 	public void testTagRemoveInsert() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -880,7 +880,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -897,7 +897,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testAddJavadoc_only_2_3_4() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -929,7 +929,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -945,7 +945,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testAddJavadoc2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -976,7 +976,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -991,7 +991,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testRemoveJavadoc() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -1014,7 +1014,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -1027,7 +1027,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testRemoveJavadoc2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("/**\n");
 		buf.append(" * @since 1.1\n");
@@ -1048,7 +1048,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("}\n");
@@ -1057,7 +1057,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 	}
 	public void testMoveTags() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -1091,7 +1091,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -1110,7 +1110,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 	public void testChangeTagElement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");
@@ -1145,7 +1145,7 @@ public class ASTRewritingJavadocTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("\n");

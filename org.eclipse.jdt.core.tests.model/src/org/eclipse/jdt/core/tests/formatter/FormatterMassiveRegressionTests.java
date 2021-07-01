@@ -568,7 +568,7 @@ private static String buildProfileString() {
 	}
 	String builtProfile = null;
 	if (hasProfile) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		String separator = "";
 		if (JOIN_LINES != null) {
 			buffer.append("join_lines="+JOIN_LINES);
@@ -1053,7 +1053,7 @@ public FormatterMassiveRegressionTests(File inputDir, File file, int index, int 
  * @see junit.framework.TestCase#getName()
  */
 public String getName() {
-	StringBuffer name = new StringBuffer(super.getName());
+	StringBuilder name = new StringBuilder(super.getName());
 	if (this.testIndex >= 0) {
 		int n = this.testIndex == 0 ? 0 : (int) (Math.log(this.testIndex)/Math.log(10));
 		int max = ((int[])MAX_FILES.get(this.inputDir))[1];
@@ -1304,7 +1304,7 @@ public void tearDown() throws Exception {
 public void tearDownSuite() throws Exception {
 
 	// Display time measures
-	StringBuffer buffer1 = new StringBuffer();
+	StringBuilder buffer1 = new StringBuilder();
 	if (CLEAN) {
 //		buffer1.append(" cannot be done as the directory was cleaned!");
 //		buffer1.append(LINE_SEPARATOR);
@@ -1340,7 +1340,7 @@ public void tearDownSuite() throws Exception {
 		}
 	}
 	buffer1.append(LINE_SEPARATOR);
-	StringBuffer buffer2 = new StringBuffer(LINE_SEPARATOR);
+	StringBuilder buffer2 = new StringBuilder(LINE_SEPARATOR);
 	for (int i=0; i<max; i++) {
 		List failures = FAILURES[i].failures;
 		int size = failures.size();
@@ -1461,7 +1461,7 @@ void compareFormattedSource() throws IOException, Exception {
 
 private String counterToString(int count) {
 	int reminder = count%10;
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(count);
 	switch (reminder) {
 		case 1:
@@ -1698,7 +1698,7 @@ String runFormatter(CodeFormatter codeFormatter, String source, int kind, int in
 public String timeString(long time) {
 	NumberFormat format = NumberFormat.getInstance();
 	format.setMaximumFractionDigits(3);
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (time == 0) {
 		// print nothing
 	} else {

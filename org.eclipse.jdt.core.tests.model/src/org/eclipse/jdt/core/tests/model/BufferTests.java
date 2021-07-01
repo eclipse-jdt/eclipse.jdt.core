@@ -555,7 +555,7 @@ protected void assertBufferEvent(int offset, int length, String text) {
 }
 
 protected void assertBufferEvents(String expected) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (this.events == null)
 		buffer.append("<null>");
 	else {

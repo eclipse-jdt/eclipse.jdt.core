@@ -244,7 +244,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected void assertExtraDimensionsEqual(String message, List dimensions, String expected) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Iterator iter = dimensions.iterator();
 		while(iter.hasNext()) {
 			Dimension dim = (Dimension) iter.next();
@@ -259,7 +259,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	protected String convertAnnotationsList(List annotations) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Iterator iter = annotations.iterator();
 		while (iter.hasNext()) {
 			buffer.append('@');

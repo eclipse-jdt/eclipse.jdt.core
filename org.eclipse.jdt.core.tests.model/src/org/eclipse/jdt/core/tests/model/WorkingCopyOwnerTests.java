@@ -104,7 +104,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	}
 
 	protected void assertTypeBindingsEqual(String message, String expected, ITypeBinding[] types) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (types == null) {
 			buffer.append("<null>");
 		} else {

@@ -148,7 +148,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			String[] strings = new String[length];
 			this.results.toArray(strings);
 			org.eclipse.jdt.internal.core.util.Util.sort(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -176,7 +176,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			String[] strings = new String[length];
 			this.results.toArray(strings);
 			org.eclipse.jdt.internal.core.util.Util.sort(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -189,7 +189,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			int length = this.results.size();
 			String[] strings = new String[length];
 			this.results.toArray(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {

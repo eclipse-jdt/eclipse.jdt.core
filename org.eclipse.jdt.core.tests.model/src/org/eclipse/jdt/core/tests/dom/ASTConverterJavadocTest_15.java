@@ -332,7 +332,7 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 	protected void setSourceComment(char[] source) throws ArrayIndexOutOfBoundsException {
 		this.comments = new ArrayList();
 		this.allTags = new ArrayList();
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		int comment = 0;
 		boolean end = false, lineStarted = false;
 		String tag = null;
@@ -356,7 +356,7 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 					switch (currentChar) {
 						case '/':
 							comment = 1; // first char for comments...
-							buffer = new StringBuffer();
+							buffer = new StringBuilder();
 							if (this.chars == null) buffer.append(currentChar);
 							else buffer.append(this.chars);
 							break;

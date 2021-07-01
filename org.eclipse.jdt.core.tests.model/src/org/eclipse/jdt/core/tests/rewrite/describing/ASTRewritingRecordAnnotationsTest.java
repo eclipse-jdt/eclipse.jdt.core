@@ -81,7 +81,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public record X() {\n");
@@ -127,7 +127,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((ASTNode)annotations.get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public record X() {\n");
@@ -149,7 +149,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public record X() {\n");
@@ -222,7 +222,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) wildcardType2.annotations().get(0), markerAnnotation2, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("public record X() {\n");
@@ -251,7 +251,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("public record X() {\n");
 		buf.append("	public record Helper<T>() {\n");
@@ -295,7 +295,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("public record X() {\n");
 		buf.append("	public record Helper<T>() {\n");
 		buf.append("	}\n");
@@ -314,7 +314,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
@@ -358,7 +358,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -383,7 +383,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
@@ -428,7 +428,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.remove((ASTNode) simpleType.annotations().get(0), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -452,7 +452,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
@@ -503,7 +503,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation)simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -535,7 +535,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
@@ -579,7 +579,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -604,7 +604,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
@@ -654,7 +654,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -682,7 +682,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append(" \n");
 		buf.append("public record X() {\n");
@@ -729,7 +729,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) simpleType.annotations().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append(" \n");
 		buf.append("public record X() {\n");
@@ -754,7 +754,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -791,7 +791,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.replace((MarkerAnnotation) methodDeclaration.modifiers().get(0), markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -815,7 +815,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
@@ -865,7 +865,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.getListRewrite(simpleType, SimpleType.ANNOTATIONS_PROPERTY).insertBefore(markerAnnotation, (MarkerAnnotation) simpleType.annotations().get(1), null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("import java.lang.annotation.ElementType;\n");
 		buf.append("\n");
 		buf.append("public record X() {\n");
@@ -889,7 +889,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public record X() {\n");
 		buf.append("	static String myObject = \"Foo\";\n");
@@ -915,7 +915,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 			rewrite.getListRewrite(simpleType, SimpleType.ANNOTATIONS_PROPERTY).insertLast(markerAnnotation, null);
 		}
 		String preview= evaluateRewrite(cu, rewrite);
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public record X() {\n");
 		buf.append("	static String myObject = \"Foo\";\n");
@@ -966,7 +966,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 				"class FileNotFoundException extends Exception{private static final long serialVersionUID=10002L;}\n" +
 				"class EOFException extends Exception{private static final long serialVersionUID=10003L;}\n" +
 				"class IOError extends Exception{private static final long serialVersionUID=10004L;}\n";
-		StringBuffer buf = new StringBuffer(contents);
+		StringBuilder buf = new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu, /* resolve */ true, false);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -1074,7 +1074,7 @@ public class ASTRewritingRecordAnnotationsTest extends ASTRewritingTest {
 				 "@Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
 				 "@interface Marker2 {}\n";
 
-		StringBuffer buf = new StringBuffer(contents);
+		StringBuilder buf = new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu, /* resolve */ true, false);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());

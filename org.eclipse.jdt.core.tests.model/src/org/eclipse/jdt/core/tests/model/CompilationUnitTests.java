@@ -2687,7 +2687,7 @@ public void testBug526615() throws CoreException {
 				"package test1;\n" +
 				"public abstract class B {}");
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("/**\n");
 		buf.append(" * Lore ipsum dolor sit amet, consectetur adipisici elit,\n");

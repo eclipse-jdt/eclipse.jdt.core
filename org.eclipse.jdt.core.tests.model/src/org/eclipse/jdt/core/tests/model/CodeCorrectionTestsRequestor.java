@@ -77,7 +77,7 @@ public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
 	public String getSuggestions(){
 		Suggestion[] sortedSuggestions = getSortedSuggestions();
 
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < sortedSuggestions.length; i++) {
 			if(i != 0)
 				result.append('\n');
@@ -90,7 +90,7 @@ public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
 	public String getStarts(){
 		Suggestion[] sortedSuggestions = getSortedSuggestions();
 
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < sortedSuggestions.length; i++) {
 			if(i != 0)
 				result.append('\n');
@@ -103,7 +103,7 @@ public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
 	public String getEnds(){
 		Suggestion[] sortedSuggestions = getSortedSuggestions();
 
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < sortedSuggestions.length; i++) {
 			if(i != 0)
 				result.append('\n');

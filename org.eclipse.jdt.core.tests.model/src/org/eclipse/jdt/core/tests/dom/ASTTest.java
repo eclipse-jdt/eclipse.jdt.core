@@ -6754,7 +6754,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * source ranges to all nodes.
 	 */
 	void assignSourceRanges(ASTNode target) {
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		final List stack = new ArrayList();
 		// pretend that every construct begins with "(" and ends with ")"
 		class PositionAssigner extends ASTVisitor {

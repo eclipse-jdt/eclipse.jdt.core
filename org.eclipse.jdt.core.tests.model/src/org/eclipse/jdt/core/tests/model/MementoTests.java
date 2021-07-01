@@ -80,7 +80,7 @@ String getEscapedJrtJarPath() {
 	return getEscapedPath(System.getProperty("java.home")+"/lib/jrt-fs.jar");
 }
 protected String getEscapedPath(String path) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < path.length(); i++) {
 		char character = path.charAt(i);
 		if (character == '/') buffer.append('\\');

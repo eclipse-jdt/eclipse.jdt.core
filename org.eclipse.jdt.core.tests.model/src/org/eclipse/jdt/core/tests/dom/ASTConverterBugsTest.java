@@ -52,7 +52,7 @@ public static Test suite() {
 protected void checkParameterAnnotations(String message, String expected, IMethodBinding methodBinding) {
 	ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
 	int size = parameterTypes == null ? 0 : parameterTypes.length;
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i=0; i<size; i++) {
 		buffer.append("----- param ");
 		buffer.append(i+1);

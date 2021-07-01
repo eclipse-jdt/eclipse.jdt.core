@@ -2857,7 +2857,7 @@ public void testBug469668() throws CoreException, IOException {
 	try {
 		project = createJavaProject("Bug469668", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug469668/src/hierarchy");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 1; i < 21; i++) {
 			String unitName = "I" + i;
 			String content = "package hierarchy;\n" +

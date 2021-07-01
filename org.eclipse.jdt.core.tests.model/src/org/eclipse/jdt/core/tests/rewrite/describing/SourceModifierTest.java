@@ -37,7 +37,7 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 	}
 
 	public void testRemoveIndents() throws Exception {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -70,7 +70,7 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 
 		String preview= buffer.get();
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -88,7 +88,7 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 	}
 
 	public void testAddIndents() throws Exception {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -121,7 +121,7 @@ public class SourceModifierTest extends AbstractJavaModelTests {
 
 		String preview= buffer.get();
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
