@@ -384,16 +384,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 	private static final String SOURCE_MAPPER_DEBUG_VERBOSE = JavaCore.PLUGIN_ID + "/debug/sourcemapper" ; //$NON-NLS-1$
 	private static final String FORMATTER_DEBUG = JavaCore.PLUGIN_ID + "/debug/formatter" ; //$NON-NLS-1$
-	private static final String INDEX_DEBUG_LARGE_CHUNKS = JavaCore.PLUGIN_ID + "/debug/index/freespacetest" ; //$NON-NLS-1$
-	private static final String INDEX_DEBUG_PAGE_CACHE = JavaCore.PLUGIN_ID + "/debug/index/pagecache" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_DEBUG = JavaCore.PLUGIN_ID + "/debug/index/indexer" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_INSERTIONS = JavaCore.PLUGIN_ID + "/debug/index/insertions" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_SCHEDULING = JavaCore.PLUGIN_ID + "/debug/index/scheduling" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_SELFTEST = JavaCore.PLUGIN_ID + "/debug/index/selftest" ; //$NON-NLS-1$
-	private static final String INDEX_LOCKS_DEBUG = JavaCore.PLUGIN_ID + "/debug/index/locks" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_SPACE = JavaCore.PLUGIN_ID + "/debug/index/space" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_TIMING = JavaCore.PLUGIN_ID + "/debug/index/timing" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_LOG_SIZE_MEGS = JavaCore.PLUGIN_ID + "/debug/index/logsizemegs"; //$NON-NLS-1$
 
 	public static final String COMPLETION_PERF = JavaCore.PLUGIN_ID + "/perf/completion" ; //$NON-NLS-1$
 	public static final String SELECTION_PERF = JavaCore.PLUGIN_ID + "/perf/selection" ; //$NON-NLS-1$
