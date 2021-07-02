@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
@@ -99,7 +103,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit4 = 0x8;					// return type (operator) | first assignment to local (name ref,local decl) | undocumented empty block (block, type and method decl)
 	public final static int Bit5 = 0x10;					// value for return (expression) | has all method bodies (unit) | supertype ref (type ref) | resolved (field decl)| name ref (yield result value)
 	public final static int Bit6 = 0x20;					// depth (name ref, msg) | ignore need cast check (cast expression) | error in signature (method declaration/ initializer) | is recovered (annotation reference)
-	public final static int Bit7 = 0x40;					// depth (name ref, msg) | need runtime checkcast (cast expression) | label used (labelStatement) | needFreeReturn (AbstractMethodDeclaration)
+	public final static int Bit7 = 0x40;					// depth (name ref, msg) | need runtime checkcast (cast expression) | label used (labelStatement) | needFreeReturn (AbstractMethodDeclaration) | Used in Pattern Guard expression (NameReference)
 	public final static int Bit8 = 0x80;					// depth (name ref, msg) | unsafe cast (cast expression) | is default constructor (constructor declaration) | isElseStatementUnreachable (if statement)
 	public final static int Bit9 = 0x100;				// depth (name ref, msg) | operator (operator) | is local type (type decl) | isThenStatementUnreachable (if statement) | can be static
 	public final static int Bit10= 0x200;				// depth (name ref, msg) | operator (operator) | is anonymous type (type decl) | is implicit constructor (constructor)
@@ -199,6 +203,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int DepthSHIFT = 5;	// Bit6 -> Bit13
 	public static final int DepthMASK = Bit6|Bit7|Bit8|Bit9|Bit10|Bit11|Bit12|Bit13; // 8 bits for actual depth value (max. 255)
 	public static final int IsCapturedOuterLocal = Bit20;
+	public static final int IsUsedInPatternGuard = Bit7;
 	public static final int IsSecretYieldValueUsage = Bit5;
 
 	// for statements

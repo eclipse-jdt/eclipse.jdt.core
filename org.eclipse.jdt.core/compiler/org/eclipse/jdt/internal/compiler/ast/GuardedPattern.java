@@ -110,6 +110,18 @@ public class GuardedPattern extends Pattern {
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
 		this.condition.resolveType(scope);
+		this.condition.traverse(new ASTVisitor() {
+			@Override
+			public boolean visit(
+					SingleNameReference ref,
+					BlockScope skope) {
+				LocalVariableBinding local = ref.localVariableBinding();
+				if (local != null) {
+					ref.bits |= ASTNode.IsUsedInPatternGuard;
+				}
+				return false;
+			}
+		}, scope);
 		this.resolvedPattern = new GuardedPatternBinding(this.primaryPattern.resolvedPattern);
 		return this.resolvedType;
 	}

@@ -1292,6 +1292,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SealedNotDirectSuperInterface", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedLocalDirectSuperTypeSealed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SealedAnonymousClassCannotExtendSealedType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("LocalReferencedInGuardMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SafeVarargsOnSyntheticRecordAccessor", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternPatternKindNotAllowed", new ProblemAttributes(true));
@@ -2356,6 +2357,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SealedNotDirectSuperInterface", SKIP);
 	    expectedProblemAttributes.put("SealedLocalDirectSuperTypeSealed", SKIP);
 	    expectedProblemAttributes.put("SealedAnonymousClassCannotExtendSealedType", SKIP);
+	    expectedProblemAttributes.put("LocalReferencedInGuardMustBeEffectivelyFinal", SKIP);
 	    expectedProblemAttributes.put("SafeVarargsOnSyntheticRecordAccessor", SKIP);
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternPatternKindNotAllowed", SKIP);

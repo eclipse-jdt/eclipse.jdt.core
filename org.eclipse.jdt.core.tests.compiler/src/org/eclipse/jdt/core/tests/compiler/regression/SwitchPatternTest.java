@@ -1202,4 +1202,104 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
 		runner.runConformTest();
 	}
+	// A non effectively final referenced from the RHS of the guarding expression
+	// is reported by the compiler.
+	public void testBug574612_1() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		int len = 2;\n"
+						+ "		switch (o) {\n"
+						+ "		case String o1 && o1.length() > len:\n"
+						+ "			len = 0;\n"
+						+ "		break;\n"
+						+ "		default:\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case String o1 && o1.length() > len:\n" +
+				"	                                ^^^\n" +
+				"Local variable len referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	// A non effectively final referenced from the LHS of the guarding expression
+	// is reported by the compiler.
+	public void testBug574612_2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		int len = 2;\n"
+						+ "		switch (o) {\n"
+						+ "		case String o1 && len < o1.length():\n"
+						+ "			len = 0;\n"
+						+ "		break;\n"
+						+ "		default:\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case String o1 && len < o1.length():\n" +
+				"	                  ^^^\n" +
+				"Local variable len referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	// An explicitly final local variable, also referenced in a guarding expression of a pattern
+	// and later on re-assigned is only reported for the explicit final being modified
+	public void testBug574612_3() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		final int len = 2;\n"
+						+ "		switch (o) {\n"
+						+ "		case String o1 && len < o1.length():\n"
+						+ "			len = 0;\n"
+						+ "		break;\n"
+						+ "		default:\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	len = 0;\n" +
+				"	^^^\n" +
+				"The final local variable len cannot be assigned. It must be blank and not using a compound assignment\n" +
+				"----------\n");
+	}
+	public void testBug574612_4() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void foo(Object o) {\n"
+						+ "		int len = 2;\n"
+						+ "		switch (o) {\n"
+						+ "		case String o1 && len < o1.length():\n"
+						+ "			System.out.println(o1);\n"
+						+ "		break;\n"
+						+ "		default:\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) throws Exception {\n"
+						+ "		foo(\"hello\");\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"hello");
+	}
 }

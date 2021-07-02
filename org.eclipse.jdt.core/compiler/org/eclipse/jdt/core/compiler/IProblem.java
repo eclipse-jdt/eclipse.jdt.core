@@ -2463,4 +2463,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int SwitchPatternPatternKindNotAllowed = PreviewRelated + 1900;
+	/**
+	 * @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error
+	 */
+	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1901;
 }

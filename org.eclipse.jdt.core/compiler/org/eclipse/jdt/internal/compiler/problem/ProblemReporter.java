@@ -1491,6 +1491,15 @@ public void cannotReferToNonFinalField(VariableBinding local, ASTNode location) 
 		nodeSourceStart(local, location),
 		nodeSourceEnd(local, location));
 }
+public void cannotReferToNonFinalLocalInGuard(VariableBinding local, ASTNode location) {
+	String[] arguments = new String[] { new String(local.readableName()) };
+	this.handle(
+		IProblem.LocalReferencedInGuardMustBeEffectivelyFinal,
+		arguments,
+		arguments,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
 public void cannotReturnInInitializer(ASTNode location) {
 	this.handle(
 		IProblem.CannotReturnInInitializer,
