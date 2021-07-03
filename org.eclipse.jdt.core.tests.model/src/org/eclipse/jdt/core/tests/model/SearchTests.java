@@ -356,6 +356,10 @@ public void tearDownSuite() throws Exception {
  * a project causes another request to reindex.
  */
 public void testChangeClasspath() throws CoreException, TimeOutException {
+	boolean indexDisabled = isIndexDisabledForTest();
+	if(indexDisabled) {
+		JavaModelManager.getIndexManager().enable();
+	}
 	WaitingJob job = new WaitingJob();
 	try {
 		// setup: suspend indexing and create a project (prj=src) with one cu
@@ -391,6 +395,9 @@ public void testChangeClasspath() throws CoreException, TimeOutException {
 	} finally {
 		job.resume();
 		deleteProject("P1");
+		if(indexDisabled) {
+			JavaModelManager.getIndexManager().disable();
+		}
 	}
 }
 /*

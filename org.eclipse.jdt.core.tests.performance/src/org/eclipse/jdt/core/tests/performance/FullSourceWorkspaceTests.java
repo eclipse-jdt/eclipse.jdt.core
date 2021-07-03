@@ -14,21 +14,62 @@
 
 package org.eclipse.jdt.core.tests.performance;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
-import junit.framework.*;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.builder.TestingEnvironment;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.performance.util.JdtCorePerformanceMeter;
 import org.eclipse.jdt.core.tests.performance.util.Statistics;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -42,6 +83,9 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.test.internal.performance.data.DataPoint;
 import org.eclipse.test.performance.Dimension;
 import org.eclipse.test.performance.Performance;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -1099,7 +1143,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Simulate a save/exit of the workspace
 	 */
 	protected void simulateExit() throws CoreException {
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitForAutoBuild();
 		ResourcesPlugin.getWorkspace().save(true/*full save*/, null/*no progress*/);
 		JavaModelManager.getJavaModelManager().shutdown();
 	}
@@ -1263,5 +1307,64 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	protected String getExternalResourcePath(String relativePath) {
 		return getExternalPath() + relativePath;
+	}
+
+	public void waitForManualRefresh() {
+		boolean wasInterrupted = false;
+		do {
+			try {
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
+				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
+				wasInterrupted = false;
+			} catch (OperationCanceledException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				wasInterrupted = true;
+			}
+		} while (wasInterrupted);
+	}
+
+	/**
+	 * Wait for autobuild notification to occur
+	 */
+	public void waitForAutoBuild() {
+		boolean wasInterrupted = false;
+		do {
+			try {
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
+				wasInterrupted = false;
+			} catch (OperationCanceledException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				wasInterrupted = true;
+			}
+		} while (wasInterrupted);
+	}
+
+	public void waitUntilIndexesReady() throws JavaModelException {
+		// dummy query for waiting until the indexes are ready
+		SearchEngine engine = new SearchEngine();
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+
+		JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
+		engine.searchAllTypeNames(
+			null,
+			SearchPattern.R_EXACT_MATCH,
+			"!@$#!@".toCharArray(),
+			SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+			IJavaSearchConstants.CLASS,
+			scope,
+			new TypeNameRequestor() {
+				public void acceptType(
+					int modifiers,
+					char[] packageName,
+					char[] simpleTypeName,
+					char[][] enclosingTypeNames,
+					String path) {}
+			},
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+			null);
+
 	}
 }

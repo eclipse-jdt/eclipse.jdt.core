@@ -55,6 +55,7 @@ public static Test suite() {
 }
 @Override
 protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
 	super.setUp();
 }
 
@@ -88,7 +89,7 @@ public void testClasspathFileChange() throws JavaModelException {
 	// not yet on the classpath
 	IPath src2Path = env.addFolder(projectPath, "src2"); //$NON-NLS-1$
 	IPath src2p1Path = env.addFolder(src2Path, "p1"); //$NON-NLS-1$
-	env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$ //$NON-NLS-2$
+	env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$
 		"package p1;\n"+ //$NON-NLS-1$
 		"public class Zork1 {}" //$NON-NLS-1$
 	);

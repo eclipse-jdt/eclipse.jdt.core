@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -62,7 +60,6 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.IJavaElementRequestor;
@@ -70,6 +67,8 @@ import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.test.performance.Performance;
+
+import junit.framework.Test;
 
 /**
  */
@@ -399,7 +398,7 @@ private NameLookup getNameLookup(JavaProject project) throws JavaModelException 
 public void testNameLookupFindKnownType() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -436,7 +435,7 @@ public void testNameLookupFindKnownType() throws CoreException {
 public void testNameLookupFindKnownSecondaryType() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -475,7 +474,7 @@ public void testNameLookupFindKnownSecondaryType() throws CoreException {
 public void testNameLookupFindUnknownType() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -513,7 +512,7 @@ public void testProjectFindKnownType() throws CoreException {
 	tagAsSummary("Find known type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -549,7 +548,7 @@ public void testProjectFindKnownMemberType() throws CoreException {
 	tagAsSummary("Find known member type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).toString();
@@ -588,7 +587,7 @@ public void testProjectFindKnownSecondaryType() throws CoreException {
 	tagAsSummary("Find known secondary type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -623,7 +622,7 @@ public void testProjectFindUnknownType() throws CoreException {
 	tagAsSummary("Find unknown type in project", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -658,7 +657,7 @@ public void testProjectFindUnknownTypeAfterSetClasspath() throws CoreException {
 	tagAsSummary("Find unknown type in project after resetting classpath", false); // do NOT put in fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// First findType populates the package fragment roots in the Java model cache
 	String fullQualifiedName = BIG_PROJECT_TYPE_PATH.removeFileExtension().removeFirstSegments(2).removeLastSegments(1).toString();
@@ -698,7 +697,7 @@ public void testPerfReconcile() throws CoreException {
 	tagAsGlobalSummary("Reconcile editor change", true); // put in global fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
@@ -943,8 +942,8 @@ public void testPerfBatchCreatePackageAndReconcile() throws CoreException {
 			"}"
 			, false, null);
 		workingCopy.becomeWorkingCopy(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
 
 		// Warm up
 		try {
@@ -1010,7 +1009,7 @@ public void testPerfSearchAllTypeNamesAndReconcile() throws CoreException {
 	tagAsSummary("Reconcile editor change and complete", true); // put in fingerprint
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	ICompilationUnit workingCopy = null;
@@ -1072,8 +1071,8 @@ public void testPopulateTwoBigJars() throws CoreException {
 				JavaCore.newLibraryEntry(bigJar1.getFullPath(), null, null),
 				JavaCore.newLibraryEntry(bigJar2.getFullPath(), null, null),
 			}, null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
 		IPackageFragmentRoot root1 = project.getPackageFragmentRoot(bigJar1);
 		IPackageFragmentRoot root2 = project.getPackageFragmentRoot(bigJar2);
 
@@ -1180,7 +1179,7 @@ public void testCloseProjects() throws JavaModelException {
 
 	// Measures
 	for (int i=0; i<MEASURES_COUNT; i++) {
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		runGc();
 		startMeasuring();
 		for (int j=0; j<length; j++) {
@@ -1237,7 +1236,7 @@ public void testInitJDTPlugin() throws JavaModelException, CoreException {
 	for (int i=0; i<wmax; i++) {
 		simulateExitRestart();
 		JavaCore.initializeAfterLoad(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 	}
 
 	// Measures
@@ -1249,7 +1248,7 @@ public void testInitJDTPlugin() throws JavaModelException, CoreException {
 		// restart
 		simulateRestart();
 		JavaCore.initializeAfterLoad(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 		stopMeasuring();
 	}
 	// Commit
@@ -1278,8 +1277,8 @@ public void testFindType() throws CoreException {
 		for (int i = 0; i < max; i++) {
 			projects[i] = createJavaProject("FindType" + i);
 		}
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
 
 		try {
 			// warm up
@@ -1331,8 +1330,8 @@ public void testGetSourceBigJarNoAttachment() throws CoreException {
 			new IClasspathEntry[] {
 				JavaCore.newLibraryEntry(bigJar1.getFullPath(), null, null),
 			}, null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(bigJar1);
 		IClassFile classFile = root.getPackageFragment("p0").getClassFile("X0.class");
 
@@ -1379,8 +1378,8 @@ public void testReopenSingleProject() throws CoreException {
 	for (int j=0; j<length; j++) {
 		ALL_PROJECTS[j].getProject().close(null);
 	}
-	AbstractJavaModelTests.waitUntilIndexesReady();
-	AbstractJavaModelTests.waitForAutoBuild();
+	waitUntilIndexesReady();
+	waitForAutoBuild();
 	if (PRINT) {
 		System.out.println((System.currentTimeMillis()-startTime)+"ms");
 	}
@@ -1394,12 +1393,12 @@ public void testReopenSingleProject() throws CoreException {
 	final int warmup = WARMUP_COUNT / 10;
 	for (int i=0; i<warmup; i++) {
 		BIG_PROJECT.getProject().close(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
 		BIG_PROJECT.getProject().open(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
-		AbstractJavaModelTests.waitForManualRefresh();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
+		waitForManualRefresh();
 	}
 	if (PRINT) {
 		System.out.println((System.currentTimeMillis()-startTime)+"ms");
@@ -1414,13 +1413,13 @@ public void testReopenSingleProject() throws CoreException {
 	for (int i=0; i<MEASURES_COUNT; i++) {
 		runGc();
 		BIG_PROJECT.getProject().close(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
 		startMeasuring();
 		BIG_PROJECT.getProject().open(null);
-		AbstractJavaModelTests.waitUntilIndexesReady();
-		AbstractJavaModelTests.waitForAutoBuild();
-		AbstractJavaModelTests.waitForManualRefresh();
+		waitUntilIndexesReady();
+		waitForAutoBuild();
+		waitForManualRefresh();
 		stopMeasuring();
 	}
 	if (PRINT) {
@@ -1444,9 +1443,9 @@ public void testReopenSingleProject() throws CoreException {
 	for (int i=0; i<length; i++) {
 		ALL_PROJECTS[i].getProject().open(null);
 	}
-	AbstractJavaModelTests.waitUntilIndexesReady();
-	AbstractJavaModelTests.waitForAutoBuild();
-	AbstractJavaModelTests.waitForManualRefresh();
+	waitUntilIndexesReady();
+	waitForAutoBuild();
+	waitForManualRefresh();
 	runGc();
 	if (PRINT) {
 		System.out.println((System.currentTimeMillis()-startTime)+"ms");

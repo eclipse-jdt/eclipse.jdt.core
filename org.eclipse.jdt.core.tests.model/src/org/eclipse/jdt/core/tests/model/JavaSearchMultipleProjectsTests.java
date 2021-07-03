@@ -48,6 +48,12 @@ static {
 //	TESTS_PREFIX = "testScopeEncloses";
 }
 
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
+
 /**
  * Field occurences in 2 working copies within 2 projects (one prereq this other one).
  * (regression test for bug 41534 incorrect shadowing reported by rename [refactoring])

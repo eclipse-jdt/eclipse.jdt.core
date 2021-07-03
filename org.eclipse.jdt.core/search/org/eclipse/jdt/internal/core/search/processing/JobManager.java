@@ -67,6 +67,14 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			Util.verbose("DISABLING background indexing"); //$NON-NLS-1$
 	}
+
+	/**
+	 * @return {@code true} if the job manager is enabled
+	 */
+	public synchronized boolean isEnabled() {
+		return this.enableCount > 0;
+	}
+
 	/**
 	 * Remove the index from cache for a given project.
 	 * Passing null as a job family discards them all.

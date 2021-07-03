@@ -1239,6 +1239,7 @@ protected JavaSearchResultCollector resultCollector;
 	}
 	@Override
 	protected void setUp () throws Exception {
+		this.indexDisabledForTest = false;
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
 	}
