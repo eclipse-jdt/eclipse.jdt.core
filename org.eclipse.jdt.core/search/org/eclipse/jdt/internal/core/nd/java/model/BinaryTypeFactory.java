@@ -20,6 +20,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -28,9 +29,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -43,15 +44,6 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.db.IndexException;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.JavaNames;
-import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
-import org.eclipse.jdt.internal.core.nd.java.NdType;
-import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -69,7 +61,7 @@ public class BinaryTypeFactory {
 	 */
 	private static BinaryTypeDescriptor createDescriptor(PackageFragment pkg, ClassFile classFile) {
 		PackageFragmentRoot root = (PackageFragmentRoot) pkg.getParent();
-		IPath location = JavaIndex.getLocationForElement(root);
+		IPath location = getLocationForElement(root);
 		if (location == null) {
 			return null;
 		}
@@ -109,10 +101,6 @@ public class BinaryTypeFactory {
 		return createDescriptor(parent, concreteClass);
 	}
 
-	public static BinaryTypeDescriptor createDescriptor(IType type) {
-		return createDescriptor(type.getClassFile());
-	}
-
 	public static IBinaryType create(IOrdinaryClassFile classFile, IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
 		BinaryTypeDescriptor descriptor = createDescriptor(classFile);
 		return readType(descriptor, monitor);
@@ -125,15 +113,6 @@ public class BinaryTypeFactory {
 	 * @throws ClassFormatException
 	 */
 	public static IBinaryType readType(BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
-
-		if (JavaIndex.isEnabled()) {
-			try {
-				return readFromIndex(JavaIndex.getIndex(), descriptor, monitor);
-			} catch (NotInIndexException e) {
-				// fall back to reading the zip file, below
-			}
-		}
-
 		return rawReadType(descriptor, true);
 	}
 
@@ -166,7 +145,7 @@ public class BinaryTypeFactory {
 					zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)),
 							useInvalidArchiveCache);
 					char[] entryNameCharArray = CharArrayUtils.concat(
-							JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
+							fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
 					String entryName = new String(entryNameCharArray);
 					ZipEntry ze = zip.getEntry(entryName);
 					if (ze != null) {
@@ -204,56 +183,35 @@ public class BinaryTypeFactory {
 	}
 
 	/**
-	 * Tries to read the given IBinaryType from the index. The return value is lightweight and may be cached
-	 * with minimal memory cost. Returns an IBinaryType if the type was found in the index and the index
-	 * was up-to-date. Throws a NotInIndexException if the index does not contain an up-to-date cache of the
-	 * requested file. Returns null if the index contains an up-to-date cache of the requested file and it was
-	 * able to determine that the requested class does not exist in that file.
+	 * Returns the absolute filesystem location of the given element or the empty path if none
+	 * <p>
+	 * The logic used in {@link #getLocationForElement(IJavaElement)} and
+	 * {@link JavaModelManager#getLocalFile(IPath)} should be equivalent.
 	 */
-	public static IBinaryType readFromIndex(JavaIndex index, BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, NotInIndexException {
-		// If the new index is enabled, check if we have this class file cached in the index already
-		char[] fieldDescriptor = descriptor.fieldDescriptor;
+	public static IPath getLocationForElement(IJavaElement next) {
+		IResource resource = next.getResource();
 
-		Nd nd = index.getNd();
-
-		if (descriptor.location != null) {
-			// Acquire a read lock on the index
-			try (IReader lock = nd.acquireReadLock()) {
-				try {
-					TypeRef typeRef = TypeRef.create(nd, descriptor.location, fieldDescriptor);
-					NdType type = typeRef.get();
-
-					if (type == null) {
-						// If we couldn't find the type in the index, determine whether the cause is
-						// that the type is known not to exist or whether the resource just hasn't
-						// been indexed yet
-
-						NdResourceFile resourceFile = index.getResourceFile(descriptor.location);
-						if (index.isUpToDate(resourceFile)) {
-							return null;
-						}
-						throw new NotInIndexException();
-					}
-					NdResourceFile resourceFile = type.getResourceFile();
-					if (index.isUpToDate(resourceFile)) {
-						IndexBinaryType result = new IndexBinaryType(typeRef, descriptor.indexPath);
-
-						// We already have the database lock open and have located the element, so we may as
-						// well prefetch the inexpensive attributes.
-						result.initSimpleAttributes();
-
-						return result;
-					}
-					throw new NotInIndexException();
-				} catch (CoreException e) {
-					throw new JavaModelException(e);
-				}
-			} catch (IndexException e) {
-				Package.log("Index corruption detected. Rebuilding index.", e); //$NON-NLS-1$
-				Indexer.getInstance().requestRebuildIndex();
-			}
+		if (resource != null) {
+			return resource.getLocation() == null ? Path.EMPTY : resource.getLocation();
 		}
 
-		throw new NotInIndexException();
+		return next.getPath();
 	}
+
+	/**
+	 * Given a field descriptor, if the field descriptor points to a class this returns the binary name of the class. If
+	 * the field descriptor points to any other type, this returns the empty string. The field descriptor may optionally
+	 * contain a trailing ';'.
+	 *
+	 * @param fieldDescriptor
+	 * @return ""
+	 */
+	public static char[] fieldDescriptorToBinaryName(char[] fieldDescriptor) {
+		if (CharArrayUtils.startsWith(fieldDescriptor, 'L')) {
+			int end = fieldDescriptor.length - 1;
+			return CharArrayUtils.subarray(fieldDescriptor, 1, end);
+		}
+		return CharArrayUtils.EMPTY_CHAR_ARRAY;
+	}
+
 }

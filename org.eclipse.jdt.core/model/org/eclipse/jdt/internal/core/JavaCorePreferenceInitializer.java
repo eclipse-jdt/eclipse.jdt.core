@@ -25,7 +25,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.search.PatternSearchJob;
 
 /**
@@ -114,9 +113,6 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		defaultOptionsMap.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.ENABLED);
 		defaultOptionsMap.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.ENABLED);
-		defaultOptionsMap.put(ChunkCache.CHUNK_CACHE_SIZE_MB, Double.toString(ChunkCache.CHUNK_CACHE_SIZE_MB_DEFAULT));
-		defaultOptionsMap.put(ChunkCache.CHUNK_CACHE_SIZE_PERCENT,
-				Double.toString(ChunkCache.CHUNK_CACHE_SIZE_PERCENT_DEFAULT));
 		defaultOptionsMap.put(PatternSearchJob.ENABLE_PARALLEL_SEARCH, Boolean.toString(PatternSearchJob.ENABLE_PARALLEL_SEARCH_DEFAULT));
 
 		// Time out for parameter names

@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.ModularClassFile;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 
 /**
  * <strong>FIXME:</strong> this class is a stub as of now, it does not support modules in the new index.
@@ -55,7 +54,7 @@ public class BinaryModuleFactory {
 	 * a location on the filesystem.
 	 */
 	private static BinaryModuleDescriptor createDescriptor(PackageFragmentRoot root, ModularClassFile classFile) {
-		IPath location = JavaIndex.getLocationForElement(root);
+		IPath location = BinaryTypeFactory.getLocationForElement(root);
 		if (location == null) {
 			return null;
 		}

@@ -397,6 +397,21 @@ public class Util {
 		return buffer.toString();
 
 	}
+
+	public static final char[] concat(char[] first, char[] second) {
+		if (first == null)
+			return second;
+		if (second == null)
+			return first;
+
+		int length1 = first.length;
+		int length2 = second.length;
+		char[] result = new char[length1 + length2];
+		System.arraycopy(first, 0, result, 0, length1);
+		System.arraycopy(second, 0, result, length1, length2);
+		return result;
+	}
+
 	/**
 	 * Converts a type signature from the IBinaryType representation to the DC representation.
 	 */
