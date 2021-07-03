@@ -23,8 +23,8 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 
 import java.io.*;
 import java.util.*;
@@ -1196,7 +1196,8 @@ public void cleanBuild(String projectName) {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-				Indexer.getInstance().waitForIndex(null);
+				boolean enableIndex = true;
+				JavaModelManager.getIndexManager().waitForIndex(enableIndex, null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				handle(e);
@@ -1212,7 +1213,8 @@ public void cleanBuild(String projectName) {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
-				Indexer.getInstance().waitForIndex(null);
+				boolean enableIndex = true;
+				JavaModelManager.getIndexManager().waitForIndex(enableIndex, null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				handle(e);
