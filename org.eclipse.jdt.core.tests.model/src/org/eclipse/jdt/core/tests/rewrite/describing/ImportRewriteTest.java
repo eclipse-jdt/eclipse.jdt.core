@@ -85,6 +85,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	@Override
 	protected void setUp() throws Exception {
+		this.indexDisabledForTest = false;
 		super.setUp();
 
 		IJavaProject proj= createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");

@@ -2959,20 +2959,35 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
-		assertNotNull("Pattern should not be null", pattern);
-		new SearchEngine().search(
-			pattern,
-			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope,
-			requestor,
-			null
-		);
+		boolean indexDisabled = isIndexDisabledForTest();
+		if(indexDisabled) {
+			JavaModelManager.getIndexManager().enable();
+		}
+		try {
+			SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
+			assertNotNull("Pattern should not be null", pattern);
+			new SearchEngine().search(
+				pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				scope,
+				requestor,
+				null
+			);
+		} finally {
+			if(indexDisabled) {
+				JavaModelManager.getIndexManager().disable();
+			}
+		}
 	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		search(patternString, searchFor, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		boolean indexDisabled = isIndexDisabledForTest();
+		if(indexDisabled) {
+			JavaModelManager.getIndexManager().enable();
+		}
+		try {
 		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
 			matchRule |= SearchPattern.R_PATTERN_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
@@ -2987,6 +3002,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			scope,
 			requestor,
 			null);
+		} finally {
+			if(indexDisabled) {
+				JavaModelManager.getIndexManager().disable();
+			}
+		}
 	}
 
 	/*
