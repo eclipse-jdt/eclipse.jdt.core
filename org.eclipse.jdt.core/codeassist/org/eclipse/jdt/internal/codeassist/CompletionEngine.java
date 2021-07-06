@@ -1880,7 +1880,7 @@ public final class CompletionEngine
 			CompletionOnSingleTypeReference completionOnSingleTypeReference = (CompletionOnSingleTypeReference) astNode;
 			if (completionOnSingleTypeReference.isConstructorType) {
 				context.setTokenLocation(CompletionContext.TL_CONSTRUCTOR_START);
-			} else if (astNodeParent instanceof LambdaExpression) {
+			} else if (astNodeParent instanceof LambdaExpression || astNodeParent instanceof LocalDeclaration) {
 				context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
 			}
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
