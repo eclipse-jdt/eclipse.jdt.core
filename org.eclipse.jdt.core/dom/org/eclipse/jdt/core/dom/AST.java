@@ -3777,7 +3777,7 @@ public final class AST {
 	}
 
 	/**
-	 * Returns latest supportd JLS level
+	 * Returns latest supported JLS level
 	 *
 	 * @return the latest supported JLS level
 	 * @since 3.27
