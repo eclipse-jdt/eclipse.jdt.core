@@ -109,11 +109,11 @@ public class Archive implements Closeable {
 
 	@Override
 	public void close() {
+		this.packagesCache = null;
 		try {
 			if (this.zipFile != null) {
 				this.zipFile.close();
 			}
-			this.packagesCache = null;
 		} catch (IOException e) {
 			// ignore
 		}

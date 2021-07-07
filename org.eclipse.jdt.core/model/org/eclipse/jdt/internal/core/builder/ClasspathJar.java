@@ -405,9 +405,11 @@ public Manifest getManifest() {
 	if (!scanContent()) // ensure zipFile is initialized
 		return null;
 	ZipEntry entry = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
-	try(InputStream is = entry != null ? this.zipFile.getInputStream(entry) : null) {
-		if (is != null)
-			return new Manifest(is);
+	if (entry == null) {
+		return null;
+	}
+	try(InputStream is = this.zipFile.getInputStream(entry)) {
+		return new Manifest(is);
 	} catch (IOException e) {
 		// cannot use manifest
 	}

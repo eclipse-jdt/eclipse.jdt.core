@@ -223,13 +223,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		public void setCache(IPath path, ZipFile zipFile) {
-			ZipFile old = this.map.put(path, zipFile);
-			if(old != null) {
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					Thread currentThread = Thread.currentThread();
-					System.out.println("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
-							+ "].setCache()] leaked ZipFile on " + old.getName() + " for path: " + path); //$NON-NLS-1$ //$NON-NLS-2$
+			try (ZipFile old = this.map.put(path, zipFile)) {
+				if (old != null) {
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+						Thread currentThread = Thread.currentThread();
+						System.out.println("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
+								+ "].setCache()] leaked ZipFile on " + old.getName() + " for path: " + path); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}

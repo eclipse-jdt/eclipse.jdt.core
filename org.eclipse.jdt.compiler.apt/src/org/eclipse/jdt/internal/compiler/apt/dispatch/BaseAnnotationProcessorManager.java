@@ -161,8 +161,9 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 			}
 		}
 		RoundEnvImpl roundEnv = new RoundEnvImpl(units, referenceBindings, isLastRound, _processingEnv);
-		PrintWriter traceProcessorInfo = _printProcessorInfo ? _out : null;
-		PrintWriter traceRounds = _printRounds ? _out : null;
+		PrintWriter out = _out; // closable resource not manages in this class
+		PrintWriter traceProcessorInfo = _printProcessorInfo ? out : null;
+		PrintWriter traceRounds = _printRounds ? out : null;
 		if (traceRounds != null) {
 			traceRounds.println("Round " + ++_round + ':'); //$NON-NLS-1$
 		}

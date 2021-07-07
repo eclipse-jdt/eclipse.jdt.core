@@ -14,8 +14,6 @@ import java.util.Set;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.StandardLocation;
 
-import org.eclipse.jdt.internal.compiler.batch.ClasspathJrt;
-
 public class ModuleLocationHandler {
 
 	Map<Location, LocationContainer> containers;
@@ -24,10 +22,6 @@ public class ModuleLocationHandler {
 		this.containers = new HashMap<>();
 	}
 
-	public void newSystemLocation(Location loc, ClasspathJrt cp) throws IOException {
-		SystemLocationContainer systemLocationWrapper = new SystemLocationContainer(StandardLocation.SYSTEM_MODULES, cp);
-		this.containers.put(loc, systemLocationWrapper);
-	}
 	public void newSystemLocation(Location loc, JrtFileSystem jrt) throws IOException {
 		SystemLocationContainer systemLocationWrapper = new SystemLocationContainer(StandardLocation.SYSTEM_MODULES, jrt);
 		this.containers.put(loc, systemLocationWrapper);
@@ -158,9 +152,6 @@ public class ModuleLocationHandler {
 				this.locationNames.put(mod, wrapper);
 				this.locationPaths.put(path, wrapper);
 			}
-		}
-		public SystemLocationContainer(Location loc, ClasspathJrt cp) throws IOException {
-			this(loc, new JrtFileSystem(cp.file));
 		}
 	}
 

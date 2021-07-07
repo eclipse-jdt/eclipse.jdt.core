@@ -371,9 +371,10 @@ class JrtFileSystem {
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
 		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
-			URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath });
-			HashMap<String, ?> env = new HashMap<>();
-			this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
+			try (URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath })) {
+				HashMap<String, ?> env = new HashMap<>();
+				this.fs = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
+			}
 		} else {
 			HashMap<String, String> env = new HashMap<>();
 			env.put("java.home", this.jdkHome); //$NON-NLS-1$
