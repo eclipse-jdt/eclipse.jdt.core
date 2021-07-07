@@ -1403,7 +1403,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"2. ERROR in src\\p\\X.java (at line 2)\n" +
 				"	public class X extends Y {\n" +
 				"	                       ^\n" +
-				"Sealed type Y cannot be super type of X as it is from a different package or split package or module\n" +
+				"The type X extending a sealed class Y should be a permitted subtype of Y\n" +
 				"----------\n",
 				libs,
 		        true);

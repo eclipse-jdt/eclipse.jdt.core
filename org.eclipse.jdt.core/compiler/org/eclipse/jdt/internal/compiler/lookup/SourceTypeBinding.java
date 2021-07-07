@@ -1253,38 +1253,44 @@ private void checkPermitsInType() {
 private void reportSealedSuperTypeDoesNotPermitProblem(TypeReference superTypeRef, TypeBinding superType) {
 	ModuleBinding sourceModuleBinding = this.module();
 	boolean isUnnamedModule = sourceModuleBinding.isUnnamed();
-	boolean problemReported = false;
 	boolean isClass =  false;
 	if (superType.isClass()) {
 		isClass =  true;
 	}
-	if (superType instanceof SourceTypeBinding) {
-		SourceTypeBinding superSourceTypeBinding = (SourceTypeBinding) superType;
+	boolean sealedSuperTypeDoesNotPermit = false;
+	ReferenceBinding superReferenceBinding = null;
+	if (superType instanceof ReferenceBinding) {
+		superReferenceBinding = (ReferenceBinding) superType;
 		if (isUnnamedModule) {
-			PackageBinding superTypePackage = superSourceTypeBinding.getPackage();
+			PackageBinding superTypePackage = superReferenceBinding.getPackage();
 			PackageBinding pkg = this.getPackage();
-			if (pkg!= null && !pkg.equals(superTypePackage)) {
-				if (isClass) {
-					this.scope.problemReporter().sealedSuperClassInDifferentPackage(this, superTypeRef, superType, superTypePackage);
-				} else {
-					this.scope.problemReporter().sealedSuperInterfaceInDifferentPackage(this, superTypeRef, superType, superTypePackage);
-				}
-				problemReported = true;
-			}
-		}
-	} else {
-		if (isClass) {
-			this.scope.problemReporter().sealedSuperClassDisallowed(this, superTypeRef, superType);
+			sealedSuperTypeDoesNotPermit = pkg!= null && pkg.equals(superTypePackage);
 		} else {
-			this.scope.problemReporter().sealedSuperInterfaceDisallowed(this, superTypeRef, superType);
+			ModuleBinding superTypeModule = superReferenceBinding.module();
+			ModuleBinding mod = this.module();
+			sealedSuperTypeDoesNotPermit  = mod!= null && mod.equals(superTypeModule);
 		}
-		problemReported = true;
 	}
-	if (!problemReported) {
+	if (sealedSuperTypeDoesNotPermit) {
 		if (isClass) {
 			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, superTypeRef, superType);
 		} else {
 			this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superTypeRef, superType);
+		}
+	} else {
+		if (superReferenceBinding instanceof SourceTypeBinding && isUnnamedModule) {
+			PackageBinding superTypePackage = superReferenceBinding.getPackage();
+			if (isClass) {
+				this.scope.problemReporter().sealedSuperClassInDifferentPackage(this, superTypeRef, superType, superTypePackage);
+			} else {
+				this.scope.problemReporter().sealedSuperInterfaceInDifferentPackage(this, superTypeRef, superType, superTypePackage);
+			}
+		} else {
+			if (isClass) {
+				this.scope.problemReporter().sealedSuperClassDisallowed(this, superTypeRef, superType);
+			} else {
+				this.scope.problemReporter().sealedSuperInterfaceDisallowed(this, superTypeRef, superType);
+			}
 		}
 	}
 }
