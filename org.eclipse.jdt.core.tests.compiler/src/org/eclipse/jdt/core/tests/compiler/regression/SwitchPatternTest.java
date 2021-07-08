@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574549_01"};
+//		TESTS_NAMES = new String[] { "testBug574719_004"};
 	}
 
 	private static String previewLevel = "17";
@@ -1301,5 +1301,158 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"hello");
+	}
+	public void testBug574719_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0, default   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100 ));\n"+
+				" }\n"+
+				"}",
+			},
+			"1");
+	}
+	public void testBug574719_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0, default, 1   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100 ));\n"+
+				" }\n"+
+				"}",
+			},
+			"1");
+	}
+	public void testBug574719_003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case default, 1   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"1\n" +
+			"1");
+	}
+	public void testBug574719_004() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0  : k = 2; break;\n"+
+				"     case default, 1   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"1\n" +
+			"2");
+	}
+	public void testBug574719_005() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0  : k = 2; break;\n"+
+				"     case 1, default   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"1\n" +
+			"2");
+	}
+	public void testBug574719_006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0  : k = 2; break;\n"+
+				"     case 1, default, default   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	case 1, default, default   : k = 1;\n" +
+			"	                       ^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n");
+	}
+	public void testBug574719_007() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 10, default: k = 1;break;\n"+
+				"     case 0  : k = 2; break;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				"   System.out.println(foo(10));\n"+
+				" }\n"+
+				"}",
+			},
+			"1\n"+
+			"2\n"+
+			"1");
 	}
 }

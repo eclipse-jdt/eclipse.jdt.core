@@ -19,8 +19,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -142,9 +140,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		for (int i = 0, l = this.targetLabels.length; i < l; ++i) {
 			this.targetLabels[i].place();
 		}
-	} else {
-		this.targetLabel.place();
 	}
+	if (this.targetLabel != null)
+		this.targetLabel.place();
 	casePatternExpressionGenerateCode(currentScope, codeStream);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
@@ -194,13 +192,19 @@ public Constant[] resolveWithPatternVariablesInScope(LocalVariableBinding[] patt
 		return resolveCasePrivate(scope, switchExpressionType, switchStatement);
 	}
 }
+private Expression getFirstNonDefaultExpression() {
+	if (this.constantExpressions != null) {
+		for (Expression e : this.constantExpressions) {
+			if (!(e instanceof FakeDefaultLiteral)) return e;
+		}
+	}
+	return null;
+}
 private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
-	Expression[] constExprs = this.constantExpressions;
-	Expression constExpr = constExprs != null && constExprs.length > 0 ? constExprs[0] : null;
-	Predicate<BlockScope> patternSwitchAllowed = (skope) -> JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(skope.compilerOptions());
-	if (constExpr == null || (patternSwitchAllowed.test(scope) && constExpr instanceof FakeDefaultLiteral)) {
+	Expression constExpr = getFirstNonDefaultExpression();
+	if (constExpr == null) {
 		// remember the default case into the associated switch statement
 		if (switchStatement.defaultCase != null)
 			scope.problemReporter().duplicateDefaultCase(this);
@@ -220,10 +224,19 @@ private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpres
 	// tag constant name with enum type for privileged access to its members
 
 	List<Constant> cases = new ArrayList<>();
-	for (Expression e : constExprs) {
+	for (Expression e : this.constantExpressions) {
 		if (e != constExpr) {
 			if (switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
 				((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
+			} else if (e instanceof FakeDefaultLiteral) {
+				if (switchStatement.defaultCase != null)
+					scope.problemReporter().duplicateDefaultCase(this);
+
+				// on error the last default will be the selected one ...
+				switchStatement.defaultCase = this;
+				continue;
+				// TODO: flag a preview error conditionally based on level?
+				// Predicate<BlockScope> patternSwitchAllowed = (skope) -> JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(skope.compilerOptions());
 			}
 			e.resolveType(scope);
 		}

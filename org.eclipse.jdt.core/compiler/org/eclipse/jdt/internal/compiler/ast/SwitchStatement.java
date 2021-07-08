@@ -422,11 +422,15 @@ public class SwitchStatement extends Expression {
 		for (int i = 0, j = 0, max = this.caseCount; i < max; i++) {
 			CaseStatement stmt = this.cases[i];
 			int l = stmt.constantExpressions.length;
-			stmt.targetLabels = new BranchLabel[l];
+			BranchLabel[] targetLabels = new BranchLabel[l];
+			int count = 0;
 			for (int k = 0; k < l; ++k) {
-				stmt.targetLabels[k] = (caseLabels[j] = newLabel.apply(codeStream));
+				Expression e = stmt.constantExpressions[k];
+				if (e instanceof FakeDefaultLiteral) continue;
+				targetLabels[count++] = (caseLabels[j] = newLabel.apply(codeStream));
 				caseLabels[j++].tagBits |= BranchLabel.USED;
 			}
+			System.arraycopy(targetLabels, 0, stmt.targetLabels = new BranchLabel[count], 0, count);
 		}
 		return caseLabels;
 	}
