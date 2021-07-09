@@ -281,6 +281,15 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return createAST(this.apiLevel, cu, resolveBindings, statementsRecovery);
 	}
 
+
+	protected CompilationUnit createAST(int JLSLevel, ICompilationUnit cu) {
+		ASTParser parser= ASTParser.newParser(JLSLevel);
+		parser.setSource(cu, JLSLevel);
+		parser.setResolveBindings(false);
+		parser.setStatementsRecovery(false);
+		return (CompilationUnit) parser.createAST(null);
+	}
+
 	protected CompilationUnit createAST(int JLSLevel, ICompilationUnit cu, boolean resolveBindings, boolean statementsRecovery) {
 		ASTParser parser= ASTParser.newParser(JLSLevel);
 		parser.setSource(cu);
