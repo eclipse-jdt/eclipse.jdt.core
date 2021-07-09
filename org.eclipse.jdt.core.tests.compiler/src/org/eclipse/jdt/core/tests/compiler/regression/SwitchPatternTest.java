@@ -1455,4 +1455,79 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"2\n"+
 			"1");
 	}
+	public void testBug574561_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     default, default  : k = 2; break;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	default, default  : k = 2; break;\n" +
+			"	       ^\n" +
+			"Syntax error on token \",\", : expected\n" +
+			"----------\n");
+	}
+	public void testBug574561_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case default, 1, default   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case default, 1, default   : k = 1;\n" +
+			"	                       ^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n");
+	}
+	public void testBug574561_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case default, 1, default   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100));\n"+
+				"   System.out.println(foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case default, 1, default   : k = 1;\n" +
+			"	                       ^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n");
+	}
 }

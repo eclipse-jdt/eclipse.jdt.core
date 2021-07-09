@@ -204,13 +204,18 @@ private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpres
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
 	Expression constExpr = getFirstNonDefaultExpression();
+	int defaultCount = 0;
+	int nConstExprs = this.constantExpressions != null ? this.constantExpressions.length : 0;
 	if (constExpr == null) {
-		// remember the default case into the associated switch statement
-		if (switchStatement.defaultCase != null)
-			scope.problemReporter().duplicateDefaultCase(this);
+		do {
+			++defaultCount;
+			// remember the default case into the associated switch statement
+			if (switchStatement.defaultCase != null)
+				scope.problemReporter().duplicateDefaultCase(this);
 
-		// on error the last default will be the selected one ...
-		switchStatement.defaultCase = this;
+			// on error the last default will be the selected one ...
+			switchStatement.defaultCase = this;
+		} while (defaultCount < nConstExprs);
 		return Constant.NotAConstantList;
 	}
 	// add into the collection of cases of the associated switch statement
