@@ -124,7 +124,7 @@ public abstract class StructuralPropertyDescriptor {
 	 */
 	@Override
 	public String toString() {
-		StringBuffer b = new StringBuffer();
+		StringBuilder b = new StringBuilder();
 		if (isChildListProperty()) {
 			b.append("ChildList"); //$NON-NLS-1$
 		}

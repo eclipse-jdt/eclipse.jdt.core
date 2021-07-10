@@ -166,7 +166,7 @@ public class RecoveredModule extends RecoveredElement {
 	}
 	@Override
 	public String toString(int tab) {
-		StringBuffer result = new StringBuffer(tabString(tab));
+		StringBuilder result = new StringBuilder(tabString(tab));
 		result.append("Recovered module:\n"); //$NON-NLS-1$
 		result.append("module ");//$NON-NLS-1$
 		result.append(CharOperation.charToString(this.moduleDeclaration.moduleName));

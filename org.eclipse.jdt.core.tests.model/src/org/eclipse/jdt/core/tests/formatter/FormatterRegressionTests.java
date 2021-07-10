@@ -310,7 +310,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			ArrayList<IRegion> regions =  new ArrayList<>();
 			int start = 0;
 			int delta = 0;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while (regionStart != -1) {
 				buffer.append(source.substring(start, regionStart));
 				int regionEnd = source.indexOf("#]", regionStart+2);

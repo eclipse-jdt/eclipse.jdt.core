@@ -142,7 +142,7 @@ void setValue(Object value) {
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(5);
+	StringBuilder buffer = new StringBuilder(5);
 	buffer.append(this.name).append(" = "); //$NON-NLS-1$
 	buffer.append(this.value);
 	return buffer.toString();

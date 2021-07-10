@@ -82,7 +82,7 @@ public class FilerTesterProc extends AbstractProcessor {
 	 * @return a string representing a large Java class.
 	 */
 	public static String largeJavaClass() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("package g;\n");
 		sb.append("public class Test {\n");
 		sb.append("    public static final String bigString = \n");

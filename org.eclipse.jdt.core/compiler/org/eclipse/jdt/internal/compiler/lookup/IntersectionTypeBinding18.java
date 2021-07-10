@@ -258,7 +258,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 
 	@Override
 	public char[] qualifiedSourceName() {
-		StringBuffer qualifiedSourceName = new StringBuffer(16);
+		StringBuilder qualifiedSourceName = new StringBuilder(16);
 		for (int i = 0; i < this.length; i++) {
 				qualifiedSourceName.append(this.intersectingTypes[i].qualifiedSourceName());
 				if (i != this.length - 1)
@@ -269,7 +269,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 
 	@Override
 	public char[] sourceName() {
-		StringBuffer srcName = new StringBuffer(16);
+		StringBuilder srcName = new StringBuilder(16);
 		for (int i = 0; i < this.length; i++) {
 				srcName.append(this.intersectingTypes[i].sourceName());
 				if (i != this.length - 1)
@@ -280,7 +280,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 
 	@Override
 	public char[] readableName() {
-		StringBuffer readableName = new StringBuffer(16);
+		StringBuilder readableName = new StringBuilder(16);
 		for (int i = 0; i < this.length; i++) {
 				readableName.append(this.intersectingTypes[i].readableName());
 				if (i != this.length - 1)
@@ -290,7 +290,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 	@Override
 	public char[] shortReadableName() {
-		StringBuffer shortReadableName = new StringBuffer(16);
+		StringBuilder shortReadableName = new StringBuilder(16);
 		for (int i = 0; i < this.length; i++) {
 				shortReadableName.append(this.intersectingTypes[i].shortReadableName());
 				if (i != this.length - 1)
@@ -308,7 +308,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 	@Override
 	public String debugName() {
-		StringBuffer debugName = new StringBuffer(16);
+		StringBuilder debugName = new StringBuilder(16);
 		for (int i = 0; i < this.length; i++) {
 				debugName.append(this.intersectingTypes[i].debugName());
 				if (i != this.length - 1)

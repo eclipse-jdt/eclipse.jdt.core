@@ -320,7 +320,7 @@ public class Util implements SuffixConstants {
 						Messages.output_isFile, f.getAbsolutePath()));
 				  }
 			}
-			StringBuffer outDir = new StringBuffer(outputPath);
+			StringBuilder outDir = new StringBuilder(outputPath);
 			outDir.append(fileSeparator);
 			StringTokenizer tokenizer =
 				new StringTokenizer(relativeFileName, fileSeparator);
@@ -938,7 +938,7 @@ public class Util implements SuffixConstants {
 	 */
 	public static String toString(Object[] objects, Displayable renderer) {
 		if (objects == null) return ""; //$NON-NLS-1$
-		StringBuffer buffer = new StringBuffer(10);
+		StringBuilder buffer = new StringBuilder(10);
 		for (int i = 0; i < objects.length; i++){
 			if (i > 0) buffer.append(", "); //$NON-NLS-1$
 			buffer.append(renderer.displayString(objects[i]));

@@ -42,7 +42,7 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 
 	public void testRemoveInserted_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -77,7 +77,7 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -89,7 +89,7 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 
 	public void testReplaceInserted_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -129,7 +129,7 @@ public class ASTRewritingRevertTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public boolean foo(float y) {\n");

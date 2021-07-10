@@ -148,7 +148,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			String[] strings = new String[length];
 			this.results.toArray(strings);
 			org.eclipse.jdt.internal.core.util.Util.sort(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -176,7 +176,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			String[] strings = new String[length];
 			this.results.toArray(strings);
 			org.eclipse.jdt.internal.core.util.Util.sort(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -189,7 +189,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			int length = this.results.size();
 			String[] strings = new String[length];
 			this.results.toArray(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -356,6 +356,10 @@ public void tearDownSuite() throws Exception {
  * a project causes another request to reindex.
  */
 public void testChangeClasspath() throws CoreException, TimeOutException {
+	boolean indexDisabled = isIndexDisabledForTest();
+	if(indexDisabled) {
+		JavaModelManager.getIndexManager().enable();
+	}
 	WaitingJob job = new WaitingJob();
 	try {
 		// setup: suspend indexing and create a project (prj=src) with one cu
@@ -391,6 +395,9 @@ public void testChangeClasspath() throws CoreException, TimeOutException {
 	} finally {
 		job.resume();
 		deleteProject("P1");
+		if(indexDisabled) {
+			JavaModelManager.getIndexManager().disable();
+		}
 	}
 }
 /*

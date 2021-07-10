@@ -381,7 +381,7 @@ public void acceptMatch(String relativePath, String containerPath, char separato
 		// Note that requestor has to verify if needed whether the document violates the access restriction or not
 		AccessRuleSet access = javaSearchScope.getAccessRuleSet(relativePath, containerPath);
 		if (access != JavaSearchScope.NOT_ENCLOSED) { // scope encloses the document path
-			StringBuffer documentPath = new StringBuffer(containerPath.length() + 1 + relativePath.length());
+			StringBuilder documentPath = new StringBuilder(containerPath.length() + 1 + relativePath.length());
 			documentPath.append(containerPath);
 			documentPath.append(separator);
 			documentPath.append(relativePath);
@@ -389,7 +389,7 @@ public void acceptMatch(String relativePath, String containerPath, char separato
 				throw new OperationCanceledException();
 		}
 	} else {
-		StringBuffer buffer = new StringBuffer(containerPath.length() + 1 + relativePath.length());
+		StringBuilder buffer = new StringBuilder(containerPath.length() + 1 + relativePath.length());
 		buffer.append(containerPath);
 		buffer.append(separator);
 		buffer.append(relativePath);

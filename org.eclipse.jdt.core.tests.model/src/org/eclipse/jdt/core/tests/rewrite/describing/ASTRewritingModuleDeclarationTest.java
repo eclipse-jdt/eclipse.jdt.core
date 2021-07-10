@@ -47,7 +47,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires second;\n");
 			buf.append("    requires removeme;\n");
@@ -140,7 +140,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				pListRewrite.remove((ASTNode) providesStatement.implementations().get(0), null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuffer();
+			buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires newSecond;\n");
 			buf.append("    requires addedme;\n");
@@ -165,7 +165,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("}");
@@ -183,7 +183,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuffer();
+			buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("    requires addedme;\n");
@@ -200,7 +200,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("    requires static module1;\n");
@@ -236,7 +236,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuffer();
+			buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires static existing;\n");
 			buf.append("    requires module1;\n");
@@ -255,7 +255,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("}");
@@ -265,7 +265,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			rewrite.set(moduleDecl, ModuleDeclaration.OPEN_PROPERTY, Boolean.TRUE, null);
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuffer();
+			buf= new StringBuilder();
 			buf.append("open module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("}");
@@ -280,7 +280,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append("open module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("}");
@@ -290,7 +290,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			rewrite.set(moduleDecl, ModuleDeclaration.OPEN_PROPERTY, Boolean.FALSE, null);
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuffer();
+			buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("}");
@@ -305,7 +305,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			javaProject = createProject("P_9", JavaCore.VERSION_9);
 			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
 			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
-			StringBuffer buf= new StringBuffer();
+			StringBuilder buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("    requires static module1;\n");
@@ -349,7 +349,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
-			buf= new StringBuffer();
+			buf= new StringBuilder();
 			buf.append("module first {\n");
 			buf.append("    requires static transitive existing;\n");
 			buf.append("    requires module1;\n");

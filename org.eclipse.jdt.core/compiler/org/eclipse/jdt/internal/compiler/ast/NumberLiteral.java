@@ -73,7 +73,7 @@ public abstract class NumberLiteral extends Literal {
 			return token;
 		}
 		ignore = true;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(token, 0, start);
 		loop: for (int i = start; i < max; i++) {
 			char currentChar = token[i];

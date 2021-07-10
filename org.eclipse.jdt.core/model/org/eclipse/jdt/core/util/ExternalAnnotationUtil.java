@@ -521,7 +521,7 @@ public final class ExternalAnnotationUtil {
 	 *   overwrite any existing annotation in the specified location.
 	 */
 	private static String insertAt(String signature, int position, char annotation, MergeStrategy mergeStrategy) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		result.append(signature, 0, position);
 		result.append(annotation);
 		char next = signature.charAt(position);

@@ -11162,8 +11162,8 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		final int size = allMemberValuePairsBindings.size();
 		assertEquals("Wrong size", 10, size);
 		assertEquals("Wrong size", 10, allMemberValuePairsBindings2.size());
-		StringBuffer buffer = new StringBuffer();
-		StringBuffer buffer2 = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
+		StringBuilder buffer2 = new StringBuilder();
 		for (int i = 0; i < size; i++) {
 			final IMemberValuePairBinding firstMemberValuePairBinding = (IMemberValuePairBinding) allMemberValuePairsBindings.get(i);
 			final IMemberValuePairBinding secondMemberValuePairBinding = (IMemberValuePairBinding) allMemberValuePairsBindings2.get(i);

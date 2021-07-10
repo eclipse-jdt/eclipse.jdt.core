@@ -39,7 +39,7 @@ public class ASTRewritingPackageDeclTest extends ASTRewritingTest {
 	 */
 	public void testAnnotations_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("package-info.java", buf.toString(), false, null);
 
@@ -56,7 +56,7 @@ public class ASTRewritingPackageDeclTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("@Deprecated\n");
 		buf.append("package test1;\n");
 		assertEqualString(preview, buf.toString());

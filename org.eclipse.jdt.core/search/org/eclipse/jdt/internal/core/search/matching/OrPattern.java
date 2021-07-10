@@ -112,7 +112,7 @@ public class OrPattern extends SearchPattern implements IIndexConstants, IParall
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(this.patterns[0].toString());
 		for (int i = 1, length = this.patterns.length; i < length; i++) {
 			buffer.append("\n| "); //$NON-NLS-1$

@@ -10269,4 +10269,36 @@ public void testBug508834_comment0() {
 
 	}
 
+	public void testBug573378() {
+		runNegativeTest(
+			new String[] {
+				"TypeInferenceError.java",
+				"import java.util.*;\n" +
+				"import java.util.function.*;\n" +
+				"import java.util.stream.*;\n" +
+				"\n" +
+				"public class TypeInferenceError {\n" +
+				"  void test() {\n" +
+				"    Optional<Stream<Object>> s = Optional.empty();\n" +
+				"    map(s, Stream::count);\n" +
+				"    assertThat(map(s, Stream::count));\n" +
+				"  }\n" +
+				"  private <T> OptionalInt map(Optional<T> o, ToIntFunction<T> mapper) {\n" +
+				"    return OptionalInt.empty();\n" +
+				"  }\n" +
+				"  private void assertThat(OptionalInt o) {}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in TypeInferenceError.java (at line 8)\n" +
+			"	map(s, Stream::count);\n" +
+			"	       ^^^^^^^^^^^^^\n" +
+			"The type of count() from the type Stream<Object> is long, this is incompatible with the descriptor\'s return type: int\n" +
+			"----------\n" +
+			"2. ERROR in TypeInferenceError.java (at line 9)\n" +
+			"	assertThat(map(s, Stream::count));\n" +
+			"	                  ^^^^^^^^^^^^^\n" +
+			"The type of count() from the type Stream<Object> is long, this is incompatible with the descriptor\'s return type: int\n" +
+			"----------\n");
+	}
 }

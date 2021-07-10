@@ -377,7 +377,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 */
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Binding declaring = this.declaringElement;
 		if (!isLeaf && declaring.kind() == Binding.METHOD) { // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=97902
 			MethodBinding methodBinding = (MethodBinding) declaring;
@@ -417,7 +417,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	@Override
 	public String annotatedDebugName() {
-		StringBuffer buffer = new StringBuffer(10);
+		StringBuilder buffer = new StringBuilder(10);
 		buffer.append(super.annotatedDebugName());
 		if (!this.inRecursiveFunction) {
 			this.inRecursiveFunction = true;
@@ -463,7 +463,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	 * T:LY<TT;>
 	 */
 	public char[] genericSignature() {
-	    StringBuffer sig = new StringBuffer(10);
+	    StringBuilder sig = new StringBuilder(10);
 	    sig.append(this.sourceName).append(':');
 	   	int interfaceLength = this.superInterfaces == null ? 0 : this.superInterfaces.length;
 	    if (interfaceLength == 0 || TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
@@ -868,7 +868,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public String toString() {
 		if (this.hasTypeAnnotations())
 			return annotatedDebugName();
-		StringBuffer buffer = new StringBuffer(10);
+		StringBuilder buffer = new StringBuilder(10);
 		buffer.append('<').append(this.sourceName);//.append('[').append(this.rank).append(']');
 		if (this.superclass != null && TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
 		    buffer.append(" extends ").append(this.superclass.debugName()); //$NON-NLS-1$

@@ -252,7 +252,7 @@ public static void setMethodBindings(ReferenceBinding type, ElementValuePair[] p
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(5);
+	StringBuilder buffer = new StringBuilder(5);
 	buffer.append('@').append(this.type.sourceName);
 	if (this.pairs != null && this.pairs.length > 0) {
 		buffer.append('(');

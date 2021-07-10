@@ -27,7 +27,7 @@ public class PackageExportImpl implements IModule.IPackageExport {
 	}
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(this.pack);
 		buffer.append(" to "); //$NON-NLS-1$
 		if (this.exportedTo != null) {

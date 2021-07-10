@@ -64,7 +64,7 @@ public class Bug571363Test extends BuilderTests {
 				"	org.w3c.dom.Element list;\n" +
 				"}\n" //$NON-NLS-1$
 				);
-		StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
 		buffer.append("<classpath>\n"); //$NON-NLS-1$
 		buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
         buffer.append("    <classpathentry kind=\"con\" path=\"org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-12\">\n");

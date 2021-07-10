@@ -372,7 +372,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		String toDisplay = super.displayString(toPrint, indent);
 		int openBracket = toDisplay.indexOf(", [");
 		if (openBracket > 0) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			int closeBracket = 0;
 			while (openBracket > 0) {
 				buffer.append(toDisplay.substring(closeBracket, openBracket+2));

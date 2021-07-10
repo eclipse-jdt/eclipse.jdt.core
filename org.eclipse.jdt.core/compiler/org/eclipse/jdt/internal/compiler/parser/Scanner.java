@@ -4588,7 +4588,7 @@ public String toString() {
 	if (this.currentPosition <= 0)
 		return "NOT started!\n\n"+ (this.source != null ? new String(this.source) : ""); //$NON-NLS-1$ //$NON-NLS-2$
 
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (this.startPosition < 1000) {
 		buffer.append(this.source, 0, this.startPosition);
 	} else {

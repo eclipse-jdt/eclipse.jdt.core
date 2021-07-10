@@ -295,7 +295,7 @@ class DefaultJavaElementComparator implements Comparator {
 				return code.toString();
 			case ASTNode.ARRAY_TYPE :
 				ArrayType arrayType = (ArrayType) type;
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				buffer.append(buildSignature(arrayType.getElementType()));
 				int dimensions = arrayType.getDimensions();
 				for (int j = 0; j < dimensions; j++) {

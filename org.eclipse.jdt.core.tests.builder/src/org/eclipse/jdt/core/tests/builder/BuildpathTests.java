@@ -55,6 +55,7 @@ public static Test suite() {
 }
 @Override
 protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
 	super.setUp();
 }
 
@@ -62,7 +63,7 @@ private String getJdkLevelProblem(String expectedRuntime, String path, int sever
 	Object target = JavaModel.getTarget(new Path(path).makeAbsolute(), true);
 	long libraryJDK = org.eclipse.jdt.internal.core.util.Util.getJdkLevel(target);
 	String jclRuntime = CompilerOptions.versionFromJdkLevel(libraryJDK);
-	StringBuffer jdkLevelProblem = new StringBuffer("Problem : Incompatible .class files version in required binaries. Project 'Project' is targeting a ");
+	StringBuilder jdkLevelProblem = new StringBuilder("Problem : Incompatible .class files version in required binaries. Project 'Project' is targeting a ");
 	jdkLevelProblem.append(expectedRuntime);
 	jdkLevelProblem.append(" runtime, but is compiled against '");
 	jdkLevelProblem.append(path);
@@ -88,7 +89,7 @@ public void testClasspathFileChange() throws JavaModelException {
 	// not yet on the classpath
 	IPath src2Path = env.addFolder(projectPath, "src2"); //$NON-NLS-1$
 	IPath src2p1Path = env.addFolder(src2Path, "p1"); //$NON-NLS-1$
-	env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$ //$NON-NLS-2$
+	env.addFile(src2p1Path, "Zork1.java", //$NON-NLS-1$
 		"package p1;\n"+ //$NON-NLS-1$
 		"public class Zork1 {}" //$NON-NLS-1$
 	);
@@ -99,7 +100,7 @@ public void testClasspathFileChange() throws JavaModelException {
 	//----------------------------
 	//           Step 2
 	//----------------------------
-	StringBuffer buffer = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"); //$NON-NLS-1$
 	buffer.append("<classpath>\n"); //$NON-NLS-1$
 	buffer.append("    <classpathentry kind=\"src\" path=\"src\"/>\n"); //$NON-NLS-1$
 	buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change //$NON-NLS-1$

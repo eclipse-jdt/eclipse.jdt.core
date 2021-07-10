@@ -270,7 +270,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		result[0] = null;
 		int resultCount = 1;
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		int start = contents.indexOf("name[]"); //$NON-NLS-1$
 		start = contents.indexOf('\"', start);
@@ -280,7 +280,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 
 		boolean addLineSeparator = false;
 		int tokenStart = -1;
-		StringBuffer currentToken = new StringBuffer();
+		StringBuilder currentToken = new StringBuilder();
 		for (int i = 0; i < contents.length(); i++) {
 			char c = contents.charAt(i);
 			if(c == '\"') {
@@ -290,7 +290,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 					if(addLineSeparator) {
 						buffer.append('\n');
 						result[resultCount++] = currentToken.toString();
-						currentToken = new StringBuffer();
+						currentToken = new StringBuilder();
 					}
 					String token = contents.substring(tokenStart, i);
 					if(token.equals(ERROR_TOKEN)){

@@ -1143,7 +1143,7 @@ class BoundSet {
 	// debugging:
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer("Type Bounds:\n"); //$NON-NLS-1$
+		StringBuilder buf = new StringBuilder("Type Bounds:\n"); //$NON-NLS-1$
 		TypeBound[] flattened = flatten();
 		for (int i = 0; i < flattened.length; i++) {
 			buf.append('\t').append(flattened[i].toString()).append('\n');

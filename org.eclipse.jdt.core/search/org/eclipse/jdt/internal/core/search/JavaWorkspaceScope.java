@@ -224,7 +224,7 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 
 @Override
 public String toString() {
-	StringBuffer result = new StringBuffer("JavaWorkspaceScope on "); //$NON-NLS-1$
+	StringBuilder result = new StringBuilder("JavaWorkspaceScope on "); //$NON-NLS-1$
 	IPath[] paths = enclosingProjectsAndJars();
 	int length = paths == null ? 0 : paths.length;
 	if (length == 0) {

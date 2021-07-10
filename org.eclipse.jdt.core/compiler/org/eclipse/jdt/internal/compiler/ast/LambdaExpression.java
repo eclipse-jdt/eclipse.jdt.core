@@ -201,7 +201,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		boolean firstSpill = !(this.binding instanceof SyntheticMethodBinding);
 		this.binding = sourceType.addSyntheticMethod(this);
 		int pc = codeStream.position;
-		StringBuffer signature = new StringBuffer();
+		StringBuilder signature = new StringBuilder();
 		signature.append('(');
 		if (this.shouldCaptureInstance) {
 			codeStream.aload_0();
@@ -1448,7 +1448,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			}
 			@Override
 			public String toString() {
-				StringBuffer output = new StringBuffer("()->{} implements "); //$NON-NLS-1$
+				StringBuilder output = new StringBuilder("()->{} implements "); //$NON-NLS-1$
 				output.append(LambdaExpression.this.descriptor.declaringClass.sourceName());
 				output.append('.');
 				output.append(LambdaExpression.this.descriptor.toString());

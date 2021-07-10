@@ -39,7 +39,7 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 
 	public void testLambdaExpressions_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("interface I {\n");
 		buf.append("	int foo(int x);\n");
@@ -127,7 +127,7 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("interface I {\n");
 		buf.append("	float foo(int x, int y);\n");
@@ -144,7 +144,7 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 
 	public void testLambdaExpressions_Parentheses_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("interface I {\n");
 		buf.append("	int foo(int x);\n");
@@ -262,7 +262,7 @@ public class ASTRewritingLambdaExpressionTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("interface I {\n");
 		buf.append("	int foo(int x);\n");

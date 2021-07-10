@@ -78,7 +78,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"	}\n" +
 				"}\n" +
 				"\n" ;
-		StringBuffer buf= new StringBuffer(contents);
+		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -174,7 +174,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"	}\n" +
 				"}\n" +
 				"\n" ;
-		buf= new StringBuffer(contents);
+		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -195,7 +195,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"	}\n" +
 				"}\n" +
 				"\n" ;
-		StringBuffer buf= new StringBuffer(contents);
+		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -224,7 +224,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"	}\n" +
 				"}\n" +
 				"\n" ;
-		buf= new StringBuffer(contents);
+		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -255,7 +255,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"	}\n" +
 				"}\n" +
 				"\n" ;
-		StringBuffer buf= new StringBuffer(contents);
+		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -305,7 +305,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"	}\n" +
 				"}\n" +
 				"\n" ;
-		buf= new StringBuffer(contents);
+		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -340,7 +340,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"@Target (ElementType.TYPE_USE)\n" +
 				"@interface @Marker {}\n" +
 				"}\n" ;
-		StringBuffer buf= new StringBuffer(contents);
+		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -395,7 +395,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"@Target (ElementType.TYPE_USE)\n" +
 				"@interface @Marker {}\n" +
 				"}\n" ;
-		buf= new StringBuffer(contents);
+		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
 
@@ -424,7 +424,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"       public static void main (String [] args) {}\n" +
 				"}\n" +
 				"\n" ;
-		StringBuffer buf= new StringBuffer(contents);
+		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -472,7 +472,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"       public static void main (String [] args) {}\n" +
 				"}\n" +
 				"\n" ;
-		buf = new StringBuffer(contents);
+		buf = new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
 	/**
@@ -517,7 +517,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"@Target (ElementType.TYPE_USE)\n" +
 				"@interface Marker {}\n" +
 				"}\n";
-		StringBuffer buf= new StringBuffer(contents);
+		StringBuilder buf= new StringBuilder(contents);
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 		CompilationUnit astRoot= createAST(cu);
 		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
@@ -615,7 +615,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"@Target (ElementType.TYPE_USE)\n" +
 				"@interface Marker {}\n" +
 				"}\n";
-		buf= new StringBuffer(contents);
+		buf= new StringBuilder(contents);
 		assertEqualString(preview, buf.toString());
 	}
 }

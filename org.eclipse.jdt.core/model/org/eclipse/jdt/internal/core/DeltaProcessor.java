@@ -83,7 +83,7 @@ public class DeltaProcessor {
 		@Override
 		public String toString() {
 			if (this.paths == null) return "<none>"; //$NON-NLS-1$
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i = 0; i < this.outputCount; i++) {
 				buffer.append("path="); //$NON-NLS-1$
 				buffer.append(this.paths[i].toString());
@@ -161,7 +161,7 @@ public class DeltaProcessor {
 		}
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer("project="); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("project="); //$NON-NLS-1$
 			if (this.project == null) {
 				buffer.append("null"); //$NON-NLS-1$
 			} else {

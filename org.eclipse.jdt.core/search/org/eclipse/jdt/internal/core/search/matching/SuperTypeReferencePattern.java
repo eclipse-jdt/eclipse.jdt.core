@@ -87,7 +87,7 @@ public static char[] createIndexKey(
 	char[] typeParameters = CharOperation.NO_CHAR;
 	int typeParametersLength = 0;
 	if (typeParameterSignatures != null) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = typeParameterSignatures.length; i < length; i++) {
 			char[] typeParameter = typeParameterSignatures[i];
 			buffer.append(typeParameter);

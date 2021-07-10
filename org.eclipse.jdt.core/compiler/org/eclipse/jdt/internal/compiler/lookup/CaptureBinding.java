@@ -108,7 +108,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	 */
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (isLeaf) {
 			buffer.append(this.sourceType.computeUniqueKey(false/*not a leaf*/));
 			buffer.append('&');
@@ -127,7 +127,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public String debugName() {
 
 		if (this.wildcard != null) {
-			StringBuffer buffer = new StringBuffer(10);
+			StringBuilder buffer = new StringBuilder(10);
 			AnnotationBinding [] annotations = getTypeAnnotations();
 			for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
 				buffer.append(annotations[i]);
@@ -384,7 +384,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	@Override
 	public char[] readableName() {
 		if (this.wildcard != null) {
-			StringBuffer buffer = new StringBuffer(10);
+			StringBuilder buffer = new StringBuilder(10);
 			buffer
 				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
 				.append(this.captureID)
@@ -401,7 +401,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	@Override
 	public char[] signableName() {
 		if (this.wildcard != null) {
-			StringBuffer buffer = new StringBuffer(10);
+			StringBuilder buffer = new StringBuilder(10);
 			buffer
 				.append(TypeConstants.WILDCARD_CAPTURE_SIGNABLE_NAME_SUFFIX)
 				.append(this.wildcard.readableName());
@@ -416,7 +416,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	@Override
 	public char[] shortReadableName() {
 		if (this.wildcard != null) {
-			StringBuffer buffer = new StringBuffer(10);
+			StringBuilder buffer = new StringBuilder(10);
 			buffer
 				.append(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX)
 				.append(this.captureID)
@@ -569,7 +569,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	@Override
 	public String toString() {
 		if (this.wildcard != null) {
-			StringBuffer buffer = new StringBuffer(10);
+			StringBuilder buffer = new StringBuilder(10);
 			AnnotationBinding [] annotations = getTypeAnnotations();
 			for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
 				buffer.append(annotations[i]);

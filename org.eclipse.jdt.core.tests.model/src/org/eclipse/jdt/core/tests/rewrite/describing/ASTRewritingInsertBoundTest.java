@@ -72,7 +72,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -106,7 +106,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -137,7 +137,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2 x before
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -175,7 +175,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -206,7 +206,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2 x first and 2 x last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -244,7 +244,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -278,7 +278,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -312,7 +312,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -341,7 +341,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2x first and 2 x last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -380,7 +380,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -414,7 +414,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// insert 2 x after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -452,7 +452,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -481,7 +481,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -511,7 +511,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -536,7 +536,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove second
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -565,7 +565,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -591,7 +591,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove 2nd and 3rd
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -621,7 +621,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -645,7 +645,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -676,7 +676,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -703,7 +703,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add before first, remove last add after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -741,7 +741,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -769,7 +769,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add 2x first, remove last add 2x  last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -814,7 +814,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -846,7 +846,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove middle, add before, add after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -885,7 +885,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -916,7 +916,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add before first, remove last add after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -955,7 +955,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -983,7 +983,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first add 2x first, remove last add 2x  last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1027,7 +1027,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1059,7 +1059,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove middle, add before, add after
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1098,7 +1098,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1128,7 +1128,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1170,7 +1170,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1198,7 +1198,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1239,7 +1239,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1267,7 +1267,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after and before first, remove last and add after and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1314,7 +1314,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1346,7 +1346,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove first and add after first, remove last and add before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1392,7 +1392,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1425,7 +1425,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add before first and after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1464,7 +1464,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1492,7 +1492,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add before first and after last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1531,7 +1531,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1560,7 +1560,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1601,7 +1601,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1629,7 +1629,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1670,7 +1670,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("//c1\n");
@@ -1699,7 +1699,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 		// remove all, add after first and before last
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("    //c1\n");
@@ -1745,7 +1745,7 @@ public class ASTRewritingInsertBoundTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 		// Note that c1 is absent because source range has been calculated from c1
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {\n");
 		buf.append("    \n");

@@ -42,7 +42,7 @@ public static Test suite() {
 private String printRegions(String name, int[] regions) {
 	if (regions == null) return null;
 	if (regions.length == 0) return name;
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	int start = 0;
 	for (int i=0; i<regions.length; i+=2) {
 		int segmentStart = regions[i];

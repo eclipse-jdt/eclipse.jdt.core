@@ -638,7 +638,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return this;
 	}
 	protected String tabString(int tab) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = tab; i > 0; i--)
 			buffer.append("  "); //$NON-NLS-1$
 		return buffer.toString();

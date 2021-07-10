@@ -47,6 +47,13 @@ public static Test suite() {
 	return suite;
 	*/
 }
+
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
+
 /**
  */
 public void testSimpleSubTypeHierarchy() throws CoreException {

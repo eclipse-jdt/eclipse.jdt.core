@@ -186,7 +186,7 @@ protected char[] getPackageName() {
  */
 @Override
 protected char[] getSource() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	int lineNumberOffset = 1;
 
 	// package declaration

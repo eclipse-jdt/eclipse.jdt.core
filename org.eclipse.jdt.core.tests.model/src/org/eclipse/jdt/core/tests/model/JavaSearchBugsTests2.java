@@ -1705,6 +1705,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	public void testBug401272() throws CoreException, IOException {
+		boolean indexState = isIndexDisabledForTest();
 		// the strategy of this test was outlined in https://bugs.eclipse.org/bugs/show_bug.cgi?id=401272#c16
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL15_LIB", "/P/libStuff.jar" }, "bin", "1.5");
@@ -1736,6 +1737,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			refresh(p);
 
 			createFolder("/P/src/pkg");
+
+			this.indexDisabledForTest = true;
 			// 400 matches, which populate MatchLocator.unitScope
 			// all 400 matches are processed in one go of MatchLocator.locateMatches(JavaProject, PossibleMatch[], int, int)
 			// next round will call nameEnvironment.cleanup() but reuse MatchLocator.unitScope ==> BOOM
@@ -1748,7 +1751,6 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 						"	}\n" +
 						"}");
 			}
-
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p },
 					IJavaSearchScope.SOURCES|IJavaSearchScope.SYSTEM_LIBRARIES|IJavaSearchScope.APPLICATION_LIBRARIES);
@@ -1759,6 +1761,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			assertSearchResults("libStuff.jar int p2.B.test(T) [No source] EXACT_MATCH"); // an NPE was thrown without the fix
 		} finally {
 			deleteProject("P");
+			this.indexDisabledForTest = indexState;
 		}
 	}
 	/**

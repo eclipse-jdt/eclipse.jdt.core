@@ -43,7 +43,7 @@ public BranchLabel breakLabel() {
 
 @Override
 public String individualToString() {
-	StringBuffer buffer = new StringBuffer("Switch flow context"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("Switch flow context"); //$NON-NLS-1$
 	buffer.append("[initsOnBreak -").append(this.initsOnBreak.toString()).append(']'); //$NON-NLS-1$
 	return buffer.toString();
 }

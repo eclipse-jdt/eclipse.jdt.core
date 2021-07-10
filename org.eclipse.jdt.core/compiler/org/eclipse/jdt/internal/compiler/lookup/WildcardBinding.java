@@ -552,7 +552,7 @@ public class WildcardBinding extends ReferenceBinding {
 
 	@Override
 	public String annotatedDebugName() {
-		StringBuffer buffer = new StringBuffer(16);
+		StringBuilder buffer = new StringBuilder(16);
 		AnnotationBinding [] annotations = getTypeAnnotations();
 		for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
 			buffer.append(annotations[i]);
@@ -783,7 +783,7 @@ public class WildcardBinding extends ReferenceBinding {
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null)
 	                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.readableName());
-            	StringBuffer buffer = new StringBuffer(10);
+            	StringBuilder buffer = new StringBuilder(10);
             	buffer.append(this.bound.readableName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
             		buffer.append('&').append(this.otherBounds[i].readableName());
@@ -864,7 +864,7 @@ public class WildcardBinding extends ReferenceBinding {
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null)
 	                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.shortReadableName());
-            	StringBuffer buffer = new StringBuffer(10);
+            	StringBuilder buffer = new StringBuilder(10);
             	buffer.append(this.bound.shortReadableName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
             		buffer.append('&').append(this.otherBounds[i].shortReadableName());
@@ -991,7 +991,7 @@ public class WildcardBinding extends ReferenceBinding {
             case Wildcard.EXTENDS :
             	if (this.otherBounds == null)
                 	return new String(CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.debugName().toCharArray()));
-            	StringBuffer buffer = new StringBuffer(this.bound.debugName());
+            	StringBuilder buffer = new StringBuilder(this.bound.debugName());
             	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
             		buffer.append('&').append(this.otherBounds[i].debugName());
             	}

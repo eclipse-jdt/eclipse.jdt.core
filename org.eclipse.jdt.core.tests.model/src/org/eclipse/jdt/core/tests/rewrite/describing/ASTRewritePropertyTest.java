@@ -36,7 +36,7 @@ public class ASTRewritePropertyTest extends ASTRewritingTest {
 
 	public void testProperties() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class C {}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);

@@ -195,7 +195,7 @@ public boolean hasWarnings() {
  */
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	switch (this.evaluationType) {
 		case T_CODE_SNIPPET:
 			buffer.append("Code snippet"); //$NON-NLS-1$

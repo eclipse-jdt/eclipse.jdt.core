@@ -2204,7 +2204,7 @@ void printDefinitions(BufferedWriter output, State[] consideredStates, String ta
 	int lCount = 0;
 	for (i = 0; i < length; i++) {
 		for (j = 0; j < length; j++) {
-			StringBuffer line = new StringBuffer();
+			StringBuilder line = new StringBuilder();
 			line.append(tab);
 			line.append("// ");
 			line.append(consideredStates[i].name);
@@ -3015,7 +3015,7 @@ void printDefinitions(BufferedWriter output, State[] consideredStates, String ta
 	int lCount = 0;
 	for (i = 0; i < length; i++) {
 		for (j = i; j < length; j++) {
-			StringBuffer line = new StringBuffer();
+			StringBuilder line = new StringBuilder();
 			line.append(tab);
 			line.append("// ");
 			line.append(consideredStates[i].name);

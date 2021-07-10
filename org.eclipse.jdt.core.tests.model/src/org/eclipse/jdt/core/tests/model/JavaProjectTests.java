@@ -1175,7 +1175,7 @@ public void testGetRequiredProjectNames() throws CoreException {
 			new String[] {"/JavaProjectTests", "/P1", "/P0", "/P2", "/JavaProjectSrcTests"},
 			"");
 		String[] requiredProjectNames = project.getRequiredProjectNames();
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = requiredProjectNames.length; i < length; i++) {
 			buffer.append(requiredProjectNames[i]);
 			if (i != length-1) {
@@ -2722,7 +2722,7 @@ public void testBug462756() throws CoreException {
 			output.flush();
 		} catch(Exception e) {
 		}
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		RuntimeLog.addLogListener(new ILogListener() {
 			@Override
 			public void logging(IStatus status, String plugin) {

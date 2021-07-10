@@ -663,7 +663,7 @@ public boolean isSimilar(IMethod method) {
 @Override
 public String readableName() {
 
-	StringBuffer buffer = new StringBuffer(super.readableName());
+	StringBuilder buffer = new StringBuilder(super.readableName());
 	buffer.append("("); //$NON-NLS-1$
 	String[] paramTypes = this.parameterTypes;
 	int length;

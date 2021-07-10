@@ -143,7 +143,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			if (arguments == null) {
 				qParamName[i] = this.tokens[i];
 			} else {
-				StringBuffer buffer = new StringBuffer(5);
+				StringBuilder buffer = new StringBuilder(5);
 				buffer.append(this.tokens[i]);
 				buffer.append('<');
 				for (int j = 0, argLength =arguments.length; j < argLength; j++) {

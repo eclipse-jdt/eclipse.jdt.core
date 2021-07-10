@@ -528,9 +528,14 @@ public class EclipseCompilerImpl extends Main {
 							if (platformLocations.size() == 1) {
 								Classpath jrt = platformLocations.get(0);
 								if (jrt instanceof ClasspathJrt) {
+									ClasspathJrt classpathJrt = (ClasspathJrt) jrt;
 									// TODO: double check, should it be platform or system module?
 									try {
-										((EclipseFileManager) standardJavaFileManager).locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, (ClasspathJrt) jrt);
+										EclipseFileManager efm = (EclipseFileManager) standardJavaFileManager;
+										@SuppressWarnings("resource") // XXX EclipseFileManager should close jrtfs but it looks like standardJavaFileManager is never closed
+										// Was leaking new JrtFileSystem(classpathJrt.file):
+										JrtFileSystem jrtfs = efm.getJrtFileSystem(classpathJrt.file);
+										efm.locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, jrtfs);
 									} catch (IOException e) {
 										e.printStackTrace();
 									}

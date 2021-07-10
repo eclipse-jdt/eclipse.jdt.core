@@ -15,10 +15,13 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
-import junit.framework.*;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.CompletionProposal;
+import org.eclipse.jdt.core.CompletionRequestor;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
+
+import junit.framework.Test;
 
 /**
  */
@@ -125,7 +128,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 			int warmupCount,
 			int iterationCount) throws JavaModelException {
 
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		TestCompletionRequestor requestor = new TestCompletionRequestor();
 		if(ignoredKinds != null) {

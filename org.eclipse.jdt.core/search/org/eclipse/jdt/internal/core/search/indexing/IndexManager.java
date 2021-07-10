@@ -36,8 +36,11 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -133,6 +136,70 @@ public class IndexManager extends JobManager implements IIndexConstants {
 
 	private static final String INDEX_META_CONTAINER = "meta_index"; //$NON-NLS-1$
 	private static final String META_INDEX_SAVE_JOB_ID = "meta_index_job_id"; //$NON-NLS-1$
+
+	/**
+	 * Waits until all indexing jobs are done or given monitor is cancelled.
+	 *
+	 * @param enableIndexer
+	 *            {@code true} if this method should temporarily enable index manager and disable it again at the end
+	 *            (if the index manager was disabled before calling this method). If {@code false} is given and index
+	 *            manager is disabled, this method will block until index manager will be enabled again.
+	 *
+	 * @param monitor
+	 *            for cancellation
+	 * @return {@code Status#CANCEL_STATUS} if the waiting was cancelled, {@code Status#OK_STATUS} otherwise
+	 */
+	public IStatus waitForIndex(final boolean enableIndexer, IProgressMonitor monitor) {
+		// => need to know whether the indexing is finished or not
+		boolean indexing = awaitingJobsCount() > 0;
+		if (!indexing) {
+			return Status.OK_STATUS;
+		}
+		monitor = monitor == null ? new NullProgressMonitor() : monitor;
+		int enableCount = 0;
+		// Wait for the end of indexing or a cancel
+		try {
+			while (enableIndexer && !isEnabled()) {
+				enableCount ++;
+				enable();
+			}
+			performConcurrentJob(new IJob() {
+				@Override
+				public boolean belongsTo(String jobFamily) {
+					return false;
+				}
+
+				@Override
+				public void cancel() {
+					// job is cancelled through progress
+				}
+
+				@Override
+				public void ensureReadyToRun() {
+					// always ready
+				}
+
+				@Override
+				public boolean execute(IProgressMonitor progress) {
+					return progress == null || !progress.isCanceled();
+				}
+
+				@Override
+				public String getJobFamily() {
+					return ""; //$NON-NLS-1$
+				}
+
+			}, IJob.WaitUntilReady, monitor);
+			return monitor.isCanceled()? Status.CANCEL_STATUS : Status.OK_STATUS;
+		} catch (OperationCanceledException oce) {
+			return Status.CANCEL_STATUS;
+		} finally {
+			while (enableCount > 0) {
+				enableCount --;
+				disable();
+			}
+		}
+	}
 
 public synchronized void aboutToUpdateIndex(IPath containerPath, Integer newIndexState) {
 	// newIndexState is either UPDATING_STATE or REBUILDING_STATE
@@ -1129,7 +1196,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	buffer.append(super.toString());
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
 	int count = 0;

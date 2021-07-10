@@ -232,7 +232,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 			outputPath = outputPath.replace('/', fileSeparatorChar);
 			// To be able to pass the mkdirs() method we need to remove the extra file separator at the end of the outDir name
-			StringBuffer outDir = new StringBuffer(outputPath);
+			StringBuilder outDir = new StringBuilder(outputPath);
 			if (!outputPath.endsWith(fileSeparator)) {
 				outDir.append(fileSeparator);
 			}
@@ -321,7 +321,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				|| (length = unitSource.length) == 0)
 				return Messages.problem_noSourceInformation;
 
-			StringBuffer errorBuffer = new StringBuffer();
+			StringBuilder errorBuffer = new StringBuilder();
 			if ((bits & Main.Logger.EMACS) == 0) {
 				errorBuffer.append(' ').append(Messages.bind(Messages.problem_atLine, String.valueOf(problem.getSourceLineNumber())));
 				errorBuffer.append(Util.LINE_SEPARATOR);
@@ -588,7 +588,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace));
 				String line;
 				int i = 0;
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				String message = e.getMessage();
 				if (message != null) {
 					buffer.append(message).append(Util.LINE_SEPARATOR);
@@ -1935,7 +1935,7 @@ public void configure(String[] argv) {
 			if (arg.startsWith("@")) { //$NON-NLS-1$
 				try {
 					LineNumberReader reader = new LineNumberReader(new StringReader(new String(Util.getFileCharContent(new File(arg.substring(1)), null))));
-					StringBuffer buffer = new StringBuffer();
+					StringBuilder buffer = new StringBuilder();
 					String line;
 					while((line = reader.readLine()) != null) {
 						line = line.trim();
@@ -2173,7 +2173,7 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
-						StringBuffer errorMessage = new StringBuffer();
+						StringBuilder errorMessage = new StringBuilder();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
 							errorMessage.append(' ');
@@ -2192,7 +2192,7 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("-bootclasspath")) {//$NON-NLS-1$
 					if (bootclasspaths.size() > 0) {
-						StringBuffer errorMessage = new StringBuffer();
+						StringBuilder errorMessage = new StringBuilder();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
 							errorMessage.append(' ');
@@ -2246,7 +2246,7 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
 					if (sourcepathClasspathArg != null) {
-						StringBuffer errorMessage = new StringBuffer();
+						StringBuilder errorMessage = new StringBuilder();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
 							errorMessage.append(' ');
@@ -2263,7 +2263,7 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("-extdirs")) {//$NON-NLS-1$
 					if (extdirsClasspaths != null) {
-						StringBuffer errorMessage = new StringBuffer();
+						StringBuilder errorMessage = new StringBuilder();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
 							errorMessage.append(' ');
@@ -2277,7 +2277,7 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("-endorseddirs")) { //$NON-NLS-1$
 					if (endorsedDirClasspaths != null) {
-						StringBuffer errorMessage = new StringBuffer();
+						StringBuilder errorMessage = new StringBuilder();
 						errorMessage.append(currentArg);
 						if ((index + 1) < argCount) {
 							errorMessage.append(' ');
@@ -5136,7 +5136,7 @@ private int processPaths(String[] args, int index, String currentArg, ArrayList<
 				this.bind("configure.unexpectedBracket", //$NON-NLS-1$
 							currentArg));
 	} else {
-		StringBuffer currentPath = new StringBuffer(currentArg);
+		StringBuilder currentPath = new StringBuilder(currentArg);
 		while (true) {
 			if (localIndex >= args.length) {
 				throw new IllegalArgumentException(
@@ -5194,7 +5194,7 @@ private int processPaths(String[] args, int index, String currentArg, String[] p
 	if (count == 0) {
 		paths[0] = currentArg;
 	} else {
-		StringBuffer currentPath = new StringBuffer(currentArg);
+		StringBuilder currentPath = new StringBuilder(currentArg);
 		while (true) {
 			localIndex++;
 			if (localIndex >= args.length) {

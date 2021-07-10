@@ -33,7 +33,7 @@ public InsideSubRoutineFlowContext(
 
 @Override
 public String individualToString() {
-	StringBuffer buffer = new StringBuffer("Inside SubRoutine flow context"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("Inside SubRoutine flow context"); //$NON-NLS-1$
 	buffer.append("[initsOnReturn -").append(this.initsOnReturn.toString()).append(']'); //$NON-NLS-1$
 	return buffer.toString();
 }

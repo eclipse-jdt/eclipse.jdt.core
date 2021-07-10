@@ -126,7 +126,7 @@ protected String problemsMessage() {
 	if (numNew == 0 && numFixed == 0) return ""; //$NON-NLS-1$
 
 	boolean displayBoth = numNew > 0 && numFixed > 0;
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append('(');
 	if (numNew > 0) {
 		// (Found x errors + y warnings)

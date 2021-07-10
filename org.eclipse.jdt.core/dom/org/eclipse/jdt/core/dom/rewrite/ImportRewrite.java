@@ -411,7 +411,7 @@ public final class ImportRewrite {
 			List imports= astRoot.imports();
 			for (int i= 0; i < imports.size(); i++) {
 				ImportDeclaration curr= (ImportDeclaration) imports.get(i);
-				StringBuffer buf= new StringBuffer();
+				StringBuilder buf= new StringBuilder();
 				buf.append(curr.isStatic() ? STATIC_PREFIX : NORMAL_PREFIX).append(curr.getName().getFullyQualifiedName());
 				if (curr.isOnDemand()) {
 					if (buf.length() > 1)
@@ -860,7 +860,7 @@ public final class ImportRewrite {
 			return "invalid"; //$NON-NLS-1$
 		}
 		if (normalizedBinding.isWildcardType()) {
-			StringBuffer res= new StringBuffer("?"); //$NON-NLS-1$
+			StringBuilder res= new StringBuilder("?"); //$NON-NLS-1$
 			ITypeBinding bound= normalizedBinding.getBound();
 			if (bound != null && !bound.isWildcardType() && !bound.isCapture()) { // bug 95942
 				if (normalizedBinding.isUpperbound()) {
@@ -874,7 +874,7 @@ public final class ImportRewrite {
 		}
 
 		if (normalizedBinding.isArray()) {
-			StringBuffer res= new StringBuffer(addImport(normalizedBinding.getElementType(), context));
+			StringBuilder res= new StringBuilder(addImport(normalizedBinding.getElementType(), context));
 			for (int i= normalizedBinding.getDimensions(); i > 0; i--) {
 				res.append("[]"); //$NON-NLS-1$
 			}
@@ -887,7 +887,7 @@ public final class ImportRewrite {
 
 			ITypeBinding[] typeArguments= normalizedBinding.getTypeArguments();
 			if (typeArguments.length > 0) {
-				StringBuffer res= new StringBuffer(str);
+				StringBuilder res= new StringBuilder(str);
 				res.append('<');
 				for (int i= 0; i < typeArguments.length; i++) {
 					if (i > 0) {

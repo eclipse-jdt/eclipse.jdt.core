@@ -237,7 +237,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	}
 
 	protected void assertASTNodesEqual(String expected, List nodes) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Iterator iterator = nodes.iterator();
 		while (iterator.hasNext()) {
 			ASTNode node = (ASTNode) iterator.next();
@@ -266,7 +266,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	}
 
 	protected void assertBindingKeysEqual(String expected, String[] actualKeys) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = actualKeys.length; i < length; i++) {
 			if (i > 0) buffer.append('\n');
 			buffer.append(actualKeys[i]);
@@ -291,7 +291,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	}
 
 	protected void assertBindingsEqual(String message, String expected, IBinding[] actualBindings) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = actualBindings.length; i < length; i++) {
 			if (i > 0) buffer.append('\n');
 			if (actualBindings[i] == null)

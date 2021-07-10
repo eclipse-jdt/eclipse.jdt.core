@@ -54,7 +54,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			e.printStackTrace();
 			return;
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer
 			.append("\"")
 			.append(fileName)

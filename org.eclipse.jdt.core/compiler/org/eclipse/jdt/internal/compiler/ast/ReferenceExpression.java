@@ -341,7 +341,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			}
 		}
 		int pc = codeStream.position;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int argumentsSize = 0;
 		buffer.append('(');
 		if (this.haveReceiver) {

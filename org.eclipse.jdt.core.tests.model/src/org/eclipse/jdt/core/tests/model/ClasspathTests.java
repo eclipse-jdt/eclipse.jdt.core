@@ -136,9 +136,9 @@ void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) thro
 
 protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants, boolean includeAffected) throws CoreException {
 	waitForAutoBuild();
-	StringBuffer expected = new StringBuffer("{");
+	StringBuilder expected = new StringBuilder("{");
 	int expectedCount = 0;
-	StringBuffer computed = new StringBuffer("{");
+	StringBuilder computed = new StringBuilder("{");
 	int computedCount = 0;
 	int mask = includeAffected ? 3 : 1;
 	for (int j = 0; j < p.length; j++){
@@ -327,7 +327,7 @@ public void test232816b() throws Exception {
 		// Modify user library
 		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"SomeUserLibrary";
-		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		StringBuilder propertyValue = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		//String jarFullPath = getWorkspaceRoot().getLocation().append(jarFile.getFullPath()).toString();
 		propertyValue.append(" path=\"" + getExternalResourcePath("idontexistthereforeiamnot.jar"));
 		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
@@ -6055,7 +6055,7 @@ public void testBug276373() throws Exception {
 
 		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 		String propertyName = JavaModelManager.CP_USERLIBRARY_PREFERENCES_PREFIX+"TestUserLibrary";
-		StringBuffer propertyValue = new StringBuffer("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
+		StringBuilder propertyValue = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<userlibrary systemlibrary=\"false\" version=\"1\">\r\n<archive");
 		propertyValue.append(" path=\"" + libJar.getAbsolutePath());
 		propertyValue.append("\"/>\r\n</userlibrary>\r\n");
 		preferences.put(propertyName, propertyValue.toString());
@@ -6142,7 +6142,7 @@ public void testBug300136() throws Exception {
 				new IPath[] {new Path("/lib/tmp.jar")},
 				null);
 
-		StringBuffer buffer = new StringBuffer(
+		StringBuilder buffer = new StringBuilder(
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<classpath>\n" +
 				"   <classpathentry  kind=\"var\" path=\"INVALID_LIB\">\n" +
@@ -6198,7 +6198,7 @@ public void testBug300136a() throws Exception {
 				new IPath[] {libPath},
 				null);
 
-		StringBuffer buffer = new StringBuffer(
+		StringBuilder buffer = new StringBuilder(
 				"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 				"<classpath>\n" +
 				"    <classpathentry  kind=\"var\" path=\"INVALID_LIB\" />\n" +
@@ -6249,7 +6249,7 @@ public void testBug294360a() throws Exception {
 		classpath[1] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"));
 		setClasspath(p, classpath);
 
-		StringBuffer buffer = new StringBuffer(
+		StringBuilder buffer = new StringBuilder(
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 						"<classpath>\n" +
 						"	<classpathentry kind=\"con\" path=\"org.eclipse.jdt.core.tests.model.TEST_CONTAINER\"/>\n" +

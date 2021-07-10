@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import junit.framework.Test;
 
@@ -128,18 +128,18 @@ public class JavaModelManagerTests extends AbstractJavaModelTests {
 		return type;
 	}
 
-	private static void buildProject(IJavaProject javaProject) throws Exception {
+	private void buildProject(IJavaProject javaProject) throws Exception {
 		IProject project = javaProject.getProject();
 		refreshProject(project);
 		project.build(IncrementalProjectBuilder.CLEAN_BUILD, NULL_MONITOR);
 		refreshProject(project);
 		project.build(IncrementalProjectBuilder.FULL_BUILD, NULL_MONITOR);
 		Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_BUILD, null);
-		Indexer.getInstance().waitForIndex(null);
+		JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 		refreshProject(project);
 	}
 
-	private static void refreshProject(IProject project) throws CoreException {
+	private void refreshProject(IProject project) throws CoreException {
 		project.refreshLocal(IResource.DEPTH_INFINITE, NULL_MONITOR);
 		waitForManualRefresh();
 	}

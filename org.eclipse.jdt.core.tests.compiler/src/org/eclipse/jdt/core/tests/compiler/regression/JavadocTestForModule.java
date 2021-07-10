@@ -280,7 +280,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 	 */
 	String adjustForJavac(String commandLine, String versionOptions) {
 		String[] tokens = commandLine.split(" ");
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		boolean skipNext = false;
 		for (int i = 0; i < tokens.length; i++) {
 			if (skipNext) {

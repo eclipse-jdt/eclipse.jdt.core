@@ -899,7 +899,7 @@ public class JavadocTestOptions extends JavadocTest {
 	private String resultForInvalidTagsClassOrField(int visibility) {
 		String[] errors = errorsForInvalidTagsClassOrField(visibility);
 		int length = errors.length;
-		StringBuffer buffer = new StringBuffer("----------\n");
+		StringBuilder buffer = new StringBuilder("----------\n");
 		for (int i=0; i<length; i++) {
 			buffer.append(errors[i]);
 		}
@@ -909,7 +909,7 @@ public class JavadocTestOptions extends JavadocTest {
 	private String resultForInvalidTagsMethodOrConstructor(int visibility) {
 		String[] errors = errorsForInvalidTagsMethodOrConstructor(visibility);
 		int length = errors.length;
-		StringBuffer buffer = new StringBuffer("----------\n");
+		StringBuilder buffer = new StringBuilder("----------\n");
 		for (int i=0; i<length; i++) {
 			buffer.append(errors[i]);
 		}
@@ -927,10 +927,10 @@ public class JavadocTestOptions extends JavadocTest {
 		}
 		String[] errors = new String[size];
 		for (int i=0, count=1; i<size; i++) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			StringTokenizer tokenizer = new StringTokenizer(CLASSES_ERRORS[i], "\n");
 			while (tokenizer.hasMoreTokens()) {
-				StringBuffer error = new StringBuffer();
+				StringBuilder error = new StringBuilder();
 				boolean add = true;
 				for (int j=0; j<5; j++) {
 					String token = tokenizer.nextToken();
@@ -974,10 +974,10 @@ public class JavadocTestOptions extends JavadocTest {
 		}
 		String[] errors = new String[size];
 		for (int i=0, count=1; i<size; i++) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			StringTokenizer tokenizer = new StringTokenizer(METHODS_ERRORS[i], "\n");
 			while (tokenizer.hasMoreTokens()) {
-				StringBuffer error = new StringBuffer();
+				StringBuilder error = new StringBuilder();
 				boolean add = true;
 				for (int j=0; j<5; j++) {
 					String token = tokenizer.nextToken();
@@ -1015,7 +1015,7 @@ public class JavadocTestOptions extends JavadocTest {
 			? errorsForInvalidTagsMethodOrConstructor(visibility)
 			: errorsForInvalidTagsClassOrField(visibility);
 		int length = errors.length;
-		StringBuffer expectedProblemLog = new StringBuffer(isMethod?"M":"C");
+		StringBuilder expectedProblemLog = new StringBuilder(isMethod?"M":"C");
 		expectedProblemLog.append(errors.length);
 		expectedProblemLog.append("----------\n");
 		for (int i=0; i<length; i++) {
@@ -1060,7 +1060,7 @@ public class JavadocTestOptions extends JavadocTest {
 			int length = errors.length;
 			int max = length / level;
 			for (int i=0, idx=1; i<level; i++) {
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				for (int j=0; j<max; j++) {
 					if (j > 0) {
 						buffer.append("----------\n");
@@ -1196,7 +1196,7 @@ public class JavadocTestOptions extends JavadocTest {
 	};
 
 	private String resultForMissingTags(int visibility) {
-		StringBuffer result = new StringBuffer("----------\n");
+		StringBuilder result = new StringBuilder("----------\n");
 		for (int i=0; i<=visibility; i++) {
 			result.append(X_MISSING_TAGS_ERRORS[i]);
 		}
@@ -1332,7 +1332,7 @@ public class JavadocTestOptions extends JavadocTest {
 	};
 
 	private String resultForMissingComments(int visibility) {
-		StringBuffer result = new StringBuffer("----------\n");
+		StringBuilder result = new StringBuilder("----------\n");
 		for (int i=0; i<=visibility; i++) {
 			result.append(X_MISSING_COMMENTS_ERRORS[i]);
 		}

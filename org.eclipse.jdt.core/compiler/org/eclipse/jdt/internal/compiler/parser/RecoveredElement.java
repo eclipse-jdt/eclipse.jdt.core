@@ -290,7 +290,7 @@ public int getLastStart() {
 	return parseTree == null ? -1 : parseTree.sourceStart;
 }
 protected String tabString(int tab) {
-	StringBuffer result = new StringBuffer();
+	StringBuilder result = new StringBuilder();
 	for (int i = tab; i > 0; i--) {
 		result.append("  "); //$NON-NLS-1$
 	}

@@ -68,7 +68,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 			FakedTrackingVariable.TEST_372319 = true;
 
 			// expected error output for runner2 times COUNT:
-			final StringBuffer errorOutput = new StringBuffer();
+			final StringBuilder errorOutput = new StringBuilder();
 			for (int j=0; j<COUNT; j++)
 				errorOutput.append("----------\n" +
 						"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/test01/X.java (at line 12)\n" +

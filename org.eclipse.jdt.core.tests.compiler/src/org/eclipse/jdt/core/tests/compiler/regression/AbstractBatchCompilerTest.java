@@ -83,7 +83,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 		@Override
 		String normalized(String originalValue) {
 			String result;
-			StringBuffer normalizedValueBuffer = new StringBuffer(originalValue);
+			StringBuilder normalizedValueBuffer = new StringBuilder(originalValue);
 			int nextOccurrenceIndex;
 			while ((nextOccurrenceIndex = normalizedValueBuffer.indexOf(this.match)) != -1)
 				normalizedValueBuffer.replace(nextOccurrenceIndex,
@@ -896,7 +896,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 	}
 
 	private static boolean equals(String a, String b) {
-		StringBuffer aBuffer = new StringBuffer(a), bBuffer = new StringBuffer(b);
+		StringBuilder aBuffer = new StringBuilder(a), bBuffer = new StringBuilder(b);
 		int length = aBuffer.length(), bLength;
 		boolean result = true;
 		if (length != (bLength = bBuffer.length())) {

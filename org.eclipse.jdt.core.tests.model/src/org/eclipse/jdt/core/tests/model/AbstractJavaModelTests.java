@@ -16,24 +16,97 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.URL;
-import java.util.*;
-import java.util.stream.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IStorage;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ElementChangedEvent;
+import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICodeAssist;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IElementChangedListener;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJarEntryResource;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IMemberValuePair;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IParent;
+import org.eclipse.jdt.core.IProblemRequestor;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -49,9 +122,11 @@ import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
@@ -236,7 +311,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Delta listener
 	 */
-	protected static class DeltaListener implements IElementChangedListener, IResourceChangeListener {
+	protected class DeltaListener implements IElementChangedListener, IResourceChangeListener {
 		/**
 		 * Deltas received from the java model. See
 		 * <code>#startDeltas</code> and
@@ -295,7 +370,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 * If the boolean is true returns the first delta found.
 		 */
 		public synchronized IJavaElementDelta getDeltaFor(IJavaElement element, boolean returnFirst) {
-			Indexer.getInstance().waitForIndex(null);
+			JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 			if (this.deltas == null) waitForResourceDelta();
 			if (this.deltas == null) return null;
 			IJavaElementDelta result = null;
@@ -759,7 +834,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected void assertResourcesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = resources.length; i < length; i++) {
 			if (resources[i] instanceof IResource) {
 				buffer.append(((IResource) resources[i]).getFullPath().toString());
@@ -783,7 +858,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected void assertResourceNamesEqual(String message, String expected, Object[] resources) {
 		sortResources(resources);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = resources.length; i < length; i++) {
 			if (resources[i] instanceof IResource) {
 				buffer.append(((IResource)resources[i]).getName());
@@ -876,7 +951,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertElementsEqual(message, expected, elements, showResolvedInfo, false);
 	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo, boolean sorted) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
 				JavaElement element = (JavaElement)elements[i];
@@ -943,7 +1018,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertMarkers(message, expectedMarkers, markers);
 	}
 	protected void assertMarkers(String message, String expectedMarkers, IMarker[] markers) throws CoreException {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (markers != null) {
 			for (int i = 0, length = markers.length; i < length; i++) {
 				IMarker marker = markers[i];
@@ -1183,7 +1258,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (classpath == null) {
 			actual = "<null>";
 		} else {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			int length = classpath.length;
 			for (int i=0; i<length; i++) {
 				buffer.append(classpath[i]);
@@ -1202,7 +1277,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (roots == null) {
 			actual = "<null>";
 		} else {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			int length = roots.length;
 			for (int i=0; i<length; i++) {
 				buffer.append(roots[i]);
@@ -1348,7 +1423,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void assertTypesEqual(String message, String expected, IType[] types, boolean sort) {
 		if (sort) sortTypes(types);
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < types.length; i++){
 			if (types[i] == null)
 				buffer.append("<null>");
@@ -1363,7 +1438,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertEquals(message, expected, actual);
 	}
 	protected void assertTypeParametersEqual(String expected, ITypeParameter[] typeParameters) throws JavaModelException {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < typeParameters.length; i++) {
 			ITypeParameter typeParameter = typeParameters[i];
 			buffer.append(typeParameter.getElementName());
@@ -2860,7 +2935,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void refreshExternalArchives(IJavaProject p) throws JavaModelException {
 		waitForAutoBuild(); // ensure that the auto-build job doesn't interfere with external jar refreshing
 		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
-		Indexer.getInstance().waitForIndex(null);
+		JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 	}
 
 	protected void removeJavaNature(String projectName) throws CoreException {
@@ -2904,20 +2979,35 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		search(element, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
-		SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
-		assertNotNull("Pattern should not be null", pattern);
-		new SearchEngine().search(
-			pattern,
-			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-			scope,
-			requestor,
-			null
-		);
+		boolean indexDisabled = isIndexDisabledForTest();
+		if(indexDisabled) {
+			JavaModelManager.getIndexManager().enable();
+		}
+		try {
+			SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
+			assertNotNull("Pattern should not be null", pattern);
+			new SearchEngine().search(
+				pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				scope,
+				requestor,
+				null
+			);
+		} finally {
+			if(indexDisabled) {
+				JavaModelManager.getIndexManager().disable();
+			}
+		}
 	}
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		search(patternString, searchFor, limitTo, SearchPattern.R_EXACT_MATCH|SearchPattern.R_CASE_SENSITIVE, scope, requestor);
 	}
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
+		boolean indexDisabled = isIndexDisabledForTest();
+		if(indexDisabled) {
+			JavaModelManager.getIndexManager().enable();
+		}
+		try {
 		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
 			matchRule |= SearchPattern.R_PATTERN_MATCH;
 		SearchPattern pattern = SearchPattern.createPattern(
@@ -2932,6 +3022,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			scope,
 			requestor,
 			null);
+		} finally {
+			if(indexDisabled) {
+				JavaModelManager.getIndexManager().disable();
+			}
+		}
 	}
 
 	/*
@@ -2950,7 +3045,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		for (int n=0; index >= 0 && n<max; n++) {
 			index = occurences < 0 ? source.lastIndexOf(selection, index) : source.indexOf(selection, index+selection.length());
 		}
-		StringBuffer msg = new StringBuffer("Selection '");
+		StringBuilder msg = new StringBuilder("Selection '");
 		msg.append(selection);
 		if (index >= 0) {
 			if (selection.startsWith("/**")) { // comment is before
@@ -3736,12 +3831,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Wait for autobuild notification to occur
 	 */
-	public static void waitForAutoBuild() {
+	public void waitForAutoBuild() {
 		boolean wasInterrupted = false;
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-				Indexer.getInstance().waitForIndex(null);
+				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
@@ -3751,12 +3846,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} while (wasInterrupted);
 	}
 
-	public static void waitForManualRefresh() {
+	public void waitForManualRefresh() {
 		boolean wasInterrupted = false;
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
-				Indexer.getInstance().waitForIndex(null);
+				JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
@@ -3766,12 +3861,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		} while (wasInterrupted);
 	}
 
-	public static void waitUntilIndexesReady() {
+	public void waitUntilIndexesReady() {
 		// dummy query for waiting until the indexes are ready
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		try {
-			Indexer.getInstance().waitForIndex(null);
+			JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
 			engine.searchAllTypeNames(
 				null,
 				SearchPattern.R_EXACT_MATCH,

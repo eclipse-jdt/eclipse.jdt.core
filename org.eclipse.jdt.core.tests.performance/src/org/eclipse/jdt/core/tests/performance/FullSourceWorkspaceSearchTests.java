@@ -18,16 +18,25 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.ITypeNameRequestor;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.core.search.TypeNameMatch;
+import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+
+import junit.framework.Test;
 
 /**
  */
@@ -214,7 +223,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Indexing all workspace projects", false); // do NOT put in fingerprint
 
 		// Wait for indexing end (we use initial indexing as warm-up)
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Remove project previous indexing
 		INDEX_MANAGER.removeIndexFamily(new Path(""));
@@ -228,11 +237,11 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		for (int j=0, length=ALL_PROJECTS.length; j<length; j++) {
 			INDEX_MANAGER.indexAll(ALL_PROJECTS[j].getProject());
 		}
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// end measure
 		INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Commit
 		commitMeasurements();
@@ -249,7 +258,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		for (int i=0 ; i<WARMUP_COUNT; i++) {
 			INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
 			INDEX_MANAGER.indexAll(JDT_CORE_PROJECT.getProject());
-			AbstractJavaModelTests.waitUntilIndexesReady();
+			waitUntilIndexesReady();
 		}
 
 		// Measures
@@ -258,9 +267,9 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 			INDEX_MANAGER.removeIndexFamily(JDT_CORE_PROJECT.getPath());
 			INDEX_MANAGER.request(new Measuring(true/*start measuring*/));
 			INDEX_MANAGER.indexAll(JDT_CORE_PROJECT.getProject());
-			AbstractJavaModelTests.waitUntilIndexesReady();
+			waitUntilIndexesReady();
 			INDEX_MANAGER.request(new Measuring(false /*end measuring*/));
-			AbstractJavaModelTests.waitUntilIndexesReady();
+			waitUntilIndexesReady();
 		}
 
 		// Commit
@@ -278,7 +287,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		OldSearchTypeNameRequestor requestor = new OldSearchTypeNameRequestor();
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
@@ -335,7 +344,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		SearchTypeNameRequestor requestor = new SearchTypeNameRequestor();
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
@@ -394,7 +403,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		SearchTypeNameMatchRequestor requestor = new SearchTypeNameMatchRequestor();
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
@@ -456,7 +465,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search type occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -490,7 +499,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search field occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -525,7 +534,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search method occurences (no resolution)", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -563,7 +572,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search method occurences", true); // put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -600,7 +609,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search constructor occurences", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -638,7 +647,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search package declarations", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { JDT_CORE_PROJECT }, IJavaSearchScope.SOURCES);
@@ -674,7 +683,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		tagAsSummary("Search workspace package declarations", false); // do NOT put in fingerprint
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
@@ -712,7 +721,7 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	public void _testGotoPackage() throws CoreException {
 
 		// Wait for indexing end
-		AbstractJavaModelTests.waitUntilIndexesReady();
+		waitUntilIndexesReady();
 
 		// Warm up
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();

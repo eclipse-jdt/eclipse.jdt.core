@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -59,6 +59,7 @@ public JavaSearchBugs8Tests(String name) {
 public static Test suite() {
 	return buildModelTestSuite(JavaSearchBugs8Tests.class, BYTECODE_DECLARATION_ORDER);
 }
+
 class TestCollector extends JavaSearchResultCollector {
 	@Override
 	public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
@@ -2448,8 +2449,10 @@ public void testBug400905_0005() throws CoreException {
  *
  */
 public void testBug400905_0006() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2470,6 +2473,7 @@ public void testBug400905_0006() throws CoreException {
 			"    public void foo();\n" +
 			"}\n"
 		);
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/I.java").getType("I").getMethod("foo", new String[0]);
 		search(method, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
 		assertSearchResults(
@@ -2479,6 +2483,7 @@ public void testBug400905_0006() throws CoreException {
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 
@@ -2491,8 +2496,10 @@ public void testBug400905_0006() throws CoreException {
  *
  */
 public void testBug400905_0007() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
 			"public class X  {\n" +
@@ -2513,12 +2520,14 @@ public void testBug400905_0007() throws CoreException {
 			"    X foo(int x);\n" +
 			"}\n"
 		);
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("Y", new String[] {"I"});
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
 		assertSearchResults("src/X.java void X.foo() [Y::new] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 public void testBug400905_0007a() throws CoreException {
@@ -2554,8 +2563,10 @@ public void testBug400905_0007a() throws CoreException {
 	}
 }
 public void testBug400905_0008() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2576,12 +2587,14 @@ public void testBug400905_0008() throws CoreException {
 			"    public void foo();\n" +
 			"}\n"
 		);
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
 		assertSearchResults("src/X.java void X.main(String[]) [goo] EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 public void testBug400905_0009() throws CoreException {
@@ -2617,8 +2630,10 @@ public void testBug400905_0009() throws CoreException {
 	}
 }
 public void testBug400905_0010() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		IJavaProject project = createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/J.java",
 			"public interface J {\n" +
@@ -2644,6 +2659,7 @@ public void testBug400905_0010() throws CoreException {
 			"    public void foo();\n" +
 			"}\n"
 		);
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IMethod method = getCompilationUnit("/P/src/Y.java").getType("Y").getMethod("goo", new String[0]);
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaProject[] {project}), this.resultCollector);
 		assertSearchResults("src/J.java void J.main(String[]) [goo] EXACT_MATCH\n" +
@@ -2651,6 +2667,7 @@ public void testBug400905_0010() throws CoreException {
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 public void testBug400905_0011() throws CoreException {
@@ -2760,8 +2777,10 @@ public void testBug400905_0013() throws CoreException {
 }
 // verify that nested lambdas are found and they are linked properly.
 public void testBug400905_0013a() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2781,6 +2800,7 @@ public void testBug400905_0013a() throws CoreException {
 			"}\n"
 		);
 
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
 		IMethod method = type.getMethod("doit", new String[0]);
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
@@ -2790,6 +2810,7 @@ public void testBug400905_0013a() throws CoreException {
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 // Verify that nested lambdas are found and they are linked properly. (hierarchy scope)
@@ -2966,8 +2987,10 @@ public void testBug400905_0013f() throws CoreException {
 	}
 }
 public void testBug400905_0014() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -2987,7 +3010,7 @@ public void testBug400905_0014() throws CoreException {
 			"    public int doit(int x);\n" +
 			"}\n"
 		);
-
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
 		IMethod method = type.getMethod("doit", new String[] {"I"});
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
@@ -2996,6 +3019,7 @@ public void testBug400905_0014() throws CoreException {
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 public void testBug400905_0015() throws CoreException {
@@ -3037,8 +3061,10 @@ public void testBug400905_0015() throws CoreException {
 	}
 }
 public void testBug400905_0016() throws CoreException {
+	boolean indexState = isIndexDisabledForTest();
 	try {
 		createJavaProject("P", new String[] { "", "src"}, new String[] {"JCL18_LIB"}, null, null, "bin", null, null, new String[][] {new String[] {"src/"}, new String[0]}, "1.8");
+		this.indexDisabledForTest = true;
 		createFile(
 			"/P/src/X.java",
 			"public class X {\n" +
@@ -3066,7 +3092,7 @@ public void testBug400905_0016() throws CoreException {
 				"    public int doit(int x);\n" +
 				"}\n"
 			);
-
+		JavaModelManager.getIndexManager().waitForIndex(true, null);
 		IType type = getCompilationUnit("/P/src/I.java").getType("I");
 		IMethod method = type.getMethod("doit", new String[] {"I"});
 		search(method, DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE, SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH, SearchEngine.createHierarchyScope(type), this.resultCollector);
@@ -3075,6 +3101,7 @@ public void testBug400905_0016() throws CoreException {
 	}
 	finally {
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 public void testBug400905_0017() throws CoreException {
@@ -4999,6 +5026,52 @@ public void testBug493433b() throws CoreException {
 	search(method, REFERENCES, EXACT_RULE);
 	assertSearchResults(
 		"src/X.java void CallerHierarchyExample.caller() [method] EXACT_MATCH"
+	);
+}
+public void testBug574194() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"\n" +
+		"public class X {\n" +
+		"	/**\n" +
+		"	 * This is abc in X\n" +
+		"	 */\n" +
+		"	public void abc(int f, char t) {\n" +
+		"		\n" +
+		"	}\n" +
+		"	\n" +
+		"	/**\n" +
+		"	 * @see X#abc (\n" +
+		"	 * int f, char t)\n" +
+		"	 * @see X#abc ( int f, \n" +
+		"	 * char t)\n" +
+		"	 * @see X#abc(int f, char t)\n" +
+		"	 * @see X#abc (int f , char t)\n" +
+		"	 */\n" +
+		"	public void def() {\n" +
+		"		\n" +
+		"	}\n" +
+		"}"
+		);
+	IType type = this.workingCopies[0].getType("X");
+	assertNotNull("type should not be null", type);
+	IMethod method = null;
+	IMethod[] methods = type.getMethods();
+	for (IMethod iMethod : methods) {
+		if (iMethod.getElementName().equals("abc")) {
+			method = iMethod;
+			break;
+		}
+	}
+	assertNotNull("type should not be null", method);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void X.def() [abc (\n" +
+		"	 * int f, char t)] EXACT_MATCH\n" +
+		"src/X.java void X.def() [abc ( int f, \n" +
+		"	 * char t)] EXACT_MATCH\n" +
+		"src/X.java void X.def() [abc(int f, char t)] EXACT_MATCH\n" +
+		"src/X.java void X.def() [abc (int f , char t)] EXACT_MATCH"
 	);
 }
 // Add new tests in JavaSearchBugs8Tests

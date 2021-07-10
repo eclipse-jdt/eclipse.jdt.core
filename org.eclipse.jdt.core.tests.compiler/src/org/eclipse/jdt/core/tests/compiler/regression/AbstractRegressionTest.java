@@ -245,7 +245,7 @@ static class JavacCompiler {
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(this.version, rawVersion);
 		this.rawVersion = rawVersion;
-		StringBuffer classpathBuffer = new StringBuffer(" -classpath ");
+		StringBuilder classpathBuffer = new StringBuilder(" -classpath ");
 		this.classpath = classpathBuffer.toString();
 	}
 	/** Call this if " -classpath " should be replaced by some other option token. */
@@ -526,7 +526,7 @@ static class JavacCompiler {
 			if (!directory.exists()) {
 				directory.mkdir();
 			}
-			StringBuffer cmdLine = new StringBuffer(this.javacPathName);
+			StringBuilder cmdLine = new StringBuilder(this.javacPathName);
 			cmdLine.append(this.classpath);
 			cmdLine.append(". ");
 			cmdLine.append(options);
@@ -602,7 +602,7 @@ static class JavaRuntime {
 	int execute(File directory, String options, String className, StringBuffer stdout, StringBuffer stderr) throws IOException, InterruptedException {
 		Process executionProcess = null;
 		try {
-			StringBuffer cmdLine = new StringBuffer(this.javaPathName);
+			StringBuilder cmdLine = new StringBuilder(this.javaPathName);
 			if (options.contains("-cp "))
 				cmdLine.append(' '); // i.e., -cp will be appended below, just ensure separation from javaPathname
 			else
@@ -1583,7 +1583,7 @@ protected static class JavacTestOptions {
 	 */
 	protected String findReferences(String classFilePath) {
 		// check that "new Z().init()" is bound to "AbstractB.init()"
-		final StringBuffer references = new StringBuffer(10);
+		final StringBuilder references = new StringBuilder(10);
 		final SearchParticipant participant = new JavaSearchParticipant() {
 			final SearchParticipant searchParticipant = this;
 			public SearchDocument getDocument(final String documentPath) {
@@ -2207,10 +2207,10 @@ protected static class JavacTestOptions {
 			writeFiles(testFiles);
 
 			// Prepare command line
-			StringBuffer cmdLine = new StringBuffer(javacCommandLineHeader);
+			StringBuilder cmdLine = new StringBuilder(javacCommandLineHeader);
 			// compute extra classpath
 			String[] classpath = Util.concatWithClassLibs(JAVAC_OUTPUT_DIR_NAME, false);
-			StringBuffer cp = new StringBuffer(" -classpath ");
+			StringBuilder cp = new StringBuilder(" -classpath ");
 			int length = classpath.length;
 			for (int i = 0; i < length; i++) {
 				if (i > 0)
@@ -2292,7 +2292,7 @@ protected static class JavacTestOptions {
 					if (expectedSuccessOutputString != null && !javacTestErrorFlag) {
 						// Neither Eclipse nor Javac found errors, and we have a runtime
 						// bench value
-						StringBuffer javaCmdLine = new StringBuffer(javaCommandLineHeader);
+						StringBuilder javaCmdLine = new StringBuilder(javaCommandLineHeader);
 						javaCmdLine.append(cp);
 						javaCmdLine.append(' ').append(testFiles[0].substring(0, testFiles[0].indexOf('.')));
 							// assume executable class is name of first test file - PREMATURE check if this is also the case in other test fwk classes
@@ -2373,7 +2373,7 @@ protected static class JavacTestOptions {
 		Process compileProcess = null;
 		try {
 			// Prepare command line
-			StringBuffer cmdLine = new StringBuffer(javacCommandLineHeader);
+			StringBuilder cmdLine = new StringBuilder(javacCommandLineHeader);
 			cmdLine.append(' ');
 			cmdLine.append(options);
 			// add source files
@@ -4019,10 +4019,10 @@ protected void runNegativeTest(
 					else
 						jdkRootDirPath = new Path(jdkRootDirectory);
 
-					StringBuffer cmdLineHeader = new StringBuffer(jdkRootDirPath.
+					StringBuilder cmdLineHeader = new StringBuilder(jdkRootDirPath.
 							append("bin").append(JAVA_NAME).toString()); // PREMATURE replace JAVA_NAME and JAVAC_NAME with locals? depends on potential reuse
 					javaCommandLineHeader = cmdLineHeader.toString();
-					cmdLineHeader = new StringBuffer(jdkRootDirPath.
+					cmdLineHeader = new StringBuilder(jdkRootDirPath.
 							append("bin").append(JAVAC_NAME).toString());
 					cmdLineHeader.append(" -classpath . ");
 					  // start with the current directory which contains the source files

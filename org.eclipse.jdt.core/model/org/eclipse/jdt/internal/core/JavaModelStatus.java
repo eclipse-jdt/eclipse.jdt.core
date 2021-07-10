@@ -227,7 +227,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 					return Messages.bind(Messages.status_invalidDestination, ((JavaElement)this.elements[0]).toStringWithAncestors());
 
 				case INVALID_ELEMENT_TYPES:
-					StringBuffer buff= new StringBuffer(Messages.operation_notSupported);
+					StringBuilder buff= new StringBuilder(Messages.operation_notSupported);
 					for (int i= 0; i < this.elements.length; i++) {
 						if (i > 0) {
 							buff.append(", "); //$NON-NLS-1$
@@ -527,7 +527,7 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 		if (this == VERIFIED_OK){
 			return "JavaModelStatus[OK]"; //$NON-NLS-1$
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("Java Model Status ["); //$NON-NLS-1$
 		buffer.append(getMessage());
 		buffer.append("]"); //$NON-NLS-1$

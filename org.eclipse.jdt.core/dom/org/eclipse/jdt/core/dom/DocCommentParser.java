@@ -96,7 +96,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("javadoc: ").append(this.docComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
 		buffer.append(super.toString());
 		return buffer.toString();
@@ -226,7 +226,7 @@ class DocCommentParser extends AbstractCommentParser {
 		TagElement tagElement = this.ast.newTagElement();
 		int position = this.scanner.currentPosition;
 		this.scanner.resetTo(this.tagSourceStart, this.tagSourceEnd);
-		StringBuffer tagName = new StringBuffer();
+		StringBuilder tagName = new StringBuilder();
 		int start = this.tagSourceStart;
 		this.scanner.getNextChar();
 		while (this.scanner.currentPosition <= (this.tagSourceEnd+1)) {

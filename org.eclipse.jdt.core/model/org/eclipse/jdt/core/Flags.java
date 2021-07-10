@@ -527,7 +527,7 @@ public final class Flags {
 	 * @return the standard string representation of the given flags
 	 */
 	public static String toString(int flags) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		if (isPublic(flags))
 			sb.append("public "); //$NON-NLS-1$
@@ -553,6 +553,10 @@ public final class Flags {
 			sb.append("transient "); //$NON-NLS-1$
 		if (isVolatile(flags))
 			sb.append("volatile "); //$NON-NLS-1$
+		if (isSealed(flags))
+			sb.append("sealed "); //$NON-NLS-1$
+		if (isNonSealed(flags))
+			sb.append("non-sealed "); //$NON-NLS-1$
 		int len = sb.length();
 		if (len == 0)
 			return ""; //$NON-NLS-1$

@@ -33,7 +33,7 @@ public class LexStream implements TerminalTokens {
 
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(this.name).append('[').append(this.kind).append(']');
 			buffer.append('{').append(this.start).append(',').append(this.end).append('}').append(this.line);
 			return buffer.toString();
@@ -228,7 +228,7 @@ public class LexStream implements TerminalTokens {
 
 	@Override
 	public String toString() {
-		StringBuffer res = new StringBuffer();
+		StringBuilder res = new StringBuilder();
 
 		String source = new String(this.scanner.source);
 		if(this.currentIndex < 0) {

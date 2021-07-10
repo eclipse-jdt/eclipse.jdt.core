@@ -114,7 +114,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	protected void initialize(File javahome) throws IOException {
 		if (this.isOnJvm9) {
 			this.jrtSystem = new JrtFileSystem(javahome);
-			this.archivesCache.put(javahome, this.jrtSystem);
+			try (Archive previous = this.archivesCache.put(javahome, this.jrtSystem)) {
+				// nothing. Only theoretically autoclose the previous instance - which does not exist at this time
+			}
 			this.jrtHome = javahome;
 			this.locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, this.jrtSystem);
 		} else {
@@ -153,34 +155,37 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			}
 		} else if (isArchive(file)) {
+			@SuppressWarnings("resource") // cached archive is closed in EclipseFileManager.close()
 			Archive archive = this.getArchive(file);
-			if (archive == Archive.UNKNOWN_ARCHIVE) return;
-			String key = normalizedPackageName;
-			if (!normalizedPackageName.endsWith("/")) {//$NON-NLS-1$
-				key += '/';
-			}
-			// we have an archive file
-			if (recurse) {
-				for (String packageName : archive.allPackages()) {
-					if (packageName.startsWith(key)) {
-						List<String[]> types = archive.getTypes(packageName);
-						if (types != null) {
-							for (String[] entry : types) {
-								final Kind kind = getKind(getExtension(entry[0]));
-								if (kinds.contains(kind)) {
-									collector.add(archive.getArchiveFileObject(packageName + entry[0], entry[1], this.charset));
+			if (archive != Archive.UNKNOWN_ARCHIVE) {
+				String key = normalizedPackageName;
+				if (!normalizedPackageName.endsWith("/")) {//$NON-NLS-1$
+					key += '/';
+				}
+				// we have an archive file
+				if (recurse) {
+					for (String packageName : archive.allPackages()) {
+						if (packageName.startsWith(key)) {
+							List<String[]> types = archive.getTypes(packageName);
+							if (types != null) {
+								for (String[] entry : types) {
+									final Kind kind = getKind(getExtension(entry[0]));
+									if (kinds.contains(kind)) {
+										collector.add(archive.getArchiveFileObject(packageName + entry[0], entry[1],
+												this.charset));
+									}
 								}
 							}
 						}
 					}
-				}
-			} else {
-				List<String[]> types = archive.getTypes(key);
-				if (types != null) {
-					for (String[] entry : types) {
-						final Kind kind = getKind(getExtension(entry[0]));
-						if (kinds.contains(kind)) {
-							collector.add(archive.getArchiveFileObject(key + entry[0], entry[1], this.charset));
+				} else {
+					List<String[]> types = archive.getTypes(key);
+					if (types != null) {
+						for (String[] entry : types) {
+							final Kind kind = getKind(getExtension(entry[0]));
+							if (kinds.contains(kind)) {
+								collector.add(archive.getArchiveFileObject(key + entry[0], entry[1], this.charset));
+							}
 						}
 					}
 				}
@@ -237,29 +242,33 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 	}
 
+	JrtFileSystem getJrtFileSystem(File f){
+		return (JrtFileSystem) getArchive(f);
+	}
+
 	private Archive getArchive(File f) {
 		// check the archive (jar/zip) cache
-		Archive archive = this.archivesCache.get(f);
-		if (archive == null) {
-			archive = Archive.UNKNOWN_ARCHIVE;
-			// create a new archive
-			if (f.exists()) {
-				try {
-					if (isJrt(f)) {
-						archive = new JrtFileSystem(f);
-					} else {
-						archive = new Archive(f);
-					}
-				} catch (ZipException e) {
-					// ignore
-				} catch (IOException e) {
-					// ignore
+		Archive existing = this.archivesCache.get(f);
+		if (existing != null) {
+			return existing;
+		}
+		Archive archive = Archive.UNKNOWN_ARCHIVE;
+		// create a new archive
+		if (f.exists()) {
+			try {
+				if (isJrt(f)) {
+					archive = new JrtFileSystem(f);
+				} else {
+					archive = new Archive(f);
 				}
-				if (archive != null) {
-					this.archivesCache.put(f, archive);
-				}
+			} catch (ZipException e) {
+				// ignore
+			} catch (IOException e) {
+				// ignore
 			}
-			this.archivesCache.put(f, archive);
+		}
+		try (Archive previous = this.archivesCache.put(f, archive)) {
+			// Nothing but closing previous instance - which should not exist at this time
 		}
 		return archive;
 	}
@@ -267,7 +276,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
 	 */
-	@SuppressWarnings("resource") // URLClassLoader is closed in EclipseFileManager.close()
 	@Override
 	public ClassLoader getClassLoader(Location location) {
 		validateNonModuleLocation(location);
@@ -289,7 +297,11 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			}
 			URL[] result = new URL[allURLs.size()];
 			cl = new URLClassLoader(allURLs.toArray(result), getClass().getClassLoader());
-			this.classloaders.put(location, cl);
+			try (URLClassLoader previous = this.classloaders.put(location, cl)) {
+				// Nothing but closing previous instance - which should not exist at this time
+			} catch (IOException e) {
+				//ignore
+			}
 		}
 		return cl;
 	}
@@ -407,15 +419,34 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			} else if (isArchive(file)) {
 				// handle archive file
-				Archive archive = getArchive(file);
-				if (archive != Archive.UNKNOWN_ARCHIVE) {
-					if (archive.contains(normalizedFileName)) {
-						return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
-					}
+				ArchiveFileObject fileObject = getFileObject(file, normalizedFileName);
+				if (fileObject!=null) {
+					return fileObject;
 				}
 			}
 		}
 		return null;
+	}
+
+	@SuppressWarnings("resource") // cached archive is closed in EclipseFileManager.close()
+	private ArchiveFileObject getFileObject(File archiveFile, String normalizedFileName) {
+		Archive archive = getArchive(archiveFile);
+		if (archive == Archive.UNKNOWN_ARCHIVE) {
+			return null;
+		}
+		if (archive.contains(normalizedFileName)) {
+			return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
+		}
+		return null;
+	}
+
+	@SuppressWarnings("resource") // cached archive is closed in EclipseFileManager.close()
+	private Boolean containsFileObject(File archiveFile, String normalizedFileName) {
+		Archive archive = getArchive(archiveFile);
+		if (archive == Archive.UNKNOWN_ARCHIVE) {
+			return null;
+		}
+		return archive.contains(normalizedFileName);
 	}
 
 	/* (non-Javadoc)
@@ -474,11 +505,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			} else if (isArchive(file)) {
 				// handle archive file
-				Archive archive = getArchive(file);
-				if (archive != Archive.UNKNOWN_ARCHIVE) {
-					if (archive.contains(normalizedFileName)) {
-						return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
-					}
+				ArchiveFileObject fileObject = getFileObject(file, normalizedFileName);
+				if (fileObject!=null) {
+					return fileObject;
 				}
 			}
 		}
@@ -1407,11 +1436,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}
 			} else if (isArchive(file)) {
 				if (fo instanceof ArchiveFileObject) {
-					Archive archive = getArchive(file);
-					if (archive != Archive.UNKNOWN_ARCHIVE) {
-						if (archive.contains(((ArchiveFileObject) fo ).entryName)) {
-							return true;
-						}
+					Boolean contains = containsFileObject(file, ((ArchiveFileObject) fo).entryName);
+					if (contains != null) {
+						return contains;
 					}
 				}
 			}

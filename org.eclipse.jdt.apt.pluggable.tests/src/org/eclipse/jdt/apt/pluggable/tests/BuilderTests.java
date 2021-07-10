@@ -245,7 +245,7 @@ public class BuilderTests extends TestBase
 			fullBuild();
 			expectingNoProblems(); // There should be no compiler errors, i.e. except the APT injected ones.
 			Problem[] problems = env.getProblemsFor(jproj.getProject().getFullPath(), "org.eclipse.jdt.apt.pluggable.core.compileProblem");
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			for (int i = 0, length = problems.length; i < length; i++) {
 				Problem problem = problems[i];
 				buf.append(problem.getMessage());

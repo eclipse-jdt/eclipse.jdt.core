@@ -85,6 +85,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	@Override
 	protected void setUp() throws Exception {
+		this.indexDisabledForTest = false;
 		super.setUp();
 
 		IJavaProject proj= createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
@@ -117,7 +118,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * imports").
 	 */
 	public void testDuplicateImportOmittedWhenRestoreExistingImportsIsFalse() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.io.Serializable;\n");
@@ -134,7 +135,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.io.Serializable;\n");
@@ -165,7 +166,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.util.*;\n");
@@ -195,7 +196,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import static android.R.doFoo;\n");
@@ -215,7 +216,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * to a new on-demand import into which they are reduced.
 	 */
 	public void testReduceNewOnDemand() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.io.Serializable;\n");
@@ -255,7 +256,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.io.*;\n");
@@ -293,7 +294,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * and that the on-demand import's own comments are preserved.
 	 */
 	public void testReduceExistingOnDemand() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.io.*;\n");
@@ -339,7 +340,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.io.*;\n");
@@ -383,7 +384,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * with the same container name are preserved.
 	 */
 	public void testExpandOnDemand() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1\n");
 		contents.append("\n");
 		contents.append("import com.example;\n");
@@ -428,7 +429,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1\n");
 		expected.append("\n");
 		expected.append("/* on-demand floating */\n");
@@ -464,7 +465,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testRemovedImportCommentsAreRemoved() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("/* Socket is a very useful class */\n");
@@ -483,7 +484,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.util.ArrayList;\n");
@@ -508,7 +509,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.util.Map.*;\n");
@@ -521,7 +522,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * Expects that a comment embedded within an import declaration is preserved.
 	 */
 	public void testCommentWithinImportDeclaration() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import /* comment */ java.util.Map.*;\n");
@@ -538,7 +539,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import /* comment */ java.util.Map.*;\n");
@@ -552,7 +553,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * on-demand import").
 	 */
 	public void testFloatingCommentPreservedWhenReducingOnDemandAbove() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.util.Queue;\n");
@@ -573,7 +574,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.util.*;\n");
@@ -591,7 +592,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * of a floating comment").
 	 */
 	public void testFloatingCommentDoesntCauseImportsToMove() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.io.Serializable;\n");
@@ -616,7 +617,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.io.Serializable;\n");
@@ -632,7 +633,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testAddImportIntoMatchAllImportGroup() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.util.ArrayList;\n");
@@ -649,7 +650,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.util.ArrayList;\n");
@@ -661,7 +662,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testCuInDefaultPackageWithNoExistingImports() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("public class C {}");
 
 		ICompilationUnit cu = createCompilationUnit("pack1", "C", contents.toString());
@@ -675,7 +676,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("import java.util.ArrayList;\n");
 		expected.append("\n");
 		expected.append("import java.net.Socket;\n");
@@ -708,7 +709,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import static java.util.Collections.*;\n");
@@ -722,7 +723,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testOrganizeNoImportsWithOneLineDelim() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("public class C {}");
 
@@ -735,14 +736,14 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("public class C {}");
 		assertEqualString(cu.getSource(), expected.toString());
 	}
 
 	public void testOrganizeNoImportsWithTwoLineDelims() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("public class C {}");
@@ -756,7 +757,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("public class C {}");
@@ -764,7 +765,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testOrganizeNoImportsWithJavadoc() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("/**\n");
@@ -782,7 +783,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importRewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("/**\n");
@@ -799,7 +800,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testPackageDeclarationTrailingComment() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1; /* pack1 \n");
 		contents.append("trailing \n");
 		contents.append("comment */\n");
@@ -815,7 +816,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1; /* pack1 \n");
 		expected.append("trailing \n");
 		expected.append("comment */\n");
@@ -833,7 +834,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testAddImportWithPackageAndTypeOnSameLine() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1; /* pack1 trailing */  /** C leading */ public class C {}\n");
 		ICompilationUnit cu = pack1.createCompilationUnit("C.java", contents.toString(), false, null);
 
@@ -844,7 +845,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1; /* pack1 trailing */\n");
 		expected.append("\n");
 		expected.append("import java.util.ArrayList;\n");
@@ -873,7 +874,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.net.Socket;\n");
@@ -950,7 +951,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import static b.ClassInB.staticMethodInB;\n");
@@ -970,7 +971,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testAddWithDuplicateOnDemandImports() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.lang.*;\n");
@@ -995,7 +996,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.lang.*;\n");
@@ -1021,7 +1022,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testAddWithDuplicateSingleImports() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import java.lang.*;\n");
@@ -1046,7 +1047,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import java.lang.*;\n");
@@ -1069,7 +1070,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testOtherDuplicateImportsNotDisturbed() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import pack1.SomeClass; // first import\n");
@@ -1091,7 +1092,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import pack1.SomeClass; // first import\n");
@@ -1111,7 +1112,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testDuplicateImportsDoNotCountTowardOnDemandThreshold() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import com.mycompany.Foo;\n");
@@ -1128,7 +1129,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		apply(imports);
 
 		// Expect that the 3-import on-demand threshold has not been reached.
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import com.mycompany.Bar;\n");
@@ -1152,11 +1153,11 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		// This test uses enum constants because the example in bug 360789 used enum constants,
 		// but the behavior generalizes to static fields that are not enum constants.
 		IPackageFragment pack2 = this.sourceFolder.createPackageFragment("pack2", false, null);
-		StringBuffer horizontalEnum = new StringBuffer();
+		StringBuilder horizontalEnum = new StringBuilder();
 		horizontalEnum.append("package pack2;\n");
 		horizontalEnum.append("public enum Horizontal { LEFT, CENTER, RIGHT }\n");
 		pack2.createCompilationUnit("Horizontal.java", horizontalEnum.toString(), false, null);
-		StringBuffer verticalEnum = new StringBuffer();
+		StringBuilder verticalEnum = new StringBuilder();
 		verticalEnum.append("package pack2;\n");
 		verticalEnum.append("public enum Vertical { TOP, CENTER, BOTTOM }\n");
 		pack2.createCompilationUnit("Vertical.java", verticalEnum.toString(), false, null);
@@ -1169,7 +1170,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import static pack2.Horizontal.CENTER;\n");
@@ -1189,7 +1190,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		ICompilationUnit cu = createCompilationUnit("pack1", "C");
 
 		IPackageFragment pack2 = this.sourceFolder.createPackageFragment("pack2", false, null);
-		StringBuffer containingType = new StringBuffer();
+		StringBuilder containingType = new StringBuilder();
 		containingType.append("package pack2;\n");
 		containingType.append("public class ContainingType {\n");
 		containingType.append("    public static class TypeWithSameName {}\n");
@@ -1198,7 +1199,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		pack2.createCompilationUnit("ContainingType.java", containingType.toString(), false, null);
 
 		IPackageFragment pack3 = this.sourceFolder.createPackageFragment("pack3", false, null);
-		StringBuffer typeWithSameName = new StringBuffer();
+		StringBuilder typeWithSameName = new StringBuilder();
 		typeWithSameName.append("package pack3;\n");
 		typeWithSameName.append("public class TypeWithSameName {}\n");
 		pack3.createCompilationUnit("TypeWithSameName.java", typeWithSameName.toString(), false, null);
@@ -1211,7 +1212,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import static pack2.ContainingType.*;\n");
@@ -1224,7 +1225,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testFloatingCommentWithBlankLine() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import com.mycompany.Bar;\n");
@@ -1246,7 +1247,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import com.mycompany.Bar;\n");
@@ -1266,7 +1267,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testNoEdits() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("// leading comment\n");
@@ -1293,7 +1294,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testAddImportWithCommentBetweenImportsAndType() throws Exception {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import com.mycompany.Bar;\n");
@@ -1312,7 +1313,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import com.mycompany.Bar;\n");
@@ -1326,7 +1327,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testRenameImportedClassWithImportedNestedClass() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import com.example.A;\n");
@@ -1351,7 +1352,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import com.example.C;\n");
@@ -1371,14 +1372,14 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		createCompilationUnit("conflicting2", "A");
 
 		// Create a static member named "doStuff" in each of two types.
-		StringBuffer statics1 = new StringBuffer();
+		StringBuilder statics1 = new StringBuilder();
 		statics1.append("package statics;\n");
 		statics1.append("\n");
 		statics1.append("public class Statics1 {\n");
 		statics1.append("    public static void doStuff() {}\n");
 		statics1.append("}\n");
 		createCompilationUnit("statics", "Statics1", statics1.toString());
-		StringBuffer statics2 = new StringBuffer();
+		StringBuilder statics2 = new StringBuilder();
 		statics2.append("package statics;\n");
 		statics2.append("\n");
 		statics2.append("public class Statics2 {\n");
@@ -1387,7 +1388,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		createCompilationUnit("statics", "Statics2", statics2.toString());
 
 		// Import the types and static members ambiguously via conflicting on-demand imports.
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import static statics.Statics1.*;\n");
@@ -1407,7 +1408,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		// Expect that explicit single imports are added to resolve the conflicts.
 		expected.append("package pack1;\n");
 		expected.append("\n");
@@ -1424,7 +1425,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	public void testRemoveImportsWithPackageDocComment() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("/** package doc comment */\n");
 		contents.append("package pack1;\n");
 		contents.append("\n");
@@ -1438,7 +1439,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		rewrite.removeImport("com.example.Foo");
 		apply(rewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("/** package doc comment */\n");
 		expected.append("package pack1;\n");
 		expected.append("\n");
@@ -1457,7 +1458,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		rewriteWithFiltering.addImport("java.lang.Integer");
 		apply(rewriteWithFiltering);
 
-		StringBuffer expectedWithFiltering = new StringBuffer();
+		StringBuilder expectedWithFiltering = new StringBuilder();
 		// Expect that the implicit java.lang import has been filtered out.
 		expectedWithFiltering.append("package pack1;\n");
 		expectedWithFiltering.append("\n");
@@ -1472,7 +1473,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		rewriteWithoutFiltering.addImport("java.lang.Integer");
 		apply(rewriteWithoutFiltering);
 
-		StringBuffer expectedWithoutFiltering = new StringBuffer();
+		StringBuilder expectedWithoutFiltering = new StringBuilder();
 		// Expect that the java.lang import has been added to the compilation unit.
 		expectedWithoutFiltering.append("package pack1;\n");
 		expectedWithoutFiltering.append("\n");
@@ -1487,7 +1488,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * import").
 	 */
 	public void testAddAdjacentImportWithCommonPrefixButLongerInitialSegment() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("import a.FromA;\n");
@@ -1502,7 +1503,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		rewrite.addImport("ab.FromAb");
 		apply(rewrite);
 
-		StringBuffer expected = new StringBuffer();
+		StringBuilder expected = new StringBuilder();
 		expected.append("package pack1;\n");
 		expected.append("\n");
 		expected.append("import a.FromA;\n");
@@ -1515,7 +1516,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	// https://bugs.eclipse.org/459320
 	public void testAddImportToCuNotOnClasspath() throws Exception {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package pack1;\n");
 		contents.append("\n");
 		contents.append("public class Clazz {}\n");
@@ -1540,7 +1541,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImports1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Map;\n");
@@ -1566,7 +1567,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		// java.net.Socket gets added to the "java" import group
 		// p.A gets added to the default match-all group at the end
 		// com.something.Foo gets added to the "com" import group
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.net.Socket;\n");
@@ -1591,7 +1592,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		this.sourceFolder.getJavaProject().setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(0));
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -1609,7 +1610,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -1626,7 +1627,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		this.sourceFolder.getJavaProject().setOption(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BETWEEN_IMPORT_GROUPS, String.valueOf(2));
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -1644,7 +1645,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -1663,7 +1664,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImports2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -1680,7 +1681,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.x.Socket;\n");
@@ -1697,7 +1698,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImports3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set; // comment\n");
@@ -1713,7 +1714,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set; // comment\n");
@@ -1728,7 +1729,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		getJavaProject("P").setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, JavaCore.INSERT);
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set; // comment\n");
@@ -1744,7 +1745,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set; // comment\n");
@@ -1759,7 +1760,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		getJavaProject("P").setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_SEMICOLON, JavaCore.INSERT);
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("public class C {\n");
@@ -1779,7 +1780,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		// java.util.{Map,Set,Collections} are reduced to java.util.*
 		// java.util.Map.Entry is reduced to java.util.Map.*
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.* ;\n");
@@ -1792,7 +1793,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=306568
 	public void testAddImports6() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append(
 				"package pack1;\n" +
 				"\n" +
@@ -1819,7 +1820,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		apply(imports);
 
 		// With on-demand threshold set to 1, java.util.Map.Entry is reduced to java.util.Map.*.
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append(
 				"package pack1;\n" +
 				"\n" +
@@ -1842,7 +1843,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=309022
 	public void testAddImports7() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append(
 				"package pack1;\n" +
 				"\n" +
@@ -1870,7 +1871,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append(
 				"package pack1;\n" +
 				"\n" +
@@ -1896,7 +1897,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImportsWithGroupsOfUnmatched1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("public class C {\n");
@@ -1914,7 +1915,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Vector;\n");
@@ -1935,7 +1936,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImportsWithGroupsOfUnmatched2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("public class C {\n");
@@ -1953,7 +1954,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import org.Vector;\n");
@@ -1974,7 +1975,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testRemoveImports1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -1996,7 +1997,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.*;\n");
@@ -2011,7 +2012,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testRemoveImports2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -2028,7 +2029,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Set;\n");
@@ -2040,7 +2041,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testRemoveImports3() throws Exception {
 		IPackageFragment pack= this.sourceFolder.createPackageFragment("pack", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack;\n");
 		buf.append("\n");
 		buf.append("public class A {\n");
@@ -2050,7 +2051,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		pack.createCompilationUnit("A.java", buf.toString(), false, null);
 
 		IPackageFragment test1= this.sourceFolder.createPackageFragment("test1", false, null);
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("\n");
 		buf.append("import pack.A;\n");
@@ -2079,7 +2080,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("\n");
 		buf.append("import pack.A;\n");
@@ -2093,7 +2094,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testRemoveImportWithSyntaxError_bug494691() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.*;\n");
@@ -2108,7 +2109,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("syntaxError\n");
@@ -2119,7 +2120,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testAddImports_bug23078() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import p.A.*;\n");
@@ -2139,7 +2140,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		// Without having set useContextToFilterImplicitImports to true, we get pre-3.6 behavior,
 		// which sorts imports by containing type and/or package before sorting by qualified name.
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import p.A;\n");
@@ -2154,7 +2155,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testAddImports_bug23078_usingContext() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import p.A.*;\n");
@@ -2175,7 +2176,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		// Having set useContextToFilterImplicitImports to true, we get 3.6-and-later behavior,
 		// which sorts imports by containing package and then by qualified name.
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import p.A;\n");
@@ -2191,7 +2192,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImports_bug25113() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.awt.Panel;\n");
@@ -2209,7 +2210,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.awt.Panel;\n");
@@ -2225,7 +2226,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImports_bug42637() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.lang.System;\n");
@@ -2241,7 +2242,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.io.Exception;\n");
@@ -2259,7 +2260,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddImports_bug121428() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("/** comment */\n");
 		buf.append("import java.lang.System;\n");
 		buf.append("\n");
@@ -2274,7 +2275,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("/** comment */\n");
 		buf.append("import java.io.Exception;\n");
 		buf.append("\n");
@@ -2290,7 +2291,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testBug194358() throws Exception {
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import pack2.A;\n");
@@ -2322,7 +2323,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import pack2.A;\n");
@@ -2342,7 +2343,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=194358"
 	 */
 	public void testBug194358a() throws Exception {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package com.pack1;\n");
 		buf.append("\n");
 		buf.append("import com.pack1.A;\n");
@@ -2371,7 +2372,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package com.pack1;\n");
 		buf.append("\n");
 		buf.append("import com.pack1.A.Inner;\n");
@@ -2389,7 +2390,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=235253"
 	 */
 	public void testBug235253() throws Exception {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package bug;\n");
 		buf.append("\n");
 		buf.append("class Bug {\n");
@@ -2407,7 +2408,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		imports.addImport("java.io.File");
 
 		apply(imports);
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("package bug;\n");
 		buf.append("\n");
 		buf.append("import bug.Bug.Proto;\n");
@@ -2425,7 +2426,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddStaticImports1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.lang.System;\n");
@@ -2443,7 +2444,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import static java.lang.Math.max;\n");
@@ -2459,7 +2460,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddStaticImports2() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.lang.System;\n");
@@ -2477,7 +2478,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import static xx.MyConstants.SIZE;\n");
@@ -2495,7 +2496,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	public void testAddStaticImports3() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.lang.System;\n");
@@ -2520,7 +2521,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import static java.io.File.pathSeparator;\n");
@@ -2540,7 +2541,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	private void createClassStub(String pack, String typeName, String typeKind) throws JavaModelException {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment(pack, false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package ").append(pack).append(";\n");
 		buf.append("public ").append(typeKind).append(" ").append(typeName).append(" {\n");
 		buf.append("}\n");
@@ -2562,7 +2563,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		createClassStub("java.net", "SocketAddress", "class");
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("import java.util.*;\n");
 		buf.append("import java.net.*;\n");
@@ -2577,7 +2578,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String content= buf.toString();
 		ICompilationUnit cu1= pack1.createCompilationUnit("A.java", content, false, null);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class B {\n");
 		buf.append("}\n");
@@ -2614,7 +2615,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		}
 		apply(importsRewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("\n");
 		buf.append("import java.util.List;\n");
@@ -2637,7 +2638,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		createClassStub("java.net", "ServerSocket", "class");
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("import java.util.*;\n");
 		buf.append("import java.net.*;\n");
@@ -2650,7 +2651,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String content= buf.toString();
 		ICompilationUnit cu1= pack1.createCompilationUnit("A.java", content, false, null);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class B {\n");
 		buf.append("}\n");
@@ -2672,7 +2673,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(importsRewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Map;\n");
@@ -2689,7 +2690,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testAddedRemovedImportsAPI() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import java.util.Vector;\n");
@@ -2737,7 +2738,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("import static java.lang.Math.max;\n");
@@ -2754,7 +2755,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	public void testPackageInfo() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("\n");
 		buf.append("package pack1;");
 
@@ -2767,7 +2768,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("\n");
 		buf.append("package pack1;\n");
 		buf.append("\n");
@@ -2784,7 +2785,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		IPackageFragment pack1 = this.sourceFolder.createPackageFragment(
 				"bug", false, null);
 
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append("package bug;\n");
 		buf.append("\n");
 		buf.append("enum CaseType {\n");
@@ -2794,13 +2795,13 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		units[0] = pack1.createCompilationUnit("CaseType.java", buf.toString(), false, null);
 
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("package bug;\n");
 		buf.append("enum ShareLevel{all})\n");
 
 		units[1] = pack1.createCompilationUnit("ShareLevel.java", buf.toString(), false, null);
 
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("package bug;\n");
 		buf.append("class Bug {\n");
 		buf.append("public ShareLevel createControl() {\n");
@@ -2818,7 +2819,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf = new StringBuffer();
+		buf = new StringBuilder();
 		buf.append("package bug;\n\n");
 		buf.append("import static bug.CaseType.all;\n");
 		buf.append("import static bug.ShareLevel.all;\n\n");
@@ -2839,7 +2840,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	 */
 	public void testAddImports_bug24804() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("/** floating comment before first import */\n");
@@ -2866,7 +2867,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		apply(imports);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package pack1;\n");
 		buf.append("\n");
 		buf.append("/** floating comment before first import */\n");
@@ -2888,7 +2889,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // 2 imports are in 1 group but third is separated by a comment
         buf.append(
                 "package pack1;\n" +
@@ -2920,7 +2921,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -2949,7 +2950,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_2() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // all imports are in same group
         buf.append(
                 "package pack1;\n" +
@@ -2981,7 +2982,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3010,7 +3011,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_3() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // all imports are in same group
         // leading and trailing comments
         buf.append(
@@ -3043,7 +3044,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3073,7 +3074,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // remove imports, preserve all comments
     public void testBug376930_3a() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3104,7 +3105,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3127,7 +3128,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_4() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // all imports are in same group
         // leading and trailing comments
         // two on demand imports in the group
@@ -3161,7 +3162,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3191,7 +3192,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // remove imports, preserve all comments
     public void testBug376930_4a() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3222,7 +3223,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3245,7 +3246,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_5() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // all imports of same group are scattered around
         // leading and trailing comments
         // adding an on-demand import belonging to a group
@@ -3279,7 +3280,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         // java.util.Map.* is placed after java.util.* and is assigned the comments
         // from java.util.Map.SomethingElse.
         buf.append(
@@ -3311,7 +3312,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376930
     public void testBug376930_5a() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // all imports are in same group
         // leading and trailing comments
         // adding an on-demand import belonging to a group
@@ -3347,7 +3348,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         // java.util.Map.* takes the place of java.util.Map.SomethingElse,
         // and the latter's comments are reassigned to it.
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3377,7 +3378,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // added import should get folded into existing *, without touching comments
     public void testBug376930_5b() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3408,7 +3409,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3432,7 +3433,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // remove imports, preserve all comments
     public void testBug376930_5c() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3465,7 +3466,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         // java.util.Map.* takes the place of java.util.Map.SomethingElse,
         // and the latter's comments are reassigned to it.
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3492,7 +3493,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // added import should get folded along with existing import into *, without deleting comments
     public void testBug376930_5d() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3522,7 +3523,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3552,7 +3553,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // separating comment should not prevent folding into *-import
     public void testBug376930_5e() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3579,7 +3580,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3602,7 +3603,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     public void testBug378024() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3640,7 +3641,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3672,7 +3673,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=378024
     public void testBug378024b() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3710,7 +3711,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3748,7 +3749,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // comments in between stay where they are
     public void testBug378024c() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3797,7 +3798,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3842,7 +3843,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // comments in between stay where they are
     public void testBug378024c_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3891,7 +3892,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3936,7 +3937,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // comments in between stay where they are
     public void testBug378024c_2() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -3985,7 +3986,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4032,7 +4033,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // not adding an import should preserve its comments and put them at the end.
     public void testBug378024d() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4080,7 +4081,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4116,7 +4117,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // adding a new import should not disturb comments and import should be added in its group
     public void testBug378024e() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4166,7 +4167,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4212,7 +4213,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // existing comments
     public void testBug378024e_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4261,7 +4262,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4296,7 +4297,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // folding imports because of a newly added import should preserve comments
     public void testBug378024f() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4346,7 +4347,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4391,7 +4392,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // folding imports because of a newly added import should preserve comments
     public void testBug378024f_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4447,7 +4448,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4497,7 +4498,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // Re-ordering imports and converting them to *
     public void testBug378024g() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4545,7 +4546,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        StringBuffer buf2 = new StringBuffer();
+        StringBuilder buf2 = new StringBuilder();
         buf2.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4592,7 +4593,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // This will test changes in org.eclipse.jdt.internal.core.dom.rewrite.ImportRewriteAnalyzer.removeImport(String, boolean)
     public void testBug378024h() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4638,7 +4639,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4672,7 +4673,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // Preserve comments when imports are removed in case the restoring of imports is enabled
     public void testBug378024h_1() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4719,7 +4720,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4754,7 +4755,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // Preserve comments when imports are unfolded.
     public void testBug378024i() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4805,7 +4806,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
         imports.addImport("java.util.Map");
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4855,7 +4856,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
     // Preserve comments when imports are folded but a member type import is present
     public void testBug378024j() throws Exception {
         IPackageFragment pack1 = this.sourceFolder.createPackageFragment("pack1", false, null);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -4908,7 +4909,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
         apply(imports);
 
-        buf = new StringBuffer();
+        buf = new StringBuilder();
         buf.append(
                 "package pack1;\n" +
                 "\n" +
@@ -5006,7 +5007,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	private ICompilationUnit createCompilationUnit(String packageName, String className) throws JavaModelException {
-		StringBuffer contents = new StringBuffer();
+		StringBuilder contents = new StringBuilder();
 		contents.append("package " + packageName + ";\n");
 		contents.append("\n");
 		contents.append("public class " + className + " {}");

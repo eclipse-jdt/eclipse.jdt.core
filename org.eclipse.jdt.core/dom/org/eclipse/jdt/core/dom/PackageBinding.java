@@ -242,7 +242,7 @@ class PackageBinding implements IPackageBinding {
 		} else {
 			int length = compoundName.length;
 			this.components = new String[length];
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i = 0; i < length - 1; i++) {
 				this.components[i] = new String(compoundName[i]);
 				buffer.append(compoundName[i]).append(PACKAGE_NAME_SEPARATOR);

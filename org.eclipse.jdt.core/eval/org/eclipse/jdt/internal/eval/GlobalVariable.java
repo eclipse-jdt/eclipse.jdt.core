@@ -59,7 +59,7 @@ public char[] getTypeName() {
  */
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(this.typeName);
 	buffer.append(" "); //$NON-NLS-1$
 	buffer.append(this.name);

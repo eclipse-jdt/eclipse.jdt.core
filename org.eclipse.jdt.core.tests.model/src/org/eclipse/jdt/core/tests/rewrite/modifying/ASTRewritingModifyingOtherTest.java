@@ -44,7 +44,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 	public void test0000() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0000", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0000;\n");
 		buf.append("public class X {\n");
 		buf.append("}\n");
@@ -61,7 +61,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 	public void test0001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0001", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0001;\n");
 		buf.append("public class X {\n");
 		buf.append("}\n");
@@ -73,7 +73,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0001;\n");
 		buf.append("public class X {\n");
 		buf.append("}\n");
@@ -84,7 +84,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 	public void test0002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0002", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0002;\n");
 		buf.append("import java.util.*;\n");
 		buf.append("import java.lang.*;\n");
@@ -109,7 +109,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0002;\n");
 		buf.append("import java.util.*;\n");
 		buf.append("import java.awt.*;\n");
@@ -121,7 +121,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 	public void test0003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0003", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0003;\n");
 		buf.append("import java.util.*;\n");
 		buf.append("import java.lang.*;\n");
@@ -139,7 +139,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0003;\n");
 		buf.append("import java.util;\n");
 		buf.append("import java.lang.*;\n");
@@ -152,7 +152,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 	public void test0004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0004", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0004;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -180,7 +180,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 
 		String preview = evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0004;\n");
 		buf.append("\n");
 		buf.append("public class X {\n");
@@ -197,7 +197,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
 	public void test0005() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0005", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0005;\n");
 		buf.append("@A(X.class) public class C {}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
@@ -215,7 +215,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		}
 		String preview= evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0005;\n");
 		buf.append("@A(X.class) public interface C {}");
 		assertEqualString(preview, buf.toString());
@@ -223,7 +223,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=308754
 	public void test0006() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test0006", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test0006;\n");
 		buf.append("public @A(X.class) class C {}");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
@@ -241,7 +241,7 @@ public class ASTRewritingModifyingOtherTest extends ASTRewritingModifyingTest {
 		}
 		String preview= evaluateRewrite(cu, astRoot);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test0006;\n");
 		buf.append("public @A(X.class) interface C {}");
 		assertEqualString(preview, buf.toString());

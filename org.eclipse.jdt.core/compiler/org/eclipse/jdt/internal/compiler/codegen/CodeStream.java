@@ -2973,7 +2973,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 			ifeq(nextOne);
 
 			// Captured arguments
-			StringBuffer sig = new StringBuffer("("); //$NON-NLS-1$
+			StringBuilder sig = new StringBuilder("("); //$NON-NLS-1$
 			index = 0;
 			boolean isLambda = funcEx instanceof LambdaExpression;
 			TypeBinding receiverType = null;
@@ -7566,7 +7566,7 @@ public void throwAnyException(LocalVariableBinding anyExceptionVariable) {
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer("( position:"); //$NON-NLS-1$
+	StringBuilder buffer = new StringBuilder("( position:"); //$NON-NLS-1$
 	buffer.append(this.position);
 	buffer.append(",\nstackDepth:"); //$NON-NLS-1$
 	buffer.append(this.stackDepth);

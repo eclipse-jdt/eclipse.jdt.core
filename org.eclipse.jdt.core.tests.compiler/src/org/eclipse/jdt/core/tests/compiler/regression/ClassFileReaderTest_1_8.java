@@ -476,7 +476,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	 * <tt>@Foo(id=34) CLASS_EXTENDS, type_index=-1, location=[ARRAY, INNER_TYPE, TYPE_ARGUMENT(0)]</tt><br>
 	 */
 	private String printTypeAnnotation(IBinaryTypeAnnotation typeAnnotation) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		// The annotation:
 		IBinaryAnnotation annotation = typeAnnotation.getAnnotation();
 		sb.append('@').append(annotation.getTypeName());

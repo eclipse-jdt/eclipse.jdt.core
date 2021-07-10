@@ -19,8 +19,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,6 +33,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.lang.model.SourceVersion;
+import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -221,5 +226,52 @@ public class FileManagerTests extends TestCase {
 		assertNotNull(loader.findResource("jarresource.txt")); // sanity check
 		fileManager.close();
 		assertNull(loader.findResource("jarresource.txt")); // assert the classloader is closed
+	}
+
+	public void testBug573287_ArchiveFileObject_openInputStream() throws Exception {
+		Path dir = Files.createTempDirectory("repro573287-");
+		Path target = dir.resolve("copy573287.zip");
+		File src = new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip");
+		Path copy = Files.copy(src.toPath(), target);
+
+		extracted_ArchiveFileObject_openInputStream(copy); //do not inline (!) - otherwise the reference to local variables are not lost
+		try {
+			// Try to clean up:
+			// On Windows this resulted in java.nio.file.FileSystemException because copy
+			// was still open until GC:
+			Files.delete(copy); // (impossible to delete a open file under Windows)
+			Files.delete(dir);
+		} catch (Exception e) {
+			// clean up temp files:
+			try {
+				// clean up memory:
+				System.gc();
+				// runs finalize() - but only if extracted_ArchiveFileObject_openInputStream is not inlined(!):
+				System.runFinalization();
+				// clean up files - now it works:
+				Files.delete(copy);
+				Files.delete(dir);
+			} catch (Exception e2) {
+				e.addSuppressed(e2);
+			}
+			throw e;
+		}
+	}
+
+	private void extracted_ArchiveFileObject_openInputStream(Path copy) throws IOException {
+		try (EclipseFileManager fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset())) {
+			List<File> classpath = new ArrayList<>();
+			classpath.add(copy.toFile());
+			fileManager.setLocation(javax.tools.StandardLocation.CLASS_PATH, classpath);
+			FileObject fileForInput = fileManager.getFileForInput(javax.tools.StandardLocation.CLASS_PATH, "",
+					"jarresource.txt");
+			assertNotNull(fileForInput);
+			byte[] content;
+			try (InputStream inputStream = fileForInput.openInputStream()) {
+				// inputStream may be java.util.zip.ZipFile$ZipFileInputStream which would hold a reference to ZipFile
+				content = inputStream.readAllBytes();
+			}
+			assertEquals(new String(content, StandardCharsets.UTF_8), "jar resource");
+		}
 	}
 }

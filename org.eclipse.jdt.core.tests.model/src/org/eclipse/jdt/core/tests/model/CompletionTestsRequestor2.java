@@ -126,7 +126,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	public String getContext() {
 		if(this.context == null) return "";
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		if(!this.shortContext) {
 			buffer.append("completion offset=");

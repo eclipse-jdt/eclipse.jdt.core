@@ -124,7 +124,7 @@ public char[] sourceName() {
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	buffer.append("ProblemType:[compoundName="); //$NON-NLS-1$
 	buffer.append(this.compoundName == null ? "<null>" : new String(CharOperation.concatWith(this.compoundName,'.'))); //$NON-NLS-1$
 	buffer.append("][problemID=").append(problemReasonString(this.problemReason)); //$NON-NLS-1$

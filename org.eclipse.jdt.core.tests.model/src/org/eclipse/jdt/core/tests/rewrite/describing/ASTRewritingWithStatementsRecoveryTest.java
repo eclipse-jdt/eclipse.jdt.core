@@ -40,7 +40,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_01_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -69,7 +69,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -83,7 +83,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_02_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -111,7 +111,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    Object field;\n");
@@ -127,7 +127,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=272711
 	public void testBug272711_03_since_3() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");
@@ -155,7 +155,7 @@ public class ASTRewritingWithStatementsRecoveryTest extends ASTRewritingTest {
 		}
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo() {\n");

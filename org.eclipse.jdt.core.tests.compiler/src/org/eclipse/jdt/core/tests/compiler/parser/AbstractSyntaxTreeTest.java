@@ -243,7 +243,7 @@ public class AbstractSyntaxTreeTest extends AbstractCompilerTest implements IDoc
 	}
 
 	private String getCompilerMessages(CompilationResult compilationResult) {
-		StringBuffer buffer = new StringBuffer(100);
+		StringBuilder buffer = new StringBuilder(100);
 		if (compilationResult.hasProblems() || compilationResult.hasTasks()) {
 			CategorizedProblem[] problems = compilationResult.getAllProblems();
 			int count = problems.length;

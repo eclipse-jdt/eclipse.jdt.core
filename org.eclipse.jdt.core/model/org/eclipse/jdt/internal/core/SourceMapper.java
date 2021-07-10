@@ -1415,7 +1415,7 @@ public class SourceMapper
 		if (typeName.length() == 0) {
 			IJavaElement classFile = type.getParent();
 			String classFileName = classFile.getElementName();
-			StringBuffer newClassFileName = new StringBuffer();
+			StringBuilder newClassFileName = new StringBuilder();
 			int lastDollar = classFileName.lastIndexOf('$');
 			for (int i = 0; i <= lastDollar; i++)
 				newClassFileName.append(classFileName.charAt(i));

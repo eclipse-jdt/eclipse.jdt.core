@@ -86,7 +86,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				int extraFlags,
 				String path,
 				AccessRestriction access) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 
 			boolean isMemberType = (extraFlags & ExtraFlags.IsMemberType) != 0;
 
@@ -144,7 +144,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			String[] strings = new String[length];
 			this.results.toArray(strings);
 			org.eclipse.jdt.internal.core.util.Util.sort(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -261,7 +261,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			String[] strings = new String[length];
 			this.results.toArray(strings);
 			org.eclipse.jdt.internal.core.util.Util.sort(strings);
-			StringBuffer buffer = new StringBuffer(100);
+			StringBuilder buffer = new StringBuilder(100);
 			for (int i = 0; i < length; i++){
 				buffer.append(strings[i]);
 				if (i != length-1) {
@@ -742,7 +742,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			return contents;
 		}
 		public String toString() {
-	    	StringBuffer buffer = new StringBuffer();
+	    	StringBuilder buffer = new StringBuilder();
 	    	List displayedLines = new ArrayList(this.lines);
 	    	if (this.sorted) {
 	    		Collections.sort(displayedLines, new Comparator() {
@@ -790,7 +790,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				}
 				int nParameterNames = parameterNames.length;
 
-				StringBuffer buf = new StringBuffer();
+				StringBuilder buf = new StringBuilder();
 				buf.append(path);
 				buf.append(' ');
 				try {
@@ -825,7 +825,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				if (i < size - 1) buf.append('\n');
 				strings[i] = buf.toString();
 			}
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i=0; i<size; i++) {
 				buffer.append(strings[i]);
 			}
@@ -866,7 +866,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				}
 			}
 			Arrays.sort(strings);
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i=0; i<size; i++) {
 				if (i>0) buffer.append('\n');
 				buffer.append(strings[i]);
@@ -1239,6 +1239,7 @@ protected JavaSearchResultCollector resultCollector;
 	}
 	@Override
 	protected void setUp () throws Exception {
+		this.indexDisabledForTest = false;
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
 	}

@@ -306,7 +306,7 @@ public final class CompletionEngine
 
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append('{');
 			buffer.append(this.packageName);
 			buffer.append(',');
@@ -341,7 +341,7 @@ public final class CompletionEngine
 
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append('{');
 			buffer.append(this.packageName);
 			buffer.append(',');
@@ -567,7 +567,7 @@ public final class CompletionEngine
 
 	private static char[] getRequiredTypeSignature(TypeBinding typeBinding) {
 		char[] result = null;
-		StringBuffer sig = new StringBuffer(10);
+		StringBuilder sig = new StringBuilder(10);
 
 		sig.append(typeBinding.signature());
 
@@ -1880,7 +1880,7 @@ public final class CompletionEngine
 			CompletionOnSingleTypeReference completionOnSingleTypeReference = (CompletionOnSingleTypeReference) astNode;
 			if (completionOnSingleTypeReference.isConstructorType) {
 				context.setTokenLocation(CompletionContext.TL_CONSTRUCTOR_START);
-			} else if (astNodeParent instanceof LambdaExpression) {
+			} else if (astNodeParent instanceof LambdaExpression || astNodeParent instanceof LocalDeclaration) {
 				context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
 			}
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
@@ -4608,7 +4608,7 @@ public final class CompletionEngine
 
 	private char[] computePrefix(SourceTypeBinding declarationType, SourceTypeBinding invocationType, boolean isStatic){
 
-		StringBuffer completion = new StringBuffer(10);
+		StringBuilder completion = new StringBuilder(10);
 
 		if (isStatic) {
 			completion.append(declarationType.sourceName());
@@ -12828,7 +12828,7 @@ public final class CompletionEngine
 
 	private char[] getCompletedTypeSignature(ReferenceBinding referenceBinding) {
 		char[] result = null;
-		StringBuffer sig = new StringBuffer(10);
+		StringBuilder sig = new StringBuilder(10);
 		if (!referenceBinding.isMemberType()) {
 			char[] typeSig = referenceBinding.genericTypeSignature();
 			sig.append(typeSig, 0, typeSig.length);

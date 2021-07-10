@@ -236,7 +236,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	@Override
 	public String individualToString() {
 
-		StringBuffer buffer = new StringBuffer("Finally flow context"); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder("Finally flow context"); //$NON-NLS-1$
 		buffer.append("[finalAssignments count - ").append(this.assignCount).append(']'); //$NON-NLS-1$
 		buffer.append("[nullReferences count - ").append(this.nullCount).append(']'); //$NON-NLS-1$
 		return buffer.toString();

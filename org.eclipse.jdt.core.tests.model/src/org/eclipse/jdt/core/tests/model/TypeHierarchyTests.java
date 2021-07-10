@@ -65,9 +65,12 @@ public TypeHierarchyTests(String name) {
 	this.displayName = true;
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUpSuite()
- */
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
+
 @Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -1838,9 +1841,11 @@ public void testPotentialSubtypeNotInClasspath() throws JavaModelException {
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210094 )
  */
 public void testProgressWhileIndexing() throws CoreException, TimeOutException {
+	boolean indexState = isIndexDisabledForTest();
 	final WaitingJob job = new WaitingJob();
 	try {
 		createJavaProject("P");
+		this.indexDisabledForTest = true;
 		createFile("/P/X210094.java", "public class X210094 {}");
 		job.suspend();
 		createFile("/P/Y210094.java", "public class Y210094 {}");
@@ -1863,6 +1868,7 @@ public void testProgressWhileIndexing() throws CoreException, TimeOutException {
 	} finally {
 		job.resume();
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 /*
@@ -2857,7 +2863,7 @@ public void testBug469668() throws CoreException, IOException {
 	try {
 		project = createJavaProject("Bug469668", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
 		createFolder("/Bug469668/src/hierarchy");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 1; i < 21; i++) {
 			String unitName = "I" + i;
 			String content = "package hierarchy;\n" +

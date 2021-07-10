@@ -77,7 +77,7 @@ public void placeStart() {
 public String toString() {
 	String basic = getClass().getName();
 	basic = basic.substring(basic.lastIndexOf('.')+1);
-	StringBuffer buffer = new StringBuffer(basic);
+	StringBuilder buffer = new StringBuilder(basic);
 	buffer.append('@').append(Integer.toHexString(hashCode()));
 	buffer.append("(type=").append(this.exceptionType == null ? CharOperation.NO_CHAR : this.exceptionType.readableName()); //$NON-NLS-1$
 	buffer.append(", position=").append(this.position); //$NON-NLS-1$

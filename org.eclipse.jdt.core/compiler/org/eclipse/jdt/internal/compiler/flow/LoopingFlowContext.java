@@ -464,7 +464,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 
 	@Override
 	public String individualToString() {
-		StringBuffer buffer = new StringBuffer("Looping flow context"); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder("Looping flow context"); //$NON-NLS-1$
 		buffer.append("[initsOnBreak - ").append(this.initsOnBreak.toString()).append(']'); //$NON-NLS-1$
 		buffer.append("[initsOnContinue - ").append(this.initsOnContinue.toString()).append(']'); //$NON-NLS-1$
 		buffer.append("[finalAssignments count - ").append(this.assignCount).append(']'); //$NON-NLS-1$

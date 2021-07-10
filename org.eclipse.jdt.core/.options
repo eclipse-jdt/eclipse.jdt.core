@@ -62,37 +62,6 @@ org.eclipse.jdt.core/debug/javamodel/insertions=false
 # Records information about the invalid archive cache
 org.eclipse.jdt.core/debug/javamodel/invalid_archives=false
 
-# Runs self-diagnostics on the free space lists. This is expensive and will slow down indexing.
-org.eclipse.jdt.core/debug/index/freespacetest=false
-
-# Controls the amount of memory used by the traceback log, in megabytes (suggested size = 1024).
-# If nonzero, the index will print out detailed traceback information when corruption is detected. 
-org.eclipse.jdt.core/debug/index/logsizemegs=0
-
-# Logs every time a page is allocated, flushed, or inserted/removed from the page cache (very verbose)
-org.eclipse.jdt.core/debug/index/pagecache=false
-
-# Prints information about when the indexer runs and what files are being indexed
-org.eclipse.jdt.core/debug/index/indexer=false
-
-# Prints a line whenever a class is added to or removed from the index
-org.eclipse.jdt.core/debug/index/insertions=false
-
-# Prints diagnostic information about index database locks
-org.eclipse.jdt.core/debug/index/locks=false
-
-# Prints a message whenever the indexer is scheduled. Useful for tracking race conditions in the unit tests.
-org.eclipse.jdt.core/debug/index/scheduling=false
-
-# Prints statistics about database memory usage
-org.eclipse.jdt.core/debug/index/space=false
-
-# Performs self-testing during indexing by reading back every class and comparing it with the original .class file
-org.eclipse.jdt.core/debug/index/selftest=false
-
-# Prints statistics about indexing time
-org.eclipse.jdt.core/debug/index/timing=false
-
 # Reports post actions addition/run
 org.eclipse.jdt.core/debug/postaction=false
 

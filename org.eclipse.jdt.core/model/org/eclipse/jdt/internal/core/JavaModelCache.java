@@ -320,7 +320,7 @@ public String toString() {
 	return toStringFillingRation(""); //$NON-NLS-1$
 }
 public String toStringFillingRation(String prefix) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(prefix);
 	buffer.append("Project cache: "); //$NON-NLS-1$
 	buffer.append(this.projectCache.size());

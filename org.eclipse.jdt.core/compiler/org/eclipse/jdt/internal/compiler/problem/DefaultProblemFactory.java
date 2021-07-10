@@ -165,14 +165,14 @@ public final String getLocalizedMessage(int id, int elaborationId, String[] prob
 	int length = message.length;
 	int start = 0;
 	int end = length;
-	StringBuffer output = null;
+	StringBuilder output = null;
 	if ((id & IProblem.Javadoc) != 0) {
-		output = new StringBuffer(10+length+problemArguments.length*20);
+		output = new StringBuilder(10+length+problemArguments.length*20);
 		output.append((String) this.messageTemplates.get(keyFromID(IProblem.JavadocMessagePrefix & IProblem.IgnoreCategoriesMask)));
 	}
 	while (true) {
 		if ((end = CharOperation.indexOf('{', message, start)) > -1) {
-			if (output == null) output = new StringBuffer(length+problemArguments.length*20);
+			if (output == null) output = new StringBuilder(length+problemArguments.length*20);
 			output.append(message, start, end - start);
 			if ((start = CharOperation.indexOf('}', message, end + 1)) > -1) {
 				try {

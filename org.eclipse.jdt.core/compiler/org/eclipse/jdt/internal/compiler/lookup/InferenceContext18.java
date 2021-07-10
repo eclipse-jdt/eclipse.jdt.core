@@ -1743,7 +1743,7 @@ public class InferenceContext18 {
 	// debugging:
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer("Inference Context"); //$NON-NLS-1$
+		StringBuilder buf = new StringBuilder("Inference Context"); //$NON-NLS-1$
 		switch (this.stepCompleted) {
 			case NOT_INFERRED: buf.append(" (initial)");break; //$NON-NLS-1$
 			case APPLICABILITY_INFERRED: buf.append(" (applicability inferred)");break; //$NON-NLS-1$

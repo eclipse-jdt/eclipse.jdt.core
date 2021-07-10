@@ -122,7 +122,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=43437
 	 */
 	public void test005() {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append("\"Hello\"");
 		String str = buf.toString();
 		IScanner scanner = ToolFactory.createScanner(true, false, false, false);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -524,7 +524,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		long start = -1;
 		if (NameLookup.VERBOSE)
 			start = System.currentTimeMillis();
-		
+
 		boolean camelCaseMatch = (matchRule & SearchPattern.R_CAMELCASE_MATCH) != 0;
 		/*
 			if (true){
@@ -1078,7 +1078,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	 * Returns a printable string for the array.
 	 */
 	protected String toStringCharChar(char[][] names) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		for (int i = 0; i < names.length; i++) {
 			result.append(toStringChar(names[i]));
 		}
@@ -1165,14 +1165,16 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 			case Named:
 				IPackageFragmentRoot[] packageRoots = findModuleContext(moduleName);
 				Set<String> packages = new HashSet<>();
-				for (IPackageFragmentRoot packageRoot : packageRoots) {
-					try {
-						for (IJavaElement javaElement : packageRoot.getChildren()) {
-							if (javaElement instanceof IPackageFragment && !((IPackageFragment) javaElement).isDefaultPackage())
-								packages.add(javaElement.getElementName());
+				if (packageRoots != null) {
+					for (IPackageFragmentRoot packageRoot : packageRoots) {
+						try {
+							for (IJavaElement javaElement : packageRoot.getChildren()) {
+								if (javaElement instanceof IPackageFragment && !((IPackageFragment) javaElement).isDefaultPackage())
+									packages.add(javaElement.getElementName());
+							}
+						} catch (JavaModelException e) {
+							Util.log(e, "Failed to retrieve packages from " + packageRoot); //$NON-NLS-1$
 						}
-					} catch (JavaModelException e) {
-						Util.log(e, "Failed to retrieve packages from " + packageRoot); //$NON-NLS-1$
 					}
 				}
 				return packages.stream().map(String::toCharArray).toArray(char[][]::new);

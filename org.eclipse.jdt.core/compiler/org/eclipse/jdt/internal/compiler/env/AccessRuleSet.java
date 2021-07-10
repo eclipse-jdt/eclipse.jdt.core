@@ -117,7 +117,7 @@ public String toString() {
 }
 
 public String toString(boolean wrap) {
-	StringBuffer buffer = new StringBuffer(200);
+	StringBuilder buffer = new StringBuilder(200);
 	buffer.append("AccessRuleSet {"); //$NON-NLS-1$
 	if (wrap)
 		buffer.append('\n');

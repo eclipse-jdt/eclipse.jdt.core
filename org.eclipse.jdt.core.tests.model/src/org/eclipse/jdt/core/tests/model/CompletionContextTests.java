@@ -5478,4 +5478,50 @@ public void test0177() throws JavaModelException {
 		"}",
 		result.context);
 }
+public void testRegressionBug574267() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Sample.java",
+			"class Sample {\n" +
+			"	void sample(String foo) {\n" +
+			"		if (foo != null) {\n" +
+			"			sys // content assist here\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}");
+
+	String str = this.workingCopies[0].getSource();
+	String completeAfter = "sys";
+	int tokenStart = str.indexOf(completeAfter);
+	int tokenEnd = tokenStart + completeAfter.length() - 1;
+	int cursorLocation = tokenStart + completeAfter.length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, true);
+	String jclPath = getExternalJCLPathString();
+	assertResults("completion offset="+(cursorLocation)+"\n" +
+			"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+			"completion token=\"sys\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}\n" +
+			"enclosingElement=sample(String) {key=LSample;.sample(Ljava/lang/String;)V} [in Sample [in [Working copy] Sample.java [in <default> [in src [in Completion]]]]]\n" +
+			"visibleElements={\n" +
+			"	foo [in sample(String) [in Sample [in [Working copy] Sample.java [in <default> [in src [in Completion]]]]]],\n" +
+			"	sample(String) {key=LSample;.sample(Ljava/lang/String;)V} [in Sample [in [Working copy] Sample.java [in <default> [in src [in Completion]]]]],\n" +
+			"	wait(long, int) {key=Ljava/lang/Object;.wait(JI)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	wait(long) {key=Ljava/lang/Object;.wait(J)V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	wait() {key=Ljava/lang/Object;.wait()V|Ljava/lang/IllegalMonitorStateException;|Ljava/lang/InterruptedException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	toString() {key=Ljava/lang/Object;.toString()Ljava/lang/String;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	notifyAll() {key=Ljava/lang/Object;.notifyAll()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	notify() {key=Ljava/lang/Object;.notify()V|Ljava/lang/IllegalMonitorStateException;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	hashCode() {key=Ljava/lang/Object;.hashCode()I} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	getClass() {key=Ljava/lang/Object;.getClass()Ljava/lang/Class;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+			"	finalize() {key=Ljava/lang/Object;.finalize()V|Ljava/lang/Throwable;} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	equals(java.lang.Object) {key=Ljava/lang/Object;.equals(Ljava/lang/Object;)Z} [in Object [in Object.class [in java.lang [in " + jclPath + "]]]],\n" +
+			"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
+			"}"
+			, result.context);
+}
 }

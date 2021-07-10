@@ -51,7 +51,7 @@ public class BasicModule implements ISourceModule {
 		}
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append("provides"); //$NON-NLS-1$
 			buffer.append(this.provides);
 			buffer.append(" with "); //$NON-NLS-1$

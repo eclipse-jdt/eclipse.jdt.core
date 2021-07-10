@@ -188,7 +188,7 @@ public class ListRewriteEvent extends RewriteEvent {
 
 	@Override
 	public String toString() {
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append(" [list change\n\t"); //$NON-NLS-1$
 
 		RewriteEvent[] events= getChildren();

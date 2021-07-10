@@ -142,7 +142,7 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 	}
 
 	public String getResults(boolean relevance, boolean position) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		int size = this.elements.size();
 
 		if (size == 1) {
@@ -166,7 +166,7 @@ public class CompletionTestsRequestor extends CompletionRequestor {
 		if(i < 0 || i >= this.elements.size())
 			return "";
 
-		StringBuffer buffer =  new StringBuffer();
+		StringBuilder buffer =  new StringBuilder();
 		buffer.append("element:");
 		buffer.append(this.elements.get(i));
 		buffer.append("    completion:");

@@ -237,7 +237,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 			throw new IllegalArgumentException("state value overflow");
 		}
 		this.value = (byte) numericValue;
-		StringBuffer printableValue = new StringBuffer(6);
+		StringBuilder printableValue = new StringBuilder(6);
 		for (int i = stateWidth - 1; i >= 0; i--) {
 			printableValue.append((numericValue >>> i & 1) != 0 ? '1' : '0');
 		}
@@ -305,7 +305,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 		}
 	}
 	private String asInitializer() {
-		StringBuffer result = new StringBuffer(70);
+		StringBuilder result = new StringBuilder(70);
 		result.append("		new State(");
 		result.append(this.value);
 		char first;
@@ -328,7 +328,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 		return result;
 	}
 	private String asSourceComment() {
-		StringBuffer result = new StringBuffer(70);
+		StringBuilder result = new StringBuilder(70);
 		result.append("\t\t");
 		result.append(this.printableBitsField);
 		char first;
@@ -1010,7 +1010,7 @@ public void test2999_coverage() {
 // only works for info coded on bit 0 - least significant
 String testCodedValueOf(long[] data) {
 	int length;
-	StringBuffer result = new StringBuffer(length = data.length);
+	StringBuilder result = new StringBuilder(length = data.length);
 	for (int i = 0; i < length; i++) {
 		result.append(data[i] == 0 ? '0' : '1');
 	}
@@ -1019,7 +1019,7 @@ String testCodedValueOf(long[] data) {
 
 static String testStringValueOf(long[] data) {
 	int length;
-	StringBuffer result = new StringBuffer((length = data.length) * 2 + 1);
+	StringBuilder result = new StringBuilder((length = data.length) * 2 + 1);
 	result.append('{');
 	for (int i = 0; i < length; i++) {
 		if (i > 0) {
@@ -1571,7 +1571,7 @@ void markAllAsAlreadyKnown() {
 }
 @Override
 public String toString() {
-	StringBuffer output = new StringBuffer();
+	StringBuilder output = new StringBuilder();
 	output.append("Transitive closure:\n");
 	SortedMap sorted = new TreeMap(this.elements);
 	Iterator i = sorted.keySet().iterator();

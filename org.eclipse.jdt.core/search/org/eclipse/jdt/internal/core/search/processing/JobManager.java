@@ -67,6 +67,14 @@ public abstract class JobManager implements Runnable {
 		if (VERBOSE)
 			Util.verbose("DISABLING background indexing"); //$NON-NLS-1$
 	}
+
+	/**
+	 * @return {@code true} if the job manager is enabled
+	 */
+	public synchronized boolean isEnabled() {
+		return this.enableCount > 0;
+	}
+
 	/**
 	 * Remove the index from cache for a given project.
 	 * Passing null as a job family discards them all.
@@ -494,7 +502,7 @@ public abstract class JobManager implements Runnable {
 	}
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer(10);
+		StringBuilder buffer = new StringBuilder(10);
 		buffer.append("Enable count:").append(this.enableCount).append('\n'); //$NON-NLS-1$
 		int numJobs = this.jobEnd - this.jobStart + 1;
 		buffer.append("Jobs in queue:").append(numJobs).append('\n'); //$NON-NLS-1$

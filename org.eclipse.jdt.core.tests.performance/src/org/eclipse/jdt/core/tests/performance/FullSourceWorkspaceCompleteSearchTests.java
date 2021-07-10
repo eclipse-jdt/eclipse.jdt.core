@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.performance;
 import java.io.PrintStream;
 import java.text.NumberFormat;
 
-import junit.framework.*;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IField;
@@ -25,9 +23,14 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+
+import junit.framework.Test;
 
 /**
  * Performance test suite which covers all main search requests:
@@ -226,7 +229,7 @@ protected void cleanCategoryTableCache(boolean type, JavaSearchResultCollector r
 public void testSearchStringTypeDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "Object";
@@ -251,7 +254,7 @@ public void testSearchStringTypeDeclarations() throws CoreException {
 public void testSearchStringTypeReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "Object";
@@ -276,7 +279,7 @@ public void testSearchStringTypeReferences() throws CoreException {
 public void testSearchJavaElementTypeDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get Object type
 	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
@@ -305,7 +308,7 @@ public void testSearchJavaElementTypeDeclarations() throws CoreException {
 public void testSearchJavaElementTypeReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get Object type
 	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
@@ -344,7 +347,7 @@ public void testSearchJavaElementTypeReferences() throws CoreException {
 public void testSearchStringFieldDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "name";
@@ -372,7 +375,7 @@ public void testSearchStringFieldDeclarations() throws CoreException {
 public void testSearchStringFieldReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "name";
@@ -400,7 +403,7 @@ public void testSearchStringFieldReferences() throws CoreException {
 public void testSearchJavaElementFieldDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get field 'name'
 	IType type = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.core", "JavaElement");
@@ -433,7 +436,7 @@ public void testSearchJavaElementFieldDeclarations() throws CoreException {
 public void testSearchJavaElementFieldReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get field 'name'
 	IType type = JDT_CORE_PROJECT.findType("org.eclipse.jdt.internal.core", "JavaElement");
@@ -476,7 +479,7 @@ public void testSearchJavaElementFieldReferences() throws CoreException {
 public void testSearchStringMethodDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "equals";
@@ -504,7 +507,7 @@ public void testSearchStringMethodDeclarations() throws CoreException {
 public void testSearchStringMethodReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "equals";
@@ -532,7 +535,7 @@ public void testSearchStringMethodReferences() throws CoreException {
 public void testSearchJavaElementMethodDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get method 'equals'
 	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
@@ -565,7 +568,7 @@ public void testSearchJavaElementMethodDeclarations() throws CoreException {
 public void testSearchJavaElementMethodReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get method 'equals'
 	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
@@ -608,7 +611,7 @@ public void testSearchJavaElementMethodReferences() throws CoreException {
 public void testSearchStringConstructorDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "()";
@@ -636,7 +639,7 @@ public void testSearchStringConstructorDeclarations() throws CoreException {
 public void testSearchStringConstructorReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Warm up
 	String name = "()";
@@ -664,7 +667,7 @@ public void testSearchStringConstructorReferences() throws CoreException {
 public void testSearchJavaElementConstructorDeclarations() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get constructor 'equals'
 	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
@@ -697,7 +700,7 @@ public void testSearchJavaElementConstructorDeclarations() throws CoreException 
 public void testSearchJavaElementConstructorReferences() throws CoreException {
 
 	// Wait for indexing end
-	AbstractJavaModelTests.waitUntilIndexesReady();
+	waitUntilIndexesReady();
 
 	// Get constructor 'equals'
 	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");

@@ -34,20 +34,20 @@ import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.ComparisonFailure;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.eclipse.test.performance.Performance;
 import org.eclipse.test.performance.PerformanceTestCase;
+
+import junit.framework.AssertionFailedError;
+import junit.framework.ComparisonFailure;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class TestCase extends PerformanceTestCase {
@@ -729,7 +729,7 @@ private static File createMemLogFile() {
  */
 protected static String showLineSeparators(String string) {
 	if (string == null) return null;
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	int length = string.length();
 	for (int i = 0; i < length; i++) {
 		char car = string.charAt(i);
@@ -815,8 +815,18 @@ protected boolean isFirst() {
 	return this.first;
 }
 
+/** true by default */
+protected boolean indexDisabledForTest = true;
+
+/** @return true by default */
+public boolean isIndexDisabledForTest() {
+	return this.indexDisabledForTest;
+}
+
 protected void setUp() throws Exception {
-	if (JavaCore.getPlugin() != null) Indexer.getInstance().enableAutomaticIndexing(false);
+	if (JavaCore.getPlugin() != null && isIndexDisabledForTest()) {
+		JavaModelManager.getIndexManager().disable();
+	}
 	super.setUp();
 
 	// Store test class and its name when changing
@@ -870,7 +880,7 @@ private String format(long number) {
 		q = n / 1000L;
 		values[++m] = (int) (n - q*1000);
 	}
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(values[m]);
 	for (int i=m-1; i>=0; i--) {
 		buffer.append(',').append(DIGIT_FORMAT.format(values[i]));
@@ -905,7 +915,9 @@ public void stopMeasuring() {
 protected void tearDown() throws Exception {
 	super.tearDown();
 
-	if (JavaCore.getPlugin() != null) Indexer.getInstance().enableAutomaticIndexing(true);
+	if (JavaCore.getPlugin() != null && isIndexDisabledForTest()) {
+		JavaModelManager.getIndexManager().enable();
+	}
 
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {

@@ -146,7 +146,7 @@ public int size() {
 @Override
 public String toString() {
 	int max = size();
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	buf.append("{"); //$NON-NLS-1$
 	for (int i = 0; i < max; ++i) {
 		if (this.keyTable[i] != null) {

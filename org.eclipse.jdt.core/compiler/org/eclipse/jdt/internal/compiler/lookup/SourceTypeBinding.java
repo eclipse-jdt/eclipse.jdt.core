@@ -1080,7 +1080,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 			end = CharOperation.indexOf(';', uniqueKey, start);
 		char[] topLevelType = CharOperation.subarray(uniqueKey, start, end);
 		if (!CharOperation.equals(topLevelType, mainTypeName)) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(uniqueKey, 0, start);
 			buffer.append(mainTypeName);
 			buffer.append('~');
@@ -1196,13 +1196,14 @@ private void checkPermitsInType() {
 				this.scope.problemReporter().sealedMissingInterfaceModifier(this, typeDecl, sealedEntry.getValue());
 		}
 		List<SourceTypeBinding> typesInCU = collectAllTypeBindings(typeDecl, this.scope.compilationUnitScope());
-		if (!typeDecl.isRecord() && typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU))
-			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, typeDecl.superclass, this.superclass);
+		if (!typeDecl.isRecord() && typeDecl.superclass != null && !checkPermitsAndAdd(this.superclass, typesInCU)) {
+			reportSealedSuperTypeDoesNotPermitProblem(typeDecl.superclass, this.superclass);
+		}
 		for (int i = 0, l = this.superInterfaces.length; i < l; ++i) {
 			ReferenceBinding superInterface = this.superInterfaces[i];
 			if (superInterface != null && !checkPermitsAndAdd(superInterface, typesInCU)) {
 				TypeReference superInterfaceRef = typeDecl.superInterfaces[i];
-				this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superInterfaceRef, superInterface);
+				reportSealedSuperTypeDoesNotPermitProblem(superInterfaceRef, superInterface);
 			}
 		}
 	}
@@ -1247,6 +1248,51 @@ private void checkPermitsInType() {
 		}
 	}
 	return;
+}
+
+private void reportSealedSuperTypeDoesNotPermitProblem(TypeReference superTypeRef, TypeBinding superType) {
+	ModuleBinding sourceModuleBinding = this.module();
+	boolean isUnnamedModule = sourceModuleBinding.isUnnamed();
+	boolean isClass =  false;
+	if (superType.isClass()) {
+		isClass =  true;
+	}
+	boolean sealedSuperTypeDoesNotPermit = false;
+	ReferenceBinding superReferenceBinding = null;
+	if (superType instanceof ReferenceBinding) {
+		superReferenceBinding = (ReferenceBinding) superType;
+		if (isUnnamedModule) {
+			PackageBinding superTypePackage = superReferenceBinding.getPackage();
+			PackageBinding pkg = this.getPackage();
+			sealedSuperTypeDoesNotPermit = pkg!= null && pkg.equals(superTypePackage);
+		} else {
+			ModuleBinding superTypeModule = superReferenceBinding.module();
+			ModuleBinding mod = this.module();
+			sealedSuperTypeDoesNotPermit  = mod!= null && mod.equals(superTypeModule);
+		}
+	}
+	if (sealedSuperTypeDoesNotPermit) {
+		if (isClass) {
+			this.scope.problemReporter().sealedSuperClassDoesNotPermit(this, superTypeRef, superType);
+		} else {
+			this.scope.problemReporter().sealedSuperInterfaceDoesNotPermit(this, superTypeRef, superType);
+		}
+	} else {
+		if (superReferenceBinding instanceof SourceTypeBinding && isUnnamedModule) {
+			PackageBinding superTypePackage = superReferenceBinding.getPackage();
+			if (isClass) {
+				this.scope.problemReporter().sealedSuperClassInDifferentPackage(this, superTypeRef, superType, superTypePackage);
+			} else {
+				this.scope.problemReporter().sealedSuperInterfaceInDifferentPackage(this, superTypeRef, superType, superTypePackage);
+			}
+		} else {
+			if (isClass) {
+				this.scope.problemReporter().sealedSuperClassDisallowed(this, superTypeRef, superType);
+			} else {
+				this.scope.problemReporter().sealedSuperInterfaceDisallowed(this, superTypeRef, superType);
+			}
+		}
+	}
 }
 
 private ReferenceBinding getActualType(ReferenceBinding ref) {
@@ -1548,9 +1594,9 @@ public char[] genericSignature() {
 	if (!isPrototype())
 		return this.prototype.genericSignature();
 
-    StringBuffer sig = null;
+    StringBuilder sig = null;
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
-	    sig = new StringBuffer(10);
+	    sig = new StringBuilder(10);
 	    sig.append('<');
 	    for (int i = 0, length = this.typeVariables.length; i < length; i++)
 	        sig.append(this.typeVariables[i].genericSignature());
@@ -1563,7 +1609,7 @@ public char[] genericSignature() {
 					break noSignature;
 	        return null;
 	    }
-	    sig = new StringBuffer(10);
+	    sig = new StringBuilder(10);
 	}
 	if (this.superclass != null)
 		sig.append(this.superclass.genericTypeSignature());
@@ -3309,7 +3355,7 @@ public String toString() {
 		return annotatedDebugName();
     }
 
-	StringBuffer buffer = new StringBuffer(30);
+	StringBuilder buffer = new StringBuilder(30);
     buffer.append("(id="); //$NON-NLS-1$
     if (this.id == TypeIds.NoId)
         buffer.append("NoId"); //$NON-NLS-1$

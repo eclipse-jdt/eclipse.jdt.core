@@ -62,7 +62,7 @@ public class InitializationFlowContext extends ExceptionHandlingFlowContext {
 	@Override
 	public String individualToString() {
 
-		StringBuffer buffer = new StringBuffer("Initialization flow context"); //$NON-NLS-1$
+		StringBuilder buffer = new StringBuilder("Initialization flow context"); //$NON-NLS-1$
 		for (int i = 0; i < this.exceptionCount; i++) {
 			buffer.append('[').append(this.thrownExceptions[i].readableName());
 			buffer.append('-').append(this.exceptionThrowerFlowInfos[i].toString()).append(']');

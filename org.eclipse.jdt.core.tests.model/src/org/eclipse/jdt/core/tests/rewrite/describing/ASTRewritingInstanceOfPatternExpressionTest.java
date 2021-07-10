@@ -63,7 +63,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");
@@ -97,7 +97,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");
@@ -117,8 +117,8 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
-		buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");
@@ -152,7 +152,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");
@@ -172,8 +172,8 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuffer buf= new StringBuffer();
-		buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");
@@ -204,7 +204,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("    void foo(Object o) {\n");

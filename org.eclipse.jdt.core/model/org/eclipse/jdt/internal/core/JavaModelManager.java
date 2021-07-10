@@ -141,12 +141,6 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.db.Database;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
@@ -229,13 +223,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		public void setCache(IPath path, ZipFile zipFile) {
-			ZipFile old = this.map.put(path, zipFile);
-			if(old != null) {
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					Thread currentThread = Thread.currentThread();
-					System.out.println("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
-							+ "].setCache()] leaked ZipFile on " + old.getName() + " for path: " + path); //$NON-NLS-1$ //$NON-NLS-2$
+			try (ZipFile old = this.map.put(path, zipFile)) {
+				if (old != null) {
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+						Thread currentThread = Thread.currentThread();
+						System.out.println("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
+								+ "].setCache()] leaked ZipFile on " + old.getName() + " for path: " + path); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -390,16 +387,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String SEARCH_DEBUG = JavaCore.PLUGIN_ID + "/debug/search" ; //$NON-NLS-1$
 	private static final String SOURCE_MAPPER_DEBUG_VERBOSE = JavaCore.PLUGIN_ID + "/debug/sourcemapper" ; //$NON-NLS-1$
 	private static final String FORMATTER_DEBUG = JavaCore.PLUGIN_ID + "/debug/formatter" ; //$NON-NLS-1$
-	private static final String INDEX_DEBUG_LARGE_CHUNKS = JavaCore.PLUGIN_ID + "/debug/index/freespacetest" ; //$NON-NLS-1$
-	private static final String INDEX_DEBUG_PAGE_CACHE = JavaCore.PLUGIN_ID + "/debug/index/pagecache" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_DEBUG = JavaCore.PLUGIN_ID + "/debug/index/indexer" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_INSERTIONS = JavaCore.PLUGIN_ID + "/debug/index/insertions" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_SCHEDULING = JavaCore.PLUGIN_ID + "/debug/index/scheduling" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_SELFTEST = JavaCore.PLUGIN_ID + "/debug/index/selftest" ; //$NON-NLS-1$
-	private static final String INDEX_LOCKS_DEBUG = JavaCore.PLUGIN_ID + "/debug/index/locks" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_SPACE = JavaCore.PLUGIN_ID + "/debug/index/space" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_TIMING = JavaCore.PLUGIN_ID + "/debug/index/timing" ; //$NON-NLS-1$
-	private static final String INDEX_INDEXER_LOG_SIZE_MEGS = JavaCore.PLUGIN_ID + "/debug/index/logsizemegs"; //$NON-NLS-1$
 
 	public static final String COMPLETION_PERF = JavaCore.PLUGIN_ID + "/perf/completion" ; //$NON-NLS-1$
 	public static final String SELECTION_PERF = JavaCore.PLUGIN_ID + "/perf/selection" ; //$NON-NLS-1$
@@ -844,7 +831,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
 					@Override
 					public String displayString(Object o) {
-						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						StringBuilder buffer = new StringBuilder("		"); //$NON-NLS-1$
 						if (o == null) {
 							buffer.append("<null>"); //$NON-NLS-1$
 							return buffer.toString();
@@ -871,7 +858,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
 					@Override
 					public String displayString(Object o) {
-						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						StringBuilder buffer = new StringBuilder("		"); //$NON-NLS-1$
 						if (o == null) {
 							buffer.append("<null>"); //$NON-NLS-1$
 							return buffer.toString();
@@ -901,7 +888,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				new org.eclipse.jdt.internal.compiler.util.Util.Displayable(){
 					@Override
 					public String displayString(Object o) {
-						StringBuffer buffer = new StringBuffer("		"); //$NON-NLS-1$
+						StringBuilder buffer = new StringBuilder("		"); //$NON-NLS-1$
 						if (o == null) {
 							buffer.append("<null>"); //$NON-NLS-1$
 							return buffer.toString();
@@ -1467,7 +1454,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append("Info for "); //$NON-NLS-1$
 			buffer.append(this.project.getFullPath());
 			buffer.append("\nRaw classpath:\n"); //$NON-NLS-1$
@@ -1574,7 +1561,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append("Info for "); //$NON-NLS-1$
 			buffer.append(((JavaElement)this.workingCopy).toStringWithAncestors());
 			buffer.append("\nUse count = "); //$NON-NLS-1$
@@ -1900,16 +1887,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				JavaModelManager.ZIP_ACCESS_VERBOSE = debug && options.getBooleanOption(ZIP_ACCESS_DEBUG, false);
 				SourceMapper.VERBOSE = debug && options.getBooleanOption(SOURCE_MAPPER_DEBUG_VERBOSE, false);
 				DefaultCodeFormatter.DEBUG = debug && options.getBooleanOption(FORMATTER_DEBUG, false);
-				Database.DEBUG_FREE_SPACE = debug && options.getBooleanOption(INDEX_DEBUG_LARGE_CHUNKS, false);
-				Database.DEBUG_PAGE_CACHE = debug && options.getBooleanOption(INDEX_DEBUG_PAGE_CACHE, false);
-				Indexer.DEBUG = debug && options.getBooleanOption(INDEX_INDEXER_DEBUG, false);
-				Indexer.DEBUG_INSERTIONS = debug  && options.getBooleanOption(INDEX_INDEXER_INSERTIONS, false);
-				Indexer.DEBUG_ALLOCATIONS = debug && options.getBooleanOption(INDEX_INDEXER_SPACE, false);
-				Indexer.DEBUG_TIMING = debug && options.getBooleanOption(INDEX_INDEXER_TIMING, false);
-				Indexer.DEBUG_SCHEDULING = debug && options.getBooleanOption(INDEX_INDEXER_SCHEDULING, false);
-				Indexer.DEBUG_SELFTEST = debug && options.getBooleanOption(INDEX_INDEXER_SELFTEST, false);
-				Indexer.DEBUG_LOG_SIZE_MB = debug ? options.getIntegerOption(INDEX_INDEXER_LOG_SIZE_MEGS, 0) : 0;
-				Nd.sDEBUG_LOCKS = debug && options.getBooleanOption(INDEX_LOCKS_DEBUG, false);
 
 				// configure performance options
 				if(PerformanceStats.ENABLED) {
@@ -2573,7 +2550,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	private void verbose_reentering_project_container_access(	IPath containerPath, IJavaProject project, IClasspathContainer previousContainer) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("CPContainer INIT - reentering access to project container during its initialization, will see previous value\n"); //$NON-NLS-1$
 		buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
 		buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
@@ -2864,24 +2841,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return;
 		}
 		throwExceptionIfArchiveInvalid(path);
-		// Check if we can determine the archive's validity by examining the index
-		if (JavaIndex.isEnabled()) {
-			JavaIndex index = JavaIndex.getIndex();
-			String location = JavaModelManager.getLocalFile(path).getAbsolutePath();
-			try (IReader reader = index.getNd().acquireReadLock()) {
-				NdResourceFile resourceFile = index.getResourceFile(location.toCharArray());
-				if (index.isUpToDate(resourceFile)) {
-					// We have this file in the index and the index is up-to-date, so we can determine the file's
-					// validity without touching the filesystem.
-					if (resourceFile.isCorruptedZipFile()) {
-						throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1,
-								Messages.status_IOException, new ZipException()));
-					}
-					return;
-				}
-			}
-		}
-
 		ZipFile file = getZipFile(path);
 		closeZipFile(file);
 	}
@@ -3258,7 +3217,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	private void verbose_container_value_after_initialization(IJavaProject project, IPath containerPath, IClasspathContainer container) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("CPContainer INIT - after resolution\n"); //$NON-NLS-1$
 		buffer.append("	project: " + project.getElementName() + '\n'); //$NON-NLS-1$
 		buffer.append("	container path: " + containerPath + '\n'); //$NON-NLS-1$
@@ -4754,7 +4713,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public void secondaryTypeAdding(String path, char[] typeName, char[] packageName) {
 		if (VERBOSE) {
-			StringBuffer buffer = new StringBuffer("JavaModelManager.addSecondaryType("); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("JavaModelManager.addSecondaryType("); //$NON-NLS-1$
 			buffer.append(path);
 			buffer.append(',');
 			buffer.append('[');
@@ -4846,7 +4805,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public Map<String, Map<String, IType>> secondaryTypes(IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor) throws JavaModelException {
 		if (VERBOSE) {
-			StringBuffer buffer = new StringBuffer("JavaModelManager.secondaryTypes("); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("JavaModelManager.secondaryTypes("); //$NON-NLS-1$
 			buffer.append(project.getElementName());
 			buffer.append(',');
 			buffer.append(waitForIndexes);
@@ -4988,7 +4947,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private static Map<String, Map<String, IType>> secondaryTypesSearching(IJavaProject project, boolean waitForIndexes, IProgressMonitor monitor, final PerProjectInfo projectInfo) throws JavaModelException {
 		if (VERBOSE || BasicSearchEngine.VERBOSE) {
-			StringBuffer buffer = new StringBuffer("JavaModelManager.secondaryTypesSearch("); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("JavaModelManager.secondaryTypesSearch("); //$NON-NLS-1$
 			buffer.append(project.getElementName());
 			buffer.append(',');
 			buffer.append(waitForIndexes);
@@ -5070,7 +5029,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public void secondaryTypesRemoving(IFile file, boolean cleanIndexCache) {
 		if (VERBOSE) {
-			StringBuffer buffer = new StringBuffer("JavaModelManager.removeFromSecondaryTypesCache("); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("JavaModelManager.removeFromSecondaryTypesCache("); //$NON-NLS-1$
 			buffer.append(file.getName());
 			buffer.append(')');
 			Util.verbose(buffer.toString());
@@ -5108,7 +5067,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	private void secondaryTypesRemoving(Map<String, Map<String, IType>> secondaryTypesMap, IFile file) {
 		if (VERBOSE) {
-			StringBuffer buffer = new StringBuffer("JavaModelManager.removeSecondaryTypesFromMap("); //$NON-NLS-1$
+			StringBuilder buffer = new StringBuilder("JavaModelManager.removeSecondaryTypesFromMap("); //$NON-NLS-1$
 			Iterator<Entry<String, Map<String, IType>>> entries = secondaryTypesMap.entrySet().iterator();
 			while (entries.hasNext()) {
 				Entry<String, Map<String, IType>> entry = entries.next();

@@ -47,7 +47,7 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 	public void testCollapsedTargetNodes() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo(Object o) {\n");
@@ -79,7 +79,7 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo(Object o) {\n");
@@ -95,7 +95,7 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 	public void testCollapsedTargetNodes2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 
-		StringBuffer buf= new StringBuffer();
+		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo(Object o) {\n");
@@ -131,7 +131,7 @@ public class ASTRewritingGroupNodeTest extends ASTRewritingTest {
 
 		String preview= evaluateRewrite(cu, rewrite);
 
-		buf= new StringBuffer();
+		buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
 		buf.append("    public void foo(Object o) {\n");
