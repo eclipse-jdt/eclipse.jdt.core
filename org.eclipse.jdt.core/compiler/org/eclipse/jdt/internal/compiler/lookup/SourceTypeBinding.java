@@ -1429,6 +1429,9 @@ public RecordComponentBinding[] components() {
 					for (int i = 0, l = smb.parameters.length; i < l; ++i) {
 						smb.parameters[i] = this.components[i].type;
 					}
+					if (this.isVarArgs == true) {
+						smb.modifiers |= ClassFileConstants.AccVarargs;
+					}
 				}
 			}
 		}
