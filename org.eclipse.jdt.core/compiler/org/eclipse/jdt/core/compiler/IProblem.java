@@ -2474,4 +2474,7 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error
 	 */
 	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1901;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int SwitchPatternConstantCaseLabelIncompatible = PreviewRelated + 1902;
 }

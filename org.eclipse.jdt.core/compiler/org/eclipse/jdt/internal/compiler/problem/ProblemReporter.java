@@ -12211,5 +12211,16 @@ public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 			IProblem.StrictfpNotRequired,
 			NoArgument, NoArgument,
 			sourceStart, sourceEnd);
-	}
+}
+public void switchPatternConstantCaseLabelIncompatible(Expression element, TypeBinding selectorType) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String name = new String(selectorType.shortReadableName());
+	this.handle(
+			IProblem.SwitchPatternConstantCaseLabelIncompatible,
+			new String[] {name},
+			new String[] {name},
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

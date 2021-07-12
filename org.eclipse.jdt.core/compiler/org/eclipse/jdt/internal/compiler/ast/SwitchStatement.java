@@ -93,6 +93,7 @@ public class SwitchStatement extends Expression {
 	private LocalVariableBinding dispatchPatternCopy = null;
 	private LocalVariableBinding restartIndexLocal = null;
 
+	/* package */ boolean isNonTraditional = false;
 	/* package */ List<Expression> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 
@@ -760,6 +761,8 @@ public class SwitchStatement extends Expression {
 					if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)) {
 						upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
 						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
+					} else {
+						this.isNonTraditional = true;
 					}
 				}
 			}

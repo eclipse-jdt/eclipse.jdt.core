@@ -279,11 +279,17 @@ public Constant resolveConstantExpression(BlockScope scope,
 			return resolveConstantExpression(scope, caseType, switchExpressionType,
 					switchStatement,(PatternExpression) expression);
 		if (expression instanceof NullLiteral) {
-			if (switchExpressionType.isBaseType()) {
+			if (!(switchExpressionType instanceof ReferenceBinding)) {
 				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchExpressionType, expression, null);
 			}
 			switchStatement.containsCaseNull = true;
 			return IntConstant.fromValue(-1);
+		}
+		if (!(expression instanceof FakeDefaultLiteral)
+			&& switchStatement.isNonTraditional
+			&& !expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)) {
+			scope.problemReporter().switchPatternConstantCaseLabelIncompatible(expression, switchExpressionType);
+			return Constant.NotAConstant;
 		}
 	}
 
@@ -291,7 +297,8 @@ public Constant resolveConstantExpression(BlockScope scope,
 			switchStatement.isAllowedType(switchExpressionType);
 
 	if (expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
-			|| caseType.isCompatibleWith(switchExpressionType)) {
+			||(caseType.isCompatibleWith(switchExpressionType)
+				&& !(expression instanceof StringLiteral))) {
 		if (caseType.isEnum()) {
 			if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
 				scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(expression);

@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574719_004"};
+//		TESTS_NAMES = new String[] { "testBug574793_001"};
 	}
 
 	private static String previewLevel = "17";
@@ -420,7 +420,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case 1: System.out.println(\"Integer\"); break;\n" +
 			"	     ^\n" +
-			"Type mismatch: cannot convert from int to Object\n" +
+			"The constant case label element is not compatible with switch expression type Object\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
@@ -1528,6 +1528,47 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case default, 1, default   : k = 1;\n" +
 			"	                       ^^^^^\n" +
 			"The default case is already defined\n" +
+			"----------\n");
+	}
+	public void testBug574793_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {}\n"+
+				" private static void foo1(int o) {\n"+
+				"   switch (o) {\n"+
+				"     case null  -> System.out.println(\"null\");\n"+
+				"     case 20  -> System.out.println(\"20\");\n"+
+				"   }\n"+
+				" }\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"   case \"F\"  :\n"+
+				"     break;\n"+
+				"   case 2 :\n"+
+				"     break;\n"+
+				"   default:\n"+
+				"     break;\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case null  -> System.out.println(\"null\");\n" +
+			"	     ^^^^\n" +
+			"Type mismatch: cannot convert from null to int\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	case \"F\"  :\n" +
+			"	     ^^^\n" +
+			"The constant case label element is not compatible with switch expression type Object\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 13)\n" +
+			"	case 2 :\n" +
+			"	     ^\n" +
+			"The constant case label element is not compatible with switch expression type Object\n" +
 			"----------\n");
 	}
 }
