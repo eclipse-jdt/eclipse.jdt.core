@@ -56,14 +56,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
-		runConformTest(testFiles, expectedOutput, getCompilerOptions());
+		runConformTest(testFiles, expectedOutput, "", getCompilerOptions());
 	}
-
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
+		runConformTest(testFiles, expectedOutput, "", customOptions);
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, String errorOutput) {
+		runConformTest(testFiles, expectedOutput, errorOutput, getCompilerOptions());
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, String expectedErrorOutput, Map<String, String> customOptions) {
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedOutputString = expectedOutput;
+		runner.expectedErrorString = expectedErrorOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
@@ -429,7 +435,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 
-	public void _testBug573936_01() {
+	public void testBug573936_01() {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -458,7 +464,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   public static Object bar() { return new Object();}\n"+
 					"}",
 				},
-				"ERROR: NO FALL THROUGH ALLOWED IN PATTERN CASES");
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case String s && s.length()>1: \n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern case label \n" +
+				"----------\n");
 	}
 	public void testBug573939_01() {
 		runNegativeTest(
@@ -480,7 +491,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"class Y {}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 11)\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case String s1: System.out.println(\"String \");\n" +
+				"	^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern case label \n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 11)\n" +
 				"	Zork();\n" +
 				"	^^^^\n" +
 				"The method Zork() is undefined for the type X\n" +
@@ -1610,5 +1626,128 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                 ^^\n" +
 			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n");
+	}
+	// Test that fall-through to a pattern is not allowed (label statement group has one statement)
+	public void testBug573940_1() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"public void foo(Number n) {\n"
+					+ "	switch (n) {\n"
+					+ "	case Integer i :\n"
+					+ "		System.out.println(i);\n"
+					+ "	case Float f :\n"
+					+ "		System.out.println(f);\n"
+					+ "	}\n"
+					+ "}\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case Float f :\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern case label \n" +
+				"----------\n");
+	}
+	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
+	public void testBug573940_2() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"public void foo(Number n) {\n"
+					+ "	switch (n) {\n"
+					+ "	case Integer i :\n"
+					+ "	case Float f :\n"
+					+ "		System.out.println(f);\n"
+					+ "     break;\n"
+					+ "	}\n"
+					+ "}\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case Float f :\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern case label \n" +
+				"----------\n");
+	}
+	// Test that falling through from a pattern to a default is allowed
+	public void testBug573940_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "public static void foo(Number n) {\n"
+					+ "		switch (n) {\n"
+					+ "		case Integer i :\n"
+					+ "			System.out.println(i);\n"
+					+ "		default:\n"
+					+ "			System.out.println(\"null\");\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "public static void main(String[] args) {\n"
+					+ "		foo(Integer.valueOf(5));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"5\n" +
+				"null");
+	}
+	// Test that a case statement with pattern is allowed when statement group ends
+	// with an Throw statement instead of a break statement
+	public void testBug573940_4() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "public static void foo(Number n) {\n"
+					+ "		switch (n) {\n"
+					+ "		case Integer i :\n"
+					+ "			throw new IllegalArgumentException();\n"
+					+ "		default:\n"
+					+ "			System.out.println(\"null\");\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "public static void main(String[] args) {\n"
+					+ "		try{\n"
+					+ "			foo(Integer.valueOf(5));\n"
+					+ "		} catch(Exception t) {\n"
+					+ "		 	t.printStackTrace();\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"",
+				"java.lang.IllegalArgumentException\n" +
+				"	at X.foo(X.java:5)\n" +
+				"	at X.main(X.java:12)");
+	}
+	// Test that switch expression with pattern variables is reported when a case statement
+	// doesn't return any value.
+	public void testBug573940_5() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	public static void foo(Number n) {\n"
+					+ "		int j = \n"
+					+ "			switch (n) {\n"
+					+ "			case Integer i -> {\n"
+					+ "			}\n"
+					+ "			default -> {\n"
+					+ "				yield 1;\n"
+					+ "			}\n"
+					+ "		};\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	}\n" +
+				"	^^\n" +
+				"A switch labeled block in a switch expression should not complete normally\n" +
+				"----------\n");
 	}
 }

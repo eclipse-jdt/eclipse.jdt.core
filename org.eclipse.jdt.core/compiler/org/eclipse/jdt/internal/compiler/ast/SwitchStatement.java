@@ -159,13 +159,16 @@ public class SwitchStatement extends Expression {
 					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statement is a case
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
-						if (fallThroughState == FALLTHROUGH
-								&& (statement.bits & ASTNode.DocumentedFallthrough) == 0) { // the case is not fall-through protected by a line comment
-							this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
+						if (fallThroughState == FALLTHROUGH) {
+							if (this.containsPatterns)
+								this.scope.problemReporter().IllegalFallThroughToPattern(this.scope.enclosingCase);
+							else if ((statement.bits & ASTNode.DocumentedFallthrough) == 0) { // the case is not fall-through protected by a line comment
+								this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
+							}
 						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
 						complaintLevel = initialComplaintLevel; // reset complaint
-						fallThroughState = CASE;
+						fallThroughState = this.containsPatterns ? FALLTHROUGH : CASE;
 					} else if (statement == this.defaultCase) { // statement is the default case
 						this.scope.enclosingCase = this.defaultCase; // record entering in a switch case block
 						if (fallThroughState == FALLTHROUGH

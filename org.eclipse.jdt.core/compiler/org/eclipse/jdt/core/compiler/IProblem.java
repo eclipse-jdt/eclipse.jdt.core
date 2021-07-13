@@ -2480,4 +2480,10 @@ void setSourceStart(int sourceStart);
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1903;
+	/**
+	 * @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error
+	 */
+	int IllegalFallthroughToPattern = PreviewRelated + 1904;
+
 }

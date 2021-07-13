@@ -12233,4 +12233,12 @@ public void switchPatternConstantWithPatternIncompatible(Expression element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
+public void IllegalFallThroughToPattern(CaseStatement caseStatement) {
+	this.handle(
+		IProblem.IllegalFallthroughToPattern,
+		NoArgument,
+		NoArgument,
+		caseStatement.sourceStart,
+		caseStatement.sourceEnd);
+	}
 }
