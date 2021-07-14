@@ -66,6 +66,8 @@ private static Class[] getAllTestClasses() {
 		// Java search tests
 		RunJavaSearchTests.class,
 
+		IndexManagerTests.class,
+
 		// Tests for the new index - disabled because the index is not used anymore
 		// See bug 572976 and bug 544898
 		// RunIndexTests.class,

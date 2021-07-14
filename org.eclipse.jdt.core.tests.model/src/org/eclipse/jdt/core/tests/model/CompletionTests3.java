@@ -928,4 +928,80 @@ public void testBug574338_from574215c14() throws CoreException {
 		deleteProject("P");
 	}
 }
+public void testBug574704() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Cast.java",
+			"public class Cast {\n" +
+			"\n" +
+			"	Object field;\n" +
+			"\n" +
+			"	void test(Object o) {\n" +
+			"		if (true) {\n" +
+			"			 // content assist here does not offer o or field\n" +
+			"			((String) o).toCharArray();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBefore = " // content assist here";
+		int cursorLocation = str.indexOf(completeBefore);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assertResults(
+				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + relevance + "}\n" +
+				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + relevance + "}\n" +
+				"field[FIELD_REF]{field, LCast;, Ljava.lang.Object;, field, null, " + relevance + "}\n" +
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + relevance + "}\n" +
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + relevance + "}\n" +
+				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + relevance + "}\n" +
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + relevance + "}\n" +
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + relevance + "}\n" +
+				"o[LOCAL_VARIABLE_REF]{o, null, Ljava.lang.Object;, o, null, "+relevance+"}\n" +
+				"test[METHOD_REF]{test(), LCast;, (Ljava.lang.Object;)V, test, (o), " + relevance + "}\n" +
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + relevance + "}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + relevance + "}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + relevance + "}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + relevance + "}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574704_withPrefix() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Cast.java",
+			"public class Cast {\n" +
+			"\n" +
+			"	Object oField;\n" +
+			"\n" +
+			"	void test(Object oArg, String wrongArg) {\n" +
+			"		if (true) {\n" +
+			"			o // content assist here does not offer oArg or oField\n" +
+			"			((String) oArg).toCharArray();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBefore = " // content assist here";
+		int cursorLocation = str.indexOf(completeBefore);
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assertResults(
+				"oArg[LOCAL_VARIABLE_REF]{oArg, null, Ljava.lang.Object;, oArg, null, "+relevance+"}\n" +
+				"oField[FIELD_REF]{oField, LCast;, Ljava.lang.Object;, oField, null, " + relevance + "}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

@@ -165,6 +165,13 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
+
 @Override
 public void tearDownSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
@@ -5250,6 +5257,7 @@ public void testBug281598b() throws Exception {
 	}
 }
 public void testBug281598c() throws Exception {
+	boolean indexState = isIndexDisabledForTest();
 	IndexManager indexManager = JavaModelManager.getIndexManager();
 	try {
 		// Create project
@@ -5269,8 +5277,8 @@ public void testBug281598c() throws Exception {
 			"}\n";
 		createFolder("/P/src/test");
 		createFile(path, source);
+		this.indexDisabledForTest = true;
 		refresh(p);
-
 		// do completion
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		requestor.allowAllRequiredProposals();
@@ -5287,6 +5295,7 @@ public void testBug281598c() throws Exception {
 	} finally {
 		indexManager.enable();
 		deleteProject("P");
+		this.indexDisabledForTest = indexState;
 	}
 }
 
