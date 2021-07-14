@@ -1648,4 +1648,66 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 			content = getClassfileContent("Test$2.class");
 			assertTrue("Unexpected code found", content.indexOf(expectedOutput) == -1);
 	}
+	public void testBug574791_3() {
+		runConformTest(
+			new String[] {
+					"EnumTester.java",
+					"public class EnumTester {\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		Test e = Test.ONE;\n"
+					+ "		System.out.println(e.value());\n"
+					+ "		System.out.println(MyTest.TWO.value());\n"
+					+ "		I TWO = new I() {\n"
+					+ "			private static final String value = getString();\n"
+					+ "			@Override\n"
+					+ "			public String value() {\n"
+					+ "				return value;\n"
+					+ "			}\n"
+					+ "		};\n"
+					+ "		System.out.println(TWO.value());\n"
+					+ "	}\n"
+					+ "	private static String getString() {\n"
+					+ "		return \"Hi from EnumTester\";\n"
+					+ "	}\n"
+					+ "	class MyTest {\n"
+					+ "		public static String value;\n"
+					+ "     static {\n"
+					+ "       value = getString();\n"
+					+ "     }\n"
+					+ "		private static String getString() {\n"
+					+ "			return \"Hi from MyTest\";\n"
+					+ "		}\n"
+					+ "		public static I TWO = new I() {\n"
+					+ "			private static final String value = getString();\n"
+					+ "			@Override\n"
+					+ "			public String value() {\n"
+					+ "				return value;\n"
+					+ "			}\n"
+					+ "		};\n"
+					+ "	}\n"
+					+ "	interface I {\n"
+					+ "		public String value();\n"
+					+ "	}\n"
+					+ "}\n"
+					+ "enum Test {\n"
+					+ "	ONE {\n"
+					+ "		public static String value;\n"
+					+ "     static {\n"
+					+ "       value = getString();\n"
+					+ "     }\n"
+					+ "		@Override\n"
+					+ "		String value() {\n"
+					+ "			return value;\n"
+					+ "		}\n"
+					+ "	};\n"
+					+ "	abstract String value();\n"
+					+ "	private static String getString() {\n"
+					+ "		return \"Hi from Test\";\n"
+					+ "	}\n"
+					+ "}"
+				},
+			"Hi from Test\n" +
+			"Hi from MyTest\n" +
+			"Hi from EnumTester");
+	}
 }
