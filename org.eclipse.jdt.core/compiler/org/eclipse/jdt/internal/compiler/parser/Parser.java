@@ -1322,6 +1322,7 @@ protected void classInstanceCreation(boolean isQualified) {
 		dispatchDeclarationInto(length);
 		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)this.astStack[this.astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = this.endStatementPosition;
+		anonymousTypeDeclaration.addClinit();
 		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = this.endStatementPosition;
@@ -3875,6 +3876,7 @@ protected void consumeEnumConstantWithClassBody() {
 	dispatchDeclarationInto(this.astLengthStack[this.astLengthPtr--]);
 	TypeDeclaration anonymousType = (TypeDeclaration) this.astStack[this.astPtr--]; // pop type
 	this.astLengthPtr--;
+	anonymousType.addClinit();
 	anonymousType.bodyEnd = this.endPosition;
 	anonymousType.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	final FieldDeclaration fieldDeclaration = ((FieldDeclaration) this.astStack[this.astPtr]);
