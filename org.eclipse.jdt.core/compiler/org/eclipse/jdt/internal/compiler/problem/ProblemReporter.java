@@ -12223,4 +12223,14 @@ public void switchPatternConstantCaseLabelIncompatible(Expression element, TypeB
 			element.sourceStart,
 			element.sourceEnd);
 }
+public void switchPatternConstantWithPatternIncompatible(Expression element) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+			IProblem.SwitchPatternConstantWithPatternIncompatible,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

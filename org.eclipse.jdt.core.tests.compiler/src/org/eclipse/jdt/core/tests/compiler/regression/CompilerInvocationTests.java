@@ -1299,6 +1299,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternPatternKindNotAllowed", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternConstantCaseLabelIncompatible", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("SwitchPatternConstantWithPatternIncompatible", new ProblemAttributes(true));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2367,6 +2368,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternPatternKindNotAllowed", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternConstantCaseLabelIncompatible", SKIP);
+	    expectedProblemAttributes.put("SwitchPatternConstantWithPatternIncompatible", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

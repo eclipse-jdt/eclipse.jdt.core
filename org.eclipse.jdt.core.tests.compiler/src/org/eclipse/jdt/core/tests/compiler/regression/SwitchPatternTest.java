@@ -1571,4 +1571,44 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The constant case label element is not compatible with switch expression type Object\n" +
 			"----------\n");
 	}
+	public void testBug574559_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {}\n"+
+				" private static void foo1(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case 1, Integer i  -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case 1, Integer i  -> System.out.println(o);\n" +
+			"	        ^^^^^^^^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"----------\n");
+	}
+	public void testBug574559_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {}\n"+
+				" private static void foo1(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case  Integer i, 30  -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case  Integer i, 30  -> System.out.println(o);\n" +
+			"	                 ^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"----------\n");
+	}
 }

@@ -40,11 +40,16 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CaseStatement extends Statement {
 
+	static final int CASE_CONSTANT = 1;
+	static final int CASE_DEFAULT  = 2;
+	static final int CASE_NULL     = 4;
+	static final int CASE_PATTERN  = 8;
+
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions
 	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isExpr = false;
-//	public BlockScope scope;
+	private int caseLabelElements = 0; // TODO: Think of moving it up to switch statement for mem optimization
 	/* package */ int patternIndex = -1; // points to first pattern var index [only one pattern variable allowed now - should be 0]
 
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
@@ -267,6 +272,22 @@ public void collectPatternVariablesToScope(LocalVariableBinding[] variables, Blo
 		addPatternVariablesWhenTrue(patternVariables);
 	}
 }
+private int updateCaseLabelKindVector(BlockScope scope, Expression element, int kind) {
+	int conflictingPattern = 0;
+	switch (kind) {
+		case CaseStatement.CASE_CONSTANT :
+			conflictingPattern =  CaseStatement.CASE_PATTERN;
+			break;
+		case CaseStatement.CASE_PATTERN  :
+			conflictingPattern =  CaseStatement.CASE_CONSTANT;
+			break;
+		default: break;
+	}
+	if ((this.caseLabelElements & conflictingPattern) != 0) {
+		scope.problemReporter().switchPatternConstantWithPatternIncompatible(element);
+	}
+	return this.caseLabelElements |= kind;
+}
 public Constant resolveConstantExpression(BlockScope scope,
 											TypeBinding caseType,
 											TypeBinding switchExpressionType,
@@ -275,21 +296,25 @@ public Constant resolveConstantExpression(BlockScope scope,
 
 	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
 	if (patternSwitchAllowed) {
-		if (expression instanceof PatternExpression)
+		if (expression instanceof PatternExpression) {
+			updateCaseLabelKindVector(scope, expression, CASE_PATTERN);
 			return resolveConstantExpression(scope, caseType, switchExpressionType,
 					switchStatement,(PatternExpression) expression);
-		if (expression instanceof NullLiteral) {
+		} else if (expression instanceof NullLiteral) {
 			if (!(switchExpressionType instanceof ReferenceBinding)) {
 				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchExpressionType, expression, null);
 			}
 			switchStatement.containsCaseNull = true;
 			return IntConstant.fromValue(-1);
-		}
-		if (!(expression instanceof FakeDefaultLiteral)
-			&& switchStatement.isNonTraditional
-			&& !expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)) {
-			scope.problemReporter().switchPatternConstantCaseLabelIncompatible(expression, switchExpressionType);
-			return Constant.NotAConstant;
+		} else if (expression instanceof FakeDefaultLiteral) {
+			// do nothing
+		} else {
+			updateCaseLabelKindVector(scope, expression, CASE_CONSTANT);
+			if (switchStatement.isNonTraditional
+				&& !expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)) {
+				scope.problemReporter().switchPatternConstantCaseLabelIncompatible(expression, switchExpressionType);
+				return Constant.NotAConstant;
+			}
 		}
 	}
 

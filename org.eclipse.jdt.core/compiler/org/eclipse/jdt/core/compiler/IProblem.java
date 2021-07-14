@@ -2477,4 +2477,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int SwitchPatternConstantCaseLabelIncompatible = PreviewRelated + 1902;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1903;
 }
