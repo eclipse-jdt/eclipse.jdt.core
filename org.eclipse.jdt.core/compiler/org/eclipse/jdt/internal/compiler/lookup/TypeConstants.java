@@ -138,11 +138,6 @@ public interface TypeConstants {
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_PARAMETER_TARGET = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
 
-	// patterns
-	String ANY_PATTERN_STRING = "ANY_PATTERN"; //$NON-NLS-1$
-	String GUARDED_PATTERN_STRING = "GUARDED_PATTERN"; //$NON-NLS-1$
-	String TYPE_PATTERN_STRING = "TYPE_PATTERN"; //$NON-NLS-1$
-
     // common 3rd party package components:
     char[] ORG = "org".toCharArray(); //$NON-NLS-1$
     char[] ECLIPSE = "eclipse".toCharArray(); //$NON-NLS-1$

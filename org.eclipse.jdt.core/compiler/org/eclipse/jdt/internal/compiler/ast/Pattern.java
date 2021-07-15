@@ -21,34 +21,28 @@ import java.util.function.Supplier;
 
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
 
-	public enum PatternKind {
-		ANY_PATTERN,
-		GUARDED_PATTERN,
-		TYPE_PATTERN,
-		NOT_A_PATTERN,
+	public boolean isTotalForType(TypeBinding type) {
+		return false;
 	}
 
-	public int parenthesisSourceStart;
-	public int parenthesisSourceEnd;
-
-	PatternBinding resolvedPattern;
-
-	public abstract LocalDeclaration[] getPatternVariables();
-
-	public abstract String getKindName(); // convenience method.
-
-	public abstract boolean isTotalForType(TypeBinding type);
-
-	public abstract PatternKind kind();
-
-	public abstract PatternBinding resolveAtType(BlockScope scope, TypeBinding type);
+	public TypeBinding resolveAtType(BlockScope scope, TypeBinding type) {
+		return null;
+	}
 
 	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
 		// default implementation does nothing
+	}
+
+	public boolean isAnyPattern() {
+		return false;
+	}
+
+	@Override
+	public StringBuffer print(int indent, StringBuffer output) {
+		return this.printExpression(indent, output);
 	}
 }

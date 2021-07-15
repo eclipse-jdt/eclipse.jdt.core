@@ -44,7 +44,7 @@ public abstract class ASTVisitor {
 			ClassScope classScope) {
 			// do nothing by default
 	}
-	public void endVisit(AnyPattern anyPattern, BlockScope scope) {
+	public void endVisit(TypePattern anyPattern, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(Argument argument, BlockScope scope) {
@@ -345,7 +345,7 @@ public abstract class ASTVisitor {
 	public void endVisit(OR_OR_Expression or_or_Expression, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(PatternExpression patternExpression, BlockScope scope) {
+	public void endVisit(Pattern patternExpression, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ParameterizedQualifiedTypeReference parameterizedQualifiedTypeReference, BlockScope scope) {
@@ -499,9 +499,6 @@ public abstract class ASTVisitor {
 	public void endVisit(TypeParameter typeParameter, ClassScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(TypePattern typePattern, BlockScope scope) {
-		// do nothing by default, keep traversing
-	}
 	public void endVisit(UnaryExpression unaryExpression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -558,7 +555,7 @@ public abstract class ASTVisitor {
 			ClassScope classScope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(AnyPattern anyPattern, BlockScope scope) {
+	public boolean visit(TypePattern anyPattern, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(Argument argument, BlockScope scope) {
@@ -881,7 +878,7 @@ public abstract class ASTVisitor {
 	public boolean visit(ParameterizedSingleTypeReference parameterizedSingleTypeReference, ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(PatternExpression patternExpression, BlockScope scope) {
+	public boolean visit(Pattern patternExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(PostfixExpression postfixExpression, BlockScope scope) {
@@ -1021,9 +1018,6 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(TypeParameter typeParameter, ClassScope scope) {
-		return true; // do nothing by default, keep traversing
-	}
-	public boolean visit(TypePattern typePattern, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(UnaryExpression unaryExpression, BlockScope scope) {

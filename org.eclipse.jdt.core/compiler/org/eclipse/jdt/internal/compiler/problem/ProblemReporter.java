@@ -150,7 +150,6 @@ import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
 import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
@@ -12198,14 +12197,6 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			reference.sourceStart,
 			reference.sourceEnd);
 }
-public void SwitchPatternPatternKindNotAllowed(Pattern pattern) {
-	this.handle(
-			IProblem.SwitchPatternPatternKindNotAllowed,
-			new String[] {pattern.getKindName()},
-			new String[] {pattern.getKindName()},
-			pattern.sourceStart,
-			pattern.sourceEnd);
-}
 public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 	this.handle(
 			IProblem.StrictfpNotRequired,
@@ -12237,14 +12228,6 @@ public void IllegalFallThroughToPattern(CaseStatement caseStatement) {
 		caseStatement.sourceStart,
 		caseStatement.sourceEnd);
 	}
-public void switchPatternAnyPatternCaseLabelNotAllowed(Expression element) {
-	this.handle(
-			IProblem.SwitchPatternAnyPatternCaseLabelNotAllowed,
-			NoArgument,
-			NoArgument,
-			element.sourceStart,
-			element.sourceEnd);
-}
 public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
 	this.handle(
 			IProblem.SwitchPatternOnlyOnePatternCaseLabelAllowed,

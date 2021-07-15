@@ -4572,11 +4572,11 @@ protected void consumeInstanceOfExpression() {
 	Expression exp;
 	// consume annotations
 	if (length > 0) {
-		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
-					typeDecl);
+					pattern);
 	} else {
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
 		this.expressionLengthPtr--;
@@ -4643,8 +4643,11 @@ protected void consumePrimaryPattern() {
 }
 protected void consumeParenthesizedPattern() {
 	final Pattern pattern = (Pattern) this.astStack[this.astPtr];
-	pattern.parenthesisSourceEnd = this.intStack[this.intPtr--];
-	pattern.parenthesisSourceStart = this.intStack[this.intPtr--];
+
+	// parenthesisSourceEnd
+	this.intPtr--;
+	// parenthesisSourceStart
+	this.intPtr--;
 	int numberOfParenthesis = (pattern.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 	pattern.bits &= ~ASTNode.ParenthesizedMASK;
 	pattern.bits |= (numberOfParenthesis + 1) << ASTNode.ParenthesizedSHIFT;
@@ -4652,17 +4655,7 @@ protected void consumeParenthesizedPattern() {
 protected void consumeInstanceofPattern() {
 	this.astLengthPtr--;
 	Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-	switch (pattern.kind()) {
-		case TYPE_PATTERN:
-		case GUARDED_PATTERN: // guarded pattern will be reached only via primary parent
-			pushOnPatternStack(pattern.getPatternVariables()[0]);
-			break;
-		case ANY_PATTERN:
-		default: //code should not reach here - no other pattern yet (more expected in future)
-			this.problemReporter().SwitchPatternPatternKindNotAllowed(pattern);
-			pushOnPatternStack(pattern.getPatternVariables()[0]); // TODO: decide whether to push
-			break;
-	}
+	pushOnPatternStack(pattern);
 	// Only if we are not inside a block
 	if (this.realBlockPtr != -1)
 		blockReal();
@@ -4675,12 +4668,12 @@ protected void consumeInstanceOfExpressionWithName() {
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
 	Expression exp;
 	if (length != 0) {
-		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		this.expressionStack[this.expressionPtr] = exp =
 				new InstanceOfExpression(
 					this.expressionStack[this.expressionPtr],
-					typeDecl);
+					pattern);
 	} else {
 	//by construction, no base type may be used in getTypeReference
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
@@ -10126,8 +10119,7 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 		case CASE_PATTERN:
 			this.astLengthPtr--;
 			Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-			PatternExpression expression = new PatternExpression(pattern);
-			pushOnExpressionStack(expression);
+			pushOnExpressionStack(pattern);
 			this.recordPatternSwitches.put(this.switchNestingLevel, Boolean.TRUE);
 			break;
 		case CASE_DEFAULT:
@@ -10832,7 +10824,7 @@ protected void consumeTypePattern() {
 
 	local.type = type;
 
-	AbstractTypePattern aTypePattern = AbstractTypePattern.createPattern(local);
+	TypePattern aTypePattern = new TypePattern(local);
 	aTypePattern.sourceStart = this.intStack[this.intPtr--];
 	local.modifiers =  this.intStack[this.intPtr--];
 	local.declarationSourceStart = aTypePattern.sourceStart;

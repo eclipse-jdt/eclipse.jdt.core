@@ -1967,8 +1967,8 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) expression);
 		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.PatternExpression) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.PatternExpression) expression);
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Pattern) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.Pattern) expression);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.PrefixExpression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.PrefixExpression) expression);
@@ -2747,7 +2747,7 @@ class ASTConverter {
 	}
 
 	// TODO: A placeholder BUG 573941 TO ADDRESS THIS
-	public Expression convert(org.eclipse.jdt.internal.compiler.ast.PatternExpression expression) {
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Pattern expression) {
 		Expression expr = new NullLiteral(this.ast);
 		expr.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return expr;

@@ -1297,11 +1297,9 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SealedSuperTypeDisallowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SafeVarargsOnSyntheticRecordAccessor", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("SwitchPatternPatternKindNotAllowed", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternConstantCaseLabelIncompatible", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternConstantWithPatternIncompatible", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalFallthroughToPattern", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("SwitchPatternAnyPatternCaseLabelNotAllowed", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternOnlyOnePatternCaseLabelAllowed", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed", new ProblemAttributes(true));
 
@@ -2371,11 +2369,9 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("LocalReferencedInGuardMustBeEffectivelyFinal", SKIP);
 	    expectedProblemAttributes.put("SafeVarargsOnSyntheticRecordAccessor", SKIP);
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", SKIP);
-	    expectedProblemAttributes.put("SwitchPatternPatternKindNotAllowed", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternConstantCaseLabelIncompatible", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternConstantWithPatternIncompatible", SKIP);
 	    expectedProblemAttributes.put("IllegalFallthroughToPattern", SKIP);
-	    expectedProblemAttributes.put("SwitchPatternAnyPatternCaseLabelNotAllowed", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternOnlyOnePatternCaseLabelAllowed", SKIP);
 	    expectedProblemAttributes.put("SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed", SKIP);
 	    Map constantNamesIndex = new HashMap();

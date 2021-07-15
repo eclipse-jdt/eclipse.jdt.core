@@ -2466,33 +2466,27 @@ void setSourceStart(int sourceStart);
 	int SealedSuperTypeDisallowed = PreviewRelated + 1867;
 	/* Java15 errors - end */
 
-	/** @since 3.27 BETA_JAVA17
-	 * @noreference preview feature error */
-	int SwitchPatternPatternKindNotAllowed = PreviewRelated + 1900;
 	/**
 	 * @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error
 	 */
-	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1901;
+	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1900;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternConstantCaseLabelIncompatible = PreviewRelated + 1902;
+	int SwitchPatternConstantCaseLabelIncompatible = PreviewRelated + 1901;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1903;
+	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1902;
 	/**
 	 * @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error
 	 */
-	int IllegalFallthroughToPattern = PreviewRelated + 1904;
+	int IllegalFallthroughToPattern = PreviewRelated + 1903;
 
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternAnyPatternCaseLabelNotAllowed = PreviewRelated + 1905;
+	int SwitchPatternOnlyOnePatternCaseLabelAllowed = PreviewRelated + 1904;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternOnlyOnePatternCaseLabelAllowed = PreviewRelated + 1906;
-	/** @since 3.27 BETA_JAVA17
-	 * @noreference preview feature error */
-	int SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed = PreviewRelated + 1907;
+	int SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed = PreviewRelated + 1905;
 }

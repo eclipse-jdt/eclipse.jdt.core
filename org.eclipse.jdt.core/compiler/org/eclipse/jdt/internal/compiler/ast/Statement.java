@@ -125,8 +125,8 @@ public boolean continueCompletes() {
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
-	LocalVariableBinding[] patternVarsWhenTrue = null;
-	LocalVariableBinding[] patternVarsWhenFalse = null;
+	LocalVariableBinding[] patternVarsWhenTrue;
+	LocalVariableBinding[] patternVarsWhenFalse;
 
 
 /** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */

@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574564_012"};
+//		TESTS_NAMES = new String[] { "testBug573516_007"};
 	}
 
 	private static String previewLevel = "17";
@@ -293,11 +293,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                ^^^^^^\n" +
 			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
-			"	                ^^^^^^\n" +
-			"The constant case label element is not compatible with switch expression type Object\n" +
-			"----------\n" +
 			"4. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
@@ -425,8 +420,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case var s : System.out.println(\"Error should be ANY_PATTERN\");\n" +
-			"	     ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	     ^^^\n" +
+			"'var' is not allowed here\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
@@ -1796,8 +1791,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case var i  -> System.out.println(0);\n" +
-			"	     ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	     ^^^\n" +
+			"'var' is not allowed here\n" +
 			"----------\n");
 	}
 	public void testBug574564_002() {
@@ -1819,18 +1814,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	     ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	     ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	            ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	            ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 7)\n" +
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
+			"	            ^^^^^\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
+			"	case var i, var j, var k  -> System.out.println(0);\n" +
+			"	                   ^^^\n" +
+			"\'var\' is not allowed here\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 7)\n" +
+			"	case var i, var j, var k  -> System.out.println(0);\n" +
 			"	                   ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
 			"----------\n");
 	}
 	public void testBug574564_003() {
@@ -1852,8 +1857,13 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case var i, 10  -> System.out.println(0);\n" +
-			"	     ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	     ^^^\n" +
+			"\'var\' is not allowed here\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case var i, 10  -> System.out.println(0);\n" +
+			"	            ^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n");
 	}
 	public void testBug574564_004() {
@@ -1875,13 +1885,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case var i, 10, var k  -> System.out.println(0);\n" +
-			"	     ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	     ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	case var i, 10, var k  -> System.out.println(0);\n" +
+			"	            ^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	case var i, 10, var k  -> System.out.println(0);\n" +
+			"	                ^^^\n" +
+			"\'var\' is not allowed here\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
+			"	case var i, 10, var k  -> System.out.println(0);\n" +
 			"	                ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
 			"----------\n");
 	}
 	public void testBug574564_005() {
@@ -1903,8 +1923,13 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  10, null, var k  -> System.out.println(0);\n" +
+			"	                ^^^\n" +
+			"\'var\' is not allowed here\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  10, null, var k  -> System.out.println(0);\n" +
 			"	                ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n");
 	}
 	public void testBug574564_006() {
@@ -1926,10 +1951,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, var k  -> System.out.println(0);\n" +
-			"	               ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	               ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  default, var k  -> System.out.println(0);\n" +
+			"	               ^^^^^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element.\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -1959,10 +1989,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	                        ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	                        ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	case  default, default, var k  -> System.out.println(0);\n" +
+			"	                        ^^^^^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element.\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -1987,10 +2022,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	                  ^^^^^\n" +
-			"Any patterns not allowed as switch case label elements\n" +
+			"	                  ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  default, 1, var k  -> System.out.println(0);\n" +
+			"	                  ^^^^^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element.\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	case  default, 1, var k  -> System.out.println(0);\n" +
+			"	                  ^^^^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +

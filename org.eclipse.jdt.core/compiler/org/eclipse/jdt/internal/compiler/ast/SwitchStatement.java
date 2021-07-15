@@ -624,7 +624,7 @@ public class SwitchStatement extends Expression {
 		if (this.switchPatternRestartTarget != null && caseStatement != null
 				&& caseStatement.patternIndex != -1 // for null
 				) {
-			Pattern pattern = ((PatternExpression) caseStatement.constantExpressions[caseStatement.patternIndex]).pattern;
+			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
 			if (pattern instanceof GuardedPattern) {
 				codeStream.loadInt(caseIndex);
 				codeStream.store(this.restartIndexLocal, false);

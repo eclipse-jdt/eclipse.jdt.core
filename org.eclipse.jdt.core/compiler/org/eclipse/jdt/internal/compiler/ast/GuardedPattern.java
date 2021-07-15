@@ -24,11 +24,8 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.GuardedPatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class GuardedPattern extends Pattern {
 
@@ -49,26 +46,16 @@ public class GuardedPattern extends Pattern {
 		this.condition.collectPatternVariablesToScope(variables, scope);
 		addPatternVariablesWhenTrue(this.condition.getPatternVariablesWhenTrue());
 	}
-	@Override
-	public PatternKind kind() {
-		return PatternKind.GUARDED_PATTERN;
-	}
 
 	@Override
-	public String getKindName() {
-		return TypeConstants.GUARDED_PATTERN_STRING;
+	public LocalDeclaration getPatternVariableIntroduced() {
+		return this.primaryPattern.getPatternVariableIntroduced();
 	}
 
-	// TODO: BUG 573940 to implement this method - THIS IS A PLACEHOLDER
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = this.primaryPattern.analyseCode(currentScope, flowContext, flowInfo);
 		return this.condition.analyseCode(currentScope, flowContext, flowInfo);
-	}
-
-	@Override
-	public LocalDeclaration[] getPatternVariables() {
-		return this.primaryPattern.getPatternVariables();
 	}
 
 	@Override
@@ -84,12 +71,6 @@ public class GuardedPattern extends Pattern {
 				this.thenTarget,
 				null,
 				cst == Constant.NotAConstant);
-	}
-
-	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -122,18 +103,17 @@ public class GuardedPattern extends Pattern {
 				return false;
 			}
 		}, scope);
-		this.resolvedPattern = new GuardedPatternBinding(this.primaryPattern.resolvedPattern);
-		return this.resolvedType;
+		return this.resolvedType = this.primaryPattern.resolvedType;
 	}
 
 	@Override
-	public PatternBinding resolveAtType(BlockScope scope, TypeBinding u) {
-		if (this.resolvedPattern == null || this.primaryPattern == null)
+	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
+		if (this.resolvedType == null || this.primaryPattern == null)
 			return null;
 		if (this.primaryPattern.isTotalForType(u))
 			return this.primaryPattern.resolveAtType(scope, u);
 
-		return this.resolvedPattern; //else leave the pattern untouched for now.
+		return this.resolvedType; //else leave the pattern untouched for now.
 	}
 
 	@Override

@@ -213,20 +213,10 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	if (obj instanceof var s) {\n" +
-			"	                   ^^^^^\n" +
-			"A pattern of kind ANY_PATTERN is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof var s) {\n" +
 			"	                   ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof var s) {\n" +
-			"	                       ^\n" +
-			"Cannot use \'var\' on variable without initializer\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 9)\n" +
+			"2. ERROR in X.java (at line 9)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -251,20 +241,10 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	if (obj instanceof (((var s)))) {\n" +
-			"	                      ^^^^^\n" +
-			"A pattern of kind ANY_PATTERN is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof (((var s)))) {\n" +
 			"	                      ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof (((var s)))) {\n" +
-			"	                          ^\n" +
-			"Cannot use \'var\' on variable without initializer\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 9)\n" +
+			"2. ERROR in X.java (at line 9)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +

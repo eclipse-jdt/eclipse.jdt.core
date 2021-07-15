@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -51,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
@@ -804,14 +809,14 @@ protected void consumeInstanceOfExpressionWithName() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
 	if (length > 0) {
-		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		if (this.assistNode == null || this.expressionStack[this.expressionPtr] != this.assistNode) {
 			// Push only when the selection node is not the expression of this
 			// pattern matching instanceof expression
-			pushOnAstStack(typeDecl);
-			if ((this.selectionStart >= typeDecl.sourceStart)
-					&&  (this.selectionEnd <= typeDecl.sourceEnd)) {
+			pushOnAstStack(pattern.getPatternVariableIntroduced());
+			if ((this.selectionStart >= pattern.sourceStart)
+					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.restartRecovery	= true;
 				this.lastIgnoredToken = -1;
 			}

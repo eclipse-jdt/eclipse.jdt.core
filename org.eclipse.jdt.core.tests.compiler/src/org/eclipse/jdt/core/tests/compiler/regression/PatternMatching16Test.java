@@ -29,7 +29,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test063b" };
+//		TESTS_NAMES = new String[] { "testBug573880" };
 	}
 
 	public static Class<?> testClass() {
@@ -3842,5 +3842,30 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"",
 				options);
 
+	}
+	public void testBug573880() {
+		if (this.complianceLevel < ClassFileConstants.JDK17)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "	public void foo(Object o) {\n"
+							+ "		if (o instanceof var s) {\n"
+							+ "			System.out.println(s);\n"
+							+ "		}\n"
+							+ "	}\n"
+							+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	if (o instanceof var s) {\n" +
+				"	                 ^^^\n" +
+				"\'var\' is not allowed here\n" +
+				"----------\n",
+				null,
+				true,
+				compilerOptions);
 	}
 }

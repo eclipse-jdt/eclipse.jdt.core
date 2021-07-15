@@ -19,39 +19,24 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.lookup.AnyPatternBinding;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PatternBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypePatternBinding;
 
-public class TypePattern extends AbstractTypePattern {
+public class TypePattern extends Pattern {
+
+	public LocalDeclaration local;
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
 	}
 
 	@Override
-	public PatternKind kind() {
-		return PatternKind.TYPE_PATTERN;
-	}
-
-	@Override
-	public String getKindName() {
-		return TypeConstants.TYPE_PATTERN_STRING;
-	}
-
-	@Override
-	public boolean isTotalForType(TypeBinding type) {
-		if (this.resolvedType == null || type == null)
-			return false;
-		return type.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
-	}
-	@Override
 	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		if (this.resolvedPattern == null) {
+		if (this.resolvedType == null) {
 			this.resolveType(scope);
 		}
 		if (this.local != null && this.local.binding != null) {
@@ -63,6 +48,13 @@ public class TypePattern extends AbstractTypePattern {
 			}
 		}
 	}
+
+	@Override
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		flowInfo.markAsDefinitelyAssigned(this.local.binding);
+		return flowInfo;
+	}
+
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (this.local != null) {
@@ -73,17 +65,48 @@ public class TypePattern extends AbstractTypePattern {
 			localBinding.recordInitializationStartPC(codeStream.position);
 		}
 	}
+
+	@Override
+	public LocalDeclaration getPatternVariableIntroduced() {
+		return this.local;
+	}
+
+	@Override
+	public void resolve(BlockScope scope) {
+		this.resolveType(scope);
+	}
+
+	@Override
+	public boolean isAnyPattern() {
+		// Not sufficient enough, but will do for the time being.
+		return this.local.type != null &&  (this.local.type.bits & IsVarArgs) != 0;
+	}
 	/*
 	 * A type pattern, p, declaring a pattern variable x of type T, that is total for U,
 	 * is resolved to an any pattern that declares x of type T;
 	 * otherwise it is resolved to p.
 	 */
 	@Override
-	public PatternBinding resolveAtType(BlockScope scope, TypeBinding u) {
-		if (this.resolvedPattern == null) {
-			this.resolvedPattern = new TypePatternBinding(this.local.binding);
+	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
+		if (this.resolvedType == null) {
+			this.resolvedType = this.local.binding.type;
 		}
-		return this.isTotalForType(u) ? new AnyPatternBinding(this.local.binding) : this.resolvedPattern;
+		return this.resolvedType;
+	}
+
+	@Override
+	public TypeBinding resolveType(BlockScope scope) {
+		if (this.resolvedType != null || this.local == null)
+			return this.resolvedType;
+
+		this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+		this.local.resolve(scope, true);
+		if (this.local.binding != null) {
+			this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.local.binding.useFlag = LocalVariableBinding.USED;
+			this.resolvedType = this.local.binding.type;
+		}
+		return this.resolvedType;
 	}
 
 	@Override
@@ -97,8 +120,6 @@ public class TypePattern extends AbstractTypePattern {
 
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		this.local.type.printExpression(0, output);
-		output.append(' ');
-		return output.append(this.local.name);
+		return this.local != null ? this.local.printAsExpression(indent, output) : output;
 	}
 }
