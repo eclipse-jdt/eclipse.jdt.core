@@ -47,6 +47,12 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>build-individual-bundles</id>
+	  <properties>
+		<code.ignoredWarnings>-warn:+fieldHiding,-unavoidableGenericProblems,-discouraged</code.ignoredWarnings>
+	  </properties>
+    </profile>
 	<profile>
 		<id>test-on-javase-9</id>
 		<build>
