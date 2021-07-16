@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM and others.
+ * Copyright (c) 2020, 2021 IBM and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -385,6 +385,137 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"Record[TYPE_REF]{Record, java.lang, Ljava.lang.Record;, null, null, 42}\n"+
 				"record[LOCAL_VARIABLE_REF]{record, null, I, record, null, 52}",
 				requestor.getResults());
+
+	}
+	// Complete with "." after a text block
+	public void testBug553097_1() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n" +
+						"long count = \"\"\"\n"
+						+ "			aa\n"
+						+ "			\n"
+						+ "			\"\"\".len\n" +
+						"}\n" +
+
+				"}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = ".len";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, "+
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_NON_STATIC + R_NON_RESTRICTED) +"}",
+						requestor.getResults());
+
+	}
+	// Same as above, but text block inside a method
+	public void testBug553097_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n"
+						+ "  private void method(){\n"
+						+ "    long count = \"\"\"\n"
+						+ "			aa\n"
+						+ "			\n"
+						+ "			\"\"\".len\n"
+						+ "  }\n"
+						+ "}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = ".len";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, "+
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_NON_STATIC + R_NON_RESTRICTED) +"}",
+						requestor.getResults());
+
+	}
+	public void testBug553097_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n"
+						+ "  private void method(){\n"
+						+ "    String d_ef = \"\"\"\n"
+						+ "			def\n"
+						+ "			\"\"\";\n"
+						+ "    String abc = \"\"\"\n"
+						+ "			abc\n"
+						+ "			\"\"\" + d_\n"
+						+ "  }\n"
+						+ "}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "d_";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"d_ef[LOCAL_VARIABLE_REF]{d_ef, null, Ljava.lang.String;, d_ef, null, "+
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+						requestor.getResults());
+
+	}
+	public void testBug553097_4() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n"
+						+ "  private void method(String a_rg){\n"
+						+ "    String d_ef = \"\"\"\n"
+						+ "			def\n"
+						+ "			\"\"\" + a_ +\n"
+						+ "     \"\"\"\n"
+						+ "			abc\n"
+						+ "			\"\"\";\n"
+						+ "  }\n"
+						+ "}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "a_";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"a_rg[LOCAL_VARIABLE_REF]{a_rg, null, Ljava.lang.String;, a_rg, null, "+
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+						requestor.getResults());
+
+	}
+	public void testBug553097_5() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n"
+						+ "  private void method(String a_rg){\n"
+						+ "    var d_ef = \"\"\"\n"
+						+ "			def\n"
+						+ "			\"\"\";\n"
+						+ "     d_\n"
+						+ "  }\n"
+						+ "}");
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "d_";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"d_ef[LOCAL_VARIABLE_REF]{d_ef, null, Ljava.lang.String;, d_ef, null, "+
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+						requestor.getResults());
 
 	}
 }

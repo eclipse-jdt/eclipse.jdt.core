@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2020 IBM Corporation and others.
+ * Copyright (c) 2005, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,6 +38,9 @@ public void setUpSuite() throws Exception {
 
 public static Test suite() {
 	return buildModelTestSuite(CompletionContextTests.class);
+}
+static {
+			//TESTS_NAMES = new String[]{"testBug553097"};
 }
 public void test0001() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5523,5 +5526,33 @@ public void testRegressionBug574267() throws Exception {
 			"	clone() {key=Ljava/lang/Object;.clone()Ljava/lang/Object;|Ljava/lang/CloneNotSupportedException;} [in Object [in Object.class [in java.lang [in " + jclPath +"]]]],\n" +
 			"}"
 			, result.context);
+}
+public void testBug553097_1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src3/test0123/X.java",
+		"package test0123;\n" +
+		"public class X {\n" +
+		"  String s = \"\"\"\n" +
+		"ZZZZ\n" +
+		"}");
+
+	String str = this.workingCopies[0].getSource();
+	String token = "\"\"\"\nZZZZ";
+	int tokenStart = str.lastIndexOf(token);
+	int tokenEnd = tokenStart + token.length() - 1;
+	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZZZ".length();
+
+	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+	assertResults(
+		"completion offset="+(cursorLocation)+"\n" +
+		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
+		"completion token=\"\"\"\n" +
+		"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
+		"expectedTypesSignatures={Ljava.lang.String;}\n" +
+		"expectedTypesKeys={Ljava/lang/String;}\n"+
+		"completion token location=UNKNOWN",
+		result.context);
 }
 }
