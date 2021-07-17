@@ -1112,8 +1112,8 @@ public void saveIndex(Index index) throws IOException {
 		if (VERBOSE)
 			Util.verbose("-> saving index " + index.getIndexLocation()); //$NON-NLS-1$
 		index.save();
+		updateMetaIndex(index);
 	}
-	updateMetaIndex(index);
 	synchronized (this) {
 		IPath containerPath = new Path(index.containerPath);
 		if (this.jobEnd > this.jobStart) {
@@ -1554,6 +1554,9 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 			synchronized (this) {
 				indexesNotInMeta = mindex.getIndexesNotInMeta(this.indexes);
 			}
+			if (VERBOSE) {
+				Util.verbose("-> not in meta-index: " + indexesNotInMeta.size() + ", in: "+results.size() + " for query " + query); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 			final Index i = mindex.getIndex();
 			return Optional.of(Stream.concat(indexesNotInMeta.stream(), results.stream().flatMap(r -> {
 				try {
@@ -1596,11 +1599,15 @@ private MetaIndex loadMetaIndexIfNeeded() throws IOException {
 			Object state = getIndexStates().get(indexLocation);
 			Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
 			if(UNKNOWN_STATE.equals(currentIndexState)) {
-				if (VERBOSE)
-					Util.verbose("-> create empty meta index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+				if (VERBOSE) {
+					Util.verbose("-> create empty meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, false));
 				updateIndexState(indexLocation, REUSE_STATE);
 			} else if(indexLocation.exists()) {
+				if (VERBOSE) {
+					Util.verbose("-> load existing meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, true));
 			} else {
 				getIndexStates().put(indexLocation, UNKNOWN_STATE);
@@ -1612,6 +1619,9 @@ private MetaIndex loadMetaIndexIfNeeded() throws IOException {
 }
 
 void updateMetaIndex(Index index) {
+	if(DISABLE_META_INDEX) {
+		return;
+	}
 	File indexFile = index.getIndexFile();
 	if(indexFile == null) {
 		return;
@@ -1643,13 +1653,19 @@ void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) 
 			updateIndexState(mindexLocation, UNKNOWN_STATE);
 			return;
 		}
-
+		if (VERBOSE) {
+			int qsize = qualifications.size();
+			Util.verbose("-> updating meta-index with " + qsize + " elements for " + indexFileName); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		monitor.enterWrite();
 		// clean existing entries for current document
 		mindex.remove(indexFileName);
 
 		for (IndexQualifier qualifier : qualifications) {
 			mindex.addIndexEntry(qualifier.getCategory(), qualifier.getKey(), indexFileName);
+		}
+		if (VERBOSE) {
+			Util.verbose("-> meta-index updated for " + indexFileName); //$NON-NLS-1$
 		}
 	} catch (IOException e) {
 		if (JobManager.VERBOSE) {
