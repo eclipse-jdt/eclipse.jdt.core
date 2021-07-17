@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -775,9 +776,7 @@ synchronized boolean addIndex(IPath containerPath, IndexLocation indexFile) {
  */
 public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
-	// New index is disabled, see bug 544898
-	// this.indexer.makeWorkspacePathDirty(sourceFolder);
-	if (this.jobEnd > this.jobStart) {
+	if (this.awaitingJobs.size() > 1) {
 		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
 		if (isJobWaiting(request)) return;
@@ -1033,10 +1032,8 @@ public void removeIndexFamily(IPath path) {
  * Remove the content of the given source folder from the index.
  */
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
-	// New index is disabled, see bug 544898
-	// this.indexer.makeWorkspacePathDirty(sourceFolder);
 	IProject project = javaProject.getProject();
-	if (this.jobEnd > this.jobStart) {
+	if (this.awaitingJobs.size() > 1) {
 		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
 		if (isJobWaiting(request)) return;
@@ -1116,11 +1113,17 @@ public void saveIndex(Index index) throws IOException {
 	}
 	synchronized (this) {
 		IPath containerPath = new Path(index.containerPath);
-		if (this.jobEnd > this.jobStart) {
-			for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
-				IJob job = this.awaitingJobs[i];
-				if (job instanceof IndexRequest)
-					if (((IndexRequest) job).containerPath.equals(containerPath)) return;
+		if (this.awaitingJobs.size() > 1) {
+			// Start at the end and go backwards
+			ListIterator<IJob> iterator = this.awaitingJobs.listIterator(this.awaitingJobs.size());
+			// don't check first job, as it may have already started
+			while (iterator.hasPrevious()) {
+				IJob job = iterator.previous();
+				if (job instanceof IndexRequest) {
+					if (((IndexRequest) job).containerPath.equals(containerPath)) {
+						return;
+					}
+				}
 			}
 		}
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
