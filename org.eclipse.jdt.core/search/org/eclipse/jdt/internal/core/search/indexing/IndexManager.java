@@ -1116,9 +1116,13 @@ public void saveIndex(Index index) throws IOException {
 		if (this.awaitingJobs.size() > 1) {
 			// Start at the end and go backwards
 			ListIterator<IJob> iterator = this.awaitingJobs.listIterator(this.awaitingJobs.size());
-			// don't check first job, as it may have already started
+			IJob first = this.awaitingJobs.get(0);
 			while (iterator.hasPrevious()) {
 				IJob job = iterator.previous();
+				// don't check first job, as it may have already started
+				if(job == first) {
+					break;
+				}
 				if (job instanceof IndexRequest) {
 					if (((IndexRequest) job).containerPath.equals(containerPath)) {
 						return;

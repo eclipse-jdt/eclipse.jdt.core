@@ -141,11 +141,19 @@ public abstract class JobManager implements Runnable {
 		notifyAll(); // wake up the background thread if it is waiting (context must be synchronized)
 	}
 	protected synchronized boolean isJobWaiting(IJob request) {
+		if(this.awaitingJobs.size() <= 1) {
+			return false;
+		}
 		// Start at the end and go backwards
 		ListIterator<IJob> iterator = this.awaitingJobs.listIterator(this.awaitingJobs.size());
-		// don't check first job, as it may have already started
+		IJob first = this.awaitingJobs.get(0);
 		while (iterator.hasPrevious()) {
-			if (request.equals(iterator.previous())) {
+			IJob job = iterator.previous();
+			// don't check first job, as it may have already started
+			if(job == first) {
+				break;
+			}
+			if (request.equals(job)) {
 				return true;
 			}
 		}
