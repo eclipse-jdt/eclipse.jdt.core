@@ -12241,4 +12241,14 @@ public void IllegalFallThroughToPattern(CaseStatement caseStatement) {
 		caseStatement.sourceStart,
 		caseStatement.sourceEnd);
 	}
+public void switchPatternAnyPatternCaseLabelNotAllowed(Expression element) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+			IProblem.SwitchPatternAnyPatternCaseLabelNotAllowed,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

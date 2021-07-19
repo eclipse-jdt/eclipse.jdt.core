@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574793_001"};
+//		TESTS_NAMES = new String[] { "testBug574564_00de6"};
 	}
 
 	private static String previewLevel = "17";
@@ -1749,5 +1749,224 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	^^\n" +
 				"A switch labeled block in a switch expression should not complete normally\n" +
 				"----------\n");
+	}
+	public void testBug574564_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(new String(\"Hello\"));\n"+
+				" }\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case var i  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case var i  -> System.out.println(0);\n" +
+			"	     ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n");
+	}
+	public void testBug574564_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(new String(\"Hello\"));\n"+
+				" }\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case var i, var j, var k  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case var i, var j, var k  -> System.out.println(0);\n" +
+			"	     ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case var i, var j, var k  -> System.out.println(0);\n" +
+			"	            ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	case var i, var j, var k  -> System.out.println(0);\n" +
+			"	                   ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n");
+	}
+	public void testBug574564_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(10);\n"+
+				" }\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case var i, 10  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case var i, 10  -> System.out.println(0);\n" +
+			"	     ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n");
+	}
+	public void testBug574564_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(10);\n"+
+				" }\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case var i, 10, var k  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case var i, 10, var k  -> System.out.println(0);\n" +
+			"	     ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case var i, 10, var k  -> System.out.println(0);\n" +
+			"	                ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n");
+	}
+	public void testBug574564_005() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(10);\n"+
+				" }\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case  10, null, var k  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case  10, null, var k  -> System.out.println(0);\n" +
+			"	                ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n");
+	}
+	public void testBug574564_006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(10);\n"+
+				" }\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case  default, var k  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case  default, var k  -> System.out.println(0);\n" +
+			"	               ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	default -> System.out.println(o);\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n");
+	}
+	public void testBug574564_007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(10);\n"+
+				" }\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case  default, default, var k  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case  default, default, var k  -> System.out.println(0);\n" +
+			"	                     ^^^^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  default, default, var k  -> System.out.println(0);\n" +
+			"	                        ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	default -> System.out.println(o);\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n");
+	}
+	public void testBug574564_008() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(10);\n"+
+				" }\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case  default, 1, var k  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	case  default, 1, var k  -> System.out.println(0);\n" +
+			"	                  ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	default -> System.out.println(o);\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n");
 	}
 }

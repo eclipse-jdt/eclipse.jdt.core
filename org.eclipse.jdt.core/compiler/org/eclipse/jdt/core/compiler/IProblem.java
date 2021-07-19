@@ -2486,4 +2486,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int IllegalFallthroughToPattern = PreviewRelated + 1904;
 
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int SwitchPatternAnyPatternCaseLabelNotAllowed = PreviewRelated + 1905;
 }

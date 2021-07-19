@@ -197,38 +197,40 @@ public Constant[] resolveWithPatternVariablesInScope(LocalVariableBinding[] patt
 		return resolveCasePrivate(scope, switchExpressionType, switchStatement);
 	}
 }
-private Expression getFirstNonDefaultExpression() {
-	if (this.constantExpressions != null) {
-		for (Expression e : this.constantExpressions) {
-			if (!(e instanceof FakeDefaultLiteral)) return e;
+private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
+	assert this.constantExpressions != null;
+	Expression ret = null;
+
+	for (Expression e : this.constantExpressions) {
+		if (e instanceof PatternExpression && ((PatternExpression) e).pattern instanceof AnyPattern) {
+			// flag error
+			scope.problemReporter().switchPatternAnyPatternCaseLabelNotAllowed(e);
+		} else  if (e instanceof FakeDefaultLiteral) {
+			flagDuplicateDefault(scope, switchStatement);
+		} else {
+			ret = ret != null ? ret : e;
 		}
 	}
-	return null;
+	return ret;
 }
 private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
-	Expression constExpr = getFirstNonDefaultExpression();
-	int defaultCount = 0;
-	int nConstExprs = this.constantExpressions != null ? this.constantExpressions.length : 0;
-	if (constExpr == null) {
-		do {
-			++defaultCount;
-			// remember the default case into the associated switch statement
-			if (switchStatement.defaultCase != null)
-				scope.problemReporter().duplicateDefaultCase(this);
-
-			// on error the last default will be the selected one ...
-			switchStatement.defaultCase = this;
-		} while (defaultCount < nConstExprs);
+	if (this.constantExpressions == null) {
+		flagDuplicateDefault(scope, switchStatement);
 		return Constant.NotAConstantList;
 	}
+	Expression constExpr = getFirstValidExpression(scope, switchStatement);
+	if (constExpr == null) {
+		return Constant.NotAConstantList;
+	}
+
 	// add into the collection of cases of the associated switch statement
 	switchStatement.cases[switchStatement.caseCount++] = this;
 	if (switchExpressionType != null && switchExpressionType.isEnum() && (constExpr instanceof SingleNameReference)) {
 		((SingleNameReference) constExpr).setActualReceiverType((ReferenceBinding)switchExpressionType);
 	}
-//	this.scope = new BlockScope(scope);
+
 	TypeBinding caseType = constExpr.resolveType(scope);
 	if (caseType == null || switchExpressionType == null) return Constant.NotAConstantList;
 	// tag constant name with enum type for privileged access to its members
@@ -238,15 +240,9 @@ private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpres
 		if (e != constExpr) {
 			if (switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
 				((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
-			} else if (e instanceof FakeDefaultLiteral) {
-				if (switchStatement.defaultCase != null)
-					scope.problemReporter().duplicateDefaultCase(this);
-
-				// on error the last default will be the selected one ...
-				switchStatement.defaultCase = this;
-				continue;
-				// TODO: flag a preview error conditionally based on level?
-				// Predicate<BlockScope> patternSwitchAllowed = (skope) -> JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(skope.compilerOptions());
+			} else if (e instanceof FakeDefaultLiteral
+					|| e instanceof PatternExpression && ((PatternExpression) e).pattern instanceof AnyPattern) {
+				continue; // already processed
 			}
 			e.resolveType(scope);
 		}
@@ -261,6 +257,15 @@ private Constant[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpres
 	}
 
 	return Constant.NotAConstantList;
+}
+
+private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatement) {
+	// remember the default case into the associated switch statement
+	if (switchStatement.defaultCase != null)
+		scope.problemReporter().duplicateDefaultCase(this);
+
+	// on error the last default will be the selected one ...
+	switchStatement.defaultCase = this;
 }
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
 	if (!containsPatternVariable()) {
