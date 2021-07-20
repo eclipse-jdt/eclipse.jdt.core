@@ -5823,4 +5823,104 @@ public void testBug574912() throws JavaModelException {
 			"ZONE_OFFSET[FIELD_REF]{ZONE_OFFSET, Ljava.util.Calendar;, I, ZONE_OFFSET, null, 81}",
 			result);
 }
+public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_insideIfBlock_followedByChainedStatments() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Bug574823.java",
+			"import java.util.ArrayList;\n" +
+			"public class Bug574823 {\n" +
+			"	public void foo() {\n" +
+			"		ArrayList<String> ints = new ArrayList<String>();\n" +
+			"		if(ints.subList(1,1).) {\n" +
+			"			String message = \"PASS\";\n" +
+			"			System.out.println(message);\n" +
+			"		}\n"+
+			"	}\n" +
+			"}\n"
+			);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ints.subList(1,1).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], 60}"));
+}
+public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_insideIf_followedByChainedStatment() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Bug574823.java",
+			"import java.util.ArrayList;\n" +
+			"public class Bug574823 {\n" +
+			"	public void foo() {\n" +
+			"		ArrayList<String> ints = new ArrayList<String>();\n" +
+			"		if(ints.subList(1,1).)\n" +
+			"			System.out.println(message);\n" +
+			"	}\n" +
+			"}\n"
+			);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ints.subList(1,1).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], 60}"));
+}
+public void testBug574823_completeOn_methodInvocationWithParams_inWhileConidtion_insideWhileBlock_followedByChainedStatment() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Bug574823.java",
+			"import java.util.ArrayList;\n" +
+			"public class Bug574823 {\n" +
+			"	public void foo() {\n" +
+			"		ArrayList<String> ints = new ArrayList<String>();\n" +
+			"		while(ints.subList(1,1).){\n" +
+			"			System.out.println(message);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+			);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ints.subList(1,1).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[152, 152], token[152, 152], 60}"));
+}
+public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtionWithExpression_insideIfBlock_followedByChainedStatment() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Bug574823.java",
+			"import java.util.ArrayList;\n" +
+			"public class Bug574823 {\n" +
+			"	public void foo() {\n" +
+			"		ArrayList<String> ints = new ArrayList<String>();\n" +
+			"		while(ints.subList(1,1). != null){\n" +
+			"			System.out.println(message);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n"
+			);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ints.subList(1,1).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	String result = requestor.getResults();
+    assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[152, 152], token[152, 152], 60}"));
+}
 }

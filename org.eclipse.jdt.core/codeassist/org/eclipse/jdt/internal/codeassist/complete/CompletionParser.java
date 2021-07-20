@@ -4012,41 +4012,22 @@ protected void consumeSwitchLabeledBlock() {
 protected int fetchNextToken() throws InvalidInputException {
 	int token = this.scanner.getNextToken();
 	if (!this.diet && token != TerminalTokens.TokenNameEOF) {
-		if (!requireExtendedRecovery() && this.scanner.currentPosition > this.cursorLocation) {
-			if (!hasPendingExpression(token)) {
-				this.scanner.eofPosition = this.cursorLocation + 1; // revert to old strategy where we stop parsing right at the cursor
+		if (this.scanner.currentPosition > this.cursorLocation
+				&& this.expressionPtr <= -1
+				&& !requireExtendedRecovery())
+		{
+			this.scanner.eofPosition = this.cursorLocation + 1; // revert to old strategy where we stop parsing right at the cursor
 
-				// stop immediately or deferred?
-				if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER	// -> not within a complex structure?
-						&& this.scanner.startPosition > this.cursorLocation + 1				// -> is current token entirely beyond cursorLocation?
-						&& this.currentElement == null)										// -> clean slate?
-				{
-						return TerminalTokens.TokenNameEOF; // no need to look further
-				}
+			// stop immediately or deferred?
+			if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER	// -> not within a complex structure?
+					&& this.scanner.startPosition > this.cursorLocation + 1				// -> is current token entirely beyond cursorLocation?
+					&& this.currentElement == null)										// -> clean slate?
+			{
+					return TerminalTokens.TokenNameEOF; // no need to look further
 			}
 		}
 	}
 	return token;
-}
-private boolean hasPendingExpression(int token) {
-	if (this.expressionPtr == -1)
-		return false;
-	if (token == TerminalTokens.TokenNameDOT) {
-		// at '.' we are more eager to send early EOF to avoid seeing a qualified type reference in this pattern:
-		//   foo.|
-		//   bar ...
-		Expression expression = this.expressionStack[this.expressionPtr];
-		int elPtr = this.elementPtr;
-		while (elPtr >= 0) {
-			if (this.elementKindStack[elPtr] == K_BLOCK_DELIMITER) {
-				if (this.elementObjectInfoStack[elPtr] == expression) {
-					return false; // top expr on expressionStack belongs to a block statement (e.g., an if-condition)
-				}
-			}
-			elPtr--;
-		}
-	}
-	return true;
 }
 @Override
 protected void consumeToken(int token) {
