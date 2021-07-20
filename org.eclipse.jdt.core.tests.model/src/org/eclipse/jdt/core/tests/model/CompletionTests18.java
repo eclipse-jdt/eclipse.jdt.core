@@ -534,33 +534,9 @@ public void test014() throws JavaModelException { // ensure higher relevance for
 	assertResults("arrayOfStrings[LOCAL_VARIABLE_REF]{arrayOfStrings, null, [Ljava.lang.String;, null, null, arrayOfStrings, null, [168, 174], " + (R_DEFAULT + 22) + "}\n" +
 					"arrayOfInts[LOCAL_VARIABLE_REF]{arrayOfInts, null, [I, null, null, arrayOfInts, null, [168, 174], " + relevance + "}", requestor.getResults());
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
-public void test015() throws JavaModelException { // ensure higher relevance for matching return type.
-	this.workingCopies = new ICompilationUnit[1];
-	this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/X.java",
-			"interface I {\n" +
-			"	void foo();\n" +
-			"}\n" +
-			"public class X {\n" +
-			"	public static void main(String[] args) {\n" +
-			"		class Y {\n" +
-			"			I i = () -> {\n" +
-			"               xyz\n" +
-			"               xyzAfter = 10;\n" +
-			"			}\n" +
-			"		}\n" +
-			"	}\n" +
-			"}\n");
 
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
-	requestor.allowAllRequiredProposals();
-	String str = this.workingCopies[0].getSource();
-	String completeBehind = "xyz";
-	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
-	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("xyzAfter[LOCAL_VARIABLE_REF]{xyzAfter, null, Ljava.lang.Object;, null, null, xyzAfter, null, [132, 135], " + (R_DEFAULT + 21) + "}", requestor.getResults());
-}
+// test015() removed due to bogus expectation.
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test016() throws JavaModelException { // ensure higher relevance for matching return type.
 	this.workingCopies = new ICompilationUnit[1];
@@ -5761,5 +5737,90 @@ public void testBug563020_methodref_checkParserForBug559677_expectCompletions() 
     String result = requestor.getResults();
 	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
     		result.contains("myRun[METHOD_NAME_REFERENCE]{myRun, LBug563020;, ()V, myRun, null, 55}"));
+}
+public void testBug574912() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/LambdaFreeze.java",
+			"import java.util.Calendar;\n" +
+			"import java.util.Date;\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"public class LambdaFreeze{\n" +
+			"\n" +
+			"   public static final Supplier<Date> SUPPLIER = () -> {\n" +
+			"      Calendar calendar = Calendar.getInstance();\n" +
+			"      calendar.set(Calendar., // try to autocomplete after the \".\" here freezes eclipse's main thread\n" +
+			"                   0);\n" +
+			"      return calendar.getTime();\n" +
+			"   };\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Calendar.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("Calendar.Builder[TYPE_REF]{Builder, java.util, Ljava.util.Calendar$Builder;, null, null, 51}\n" +
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Ljava.util.Calendar;>;, class, null, 51}\n" +
+			"getAvailableCalendarTypes[METHOD_REF]{getAvailableCalendarTypes(), Ljava.util.Calendar;, ()Ljava.util.Set<Ljava.lang.String;>;, getAvailableCalendarTypes, null, 51}\n" +
+			"getAvailableLocales[METHOD_REF]{getAvailableLocales(), Ljava.util.Calendar;, ()[Ljava.util.Locale;, getAvailableLocales, null, 51}\n" +
+			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, ()Ljava.util.Calendar;, getInstance, null, 51}\n" +
+			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.Locale;)Ljava.util.Calendar;, getInstance, (arg0), 51}\n" +
+			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.TimeZone;)Ljava.util.Calendar;, getInstance, (arg0), 51}\n" +
+			"getInstance[METHOD_REF]{getInstance(), Ljava.util.Calendar;, (Ljava.util.TimeZone;Ljava.util.Locale;)Ljava.util.Calendar;, getInstance, (arg0, arg1), 51}\n" +
+			"ALL_STYLES[FIELD_REF]{ALL_STYLES, Ljava.util.Calendar;, I, ALL_STYLES, null, 81}\n" +
+			"AM[FIELD_REF]{AM, Ljava.util.Calendar;, I, AM, null, 81}\n" +
+			"AM_PM[FIELD_REF]{AM_PM, Ljava.util.Calendar;, I, AM_PM, null, 81}\n" +
+			"APRIL[FIELD_REF]{APRIL, Ljava.util.Calendar;, I, APRIL, null, 81}\n" +
+			"AUGUST[FIELD_REF]{AUGUST, Ljava.util.Calendar;, I, AUGUST, null, 81}\n" +
+			"DATE[FIELD_REF]{DATE, Ljava.util.Calendar;, I, DATE, null, 81}\n" +
+			"DAY_OF_MONTH[FIELD_REF]{DAY_OF_MONTH, Ljava.util.Calendar;, I, DAY_OF_MONTH, null, 81}\n" +
+			"DAY_OF_WEEK[FIELD_REF]{DAY_OF_WEEK, Ljava.util.Calendar;, I, DAY_OF_WEEK, null, 81}\n" +
+			"DAY_OF_WEEK_IN_MONTH[FIELD_REF]{DAY_OF_WEEK_IN_MONTH, Ljava.util.Calendar;, I, DAY_OF_WEEK_IN_MONTH, null, 81}\n" +
+			"DAY_OF_YEAR[FIELD_REF]{DAY_OF_YEAR, Ljava.util.Calendar;, I, DAY_OF_YEAR, null, 81}\n" +
+			"DECEMBER[FIELD_REF]{DECEMBER, Ljava.util.Calendar;, I, DECEMBER, null, 81}\n" +
+			"DST_OFFSET[FIELD_REF]{DST_OFFSET, Ljava.util.Calendar;, I, DST_OFFSET, null, 81}\n" +
+			"ERA[FIELD_REF]{ERA, Ljava.util.Calendar;, I, ERA, null, 81}\n" +
+			"FEBRUARY[FIELD_REF]{FEBRUARY, Ljava.util.Calendar;, I, FEBRUARY, null, 81}\n" +
+			"FIELD_COUNT[FIELD_REF]{FIELD_COUNT, Ljava.util.Calendar;, I, FIELD_COUNT, null, 81}\n" +
+			"FRIDAY[FIELD_REF]{FRIDAY, Ljava.util.Calendar;, I, FRIDAY, null, 81}\n" +
+			"HOUR[FIELD_REF]{HOUR, Ljava.util.Calendar;, I, HOUR, null, 81}\n" +
+			"HOUR_OF_DAY[FIELD_REF]{HOUR_OF_DAY, Ljava.util.Calendar;, I, HOUR_OF_DAY, null, 81}\n" +
+			"JANUARY[FIELD_REF]{JANUARY, Ljava.util.Calendar;, I, JANUARY, null, 81}\n" +
+			"JULY[FIELD_REF]{JULY, Ljava.util.Calendar;, I, JULY, null, 81}\n" +
+			"JUNE[FIELD_REF]{JUNE, Ljava.util.Calendar;, I, JUNE, null, 81}\n" +
+			"LONG[FIELD_REF]{LONG, Ljava.util.Calendar;, I, LONG, null, 81}\n" +
+			"LONG_FORMAT[FIELD_REF]{LONG_FORMAT, Ljava.util.Calendar;, I, LONG_FORMAT, null, 81}\n" +
+			"LONG_STANDALONE[FIELD_REF]{LONG_STANDALONE, Ljava.util.Calendar;, I, LONG_STANDALONE, null, 81}\n" +
+			"MARCH[FIELD_REF]{MARCH, Ljava.util.Calendar;, I, MARCH, null, 81}\n" +
+			"MAY[FIELD_REF]{MAY, Ljava.util.Calendar;, I, MAY, null, 81}\n" +
+			"MILLISECOND[FIELD_REF]{MILLISECOND, Ljava.util.Calendar;, I, MILLISECOND, null, 81}\n" +
+			"MINUTE[FIELD_REF]{MINUTE, Ljava.util.Calendar;, I, MINUTE, null, 81}\n" +
+			"MONDAY[FIELD_REF]{MONDAY, Ljava.util.Calendar;, I, MONDAY, null, 81}\n" +
+			"MONTH[FIELD_REF]{MONTH, Ljava.util.Calendar;, I, MONTH, null, 81}\n" +
+			"NARROW_FORMAT[FIELD_REF]{NARROW_FORMAT, Ljava.util.Calendar;, I, NARROW_FORMAT, null, 81}\n" +
+			"NARROW_STANDALONE[FIELD_REF]{NARROW_STANDALONE, Ljava.util.Calendar;, I, NARROW_STANDALONE, null, 81}\n" +
+			"NOVEMBER[FIELD_REF]{NOVEMBER, Ljava.util.Calendar;, I, NOVEMBER, null, 81}\n" +
+			"OCTOBER[FIELD_REF]{OCTOBER, Ljava.util.Calendar;, I, OCTOBER, null, 81}\n" +
+			"PM[FIELD_REF]{PM, Ljava.util.Calendar;, I, PM, null, 81}\n" +
+			"SATURDAY[FIELD_REF]{SATURDAY, Ljava.util.Calendar;, I, SATURDAY, null, 81}\n" +
+			"SECOND[FIELD_REF]{SECOND, Ljava.util.Calendar;, I, SECOND, null, 81}\n" +
+			"SEPTEMBER[FIELD_REF]{SEPTEMBER, Ljava.util.Calendar;, I, SEPTEMBER, null, 81}\n" +
+			"SHORT[FIELD_REF]{SHORT, Ljava.util.Calendar;, I, SHORT, null, 81}\n" +
+			"SHORT_FORMAT[FIELD_REF]{SHORT_FORMAT, Ljava.util.Calendar;, I, SHORT_FORMAT, null, 81}\n" +
+			"SHORT_STANDALONE[FIELD_REF]{SHORT_STANDALONE, Ljava.util.Calendar;, I, SHORT_STANDALONE, null, 81}\n" +
+			"SUNDAY[FIELD_REF]{SUNDAY, Ljava.util.Calendar;, I, SUNDAY, null, 81}\n" +
+			"THURSDAY[FIELD_REF]{THURSDAY, Ljava.util.Calendar;, I, THURSDAY, null, 81}\n" +
+			"TUESDAY[FIELD_REF]{TUESDAY, Ljava.util.Calendar;, I, TUESDAY, null, 81}\n" +
+			"UNDECIMBER[FIELD_REF]{UNDECIMBER, Ljava.util.Calendar;, I, UNDECIMBER, null, 81}\n" +
+			"WEDNESDAY[FIELD_REF]{WEDNESDAY, Ljava.util.Calendar;, I, WEDNESDAY, null, 81}\n" +
+			"WEEK_OF_MONTH[FIELD_REF]{WEEK_OF_MONTH, Ljava.util.Calendar;, I, WEEK_OF_MONTH, null, 81}\n" +
+			"WEEK_OF_YEAR[FIELD_REF]{WEEK_OF_YEAR, Ljava.util.Calendar;, I, WEEK_OF_YEAR, null, 81}\n" +
+			"YEAR[FIELD_REF]{YEAR, Ljava.util.Calendar;, I, YEAR, null, 81}\n" +
+			"ZONE_OFFSET[FIELD_REF]{ZONE_OFFSET, Ljava.util.Calendar;, I, ZONE_OFFSET, null, 81}",
+			result);
 }
 }

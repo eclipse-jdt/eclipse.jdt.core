@@ -4129,7 +4129,7 @@ protected void consumeToken(int token) {
 	if (token == TokenNameIdentifier
 			&& this.identifierStack[this.identifierPtr] == assistIdentifier()
 			&& this.currentElement == null
-			&& (!isIndirectlyInsideLambdaExpression() || isIndirectlyInsideLambdaBlock()) // not inside lambda unless inside its block
+			&& (!isIndirectlyInsideLambdaExpression())
 			&& isIndirectlyInsideFieldInitialization()) { // enum initializers indeed need more context
 		this.scanner.eofPosition = this.cursorLocation < Integer.MAX_VALUE ? this.cursorLocation+1 : this.cursorLocation;
 	}
