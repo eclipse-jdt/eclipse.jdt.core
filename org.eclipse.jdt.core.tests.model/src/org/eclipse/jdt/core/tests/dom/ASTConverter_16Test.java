@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.dom;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -26,6 +27,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
@@ -43,6 +45,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 import junit.framework.Test;
 
@@ -772,6 +775,39 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("Not an enum statement", ASTNode.ENUM_DECLARATION, ((TypeDeclarationStatement)node).getDeclaration().getNodeType());
 	}
-
-
+	public void testTypeBindingMethods() {
+	    var parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setResolveBindings(true);
+	    parser.setEnvironment(null, null, null, true);
+	    parser.setCompilerOptions(
+	        Map.of(
+	            JavaCore.COMPILER_RELEASE, "enabled",
+	            JavaCore.COMPILER_SOURCE, "16",
+	            JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, "16"
+	        )
+	    );
+	    parser.setBindingsRecovery(true);
+	    parser.setStatementsRecovery(true);
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    parser.setUnitName("X.java");
+	    parser.setSource("class X {void main() {var x = java.util.List.of(1, 1.0);}}".toCharArray());
+	    var cu = (CompilationUnit) parser.createAST(null);
+	    cu.accept(new ASTVisitor() {
+	      @Override
+	      public boolean visit(VariableDeclarationFragment node) {
+	        var varBinding = node.resolveBinding();
+	        assertNotNull(varBinding);
+	        var typeBinding = varBinding.getType();
+	        assertNotNull(typeBinding);
+	        assertTrue(typeBinding.isParameterizedType());
+	        assertEquals(1, typeBinding.getTypeArguments().length);
+	        var parameterType = typeBinding.getTypeArguments()[0];
+	        assertNotNull(parameterType);
+	        assertTrue(parameterType.isIntersectionType());
+	        var bounds = parameterType.getTypeBounds();
+	        assertTrue("size of type bounds should be > 1 but actual size is " + bounds.length, bounds.length > 1);
+	        return super.visit(node);
+	      }
+	    });
+	}
 }
