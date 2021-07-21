@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574564_00de6"};
+//		TESTS_NAMES = new String[] { "testBug574564_012"};
 	}
 
 	private static String previewLevel = "17";
@@ -98,7 +98,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 
-	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_001() {
 		runConformTest(
 			new String[] {
@@ -118,7 +117,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"String: Hello World!");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_002() {
 		runNegativeTest(
 			new String[] {
@@ -143,7 +141,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_003() {
 		runNegativeTest(
 			new String[] {
@@ -169,7 +166,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_004() {
 		runNegativeTest(
 			new String[] {
@@ -194,7 +190,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_005() {
 		runNegativeTest(
 			new String[] {
@@ -214,14 +209,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
+			"	                ^^^^^^^^\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
+			"	                          ^^^\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
-	public void _testBug573516_006() {
+	public void testBug573516_006() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -240,14 +244,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
+			"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
+			"	                              ^^^^^^\n" +
+			"length cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
+			"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n");
+			"The method Zork() is undefined for the type X\n" + 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
-	public void _testBug573516_007() {
+	public void testBug573516_007() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -266,19 +283,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
+			"	                ^^^^^^\n" +
+			"String cannot be resolved to a variable\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
+			"	                ^^^^^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
+			"	                ^^^^^^\n" +
+			"The constant case label element is not compatible with switch expression type Object\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
-	public void _testBug573516_008() {
+	public void testBug573516_008() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -297,18 +323,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
+			"	                ^^^^^^\n" +
+			"String cannot be resolved to a variable\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
+			"	                ^^^^^^\n" +
+			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
 	public void testBug573516_009() {
 		runNegativeTest(
 			new String[] {
@@ -339,9 +369,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
-	// Enable after code gen is fixed for switch pattern case default
-	public void _testBug573516_010() {
+	public void testBug573516_010() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -360,20 +388,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
+			"	                       ^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element.\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	default : System.out.println(\"Object\");\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
-	// Enable after code gen is fixed for switch pattern case default
-	public void _testBug573516_011() {
+	public void testBug573516_011() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -392,10 +423,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (o) {\n" +
-			"	        ^\n" +
-			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case var s : System.out.println(\"Error should be ANY_PATTERN\");\n" +
+			"	     ^^^^^\n" +
+			"Any patterns not allowed as switch case label elements\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
@@ -403,8 +434,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	// TODO: Change the error messages after implementing post grammar processing parts
-	// Enable after code gen is fixed for switch pattern case default
 	public void testBug574228_001() {
 		runNegativeTest(
 			new String[] {
@@ -568,9 +597,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"H\n" +
 				"Object");
 	}
-	// same local variable name in case pattern - scope
-	// TODO: Bug 573937 to take care
-	public void _testBug573939_03b() {
+	public void testBug573939_03b() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -1967,6 +1994,131 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
+			"----------\n");
+	}
+	public void testBug574564_009() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case String s, default, Integer i  -> System.out.println(0);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	                      ^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element.\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	                        ^^^^^^^^^\n" +
+			"A switch label may not have more than one pattern case label element.\n" +
+			"----------\n");
+	}
+	public void testBug574564_010() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case String s, default, Integer i  -> System.out.println(0);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	            ^\n" +
+			"Syntax error on token \"s\", delete this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	                                ^\n" +
+			"Syntax error on token \"i\", delete this token\n" +
+			"----------\n",
+			null,
+			true,
+			options);
+	}
+	public void testBug574564_011() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case null  -> System.out.println(0);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case null  -> System.out.println(0);\n" +
+			"	     ^^^^\n" +
+			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"----------\n",
+			null,
+			true,
+			options);
+	}
+	public void testBug574564_012() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case 1, default, null  -> System.out.println(0);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case 1, default, null  -> System.out.println(0);\n" +
+			"	               ^\n" +
+			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case 1, default, null  -> System.out.println(0);\n" +
+			"	                 ^^^^\n" +
+			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"----------\n",
+			null,
+			true,
+			options);
+	}
+	public void testBug574564_013() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case default, default -> System.out.println(0);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case default, default -> System.out.println(0);\n" +
+			"	              ^^^^^^^\n" +
+			"Syntax error on token \"default\", -> expected after this token\n" +
 			"----------\n");
 	}
 }

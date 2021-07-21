@@ -8399,6 +8399,8 @@ private String replaceIfSynthetic(String token) {
 	   third synthetic token "ElidedSemicolonAndRightBrace" that we don't expect to show up in messages since it is manufactured by
 	   the parser automatically.
 	*/
+	if (token.equals("BeginCaseExpr")) //$NON-NLS-1$
+		return "->"; //$NON-NLS-1$
 	if (token.equals("BeginTypeArguments")) //$NON-NLS-1$
 		return "."; //$NON-NLS-1$
 	if (token.equals("BeginLambda")) //$NON-NLS-1$
@@ -12197,8 +12199,6 @@ public void sealedAnonymousClassCannotExtendSealedType(TypeReference reference, 
 			reference.sourceEnd);
 }
 public void SwitchPatternPatternKindNotAllowed(Pattern pattern) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 			IProblem.SwitchPatternPatternKindNotAllowed,
 			new String[] {pattern.getKindName()},
@@ -12213,8 +12213,6 @@ public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 			sourceStart, sourceEnd);
 }
 public void switchPatternConstantCaseLabelIncompatible(Expression element, TypeBinding selectorType) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	String name = new String(selectorType.shortReadableName());
 	this.handle(
 			IProblem.SwitchPatternConstantCaseLabelIncompatible,
@@ -12224,8 +12222,6 @@ public void switchPatternConstantCaseLabelIncompatible(Expression element, TypeB
 			element.sourceEnd);
 }
 public void switchPatternConstantWithPatternIncompatible(Expression element) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 			IProblem.SwitchPatternConstantWithPatternIncompatible,
 			NoArgument,
@@ -12242,10 +12238,24 @@ public void IllegalFallThroughToPattern(CaseStatement caseStatement) {
 		caseStatement.sourceEnd);
 	}
 public void switchPatternAnyPatternCaseLabelNotAllowed(Expression element) {
-	if (!this.options.enablePreviewFeatures)
-		return;
 	this.handle(
 			IProblem.SwitchPatternAnyPatternCaseLabelNotAllowed,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
+	this.handle(
+			IProblem.SwitchPatternOnlyOnePatternCaseLabelAllowed,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression element) {
+	this.handle(
+			IProblem.SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,

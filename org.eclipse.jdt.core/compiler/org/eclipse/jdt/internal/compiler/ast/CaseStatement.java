@@ -200,14 +200,43 @@ public Constant[] resolveWithPatternVariablesInScope(LocalVariableBinding[] patt
 private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
 	assert this.constantExpressions != null;
 	Expression ret = null;
+	int patternCaseLabelCount = 0;
+	int defaultCaseLabelCount = 0;
 
-	for (Expression e : this.constantExpressions) {
-		if (e instanceof PatternExpression && ((PatternExpression) e).pattern instanceof AnyPattern) {
-			// flag error
-			scope.problemReporter().switchPatternAnyPatternCaseLabelNotAllowed(e);
-		} else  if (e instanceof FakeDefaultLiteral) {
-			flagDuplicateDefault(scope, switchStatement);
-		} else {
+	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
+	if (patternSwitchAllowed) {
+		for (Expression e : this.constantExpressions) {
+			 if (e instanceof FakeDefaultLiteral) {
+				 flagDuplicateDefault(scope, switchStatement);
+				 if (patternCaseLabelCount > 0) {
+					 scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
+				 }
+				 ++defaultCaseLabelCount;
+				 continue;
+			}
+			if (e instanceof PatternExpression)  {
+				Pattern p = ((PatternExpression) e).pattern;
+				if (p instanceof AnyPattern) {
+					scope.problemReporter().switchPatternAnyPatternCaseLabelNotAllowed(e);
+					continue;
+				}
+				if (patternCaseLabelCount++ > 0) {
+					scope.problemReporter().switchPatternOnlyOnePatternCaseLabelAllowed(e);
+				} else if (defaultCaseLabelCount > 0) {
+					scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
+				}
+			}
+			ret = ret != null ? ret : e;
+		}
+	} else {
+		for (Expression e : this.constantExpressions) {
+			if (e instanceof PatternExpression
+					|| e instanceof NullLiteral
+					|| e instanceof FakeDefaultLiteral) {
+				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
+						e.sourceStart, e.sourceEnd);
+				continue;
+			}
 			ret = ret != null ? ret : e;
 		}
 	}
@@ -322,7 +351,6 @@ public Constant resolveConstantExpression(BlockScope scope,
 			}
 		}
 	}
-
 	boolean boxing = !patternSwitchAllowed ||
 			switchStatement.isAllowedType(switchExpressionType);
 
