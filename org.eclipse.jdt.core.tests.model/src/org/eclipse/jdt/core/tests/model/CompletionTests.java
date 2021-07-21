@@ -76,6 +76,11 @@ public void tearDownSuite() throws Exception {
 	}
 	super.tearDownSuite();
 }
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
 private String getVarClassSignature(IEvaluationContext context) {
 	char[] varClassName = ((EvaluationContextWrapper)context).getVarClassName();
 	return Signature.createTypeSignature(varClassName, true);
