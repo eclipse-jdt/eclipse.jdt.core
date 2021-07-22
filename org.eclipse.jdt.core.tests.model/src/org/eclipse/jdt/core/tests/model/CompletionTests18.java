@@ -5923,4 +5923,31 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtionWit
     assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
     		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[152, 152], token[152, 152], 60}"));
 }
+public void testBug574912_comment6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/LambdaFreeze.java",
+			"import java.util.Calendar;\n" +
+			"import java.util.Date;\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"public class LambdaFreeze2 {\n" +
+			"\n" +
+			"	public static final Supplier<Date> SUPPLIER = () -> {\n" +
+			"		Calendar calendar = Calendar.getInstance();\n" +
+			"		calendar.set(Calendar.ALL_STYLES, calendar.getMinimum(0));\n" +
+			"		return calendar.getTime();\n" +
+			"	};\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "calendar.getMinimum(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("",
+			result);
+}
 }
