@@ -2166,4 +2166,119 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Syntax error on token \"default\", -> expected after this token\n" +
 			"----------\n");
 	}
+	public void testBug574563_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {}\n"+
+				" private static void foo1(Integer o) {\n"+
+				"   switch (o) {\n"+
+				"     case null, null  -> System.out.println(o);\n"+
+				"     default  -> System.out.println(o);\n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case null, null  -> System.out.println(o);\n" +
+			"	^^^^^^^^^^^^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n");
+	}
+	public void testBug574563_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case null, Integer i  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug574563_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case Integer i, null  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug574563_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case null, Integer i && i > 10 -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case null, Integer i && i > 10 -> System.out.println(0);\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^\n" +
+			"A null case label and patterns can co-exist only if the pattern is a type pattern\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug574563_005() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case Integer i && i > 10, null  -> System.out.println(0);\n"+
+				"     default -> System.out.println(o);\n"+
+				"   }\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case Integer i && i > 10, null  -> System.out.println(0);\n" +
+			"	                          ^^^^\n" +
+			"A null case label and patterns can co-exist only if the pattern is a type pattern\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
 }

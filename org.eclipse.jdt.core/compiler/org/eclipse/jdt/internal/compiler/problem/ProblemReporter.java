@@ -12244,4 +12244,12 @@ public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression el
 			element.sourceStart,
 			element.sourceEnd);
 }
+public void switchPatternBothNullAndNonTypePatternNotAllowed(Expression element) {
+	this.handle(
+			IProblem.SwitchPatternBothNullAndNonTypePatternNotAllowed,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

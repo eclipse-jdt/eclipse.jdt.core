@@ -2489,4 +2489,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed = PreviewRelated + 1905;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int SwitchPatternBothNullAndNonTypePatternNotAllowed = PreviewRelated + 1906;
 }

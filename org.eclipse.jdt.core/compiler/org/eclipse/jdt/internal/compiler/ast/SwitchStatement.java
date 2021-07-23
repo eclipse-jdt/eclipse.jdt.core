@@ -56,6 +56,7 @@ public class SwitchStatement extends Expression {
 	public BranchLabel breakLabel;
 	public CaseStatement[] cases;
 	public CaseStatement defaultCase;
+	public CaseStatement nullCase; // convenience pointer for pattern switches
 	public int blockStart;
 	public int caseCount;
 	int[] constants;

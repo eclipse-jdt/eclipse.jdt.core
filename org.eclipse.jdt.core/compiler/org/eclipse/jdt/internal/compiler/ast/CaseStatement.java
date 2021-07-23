@@ -190,7 +190,9 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 	assert this.constantExpressions != null;
 	Expression ret = null;
 	int patternCaseLabelCount = 0;
+	int typePatternCount = 0;
 	int defaultCaseLabelCount = 0;
+	int nullCaseLabelCount = 0;
 
 	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
 	if (patternSwitchAllowed) {
@@ -208,6 +210,22 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 					scope.problemReporter().switchPatternOnlyOnePatternCaseLabelAllowed(e);
 				} else if (defaultCaseLabelCount > 0) {
 					scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
+				}
+				if (e instanceof TypePattern) {
+					++typePatternCount;
+				} else if (nullCaseLabelCount > 0 ) {
+					scope.problemReporter().switchPatternBothNullAndNonTypePatternNotAllowed(e);
+				}
+			} else if (e instanceof NullLiteral) {
+				if (switchStatement.nullCase == null)
+					switchStatement.nullCase = this;
+
+				if (nullCaseLabelCount++ > 0) {
+					// TODO: Decide whether we need to have a more fine-grain element level error flagging for null specifically
+//					continue;
+				}
+				if ((patternCaseLabelCount - typePatternCount) > 0) {
+					scope.problemReporter().switchPatternBothNullAndNonTypePatternNotAllowed(e);
 				}
 			}
 			if (ret == null) ret = e;
