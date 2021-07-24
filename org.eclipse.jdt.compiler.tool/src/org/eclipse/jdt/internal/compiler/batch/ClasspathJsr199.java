@@ -225,7 +225,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	@Override
 	public char[] normalizedPath() {
 		if (this.normalizedPath == null) {
-			this.normalizedPath = this.path.toCharArray();
+			this.normalizedPath = this.getPath().toCharArray();
 		}
 		return this.normalizedPath;
 	}

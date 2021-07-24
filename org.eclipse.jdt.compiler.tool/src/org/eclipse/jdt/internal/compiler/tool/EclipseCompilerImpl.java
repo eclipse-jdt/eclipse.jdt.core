@@ -523,7 +523,7 @@ public class EclipseCompilerImpl extends Main {
 			if (locationFiles != null) {
 				for (File file : locationFiles) {
 					if (file.isDirectory()) {
-						List<Classpath> platformLocations = getPlatformLocations(fileSystemClasspaths, file);
+						List<Classpath> platformLocations = getPlatformLocations(file);
 						if (standardJavaFileManager instanceof EclipseFileManager) {
 							if (platformLocations.size() == 1) {
 								Classpath jrt = platformLocations.get(0);
@@ -562,7 +562,7 @@ public class EclipseCompilerImpl extends Main {
 			File javaHome = Util.getJavaHome();
 			long jdkLevel = Util.getJDKLevel(javaHome);
 			if (jdkLevel >= ClassFileConstants.JDK9) {
-				Classpath systemClasspath = getSystemClasspath(fileSystemClasspaths, javaHome, jdkLevel);
+				Classpath systemClasspath = getSystemClasspath(javaHome, jdkLevel);
 				Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
 				fileSystemClasspaths.add(classpath);
 				classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
@@ -612,93 +612,95 @@ public class EclipseCompilerImpl extends Main {
 			locationFiles = standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 			if (locationFiles != null) {
 				for (File file : locationFiles) {
-					String javaVersion = getJavaVersion(file);
-					long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
-					Classpath systemClasspath = getSystemClasspath(fileSystemClasspaths, file, jdkLevel);
-					Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
-					fileSystemClasspaths.add(classpath);
-					// Copy over to modules location as well
-					if (standardJavaFileManager.getLocation(StandardLocation.SYSTEM_MODULES) == null) {
-						classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
+					if (file.isDirectory()) {
+						String javaVersion = getJavaVersion(file);
+						long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+						Classpath systemClasspath = getSystemClasspath(file, jdkLevel);
+						Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
 						fileSystemClasspaths.add(classpath);
+						// Copy over to modules location as well
+						if (standardJavaFileManager.getLocation(StandardLocation.SYSTEM_MODULES) == null) {
+							classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
+							fileSystemClasspaths.add(classpath);
+						}
+						haveClassPaths = true;
+						break; //unlikely to have more than one path
 					}
-					haveClassPaths = true;
-					break; //unlikely to have more than one path
 				}
 			}
 			locationFiles = standardJavaFileManager.getLocation(StandardLocation.SYSTEM_MODULES);
 			if (locationFiles != null) {
 				for (File file : locationFiles) {
-					String javaVersion = getJavaVersion(file);
-					long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
-					Classpath systemClasspath = getSystemClasspath(fileSystemClasspaths, file, jdkLevel);
-					Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
-					fileSystemClasspaths.add(classpath);
-					// Copy over to platform location as well
-					if (standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH) == null) {
-						classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+					if (file.isDirectory()) {
+						String javaVersion = getJavaVersion(file);
+						long jdkLevel = javaVersion.equals("") ? this.complianceLevel : CompilerOptions.versionToJdkLevel(javaVersion); //$NON-NLS-1$
+						Classpath systemClasspath = getSystemClasspath(file, jdkLevel);
+						Classpath classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.SYSTEM_MODULES);
 						fileSystemClasspaths.add(classpath);
+						// Copy over to platform location as well
+						if (standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH) == null) {
+							classpath = new ClasspathJsr199(systemClasspath, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+							fileSystemClasspaths.add(classpath);
+						}
+						haveClassPaths = true;
+						break; //unlikely to have more than one path
 					}
-					haveClassPaths = true;
-					break; //unlikely to have more than one path
 				}
 			}
-			if (SourceVersion.latest().compareTo(SourceVersion.RELEASE_8) > 0) {
-				try {
-					Iterable<? extends Path> locationAsPaths = standardJavaFileManager.getLocationAsPaths(StandardLocation.MODULE_SOURCE_PATH);
-					if (locationAsPaths != null) {
-						StringBuilder builder = new StringBuilder();
-						for (Path path : locationAsPaths) {
-							// Append all of them
-							builder.append(path.toFile().getCanonicalPath());
-							builder.append(File.pathSeparator);
-						}
-						ArrayList<Classpath> modulepaths = handleModuleSourcepath(builder.toString());
-						for (Classpath classpath : modulepaths) {
-							Collection<String> moduleNames = classpath.getModuleNames(null);
-							for (String modName : moduleNames) {
-								Path p = Paths.get(classpath.getPath());
-								standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, modName,
-										Collections.singletonList(p));
-								p = Paths.get(classpath.getDestinationPath());
-							}
-						}
-						fileSystemClasspaths.addAll(modulepaths);
+			try {
+				Iterable<? extends Path> locationAsPaths = standardJavaFileManager.getLocationAsPaths(StandardLocation.MODULE_SOURCE_PATH);
+				if (locationAsPaths != null) {
+					StringBuilder builder = new StringBuilder();
+					for (Path path : locationAsPaths) {
+						// Append all of them
+						builder.append(path.toFile().getCanonicalPath());
+						builder.append(File.pathSeparator);
 					}
-				} catch (IllegalStateException e) {
-					// Ignore this as JRE 9 throws IllegalStateException for getLocation returning null
-				} catch (IllegalArgumentException e) {
-					throw e;
-				} catch (Exception e) {
-					this.logger.logException(e);
+					ArrayList<Classpath> modulepaths = handleModuleSourcepath(builder.toString());
+					for (Classpath classpath : modulepaths) {
+						Collection<String> moduleNames = classpath.getModuleNames(null);
+						for (String modName : moduleNames) {
+							Path p = Paths.get(classpath.getPath());
+							standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, modName,
+									Collections.singletonList(p));
+							p = Paths.get(classpath.getDestinationPath());
+						}
+					}
+					fileSystemClasspaths.addAll(modulepaths);
 				}
-				try {
-					locationFiles = standardJavaFileManager.getLocation(StandardLocation.MODULE_PATH);
-					if (locationFiles != null) {
-						for (File file : locationFiles) {
-							try {
-								ArrayList<Classpath> modulepaths = handleModulepath(file.getCanonicalPath());
-								for (Classpath classpath : modulepaths) {
-									Collection<String> moduleNames = classpath.getModuleNames(null);
-									for (String string : moduleNames) {
-										Path path = Paths.get(classpath.getPath());
-										standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_PATH, string,
-												Collections.singletonList(path));
-									}
+			} catch (IllegalStateException e) {
+				// Ignore this as JRE 9 throws IllegalStateException for getLocation returning null
+			} catch (IllegalArgumentException e) {
+				throw e;
+			} catch (Exception e) {
+				this.logger.logException(e);
+			}
+			try {
+				locationFiles = standardJavaFileManager.getLocation(StandardLocation.MODULE_PATH);
+				if (locationFiles != null) {
+					for (File file : locationFiles) {
+						try {
+							ArrayList<Classpath> modulepaths = handleModulepath(file.getCanonicalPath());
+							for (Classpath classpath : modulepaths) {
+								Collection<String> moduleNames = classpath.getModuleNames(null);
+								for (String string : moduleNames) {
+									Path path = Paths.get(classpath.getPath());
+									standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_PATH, string,
+											Collections.singletonList(path));
 								}
-								fileSystemClasspaths.addAll(modulepaths);
-							} catch (IOException e) {
-								throw new AbortCompilationUnit(null, e, null);
 							}
+							fileSystemClasspaths.addAll(modulepaths);
+						} catch (IOException e) {
+							throw new AbortCompilationUnit(null, e, null);
 						}
 					}
-				} catch (IllegalStateException e) {
-					// Ignore this as JRE 9 throws IllegalStateException for getLocation returning null
-				} catch (IllegalArgumentException e) {
-					throw e;
-				} catch (Exception e) {
-					this.logger.logException(e);
 				}
+			} catch (IllegalStateException e) {
+				// Ignore this as JRE 9 throws IllegalStateException for getLocation returning null
+			} catch (IllegalArgumentException e) {
+				throw e;
+			} catch (Exception e) {
+				this.logger.logException(e);
 			}
 		} else if (javaFileManager != null) {
 			Classpath classpath = null;
@@ -706,23 +708,21 @@ public class EclipseCompilerImpl extends Main {
 				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.SOURCE_PATH);
 				fileSystemClasspaths.add(classpath);
 			}
-			if (SourceVersion.latest().compareTo(SourceVersion.RELEASE_8) > 0) {
-				// Add the locations to search for in specific order
-				if (this.fileManager.hasLocation(StandardLocation.UPGRADE_MODULE_PATH)) {
-					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.UPGRADE_MODULE_PATH);
-				}
-				if (this.fileManager.hasLocation(StandardLocation.PATCH_MODULE_PATH)) {
-					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PATCH_MODULE_PATH);
-					fileSystemClasspaths.add(classpath);
-				}
-				if (this.fileManager.hasLocation(StandardLocation.MODULE_SOURCE_PATH)) {
-					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_SOURCE_PATH);
-					fileSystemClasspaths.add(classpath);
-				}
-				if (this.fileManager.hasLocation(StandardLocation.MODULE_PATH)) {
-					classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_PATH);
-					fileSystemClasspaths.add(classpath);
-				}
+			// Add the locations to search for in specific order
+			if (this.fileManager.hasLocation(StandardLocation.UPGRADE_MODULE_PATH)) {
+				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.UPGRADE_MODULE_PATH);
+			}
+			if (this.fileManager.hasLocation(StandardLocation.PATCH_MODULE_PATH)) {
+				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PATCH_MODULE_PATH);
+				fileSystemClasspaths.add(classpath);
+			}
+			if (this.fileManager.hasLocation(StandardLocation.MODULE_SOURCE_PATH)) {
+				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_SOURCE_PATH);
+				fileSystemClasspaths.add(classpath);
+			}
+			if (this.fileManager.hasLocation(StandardLocation.MODULE_PATH)) {
+				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_PATH);
+				fileSystemClasspaths.add(classpath);
 			}
 			classpath = new ClasspathJsr199(this.fileManager, StandardLocation.CLASS_PATH);
 			fileSystemClasspaths.add(classpath);
@@ -763,7 +763,7 @@ public class EclipseCompilerImpl extends Main {
 		}
 		return version;
 	}
-	private Classpath getSystemClasspath(ArrayList<FileSystem.Classpath> fileSystemClasspaths, File jdkHome, long jdkLevel) {
+	private Classpath getSystemClasspath(File jdkHome, long jdkLevel) {
 		Classpath system;
 		if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
 			String versionFromJdkLevel = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
@@ -778,7 +778,7 @@ public class EclipseCompilerImpl extends Main {
 		return system;
 	}
 
-	protected List<Classpath> getPlatformLocations(ArrayList<FileSystem.Classpath> fileSystemClasspaths, File file) {
+	protected List<Classpath> getPlatformLocations(File file) {
 		List<Classpath> platformLibraries = Util.collectPlatformLibraries(file);
 		return platformLibraries;
 	}
