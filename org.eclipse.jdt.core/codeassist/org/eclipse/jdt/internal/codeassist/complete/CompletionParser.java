@@ -122,6 +122,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredPackageVisibilityStatem
 import org.eclipse.jdt.internal.compiler.parser.RecoveredProvidesStatement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -4011,19 +4012,27 @@ protected void consumeSwitchLabeledBlock() {
 @Override
 protected int fetchNextToken() throws InvalidInputException {
 	int token = this.scanner.getNextToken();
-	if (!this.diet && token != TerminalTokens.TokenNameEOF) {
-		if (this.scanner.currentPosition > this.cursorLocation
-				&& this.expressionPtr <= -1
-				&& !requireExtendedRecovery())
-		{
-			this.scanner.eofPosition = this.cursorLocation + 1; // revert to old strategy where we stop parsing right at the cursor
-
-			// stop immediately or deferred?
-			if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER	// -> not within a complex structure?
-					&& this.scanner.startPosition > this.cursorLocation + 1				// -> is current token entirely beyond cursorLocation?
-					&& this.currentElement == null)										// -> clean slate?
+	if (token != TerminalTokens.TokenNameEOF && this.scanner.currentPosition > this.cursorLocation) {
+		if (!this.diet || this.dietInt != 0) { // do this also when parsing field initializers:
+			if (this.currentToken == TerminalTokens.TokenNameIdentifier
+					&& this.identifierStack[this.identifierPtr].length == 0
+					&& Scanner.isLiteral(token))
 			{
-					return TerminalTokens.TokenNameEOF; // no need to look further
+				// <emptyAssistIdentifier> <someLiteral> is illegal and most likely the literal should be replaced => discard it now
+				return fetchNextToken();
+			}
+		}
+		if (!this.diet) { // only when parsing a method body:
+			if (this.expressionPtr <= -1 && !requireExtendedRecovery()) {
+				this.scanner.eofPosition = this.cursorLocation + 1; // revert to old strategy where we stop parsing right at the cursor
+
+				// stop immediately or deferred?
+				if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BLOCK_DELIMITER	// -> not within a complex structure?
+						&& this.scanner.startPosition > this.cursorLocation + 1				// -> is current token entirely beyond cursorLocation?
+						&& this.currentElement == null)										// -> clean slate?
+				{
+						return TerminalTokens.TokenNameEOF; // no need to look further
+				}
 			}
 		}
 	}

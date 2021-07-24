@@ -5601,9 +5601,9 @@ public void test574366_onParameterizedInterfaceConstructor_enclosedInstance() th
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
-    String result = requestor.getResults();
-	assertTrue(String.format("Result doesn't contain expected constructor (%s)", result),
-    		result.contains("Temp.Enclosed<java.lang.String>[ANONYMOUS_CLASS_DECLARATION]{, LTemp$Enclosed<Ljava.lang.String;>;, ()V, null, null, 39}"));
+    assertResults(
+    		"Temp.Enclosed<>[ANONYMOUS_CLASS_DECLARATION]{, LTemp$Enclosed<>;, ()V, null, null, 39}",
+    		requestor.getResults());
 }
 public void testBug563020_lambdaWithMethodRef_overloadedMethodRef_expectCompletions() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5926,12 +5926,13 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtionWit
 public void testBug574912_comment6() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"Completion/src/LambdaFreeze.java",
+			"Completion/src/LambdaFreeze2.java",
 			"import java.util.Calendar;\n" +
 			"import java.util.Date;\n" +
 			"import java.util.function.Supplier;\n" +
 			"\n" +
 			"public class LambdaFreeze2 {\n" +
+			"	static int num = 13;\n" +
 			"\n" +
 			"	public static final Supplier<Date> SUPPLIER = () -> {\n" +
 			"		Calendar calendar = Calendar.getInstance();\n" +
@@ -5947,7 +5948,35 @@ public void testBug574912_comment6() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("",
+	assertResults("getMinimum[METHOD_REF]{, Ljava.util.Calendar;, (I)I, getMinimum, (arg0), 86}",
+			result);
+}
+public void testBug574912_comment6b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/LambdaFreeze2.java",
+			"import java.util.Calendar;\n" +
+			"import java.util.Date;\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"public class LambdaFreeze2 {\n" +
+			"	static int xyz = 13;\n" +
+			"\n" +
+			"	public static final Supplier<Date> SUPPLIER = () -> {\n" +
+			"		Calendar calendar = Calendar.getInstance();\n" +
+			"		calendar.set(Calendar.ALL_STYLES, calendar.getMinimum(xy0));\n" + // once we have a non-empty assist id, use it!
+			"		return calendar.getTime();\n" +
+			"	};\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "calendar.getMinimum(xy";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("xyz[FIELD_REF]{xyz, LLambdaFreeze2;, I, xyz, null, 82}",
 			result);
 }
 }
