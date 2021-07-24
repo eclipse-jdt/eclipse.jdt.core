@@ -5405,7 +5405,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		char[] token = this.identifierStack[this.identifierPtr];
 		long position = this.identifierPositionStack[this.identifierPtr--];
 		int start = (int) (position >>> 32), end = (int) position;
-		if (this.assistNode == null && start < this.cursorLocation && end >= this.cursorLocation) {
+		if (this.assistNode == null && start <= this.cursorLocation && end >= this.cursorLocation) {
 			ref = new CompletionOnSingleNameReference(token, position, isInsideAttributeValue());
 			this.assistNode = ref;
 		} else {
@@ -5419,7 +5419,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		long[] positions = new long[length];
 		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 		int start = (int) (positions[0] >>> 32), end = (int) positions[length-1];
-		if (this.assistNode == null && start < this.cursorLocation && end >= this.cursorLocation) {
+		if (this.assistNode == null && start <= this.cursorLocation && end >= this.cursorLocation) {
 			// find the token at cursorLocation:
 			int previousCount = 0;
 			for (int i=0; i<length; i++) {
