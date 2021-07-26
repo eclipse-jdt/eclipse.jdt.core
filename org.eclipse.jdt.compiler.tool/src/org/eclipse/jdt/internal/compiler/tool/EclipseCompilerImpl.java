@@ -38,7 +38,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.Processor;
-import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
