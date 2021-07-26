@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -62,6 +62,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 		COMPLETION_SUITES.add(JavadocTextCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocBugsCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocCompletionContextTests.class);
+		COMPLETION_SUITES.add(JavadocModuleCompletionTests15.class);
 		COMPLETION_SUITES.add(JavadocCompletionContextTests_1_5.class);
 	}
 
