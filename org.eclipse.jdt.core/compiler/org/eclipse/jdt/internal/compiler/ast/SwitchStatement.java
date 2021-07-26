@@ -447,7 +447,7 @@ public class SwitchStatement extends Expression {
 	 */
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		if (this.expression.resolvedType.id == TypeIds.T_JavaLangString) {
+		if (this.expression.resolvedType.id == TypeIds.T_JavaLangString && !this.isNonTraditional) {
 			generateCodeForStringSwitch(currentScope, codeStream);
 			return;
 		}
@@ -759,6 +759,11 @@ public class SwitchStatement extends Expression {
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 						break checkType;
 					} else if (compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7 && expressionType.id == TypeIds.T_JavaLangString) {
+						if (this.containsPatterns) {
+							isStringSwitch = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions);
+							this.isNonTraditional = true;
+							break checkType;
+						}
 						isStringSwitch = true;
 						break checkType;
 					}
