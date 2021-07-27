@@ -657,10 +657,9 @@ public class SwitchStatement extends Expression {
 		codeStream.load(this.dispatchPatternCopy);
 		codeStream.load(this.restartIndexLocal);
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
-		//TODO: replace this POC code with properly defined constants
 		codeStream.invokeDynamic(invokeDynamicNumber,
-				this.caseLabelElements.size(),
-				1,
+				2, // Object, restartIndex
+				1, // int
 				"typeSwitch".toCharArray(), //$NON-NLS-1$
 				"(Ljava/lang/Object;I)I".toCharArray(), //$NON-NLS-1$
 				TypeIds.T_int,

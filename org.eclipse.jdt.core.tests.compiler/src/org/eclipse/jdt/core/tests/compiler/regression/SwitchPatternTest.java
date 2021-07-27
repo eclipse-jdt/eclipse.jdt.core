@@ -2299,4 +2299,57 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Hello World!");
 	}
+	public void testBug574614_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(Long.valueOf(10));\n"+
+				" }\n"+
+				" private static void foo(Object o) {\n"+
+				"   String s1 = \" Hello \";\n"+
+				"   String s2 = \"World!\";\n"+
+				"   switch (o) {\n"+
+				"     case Integer I && I > 10: break;\n"+
+				"      case X J: break;\n"+
+				"      case String s : break;\n"+
+				"      default:\n"+
+				"       s1 = new StringBuilder(String.valueOf(s1)).append(String.valueOf(s2)).toString();\n"+
+				"       System.out.println(s1);\n"+
+				"       break; \n"+
+				"   }\n"+
+				" }\n"+
+				"}",
+			},
+			"Hello World!");
+	}
+	public void testBug574614_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(Long.valueOf(0));\n"+
+				" }\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"     case Integer I:\n"+
+				"       break;\n"+
+				"      case String s :\n"+
+				"       break;\n"+
+				"      case X J:\n"+
+				"       break;\n"+
+				"      default:\n"+
+				"       String s1 = \"Hello \";\n"+
+				"       String s2 = \"World!\";\n"+
+				"       s1 = s1 +s2; \n"+
+				"       System.out.println(s1);\n"+
+				"       break;\n"+
+				"   }\n"+
+				" } \n"+
+				"}",
+			},
+			"Hello World!");
+	}
 }
