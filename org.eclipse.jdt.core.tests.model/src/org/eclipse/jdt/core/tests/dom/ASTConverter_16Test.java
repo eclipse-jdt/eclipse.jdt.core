@@ -53,6 +53,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST16(), false);
