@@ -85,7 +85,7 @@ public void test002() throws JavaModelException {
 					"  public X() {\n" +
 					"  }\n" +
 					"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-					"    final String y_;\n" +
+					"    String y_;\n" +
 					"    {\n" +
 					"      <SelectOnName:y_>;\n" +
 					"    }\n" +
@@ -120,7 +120,7 @@ public void test003() throws JavaModelException {
 					"  public X() {\n" +
 					"  }\n" +
 					"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-					"    final String y_;\n" +
+					"    String y_;\n" +
 					"    <SelectOnName:y_>;\n" +
 					"  }\n" +
 					"}\n";
@@ -142,7 +142,7 @@ public void test004() throws JavaModelException {
 			+ "}";
 
 	String selection = "y_";
-	String selectKey = "<SelectionOnLocalName:final String ";
+	String selectKey = "<SelectionOnLocalName:String ";
 	String expectedSelection = selectKey + selection + ">;";
 
 	String selectionIdentifier = "y_";
@@ -151,7 +151,7 @@ public void test004() throws JavaModelException {
 					"  public X() {\n" +
 					"  }\n" +
 					"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-					"    <SelectionOnLocalName:final String y_>;\n" +
+					"    <SelectionOnLocalName:String y_>;\n" +
 					"  }\n" +
 					"}\n";
 	String expectedReplacedSource = "y_";
