@@ -62,11 +62,10 @@ public class SwitchStatement extends Expression {
 	int[] constants;
 	int[] constMapping;
 	String[] stringConstants;
-	public boolean switchLabeledRules = false; // true if case ->, false if case :
 	public int nConstants;
+	public int switchBits;
 
-	public boolean containsPatterns = false;
-	/* package */ boolean containsCaseNull = false;
+	public boolean containsPatterns;
 	private BranchLabel switchPatternRestartTarget;
 
 	// fallthrough
@@ -74,6 +73,11 @@ public class SwitchStatement extends Expression {
 	public final static int FALLTHROUGH = 1;
 	public final static int ESCAPING = 2;
 	public final static int BREAKING  = 3;
+
+	// Other bits
+	public final static int LabeledRules = ASTNode.Bit1;
+	public final static int NullCase = ASTNode.Bit2;
+	public final static int TotalPattern = ASTNode.Bit3;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -95,11 +99,11 @@ public class SwitchStatement extends Expression {
 	private LocalVariableBinding restartIndexLocal = null;
 
 	/* package */ boolean isNonTraditional = false;
-	/* package */ List<Expression> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
+	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
-		if (this.switchLabeledRules) {
+		if ((this.switchBits & LabeledRules) != 0) {
 			if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || stmt instanceof ThrowStatement)
 				return BREAKING;
 			if (!stmt.canCompleteNormally())
@@ -636,7 +640,7 @@ public class SwitchStatement extends Expression {
 	}
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		if (!this.containsCaseNull) {
+		if ((this.switchBits & NullCase) == 0) {
 			codeStream.dup();
 			codeStream.invokeJavaUtilObjectsrequireNonNull();
 			codeStream.pop();
@@ -863,6 +867,18 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			reportMixingCaseTypes();
+			if (this.caseLabelElements != null) {
+				for(int i = this.caseLabelElements.size() - 1; i > 0; i--) {
+					Pattern p1 = this.caseLabelElements.get(i);
+					for (int j = 0; j < i; j++) {
+						Pattern p2 = this.caseLabelElements.get(j);
+						if (p2.dominates(p1)) {
+							this.scope.problemReporter().patternDominatingAnother(p2);
+						}
+					}
+				}
+			}
+
 			// check default case for all kinds of switch:
 			if (this.defaultCase == null) {
 				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
@@ -928,10 +944,12 @@ public class SwitchStatement extends Expression {
 	}
 	private void reportMixingCaseTypes() {
 		if (this.caseCount == 0) {
-			this.switchLabeledRules = this.defaultCase != null ? this.defaultCase.isExpr : this.switchLabeledRules;
+			if (this.defaultCase != null && this.defaultCase.isExpr)
+				this.switchBits |= LabeledRules;
 			return;
 		}
-		boolean isExpr = this.switchLabeledRules = this.cases[0].isExpr;
+		boolean isExpr = this.cases[0].isExpr;
+		if (isExpr) this.switchBits |= LabeledRules;
 		for (int i = 1, l = this.caseCount; i < l; ++i) {
 			if (this.cases[i].isExpr != isExpr) {
 				this.scope.problemReporter().switchExpressionMixedCase(this.cases[i]);
@@ -1024,7 +1042,7 @@ public class SwitchStatement extends Expression {
 	public boolean canCompleteNormally() {
 		if (this.statements == null || this.statements.length == 0)
 			return true;
-		if (!this.switchLabeledRules) { // switch labeled statement group
+		if ((this.switchBits & LabeledRules) == 0) { // switch labeled statement group
 			if (this.statements[this.statements.length - 1].canCompleteNormally())
 				return true; // last statement as well as last switch label after blocks if exists.
 			if (this.defaultCase == null)

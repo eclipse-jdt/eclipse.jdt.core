@@ -37,9 +37,7 @@ public abstract class Pattern extends Expression {
 		// default implementation does nothing
 	}
 
-	public boolean isAnyPattern() {
-		return false;
-	}
+	public abstract boolean dominates(Pattern p);
 
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {

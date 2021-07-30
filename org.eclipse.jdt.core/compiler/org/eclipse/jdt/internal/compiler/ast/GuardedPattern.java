@@ -77,12 +77,17 @@ public class GuardedPattern extends Pattern {
 	public boolean isTotalForType(TypeBinding type) {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return this.primaryPattern.isTotalForType(type) && cst != Constant.NotAConstant && cst.booleanValue() == true;
-
 	}
 
 	@Override
 	public void resolve(BlockScope scope) {
 		this.resolveType(scope);
+	}
+
+	@Override
+	public boolean dominates(Pattern p) {
+		// Guarded pattern can never dominate another, even if the guards are identical
+		return false;
 	}
 
 	@Override

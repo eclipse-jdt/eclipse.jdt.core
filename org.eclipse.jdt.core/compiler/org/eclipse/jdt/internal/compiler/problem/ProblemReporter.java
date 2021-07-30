@@ -7279,7 +7279,7 @@ public void notCompatibleTypesError(EqualExpression expression, TypeBinding left
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void notCompatibleTypesError(InstanceOfExpression expression, TypeBinding leftType, TypeBinding rightType) {
+public void notCompatibleTypesError(Expression expression, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
 	String rightName = new String(rightType.readableName());
 	String leftShortName = new String(leftType.shortReadableName());
@@ -12247,6 +12247,22 @@ public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression el
 public void switchPatternBothNullAndNonTypePatternNotAllowed(Expression element) {
 	this.handle(
 			IProblem.SwitchPatternBothNullAndNonTypePatternNotAllowed,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void patternDominatingAnother(Expression element) {
+	this.handle(
+			IProblem.PatternDominates,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void illegalTotalPatternWithDefault(Statement element) {
+	this.handle(
+			IProblem.IllegalTotalPatternWithDefault,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,

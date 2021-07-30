@@ -2492,4 +2492,10 @@ void setSourceStart(int sourceStart);
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int SwitchPatternBothNullAndNonTypePatternNotAllowed = PreviewRelated + 1906;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int PatternDominates = PreviewRelated + 1907;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int IllegalTotalPatternWithDefault = PreviewRelated + 1908;
 }

@@ -296,6 +296,9 @@ private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatem
 
 	// on error the last default will be the selected one ...
 	switchStatement.defaultCase = this;
+	if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
+		scope.problemReporter().illegalTotalPatternWithDefault(this);
+	}
 }
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
 	if (!containsPatternVariable()) {
@@ -330,7 +333,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 			if (!(switchExpressionType instanceof ReferenceBinding)) {
 				scope.problemReporter().typeMismatchError(TypeBinding.NULL, switchExpressionType, expression, null);
 			}
-			switchStatement.containsCaseNull = true;
+			switchStatement.switchBits |= SwitchStatement.NullCase;
 			return IntConstant.fromValue(-1);
 		} else if (expression instanceof FakeDefaultLiteral) {
 			// do nothing
@@ -395,7 +398,30 @@ private Constant resolveConstantExpression(BlockScope scope,
 			// of the expression being pattern matched
 			TypeBinding pb = e.resolveAtType(scope, switchStatement.expression.resolvedType);
 			if (pb != null) switchStatement.caseLabelElementTypes.add(pb);
+			TypeBinding expressionType = switchStatement.expression.resolvedType;
+			LocalDeclaration patternVar = e.getPatternVariableIntroduced();
+			if (patternVar != null && !patternVar.type.isTypeNameVar(scope)) {
+				// The following code is copied from InstanceOfExpression#resolve()
+				// But there are several differences to warranty a copy
+				if (!pb.isReifiable()) {
+					if (expressionType != TypeBinding.NULL) {
+						boolean isLegal = e.checkCastTypesCompatibility(scope, pb, expressionType, e, false);
+						if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
+							scope.problemReporter().unsafeCastInInstanceof(e, pb, expressionType);
+						}
+					}
+				} else if (pb.isValidBinding()) {
+					// if not a valid binding, an error has already been reported for unresolved type
+					if (pb.isBaseType()
+							|| !e.checkCastTypesCompatibility(scope, pb, expressionType, null, false)) {
+						scope.problemReporter().typeMismatchError(expressionType, pb, e, null);
+					}
+				}
+			}
+			if (e.isTotalForType(expressionType))
+				switchStatement.switchBits |= SwitchStatement.TotalPattern;
 		}
+
 	}
 	return constant;
 }

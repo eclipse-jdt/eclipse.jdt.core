@@ -123,8 +123,7 @@ public interface TypeConstants {
     char[] YIELD = "yield".toCharArray(); //$NON-NLS-1$
 
     // JEP 286
-    String VAR_STRING = "var"; //$NON-NLS-1$
-	char[] VAR = VAR_STRING.toCharArray();
+	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
     // JEP 359 Records
 	char[] RECORD_RESTRICTED_IDENTIFIER = "record".toCharArray(); //$NON-NLS-1$
 	char[] RECORD_CLASS = "Record".toCharArray(); //$NON-NLS-1$

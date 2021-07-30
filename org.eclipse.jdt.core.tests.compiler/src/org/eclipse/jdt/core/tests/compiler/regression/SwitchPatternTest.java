@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug573516_007"};
+//		TESTS_NAMES = new String[] { "testBug573921"};
 	}
 
 	private static String previewLevel = "17";
@@ -320,15 +320,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-			"	                ^^^^^^\n" +
-			"String cannot be resolved to a variable\n" +
+			"	     ^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from int to Integer\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
 			"	                ^^^^^^\n" +
+			"String cannot be resolved to a variable\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
+			"	                ^^^^^^\n" +
 			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
+			"4. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -385,15 +390,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
+			"	     ^^^^^^^^\n" +
+			"Type mismatch: cannot convert from int to String\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
 			"	                       ^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element.\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 5)\n" +
+			"3. ERROR in X.java (at line 5)\n" +
 			"	default : System.out.println(\"Object\");\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
+			"4. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -1080,7 +1090,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						"public class X {\n"
 						+ "	public static void foo(Object o) {\n"
 						+ "		switch (o) {\n"
-						+ "			case Object o:\n"
+						+ "			case String o:\n"
 						+ "				System.out.println(o);\n"
 						+ "				break;\n"
 						+ "			default:\n"
@@ -1091,7 +1101,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
-				"	case Object o:\n" +
+				"	case String o:\n" +
 				"	            ^\n" +
 				"Duplicate local variable o\n" +
 				"----------\n");
@@ -2351,5 +2361,277 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"Hello World!");
+	}
+	public void testBug573921_1() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n" +
+					"			case CharSequence cs ->\n" +
+					"			System.out.println(\"A sequence of length \" + cs.length());\n" +
+					"			case String s && s.length() > 0 -> \n" +
+					"			System.out.println(\"A string: \" + s);\n" +
+					"			default -> {\n" +
+					"				break;\n" +
+					"			} \n" +
+					"		}\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case CharSequence cs ->\n" +
+				"	     ^^^^^^^^^^^^^^^\n" +
+				"This pattern dominates one or more of the following patterns\n" +
+				"----------\n");
+	}
+	public void testBug573921_2() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n" +
+					"			case CharSequence cs:\n" +
+					"				System.out.println(\"A sequence of length \" + cs.length());\n" +
+					"				break;\n" +
+					"			case String s:\n" +
+					"				System.out.println(\"A string: \" + s);\n" +
+					"				break;\n" +
+					"			default: \n" +
+					"				break;\n" +
+					"		}\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case CharSequence cs:\n" +
+				"	     ^^^^^^^^^^^^^^^\n" +
+				"This pattern dominates one or more of the following patterns\n" +
+				"----------\n");
+	}
+	public void testBug573921_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello!\");\n"+
+					" }\n"+
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n" +
+					"			case String s:\n" +
+					"				System.out.println(\"String:\" + s);\n" +
+					"				break;\n" +
+					"			case CharSequence cs:\n" +
+					"				System.out.println(\"A CS:\" + cs);\n" +
+					"				break;\n" +
+					"			default: \n" +
+					"				break;\n" +
+					"		}\n"+
+					" }\n"+
+					"}",
+				},
+				"String:Hello!");
+	}
+	public void testBug573921_4() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(new StringBuffer(\"Hello!\"));\n"+
+					" }\n"+
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n" +
+					"			case String s:\n" +
+					"				System.out.println(\"String:\" + s);\n" +
+					"				break;\n" +
+					"			case CharSequence cs:\n" +
+					"				System.out.println(\"A CS:\" + cs.toString());\n" +
+					"				break;\n" +
+					"			default: \n" +
+					"				break;\n" +
+					"		}\n"+
+					" }\n"+
+					"}",
+				},
+				"A CS:Hello!");
+	}
+	public void testBug573921_5() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello\");\n"+
+					" }\n"+
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n" +
+					"		case String s && s.length() < 5 :\n" +
+					"			System.out.println(\"1:\" + s);\n" +
+					"			break;\n" +
+					"		case String s && s.length() == 5:\n" +
+					"			System.out.println(\"2:\" + s);\n" +
+					"			break;\n" +
+					"		default : System.out.println(\"Object\");\n" +
+					"	}\n"+
+					" }\n"+
+					"}",
+				},
+				"2:Hello");
+	}
+	public void testBug573921_6() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"\");\n"+
+					" }\n"+
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n" +
+					"		case String s && s.length() < 5 :\n" +
+					"			System.out.println(\"1:\" + s);\n" +
+					"			break;\n" +
+					"		case String s && s.length() == 5:\n" +
+					"			System.out.println(\"2:\" + s);\n" +
+					"			break;\n" +
+					"		default : System.out.println(\"Object\");\n" +
+					"	}\n"+
+					" }\n"+
+					"}",
+				},
+				"1:");
+	}
+	public void testBug573921_7() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n"+
+					" @SuppressWarnings(\"rawtypes\")\n" +
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n"+
+					"		case List cs:\n"+
+					"			System.out.println(\"A sequence of length \" + cs.size());\n"+
+					"			break;\n"+
+					"		case List<String> s: \n"+
+					"			System.out.println(\"A string: \" + s);\n"+
+					"			break;\n"+
+					"		} "+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case List cs:\n" +
+				"	     ^^^^^^^\n" +
+				"This pattern dominates one or more of the following patterns\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	case List<String> s: \n" +
+				"	     ^^^^^^^^^^^^^^\n" +
+				"Type Object cannot be safely cast to List<String>\n" +
+				"----------\n");
+	}
+	public void testBug573921_8() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n"+
+					" @SuppressWarnings(\"rawtypes\")\n" +
+					" private static void foo(Object o) {\n"+
+					"		switch(o.hashCode()) {\n"+
+					"		case String s:\n"+
+					"			break;\n"+
+					"		default: \n"+
+					"			break;\n"+
+					"		} "+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case String s:\n" +
+				"	     ^^^^^^^^\n" +
+				"Type mismatch: cannot convert from int to String\n" +
+				"----------\n");
+	}
+	public void testBug573921_9() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n"+
+					" @SuppressWarnings(\"rawtypes\")\n" +
+					" private static void foo(Object o) {\n"+
+					"		switch(o) {\n"+
+					"		case Object o1:\n"+
+					"			break;\n"+
+					"		default: \n"+
+					"			break;\n"+
+					"		} "+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	default: \n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
+	}
+	public void testBug573921_10() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n"+
+					" @SuppressWarnings(\"rawtypes\")\n" +
+					" private static void foo(List<String> o) {\n"+
+					"		switch(o) {\n"+
+					"		case List o1:\n"+
+					"			break;\n"+
+					"		default: \n"+
+					"			break;\n"+
+					"		} "+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	default: \n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
+	}
+	public void testBug573921_11() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n"+
+					" @SuppressWarnings(\"rawtypes\")\n" +
+					" private static void foo(String s) {\n"+
+					"		switch(s) {\n"+
+					"		case CharSequence cs:\n"+
+					"			break;\n"+
+					"		default: \n"+
+					"			break;\n"+
+					"		} "+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	default: \n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
 	}
 }
