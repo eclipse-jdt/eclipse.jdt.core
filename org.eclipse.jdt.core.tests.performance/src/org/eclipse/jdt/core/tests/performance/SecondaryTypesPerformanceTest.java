@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Sven Strohschein - initial API and implementation
  *******************************************************************************/
@@ -78,6 +82,7 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void test01() {
 		List<String> classpathList = new ArrayList<>();
 		classpathList.addAll(createClasspathStrings());
