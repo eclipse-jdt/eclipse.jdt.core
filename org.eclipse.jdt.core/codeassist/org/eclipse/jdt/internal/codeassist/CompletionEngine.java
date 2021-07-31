@@ -66,8 +66,9 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnAnnotationOfType;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnArgumentName;
-import org.eclipse.jdt.internal.codeassist.complete.CompletionOnBranchStatementLabel;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnBreakStatement;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnClassLiteralAccess;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnContinueStatement;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnExplicitConstructorCall;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnFieldName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnFieldType;
@@ -2015,8 +2016,10 @@ public final class CompletionEngine
 			completionOnMarkerAnnotationName(astNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMemberValueName) {
 			completionOnMemberValueName(astNode, astNodeParent, scope, insideTypeAnnotation);
-		} else if(astNode instanceof CompletionOnBranchStatementLabel) {
-			completionOnBranchStatementLabel(astNode);
+		} else if(astNode instanceof CompletionOnBreakStatement) {
+			completionOnBreakStatement((CompletionOnBreakStatement) astNode);
+		} else if(astNode instanceof CompletionOnContinueStatement) {
+			completionOnContinueStatement((CompletionOnContinueStatement) astNode);
 		} else if(astNode instanceof CompletionOnMessageSendName) {
 			completionOnMessageSendName(astNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnReferenceExpressionName) {
@@ -2598,11 +2601,17 @@ public final class CompletionEngine
 		}
 	}
 
-	private void completionOnBranchStatementLabel(ASTNode astNode) {
+	private void completionOnBreakStatement(CompletionOnBreakStatement astNode) {
 		if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
-			CompletionOnBranchStatementLabel label = (CompletionOnBranchStatementLabel) astNode;
-			this.completionToken = label.label;
-			findLabels(this.completionToken, label.possibleLabels);
+			this.completionToken = astNode.label;
+			findLabels(this.completionToken, astNode.possibleLabels);
+		}
+	}
+
+	private void completionOnContinueStatement(CompletionOnContinueStatement astNode) {
+		if (!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
+			this.completionToken = astNode.label;
+			findLabels(this.completionToken, astNode.possibleLabels);
 		}
 	}
 

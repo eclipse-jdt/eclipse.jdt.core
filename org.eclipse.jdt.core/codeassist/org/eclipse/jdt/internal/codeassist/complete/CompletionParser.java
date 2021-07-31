@@ -1978,15 +1978,17 @@ private boolean checkLabelStatement() {
 		System.arraycopy(labels, 0, labels = new char[labelCount][], 0, labelCount);
 
 		long position = this.identifierPositionStack[this.identifierPtr];
-		CompletionOnBranchStatementLabel statementLabel =
-			new CompletionOnBranchStatementLabel(
-					kind == K_INSIDE_BREAK_STATEMENT ? CompletionOnBranchStatementLabel.BREAK : CompletionOnBranchStatementLabel.CONTINUE,
-					this.identifierStack[this.identifierPtr--],
-					(int) (position >>> 32),
-					(int)position,
-					labels);
-
-		this.assistNode = statementLabel;
+		this.assistNode = kind == K_INSIDE_BREAK_STATEMENT
+				? new CompletionOnBreakStatement(
+						this.identifierStack[this.identifierPtr--],
+						(int) (position >>> 32),
+						(int)position,
+						labels)
+				: new CompletionOnContinueStatement(
+						this.identifierStack[this.identifierPtr--],
+						(int) (position >>> 32),
+						(int)position,
+						labels);
 		this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 		this.isOrphanCompletionNode = true;
 		return true;
@@ -6141,10 +6143,23 @@ protected CompilationUnitDeclaration endParse(int act) {
 				statement = (Statement) this.assistNode;
 			}
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) this.referenceContext;
-			if (statement != null && isInsideBody(statement, method)) {
+			if (statement != null && isInsideBody(statement, method)
+					&& this.assistNode != null && !CompletionNodeDetector.findAny(cud, statement))
+			{
 				// automaton ended right before transferring statements into the method?
 				if (method.statements == null) {
 					method.statements = new Statement[] { statement };
+				} else if (this.currentElement != null) {
+					// or before transferring statements into a nested recovered element?
+					this.currentElement.add(statement, 0);
+					RecoveredElement element = this.currentElement;
+					while (element != null) {
+						if (element instanceof RecoveredMethod && ((RecoveredMethod) element).methodDeclaration == method) {
+							element.updateParseTree();
+							break;
+						}
+						element = element.parent;
+					}
 				}
 			}
 		}

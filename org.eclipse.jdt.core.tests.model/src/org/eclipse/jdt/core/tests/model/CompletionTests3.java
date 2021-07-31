@@ -1004,4 +1004,38 @@ public void testBug574704_withPrefix() throws Exception {
 		deleteProject("P");
 	}
 }
+public void testBug574803() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"\n" +
+			"	\n" +
+			"	public static void fillAttributes(Object object) throws Exception {\n" +
+			"		for (Field field : object.getClass().getFields()) {\n" +
+			"			if (field.getType() == ) // no content assist\n" +
+			"			Object value = field.get(object);\n" +
+			"			System.out.println(value);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "field.getType() == ";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assertResults(
+				"X[TYPE_REF]{X, , LX;, null, null, " + relevance + "}\n" +
+				"field[LOCAL_VARIABLE_REF]{field, null, LField;, field, null, " + relevance + "}\n" +
+				"fillAttributes[METHOD_REF]{fillAttributes(), LX;, (Ljava.lang.Object;)V, fillAttributes, (object), " + relevance + "}\n" +
+				"object[LOCAL_VARIABLE_REF]{object, null, Ljava.lang.Object;, object, null, " + relevance + "}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }
