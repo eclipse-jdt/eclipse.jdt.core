@@ -344,7 +344,7 @@ protected void detectAssistNodeParent(ASTNode node) {
 	CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode, node);
 	if (detector.containsCompletionNode()) {
 		this.assistNodeParent = detector.getCompletionNodeParent();
-		if (this.assistNodeParent == null && node instanceof Statement)
+		if (this.assistNodeParent == null && node instanceof Statement && node != this.assistNode)
 			this.assistNodeParent = node;
 	}
 }
@@ -6144,7 +6144,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 			}
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) this.referenceContext;
 			if (statement != null && isInsideBody(statement, method)
-					&& this.assistNode != null && !CompletionNodeDetector.findAny(cud, statement))
+					&& this.assistNode != null && !CompletionNodeDetector.findAny(cud, this.assistNode))
 			{
 				// automaton ended right before transferring statements into the method?
 				if (method.statements == null) {

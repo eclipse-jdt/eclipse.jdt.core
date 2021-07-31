@@ -36,9 +36,8 @@ public class CompletionNodeDetector extends ASTVisitor {
 		protected boolean visitNode(ASTNode node) {
 			if (node == this.searchFor) {
 				this.found = true;
-				return false;
 			}
-			return true;
+			return !this.found;
 		}
 	}
 	public static boolean findAny(CompilationUnitDeclaration unit, ASTNode searchFor) {
