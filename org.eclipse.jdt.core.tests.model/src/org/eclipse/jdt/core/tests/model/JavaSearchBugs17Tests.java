@@ -422,834 +422,992 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// switch pattern search - test reference of an object in case statement as well as switch expression
-		public void testBug573943_008() throws CoreException {
-			this.workingCopies = new ICompilationUnit[1];
-			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"public class X {\n" +
+	public void testBug573943_008() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String /*here*/s && s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object) [s] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	// switch pattern search - test reference of an custom class object in case statement
+	public void testBug573943_009() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"final class A implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case B b :     System.out.println(\"B:\" + b);\n" +
+						"	default  : System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// switch pattern search - test reference of an custom class object in case statement amd switch statement
+	public void testBug573943_010() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"final class A implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a && a.hashCode()> 0 :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case B b :     System.out.println(\"B:\" + b);\n" +
+						"	default  :     System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// switch pattern search - test reference of an custom record object in case statement
+	public void testBug573943_011() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"record A (int i) implements S {}\n" +
+						"record B (int i) implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case B b :     System.out.println(\"B:\" + b);break;\n" +
+						"	default   :    System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// switch pattern search - test reference of an custom record object in case statement and switch statement
+	public void testBug573943_012() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"record A (int i) implements S {}\n" +
+						"record B (int i) implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a && a.hashCode() :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case B b :     System.out.println(\"B:\" + b);\n" +
+						"	default  :     System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// switch pattern search - test reference of an custom class object in case statement and switch expression
+	public void testBug573943_013() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"final class A implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static int foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a && a.hashCode()> 0 -> 1;\n" +
+						"	case B b ->2;\n" +
+						"	default  -> 3;\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java int X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// switch pattern search - test reference of an object in case statement as well as switch pattern
+	public void testBug573943_014() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
+						"	case String /*here*/s     : System.out.println(\"String:\" + s + s);break;\n" +
+						"	default       : System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			System.out.println(str);
+			String selection = "/*here*/s";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object) [s] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [s] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// switch pattern search - test reference of an object in case statement as well as switch pattern
+	public void testBug573943_015() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
+						"	case String /*here*/s && s.hashCode()>0    : System.out.println(\"String:\" );break;\n" +
+						"	default       : System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object) [s] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// type reference with a switch expression pattern
+	// see testBug573943_012 for switch pattern and type reference
+	public void testBug573943_016() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"final class A implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a ->     System.out.println(\"A:\" + a +a); \n" +
+						"	case B b ->    System.out.println(\"B:\" + b);\n" +
+						"	default  -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	// type reference with a switch expression pattern
+	public void testBug573943_017() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A, B {}\n" +
+						"final class A implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case A /*here*/a && a.toString().length()>2 ->     System.out.println(\"A:\" + a +a); \n" +
+						"	case B b ->    System.out.println(\"B:\" + b);\n" +
+						"	default  -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/a";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+"src/X.java void X.foo(S) [a] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// selection of pattern variable in case statement and verify that it is local variable
+	public void testBug573943_018() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s     -> System.out.println(\"String:\" + /*here*/s + s);\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements[0] instanceof LocalVariable);
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// selection of pattern variable in case statement and search for declaration
+	public void testBug573943_019() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s     -> System.out.println(\"String:\" + /*here*/s + s);\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, DECLARATIONS, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object).s [s] EXACT_MATCH");
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// selection of guarded pattern variable in case statement and verify that it is local variable
+	public void testBug573943_020() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" final int a=0; \n" +
+						" switch (o) {\n" +
+						"	case Integer i  && a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
+						"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/i";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements[0] instanceof LocalVariable);
+
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// selection of pattern variable in case statement and search for declaration
+	public void testBug573943_021() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" final int a=0; \n" +
+						" switch (o) {\n" +
+						"	case Integer i  && a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
+						"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/i";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, DECLARATIONS, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object).i [i] EXACT_MATCH");
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	//not a working copy test
+	public void testBug573943_022() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			project.open(null);
+			createFolder("/first/src/p1");
+			createFile("/first/src/p1/BClass.java",
+					"package p1;\n" +
+							"public class BClass {\n" +
+							"}\n"
+					);
+			createFile("/first/src/p1/X.java",
+					"package p1;\n" +
+							"public class X {\n" +
 							"public static void main(String[] args) {\n" +
 							"foo(Integer.valueOf(5));\n" +
 							"foo(new Object());\n" +
 							"}\n" +
 							"private static void foo(Object o) {\n" +
 							" switch (o) {\n" +
-							"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-							"	case String /*here*/s && s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
+							"	case BClass i   -> System.out.println(\"Integer:\" + i);\n" +
 							"	default       -> System.out.println(\"Object\" + o);\n" +
 							" 	}\n" +
 							"}\n" +
 							"}\n"
 					);
-			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-			// working copies
-			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-			try {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-				String str = this.workingCopies[0].getSource();
-				String selection = "/*here*/s";
-				int start = str.indexOf(selection);
-				int length = selection.length();
+			project.close();
+			project.open(null);
+			waitUntilIndexesReady();
 
-				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-				ILocalVariable local = (ILocalVariable) elements[0];
-				search(local, REFERENCES, EXACT_RULE);
-				assertSearchResults("src/X.java void X.foo(Object) [s] EXACT_MATCH");
-			} finally {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-			}
+			SearchPattern pattern = SearchPattern.createPattern("BClass", IJavaSearchConstants.TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH);
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+					{project});
+			search(pattern, scope, this.resultCollector);
+			assertSearchResults(
+					"src/p1/X.java void p1.X.foo(Object) [BClass] EXACT_MATCH",
+					this.resultCollector);
 		}
+		finally {
 
-		// switch pattern search - test reference of an custom class object in case statement
-		public void testBug573943_009() throws CoreException {
-			this.workingCopies = new ICompilationUnit[1];
-			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"sealed interface I permits A, B {}\n" +
-					"final class A implements S {}\n" +
-					"final class B implements S {}\n" +
-					"public class X {\n" +
+			deleteProject("first");
+		}
+	}
+	// find reference on a field in switch pattern - without select
+	public void testBug573943_023() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static  int /*here*/fieldj17 \n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s     -> System.out.println(\"String:\" + s + fieldj17 +fieldj17);\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+
+			search("fieldj17", FIELD, REFERENCES);
+			assertSearchResults("src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// find all occurrence on a field in switch pattern - without select
+	public void testBug573943_024() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static  int /*here*/fieldj17 \n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s     -> System.out.println(\"String:\" + s + fieldj17 +fieldj17);\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+
+			search("fieldj17", FIELD, ALL_OCCURRENCES);
+			assertSearchResults("src/X.java X.fieldj17 [fieldj17] EXACT_MATCH\n"+
+					"src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// find all occurrence on a class in switch pattern - without select ( switch statement)
+	public void testBug573943_026() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A17, B {}\n" +
+						"final class AJ17 implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case AJ17 /*here*/a :     System.out.println(); break;\n" +
+						"	case B b :     System.out.println(\"B:\" + b);\n" +
+						"	default  : System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			search("AJ17", CLASS, ALL_OCCURRENCES);
+			assertSearchResults("src/X.java AJ17 [AJ17] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(S) [AJ17] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// find all reference on a class in switch pattern - without select ( Switch Statement)
+	public void testBug573943_027() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A17, B {}\n" +
+						"final class AJ17 implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case AJ17 /*here*/a :     System.out.println(); break;\n" +
+						"	case B b :     System.out.println(\"B:\" + b);\n" +
+						"	default  : System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			search("AJ17", CLASS, REFERENCES);
+			assertSearchResults("src/X.java void X.foo(S) [AJ17] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// find all reference on a class in switch pattern - without select
+	public void testBug573943_028() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"sealed interface I permits A17, B {}\n" +
+						"final class AJ17 implements S {}\n" +
+						"final class B implements S {}\n" +
+						"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(new A());\n" +
+						"}\n" +
+						"private static void foo(S o) {\n" +
+						" switch (o) {\n" +
+						"	case AJ17 /*here*/a ->     System.out.println(); \n" +
+						"	case B b ->     System.out.println(\"B:\" + b);\n" +
+						"	default  -> System.out.println(\"Object\" + o);\n" +
+						" 	}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			search("AJ17", CLASS, REFERENCES);
+			assertSearchResults("src/X.java void X.foo(S) [AJ17] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// find all occurrence on a class in switch pattern - without select
+	public void testBug573943_029() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			project.open(null);
+			createFolder("/first/src/p1");
+			createFile("/first/src/p1/BClass.java",
+					"package p1;\n" +
+							"public class BClass {\n" +
+							"}\n"
+					);
+			createFile("/first/src/p1/X.java",
+					"package p1;\n" +
+							"public class X {\n" +
+							" public int field_j17; "+
 							"public static void main(String[] args) {\n" +
-							"foo(new A());\n" +
+							"foo(Integer.valueOf(5));\n" +
+							"foo(new Object());\n" +
 							"}\n" +
-							"private static void foo(S o) {\n" +
+							"private static void foo(Object o) {\n" +
 							" switch (o) {\n" +
-							"	case A /*here*/a :     System.out.println(\"A:\" + a +a); break;\n" +
-							"	case B b :     System.out.println(\"B:\" + b);\n" +
-							"	default  : System.out.println(\"Object\" + o);\n" +
+							"	case BClass i && field_j17>0  -> System.out.println(\"Integer:\" + i);\n" +
+							"	default       -> System.out.println(\"Object\" + o);\n" +
 							" 	}\n" +
 							"}\n" +
 							"}\n"
 					);
-			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-			// working copies
-			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-			try {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-				String str = this.workingCopies[0].getSource();
-				String selection = "/*here*/a";
-				int start = str.indexOf(selection);
-				int length = selection.length();
+			project.close();
+			project.open(null);
+			waitUntilIndexesReady();
 
-				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-				ILocalVariable local = (ILocalVariable) elements[0];
-				search(local, REFERENCES, EXACT_RULE);
-				assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-						+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
-			} finally {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-			}
+			SearchPattern pattern = SearchPattern.createPattern("field_j17", IJavaSearchConstants.FIELD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+					{project});
+			search(pattern, scope, this.resultCollector);
+			assertSearchResults(
+					"src/p1/X.java p1.X.field_j17 [field_j17] EXACT_MATCH\n"
+							+ "src/p1/X.java void p1.X.foo(Object) [field_j17] EXACT_MATCH",
+							this.resultCollector);
 		}
-		// switch pattern search - test reference of an custom class object in case statement amd switch statement
-		public void testBug573943_010() throws CoreException {
-			this.workingCopies = new ICompilationUnit[1];
-			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"sealed interface I permits A, B {}\n" +
-					"final class A implements S {}\n" +
-					"final class B implements S {}\n" +
-					"public class X {\n" +
+		finally {
+
+			deleteProject("first");
+		}
+	}
+	// find all references on a class in switch pattern - without select
+	public void testBug573943_030() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			project.open(null);
+			createFolder("/first/src/p1");
+			createFile("/first/src/p1/BClass.java",
+					"package p1;\n" +
+							"public class BClass {\n" +
+							"}\n"
+					);
+			createFile("/first/src/p1/X.java",
+					"package p1;\n" +
+							"public class X {\n" +
+							" public int field_j17; "+
 							"public static void main(String[] args) {\n" +
-							"foo(new A());\n" +
+							"foo(Integer.valueOf(5));\n" +
+							"foo(new Object());\n" +
 							"}\n" +
-							"private static void foo(S o) {\n" +
+							"private static void foo(Object o) {\n" +
 							" switch (o) {\n" +
-							"	case A /*here*/a && a.hashCode()> 0 :     System.out.println(\"A:\" + a +a); break;\n" +
-							"	case B b :     System.out.println(\"B:\" + b);\n" +
-							"	default  :     System.out.println(\"Object\" + o);\n" +
+							"	case BClass i && field_j17>0  -> System.out.println(\"Integer:\" + i);\n" +
+							"	default       -> System.out.println(\"Object\" + o);\n" +
 							" 	}\n" +
 							"}\n" +
 							"}\n"
 					);
-			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-			// working copies
-			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-			try {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-				String str = this.workingCopies[0].getSource();
-				String selection = "/*here*/a";
-				int start = str.indexOf(selection);
-				int length = selection.length();
+			project.close();
+			project.open(null);
+			waitUntilIndexesReady();
 
-				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-				ILocalVariable local = (ILocalVariable) elements[0];
-				search(local, REFERENCES, EXACT_RULE);
-				assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-						+ "src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-						+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
-			} finally {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-			}
+			SearchPattern pattern = SearchPattern.createPattern("field_j17", IJavaSearchConstants.FIELD, REFERENCES, SearchPattern.R_EXACT_MATCH);
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+					{project});
+			search(pattern, scope, this.resultCollector);
+			assertSearchResults(
+					"src/p1/X.java void p1.X.foo(Object) [field_j17] EXACT_MATCH",
+					this.resultCollector);
 		}
-		// switch pattern search - test reference of an custom record object in case statement
-		public void testBug573943_011() throws CoreException {
-			this.workingCopies = new ICompilationUnit[1];
-			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-					"sealed interface I permits A, B {}\n" +
-					"record A (int i) implements S {}\n" +
-					"record B (int i) implements S {}\n" +
-					"public class X {\n" +
-							"public static void main(String[] args) {\n" +
-							"foo(new A());\n" +
-							"}\n" +
-							"private static void foo(S o) {\n" +
-							" switch (o) {\n" +
-							"	case A /*here*/a :     System.out.println(\"A:\" + a +a); break;\n" +
-							"	case B b :     System.out.println(\"B:\" + b);break;\n" +
-							"	default   :    System.out.println(\"Object\" + o);\n" +
-							" 	}\n" +
-							"}\n" +
-							"}\n"
-					);
-			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-			// working copies
-			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-			try {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-				String str = this.workingCopies[0].getSource();
-				String selection = "/*here*/a";
-				int start = str.indexOf(selection);
-				int length = selection.length();
+		finally {
 
-				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-				ILocalVariable local = (ILocalVariable) elements[0];
-				search(local, REFERENCES, EXACT_RULE);
-				assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-						+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
-			} finally {
-				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-			}
+			deleteProject("first");
 		}
-		// switch pattern search - test reference of an custom record object in case statement and switch statement
-				public void testBug573943_012() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A, B {}\n" +
-							"record A (int i) implements S {}\n" +
-							"record B (int i) implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static void foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case A /*here*/a && a.hashCode() :     System.out.println(\"A:\" + a +a); break;\n" +
-									"	case B b :     System.out.println(\"B:\" + b);\n" +
-									"	default  :     System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/a";
-						int start = str.indexOf(selection);
-						int length = selection.length();
+	}
+	public void testBug573943_031() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s && /*here*/s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
+						"	default       -> System.out.println(\"Object\" + o);\n" +
+						" 	}}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s";
+			int start = str.indexOf(selection);
+			int length = selection.length();
 
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, REFERENCES, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// switch pattern search - test reference of an custom class object in case statement and switch expression
-				public void testBug573943_013() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A, B {}\n" +
-							"final class A implements S {}\n" +
-							"final class B implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static int foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case A /*here*/a && a.hashCode()> 0 -> 1;\n" +
-									"	case B b ->2;\n" +
-									"	default  -> 3;\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/a";
-						int start = str.indexOf(selection);
-						int length = selection.length();
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue(elements[0] instanceof ILocalVariable);
 
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, REFERENCES, EXACT_RULE);
-						assertSearchResults("src/X.java int X.foo(S) [a] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// switch pattern search - test reference of an object in case statement as well as switch pattern
-				public void testBug573943_014() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" switch (o) {\n" +
-									"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-									"	case String /*here*/s     : System.out.println(\"String:\" + s + s);break;\n" +
-									"	default       : System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						System.out.println(str);
-						String selection = "/*here*/s";
-						int start = str.indexOf(selection);
-						int length = selection.length();
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	public void testBug573943_032() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" String myVar= new String();" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s1 && s1 != myVar && 0 < /*here*/s1.length()   -> System.out.println(s1 );\n" +
+						"	default       -> {\n" +
+						"	String s1 =  new String();\n" +
+						"	System.out.println(s1);\n" +
+						" 	}}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s1";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue(elements[0] instanceof ILocalVariable);
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, REFERENCES, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(Object) [s] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(Object) [s] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// switch pattern search - test reference of an object in case statement as well as switch pattern
-				public void testBug573943_015() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" switch (o) {\n" +
-									"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-									"	case String /*here*/s && s.hashCode()>0    : System.out.println(\"String:\" );break;\n" +
-									"	default       : System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/s";
-						int start = str.indexOf(selection);
-						int length = selection.length();
+	public void testBug573943_033() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" String myVar= new String();" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s1 && /*here*/s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
+						"	default       -> {\n" +
+						"	String s1 =  new String();\n" +
+						"	System.out.println(s1);\n" +
+						" 	}}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s1";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue(elements[0] instanceof ILocalVariable);
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
+					+ "src/X.java void X.foo(Object) [s1] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, REFERENCES, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(Object) [s] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// type reference with a switch expression pattern
-				// see testBug573943_012 for switch pattern and type reference
-				public void testBug573943_016() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A, B {}\n" +
-							"final class A implements S {}\n" +
-							"final class B implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static void foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case A /*here*/a ->     System.out.println(\"A:\" + a +a); \n" +
-									"	case B b ->    System.out.println(\"B:\" + b);\n" +
-									"	default  -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/a";
-						int start = str.indexOf(selection);
-						int length = selection.length();
-
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, REFERENCES, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-
-				// type reference with a switch expression pattern
-				public void testBug573943_017() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A, B {}\n" +
-							"final class A implements S {}\n" +
-							"final class B implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static void foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case A /*here*/a && a.toString().length()>2 ->     System.out.println(\"A:\" + a +a); \n" +
-									"	case B b ->    System.out.println(\"B:\" + b);\n" +
-									"	default  -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/a";
-						int start = str.indexOf(selection);
-						int length = selection.length();
-
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, REFERENCES, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-									+"src/X.java void X.foo(S) [a] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(S) [a] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// selection of pattern variable in case statement and verify that it is local variable
-				public void testBug573943_018() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" switch (o) {\n" +
-									"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-									"	case String s     -> System.out.println(\"String:\" + /*here*/s + s);\n" +
-									"	default       -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/s";
-						int start = str.indexOf(selection);
-						int length = selection.length();
-
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						assertTrue(elements[0] instanceof LocalVariable);
-
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// selection of pattern variable in case statement and search for declaration
-				public void testBug573943_019() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" switch (o) {\n" +
-									"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-									"	case String s     -> System.out.println(\"String:\" + /*here*/s + s);\n" +
-									"	default       -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/s";
-						int start = str.indexOf(selection);
-						int length = selection.length();
-
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, DECLARATIONS, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(Object).s [s] EXACT_MATCH");
-
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// selection of guarded pattern variable in case statement and verify that it is local variable
-				public void testBug573943_020() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" final int a=0; \n" +
-									" switch (o) {\n" +
-									"	case Integer i  && a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
-									"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
-									"	default       -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/i";
-						int start = str.indexOf(selection);
-						int length = selection.length();
-
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						assertTrue(elements[0] instanceof LocalVariable);
+	public void testBug573943_034() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static void foo(Object o) {\n" +
+						" String myVar= new String();" +
+						" switch (o) {\n" +
+						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
+						"	case String s1 && s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
+						"	default       -> {\n" +
+						"	String s1 =  new String();\n" +
+						"	System.out.println(/*here*/s1);\n" +
+						" 	}}\n" +
+						"}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/s1";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue(elements[0] instanceof ILocalVariable);
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 
 
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// selection of pattern variable in case statement and search for declaration
-				public void testBug573943_021() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" final int a=0; \n" +
-									" switch (o) {\n" +
-									"	case Integer i  && a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
-									"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
-									"	default       -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						String str = this.workingCopies[0].getSource();
-						String selection = "/*here*/i";
-						int start = str.indexOf(selection);
-						int length = selection.length();
 
-						IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-						ILocalVariable local = (ILocalVariable) elements[0];
-						search(local, DECLARATIONS, EXACT_RULE);
-						assertSearchResults("src/X.java void X.foo(Object).i [i] EXACT_MATCH");
-
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				//not a working copy test
-				public void testBug573943_022() throws Exception {
-					try {
-						IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
-						project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						project.open(null);
-						createFolder("/first/src/p1");
-						createFile("/first/src/p1/BClass.java",
-								"package p1;\n" +
-								"public class BClass {\n" +
-								"}\n"
-								);
-						createFile("/first/src/p1/X.java",
-								"package p1;\n" +
-										"public class X {\n" +
-										"public static void main(String[] args) {\n" +
-										"foo(Integer.valueOf(5));\n" +
-										"foo(new Object());\n" +
-										"}\n" +
-										"private static void foo(Object o) {\n" +
-										" switch (o) {\n" +
-										"	case BClass i   -> System.out.println(\"Integer:\" + i);\n" +
-										"	default       -> System.out.println(\"Object\" + o);\n" +
-										" 	}\n" +
-										"}\n" +
-										"}\n"
-								);
-						project.close();
-						project.open(null);
-						waitUntilIndexesReady();
-
-						SearchPattern pattern = SearchPattern.createPattern("BClass", IJavaSearchConstants.TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH);
-						IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
-								{project});
-						search(pattern, scope, this.resultCollector);
-						assertSearchResults(
-								"src/p1/X.java void p1.X.foo(Object) [BClass] EXACT_MATCH",
-							this.resultCollector);
-					}
-					finally {
-
-						deleteProject("first");
-					}
-				}
-				// find reference on a field in switch pattern - without select
-				public void testBug573943_023() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static  int /*here*/fieldj17 \n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" switch (o) {\n" +
-									"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-									"	case String s     -> System.out.println(\"String:\" + s + fieldj17 +fieldj17);\n" +
-									"	default       -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-
-						search("fieldj17", FIELD, REFERENCES);
-						assertSearchResults("src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-					}
-				// find all occurrence on a field in switch pattern - without select
-				public void testBug573943_024() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"public class X {\n" +
-									"public static  int /*here*/fieldj17 \n" +
-									"public static void main(String[] args) {\n" +
-									"foo(Integer.valueOf(5));\n" +
-									"foo(new Object());\n" +
-									"}\n" +
-									"private static void foo(Object o) {\n" +
-									" switch (o) {\n" +
-									"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-									"	case String s     -> System.out.println(\"String:\" + s + fieldj17 +fieldj17);\n" +
-									"	default       -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-
-						search("fieldj17", FIELD, ALL_OCCURRENCES);
-						assertSearchResults("src/X.java X.fieldj17 [fieldj17] EXACT_MATCH\n"+
-								"src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(Object) [fieldj17] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-					}
-				// find all occurrence on a class in switch pattern - without select ( switch statement)
-				public void testBug573943_026() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A17, B {}\n" +
-							"final class AJ17 implements S {}\n" +
-							"final class B implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static void foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case AJ17 /*here*/a :     System.out.println(); break;\n" +
-									"	case B b :     System.out.println(\"B:\" + b);\n" +
-									"	default  : System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						search("AJ17", CLASS, ALL_OCCURRENCES);
-						assertSearchResults("src/X.java AJ17 [AJ17] EXACT_MATCH\n"
-								+ "src/X.java void X.foo(S) [AJ17] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// find all reference on a class in switch pattern - without select ( Switch Statement)
-				public void testBug573943_027() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A17, B {}\n" +
-							"final class AJ17 implements S {}\n" +
-							"final class B implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static void foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case AJ17 /*here*/a :     System.out.println(); break;\n" +
-									"	case B b :     System.out.println(\"B:\" + b);\n" +
-									"	default  : System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						search("AJ17", CLASS, REFERENCES);
-						assertSearchResults("src/X.java void X.foo(S) [AJ17] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// find all reference on a class in switch pattern - without select
-				public void testBug573943_028() throws CoreException {
-					this.workingCopies = new ICompilationUnit[1];
-					this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-							"sealed interface I permits A17, B {}\n" +
-							"final class AJ17 implements S {}\n" +
-							"final class B implements S {}\n" +
-							"public class X {\n" +
-									"public static void main(String[] args) {\n" +
-									"foo(new A());\n" +
-									"}\n" +
-									"private static void foo(S o) {\n" +
-									" switch (o) {\n" +
-									"	case AJ17 /*here*/a ->     System.out.println(); \n" +
-									"	case B b ->     System.out.println(\"B:\" + b);\n" +
-									"	default  -> System.out.println(\"Object\" + o);\n" +
-									" 	}\n" +
-									"}\n" +
-									"}\n"
-							);
-					IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
-					// working copies
-					String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-					try {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						search("AJ17", CLASS, REFERENCES);
-						assertSearchResults("src/X.java void X.foo(S) [AJ17] EXACT_MATCH");
-					} finally {
-						javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-					}
-				}
-				// find all occurrence on a class in switch pattern - without select
-				public void testBug573943_029() throws Exception {
-					try {
-						IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
-						project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						project.open(null);
-						createFolder("/first/src/p1");
-						createFile("/first/src/p1/BClass.java",
-								"package p1;\n" +
-								"public class BClass {\n" +
-								"}\n"
-								);
-						createFile("/first/src/p1/X.java",
-								"package p1;\n" +
-										"public class X {\n" +
-										" public int field_j17; "+
-										"public static void main(String[] args) {\n" +
-										"foo(Integer.valueOf(5));\n" +
-										"foo(new Object());\n" +
-										"}\n" +
-										"private static void foo(Object o) {\n" +
-										" switch (o) {\n" +
-										"	case BClass i && field_j17>0  -> System.out.println(\"Integer:\" + i);\n" +
-										"	default       -> System.out.println(\"Object\" + o);\n" +
-										" 	}\n" +
-										"}\n" +
-										"}\n"
-								);
-						project.close();
-						project.open(null);
-						waitUntilIndexesReady();
-
-						SearchPattern pattern = SearchPattern.createPattern("field_j17", IJavaSearchConstants.FIELD, ALL_OCCURRENCES, SearchPattern.R_EXACT_MATCH);
-						IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
-								{project});
-						search(pattern, scope, this.resultCollector);
-						assertSearchResults(
-								"src/p1/X.java p1.X.field_j17 [field_j17] EXACT_MATCH\n"
-								+ "src/p1/X.java void p1.X.foo(Object) [field_j17] EXACT_MATCH",
-							this.resultCollector);
-					}
-					finally {
-
-						deleteProject("first");
-					}
-				}
-				// find all references on a class in switch pattern - without select
-				public void testBug573943_030() throws Exception {
-					try {
-						IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
-						project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-						project.open(null);
-						createFolder("/first/src/p1");
-						createFile("/first/src/p1/BClass.java",
-								"package p1;\n" +
-								"public class BClass {\n" +
-								"}\n"
-								);
-						createFile("/first/src/p1/X.java",
-								"package p1;\n" +
-										"public class X {\n" +
-										" public int field_j17; "+
-										"public static void main(String[] args) {\n" +
-										"foo(Integer.valueOf(5));\n" +
-										"foo(new Object());\n" +
-										"}\n" +
-										"private static void foo(Object o) {\n" +
-										" switch (o) {\n" +
-										"	case BClass i && field_j17>0  -> System.out.println(\"Integer:\" + i);\n" +
-										"	default       -> System.out.println(\"Object\" + o);\n" +
-										" 	}\n" +
-										"}\n" +
-										"}\n"
-								);
-						project.close();
-						project.open(null);
-						waitUntilIndexesReady();
-
-						SearchPattern pattern = SearchPattern.createPattern("field_j17", IJavaSearchConstants.FIELD, REFERENCES, SearchPattern.R_EXACT_MATCH);
-						IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
-								{project});
-						search(pattern, scope, this.resultCollector);
-						assertSearchResults(
-								"src/p1/X.java void p1.X.foo(Object) [field_j17] EXACT_MATCH",
-							this.resultCollector);
-					}
-					finally {
-
-						deleteProject("first");
-					}
-				}
 }
 
 
