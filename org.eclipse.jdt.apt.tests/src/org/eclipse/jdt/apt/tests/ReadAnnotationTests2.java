@@ -178,7 +178,6 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		_testAnnotations();
 	}
 
-	@SuppressWarnings("deprecation")
 	private ITypeBinding getTypeBinding(final String key, final IJavaProject javaProj)
 	{
 		class BindingRequestor extends ASTRequestor
@@ -192,7 +191,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		}
 
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS16);
+		final ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
 		parser.setResolveBindings(true);
 		parser.setProject(javaProj);
 		parser.setIgnoreMethodBodies(true);
