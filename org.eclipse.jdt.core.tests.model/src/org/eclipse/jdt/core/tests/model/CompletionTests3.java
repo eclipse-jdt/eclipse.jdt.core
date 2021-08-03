@@ -1038,4 +1038,101 @@ public void testBug574803() throws Exception {
 		deleteProject("P");
 	}
 }
+public void testBug575032() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Overwrite.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"class AtomicInteger {\n" +
+			"	void set(int i) {}\n" +
+			"	int get() { return 0; }\n" +
+			"}\n" +
+			"\n" +
+			"public class Overwrite {\n" +
+			"\n" +
+			"	void test(Test t) {\n" +
+			"		Map<String, String> map = new HashMap<>();\n" +
+			"		\n" +
+			"		if (true) {\n" +
+			"			t.counter. // <<--\n" +
+			"			map.put(\"\", \"\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"	static class Test {\n" +
+			"		AtomicInteger counter = new AtomicInteger();\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "t.counter.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+relevance+"}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+relevance+"}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+relevance+"}\n" +
+			"get[METHOD_REF]{get(), LAtomicInteger;, ()I, get, null, "+relevance+"}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+relevance+"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+relevance+"}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+relevance+"}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+relevance+"}\n" +
+			"set[METHOD_REF]{set(), LAtomicInteger;, (I)V, set, (i), "+relevance+"}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+relevance+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575032b() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Overwrite.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"class AtomicInteger {\n" +
+			"	void set(int i) {}\n" +
+			"	int get() { return 0; }\n" +
+			"}\n" +
+			"\n" +
+			"public class Overwrite {\n" +
+			"\n" +
+			"	void test(Test t) {\n" +
+			"		Map<String, String> map = new HashMap<>();\n" +
+			"		\n" +
+			"		if (true) {\n" +
+			"			t.other.counter.s // <<--\n" + // more segments and also prefix of last segment
+			"			map.put(\"\", \"\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"	static class Test {\n" +
+			"		Test other;" +
+			"		AtomicInteger counter = new AtomicInteger();\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "t.other.counter.s";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		assertResults(
+			"set[METHOD_REF]{set(), LAtomicInteger;, (I)V, set, (i), "+relevance+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

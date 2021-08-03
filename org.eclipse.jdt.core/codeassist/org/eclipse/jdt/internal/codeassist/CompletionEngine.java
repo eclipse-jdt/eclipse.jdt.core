@@ -3730,12 +3730,22 @@ public final class CompletionEngine
 			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 		}
 		ASTNode parentNode = this.parser.assistNodeParent;
-		if (ref.tokens.length == 1 && parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == ref) {
+		if (ref.tokens.length > 0 && parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == ref) {
 			// additionally check if 'prefix.' should be interpreted as a variable receiver rather then part of a type reference:
 			Binding variable = scope.getBinding(ref.tokens[0], Binding.VARIABLE, FakeInvocationSite, true);
-			if (variable instanceof VariableBinding) {
+			lookupViaVariable: if (variable instanceof VariableBinding) {
 				TypeBinding receiverType = ((VariableBinding) variable).type;
-				if (receiverType != null && receiverType.isValidBinding()) {
+				int len = ref.tokens.length;
+				for (int i=1; i<len; i++) {
+					// lookup subsequent fields in 'prefix.q.r.'
+					if (!(receiverType instanceof ReferenceBinding && receiverType.isValidBinding()))
+						break lookupViaVariable;
+					FieldBinding field = scope.getField(receiverType, ref.tokens[i], FakeInvocationSite);
+					if (!field.isValidBinding())
+						break lookupViaVariable;
+					receiverType = field.type;
+				}
+				if (receiverType instanceof ReferenceBinding && receiverType.isValidBinding()) {
 					findFieldsAndMethods(this.completionToken, receiverType, scope, new ObjectVector(), new ObjectVector(), FakeInvocationSite, scope, false, false, null, null, null, false, null, ref.sourceStart, (int)ref.sourcePositions[0]);
 				}
 			}
