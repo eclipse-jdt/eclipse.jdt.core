@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2206,7 +2206,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		String[] order= new String[] { "java.awt", "java" };
 
 		ImportRewrite imports= newImportsRewrite(cu, order, 99, 99, true);
-		imports.addImport("java.applet.Applet");
+		imports.addImport("java.beans.Beans");
 
 		apply(imports);
 
@@ -2215,7 +2215,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("\n");
 		buf.append("import java.awt.Panel;\n");
 		buf.append("\n");
-		buf.append("import java.applet.Applet;\n");
+		buf.append("import java.beans.Beans;\n");
 		buf.append("import java.math.BigInteger;\n");
 		buf.append("\n");
 		buf.append("public class C {\n");
