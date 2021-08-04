@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug573921"};
+//		TESTS_NAMES = new String[] { "testBug575049_004"};
 	}
 
 	private static String previewLevel = "17";
@@ -2633,5 +2633,106 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	^^^^^^^\n" +
 				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
+	}
+	public void testBug575049_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A,B,C {}\n"+
+				"final class A implements I {}\n"+
+				"final class B implements I {}\n"+
+				"record C(int j) implements I {} // Implicitly final\n"+
+				"public class X {\n"+
+				" static int testSealedCoverage(I i) {\n"+
+				"   return switch (i) {\n"+
+				"   case A a -> 0;\n"+
+				"   case B b -> 1;\n"+
+				"   case C c -> 2; // No default required!\n"+
+				"   default -> 3;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   A a = new A();\n"+
+				"   System.out.println(testSealedCoverage(a));\n"+
+				" }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575049_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A,B,C {}\n"+
+				"final class A implements I {}\n"+
+				"final class B implements I {}\n"+
+				"record C(int j) implements I {} // Implicitly final\n"+
+				"public class X {\n"+
+				" static int testSealedCoverage(I i) {\n"+
+				"   return switch (i) {\n"+
+				"   case A a -> 0;\n"+
+				"   case B b -> 1;\n"+
+				"   case C c -> 2; // No default required!\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   A a = new A();\n"+
+				"   System.out.println(testSealedCoverage(a));\n"+
+				" }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575049_003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A,B,C {}\n"+
+				"final class A implements I {}\n"+
+				"final class B implements I {}\n"+
+				"record C(int j) implements I {} // Implicitly final\n"+
+				"public class X {\n"+
+				" static int testSealedCoverage(I i) {\n"+
+				"   return switch (i) {\n"+
+				"   case A a -> 0;\n"+
+				"   case B b -> 1;\n"+
+				"   default -> 2; // No default required!\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   A a = new A();\n"+
+				"   System.out.println(testSealedCoverage(a));\n"+
+				" }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575049_004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A,B,C {}\n"+
+				"final class A implements I {}\n"+
+				"final class B implements I {}\n"+
+				"record C(int j) implements I {} // Implicitly final\n"+
+				"public class X {\n"+
+				" static int testSealedCoverage(I i) {\n"+
+				"   return switch (i) {\n"+
+				"   case A a -> 0;\n"+
+				"   case B b -> 1;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   A a = new A();\n"+
+				"   System.out.println(testSealedCoverage(a));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	return switch (i) {\n" +
+			"	               ^\n" +
+			"A switch expression should have a default case\n" +
+			"----------\n");
 	}
 }

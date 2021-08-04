@@ -561,7 +561,16 @@ public class SwitchStatement extends Expression {
 			}
 			boolean enumInSwitchExpression =  resolvedType1.isEnum() && this instanceof SwitchExpression;
 			boolean isEnumSwitchWithoutDefaultCase = this.defaultCase == null && enumInSwitchExpression;
-			if (isEnumSwitchWithoutDefaultCase) {
+			CompilerOptions compilerOptions = this.scope != null ? this.scope.compilerOptions() : null;
+			boolean isPatternSwitchSealedWithoutDefaultCase = this.defaultCase == null
+							&& compilerOptions != null
+							&& this.containsPatterns
+							&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
+							&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
+							&& this.expression.resolvedType instanceof ReferenceBinding
+							&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
+
+			if (isEnumSwitchWithoutDefaultCase || isPatternSwitchSealedWithoutDefaultCase) {
 				// we want to force an line number entry to get an end position after the switch statement
 				if (this.preSwitchInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
@@ -591,7 +600,7 @@ public class SwitchStatement extends Expression {
 			}
 			// place the trailing labels (for break and default case)
 			this.breakLabel.place();
-			if (this.defaultCase == null && !enumInSwitchExpression) {
+			if (this.defaultCase == null && !(enumInSwitchExpression || isPatternSwitchSealedWithoutDefaultCase)) {
 				// we want to force an line number entry to get an end position after the switch statement
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
@@ -879,6 +888,11 @@ public class SwitchStatement extends Expression {
 				}
 			}
 
+			boolean checkSealed = this.containsPatterns
+					&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
+					&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
+					&& this.expression.resolvedType instanceof ReferenceBinding
+					&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
 			// check default case for all kinds of switch:
 			if (this.defaultCase == null) {
 				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
@@ -886,7 +900,8 @@ public class SwitchStatement extends Expression {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 					}
 				} else {
-					upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
+					if (!checkSealed)
+						upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
 				}
 			}
 			// for enum switch, check if all constants are accounted for (perhaps depending on existence of a default case)
@@ -913,9 +928,23 @@ public class SwitchStatement extends Expression {
 						}
 					}
 				}
+			} else if (checkSealed) {
+				checkAndFlagDefaultSealed(upperScope);
 			}
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
+		}
+	}
+	private void checkAndFlagDefaultSealed(BlockScope skope) {
+		if (this.defaultCase != null) return;
+		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
+		assert ref.isSealed();
+		List<TypeBinding> permittedTypes = Arrays.asList(ref.permittedTypes());
+		for (TypeBinding pt : permittedTypes) {
+			if (!this.caseLabelElementTypes.contains(pt)) {
+				skope.problemReporter().missingDefaultCase(this, false, ref);
+				return;
+			}
 		}
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
