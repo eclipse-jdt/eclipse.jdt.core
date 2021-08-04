@@ -418,8 +418,11 @@ private Constant resolveConstantExpression(BlockScope scope,
 					}
 				}
 			}
-			if (e.isTotalForType(expressionType))
+			if (e.isTotalForType(expressionType)) {
 				switchStatement.switchBits |= SwitchStatement.TotalPattern;
+				if (switchStatement.defaultCase != null)
+					scope.problemReporter().illegalTotalPatternWithDefault(this);
+			}
 		}
 
 	}

@@ -2735,4 +2735,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
+	public void testBug575048_01() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int foo(Integer i) {\n"+
+				"   return switch (i) {\n"+
+				"     default -> 2;\n"+
+				"     case Integer i1 -> 0;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(1));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case Integer i1 -> 0;\n" +
+			"	^^^^^^^^^^^^^^^\n" +
+			"Switch case cannot have both a total pattern and default label\n" +
+			"----------\n");
+	}
 }
