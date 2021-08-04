@@ -33,4 +33,8 @@ public abstract class Enum<T extends Enum<T>> implements Comparable<T>,
 	public final Class<T> getDeclaringClass() {
         return null;
 	}
+	public static <T extends Enum<T>> T valueOf(Class<T> enumClass,
+			String name) {
+		return null;   
+	}
 }

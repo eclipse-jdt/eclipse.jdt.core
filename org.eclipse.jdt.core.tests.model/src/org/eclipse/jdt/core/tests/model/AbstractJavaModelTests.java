@@ -3410,7 +3410,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("16")) {
+			if (compliance.equals("17")) {
+				// Reuse the same 14 stuff as of now. No real need for a new one
+				newJclLibString = "JCL_17_LIB";
+				newJclSrcString = "JCL_17_SRC";
+			} else if (compliance.equals("16")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL14_LIB";
 				newJclSrcString = "JCL14_SRC";
@@ -3487,11 +3491,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl12Lib = new Path("JCL12_LIB");
 		IPath jcl13Lib = new Path("JCL13_LIB");
 		IPath jcl14Lib = new Path("JCL14_LIB");
+		IPath jcl17Lib = new Path("JCL_17_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
 		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
 				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jcl12Lib) || path.equals(jcl13Lib)
-				|| path.equals(jcl14Lib) || path.equals(jclFull);
+				|| path.equals(jcl14Lib) || path.equals(jcl17Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3595,11 +3600,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					null);
 			}
 		} else if ("17".equals(compliance)) {
-			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
-				setupExternalJCL("jclMin14");
+			if (JavaCore.getClasspathVariable("JCL_17_LIB") == null) {
+				setupExternalJCL("jclMin17");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL14_LIB", "JCL14_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("14"), getExternalJCLSourcePath("14"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_17_LIB", "JCL_17_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("17"), getExternalJCLSourcePath("17"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {
