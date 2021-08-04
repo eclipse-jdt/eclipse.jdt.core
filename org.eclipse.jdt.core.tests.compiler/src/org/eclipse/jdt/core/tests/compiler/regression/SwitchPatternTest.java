@@ -2758,4 +2758,56 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Switch case cannot have both a total pattern and default label\n" +
 			"----------\n");
 	}
+	public void testBug575053_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public void foo(String o) {\n" +
+				"		switch (o) {\n" +
+				"		  case String s && s.length() > 0  -> {}\n" +
+				"		  default -> {}\n" +
+				"		} \n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		try{\n" +
+				"		  (new X()).foo(null);\n" +
+				"		} catch(Exception t) {\n" +
+				"		 	t.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n"+
+				"}",
+			},
+			"",
+			"java.lang.NullPointerException\n" +
+			"	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n" +
+			"	at X.foo(X.java:3)\n" +
+			"	at X.main(X.java:10)");
+	}
+	public void testBug575053_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public void foo(Object o) {\n" +
+				"		switch (o) {\n" +
+				"		  case String s -> {}\n" +
+				"		  default -> {}\n" +
+				"		} \n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		try{\n" +
+				"		  (new X()).foo(null);\n" +
+				"		} catch(Exception t) {\n" +
+				"		 	t.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n"+
+				"}",
+			},
+			"",
+			"java.lang.NullPointerException\n" +
+			"	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n" +
+			"	at X.foo(X.java:3)\n" +
+			"	at X.main(X.java:10)");
+	}
 }
