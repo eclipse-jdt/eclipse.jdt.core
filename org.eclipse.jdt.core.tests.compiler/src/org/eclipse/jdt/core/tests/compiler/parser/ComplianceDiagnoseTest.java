@@ -188,7 +188,7 @@ public void test0002() {
 	);
 }
 // TODO: Fix this and Enable
-public void _test0003() {
+public void test0003() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public enum X {\n" +
@@ -200,7 +200,7 @@ public void _test0003() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X {\n" +
 		"	       ^^^^\n" +
-		"Syntax error on token \"enum\", interface expected\n" +
+		"Syntax error on token \"enum\", class expected\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
