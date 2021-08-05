@@ -3239,6 +3239,7 @@ public final class CompletionEngine
 			if (messageSend.nextIsCast) {
 				// optionalPrefix|((String) s) was mistaken as a messageSend(?). Treat like beginning of statement.
 				findVariablesAndMethods(this.completionToken, scope, messageSend, scope, false, false);
+				findTypesAndPackages(this.completionToken, scope, true, false, new ObjectVector());
 				return;
 			}
 
