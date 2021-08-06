@@ -1705,6 +1705,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Illegal fall-through to a pattern case label \n" +
 				"----------\n");
 	}
+	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
+	public void testBug573940_2a() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"public void foo(Number n) {\n"
+					+ "	switch (n) {\n"
+					+ "	default :\n"
+					+ "	case Float f :\n"
+					+ "		System.out.println(f);\n"
+					+ "     break;\n"
+					+ "	}\n"
+					+ "}\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case Float f :\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern case label \n" +
+				"----------\n");
+	}
 	// Test that falling through from a pattern to a default is allowed
 	public void testBug573940_3() {
 		runConformTest(
