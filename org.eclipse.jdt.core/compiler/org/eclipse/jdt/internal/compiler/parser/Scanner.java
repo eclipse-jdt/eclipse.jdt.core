@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1475,7 +1479,7 @@ public int getNextToken() throws InvalidInputException {
 	} else if (token == TokenNameELLIPSIS) {
 		this.consumingEllipsisAnnotations = false;
 	} else if (mayBeAtCasePattern(token)) {
-		token = disambiguateCasePattern(token);
+		token = disambiguateCasePattern(token, this);
 	}
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
@@ -4968,7 +4972,9 @@ private static final class VanguardScanner extends Scanner {
 			if (isRestrictedKeyword(token))
 				token = disambiguatedRestrictedKeyword(token);
 			updateScanContext(token);
-		}
+		} else if (mayBeAtCasePattern(token)) {
+			token = disambiguateCasePattern(token, this);
+		} else
 		if (token == TokenNameAT && atTypeAnnotation()) {
 			if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
 				token = disambiguatedToken(token);
@@ -5057,6 +5063,9 @@ private static class Goal {
 				patternStates.add(i);
 			else
 			if ("Pattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
+			else
+			if ("ParenthesizedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				patternStates.add(i);
 		}
 		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
@@ -5689,16 +5698,16 @@ int disambiguatedToken(int token) {
 /*
  * Assumption: mayBeAtCasePattern(token) is true before calling this method.
  */
-int disambiguateCasePattern(int token) {
+int disambiguateCasePattern(int token, Scanner scanner) {
 	assert mayBeAtCasePattern(token);
 	int delta = token == TokenNamecase ? 4 : 0; // 4 for case.
 	final VanguardParser parser = getNewVanguardParser();
 	parser.scanner.resetTo(parser.scanner.currentPosition + delta, parser.scanner.eofPosition);
 	if (parser.parse(Goal.PatternGoal) == VanguardParser.SUCCESS) {
 		if (token == TokenNamecase) {
-			this.nextToken = TokenNameBeginCaseElement;
+			scanner.nextToken = TokenNameBeginCaseElement;
 		} else {
-			this.nextToken = token;
+			scanner.nextToken = token;
 			token = TokenNameBeginCaseElement;
 		}
 	}

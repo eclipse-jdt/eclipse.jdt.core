@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575049_004"};
+//		TESTS_NAMES = new String[] { "testBug575249_03"};
 	}
 
 	private static String previewLevel = "17";
@@ -2809,5 +2809,77 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n" +
 			"	at X.foo(X.java:3)\n" +
 			"	at X.main(X.java:10)");
+	}
+	public void testBug575249_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int foo(Object o) {\n" +
+				"		return switch (o) {\n" +
+				"		  case (String s) : yield 0;\n" +
+				"		  default : yield 1;\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(\"Hello\"));\n" +
+				"	}\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575249_02() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int foo(Object o) {\n" +
+				"		return switch (o) {\n" +
+				"		  case (String s && s.length() < 10) : yield 0;\n" +
+				"		  default : yield 1;\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(\"Hello\"));\n" +
+				"	}\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575249_03() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int foo(Object o) {\n" +
+				"		return switch (o) {\n" +
+				"		  case (String s) -> 0;\n" +
+				"		  default -> 1;\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(\"Hello\"));\n" +
+				"	}\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575249_04() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int foo(Object o) {\n" +
+				"		return switch (o) {\n" +
+				"		  case (String s && s.length() < 10) -> 0;\n" +
+				"		  default -> 1;\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(\"Hello\"));\n" +
+				"	}\n"+
+				"}",
+			},
+			"0");
 	}
 }
