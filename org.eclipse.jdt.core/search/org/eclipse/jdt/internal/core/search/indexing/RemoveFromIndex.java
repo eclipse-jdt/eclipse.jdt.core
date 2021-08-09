@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.File;
-import java.util.Collections;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -46,7 +45,7 @@ class RemoveFromIndex extends IndexRequest {
 		}
 		File indexFile = index.getIndexFile();
 		if(indexFile != null) {
-			this.manager.updateMetaIndex(indexFile.getName(), Collections.emptyList());
+			this.manager.removeFromMetaIndex(index, indexFile, this.containerPath);
 		}
 		return true;
 	}

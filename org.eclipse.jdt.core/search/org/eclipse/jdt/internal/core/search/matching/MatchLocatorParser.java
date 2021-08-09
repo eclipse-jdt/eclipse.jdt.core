@@ -396,6 +396,7 @@ protected void consumeInstanceOfExpression() {
 		InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
 		this.patternLocator.match(expression.type, this.nodeSet);
 	}
+	matchPatternVariable();
 }
 @Override
 protected void consumeInstanceOfExpressionWithName() {
@@ -403,6 +404,18 @@ protected void consumeInstanceOfExpressionWithName() {
 	if ((this.patternFineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0) {
 		InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
 		this.patternLocator.match(expression.type, this.nodeSet);
+	}
+	matchPatternVariable();
+}
+
+private void matchPatternVariable() {
+	if (this.patternFineGrain == 0) {
+		InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
+		LocalDeclaration elementVariable = expression.elementVariable;
+		if (elementVariable != null) {
+			// if pattern variable present, match that
+			this.patternLocator.match(elementVariable, this.nodeSet);
+		}
 	}
 }
 @Override

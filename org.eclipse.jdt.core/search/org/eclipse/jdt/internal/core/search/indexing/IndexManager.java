@@ -21,7 +21,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -135,6 +138,11 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	public static boolean DEBUG = false;
 
 	private static final String INDEX_META_CONTAINER = "meta_index"; //$NON-NLS-1$
+	LinkedHashSet<Index> metaIndexUpdates;
+
+	public IndexManager() {
+		this.metaIndexUpdates = new LinkedHashSet<>();
+	}
 
 	/**
 	 * Waits until all indexing jobs are done or given monitor is cancelled.
@@ -775,9 +783,7 @@ synchronized boolean addIndex(IPath containerPath, IndexLocation indexFile) {
  */
 public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
-	// New index is disabled, see bug 544898
-	// this.indexer.makeWorkspacePathDirty(sourceFolder);
-	if (this.jobEnd > this.jobStart) {
+	if (this.awaitingJobs.size() > 1) {
 		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
 		if (isJobWaiting(request)) return;
@@ -909,13 +915,14 @@ public void remove(String containerRelativePath, IPath indexedContainer){
  */
 public void removeIndex(IPath containerPath) {
 	File indexFile = null;
+	Index index = null;
 	synchronized (this) {
 		if (VERBOSE || DEBUG)
 			Util.verbose("removing index " + containerPath); //$NON-NLS-1$
 		// New index is disabled, see bug 544898
 		// this.indexer.makeWorkspacePathDirty(containerPath);
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
-		Index index = getIndex(indexLocation);
+		index = getIndex(indexLocation);
 		if (index != null) {
 			index.monitor = null;
 			indexFile = index.getIndexFile();
@@ -937,6 +944,18 @@ public void removeIndex(IPath containerPath) {
 		updateIndexState(indexLocation, null);
 	}
 
+	removeFromMetaIndex(index, indexFile, containerPath);
+}
+
+void removeFromMetaIndex(Index index, File indexFile, IPath containerPath) {
+	if(DISABLE_META_INDEX) {
+		return;
+	}
+	synchronized(this.metaIndexUpdates) {
+		if(index != null) {
+			this.metaIndexUpdates.remove(index);
+		}
+	}
 	if (indexFile != null) {
 		updateMetaIndex(indexFile.getName(), Collections.emptyList());
 	} else {
@@ -970,6 +989,11 @@ public void removeIndexPath(IPath path) {
 			if (indexLocation.startsWith(path)) {
 				Index index = (Index) valueTable[i];
 				affectedIndexes.add(indexLocation.fileName());
+				if (!DISABLE_META_INDEX) {
+					synchronized (this.metaIndexUpdates) {
+						this.metaIndexUpdates.remove(index);
+					}
+				}
 				index.monitor = null;
 				if (locations == null)
 					locations = new IndexLocation[max];
@@ -1033,10 +1057,8 @@ public void removeIndexFamily(IPath path) {
  * Remove the content of the given source folder from the index.
  */
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
-	// New index is disabled, see bug 544898
-	// this.indexer.makeWorkspacePathDirty(sourceFolder);
 	IProject project = javaProject.getProject();
-	if (this.jobEnd > this.jobStart) {
+	if (this.awaitingJobs.size() > 1) {
 		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
 		if (isJobWaiting(request)) return;
@@ -1057,6 +1079,9 @@ public void reset() {
 		}
 		this.indexLocations = new SimpleLookupTable();
 		this.javaPluginLocation = null;
+		synchronized (this.metaIndexUpdates) {
+			this.metaIndexUpdates.clear();
+		}
 	}
 }
 /**
@@ -1100,8 +1125,8 @@ public void savePreBuiltIndex(Index index) throws IOException {
 		if (VERBOSE)
 			Util.verbose("-> saving pre-build index " + index.getIndexLocation()); //$NON-NLS-1$
 		index.save();
+		updateMetaIndex(index);
 	}
-	updateMetaIndex(index);
 	synchronized (this) {
 		updateIndexState(index.getIndexLocation(), REUSE_STATE);
 	}
@@ -1112,15 +1137,25 @@ public void saveIndex(Index index) throws IOException {
 		if (VERBOSE)
 			Util.verbose("-> saving index " + index.getIndexLocation()); //$NON-NLS-1$
 		index.save();
+		updateMetaIndex(index);
 	}
-	updateMetaIndex(index);
 	synchronized (this) {
 		IPath containerPath = new Path(index.containerPath);
-		if (this.jobEnd > this.jobStart) {
-			for (int i = this.jobEnd; i > this.jobStart; i--) { // skip the current job
-				IJob job = this.awaitingJobs[i];
-				if (job instanceof IndexRequest)
-					if (((IndexRequest) job).containerPath.equals(containerPath)) return;
+		if (this.awaitingJobs.size() > 1) {
+			// Start at the end and go backwards
+			ListIterator<IJob> iterator = this.awaitingJobs.listIterator(this.awaitingJobs.size());
+			IJob first = this.awaitingJobs.get(0);
+			while (iterator.hasPrevious()) {
+				IJob job = iterator.previous();
+				// don't check first job, as it may have already started
+				if(job == first) {
+					break;
+				}
+				if (job instanceof IndexRequest) {
+					if (((IndexRequest) job).containerPath.equals(containerPath)) {
+						return;
+					}
+				}
 			}
 		}
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
@@ -1554,6 +1589,9 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 			synchronized (this) {
 				indexesNotInMeta = mindex.getIndexesNotInMeta(this.indexes);
 			}
+			if (VERBOSE) {
+				Util.verbose("-> not in meta-index: " + indexesNotInMeta.size() + ", in: "+results.size() + " for query " + query); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 			final Index i = mindex.getIndex();
 			return Optional.of(Stream.concat(indexesNotInMeta.stream(), results.stream().flatMap(r -> {
 				try {
@@ -1596,11 +1634,15 @@ private MetaIndex loadMetaIndexIfNeeded() throws IOException {
 			Object state = getIndexStates().get(indexLocation);
 			Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
 			if(UNKNOWN_STATE.equals(currentIndexState)) {
-				if (VERBOSE)
-					Util.verbose("-> create empty meta index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+				if (VERBOSE) {
+					Util.verbose("-> create empty meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, false));
 				updateIndexState(indexLocation, REUSE_STATE);
 			} else if(indexLocation.exists()) {
+				if (VERBOSE) {
+					Util.verbose("-> load existing meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, true));
 			} else {
 				getIndexStates().put(indexLocation, UNKNOWN_STATE);
@@ -1612,18 +1654,10 @@ private MetaIndex loadMetaIndexIfNeeded() throws IOException {
 }
 
 void updateMetaIndex(Index index) {
-	File indexFile = index.getIndexFile();
-	if(indexFile == null) {
+	if (DISABLE_META_INDEX) {
 		return;
 	}
-	try {
-		updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
-	} catch (IOException e) {
-		if (JobManager.VERBOSE) {
-			Util.verbose("-> failed to update meta index for index " + indexFile.getName() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-			e.printStackTrace();
-		}
-	}
+	scheduleForMetaIndexUpdate(index);
 }
 
 void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) {
@@ -1643,13 +1677,19 @@ void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) 
 			updateIndexState(mindexLocation, UNKNOWN_STATE);
 			return;
 		}
-
+		if (VERBOSE) {
+			int qsize = qualifications.size();
+			Util.verbose("-> updating meta-index with " + qsize + " elements for " + indexFileName); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		monitor.enterWrite();
 		// clean existing entries for current document
 		mindex.remove(indexFileName);
 
 		for (IndexQualifier qualifier : qualifications) {
 			mindex.addIndexEntry(qualifier.getCategory(), qualifier.getKey(), indexFileName);
+		}
+		if (VERBOSE) {
+			Util.verbose("-> meta-index updated for " + indexFileName); //$NON-NLS-1$
 		}
 	} catch (IOException e) {
 		if (JobManager.VERBOSE) {
@@ -1674,5 +1714,96 @@ public Optional<MetaIndex> getMetaIndex() {
 		JavaCore.getJavaCore().getLog().error(e.getMessage(), e);
 		return Optional.empty();
 	}
+}
+
+void scheduleForMetaIndexUpdate(Index index) {
+	synchronized(this.metaIndexUpdates){
+		if (this.metaIndexUpdates.contains(index)) {
+			if (VERBOSE) {
+				Util.verbose("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
+			}
+			return;
+		}
+		this.metaIndexUpdates.add(index);
+	}
+	requestIfNotWaiting(new MetaIndexUpdateRequest());
+}
+
+class MetaIndexUpdateRequest implements IJob {
+	volatile boolean isCancelled;
+
+	@Override
+	public boolean belongsTo(String jobFamily) {
+		return false;
+	}
+
+	@Override
+	public void cancel() {
+		this.isCancelled = true;
+	}
+
+	@Override
+	public void ensureReadyToRun() {
+		// no op
+	}
+
+	@Override
+	public boolean execute(IProgressMonitor progress) {
+		while((progress == null || !progress.isCanceled()) && !this.isCancelled) {
+			Index index = null;
+			synchronized(IndexManager.this.metaIndexUpdates){
+				Iterator<Index> iterator = IndexManager.this.metaIndexUpdates.iterator();
+				if (iterator.hasNext()) {
+					index = iterator.next();
+					iterator.remove();
+				}
+			}
+			if(index == null) {
+				return true;
+			}
+			File indexFile = index.getIndexFile();
+			if(indexFile == null) {
+				continue;
+			}
+			if (VERBOSE) {
+				Util.verbose("-> meta-index update from queue with size " + IndexManager.this.metaIndexUpdates.size()); //$NON-NLS-1$
+			}
+			try {
+				updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
+			} catch (IOException e) {
+				if (JobManager.VERBOSE) {
+					Util.verbose("-> failed to update meta index for index " + indexFile.getName() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+					e.printStackTrace();
+				}
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public String getJobFamily() {
+		return ""; //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof MetaIndexUpdateRequest)) {
+			return false;
+		}
+		MetaIndexUpdateRequest other = (MetaIndexUpdateRequest) obj;
+		if (this.isCancelled != other.isCancelled) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return super.hashCode();
+	}
+
 }
 }

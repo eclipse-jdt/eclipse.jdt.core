@@ -1386,7 +1386,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IClasspathAttribute attribute =
 				JavaCore.newClasspathAttribute(
 						IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
-						"jar:platform:/resource/AttachedJavadocProject/bug546945_doc.zip!/");
+						"jar:platform:/resource/AttachedJavadocProject/bug546945_doc.zip!/bug546945");
 		IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug546945.jar"), null, null, null, new IClasspathAttribute[] {attribute}, true);
 		this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
 		this.project.getResolvedClasspath(false);

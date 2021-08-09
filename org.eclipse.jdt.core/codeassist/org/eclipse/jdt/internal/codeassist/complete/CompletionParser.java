@@ -122,6 +122,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredPackageVisibilityStatem
 import org.eclipse.jdt.internal.compiler.parser.RecoveredProvidesStatement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -343,7 +344,7 @@ protected void detectAssistNodeParent(ASTNode node) {
 	CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode, node);
 	if (detector.containsCompletionNode()) {
 		this.assistNodeParent = detector.getCompletionNodeParent();
-		if (this.assistNodeParent == null && node instanceof Statement)
+		if (this.assistNodeParent == null && node instanceof Statement && node != this.assistNode)
 			this.assistNodeParent = node;
 	}
 }
@@ -1977,15 +1978,17 @@ private boolean checkLabelStatement() {
 		System.arraycopy(labels, 0, labels = new char[labelCount][], 0, labelCount);
 
 		long position = this.identifierPositionStack[this.identifierPtr];
-		CompletionOnBranchStatementLabel statementLabel =
-			new CompletionOnBranchStatementLabel(
-					kind == K_INSIDE_BREAK_STATEMENT ? CompletionOnBranchStatementLabel.BREAK : CompletionOnBranchStatementLabel.CONTINUE,
-					this.identifierStack[this.identifierPtr--],
-					(int) (position >>> 32),
-					(int)position,
-					labels);
-
-		this.assistNode = statementLabel;
+		this.assistNode = kind == K_INSIDE_BREAK_STATEMENT
+				? new CompletionOnBreakStatement(
+						this.identifierStack[this.identifierPtr--],
+						(int) (position >>> 32),
+						(int)position,
+						labels)
+				: new CompletionOnContinueStatement(
+						this.identifierStack[this.identifierPtr--],
+						(int) (position >>> 32),
+						(int)position,
+						labels);
 		this.lastCheckPoint = this.assistNode.sourceEnd + 1;
 		this.isOrphanCompletionNode = true;
 		return true;
@@ -4011,9 +4014,18 @@ protected void consumeSwitchLabeledBlock() {
 @Override
 protected int fetchNextToken() throws InvalidInputException {
 	int token = this.scanner.getNextToken();
-	if (!this.diet && token != TerminalTokens.TokenNameEOF) {
-		if (!requireExtendedRecovery() && this.scanner.currentPosition > this.cursorLocation) {
-			if (!hasPendingExpression(token)) {
+	if (token != TerminalTokens.TokenNameEOF && this.scanner.currentPosition > this.cursorLocation) {
+		if (!this.diet || this.dietInt != 0) { // do this also when parsing field initializers:
+			if (this.currentToken == TerminalTokens.TokenNameIdentifier
+					&& this.identifierStack[this.identifierPtr].length == 0
+					&& Scanner.isLiteral(token))
+			{
+				// <emptyAssistIdentifier> <someLiteral> is illegal and most likely the literal should be replaced => discard it now
+				return fetchNextToken();
+			}
+		}
+		if (!this.diet) { // only when parsing a method body:
+			if (this.expressionPtr <= -1 && !requireExtendedRecovery()) {
 				this.scanner.eofPosition = this.cursorLocation + 1; // revert to old strategy where we stop parsing right at the cursor
 
 				// stop immediately or deferred?
@@ -4027,26 +4039,6 @@ protected int fetchNextToken() throws InvalidInputException {
 		}
 	}
 	return token;
-}
-private boolean hasPendingExpression(int token) {
-	if (this.expressionPtr == -1)
-		return false;
-	if (token == TerminalTokens.TokenNameDOT) {
-		// at '.' we are more eager to send early EOF to avoid seeing a qualified type reference in this pattern:
-		//   foo.|
-		//   bar ...
-		Expression expression = this.expressionStack[this.expressionPtr];
-		int elPtr = this.elementPtr;
-		while (elPtr >= 0) {
-			if (this.elementKindStack[elPtr] == K_BLOCK_DELIMITER) {
-				if (this.elementObjectInfoStack[elPtr] == expression) {
-					return false; // top expr on expressionStack belongs to a block statement (e.g., an if-condition)
-				}
-			}
-			elPtr--;
-		}
-	}
-	return true;
 }
 @Override
 protected void consumeToken(int token) {
@@ -4129,7 +4121,7 @@ protected void consumeToken(int token) {
 	if (token == TokenNameIdentifier
 			&& this.identifierStack[this.identifierPtr] == assistIdentifier()
 			&& this.currentElement == null
-			&& (!isIndirectlyInsideLambdaExpression() || isIndirectlyInsideLambdaBlock()) // not inside lambda unless inside its block
+			&& (!isIndirectlyInsideLambdaExpression())
 			&& isIndirectlyInsideFieldInitialization()) { // enum initializers indeed need more context
 		this.scanner.eofPosition = this.cursorLocation < Integer.MAX_VALUE ? this.cursorLocation+1 : this.cursorLocation;
 	}
@@ -5424,7 +5416,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		char[] token = this.identifierStack[this.identifierPtr];
 		long position = this.identifierPositionStack[this.identifierPtr--];
 		int start = (int) (position >>> 32), end = (int) position;
-		if (this.assistNode == null && start < this.cursorLocation && end >= this.cursorLocation) {
+		if (this.assistNode == null && start <= this.cursorLocation && end >= this.cursorLocation) {
 			ref = new CompletionOnSingleNameReference(token, position, isInsideAttributeValue());
 			this.assistNode = ref;
 		} else {
@@ -5438,7 +5430,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		long[] positions = new long[length];
 		System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 		int start = (int) (positions[0] >>> 32), end = (int) positions[length-1];
-		if (this.assistNode == null && start < this.cursorLocation && end >= this.cursorLocation) {
+		if (this.assistNode == null && start <= this.cursorLocation && end >= this.cursorLocation) {
 			// find the token at cursorLocation:
 			int previousCount = 0;
 			for (int i=0; i<length; i++) {
@@ -6151,10 +6143,23 @@ protected CompilationUnitDeclaration endParse(int act) {
 				statement = (Statement) this.assistNode;
 			}
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) this.referenceContext;
-			if (statement != null && isInsideBody(statement, method)) {
+			if (statement != null && isInsideBody(statement, method)
+					&& this.assistNode != null && !CompletionNodeDetector.findAny(cud, this.assistNode))
+			{
 				// automaton ended right before transferring statements into the method?
 				if (method.statements == null) {
 					method.statements = new Statement[] { statement };
+				} else if (this.currentElement != null) {
+					// or before transferring statements into a nested recovered element?
+					this.currentElement.add(statement, 0);
+					RecoveredElement element = this.currentElement;
+					while (element != null) {
+						if (element instanceof RecoveredMethod && ((RecoveredMethod) element).methodDeclaration == method) {
+							element.updateParseTree();
+							break;
+						}
+						element = element.parent;
+					}
 				}
 			}
 		}

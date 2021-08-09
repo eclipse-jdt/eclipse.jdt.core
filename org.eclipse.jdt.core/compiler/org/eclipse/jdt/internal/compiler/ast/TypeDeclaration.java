@@ -619,7 +619,7 @@ public AbstractMethodDeclaration declarationOf(MethodBinding methodBinding) {
  */
 public RecordComponent declarationOf(RecordComponentBinding recordComponentBinding) {
 	if (recordComponentBinding != null && this.recordComponents != null) {
-		for (int i = 0, max = this.fields.length; i < max; i++) {
+		for (int i = 0, max = this.recordComponents.length; i < max; i++) {
 			RecordComponent recordComponent;
 			if ((recordComponent = this.recordComponents[i]).binding == recordComponentBinding)
 				return recordComponent;
