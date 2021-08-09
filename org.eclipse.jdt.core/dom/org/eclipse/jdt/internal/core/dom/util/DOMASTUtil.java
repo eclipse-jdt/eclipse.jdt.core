@@ -69,6 +69,8 @@ public class DOMASTUtil {
 			case ASTNode.RECORD_DECLARATION:
 			case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
 				return apiLevel >= AST.JLS16;
+			case ASTNode.TYPE_PATTERN:
+				return apiLevel == AST.getJLSLatest() && previewEnabled;
 		}
 		return false;
 	}
@@ -173,6 +175,14 @@ public class DOMASTUtil {
 
 	public static boolean isPatternInstanceofExpressionSupported(AST ast) {
 		return isNodeTypeSupportedinAST(ast, ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
+	}
+
+	public static boolean isPatternSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.TYPE_PATTERN);
+	}
+
+	public static boolean isPatternSupported(int apiLevel, boolean previewEnabled) {
+		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
 	}
 
 	@SuppressWarnings("deprecation")

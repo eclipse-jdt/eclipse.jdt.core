@@ -2216,6 +2216,19 @@ class ASTConverter {
 		return forStatement;
 	}
 
+	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.GuardedPattern pattern) {
+		final GuardedPattern guardedPattern = new GuardedPattern(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(guardedPattern, pattern);
+		}
+		guardedPattern.setPattern(convert(pattern.primaryPattern));
+		guardedPattern.setExpression(convert(pattern.condition));
+		int startPosition = pattern.sourceStart;
+		int sourceEnd = pattern.sourceEnd;
+		guardedPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+		return guardedPattern;
+	}
+
 	public IfStatement convert(org.eclipse.jdt.internal.compiler.ast.IfStatement statement) {
 		IfStatement ifStatement = new IfStatement(this.ast);
 		ifStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
@@ -2746,12 +2759,20 @@ class ASTConverter {
 		return postfixExpression;
 	}
 
-	// TODO: A placeholder BUG 573941 TO ADDRESS THIS
-	public Expression convert(org.eclipse.jdt.internal.compiler.ast.Pattern expression) {
-		Expression expr = new NullLiteral(this.ast);
-		expr.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		return expr;
+	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.Pattern pattern) {
+			if (!DOMASTUtil.isPatternSupported(this.ast)) {
+				return createFakeNullPattern(pattern);
+			}
+			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.GuardedPattern) {
+				return convert((org.eclipse.jdt.internal.compiler.ast.GuardedPattern) pattern);
+			}
+			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.TypePattern) {
+				return convert((org.eclipse.jdt.internal.compiler.ast.TypePattern) pattern);
+			}
+
+			return null;
 	}
+
 	public PrefixExpression convert(org.eclipse.jdt.internal.compiler.ast.PrefixExpression expression) {
 		final PrefixExpression prefixExpression = new PrefixExpression(this.ast);
 		if (this.resolveBindings) {
@@ -3409,6 +3430,22 @@ class ASTConverter {
 			typeParameter2.resolveBinding();
 		}
 		return typeParameter2;
+	}
+
+	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.TypePattern pattern) {
+		TypePattern typePattern = new TypePattern(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(typePattern, pattern);
+		}
+		if (pattern.local == null) {
+			return createFakeNullPattern(pattern);
+		}
+		typePattern.setPatternVariable(convertToSingleVariableDeclaration(pattern.local));
+		int startPosition = pattern.local.declarationSourceStart;
+		int sourceEnd= pattern.sourceEnd;
+		typePattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+		return typePattern;
+
 	}
 
 	public Name convert(org.eclipse.jdt.internal.compiler.ast.TypeReference typeReference) {
@@ -4627,6 +4664,20 @@ class ASTConverter {
 	}
 
 	/**
+	 * Warning: Callers of this method must ensure that the fake pattern node is not recorded in
+	 * {@link #recordNodes(ASTNode, org.eclipse.jdt.internal.compiler.ast.ASTNode)},similar to fake NullLiteral
+	 */
+	protected Pattern createFakeNullPattern(org.eclipse.jdt.internal.compiler.ast.Pattern pattern) {
+		if (this.referenceContext != null) {
+			this.referenceContext.setFlags(this.referenceContext.getFlags() | ASTNode.MALFORMED);
+		}
+		NullPattern nullPattern= new NullPattern(this.ast);
+		nullPattern.setFlags(nullPattern.getFlags() | ASTNode.MALFORMED);
+		nullPattern.setSourceRange(pattern.sourceStart, pattern.sourceEnd - pattern.sourceStart + 1);
+		return nullPattern;
+	}
+
+	/**
 	 * @return a new modifier
 	 */
 	private Modifier createModifier(ModifierKeyword keyword) {
@@ -4940,6 +4991,9 @@ class ASTConverter {
 	protected void recordNodes(ASTNode node, org.eclipse.jdt.internal.compiler.ast.ASTNode oldASTNode) {
 		// Do not record the fake literal node created in lieu of functional expressions at JLS levels < 8, as it would lead to CCE down the road.
 		if (oldASTNode instanceof org.eclipse.jdt.internal.compiler.ast.FunctionalExpression && node instanceof NullLiteral) {
+			return;
+		}
+		if (oldASTNode instanceof org.eclipse.jdt.internal.compiler.ast.Pattern && node instanceof NullPattern) {
 			return;
 		}
 		this.ast.getBindingResolver().store(node, oldASTNode);

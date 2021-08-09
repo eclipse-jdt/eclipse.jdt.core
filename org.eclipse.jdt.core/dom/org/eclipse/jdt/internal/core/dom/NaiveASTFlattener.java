@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -806,6 +809,16 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(GuardedPattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			node.getPattern().accept(this);
+			this.buffer.append(" && ");//$NON-NLS-1$
+			node.getExpression().accept(this);
+		}
+		return false;
+	}
+
+	@Override
 	public boolean visit(IfStatement node) {
 		printIndent();
 		this.buffer.append("if (");//$NON-NLS-1$
@@ -1217,6 +1230,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(NullLiteral node) {
+		this.buffer.append("null");//$NON-NLS-1$
+		return false;
+	}
+
+	@Override
+	public boolean visit(NullPattern node) {
 		this.buffer.append("null");//$NON-NLS-1$
 		return false;
 	}
@@ -1900,6 +1919,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 					this.buffer.append(" & ");//$NON-NLS-1$
 				}
 			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean visit(TypePattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			node.getPatternVariable().accept(this);
 		}
 		return false;
 	}
