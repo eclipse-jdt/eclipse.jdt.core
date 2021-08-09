@@ -1007,31 +1007,6 @@ public abstract class ASTNode {
 	 */
 	public static final int PATTERN_INSTANCEOF_EXPRESSION = 104;
 
-	/**
-	 * Node type constant indicating a node of type
-	 * <code>TypePattern</code>.
-	 * @see TypePattern
-	 * @since 3.27 BETA_JAVA17
-	 */
-	public static final int TYPE_PATTERN = 105;
-
-	/**
-	 * Node type constant indicating a node of type
-	 * <code>GuardedPattern</code>.
-	 * @see GuardedPattern
-	 * @since 3.27 BETA_JAVA17
-	 */
-	public static final int GUARDED_PATTERN = 106;
-
-	/**
-	 * Node type constant indicating a node of type
-	 * <code>NullPattern</code>.
-	 * @see NullPattern
-	 * @since 3.27 BETA_JAVA17
-	 */
-	public static final int NULL_PATTERN = 107;
-
-
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1113,8 +1088,6 @@ public abstract class ASTNode {
 				return FieldDeclaration.class;
 			case FOR_STATEMENT :
 				return ForStatement.class;
-			case GUARDED_PATTERN :
-				return GuardedPattern.class;
 			case IF_STATEMENT :
 				return IfStatement.class;
 			case IMPORT_DECLARATION :
@@ -1161,8 +1134,6 @@ public abstract class ASTNode {
 				return NormalAnnotation.class;
 			case NULL_LITERAL :
 				return NullLiteral.class;
-			case NULL_PATTERN :
-				return NullPattern.class;
 			case NUMBER_LITERAL :
 				return NumberLiteral.class;
 			case OPENS_DIRECTIVE :
@@ -1241,8 +1212,6 @@ public abstract class ASTNode {
 				return TypeLiteral.class;
 			case TYPE_PARAMETER :
 				return TypeParameter.class;
-			case TYPE_PATTERN :
-				return TypePattern.class;
 			case UNION_TYPE :
 				return UnionType.class;
 			case USES_DIRECTIVE :
