@@ -43,6 +43,11 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests_1_5.class);
 }

@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -488,6 +489,136 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 					"src/b573388/R.java b573388.R [R] EXACT_MATCH\n" +
 					"src/b573388/C.java b573388.C [C] EXACT_MATCH"
 			);
+		}
+		public void testBug574870_1() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/JavaSearchBugs/src/X.java",
+					"public class X {\n" +
+							"private void method(Object o) {\n" +
+							"if ((o instanceof String xvar )) \n" +
+							"{\n" +
+							" System.out.println(/*here*/xvar);\n" +
+							"}\n" +
+
+							"}\n" +
+
+					"}");
+
+			// working copies
+			try {
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "/*here*/xvar";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				ILocalVariable local = (ILocalVariable) elements[0];
+				search(local, DECLARATIONS, EXACT_RULE);
+				assertSearchResults("src/X.java void X.method(Object).xvar [xvar] EXACT_MATCH");
+
+			} finally {
+
+			}
+		}
+		public void testBug574870_2() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/JavaSearchBugs/src/X.java",
+					"public class X {\n" +
+							"private void method(Object o) {\n" +
+							"if ((o instanceof String /*here*/xvar )) \n" +
+							"{\n" +
+							" System.out.println(xvar+xvar);\n" +
+							"}\n" +
+
+							"}\n" +
+
+					"}");
+
+			// working copies
+			try {
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "/*here*/xvar";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				ILocalVariable local = (ILocalVariable) elements[0];
+				search(local, REFERENCES, EXACT_RULE);
+				assertSearchResults("src/X.java void X.method(Object) [xvar] EXACT_MATCH\n"
+						+ "src/X.java void X.method(Object) [xvar] EXACT_MATCH");
+
+			} finally {
+
+			}
+		}
+		public void testBug574870_3() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/JavaSearchBugs/src/X.java",
+					"public class X {\n" +
+							"private void method(Object o) {\n" +
+							"if ((o instanceof String /*here*/xvar )) \n" +
+							"{\n" +
+							" System.out.println(xvar+xvar);\n" +
+							"}\n" +
+
+							"}\n" +
+
+					"}");
+
+			// working copies
+			try {
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "/*here*/xvar";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				ILocalVariable local = (ILocalVariable) elements[0];
+				search(local, ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults("src/X.java void X.method(Object).xvar [xvar] EXACT_MATCH\n"
+						+ "src/X.java void X.method(Object) [xvar] EXACT_MATCH\n"
+						+ "src/X.java void X.method(Object) [xvar] EXACT_MATCH");
+
+			} finally {
+
+			}
+		}
+		public void testBug574870_4() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/JavaSearchBugs/src/X.java",
+					"public class X {\n" +
+							"private void method(Object o) {\n" +
+							"if (o instanceof String xvar ) \n" +
+							"{\n" +
+							" System.out.println(/*here*/xvar);\n" +
+							"}\n" +
+
+							"}\n" +
+
+					"}");
+
+			// working copies
+			try {
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "/*here*/xvar";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				ILocalVariable local = (ILocalVariable) elements[0];
+				search(local, DECLARATIONS, EXACT_RULE);
+				assertSearchResults("src/X.java void X.method(Object).xvar [xvar] EXACT_MATCH");
+
+			} finally {
+
+			}
 		}
 }
 

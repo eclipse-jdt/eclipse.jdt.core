@@ -356,10 +356,10 @@ private void initializeKnownFileNames(String[] initialFileNames) {
 		CharOperation.replace(fileName, '\\', '/');
 		boolean globalPathMatches = false;
 		// the most nested path should be the selected one
-		for (int j = 0, max = this.classpaths.length; j < max; j++) {
-			char[] matchCandidate = this.classpaths[j].normalizedPath();
+		for (Classpath classpath : this.classpaths) {
+			char[] matchCandidate = classpath.normalizedPath();
 			boolean currentPathMatch = false;
-			if (this.classpaths[j] instanceof ClasspathDirectory
+			if (classpath instanceof ClasspathDirectory
 					&& CharOperation.prefixEquals(matchCandidate, fileName)) {
 				currentPathMatch = true;
 				if (matchingPathName == null) {

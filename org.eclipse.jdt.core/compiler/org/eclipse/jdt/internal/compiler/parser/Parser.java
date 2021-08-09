@@ -1341,6 +1341,7 @@ protected void classInstanceCreation(boolean isQualified) {
 		dispatchDeclarationInto(length);
 		TypeDeclaration anonymousTypeDeclaration = (TypeDeclaration)this.astStack[this.astPtr];
 		anonymousTypeDeclaration.declarationSourceEnd = this.endStatementPosition;
+		anonymousTypeDeclaration.addClinit();
 		anonymousTypeDeclaration.bodyEnd = this.endStatementPosition;
 		if (anonymousTypeDeclaration.allocation != null) {
 			anonymousTypeDeclaration.allocation.sourceEnd = this.endStatementPosition;
@@ -3894,6 +3895,7 @@ protected void consumeEnumConstantWithClassBody() {
 	dispatchDeclarationInto(this.astLengthStack[this.astLengthPtr--]);
 	TypeDeclaration anonymousType = (TypeDeclaration) this.astStack[this.astPtr--]; // pop type
 	this.astLengthPtr--;
+	anonymousType.addClinit();
 	anonymousType.bodyEnd = this.endPosition;
 	anonymousType.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	final FieldDeclaration fieldDeclaration = ((FieldDeclaration) this.astStack[this.astPtr]);
@@ -4567,7 +4569,6 @@ protected void consumeInsideCastExpressionLL1WithBounds() {
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty
 }
-
 protected void consumeInstanceOfExpression() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
@@ -10824,6 +10825,9 @@ protected void consumeTypePattern() {
 	TypeReference type = (TypeReference) this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
 
+	// Move annotations from type reference to LocalDeclaration
+	local.annotations = type.annotations != null && type.annotations.length > 0 ? type.annotations[0] : null;
+	type.annotations = null;
 	local.type = type;
 
 	TypePattern aTypePattern = new TypePattern(local);

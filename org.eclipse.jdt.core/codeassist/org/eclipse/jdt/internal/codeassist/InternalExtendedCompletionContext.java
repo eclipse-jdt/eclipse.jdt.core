@@ -70,7 +70,7 @@ import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes"})
 public class InternalExtendedCompletionContext {
 	private static Util.BindingsToNodesMap EmptyNodeMap = new Util.BindingsToNodesMap() {
 		@Override
@@ -99,8 +99,8 @@ public class InternalExtendedCompletionContext {
 	private ObjectVector visibleMethods;
 
 	private boolean hasComputedEnclosingJavaElements;
-	private Map bindingsToHandles;
-	private Map nodesWithProblemsToHandles;
+	private Map<Binding, JavaElement> bindingsToHandles;
+	private Map<ASTNode, JavaElement> nodesWithProblemsToHandles;
 	private ICompilationUnit compilationUnit;
 
 	public InternalExtendedCompletionContext(
@@ -132,10 +132,10 @@ public class InternalExtendedCompletionContext {
 		if (this.typeRoot.getElementType() == IJavaElement.COMPILATION_UNIT) {
 	 		ICompilationUnit original = (org.eclipse.jdt.core.ICompilationUnit)this.typeRoot;
 
-			HashMap handleToBinding = new HashMap();
-			HashMap bindingToHandle = new HashMap();
-			HashMap nodeWithProblemToHandle = new HashMap();
-			HashMap handleToInfo = new HashMap();
+			HashMap<JavaElement, Binding> handleToBinding = new HashMap<>();
+			HashMap<Binding, JavaElement> bindingToHandle = new HashMap<>();
+			HashMap<ASTNode, JavaElement> nodeWithProblemToHandle = new HashMap<>();
+			HashMap<ICompilationUnit, CompilationUnitElementInfo> handleToInfo = new HashMap<ICompilationUnit, CompilationUnitElementInfo>();
 
 			org.eclipse.jdt.core.ICompilationUnit handle = new AssistCompilationUnit(original, this.owner, handleToBinding, handleToInfo);
 			CompilationUnitElementInfo info = new CompilationUnitElementInfo();
@@ -298,7 +298,7 @@ public class InternalExtendedCompletionContext {
 			computeEnclosingJavaElements();
 		}
 		if (this.bindingsToHandles == null) return null;
-		return (JavaElement)this.bindingsToHandles.get(binding);
+		return this.bindingsToHandles.get(binding);
 	}
 
 	private JavaElement getJavaElementOfCompilationUnit(ASTNode node, Binding binding) {
@@ -307,10 +307,10 @@ public class InternalExtendedCompletionContext {
 		}
 		if (binding != null) {
 			if (this.bindingsToHandles == null) return null;
-			return (JavaElement)this.bindingsToHandles.get(binding);
+			return this.bindingsToHandles.get(binding);
 		} else {
 			if (this.nodesWithProblemsToHandles == null) return null;
-			return (JavaElement)this.nodesWithProblemsToHandles.get(node);
+			return this.nodesWithProblemsToHandles.get(node);
 		}
 	}
 

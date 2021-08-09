@@ -953,6 +953,7 @@ public void testBug574704() throws Exception {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 		assertResults(
+				"Cast[TYPE_REF]{Cast, , LCast;, null, null, "+relevance+"}\n" +
 				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + relevance + "}\n" +
 				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + relevance + "}\n" +
 				"field[FIELD_REF]{field, LCast;, Ljava.lang.Object;, field, null, " + relevance + "}\n" +
@@ -996,10 +997,170 @@ public void testBug574704_withPrefix() throws Exception {
 		int cursorLocation = str.indexOf(completeBefore);
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		int relevanceNoCase = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_UNQUALIFIED + R_NON_RESTRICTED;
 		assertResults(
+				"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+relevanceNoCase+"}\n" +
 				"oArg[LOCAL_VARIABLE_REF]{oArg, null, Ljava.lang.Object;, oArg, null, "+relevance+"}\n" +
 				"oField[FIELD_REF]{oField, LCast;, Ljava.lang.Object;, oField, null, " + relevance + "}",
 				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574803() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"\n" +
+			"	\n" +
+			"	public static void fillAttributes(Object object) throws Exception {\n" +
+			"		for (Field field : object.getClass().getFields()) {\n" +
+			"			if (field.getType() == ) // no content assist\n" +
+			"			Object value = field.get(object);\n" +
+			"			System.out.println(value);\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "field.getType() == ";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assertResults(
+				"X[TYPE_REF]{X, , LX;, null, null, " + relevance + "}\n" +
+				"field[LOCAL_VARIABLE_REF]{field, null, LField;, field, null, " + relevance + "}\n" +
+				"fillAttributes[METHOD_REF]{fillAttributes(), LX;, (Ljava.lang.Object;)V, fillAttributes, (object), " + relevance + "}\n" +
+				"object[LOCAL_VARIABLE_REF]{object, null, Ljava.lang.Object;, object, null, " + relevance + "}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575032() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Overwrite.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"class AtomicInteger {\n" +
+			"	void set(int i) {}\n" +
+			"	int get() { return 0; }\n" +
+			"}\n" +
+			"\n" +
+			"public class Overwrite {\n" +
+			"\n" +
+			"	void test(Test t) {\n" +
+			"		Map<String, String> map = new HashMap<>();\n" +
+			"		\n" +
+			"		if (true) {\n" +
+			"			t.counter. // <<--\n" +
+			"			map.put(\"\", \"\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"	static class Test {\n" +
+			"		AtomicInteger counter = new AtomicInteger();\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "t.counter.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+relevance+"}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+relevance+"}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+relevance+"}\n" +
+			"get[METHOD_REF]{get(), LAtomicInteger;, ()I, get, null, "+relevance+"}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+relevance+"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+relevance+"}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+relevance+"}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+relevance+"}\n" +
+			"set[METHOD_REF]{set(), LAtomicInteger;, (I)V, set, (i), "+relevance+"}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), "+relevance+"}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), "+relevance+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575032b() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Overwrite.java",
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"class AtomicInteger {\n" +
+			"	void set(int i) {}\n" +
+			"	int get() { return 0; }\n" +
+			"}\n" +
+			"\n" +
+			"public class Overwrite {\n" +
+			"\n" +
+			"	void test(Test t) {\n" +
+			"		Map<String, String> map = new HashMap<>();\n" +
+			"		\n" +
+			"		if (true) {\n" +
+			"			t.other.counter.s // <<--\n" + // more segments and also prefix of last segment
+			"			map.put(\"\", \"\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"	\n" +
+			"	static class Test {\n" +
+			"		Test other;" +
+			"		AtomicInteger counter = new AtomicInteger();\n" +
+			"	}\n" +
+			"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "t.other.counter.s";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+		assertResults(
+			"set[METHOD_REF]{set(), LAtomicInteger;, (I)V, set, (i), "+relevance+"}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug574979() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/Bug.java",
+			"public class Bug {\n" +
+			"	void test (Object o) {\n" +
+			"		if (true) {\n" +
+			"			Str\n" +
+			"			((String) o).toCharArray();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "Str";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		assertResults(
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+relevance+"}",
+			requestor.getResults());
 	} finally {
 		deleteProject("P");
 	}

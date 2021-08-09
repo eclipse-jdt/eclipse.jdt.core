@@ -76,6 +76,11 @@ public void tearDownSuite() throws Exception {
 	}
 	super.tearDownSuite();
 }
+@Override
+protected void setUp() throws Exception {
+	this.indexDisabledForTest = false;
+	super.setUp();
+}
 private String getVarClassSignature(IEvaluationContext context) {
 	char[] varClassName = ((EvaluationContextWrapper)context).getVarClassName();
 	return Signature.createTypeSignature(varClassName, true);
@@ -26373,6 +26378,74 @@ public void testBug573702_qualifiedName_firstSegment() throws JavaModelException
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"App[TYPE_REF]{App, , LApp;, null, null, 56}",
+			requestor.getResults());
+}
+public void testBug573702_qualifiedName_firstSegment_start() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/App.java",
+			"import java.util.Collection;\n" +
+			"import java.util.Map;\n" +
+			"\n" +
+			"interface ObjectProperty<T> {\n" +
+			"	void addListener(SingleFireInvalidationListener singleFireInvalidationListener);\n" +
+			"}\n" +
+			"class SingleFireInvalidationListener {\n" +
+			"	public SingleFireInvalidationListener(Collection<String> list) { }\n" +
+			"}\n" +
+			"public class App {\n" +
+			"  static Map<String, String> data;\n" +
+			"  public void boo() {\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation started\");\n" +
+			"    App.getDataProperty().addListener(new SingleFireInvalidationListener(App.data.values()));\n" +
+			"    System.out.println(\"PopOver direct buffer delayed patch installation done\");\n" +
+			"  }\n" +
+			"\n" +
+			"  public static ObjectProperty<Map<String, String>> getDataProperty() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new SingleFireInvalidationListener(A";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 49}\n" +
+			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 49}\n" +
+			"A3[TYPE_REF]{A3, , LA3;, null, null, 52}\n" +
+			"App[TYPE_REF]{App, , LApp;, null, null, 52}\n" +
+			"A[TYPE_REF]{A, , LA;, null, null, 56}",
+			requestor.getResults());
+}
+public void testBug574982() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/ArrayTest.java",
+			"public class ArrayTest {\n" +
+			"  public void test() {\n" +
+			"    new Runnable() {\n" +
+			"      public void run() {\n" +
+			"        boolean equals = Arrays.equals(new Object[0], new Object[0]);\n" +
+			"      }\n" +
+			"    };\n" +
+			"  }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equals = A";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 49}\n" +
+			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 49}\n" +
+			"A3[TYPE_REF]{A3, , LA3;, null, null, 52}\n" +
+			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 52}\n" +
+			"A[TYPE_REF]{A, , LA;, null, null, 56}",
 			requestor.getResults());
 }
 }
