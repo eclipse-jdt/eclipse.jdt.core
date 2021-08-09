@@ -9490,7 +9490,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.YIELD_STATEMENT,
 			ASTNode.TEXT_BLOCK,
 			ASTNode.RECORD_DECLARATION,
-			ASTNode.PATTERN_INSTANCEOF_EXPRESSION
+			ASTNode.PATTERN_INSTANCEOF_EXPRESSION,
+			ASTNode.MODULE_QUALIFIED_NAME
 
 		};
 
