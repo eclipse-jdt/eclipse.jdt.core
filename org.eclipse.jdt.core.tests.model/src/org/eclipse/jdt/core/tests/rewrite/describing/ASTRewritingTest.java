@@ -142,6 +142,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		  suite.addTest(ASTRewritingMoveCodeTest.suite());
 		  suite.addTest(ASTRewritingStatementsTest.suite());
 		  suite.addTest(ASTRewritingSwitchExpressionsTest.suite());
+		  suite.addTest(ASTRewritingSwitchPatternTest.suite());
 
 		  suite.addTest(ASTRewritingTrackingTest.suite());
 		  suite.addTest(ASTRewritingJavadocTest.suite());
@@ -264,7 +265,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		if (this.apiLevel == AST_INTERNAL_JLS17 ) {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_17);
 		}
 	}
 
