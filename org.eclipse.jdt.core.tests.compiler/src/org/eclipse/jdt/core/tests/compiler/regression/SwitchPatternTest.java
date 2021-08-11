@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575249_03"};
+//		TESTS_NAMES = new String[] { "testBugDefaultArrow_01"};
 	}
 
 	private static String previewLevel = "17";
@@ -2210,8 +2210,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case default, default -> System.out.println(0);\n" +
-			"	              ^^^^^^^\n" +
-			"Syntax error on token \"default\", -> expected after this token\n" +
+			"	                    ^^^^\n" +
+			"The default case is already defined\n" +
 			"----------\n");
 	}
 	public void testBug574563_001() {
@@ -3072,5 +3072,81 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"Hello\n" +
 			"null");
+	}
+	public void testBug575356_01() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static void foo(Integer myVar) {\n"+
+					"    switch (myVar) {\n"+
+					"     case default -> System.out.println(\"hello\");\n"+
+					"   };   \n"+
+					" }   \n"+
+					"\n"+
+					" public static  void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(10)); \n"+
+					" } \n"+
+					"}",
+				},
+				"hello");
+	}
+	public void testBug575356_02() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static void foo(Integer myVar) {\n"+
+					"    switch (myVar) {\n"+
+					"     case null, default -> System.out.println(\"hello\");\n"+
+					"   };   \n"+
+					" }   \n"+
+					"\n"+
+					" public static  void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(10)); \n"+
+					" } \n"+
+					"}",
+				},
+				"hello");
+	}
+	public void testBug575356_03() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static void foo(Integer myVar) {\n"+
+					"    switch (myVar) {\n"+
+					"     case default, null -> System.out.println(\"hello\");\n"+
+					"   };   \n"+
+					" }   \n"+
+					"\n"+
+					" public static  void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(10)); \n"+
+					" } \n"+
+					"}",
+				},
+				"hello");
+	}
+	public void testBug575356_04() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"    case Integer i ->\n"+
+					"      System.out.println(\"Integer:\"+ i );\n"+
+					"    case default -> System.out.println(o.toString() );\n"+
+					"   }\n"+
+					"}\n"+
+					"\n"+
+					" public static  void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(10)); \n"+
+					"   foo(new String(\"Hello\")); \n"+
+					" } \n"+
+					"}",
+				},
+				"Integer:10\n" +
+				"Hello");
 	}
 }

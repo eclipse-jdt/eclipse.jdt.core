@@ -1475,7 +1475,7 @@ public int getNextToken() throws InvalidInputException {
 		return token;
 	}
 	if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT || token == TokenNameARROW) {
-		token = disambiguatedToken(token);
+		token = disambiguatedToken(token, this);
 	} else if (token == TokenNameELLIPSIS) {
 		this.consumingEllipsisAnnotations = false;
 	} else if (mayBeAtCasePattern(token)) {
@@ -4977,7 +4977,7 @@ private static final class VanguardScanner extends Scanner {
 		} else
 		if (token == TokenNameAT && atTypeAnnotation()) {
 			if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
-				token = disambiguatedToken(token);
+				token = disambiguatedToken(token, this);
 			} else {
 				token = TokenNameAT308;
 			}
@@ -5652,43 +5652,43 @@ private VanguardParser getNewVanguardParser(char[] src) {
 	vs.setActiveParser(vp);
 	return vp;
 }
-int disambiguatedToken(int token) {
+int disambiguatedToken(int token, Scanner scanner) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  this.caseStartPosition < this.startPosition) {
+	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  scanner.caseStartPosition < scanner.startPosition) {
 		// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
-		int nSz = this.startPosition - this.caseStartPosition;
+		int nSz = scanner.startPosition - scanner.caseStartPosition;
 		// add fake token of TokenNameCOLON, call vanguard on this modified source
 		// TODO: Inefficient method due to redoing of the same source, investigate alternate
 		// Can we do a dup of parsing/check the transition of the state?
-		String s = new String(this.source, this.caseStartPosition, nSz);
+		String s = new String(scanner.source, scanner.caseStartPosition, nSz);
 		String modSource = s.concat(new String(new char[] {':'}));
 		char[] nSource = modSource.toCharArray();
 		VanguardParser vp = getNewVanguardParser(nSource);
 		if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameARROW;
+			scanner.nextToken = TokenNameARROW;
 			return TokenNameBeginCaseExpr;
 		}
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameLPAREN;
+			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginLambda;
 		}
-		this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1);
+		scanner.vanguardScanner.resetTo(scanner.startPosition, scanner.eofPosition - 1);
 		if (parser.parse(Goal.IntersectionCastGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameLPAREN;
+			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginIntersectionCast;
 		}
 	} else if (token == TokenNameLESS && maybeAtReferenceExpression()) {
 		if (parser.parse(Goal.ReferenceExpressionGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameLESS;
+			scanner.nextToken = TokenNameLESS;
 			return TokenNameBeginTypeArguments;
 		}
 	} else if (token == TokenNameAT && atTypeAnnotation()) {
 		token = TokenNameAT308;
 		if (maybeAtEllipsisAnnotationsStart()) {
 			if (parser.parse(Goal.VarargTypeAnnotationGoal) == VanguardParser.SUCCESS) {
-				this.consumingEllipsisAnnotations = true;
-				this.nextToken = TokenNameAT308;
+				scanner.consumingEllipsisAnnotations = true;
+				scanner.nextToken = TokenNameAT308;
 				return TokenNameAT308DOTDOTDOT;
 			}
 		}
@@ -5715,8 +5715,13 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 }
 
 private boolean mayBeAtCaseLabelExpr() {
-	if (this.lookBack[1] == TokenNamedefault || this.caseStartPosition <= 0)
+	if (this.caseStartPosition <= 0)
 		return false;
+	if (this.lookBack[1] == TokenNamedefault) {
+		return this.complianceLevel == ClassFileConstants.JDK17 && this.previewEnabled ?
+				(this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA)
+				: false;
+	}
 	return true;
 }
 
