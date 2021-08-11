@@ -1635,6 +1635,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case 1, Integer i  -> System.out.println(o);\n" +
+			"	     ^\n" +
+			"The constant case label element is not compatible with switch expression type Integer\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case 1, Integer i  -> System.out.println(o);\n" +
 			"	        ^^^^^^^^^\n" +
 			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n");
@@ -1956,10 +1961,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  10, null, var k  -> System.out.println(0);\n" +
+			"	      ^^\n" +
+			"The constant case label element is not compatible with switch expression type Integer\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  10, null, var k  -> System.out.println(0);\n" +
 			"	                ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
+			"3. ERROR in X.java (at line 7)\n" +
 			"	case  10, null, var k  -> System.out.println(0);\n" +
 			"	                ^^^^^\n" +
 			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
@@ -2055,20 +2065,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	                  ^^^\n" +
-			"\'var\' is not allowed here\n" +
+			"	               ^\n" +
+			"The constant case label element is not compatible with switch expression type Integer\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	                  ^^^^^\n" +
-			"A switch label may not have both a pattern case label element and a default case label element.\n" +
+			"	                  ^^^\n" +
+			"\'var\' is not allowed here\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 7)\n" +
 			"	case  default, 1, var k  -> System.out.println(0);\n" +
 			"	                  ^^^^^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element.\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
+			"	case  default, 1, var k  -> System.out.println(0);\n" +
+			"	                  ^^^^^\n" +
 			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 8)\n" +
+			"5. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -2904,5 +2919,158 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"0");
+	}
+	public void testBug575241_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int foo(Integer i) {\n"+
+				"   return switch (i) {\n"+
+				"     case Integer i1 -> 0;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(1));\n"+
+				" }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575241_02() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int foo(Integer i) {\n"+
+				"   return switch (i) {\n"+
+				"     case Object o -> 0;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(1));\n"+
+				" }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testBug575241_03() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int foo(Object myVar) {\n"+
+				"   return switch (myVar) {\n"+
+				"     case null  -> 0;\n"+
+				"     case Integer o -> 1;\n"+
+				"     case Object obj ->2;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(Integer.valueOf(0)));\n"+
+				"   System.out.println(foo(null));\n"+
+				" }\n"+
+				"}",
+			},
+			"1\n" +
+			"0");
+	}
+	public void testBug575241_04() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int foo(Object myVar) {\n"+
+				"   return switch (myVar) {\n"+
+				"     case Integer o -> 1;\n"+
+				"     case Object obj ->2;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(Integer.valueOf(0)));\n"+
+				"   System.out.println(foo(null));\n"+
+				" }\n"+
+				"}",
+			},
+			"1\n" +
+			"2");
+	}
+	public void testBug575241_05() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Integer myVar) {\n"+
+				"    switch (myVar) {\n"+
+				"     case  null  -> System.out.println(100);\n"+
+				"     case Integer o -> System.out.println(o);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(Integer.valueOf(0));\n"+
+				"   foo(null);\n"+
+				" }\n"+
+				"}",
+			},
+			"0\n" +
+			"100");
+	}
+	public void testBug575241_06() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Integer myVar) {\n"+
+				"    switch (myVar) {\n"+
+				"     case Integer o -> System.out.println(o);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(Integer.valueOf(0));\n"+
+				"   foo(null);\n"+
+				" }\n"+
+				"}",
+			},
+			"0\n" +
+			"null");
+	}
+	public void testBug575241_07() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(String myVar) {\n"+
+				"    switch (myVar) {\n"+
+				"     case  null  -> System.out.println(100);\n"+
+				"     case String o -> System.out.println(o);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				"   foo(null);\n"+
+				" }\n"+
+				"}",
+			},
+			"Hello\n" +
+			"100");
+	}
+	public void testBug575241_08() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(String myVar) {\n"+
+				"    switch (myVar) {\n"+
+				"     case String o -> System.out.println(o);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				"   foo(null);\n"+
+				" }\n"+
+				"}",
+			},
+			"Hello\n" +
+			"null");
 	}
 }

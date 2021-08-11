@@ -71,6 +71,7 @@ public class SwitchStatement extends Expression {
 
 	public boolean containsPatterns;
 	private BranchLabel switchPatternRestartTarget;
+	/* package */ Pattern totalPattern;
 
 	// fallthrough
 	public final static int CASE = 0;
@@ -82,6 +83,7 @@ public class SwitchStatement extends Expression {
 	public final static int LabeledRules = ASTNode.Bit1;
 	public final static int NullCase = ASTNode.Bit2;
 	public final static int TotalPattern = ASTNode.Bit3;
+	public final static int Covered = ASTNode.Bit4;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -441,6 +443,8 @@ public class SwitchStatement extends Expression {
 				Expression e = stmt.constantExpressions[k];
 				if (e instanceof FakeDefaultLiteral) continue;
 				targetLabels[count++] = (caseLabels[j] = newLabel.apply(codeStream));
+				if (this.totalPattern != null &&  e.equals(this.totalPattern))
+					this.defaultCase = stmt;
 				caseLabels[j++].tagBits |= BranchLabel.USED;
 			}
 			System.arraycopy(targetLabels, 0, stmt.targetLabels = new BranchLabel[count], 0, count);
@@ -653,7 +657,7 @@ public class SwitchStatement extends Expression {
 	}
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		if ((this.switchBits & NullCase) == 0) {
+		if ((this.switchBits & NullCase) == 0 && this.totalPattern == null) {
 			codeStream.dup();
 			codeStream.invokeJavaUtilObjectsrequireNonNull();
 			codeStream.pop();
@@ -771,7 +775,7 @@ public class SwitchStatement extends Expression {
 							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
 						}
 						break checkType;
-					} else if (upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
+					} else if (!this.containsPatterns && upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 						break checkType;
 					} else if (compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7 && expressionType.id == TypeIds.T_JavaLangString) {
@@ -791,7 +795,7 @@ public class SwitchStatement extends Expression {
 					}
 				}
 			}
-			if (isStringSwitch) {
+ 			if (isStringSwitch) {
 				// the secret variable should be created before iterating over the switch's statements that could
 				// create more locals. This must be done to prevent overlapping of locals
 				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=356002
@@ -892,19 +896,15 @@ public class SwitchStatement extends Expression {
 				}
 			}
 
-			boolean checkSealed = this.containsPatterns
-					&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
-					&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
-					&& this.expression.resolvedType instanceof ReferenceBinding
-					&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
 			// check default case for all kinds of switch:
+			checkAndFlagDefaultSealed(upperScope, compilerOptions);
 			if (this.defaultCase == null) {
 				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
 					if (isEnumSwitch) {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 					}
 				} else {
-					if (!checkSealed)
+					if (!isCovered())
 						upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
 				}
 			}
@@ -923,6 +923,7 @@ public class SwitchStatement extends Expression {
 									if ((enumConstant.id + 1) == this.constants[j]) // zero should not be returned see bug 141810
 										break findConstant;
 								}
+								this.switchBits &= ~(1 << SwitchStatement.Covered);
 								// enum constant did not get referenced from switch
 								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
 								if (!suppress) {
@@ -932,17 +933,27 @@ public class SwitchStatement extends Expression {
 						}
 					}
 				}
-			} else if (checkSealed) {
-				checkAndFlagDefaultSealed(upperScope);
 			}
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
-	private void checkAndFlagDefaultSealed(BlockScope skope) {
-		if (this.defaultCase != null) return;
+	private boolean isCovered() {
+		return (this.switchBits & SwitchStatement.Covered) != 0;
+	}
+	private void checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
+		if (this.defaultCase != null) { // mark covered as a side effect (since covers is intro in 406)
+			this.switchBits |= SwitchStatement.Covered;
+			return;
+		}
+		boolean checkSealed = this.containsPatterns
+				&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
+				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
+				&& this.expression.resolvedType instanceof ReferenceBinding
+				&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
+		if (!checkSealed) return;
 		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
-		assert ref.isSealed();
+		if (!ref.isSealed()) return;
 		List<TypeBinding> permittedTypes = Arrays.asList(ref.permittedTypes());
 		for (TypeBinding pt : permittedTypes) {
 			if (!this.caseLabelElementTypes.contains(pt)) {
@@ -950,11 +961,13 @@ public class SwitchStatement extends Expression {
 				return;
 			}
 		}
+		this.switchBits |= SwitchStatement.Covered;
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (this.containsPatterns) {
 			this.scope = new BlockScope(upperScope);
-			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
+			TypeBinding type = this.expression.resolvedType.clone(this.expression.resolvedType.enclosingType());
+			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, type, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
 			this.dispatchPatternCopy.setConstant(Constant.NotAConstant);
 			this.dispatchPatternCopy.useFlag = LocalVariableBinding.USED;

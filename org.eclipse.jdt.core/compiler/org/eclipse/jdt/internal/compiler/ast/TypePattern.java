@@ -67,7 +67,8 @@ public class TypePattern extends Pattern {
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		if (this.local != null) {
 			LocalVariableBinding localBinding = this.local.binding;
-			codeStream.checkcast(localBinding.type);
+			if (!this.isTotalTypeNode)
+				codeStream.checkcast(localBinding.type);
 			this.local.generateCode(currentScope, codeStream);
 			codeStream.store(localBinding, false);
 			localBinding.recordInitializationStartPC(codeStream.position);

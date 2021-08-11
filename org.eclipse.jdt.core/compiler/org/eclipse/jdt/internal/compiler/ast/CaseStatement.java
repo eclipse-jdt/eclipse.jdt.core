@@ -419,9 +419,13 @@ private Constant resolveConstantExpression(BlockScope scope,
 				}
 			}
 			if (e.isTotalForType(expressionType)) {
-				switchStatement.switchBits |= SwitchStatement.TotalPattern;
+				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Covered);
 				if (switchStatement.defaultCase != null)
 					scope.problemReporter().illegalTotalPatternWithDefault(this);
+				switchStatement.totalPattern = e;
+				e.isTotalTypeNode = true;
+				if (switchStatement.nullCase == null)
+					constant = IntConstant.fromValue(-1);
 			}
 		}
 

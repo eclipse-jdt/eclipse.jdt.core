@@ -25,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
 
+	/* package */ boolean isTotalTypeNode = false;
+
 	public boolean isTotalForType(TypeBinding type) {
 		return false;
 	}
