@@ -1410,7 +1410,7 @@ class ASTConverter {
 		SwitchCase switchCase = new SwitchCase(this.ast);
 		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
-			if (expressions == null || expressions.length == 0) {
+			if (expressions == null || expressions.length == 0 || (expressions.length == 1 && expressions[0] instanceof org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral)) {
 				switchCase.expressions().clear();
 			} else {
 				for (org.eclipse.jdt.internal.compiler.ast.Expression expression : expressions) {

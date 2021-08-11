@@ -1982,6 +1982,18 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented type parameter type node with an
+	 * unspecified type variable name and an empty list of type bounds.
+	 *
+	 * @return a new unparented type parameter node
+	 * @since 3.27 BETA_JAVA17
+	 */
+	public GuardedPattern newGuardedPattern() {
+		GuardedPattern result = new GuardedPattern(this);
+		return result;
+	}
+
+	/**
 	 * Creates a new unparented if statement node owned by this AST.
 	 * By default, the expression is unspecified (but legal),
 	 * the then statement is an empty block, and there is no else statement.
@@ -2459,6 +2471,18 @@ public final class AST {
 	 */
 	public NullLiteral newNullLiteral() {
 		return new NullLiteral(this);
+	}
+
+	/**
+	 * Creates and returns a new unparented type parameter type node with an
+	 * unspecified type variable name and an empty list of type bounds.
+	 *
+	 * @return a new unparented type parameter node
+	 * @since 3.27 BETA_JAVA17
+	 */
+	public NullPattern newNullPattern() {
+		NullPattern result = new NullPattern(this);
+		return result;
 	}
 
 	/**
@@ -3059,6 +3083,18 @@ public final class AST {
 	 */
 	public TypeParameter newTypeParameter() {
 		TypeParameter result = new TypeParameter(this);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented type parameter type node with an
+	 * unspecified type variable name and an empty list of type bounds.
+	 *
+	 * @return a new unparented type parameter node
+	 * @since 3.27 BETA_JAVA17
+	 */
+	public TypePattern newTypePattern() {
+		TypePattern result = new TypePattern(this);
 		return result;
 	}
 

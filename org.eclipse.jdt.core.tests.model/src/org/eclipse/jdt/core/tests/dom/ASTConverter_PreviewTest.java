@@ -220,4 +220,69 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		assertTrue("Default case", caseDefault.isDefault());
 
 	}
+
+	@SuppressWarnings("rawtypes")
+	public void testNullPattern() throws CoreException {
+		if (!isJRE17) {
+			printJREError();
+			return;
+		}
+		String contents = "public class X {\n" +
+				"void foo(Object o) {\n" +
+				"	switch (o) {\n" +
+			    "		case Integer i  : System.out.println(i.toString());\n" +
+				"						  break;\n" +
+			    "		case null  		: System.out.println(\"null\");\n" +
+			    "		default       	: System.out.println(o.toString());\n" +
+			    "	}\n" +
+			    "}\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+		List statements = ((SwitchStatement)node).statements();
+		assertEquals("incorrect no of statements", 7, statements.size());
+		SwitchCase caseInteger = (SwitchCase) statements.get(3);
+		Expression nullExpression = (Expression)caseInteger.expressions().get(0);
+		assertEquals("Null Expression", nullExpression.getNodeType(), ASTNode.NULL_LITERAL);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void _testDefaultExpressionPattern() throws CoreException {
+		if (!isJRE17) {
+			printJREError();
+			return;
+		}
+		String contents = "public class X {\n" +
+				"void foo(Object o) {\n" +
+				"	switch (o) {\n" +
+			    "		case Integer i  : System.out.println(i.toString());\n" +
+			    "		case default    : System.out.println(o.toString());\n" +
+			    "	}\n" +
+			    "}\n" +
+				"\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = getASTNode(compilationUnit, 0, 0, 0);
+		assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+		List statements = ((SwitchStatement)node).statements();
+		assertEquals("incorrect no of statements", 4, statements.size());
+		//SwitchCase caseInteger = (SwitchCase) statements.get(2);
+		//assertEquals("Default Fake Literal", caseInteger.getExpression().get)
+
+
+	}
 }
