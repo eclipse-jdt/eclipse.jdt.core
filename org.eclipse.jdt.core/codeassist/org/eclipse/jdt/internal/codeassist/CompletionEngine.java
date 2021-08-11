@@ -3767,13 +3767,39 @@ public final class CompletionEngine
 		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
 		this.completionToken = singleNameReference.token;
 		SwitchStatement switchStatement = astNodeParent instanceof SwitchStatement ? (SwitchStatement) astNodeParent : null;
-		if (switchStatement != null
-				&& switchStatement.expression.resolvedType != null
-				&& switchStatement.expression.resolvedType.isEnum()) {
-			if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
-				this.assistNodeIsEnum = true;
-				findEnumConstantsFromSwithStatement(this.completionToken, (SwitchStatement) astNodeParent);
+		boolean isSwitchEnumOrType = false;
+		if((switchStatement != null
+				&& switchStatement.expression.resolvedType != null)) {
+			TypeBinding resolvedType = switchStatement.expression.resolvedType;
+			isSwitchEnumOrType = resolvedType.isEnum();
+			if(!isSwitchEnumOrType) {
+				if( this.compilerOptions.complianceLevel >= ClassFileConstants.JDK17)
+					isSwitchEnumOrType = resolvedType.isClass() || resolvedType.isInterface() || resolvedType.isRecord();
 			}
+
+		}
+		if (isSwitchEnumOrType) {
+			TypeBinding resolvedType = switchStatement.expression.resolvedType;
+			if(resolvedType.isEnum()) {
+				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+					this.assistNodeIsEnum = true;
+					findEnumConstantsFromSwithStatement(this.completionToken, (SwitchStatement) astNodeParent);
+				}
+			}
+			else {
+					// if switch with class/interface/record - J17 onwards
+					char[][] keywords = new char[2][];
+					int count = 0;
+					if (switchStatement.defaultCase == null) {
+						keywords[count++] = Keywords.DEFAULT;
+					}
+					if (switchStatement.nullCase == null) {
+						keywords[count++] = Keywords.NULL;
+					}
+					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+					findKeywords(this.completionToken, keywords, false, false);
+				}
+
 		} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
 			findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 			if (scope instanceof BlockScope && !this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {

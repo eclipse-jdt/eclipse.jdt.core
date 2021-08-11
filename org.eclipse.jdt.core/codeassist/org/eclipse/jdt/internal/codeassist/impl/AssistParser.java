@@ -366,7 +366,6 @@ public RecoveredElement buildInitialRecoveryState(){
 					}
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
-					this.isOrphanCompletionNode = localDeclaration !=null;
 				}
 			}
 			continue;
