@@ -31,7 +31,6 @@ import java.util.List;
  * </pre>
  *
  * @since 3.27 BETA_JAVA17
- * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients.
  */
 public abstract class Pattern extends Expression {
