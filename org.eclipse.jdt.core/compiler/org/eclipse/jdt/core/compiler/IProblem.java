@@ -2473,32 +2473,29 @@ void setSourceStart(int sourceStart);
 	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1900;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternConstantCaseLabelIncompatible = PreviewRelated + 1901;
-	/** @since 3.27 BETA_JAVA17
-	 * @noreference preview feature error */
-	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1902;
+	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1901;
 	/**
 	 * @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error
 	 */
-	int IllegalFallthroughToPattern = PreviewRelated + 1903;
+	int IllegalFallthroughToPattern = PreviewRelated + 1902;
 
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternOnlyOnePatternCaseLabelAllowed = PreviewRelated + 1904;
+	int SwitchPatternOnlyOnePatternCaseLabelAllowed = PreviewRelated + 1903;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed = PreviewRelated + 1905;
+	int SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed = PreviewRelated + 1904;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternBothNullAndNonTypePatternNotAllowed = PreviewRelated + 1906;
+	int SwitchPatternBothNullAndNonTypePatternNotAllowed = PreviewRelated + 1905;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int PatternDominates = PreviewRelated + 1907;
+	int PatternDominated = PreviewRelated + 1906;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int IllegalTotalPatternWithDefault = PreviewRelated + 1908;
+	int IllegalTotalPatternWithDefault = PreviewRelated + 1907;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int EnhancedSwitchMissingDefaultCase = PreviewRelated + 1909;
+	int EnhancedSwitchMissingDefaultCase = PreviewRelated + 1908;
 }

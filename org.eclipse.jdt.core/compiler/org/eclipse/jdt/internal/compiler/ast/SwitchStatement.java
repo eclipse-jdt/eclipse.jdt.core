@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.IntPredicate;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CaseLabel;
@@ -760,9 +762,8 @@ public class SwitchStatement extends Expression {
 			boolean isStringSwitch = false;
 			TypeBinding expressionType = this.expression.resolveType(upperScope);
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
+			boolean isEnhanced = checkAndSetEnhanced(upperScope, expressionType);
 			if (expressionType != null) {
-				checkAndSetEnhanced(upperScope, expressionType);
-				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (!expressionType.isValidBinding()) {
 						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
@@ -824,10 +825,11 @@ public class SwitchStatement extends Expression {
 				}
 				int counter = 0;
 				int caseCounter = 0;
+				Pattern[] patterns = new Pattern[this.nConstants];
+				int[] caseIndex = new int[this.nConstants];
 				LocalVariableBinding[] patternVariables = null;
 				for (int i = 0; i < length; i++) {
-					Constant[] constantsList;
-					int[] caseIndex = new int[this.nConstants];
+					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
 					// Let's first collect the pattern variables if any
 					// so that we can resolve all statements (including case statements)
@@ -843,31 +845,57 @@ public class SwitchStatement extends Expression {
 						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
 						continue;
 					}
-					if ((constantsList = statement.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstantList) {
-						for (Constant con : constantsList) {
+					CaseStatement caseStmt = (CaseStatement) statement;
+					constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
+					if (constantsList != ResolvedCase.UnresolvedCase) {
+						for (ResolvedCase c : constantsList) {
+							Constant con = c.c;
 							if (con == Constant.NotAConstant)
 								continue;
-							if (!isStringSwitch) {
-								int key = con.intValue();
-								//----check for duplicate case statement------------
-								for (int j = 0; j < counter; j++) {
-									if (this.constants[j] == key) {
-										reportDuplicateCase((CaseStatement) statement, this.cases[caseIndex[j]], length);
-									}
-								}
-								this.constants[counter] = key;
+							if (isStringSwitch) {
+								this.stringConstants[counter] = con.stringValue();
 							} else {
-								String key = con.stringValue();
-								//----check for duplicate case statement------------
-								for (int j = 0; j < counter; j++) {
-									if (this.stringConstants[j].equals(key)) {
-										reportDuplicateCase((CaseStatement) statement, this.cases[caseIndex[j]], length);
+								this.constants[counter] = con.intValue();
+							}
+							for (int j = 0; j < counter; j++) {
+								IntPredicate check = (idx) -> {
+									if (con.typeID() == TypeIds.T_JavaLangString) {
+										return this.stringConstants[idx].equals(con.stringValue());
+									} else {
+										return this.constants[idx] == con.intValue();
+									}
+								};
+								Pattern p1 = patterns[j];
+								TypeBinding type = c.e.resolvedType;
+								if (p1 != null) {
+									if (c.e instanceof Pattern) {
+										if (check.test(j)) {
+											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+										} else if (p1.dominates((Pattern) c.e)) {
+											this.scope.problemReporter().patternDominatedByAnother(c.e);
+										}
+									} else {
+										if (type.id != TypeIds.T_null) {
+											if (type.isBaseType()) {
+												type = this.scope.environment().computeBoxingType(type);
+											}
+											if (p1.isTotalForType(type))
+												this.scope.problemReporter().patternDominatedByAnother(c.e);
+										}
+									}
+								} else {
+									if (check.test(j)) {
+										reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
 									}
 								}
-								this.stringConstants[counter] = key;
 							}
+
 							this.constMapping[counter] = counter;
 							caseIndex[counter] = caseCounter;
+							// Only the pattern expressions count for dominance check
+							if (c.e instanceof Pattern) {
+								patterns[counter] = (Pattern) c.e;
+							}
 							counter++;
 						}
 					}
@@ -887,17 +915,6 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			reportMixingCaseTypes();
-			if (this.caseLabelElements != null) {
-				for(int i = this.caseLabelElements.size() - 1; i > 0; i--) {
-					Pattern p1 = this.caseLabelElements.get(i);
-					for (int j = 0; j < i; j++) {
-						Pattern p2 = this.caseLabelElements.get(j);
-						if (p2.dominates(p1)) {
-							this.scope.problemReporter().patternDominatingAnother(p2);
-						}
-					}
-				}
-			}
 
 			// check default case for all kinds of switch:
 			checkAndFlagDefaultSealed(upperScope, compilerOptions);
@@ -906,7 +923,7 @@ public class SwitchStatement extends Expression {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 				} else {
 					if (!isExhaustive()) {
-						if (this.isEnhanced())
+						if (isEnhanced)
 							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 						else
 							upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
@@ -949,7 +966,7 @@ public class SwitchStatement extends Expression {
 	public boolean isEnhanced() {
 		return (this.switchBits & SwitchStatement.Enhanced) != 0;
 	}
-	private void checkAndSetEnhanced(BlockScope upperScope, TypeBinding expressionType) {
+	private boolean checkAndSetEnhanced(BlockScope upperScope, TypeBinding expressionType) {
 		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(upperScope.compilerOptions())
 				&& expressionType != null && !(this instanceof SwitchExpression )) {
 
@@ -959,17 +976,19 @@ public class SwitchStatement extends Expression {
 				case TypeIds.T_byte:
 				case TypeIds.T_short:
 				case TypeIds.T_int:
-				case TypeIds.T_JavaLangCharacter :
-				case TypeIds.T_JavaLangByte :
-				case TypeIds.T_JavaLangShort :
-				case TypeIds.T_JavaLangInteger :
-				case TypeIds.T_JavaLangString :
+				case TypeIds.T_JavaLangCharacter:
+				case TypeIds.T_JavaLangByte:
+				case TypeIds.T_JavaLangShort:
+				case TypeIds.T_JavaLangInteger:
+				case TypeIds.T_JavaLangString:
 					acceptableType = false;
 			}
 			if (acceptableType || this.containsPatterns || this.containsNull) {
 				this.switchBits |= SwitchStatement.Enhanced;
+				return true;
 			}
 		}
+		return false;
 	}
 	private void checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
 		if (this.defaultCase != null) { // mark covered as a side effect (since covers is intro in 406)
@@ -1023,6 +1042,8 @@ public class SwitchStatement extends Expression {
 				this.switchBits |= LabeledRules;
 			return;
 		}
+		if (this.cases[0] == null)
+			return;
 		boolean isExpr = this.cases[0].isExpr;
 		if (isExpr) this.switchBits |= LabeledRules;
 		for (int i = 1, l = this.caseCount; i < l; ++i) {
@@ -1035,7 +1056,9 @@ public class SwitchStatement extends Expression {
 			this.scope.problemReporter().switchExpressionMixedCase(this.defaultCase);
 		}
 	}
-	private void reportDuplicateCase(final CaseStatement duplicate, final CaseStatement original, int length) {
+	private void reportDuplicateCase(final CaseStatement duplicate,
+			final CaseStatement original,
+			int length) {
 		if (this.duplicateCaseStatements == null) {
 			this.scope.problemReporter().duplicateCase(original);
 			if (duplicate != original)

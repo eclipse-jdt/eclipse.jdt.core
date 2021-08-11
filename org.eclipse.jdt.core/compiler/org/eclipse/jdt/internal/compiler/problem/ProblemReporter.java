@@ -2036,7 +2036,7 @@ public void duplicateBounds(ASTNode location, TypeBinding type) {
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void duplicateCase(CaseStatement caseStatement) {
+public void duplicateCase(Statement caseStatement) {
 	this.handle(
 		IProblem.DuplicateCase,
 		NoArgument,
@@ -12203,15 +12203,6 @@ public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 			NoArgument, NoArgument,
 			sourceStart, sourceEnd);
 }
-public void switchPatternConstantCaseLabelIncompatible(Expression element, TypeBinding selectorType) {
-	String name = new String(selectorType.shortReadableName());
-	this.handle(
-			IProblem.SwitchPatternConstantCaseLabelIncompatible,
-			new String[] {name},
-			new String[] {name},
-			element.sourceStart,
-			element.sourceEnd);
-}
 public void switchPatternConstantWithPatternIncompatible(Expression element) {
 	this.handle(
 			IProblem.SwitchPatternConstantWithPatternIncompatible,
@@ -12252,9 +12243,9 @@ public void switchPatternBothNullAndNonTypePatternNotAllowed(Expression element)
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void patternDominatingAnother(Expression element) {
+public void patternDominatedByAnother(Expression element) {
 	this.handle(
-			IProblem.PatternDominates,
+			IProblem.PatternDominated,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,

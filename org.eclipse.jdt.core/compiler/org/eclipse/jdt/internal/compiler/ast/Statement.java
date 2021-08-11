@@ -50,7 +50,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
@@ -543,15 +542,6 @@ public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVar
 	} else {
 		resolve(scope);
 	}
-}
-/**
- * Returns case constant associated to this statement (NotAConstant if none)
- * parameter statement has to be either a SwitchStatement or a SwitchExpression
- */
-public Constant[] resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
-	// statement within a switch that are not case are treated as normal statement....
-	resolve(scope);
-	return new Constant[] {Constant.NotAConstant};
 }
 /**
  * Returns the resolved expression if any associated to this statement - used
