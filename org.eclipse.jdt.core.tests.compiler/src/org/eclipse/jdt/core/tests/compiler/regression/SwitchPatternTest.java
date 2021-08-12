@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBugDefaultArrow_01"};
+//		TESTS_NAMES = new String[] { "testBug575052"};
 	}
 
 	private static String previewLevel = "17";
@@ -660,10 +660,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	case j:\n" +
-			"	     ^\n" +
-			"The local variable j may not have been initialized\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (args.length) {\n" +
+			"	        ^^^^^^^^^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	switch (5) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
 			"----------\n");
 	}
 	public void testBug574525_01() {
@@ -1603,17 +1608,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
 			"	case null  -> System.out.println(\"null\");\n" +
 			"	     ^^^^\n" +
 			"Type mismatch: cannot convert from null to int\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
+			"3. ERROR in X.java (at line 11)\n" +
 			"	case \"F\"  :\n" +
 			"	     ^^^\n" +
 			"The constant case label element is not compatible with switch expression type Object\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 13)\n" +
+			"4. ERROR in X.java (at line 13)\n" +
 			"	case 2 :\n" +
 			"	     ^\n" +
 			"The constant case label element is not compatible with switch expression type Object\n" +
@@ -1676,6 +1686,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "		System.out.println(i);\n"
 					+ "	case Float f :\n"
 					+ "		System.out.println(f);\n"
+					+ "	case Object o : break;\n"
 					+ "	}\n"
 					+ "}\n"+
 					"}",
@@ -1684,6 +1695,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case Float f :\n" +
 				"	^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern case label \n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case Object o : break;\n" +
+				"	^^^^^^^^^^^^^\n" +
 				"Illegal fall-through to a pattern case label \n" +
 				"----------\n");
 	}
@@ -1699,6 +1715,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	case Float f :\n"
 					+ "		System.out.println(f);\n"
 					+ "     break;\n"
+					+ "	default : break;\n"
 					+ "	}\n"
 					+ "}\n"+
 					"}",
@@ -2565,12 +2582,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	switch(o) {\n" +
+				"	       ^\n" +
+				"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
 				"	case List cs:\n" +
 				"	     ^^^^^^^\n" +
 				"This pattern dominates one or more of the following patterns\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
+				"3. ERROR in X.java (at line 9)\n" +
 				"	case List<String> s: \n" +
 				"	     ^^^^^^^^^^^^^^\n" +
 				"Type Object cannot be safely cast to List<String>\n" +
@@ -3148,5 +3170,67 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"Integer:10\n" +
 				"Hello");
+	}
+	public void testBug575052_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"   case String s -> System.out.println(s);\n"+
+				"   default -> System.out.println(0);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"Hello");
+	}
+	public void testBug575052_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"   	case String s -> System.out.println(s);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+			"----------\n");
+	}
+	public void testBug575052_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"   	case null -> System.out.println(0);\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+			"----------\n");
 	}
 }

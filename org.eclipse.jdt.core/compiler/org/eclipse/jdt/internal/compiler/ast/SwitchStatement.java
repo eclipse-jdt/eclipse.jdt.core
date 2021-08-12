@@ -70,6 +70,7 @@ public class SwitchStatement extends Expression {
 	public int switchBits;
 
 	public boolean containsPatterns;
+	public boolean containsNull;
 	private BranchLabel switchPatternRestartTarget;
 	/* package */ Pattern totalPattern;
 
@@ -84,6 +85,7 @@ public class SwitchStatement extends Expression {
 	public final static int NullCase = ASTNode.Bit2;
 	public final static int TotalPattern = ASTNode.Bit3;
 	public final static int Covered = ASTNode.Bit4;
+	public final static int Enhanced = ASTNode.Bit5;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -759,6 +761,7 @@ public class SwitchStatement extends Expression {
 			TypeBinding expressionType = this.expression.resolveType(upperScope);
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
 			if (expressionType != null) {
+				checkAndSetEnhanced(upperScope, expressionType);
 				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (!expressionType.isValidBinding()) {
@@ -899,13 +902,15 @@ public class SwitchStatement extends Expression {
 			// check default case for all kinds of switch:
 			checkAndFlagDefaultSealed(upperScope, compilerOptions);
 			if (this.defaultCase == null) {
-				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
-					if (isEnumSwitch) {
+				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch) && isEnumSwitch) {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
-					}
 				} else {
-					if (!isCovered())
-						upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
+					if (!isCovered()) {
+						if (this.isEnhanced())
+							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+						else
+							upperScope.problemReporter().missingDefaultCase(this, isEnumSwitch, expressionType);
+					}
 				}
 			}
 			// for enum switch, check if all constants are accounted for (perhaps depending on existence of a default case)
@@ -940,6 +945,31 @@ public class SwitchStatement extends Expression {
 	}
 	private boolean isCovered() {
 		return (this.switchBits & SwitchStatement.Covered) != 0;
+	}
+	public boolean isEnhanced() {
+		return (this.switchBits & SwitchStatement.Enhanced) != 0;
+	}
+	private void checkAndSetEnhanced(BlockScope upperScope, TypeBinding expressionType) {
+		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(upperScope.compilerOptions())
+				&& expressionType != null && !(this instanceof SwitchExpression )) {
+
+			boolean acceptableType = true;
+			switch (expressionType.id) {
+				case TypeIds.T_char:
+				case TypeIds.T_byte:
+				case TypeIds.T_short:
+				case TypeIds.T_int:
+				case TypeIds.T_JavaLangCharacter :
+				case TypeIds.T_JavaLangByte :
+				case TypeIds.T_JavaLangShort :
+				case TypeIds.T_JavaLangInteger :
+				case TypeIds.T_JavaLangString :
+					acceptableType = false;
+			}
+			if (acceptableType || this.containsPatterns || this.containsNull) {
+				this.switchBits |= SwitchStatement.Enhanced;
+			}
+		}
 	}
 	private void checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
 		if (this.defaultCase != null) { // mark covered as a side effect (since covers is intro in 406)

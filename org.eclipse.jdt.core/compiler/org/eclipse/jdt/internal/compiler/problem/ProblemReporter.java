@@ -12268,4 +12268,12 @@ public void illegalTotalPatternWithDefault(Statement element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
+public void enhancedSwitchMissingDefaultCase(ASTNode element) {
+	this.handle(
+			IProblem.EnhancedSwitchMissingDefaultCase,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

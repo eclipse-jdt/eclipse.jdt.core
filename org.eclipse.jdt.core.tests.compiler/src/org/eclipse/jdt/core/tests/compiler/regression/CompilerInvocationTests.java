@@ -1305,6 +1305,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchPatternBothNullAndNonTypePatternNotAllowed", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("PatternDominates", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("EnhancedSwitchMissingDefaultCase", new ProblemAttributes(true));
 
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
@@ -2380,6 +2381,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchPatternBothNullAndNonTypePatternNotAllowed", SKIP);
 	    expectedProblemAttributes.put("PatternDominates", SKIP);
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", SKIP);
+	    expectedProblemAttributes.put("EnhancedSwitchMissingDefaultCase", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {
