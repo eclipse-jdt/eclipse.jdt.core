@@ -966,8 +966,7 @@ public class SwitchStatement extends Expression {
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (this.containsPatterns) {
 			this.scope = new BlockScope(upperScope);
-			TypeBinding type = this.expression.resolvedType.clone(this.expression.resolvedType.enclosingType());
-			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, type, ClassFileConstants.AccDefault, false);
+			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
 			this.dispatchPatternCopy.setConstant(Constant.NotAConstant);
 			this.dispatchPatternCopy.useFlag = LocalVariableBinding.USED;
