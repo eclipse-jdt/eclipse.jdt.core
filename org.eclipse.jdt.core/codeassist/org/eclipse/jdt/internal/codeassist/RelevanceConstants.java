@@ -61,4 +61,5 @@ public interface RelevanceConstants {
 	int R_FINAL = 3; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
 	int R_CONSTRUCTOR = 3; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=373409
 	int R_MODULE_DECLARATION = 31;
+	int R_METHOD_OVERLOAD = 32;
 }

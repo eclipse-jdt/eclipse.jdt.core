@@ -5163,8 +5163,8 @@ public void testCompletionEndOfCompilationUnit() throws JavaModelException {
 	cu.codeComplete(cu.getSourceRange().getOffset() + cu.getSourceRange().getLength(), requestor);
 	assertEquals(
 		"should have two methods of 'foo'",
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"\n" +
-		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_METHOD_OVERLOAD)+"\n" +
+		"element:foo    completion:foo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_METHOD_OVERLOAD),
 		requestor.getResults());
 }
 /*
@@ -13323,9 +13323,32 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
 	int tStart = str.lastIndexOf("xBar(1,") + "xBar(1,".length();
 	int tEnd = tStart;
 
-	assertResults(
-		"xBar[METHOD_REF]{CompletionPrefixMethodName3.this.xBar(1,, LCompletionPrefixMethodName3;, (II)I, xBar, (a, b), replace["+rStart1+", "+rEnd1+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"}\n"+
-		"xBar[METHOD_REF]{, LCompletionPrefixMethodName3$classFoo;, (II)I, xBar, (a, b), replace["+rStart2+", "+rEnd2+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+	assertResults("finalize[METHOD_REF]{CompletionPrefixMethodName3.this.finalize(), Ljava.lang.Object;, ()V, finalize, null, replace[150, 150], token[150, 150], 44}\n"
+			+ "notify[METHOD_REF]{CompletionPrefixMethodName3.this.notify(), Ljava.lang.Object;, ()V, notify, null, replace[150, 150], token[150, 150], 44}\n"
+			+ "notifyAll[METHOD_REF]{CompletionPrefixMethodName3.this.notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, replace[150, 150], token[150, 150], 44}\n"
+			+ "wait[METHOD_REF]{CompletionPrefixMethodName3.this.wait(), Ljava.lang.Object;, ()V, wait, null, replace[150, 150], token[150, 150], 44}\n"
+			+ "wait[METHOD_REF]{CompletionPrefixMethodName3.this.wait(), Ljava.lang.Object;, (J)V, wait, (millis), replace[150, 150], token[150, 150], 44}\n"
+			+ "wait[METHOD_REF]{CompletionPrefixMethodName3.this.wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), replace[150, 150], token[150, 150], 44}\n"
+			+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, replace[150, 150], token[150, 150], 47}\n"
+			+ "foo[METHOD_REF]{foo(), LCompletionPrefixMethodName3$classFoo;, ()V, foo, null, replace[150, 150], token[150, 150], 47}\n"
+			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, replace[150, 150], token[150, 150], 47}\n"
+			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, replace[150, 150], token[150, 150], 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, replace[150, 150], token[150, 150], 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), replace[150, 150], token[150, 150], 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), replace[150, 150], token[150, 150], 47}\n"
+			+ "clone[METHOD_REF]{CompletionPrefixMethodName3.this.clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, replace[150, 150], token[150, 150], 49}\n"
+			+ "equals[METHOD_REF]{CompletionPrefixMethodName3.this.equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace[150, 150], token[150, 150], 49}\n"
+			+ "getClass[METHOD_REF]{CompletionPrefixMethodName3.this.getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, replace[150, 150], token[150, 150], 49}\n"
+			+ "toString[METHOD_REF]{CompletionPrefixMethodName3.this.toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, replace[150, 150], token[150, 150], 49}\n"
+			+ "CompletionPrefixMethodName3[TYPE_REF]{CompletionPrefixMethodName3, , LCompletionPrefixMethodName3;, null, null, replace[150, 150], token[150, 150], 52}\n"
+			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, replace[150, 150], token[150, 150], 52}\n"
+			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace[150, 150], token[150, 150], 52}\n"
+			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, replace[150, 150], token[150, 150], 52}\n"
+			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, replace[150, 150], token[150, 150], 52}\n"
+			+ "xBar[METHOD_REF]{CompletionPrefixMethodName3.this.xBar(1,, LCompletionPrefixMethodName3;, (II)I, xBar, (a, b), replace["+rStart1+", "+rEnd1+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"}\n"
+			+ "xBar[METHOD_REF]{, LCompletionPrefixMethodName3$classFoo;, (II)I, xBar, (a, b), replace["+rStart2+", "+rEnd2+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n"
+			+ "hashCode[METHOD_REF]{CompletionPrefixMethodName3.this.hashCode(), Ljava.lang.Object;, ()I, hashCode, null, replace[150, 150], token[150, 150], 79}\n"
+			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, replace[150, 150], token[150, 150], 82}",
 		requestor.getResults());
 }
 public void testCompletionQualifiedAllocationType1() throws JavaModelException {

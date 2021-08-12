@@ -4670,7 +4670,7 @@ public void testBug543617() throws JavaModelException {
             "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+normalRelevance+"}\n" +
             "List<java.lang.Long>[TYPE_REF]{List, java.util, Ljava.util.List<Ljava.lang.Long;>;, null, null, "+expectedTypeRelevance+"}\n" +
             "findAll[METHOD_REF]{findAll(), Ltest.TestApp;, ()Ljava.util.List<Ljava.lang.String;>;, findAll, null, "+expectedTypeRelevance+"}\n" +
-            "load[METHOD_REF]{load(), Ltest.TestApp;, (Ljava.util.List<Ljava.lang.Long;>;)Ljava.util.List<Ljava.lang.String;>;, load, (ids), "+expectedTypeRelevance+"}",
+            "load[METHOD_REF]{, Ltest.TestApp;, (Ljava.util.List<Ljava.lang.Long;>;)Ljava.util.List<Ljava.lang.String;>;, load, (ids), 86}",
     		requestor.getResults());
 }
 public void testBug539617_alloc() throws JavaModelException {
@@ -4711,8 +4711,8 @@ public void testBug539617_msg() throws JavaModelException {
 	String completeBehind = "meth(";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	int relevance =  R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED;
-	int relevanceExpectedType = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	int relevance =  R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_METHOD_OVERLOAD;
+	int relevanceExpectedType = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE  + R_METHOD_OVERLOAD;
 	assertResults(
 			"meth[METHOD_REF]{, LCodeCompletion;, (Ljava.lang.String;Z)Ljava.lang.Number;, meth, (arg, flag), "+relevance+"}\n" +
 			"meth[METHOD_REF]{, LCodeCompletion;, (Ljava.lang.String;)Ljava.lang.Double;, meth, (arg), "+relevanceExpectedType+"}",
@@ -5306,8 +5306,8 @@ public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMid
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
     String result = requestor.getResults();
-	assertTrue(String.format("Result doesn''t contain enum literal SECONDS (%s)", result),
-    		result.contains("defaultParam[METHOD_REF]{, LBug573313;, (I)Ljava.util.concurrent.TimeUnit;, defaultParam, (amout), 86}"));
+	assertTrue(String.format("Result doesn''t contain defaultParam method (%s)", result),
+    		result.contains("defaultParam[METHOD_REF]{, LBug573313;, (I)Ljava.util.concurrent.TimeUnit;, defaultParam, (amout), 118}"));
 
 }
 public void testBug573313_MethodParametersCompletions_InCompleteMessageSendOnMiddleParam_MethodCompletionsForType_2() throws JavaModelException {
@@ -5682,8 +5682,8 @@ public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompleti
 
     String result = requestor.getResults();
 	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
-    		result.contains("sorted[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.String;>;, ()Ljava.util.stream.Stream<Ljava.lang.String;>;, sorted, null, 56}\n"
-    				+ "sorted[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.Comparator<-Ljava.lang.String;>;)Ljava.util.stream.Stream<Ljava.lang.String;>;, sorted, (arg0), 56}"));
+    		result.contains("sorted[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.String;>;, ()Ljava.util.stream.Stream<Ljava.lang.String;>;, sorted, null, 88}\n"
+    				+ "sorted[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.String;>;, (Ljava.util.Comparator<-Ljava.lang.String;>;)Ljava.util.stream.Stream<Ljava.lang.String;>;, sorted, (arg0), 88}"));
 }
 public void testBug563020_lambdaWithMethodRef_overloadedMethodref_expectCompletionForNextChainWithToken() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5948,7 +5948,11 @@ public void testBug574912_comment6() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("getMinimum[METHOD_REF]{, Ljava.util.Calendar;, (I)I, getMinimum, (arg0), 86}",
+	assertResults("LambdaFreeze2[TYPE_REF]{LambdaFreeze2, , LLambdaFreeze2;, null, null, 52}\n"
+			+ "SUPPLIER[FIELD_REF]{SUPPLIER, LLambdaFreeze2;, Ljava.util.function.Supplier<Ljava.util.Date;>;, SUPPLIER, null, 52}\n"
+			+ "calendar[LOCAL_VARIABLE_REF]{calendar, null, Ljava.util.Calendar;, calendar, null, 52}\n"
+			+ "num[FIELD_REF]{num, LLambdaFreeze2;, I, num, null, 82}\n"
+			+ "getMinimum[METHOD_REF]{, Ljava.util.Calendar;, (I)I, getMinimum, (arg0), 86}",
 			result);
 }
 public void testBug574912_comment6b() throws JavaModelException {
@@ -6023,5 +6027,92 @@ public void testBug574882() throws Exception {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", // this is required for sysout template proposal
 			requestor.getContext());
+}
+public void testBug575149_expectOverloadedMethodsAndVariablesRankedWithExpectedType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug443091.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Bug443091 {\n" +
+			"	private void foo() {\n" +
+			" 		Consumer<Integer> capture = null;\n" +
+			"		forEach()" +
+			"	}\n" +
+			"	private void forEach(Consumer<Integer> in) {}\n" +
+			"	private void forEach(Function<Integer, String> in) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "forEach(";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n"
+			+ "foo[METHOD_REF]{foo(), LBug443091;, ()V, foo, null, 47}\n"
+			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n"
+			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n"
+			+ "Bug443091[TYPE_REF]{Bug443091, , LBug443091;, null, null, 52}\n"
+			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n"
+			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n"
+			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 52}\n"
+			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n"
+			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}\n"
+			+ "Consumer<java.lang.Integer>[TYPE_REF]{Consumer, java.util.function, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, null, null, 82}\n"
+			+ "Function<java.lang.Integer,java.lang.String>[TYPE_REF]{Function, java.util.function, Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;, null, null, 82}\n"
+			+ "capture[LOCAL_VARIABLE_REF]{capture, null, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, capture, null, 82}\n"
+			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 88}\n"
+			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;)V, forEach, (in), 88}",
+			result);
+
+}
+public void testBug575149_expectRemainingOverloadedMethodsMatchingFilledArguments() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug443091.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Bug443091 {\n" +
+			"	private void foo() {\n" +
+			" 		Consumer<Integer> capture = null;\n" +
+			"		forEach(capture, )" +
+			"	}\n" +
+			"	private void forEach(Consumer<Integer> in) {}\n" +
+			"	private void forEach(Consumer<Integer> in, Integer limit) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "forEach(capture, ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n"
+			+ "foo[METHOD_REF]{foo(), LBug443091;, ()V, foo, null, 47}\n"
+			+ "forEach[METHOD_REF]{forEach(), LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 47}\n"
+			+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n"
+			+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n"
+			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n"
+			+ "Bug443091[TYPE_REF]{Bug443091, , LBug443091;, null, null, 52}\n"
+			+ "capture[LOCAL_VARIABLE_REF]{capture, null, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, capture, null, 52}\n"
+			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n"
+			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n"
+			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 52}\n"
+			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}\n"
+			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 72}\n"
+			+ "Integer[TYPE_REF]{Integer, java.lang, Ljava.lang.Integer;, null, null, 82}\n"
+			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Integer;)V, forEach, (in, limit), 83}",
+			result);
+
 }
 }
