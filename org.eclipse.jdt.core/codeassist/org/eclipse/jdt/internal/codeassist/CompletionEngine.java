@@ -3907,8 +3907,15 @@ public final class CompletionEngine
 			if (receiverType != null && receiverType.isValidBinding()) {
 				findVariablesAndMethods(this.completionToken, scope, FakeInvocationSite, scope, false, false);
 			}
+			// ... or a keyword (possibly starting a new statement):
+			if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+				if (this.completionToken != null && this.completionToken.length != 0) {
+					findKeywords(this.completionToken, singleRef.possibleKeywords, false, false);
+				} else {
+					findTrueOrFalseKeywords(singleRef.possibleKeywords);
+				}
+			}
 		}
-
 	}
 
 	private void completionOnProvidesInterfacesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {

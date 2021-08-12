@@ -922,6 +922,7 @@ public void testBug574338_from574215c14() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
+				"for[KEYWORD]{for, null, null, for, null, 49}\n" +
 				"fooo[LOCAL_VARIABLE_REF]{fooo, null, Ljava.lang.String;, fooo, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
