@@ -5468,6 +5468,14 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 	return ref;
 }
 @Override
+protected void updateSourcePosition(Expression exp) {
+	// handles total positions of parenthesized expressions, but don't extend position of the assist node:
+	if (exp == this.assistNode)
+		this.intPtr -= 2;
+	else
+		super.updateSourcePosition(exp);
+}
+@Override
 protected void consumePostfixExpression() {
 	// PostfixExpression ::= Name
 	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_YIELD_KEYWORD) {
@@ -6131,7 +6139,6 @@ protected void updateRecoveryState() {
 
 	recoveryExitFromVariable();
 }
-
 @Override
 protected CompilationUnitDeclaration endParse(int act) {
 	CompilationUnitDeclaration cud = super.endParse(act);
