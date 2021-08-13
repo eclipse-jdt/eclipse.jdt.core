@@ -419,7 +419,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 				}
 			}
 			if (e.isTotalForType(expressionType)) {
-				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Covered);
+				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Exhaustive);
 				if (switchStatement.defaultCase != null)
 					scope.problemReporter().illegalTotalPatternWithDefault(this);
 				switchStatement.totalPattern = e;

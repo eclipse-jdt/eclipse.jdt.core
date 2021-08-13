@@ -84,7 +84,7 @@ public class SwitchStatement extends Expression {
 	public final static int LabeledRules = ASTNode.Bit1;
 	public final static int NullCase = ASTNode.Bit2;
 	public final static int TotalPattern = ASTNode.Bit3;
-	public final static int Covered = ASTNode.Bit4;
+	public final static int Exhaustive = ASTNode.Bit4;
 	public final static int Enhanced = ASTNode.Bit5;
 
 	// for switch on strings
@@ -905,7 +905,7 @@ public class SwitchStatement extends Expression {
 				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch) && isEnumSwitch) {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 				} else {
-					if (!isCovered()) {
+					if (!isExhaustive()) {
 						if (this.isEnhanced())
 							upperScope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 						else
@@ -928,7 +928,7 @@ public class SwitchStatement extends Expression {
 									if ((enumConstant.id + 1) == this.constants[j]) // zero should not be returned see bug 141810
 										break findConstant;
 								}
-								this.switchBits &= ~(1 << SwitchStatement.Covered);
+								this.switchBits &= ~(1 << SwitchStatement.Exhaustive);
 								// enum constant did not get referenced from switch
 								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
 								if (!suppress) {
@@ -943,8 +943,8 @@ public class SwitchStatement extends Expression {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
-	private boolean isCovered() {
-		return (this.switchBits & SwitchStatement.Covered) != 0;
+	private boolean isExhaustive() {
+		return (this.switchBits & SwitchStatement.Exhaustive) != 0;
 	}
 	public boolean isEnhanced() {
 		return (this.switchBits & SwitchStatement.Enhanced) != 0;
@@ -973,7 +973,7 @@ public class SwitchStatement extends Expression {
 	}
 	private void checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
 		if (this.defaultCase != null) { // mark covered as a side effect (since covers is intro in 406)
-			this.switchBits |= SwitchStatement.Covered;
+			this.switchBits |= SwitchStatement.Exhaustive;
 			return;
 		}
 		boolean checkSealed = this.containsPatterns
@@ -991,7 +991,7 @@ public class SwitchStatement extends Expression {
 				return;
 			}
 		}
-		this.switchBits |= SwitchStatement.Covered;
+		this.switchBits |= SwitchStatement.Exhaustive;
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (this.containsPatterns) {

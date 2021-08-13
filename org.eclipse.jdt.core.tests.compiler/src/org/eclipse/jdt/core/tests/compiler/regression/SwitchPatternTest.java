@@ -3216,7 +3216,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			new String[] {
 				"X.java",
 				"public class X {\n"+
-				" static void foo(Object o) {\n"+
+				" static int foo(Object o) {\n"+
 				"   switch (o) {\n"+
 				"   	case null -> System.out.println(0);\n"+
 				"   };\n"+
@@ -3231,6 +3231,50 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	switch (o) {\n" +
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+			"----------\n");
+	}
+	public void testBug575050_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int foo(Object o) {\n"+
+				"   return switch (o) {\n"+
+				"   	case String s -> 0;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	return switch (o) {\n" +
+			"	               ^\n" +
+			"A switch expression should have a default case\n" +
+			"----------\n");
+	}
+	public void testBug575050_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static int  foo(Object o) {\n"+
+				"   return switch (o) {\n"+
+				"   	case null -> 0;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	return switch (o) {\n" +
+			"	               ^\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 }
