@@ -481,6 +481,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(CaseDefaultExpression node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			this.buffer.append("default");//$NON-NLS-1$
+		}
+		return false;
+	}
+
+	@Override
 	public boolean visit(CastExpression node) {
 		this.buffer.append("(");//$NON-NLS-1$
 		node.getType().accept(this);
@@ -1236,7 +1244,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(NullPattern node) {
-		this.buffer.append("null");//$NON-NLS-1$
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			this.buffer.append("null");//$NON-NLS-1$
+		}
 		return false;
 	}
 
@@ -1599,7 +1609,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(SwitchCase node) {
 		if ((node.getAST().apiLevel() >= JLS14)) {
-			if (node.isDefault()) {
+			if (node.isDefault() && !isCaseDefaultExpression(node)) {
 				this.buffer.append("default");//$NON-NLS-1$
 				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
 			} else {
@@ -1613,7 +1623,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 		}
 		else {
-			if (node.isDefault()) {
+			if (node.isDefault() && !isCaseDefaultExpression(node)) {
 				this.buffer.append("default :\n");//$NON-NLS-1$
 			} else {
 				this.buffer.append("case ");//$NON-NLS-1$
@@ -1622,6 +1632,13 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 		}
 		this.indent++; //decremented in visit(SwitchStatement)
+		return false;
+	}
+
+	private boolean isCaseDefaultExpression(SwitchCase node) {
+		if (node.expressions() != null && node.expressions().size() == 1 && node.expressions().get(0) instanceof CaseDefaultExpression) {
+			return true;
+		}
 		return false;
 	}
 	/**

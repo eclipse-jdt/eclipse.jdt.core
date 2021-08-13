@@ -1679,6 +1679,17 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented default case expression node.
+	 *
+	 * @return a new unparented default case expression node
+	 * @since 3.27 BETA_JAVA17
+	 */
+	public CaseDefaultExpression newCaseDefaultExpression() {
+		CaseDefaultExpression result = new CaseDefaultExpression(this);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented cast expression node
 	 * owned by this AST. By default, the type and expression are unspecified
 	 * (but legal).
@@ -1982,10 +1993,10 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented type parameter type node with an
-	 * unspecified type variable name and an empty list of type bounds.
+	 * Creates and returns a new unparented guarded pattern node with an
+	 * unspecified pattern variable name and a null expression.
 	 *
-	 * @return a new unparented type parameter node
+	 * @return a new unparented guarded pattern node
 	 * @since 3.27 BETA_JAVA17
 	 */
 	public GuardedPattern newGuardedPattern() {
@@ -2474,10 +2485,9 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented type parameter type node with an
-	 * unspecified type variable name and an empty list of type bounds.
+	 * Creates and returns a new unparented null pattern node .
 	 *
-	 * @return a new unparented type parameter node
+	 * @return a new unparented null pattern node
 	 * @since 3.27 BETA_JAVA17
 	 */
 	public NullPattern newNullPattern() {
@@ -3087,10 +3097,10 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented type parameter type node with an
-	 * unspecified type variable name and an empty list of type bounds.
+	 * Creates and returns a new unparented type pattern node with an
+	 * unspecified pattern variable.
 	 *
-	 * @return a new unparented type parameter node
+	 * @return a new unparented type pattern node
 	 * @since 3.27 BETA_JAVA17
 	 */
 	public TypePattern newTypePattern() {

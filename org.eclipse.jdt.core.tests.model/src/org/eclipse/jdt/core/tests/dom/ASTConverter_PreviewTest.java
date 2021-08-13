@@ -255,7 +255,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void _testDefaultExpressionPattern() throws CoreException {
+	public void _testCaseDefaultExpressionPattern() throws CoreException {
 		if (!isJRE17) {
 			printJREError();
 			return;
@@ -280,8 +280,9 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
 		List statements = ((SwitchStatement)node).statements();
 		assertEquals("incorrect no of statements", 4, statements.size());
-		//SwitchCase caseInteger = (SwitchCase) statements.get(2);
-		//assertEquals("Default Fake Literal", caseInteger.getExpression().get)
+		SwitchCase caseDefault = (SwitchCase) statements.get(2);
+		Expression caseDefaultExpression = (Expression) caseDefault.expressions().get(0);
+		assertEquals("Case Default Expression",caseDefaultExpression.getNodeType() , ASTNode.CASE_DEFAULT_EXPRESSION);
 
 
 	}

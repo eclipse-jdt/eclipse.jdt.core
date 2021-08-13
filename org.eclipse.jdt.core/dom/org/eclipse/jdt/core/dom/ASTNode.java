@@ -1031,6 +1031,14 @@ public abstract class ASTNode {
 	 */
 	public static final int NULL_PATTERN = 108;
 
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>CaseDefaultExpression</code>.
+	 * @see CaseDefaultExpression
+	 * @since 3.27 BETA_JAVA17
+	 */
+	public static final int CASE_DEFAULT_EXPRESSION = 109;
+
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1070,6 +1078,8 @@ public abstract class ASTNode {
 				return BooleanLiteral.class;
 			case BREAK_STATEMENT :
 				return BreakStatement.class;
+			case CASE_DEFAULT_EXPRESSION :
+				return CaseDefaultExpression.class;
 			case CAST_EXPRESSION :
 				return CastExpression.class;
 			case CATCH_CLAUSE :

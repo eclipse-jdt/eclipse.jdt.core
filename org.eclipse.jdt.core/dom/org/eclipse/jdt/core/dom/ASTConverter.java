@@ -1410,8 +1410,10 @@ class ASTConverter {
 		SwitchCase switchCase = new SwitchCase(this.ast);
 		if (this.ast.apiLevel >= AST.JLS14_INTERNAL) {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
-			if (expressions == null || expressions.length == 0 || (expressions.length == 1 && expressions[0] instanceof org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral)) {
+			if (expressions == null || expressions.length == 0) {
 				switchCase.expressions().clear();
+			} else if (expressions.length == 1 && expressions[0] instanceof org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral) {
+				switchCase.expressions().add(convert((org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral)expressions[0]));
 			} else {
 				for (org.eclipse.jdt.internal.compiler.ast.Expression expression : expressions) {
 					switchCase.expressions().add(convert(expression));
@@ -1437,6 +1439,12 @@ class ASTConverter {
 			retrieveColonPosition(switchCase);
 		}
 		return switchCase;
+	}
+
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral fakeDefaultLiteral) {
+		CaseDefaultExpression caseDefaultExpression = new CaseDefaultExpression(this.ast);
+		caseDefaultExpression.setSourceRange(fakeDefaultLiteral.sourceStart, fakeDefaultLiteral.sourceEnd - fakeDefaultLiteral.sourceStart + 1);
+		return caseDefaultExpression;
 	}
 
 	public CastExpression convert(org.eclipse.jdt.internal.compiler.ast.CastExpression expression) {
@@ -1966,6 +1974,9 @@ class ASTConverter {
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ArrayInitializer) expression);
+		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.FakeDefaultLiteral) expression);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.Pattern) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.Pattern) expression);
