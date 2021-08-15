@@ -5029,7 +5029,7 @@ private TypeReference checkAndCreateModuleQualifiedAssistTypeReference(char[][] 
 		if (isAfterWithClause()) return new CompletionOnProvidesImplementationsQualifiedTypeReference(previousIdentifiers, assistName, positions);
 		return new CompletionOnProvidesInterfacesQualifiedTypeReference(previousIdentifiers, assistName, positions);
 	}
-	return new CompletionOnQualifiedTypeReference(previousIdentifiers,	assistName,	positions);
+	return null;
 }
 @Override
 public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
@@ -5055,10 +5055,14 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 					positions,
 					CompletionOnQualifiedTypeReference.K_INTERFACE);
 		default :
-			return checkAndCreateModuleQualifiedAssistTypeReference(
+			TypeReference ref = checkAndCreateModuleQualifiedAssistTypeReference(
 					previousIdentifiers,
 					assistName,
 					positions);
+			if (ref != null)
+				return ref;
+			return new CompletionOnQualifiedTypeReference(previousIdentifiers, assistName, positions,
+					CompletionOnQualifiedTypeReference.K_TYPE, this.currentToken);
 	}
 }
 @Override

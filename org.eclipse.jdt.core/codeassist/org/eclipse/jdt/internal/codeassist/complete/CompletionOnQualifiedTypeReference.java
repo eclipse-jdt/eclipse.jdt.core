@@ -40,6 +40,7 @@ public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
 	public char[] completionIdentifier;
 
 	public boolean isConstructorType;
+	public int nextToken;
 
 public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions) {
 	this(previousIdentifiers, completionIdentifier, positions, K_TYPE);
@@ -48,6 +49,10 @@ public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] c
 	super(previousIdentifiers, positions);
 	this.completionIdentifier = completionIdentifier;
 	this.kind = kind;
+}
+public CompletionOnQualifiedTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions, int kind, int nextToken) {
+	this(previousIdentifiers, assistName, positions, kind);
+	this.nextToken = nextToken;
 }
 @Override
 public void aboutToResolve(Scope scope) {

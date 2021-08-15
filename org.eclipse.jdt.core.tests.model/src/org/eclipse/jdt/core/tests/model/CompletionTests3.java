@@ -1166,4 +1166,100 @@ public void testBug574979() throws Exception {
 		deleteProject("P");
 	}
 }
+public void testBug575397a() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/ContentAssist.java",
+			"class Thread {\n" +
+			"	static void sleep(int millis) {}\n" +
+			"}\n" +
+			"public class ContentAssist {\n" +
+			"	protected void test() {\n" +
+			"		if (true) {\n" +
+			"			Thread.\n" +
+			"			someMethod();\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void someMethod() { }\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "Thread.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"sleep[METHOD_REF]{sleep(), LThread;, (I)V, sleep, (millis), 51}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575397b() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/ContentAssist.java",
+			"class Thread {\n" +
+			"	static void sleep(int millis) {}\n" +
+			"	public enum State { NEW, BLOCKED }\n" +
+			"}\n" +
+			"public class ContentAssist {\n" +
+			"	protected void test() {\n" +
+			"		if (true) {\n" +
+			"			Thread.Sta\n" +
+			"			someMethod();\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void someMethod() { }\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "Thread.Sta";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"Thread.State[TYPE_REF]{State, , LThread$State;, null, null, 49}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575397c() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/ContentAssist.java",
+			"class Thread {\n" +
+			"	static void sleep(int millis) {}\n" +
+			"	public enum State { NEW, BLOCKED }\n" +
+			"}\n" +
+			"public class ContentAssist {\n" +
+			"	protected void test() {\n" +
+			"		if (true) {\n" +
+			"			Thread.State.\n" +
+			"			someMethod();\n" +
+			"		}\n" +
+			"	}\n" +
+			"	void someMethod() { }\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "Thread.State.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"serialVersionUID[FIELD_REF]{serialVersionUID, Ljava.lang.Enum<LThread$State;>;, J, serialVersionUID, null, 49}\n" +
+			"BLOCKED[FIELD_REF]{BLOCKED, LThread$State;, LThread$State;, BLOCKED, null, 51}\n" +
+			"NEW[FIELD_REF]{NEW, LThread$State;, LThread$State;, NEW, null, 51}\n" +
+			"valueOf[METHOD_REF]{valueOf(), LThread$State;, (Ljava.lang.String;)LThread$State;, valueOf, (arg0), 51}\n" +
+			"values[METHOD_REF]{values(), LThread$State;, ()[LThread$State;, values, null, 51}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

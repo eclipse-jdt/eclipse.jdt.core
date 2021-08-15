@@ -3694,6 +3694,17 @@ public final class CompletionEngine
 				}
 			}
 		} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
+			ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
+			if (astNodeParent instanceof LocalDeclaration && ref.nextToken == TerminalTokens.TokenNameLPAREN && !this.assistNodeIsConstructor) {
+				// the subsequent '(' makes the interpretation as LocalDeclaration illegal (unless it's "new prefix.token()").
+				// therefore we assume that "name(" (where name is LocalDeclaration.name) is the start of a new statement,
+				// and propose *everything* that can be referenced via the receiverType:
+				findMethods(this.completionToken, null, null, receiverType, scope, new ObjectVector(), true/*onlyStatic*/, false,
+						FakeInvocationSite, scope, false, false, false, null, null, null, false, null, -1, -1);
+				findFields(this.completionToken, receiverType, scope, new ObjectVector(), new ObjectVector(), true/*onlyStatic*/,
+						FakeInvocationSite, scope, false, false, null, null, null, false, null, -1, -1);
+				// fall through to propose member types
+			}
 			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
@@ -3702,7 +3713,7 @@ public final class CompletionEngine
 				if (this.assistNodeIsException && astNodeParent instanceof TryStatement) {
 					findExceptionFromTryStatement(
 							this.completionToken,
-							(ReferenceBinding)qualifiedBinding,
+							receiverType,
 							scope.enclosingSourceType(),
 							(BlockScope)scope,
 							typesFound);
@@ -3712,7 +3723,7 @@ public final class CompletionEngine
 
 				findMemberTypes(
 					this.completionToken,
-					(ReferenceBinding) qualifiedBinding,
+					receiverType,
 					scope,
 					scope.enclosingSourceType(),
 					false,
