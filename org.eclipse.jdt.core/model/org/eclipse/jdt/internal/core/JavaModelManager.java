@@ -3403,7 +3403,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// If it transitioned to being valid, remove it from the cache and force an update to project caches.
 		if (now > invalidArchiveInfo.evictionTimestamp) {
 			try {
-				getZipFile(path, false);
+				ZipFile zipFile = getZipFile(path, false);
+				closeZipFile(zipFile);
 				removeFromInvalidArchiveCache(path);
 			} catch (CoreException e) {
 				// Archive is still invalid, fall through to reporting it is invalid.
