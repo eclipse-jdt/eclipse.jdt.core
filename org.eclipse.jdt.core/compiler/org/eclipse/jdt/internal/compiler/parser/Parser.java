@@ -10130,7 +10130,8 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 			this.recordPatternSwitches.put(this.switchNestingLevel, Boolean.TRUE);
 			break;
 		case CASE_EXPRESSION:
-			this.recordNullSwitches.put(this.switchNestingLevel, Boolean.TRUE);
+			if (this.expressionPtr >= 0 && this.expressionStack[this.expressionPtr] instanceof NullLiteral)
+				this.recordNullSwitches.put(this.switchNestingLevel, Boolean.TRUE);
 			break;
 		case CASE_DEFAULT:
 			pushOnExpressionStack(new FakeDefaultLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1));

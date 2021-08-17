@@ -660,15 +660,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	switch (args.length) {\n" +
-			"	        ^^^^^^^^^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	switch (5) {\n" +
-			"	        ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case j:\n" +
+			"	     ^\n" +
+			"The local variable j may not have been initialized\n" +
 			"----------\n");
 	}
 	public void testBug574525_01() {
@@ -3232,6 +3227,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected  \n" +
 			"----------\n");
+	}
+	public void testBug575052_004() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static int foo(int i) {\n"+
+				"   switch (i) {\n"+
+				"   case 1:\n"+
+				"     break;\n"+
+				"   }\n"+
+				"   return 0;\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(X.foo(0));\n"+
+				" }\n"+
+				"}",
+			},
+			"0");
 	}
 	public void testBug575050_001() {
 		runNegativeTest(
