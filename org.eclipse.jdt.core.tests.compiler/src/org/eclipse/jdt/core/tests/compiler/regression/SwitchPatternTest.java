@@ -3591,4 +3591,24 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
+	public void testBug575055_001() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	public int foo(CharSequence c) {\n" +
+					"		return switch (c) {\n" +
+					"		   case CharSequence c1 && (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
+					"		   default -> 0;\n" +
+					"		};\n" +
+					"	}" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case CharSequence c1 && (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
+				"	                                             ^^\n" +
+				"Duplicate local variable c1\n" +
+				"----------\n");
+	}
 }
