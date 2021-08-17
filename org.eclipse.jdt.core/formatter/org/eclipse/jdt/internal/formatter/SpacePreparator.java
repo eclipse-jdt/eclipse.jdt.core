@@ -77,6 +77,7 @@ import org.eclipse.jdt.core.dom.OpensDirective;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.ProvidesDirective;
@@ -1099,6 +1100,12 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(InstanceofExpression node) {
+		handleTokenAfter(node.getLeftOperand(), TokenNameinstanceof, true, true);
+		return true;
+	}
+
+	@Override
+	public boolean visit(PatternInstanceofExpression node) {
 		handleTokenAfter(node.getLeftOperand(), TokenNameinstanceof, true, true);
 		return true;
 	}

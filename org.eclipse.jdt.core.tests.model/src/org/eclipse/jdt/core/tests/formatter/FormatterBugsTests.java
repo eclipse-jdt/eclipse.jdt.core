@@ -13285,4 +13285,13 @@ public void _testBug562818() {
 		"}",
 		CodeFormatter.K_CLASS_BODY_DECLARATIONS);
 }
+public void testBug574437() {
+	formatSource(
+		"class C {\n" +
+		"	void foo(Object o) {\n" +
+		"		if ((o) instanceof String s)\n" +
+		"			bar(s);\n" +
+		"	}\n" +
+		"}");
+}
 }
