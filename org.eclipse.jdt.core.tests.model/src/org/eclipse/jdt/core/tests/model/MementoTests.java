@@ -77,7 +77,9 @@ protected String getEscapedExternalJCLPath() {
 	return getEscapedPath(getExternalJCLPath().toString());
 }
 String getEscapedJrtJarPath() {
-	return getEscapedPath(System.getProperty("java.home")+"/lib/jrt-fs.jar");
+	String pathStr = System.getProperty("java.home")+"/lib/jrt-fs.jar";
+	String path = new Path(pathStr).toPortableString();
+	return getEscapedPath(path);
 }
 protected String getEscapedPath(String path) {
 	StringBuilder buffer = new StringBuilder();
@@ -875,8 +877,9 @@ public void testAnnotationPath9() throws CoreException, IOException {
 		String expectedIdentifier = "=Test/"+getEscapedJrtJarPath()+"`java.base"+attributesMemento; // for specific PFR (see below)
 		IModuleDescription module = project.findModule("java.base", null);
 		String moduleIdentifier = expectedIdentifier+"<'`java.base"; // PFR - PackageFragment - ModularClassFile - Module
-		assertEquals("Module mementos", moduleIdentifier, module.getHandleIdentifier());
-		IJavaElement module2 = JavaCore.create(module.getHandleIdentifier(), null);
+		String moduleHandleIdentifier = module.getHandleIdentifier();
+		assertEquals("Module mementos", moduleIdentifier, moduleHandleIdentifier);
+		IJavaElement module2 = JavaCore.create(moduleHandleIdentifier, null);
 		assertTrue("Module existence", module2.exists());
 		assertEquals("Module equivalence", module, module2);
 
