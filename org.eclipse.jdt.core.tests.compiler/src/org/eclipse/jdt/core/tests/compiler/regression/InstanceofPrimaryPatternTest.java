@@ -250,4 +250,26 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	public void test009() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void foo(String s) {\n" +
+				"		if (s instanceof Object o) {\n" +
+				"			System.out.println(s);\n" +
+				"		}\n " +
+				"	}\n" +
+				"  public static void main(String[] obj) {\n" +
+				"		foo(\"Hello World!\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (s instanceof Object o) {\n" +
+			"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Expression type cannot be a subtype of the Pattern type\n" +
+			"----------\n");
+	}
 }
