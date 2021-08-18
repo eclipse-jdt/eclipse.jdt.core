@@ -214,11 +214,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                ^^^^^^^^\n" +
 			"A switch label may not have more than one pattern case label element\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s, X x : System.out.println(\"Integer, String or X\");\n" +
-			"	                          ^^^\n" +
-			"A switch label may not have more than one pattern case label element\n" +
-			"----------\n" +
 			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
@@ -247,16 +242,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
 			"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"A switch label may not have more than one pattern case label element\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                              ^^^^^^\n" +
-			"length cannot be resolved or is not a field\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"A switch label may not have more than one pattern case label element\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 10)\n" +
@@ -288,12 +273,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                ^^^^^^\n" +
 			"String cannot be resolved to a variable\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for String\");\n" +
-			"	                ^^^^^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -328,12 +308,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                ^^^^^^\n" +
 			"String cannot be resolved to a variable\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
-			"	                ^^^^^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -502,7 +477,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case String s && s.length()>1: \n" +
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern case label\n" +
+				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
 	public void testBug573939_01() {
@@ -528,7 +503,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case String s1: System.out.println(\"String \");\n" +
 				"	^^^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern case label\n" +
+				"Illegal fall-through to a pattern\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 11)\n" +
 				"	Zork();\n" +
@@ -1630,7 +1605,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"X.java",
 				"public class X {\n"+
 				" public static void main(String[] args) {}\n"+
-				" private static void foo1(Integer o) {\n"+
+				" public static void foo1(Integer o) {\n"+
 				"   switch (o) {\n"+
 				"     case 1, Integer i  -> System.out.println(o);\n"+
 				"   }\n"+
@@ -1641,7 +1616,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case 1, Integer i  -> System.out.println(o);\n" +
 			"	        ^^^^^^^^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"Illegal fall-through to a pattern\n" +
 			"----------\n");
 	}
 	public void testBug574559_002() {
@@ -1661,7 +1636,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case  Integer i, 30  -> System.out.println(o);\n" +
 			"	                 ^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
+			"This case label is dominated by one of the preceding case label\n" +
 			"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has one statement)
@@ -1685,12 +1660,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case Float f :\n" +
 				"	^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern case label\n" +
+				"Illegal fall-through to a pattern\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 8)\n" +
 				"	case Object o : break;\n" +
 				"	^^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern case label\n" +
+				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
@@ -1714,7 +1689,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case Float f :\n" +
 				"	^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern case label\n" +
+				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has zero statement)
@@ -1737,7 +1712,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case Float f :\n" +
 				"	^^^^^^^^^^^^\n" +
-				"Illegal fall-through to a pattern case label\n" +
+				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
 	// Test that falling through from a pattern to a default is allowed
@@ -1876,11 +1851,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case var i, var j, var k  -> System.out.println(0);\n" +
 			"	                   ^^^\n" +
 			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 7)\n" +
-			"	case var i, var j, var k  -> System.out.println(0);\n" +
-			"	                   ^^^^^\n" +
-			"A switch label may not have more than one pattern case label element\n" +
 			"----------\n");
 	}
 	public void testBug574564_003() {
@@ -1904,11 +1874,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case var i, 10  -> System.out.println(0);\n" +
 			"	     ^^^\n" +
 			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10  -> System.out.println(0);\n" +
-			"	            ^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n");
 	}
 	public void testBug574564_004() {
@@ -1932,11 +1897,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case var i, 10, var k  -> System.out.println(0);\n" +
 			"	     ^^^\n" +
 			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case var i, 10, var k  -> System.out.println(0);\n" +
-			"	            ^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 7)\n" +
 			"	case var i, 10, var k  -> System.out.println(0);\n" +
@@ -1970,11 +1930,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case  10, null, var k  -> System.out.println(0);\n" +
 			"	                ^^^\n" +
 			"\'var\' is not allowed here\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
-			"	case  10, null, var k  -> System.out.println(0);\n" +
-			"	                ^^^^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n");
 	}
 	public void testBug574564_006() {
@@ -2074,11 +2029,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case  default, 1, var k  -> System.out.println(0);\n" +
 			"	                  ^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 7)\n" +
-			"	case  default, 1, var k  -> System.out.println(0);\n" +
-			"	                  ^^^^^\n" +
-			"Constant case label elements and pattern case label elements cannot be present in a switch label\n" +
 			"----------\n" +
 			"5. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
@@ -3361,10 +3311,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" }\n"+
 					" public static void main(String[] args) {\n"+
 					"   System.out.println(foo(null));\n"+
+					"   System.out.println(foo(Integer.valueOf(0)));\n"+
 					" }\n"+
 					"}",
 				},
-				"2");
+				"2\n" +
+				"0");
 	}
 	public void testBug575047_05() {
 		runNegativeTest(
@@ -3402,19 +3354,42 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String s1 -> 1;\n" +
-				"	^^^^^^^^^^^^^^\n" +
-				"Duplicate case\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case String s -> -1;\n" +
+				"	     ^^^^^^^^\n" +
+				"The switch statement cannot have more than one total pattern\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
-				"	^^^^^^^^^^^^^\n" +
-				"Duplicate case\n" +
+				"	     ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
-	// Output expected as '3', but prints '0'
-	public void _testBug575047_07() {
+	// Test that when a literal is used as case constant
+	// we report type mismatch error against the literal's type and
+	// not on other types the case statement may have resolved too
+	public void testBug575047_07() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static void foo(Number i) {\n"+
+					"	    switch (i) {\n"+
+					"		 case Integer j, \"\":\n"+
+					"			 System.out.println(0);\n"+
+					"		 default:\n"+
+					"	   }\n"+
+					"	}\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case Integer j, \"\":\n" +
+				"	                ^^\n" +
+				"Type mismatch: cannot convert from String to Number\n" +
+				"----------\n");
+	}
+	public void testBug575047_08() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -3427,10 +3402,177 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" }\n"+
 					" public static void main(String[] args) {\n"+
 					"   System.out.println(foo(3));\n"+
+					"   System.out.println(foo(0));\n"+
 					" }\n"+
 					"}",
 				},
-				"3");
+				"3\n"+
+				"0");
+	}
+	public void testBug575047_09() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" 	static int foo(String i) {\n"+
+					"		return switch (i) {\n"+
+					"	     case \"\" -> 0;\n"+
+					"	     case String s -> -1;\n"+
+					"	   };\n"+
+					"	}\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(foo(\"\"));\n"+
+					"   System.out.println(foo(\"abc\"));\n"+
+					" }\n"+
+					"}",
+				},
+				"0\n" +
+				"-1");
+	}
+	public void testBug575047_10() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	static String foo(Object o) {\n" +
+					"	   return switch (o) {\n" +
+					"		 case String i && i.length() == 0 -> \"empty\";\n" +
+					"	     case String i && i.length() > 0 -> \"zero+\";\n" +
+					"	     case Color s -> s.toString();\n" +
+					"		 default -> \"unknown\";\n" +
+					"	   };\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(foo(\"abc\"));\n" +
+					"		System.out.println(foo(\"\"));\n" +
+					"		System.out.println(Color.Blue);\n" +
+					"		System.out.println(foo(args));\n" +
+					"	}\n" +
+					"} \n" +
+					"enum Color {\n" +
+					"	Blue, Red; \n" +
+					"}",
+				},
+				"zero+\n" +
+				"empty\n" +
+				"Blue\n" +
+				"unknown");
+	}
+	// Positive - Mix enum constants as well as suitable pattern var
+	public void testBug575047_11() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	static String foo(Color o) {\n" +
+					"		return switch (o) {\n" +
+					"	     case Red -> \"Red\";\n" +
+					"	     case Color s -> s.toString();\n" +
+					"	   };\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(Color.Red);\n" +
+					"		System.out.println(Color.Blue);\n" +
+					"	}\n" +
+					"} \n" +
+					"enum Color {\n" +
+					"	Blue, Red; \n" +
+					"}",
+				},
+				"Red\n" +
+				"Blue");
+	}
+	public void testBug575047_12() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	static String foo(Color o) {\n" +
+					"		return switch (o) {\n" +
+					"	     case Red -> \"Red\";\n" +
+					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s -> s.toString();\n" +
+					"	   };\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(Color.Red);\n" +
+					"		System.out.println(Color.Blue);\n" +
+					"	}\n" +
+					"} \n" +
+					"enum Color {\n" +
+					"	Blue, Red; \n" +
+					"}",
+				},
+				"Red\n" +
+				"Blue");
+	}
+	public void testBug575047_13() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	static String foo(Color o) {\n" +
+					"		return switch (o) {\n" +
+					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Red -> \"Red\";\n" +
+					"	     case null -> \"\";\n" +
+					"	   };\n" +
+					"	}\n" +
+					"} \n" +
+					"enum Color {\n" +
+					"	Blue, Red; \n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	return switch (o) {\n" +
+				"	               ^\n" +
+				"A Switch expression should cover all possible values\n" +
+				"----------\n");
+	}
+	public void testBug575047_14() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	static String foo(Color o) {\n" +
+					"		return switch (o) {\n" +
+					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Red -> \"Red\";\n" +
+					"	   };\n" +
+					"	}\n" +
+					"} \n" +
+					"enum Color {\n" +
+					"	Blue, Red; \n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	return switch (o) {\n" +
+				"	               ^\n" +
+				"A Switch expression should cover all possible values\n" +
+				"----------\n");
+	}
+	public void testBug575047_15() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	static void foo(Integer o) {\n" +
+					"		switch (o) {\n" +
+					"		  case 1: break;\n" +
+					"		  case Integer s && s == 2:\n" +
+					"			  System.out.println(s);break;\n" +
+					"		  case null, default:\n" +
+					"			  System.out.println(\"null/default\");\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static  void main(String[] args) {\n" +
+					"		foo(null);\n" +
+					"	}\n" +
+					"}",
+				},
+				"null/default");
 	}
 	public void testBug575360_001() {
 		runConformTest(

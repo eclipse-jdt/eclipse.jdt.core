@@ -12203,21 +12203,13 @@ public void StrictfpNotRequired(int sourceStart, int sourceEnd) {
 			NoArgument, NoArgument,
 			sourceStart, sourceEnd);
 }
-public void switchPatternConstantWithPatternIncompatible(Expression element) {
-	this.handle(
-			IProblem.SwitchPatternConstantWithPatternIncompatible,
-			NoArgument,
-			NoArgument,
-			element.sourceStart,
-			element.sourceEnd);
-}
-public void IllegalFallThroughToPattern(CaseStatement caseStatement) {
+public void IllegalFallThroughToPattern(Statement statement) {
 	this.handle(
 		IProblem.IllegalFallthroughToPattern,
 		NoArgument,
 		NoArgument,
-		caseStatement.sourceStart,
-		caseStatement.sourceEnd);
+		statement.sourceStart,
+		statement.sourceEnd);
 	}
 public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
 	this.handle(
@@ -12262,6 +12254,14 @@ public void illegalTotalPatternWithDefault(Statement element) {
 public void enhancedSwitchMissingDefaultCase(ASTNode element) {
 	this.handle(
 			IProblem.EnhancedSwitchMissingDefaultCase,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void duplicateTotalPattern(ASTNode element) {
+	this.handle(
+			IProblem.DuplicateTotalPattern,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,

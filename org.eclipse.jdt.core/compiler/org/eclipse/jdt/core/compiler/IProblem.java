@@ -2498,4 +2498,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int EnhancedSwitchMissingDefaultCase = PreviewRelated + 1908;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int DuplicateTotalPattern = PreviewRelated + 1909;
 }

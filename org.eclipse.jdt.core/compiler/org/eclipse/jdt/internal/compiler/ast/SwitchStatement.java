@@ -67,7 +67,8 @@ public class SwitchStatement extends Expression {
 	public int caseCount;
 	int[] constants;
 	int[] constMapping;
-	String[] stringConstants;
+	// Any non int constants
+	public ResolvedCase[] otherConstants;
 	public int nConstants;
 	public int switchBits;
 
@@ -315,13 +316,14 @@ public class SwitchStatement extends Expression {
 				And the three string cases and use the this.constMapping to get the correct branch label.
 			 */
 			final boolean hasCases = this.caseCount != 0;
-			int constSize = hasCases ? this.stringConstants.length : 0;
+			int constSize = hasCases ? this.otherConstants.length : 0;
 			BranchLabel[] sourceCaseLabels = this.<BranchLabel>gatherLabels(codeStream, new BranchLabel[this.nConstants], BranchLabel::new);
 			StringSwitchCase [] stringCases = new StringSwitchCase[constSize]; // may have to shrink later if multiple strings hash to same code.
 			CaseLabel [] hashCodeCaseLabels = new CaseLabel[constSize];
 			this.constants = new int[constSize];  // hashCode() values.
 			for (int i = 0; i < constSize; i++) {
-				stringCases[i] = new StringSwitchCase(this.stringConstants[i].hashCode(), this.stringConstants[i], sourceCaseLabels[this.constMapping[i]]);
+				String literal = this.otherConstants[i].c.stringValue();
+				stringCases[i] = new StringSwitchCase(literal.hashCode(), literal, sourceCaseLabels[this.constMapping[i]]);
 				hashCodeCaseLabels[i] = new CaseLabel(codeStream);
 				hashCodeCaseLabels[i].tagBits |= BranchLabel.USED;
 			}
@@ -450,7 +452,7 @@ public class SwitchStatement extends Expression {
 				Expression e = stmt.constantExpressions[k];
 				if (e instanceof FakeDefaultLiteral) continue;
 				targetLabels[count++] = (caseLabels[j] = newLabel.apply(codeStream));
-				if (this.totalPattern != null &&  e.equals(this.totalPattern))
+				if (e == this.totalPattern)
 					this.defaultCase = stmt;
 				caseLabels[j++].tagBits |= BranchLabel.USED;
 			}
@@ -478,7 +480,7 @@ public class SwitchStatement extends Expression {
 
 			// prepare the labels and constants
 			this.breakLabel.initialize(codeStream);
-			int constantCount = this.constants == null ? 0 : this.constants.length;
+			int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length;
 			CaseLabel[] caseLabels = this.<CaseLabel>gatherLabels(codeStream, new CaseLabel[this.nConstants], CaseLabel::new);
 
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
@@ -668,7 +670,6 @@ public class SwitchStatement extends Expression {
 			codeStream.dup();
 			codeStream.invokeJavaUtilObjectsrequireNonNull();
 			codeStream.pop();
-
 		}
 
 		codeStream.store(this.dispatchPatternCopy, false);
@@ -819,13 +820,9 @@ public class SwitchStatement extends Expression {
 				// collection of cases is too big but we will only iterate until caseCount
 				this.cases = new CaseStatement[length = this.statements.length];
 				this.nConstants = getNConstants();
-				if (!isStringSwitch) {
-					this.constants = new int[this.nConstants];
-					this.constMapping = new int[this.nConstants];
-				} else {
-					this.stringConstants = new String[this.nConstants];
-					this.constMapping = new int[this.nConstants];
-				}
+				this.constants = new int[this.nConstants];
+				this.otherConstants = new ResolvedCase[this.nConstants];
+				this.constMapping = new int[this.nConstants];
 				int counter = 0;
 				int caseCounter = 0;
 				Pattern[] patterns = new Pattern[this.nConstants];
@@ -855,26 +852,25 @@ public class SwitchStatement extends Expression {
 							Constant con = c.c;
 							if (con == Constant.NotAConstant)
 								continue;
-							if (isStringSwitch) {
-								this.stringConstants[counter] = con.stringValue();
-							} else {
-								this.constants[counter] = con.intValue();
-							}
+							this.otherConstants[counter] = c;
+							final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
+							this.constants[counter] = c1;
 							for (int j = 0; j < counter; j++) {
 								IntPredicate check = (idx) -> {
+									Constant c2 = this.otherConstants[idx].c;
 									if (con.typeID() == TypeIds.T_JavaLangString) {
-										return this.stringConstants[idx].equals(con.stringValue());
+										return c2.stringValue().equals(con.stringValue());
 									} else {
-										return this.constants[idx] == con.intValue();
+										return (c2.typeID() == TypeIds.T_JavaLangString) ? false : c2.intValue() == c1;
 									}
 								};
-								Pattern p1 = patterns[j];
 								TypeBinding type = c.e.resolvedType;
+								if (!type.isValidBinding())
+									continue;
+								Pattern p1 = patterns[j];
 								if (p1 != null) {
-									if (c.e instanceof Pattern) {
-										if (check.test(j)) {
-											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
-										} else if (p1.dominates((Pattern) c.e)) {
+									if (c.isPattern()) {
+										if (p1.dominates((Pattern) c.e)) {
 											this.scope.problemReporter().patternDominatedByAnother(c.e);
 										}
 									} else {
@@ -887,12 +883,11 @@ public class SwitchStatement extends Expression {
 										}
 									}
 								} else {
-									if (check.test(j)) {
+									if (!c.isPattern() && check.test(j)) {
 										reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
 									}
 								}
 							}
-
 							this.constMapping[counter] = counter;
 							caseIndex[counter] = caseCounter;
 							// Only the pattern expressions count for dominance check
@@ -905,11 +900,8 @@ public class SwitchStatement extends Expression {
 					caseCounter++;
 				}
 				if (length != counter) { // resize constants array
-					if (!isStringSwitch) {
-						System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);
-					} else {
-						System.arraycopy(this.stringConstants, 0, this.stringConstants = new String[counter], 0, counter);
-					}
+					System.arraycopy(this.otherConstants, 0, this.otherConstants = new ResolvedCase[counter], 0, counter);
+					System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);
 					System.arraycopy(this.constMapping, 0, this.constMapping = new int[counter], 0, counter);
 				}
 			} else {
@@ -936,16 +928,21 @@ public class SwitchStatement extends Expression {
 			// for enum switch, check if all constants are accounted for (perhaps depending on existence of a default case)
 			if (isEnumSwitch && compilerOptions.complianceLevel >= ClassFileConstants.JDK1_5) {
 				if (this.defaultCase == null || compilerOptions.reportMissingEnumCaseDespiteDefault) {
-					int constantCount = this.constants == null ? 0 : this.constants.length; // could be null if no case statement
-					if (constantCount >= this.caseCount
-							&& constantCount != ((ReferenceBinding)expressionType).enumConstantCount()) {
+					int constantCount = this.otherConstants == null ? 0 : this.otherConstants.length; // could be null if no case statement
+					// The previous computation of exhaustiveness by comparing the size of cases to the enum fields
+					// no longer holds true when we throw in a pattern expression to the mix.
+					// And if there is a total pattern, then we don't have to check further.
+					if (!((this.switchBits & TotalPattern) != 0) &&
+							(this.containsPatterns ||
+							(constantCount >= this.caseCount &&
+							constantCount != ((ReferenceBinding)expressionType).enumConstantCount()))) {
 						FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
 						for (int i = 0, max = enumFields.length; i <max; i++) {
 							FieldBinding enumConstant = enumFields[i];
 							if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
 							findConstant : {
 								for (int j = 0; j < constantCount; j++) {
-									if ((enumConstant.id + 1) == this.constants[j]) // zero should not be returned see bug 141810
+									if ((enumConstant.id + 1) == this.otherConstants[j].c.intValue()) // zero should not be returned see bug 141810
 										break findConstant;
 								}
 								this.switchBits &= ~(1 << SwitchStatement.Exhaustive);
