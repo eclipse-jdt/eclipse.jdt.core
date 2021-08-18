@@ -392,6 +392,9 @@ public class SwitchStatement extends Expression {
 						if (this.preSwitchInitStateIndex != -1) {
 							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 						}
+						if (statement == this.defaultCase) { // statements[i] is a case or a default case
+							defaultCaseLabel.place(); // branch label gets placed by generateCode below.
+						}
 						caseIndex++;
 					} else {
 						if (statement == this.defaultCase) { // statements[i] is a case or a default case

@@ -3432,4 +3432,21 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"3");
 	}
+	public void testBug575360_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" static void foo(String myVar) { // String\n"+
+					"    switch (myVar) {\n"+
+					"     case null, default : System.out.println(\"hello\");\n"+
+					"   };   \n"+
+					" }\n"+
+					" public static  void main(String[] args) { \n"+
+					"   foo(new String(\"Hello\")); \n"+
+					" }\n"+
+					"}",
+				},
+				"hello");
+	}
 }
