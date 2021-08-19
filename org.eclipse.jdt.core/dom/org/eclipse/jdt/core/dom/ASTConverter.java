@@ -3456,7 +3456,6 @@ class ASTConverter {
 		int sourceEnd= pattern.sourceEnd;
 		typePattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		return typePattern;
-
 	}
 
 	public Name convert(org.eclipse.jdt.internal.compiler.ast.TypeReference typeReference) {
@@ -3911,18 +3910,6 @@ class ASTConverter {
 			variableDecl.resolveBinding();
 		}
 		return variableDecl;
-	}
-
-	protected SimpleName convertToSimpleName(LocalDeclaration localDeclaration) {
-		final SimpleName name = new SimpleName(this.ast);
-		name.internalSetIdentifier(new String(localDeclaration.name));
-		int start = localDeclaration.sourceStart;
-		int nameEnd = localDeclaration.sourceEnd;
-		name.setSourceRange(start, nameEnd - start + 1);
-		if (this.resolveBindings) {
-			recordNodes(name, localDeclaration);
-		}
-		return name;
 	}
 
 	private Dimension convertToDimensions(int start, int end, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotation) {

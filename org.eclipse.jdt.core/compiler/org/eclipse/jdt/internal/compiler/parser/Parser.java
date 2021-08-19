@@ -10841,7 +10841,7 @@ protected void consumeTypePattern() {
 	TypePattern aTypePattern = new TypePattern(local);
 	aTypePattern.sourceStart = this.intStack[this.intPtr--];
 	local.modifiers =  this.intStack[this.intPtr--];
-	local.declarationSourceStart = aTypePattern.sourceStart;
+	local.declarationSourceStart = type.sourceStart;
 	aTypePattern.sourceEnd = local.sourceEnd;
 
 	problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart, local.declarationEnd);

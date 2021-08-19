@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -23,14 +24,19 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.GuardedPattern;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.Pattern;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypePattern;
 
 import junit.framework.Test;
@@ -285,5 +291,59 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		assertEquals("Case Default Expression",caseDefaultExpression.getNodeType() , ASTNode.CASE_DEFAULT_EXPRESSION);
 
 
+	}
+
+	public void testBug575250() throws CoreException {
+		if (!isJRE17) {
+			System.err.println("Test "+getName()+" requires a JRE 17");
+			return;
+		}
+		String contents = "public class X {\n" +
+				"  static void foo(Object o) {\n" +
+				"    switch (o) {\n" +
+				"      case (Integer i_1): System.out.println(\"Integer\");\n" +
+				"      default: System.out.println(\"Object\");" +
+				"    }\n" +
+				"  }\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List<AbstractTypeDeclaration> types = compilationUnit.types();
+		assertEquals("incorrect types", types.size(), 1);
+		AbstractTypeDeclaration type = types.get(0);
+		assertTrue("should be a type", type instanceof TypeDeclaration);
+		TypeDeclaration typeDecl = (TypeDeclaration)type;
+		final List<TypePattern> result = new ArrayList<>();
+		typeDecl.accept(new ASTVisitor() {
+			public boolean visit(TypePattern n) {
+				result.add(n);
+				return true;
+			}
+		});
+		assertEquals("incorrect no of patterns", 1, result.size());
+		TypePattern typePattern = result.get(0);
+		assertNotNull("pattern is null", typePattern);
+		int start = contents.indexOf("Integer");
+		int length = "Integer i_1".length();
+		assertEquals("wrong source range", typePattern.getStartPosition(), start);
+		assertEquals("wrong source range", typePattern.getLength(), length);
+
+		SingleVariableDeclaration patternVariable = typePattern.getPatternVariable();
+		assertEquals("wrong source range", patternVariable.getStartPosition(), start);
+		assertEquals("wrong source range", patternVariable.getLength(), length);
+
+		Type type2 = patternVariable.getType();
+		assertEquals("wrong source range", type2.getStartPosition(), start);
+		assertEquals("wrong source range", type2.getLength(), "Integer".length());
+
+		SimpleName name = patternVariable.getName();
+		start = contents.indexOf("i_1");
+		assertEquals("wrong source range", name.getStartPosition(), start);
+		assertEquals("wrong source range", name.getLength(), "i_1".length());
 	}
 }
