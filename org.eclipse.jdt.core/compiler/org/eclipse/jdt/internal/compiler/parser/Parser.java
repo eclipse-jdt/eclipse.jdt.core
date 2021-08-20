@@ -10134,7 +10134,9 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 				this.recordNullSwitches.put(this.switchNestingLevel, Boolean.TRUE);
 			break;
 		case CASE_DEFAULT:
-			pushOnExpressionStack(new FakeDefaultLiteral(this.scanner.startPosition, this.scanner.currentPosition - 1));
+			int end = this.intStack[this.intPtr--];
+			int start = this.intStack[this.intPtr--];
+			pushOnExpressionStack(new FakeDefaultLiteral(start, end));
 			break;
 		default : break;
 	}

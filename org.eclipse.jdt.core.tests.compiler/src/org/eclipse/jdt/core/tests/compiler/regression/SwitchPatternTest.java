@@ -370,7 +370,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
-			"	                       ^\n" +
+			"	               ^^^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 5)\n" +
@@ -885,7 +885,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 13)\n" +
 				"	case default:\n" +
-				"	           ^^\n" +
+				"	^^^^^^^^^^^^\n" +
 				"The default case is already defined\n" +
 				"----------\n");
 	}
@@ -1450,7 +1450,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
 			"	case 1, default, default   : k = 1;\n" +
-			"	                       ^^^^^\n" +
+			"	                 ^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n");
 	}
@@ -1524,7 +1524,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case default, 1, default   : k = 1;\n" +
-			"	                       ^^^^^\n" +
+			"	                 ^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n");
 	}
@@ -1549,7 +1549,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case default, 1, default   : k = 1;\n" +
-			"	                       ^^^^^\n" +
+			"	                 ^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n");
 	}
@@ -1984,7 +1984,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, default, var k  -> System.out.println(0);\n" +
-			"	                     ^^^^^^^^\n" +
+			"	               ^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
@@ -2051,7 +2051,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case String s, default, Integer i  -> System.out.println(0);\n" +
-			"	                      ^\n" +
+			"	               ^^^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
@@ -2130,7 +2130,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case 1, default, null  -> System.out.println(0);\n" +
-			"	               ^\n" +
+			"	        ^^^^^^^\n" +
 			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
@@ -2157,7 +2157,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case default, default -> System.out.println(0);\n" +
-			"	                    ^^^^\n" +
+			"	              ^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n");
 	}

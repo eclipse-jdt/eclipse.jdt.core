@@ -234,7 +234,8 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 	if (patternSwitchAllowed) {
 		for (Expression e : this.constantExpressions) {
 			 if (e instanceof FakeDefaultLiteral) {
-				 flagDuplicateDefault(scope, switchStatement);
+				 flagDuplicateDefault(scope, switchStatement,
+						 this.constantExpressions.length > 1 ? e : this);
 				 if (patternCaseLabelCount > 0) {
 					 scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
 				 }
@@ -293,7 +294,7 @@ private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchEx
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
 	if (this.constantExpressions == null) {
-		flagDuplicateDefault(scope, switchStatement);
+		flagDuplicateDefault(scope, switchStatement, this);
 		return ResolvedCase.UnresolvedCase;
 	}
 	Expression constExpr = getFirstValidExpression(scope, switchStatement);
@@ -337,10 +338,10 @@ private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchEx
 	return ResolvedCase.UnresolvedCase;
 }
 
-private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatement) {
+private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatement, ASTNode node) {
 	// remember the default case into the associated switch statement
 	if (switchStatement.defaultCase != null)
-		scope.problemReporter().duplicateDefaultCase(this);
+		scope.problemReporter().duplicateDefaultCase(node);
 
 	// on error the last default will be the selected one ...
 	switchStatement.defaultCase = this;
