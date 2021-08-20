@@ -261,7 +261,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void _testCaseDefaultExpressionPattern() throws CoreException {
+	public void testCaseDefaultExpressionPattern() throws CoreException {
 		if (!isJRE17) {
 			printJREError();
 			return;
