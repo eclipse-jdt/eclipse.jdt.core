@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575052"};
+//		TESTS_NAMES = new String[] { "testBug573937_11"};
 	}
 
 	private static String previewLevel = "17";
@@ -77,6 +77,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+		runNegativeTest(testFiles, expectedCompilerLog, "");
+	}
+	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, String javacLog) {
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedCompilerLog;
+		runner.expectedJavacOutputString = expectedCompilerLog;
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.customOptions = getCompilerOptions();
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
+		runner.runNegativeTest();
 		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
@@ -1173,6 +1184,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"
 				+ "@SuppressWarnings(\"null\")"
 				+ "	public static void foo(Object o) {\n"
+				+ "	  try {\n"
 				+ "		switch (o) {\n"
 				+ "			case String s1 && s1.length() == 0:\n"
 				+ "					break;"
@@ -1183,15 +1195,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "			default:\n"
 				+ "				break;\n"
 				+ "		}\n"
+				+ "	  } catch(Exception e) {\n"
+				+ "    System.out.println(e.getMessage());\n"
+				+ "	  };\n"
 				+ "	}\n"
 				+ "	public static void main(String[] args) {\n"
 				+ "		foo(\"hello\");\n"
 				+ "	}\n"
 				+ "}",
 		};
-		runner.expectedErrorString = "Exception in thread \"main\" java.lang.NullPointerException: Cannot invoke \"String.length()\" because \"s1\" is null\n" +
-										"	at X.foo(X.java:7)\n" +
-										"	at X.main(X.java:14)";
+		runner.expectedOutputString = "Cannot invoke \"String.length()\" because \"s1\" is null";
+		runner.expectedJavacOutputString = "Cannot invoke \"String.length()\" because \"<local4>\" is null";
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = getCompilerOptions();
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
@@ -1213,13 +1227,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "		}\n"
 				+ "	}\n"
 				+ "	public static void main(String[] args) throws Exception {\n"
-				+ "		foo(\"hello\");\n"
+				+ "		try {\n"
+				+ "		  foo(\"hello\");\n"
+				+ "		} catch(Exception e) {\n"
+				+ "		  e.printStackTrace(System.out);\n"
+				+ "		};\n"
 				+ "	}\n"
 				+ "} ",
 		};
-		runner.expectedErrorString = "Exception in thread \"main\" java.lang.Exception: hello\n" +
+		runner.expectedOutputString = "java.lang.Exception: hello\n" +
 				"	at X.foo(X.java:5)\n" +
-				"	at X.main(X.java:11)";
+				"	at X.main(X.java:12)";
+		runner.expectedJavacOutputString = "java.lang.Exception: hello\n"
+				+ "	at X.foo(X.java:5)\n"
+				+ "	at X.main(X.java:12)";
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = getCompilerOptions();
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
@@ -1755,13 +1776,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "public static void main(String[] args) {\n"
 					+ "		try{\n"
 					+ "			foo(Integer.valueOf(5));\n"
-					+ "		} catch(Exception t) {\n"
-					+ "		 	t.printStackTrace();\n"
+					+ "		} catch(Exception e) {\n"
+					+ "		 	e.printStackTrace(System.out);\n"
 					+ "		}\n"
 					+ "	}\n"
 					+ "}",
 				},
-				"",
 				"java.lang.IllegalArgumentException\n" +
 				"	at X.foo(X.java:5)\n" +
 				"	at X.main(X.java:12)");
@@ -2762,13 +2782,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	public static void main(String[] args) {\n" +
 				"		try{\n" +
 				"		  (new X()).foo(null);\n" +
-				"		} catch(Exception t) {\n" +
-				"		 	t.printStackTrace();\n" +
+				"		} catch(Exception e) {\n" +
+				"		 	e.printStackTrace(System.out);\n" +
 				"		}\n" +
 				"	}\n"+
 				"}",
 			},
-			"",
 			"java.lang.NullPointerException\n" +
 			"	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n" +
 			"	at X.foo(X.java:3)\n" +
@@ -3610,5 +3629,85 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	                                             ^^\n" +
 				"Duplicate local variable c1\n" +
 				"----------\n");
+	}
+	// Fails with Javac as it prints Javac instead of throwing NPE
+	// https://bugs.openjdk.java.net/browse/JDK-8272776
+	public void testBug575051_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public void foo(Object o) {\n" +
+					"	  try{\n" +
+					"		switch (o) {\n" +
+					"		  default:\n" +
+					"			  break;\n" +
+					"		  case String s :\n" +
+					"			  System.out.println(s);\n" +
+					"		} \n" +
+					"	  } catch(Exception t) {\n" +
+					"		 t.printStackTrace(System.out);\n" +
+					"	  }\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		  (new X()).foo(null);\n" +
+					"	}\n" +
+					"}",
+				},
+				"java.lang.NullPointerException\n"
+				+ "	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n"
+				+ "	at X.foo(X.java:4)\n"
+				+ "	at X.main(X.java:15)");
+	}
+	// Test we don't report any illegal fall-through to null case
+	public void testBug575051_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public void foo(Object o) {\n" +
+					"		switch (o) {\n" +
+					"		  case String s :\n" +
+					"			  System.out.println(s);\n" +
+					"				//$FALL-THROUGH$\n" +
+					"		  case null:\n" +
+					"			  break;\n" +
+					"		  default : \n" +
+					"				  break;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		(new X()).foo(null);\n" +
+					"	}\n" +
+					"}",
+				},
+				"");
+	}
+	// Test we do report illegal fall-through to pattern
+	public void testBug575051_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+								"	public void foo(Object o) {\n" +
+								"		switch (o) {\n" +
+								"		  default : \n" +
+								"		  case String s :\n" +
+								"			  System.out.println();\n" +
+								"			  break;\n" +
+								"		}\n" +
+								"	}\n" +
+								"	public static void main(String[] args) {\n" +
+								"		  (new X()).foo(null);\n" +
+								"	}\n" +
+								"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case String s :\n" +
+				"	^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n",
+				"");
 	}
 }

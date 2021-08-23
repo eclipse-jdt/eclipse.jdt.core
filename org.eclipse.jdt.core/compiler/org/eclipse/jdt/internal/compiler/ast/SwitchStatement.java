@@ -176,7 +176,7 @@ public class SwitchStatement extends Expression {
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
 						if (fallThroughState == FALLTHROUGH) {
-							if (this.containsPatterns)
+							if (((CaseStatement) statement).containsPatternVariable())
 								this.scope.problemReporter().IllegalFallThroughToPattern(this.scope.enclosingCase);
 							else if ((statement.bits & ASTNode.DocumentedFallthrough) == 0) { // the case is not fall-through protected by a line comment
 								this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
