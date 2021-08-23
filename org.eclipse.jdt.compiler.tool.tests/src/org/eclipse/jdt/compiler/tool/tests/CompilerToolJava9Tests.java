@@ -130,7 +130,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		Files.createDirectories(_tmpSrcDir.toPath());
 		assertTrue("couldn't mkdirs " + _tmpSrcFolderName, _tmpSrcDir.exists());
 
-		modules_directory = getPluginDirectoryPath() + File.separator + "resources" + File.separator + "module_locations";
+		modules_directory = getPluginDirectoryPath() + File.separator + RESOURCES_DIR + File.separator + "module_locations";
 
 		Path moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.one", "module-info.java");
 		assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
@@ -836,6 +836,51 @@ public class CompilerToolJava9Tests extends TestCase {
  		options.add(tmpFolder);
  		options.add("--module-source-path");
  		options.add(modules_directory + File.separator + "bug566749");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				super.report(diagnostic);
+			}
+		};
+ 		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+ 		// check the classpath location
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (result.booleanValue()) {
+ 			System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation did not fail as expected ", false);
+ 		}
+	}
+	public void testBug574097() throws IOException {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = _tmpFolder;
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(new File(modules_directory + File.separator + "bug574097" + File.separator + 
+ 				"mod.one" + File.separator + "module-info.java"));
+		files.add(new File(modules_directory + File.separator + "bug574097" + File.separator + 
+ 				"mod.one" + File.separator + "abc" + File.separator + "A.java"));
+		
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options = new ArrayList<String>();
+ 		options.add("-d");
+ 		options.add(tmpFolder);
+ 		options.add("--module-path");
+ 		options.add(tmpFolder);
+ 		options.add("--module-source-path");
+ 		options.add(modules_directory + File.separator + "bug574097");
+ 		options.add("--processor-module-path");
+ 		options.add(getPluginDirectoryPath() + File.separator + RESOURCES_DIR + File.separator + "bug574097.jar");
 		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
 		PrintWriter err = new PrintWriter(errBuffer);
 		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
