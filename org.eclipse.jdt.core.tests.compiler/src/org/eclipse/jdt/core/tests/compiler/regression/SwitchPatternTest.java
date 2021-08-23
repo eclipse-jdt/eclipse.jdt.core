@@ -3710,4 +3710,54 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n",
 				"");
 	}
+	public void testBug575571_1() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		runWarningTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public void foo(Color o) {\n" +
+						"		switch (o) {\n" +
+						"		  case Blue:\n" +
+						"			break;\n" +
+						"		}\n" +
+						"	}\n" +
+						"	public static void main(String[] args) {}\n" +
+						"}\n" +
+						"enum Color {	Blue;  }\n",
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	switch (o) {\n" +
+				"	        ^\n" +
+				"The switch over the enum type Color should have a default case\n" +
+				"----------\n",
+				options);
+	}
+	public void testBug575571_2() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public void foo(Color o) {\n" +
+						"		switch (o) {\n" +
+						"		  case Blue:\n" +
+						"		  case Color c:\n" +
+						"			break;\n" +
+						"		}\n" +
+						"	}\n" +
+						"	public static void main(String[] args) {}\n" +
+						"}\n" +
+						"enum Color {	Blue, Red;  }\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case Color c:\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n");
+	}
 }

@@ -970,7 +970,7 @@ public class SwitchStatement extends Expression {
 		if (JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(upperScope.compilerOptions())
 				&& expressionType != null && !(this instanceof SwitchExpression )) {
 
-			boolean acceptableType = true;
+			boolean acceptableType = !expressionType.isEnum();
 			switch (expressionType.id) {
 				case TypeIds.T_char:
 				case TypeIds.T_byte:
