@@ -3328,6 +3328,9 @@ protected final void scanEscapeCharacter() throws InvalidInputException {
 			this.currentCharacter = '\'';
 			break;
 		case 's' :
+			if (this.sourceLevel < ClassFileConstants.JDK15) {
+				throw new InvalidInputException(INVALID_ESCAPE);
+			}
 			this.currentCharacter = ' ';
 			break;
 		case '\\' :
