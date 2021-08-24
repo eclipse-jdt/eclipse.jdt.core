@@ -467,6 +467,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.RedundantNullCheckOnConstNonNullField:
 		case IProblem.ConstNonNullFieldComparisonYieldsFalse:
 		case IProblem.FieldComparisonYieldsFalse:
+		case IProblem.UnnecessaryNullCaseInSwitchOverNonNull:
 			return CompilerOptions.RedundantNullCheck;
 
 		case IProblem.RequiredNonNullButProvidedNull:
@@ -6340,6 +6341,9 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 	}
 	this.handle(problemId, arguments, arguments, start, end);
 	return true;
+}
+public void unnecessaryNullCaseInSwitchOverNonNull(CaseStatement caseStmt) {
+	this.handle(IProblem.UnnecessaryNullCaseInSwitchOverNonNull, NoArgument, NoArgument, caseStmt.sourceStart, caseStmt.sourceEnd);
 }
 public void nullAnnotationUnsupportedLocation(Annotation annotation) {
 	String[] arguments = new String[] {

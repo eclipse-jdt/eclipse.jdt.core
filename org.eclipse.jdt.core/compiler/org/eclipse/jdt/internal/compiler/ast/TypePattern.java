@@ -60,6 +60,19 @@ public class TypePattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo.markAsDefinitelyAssigned(this.local.binding);
+		if (!this.isTotalTypeNode) {
+			// non-total type patterns create a nonnull local:
+			flowInfo.markAsDefinitelyNonNull(this.local.binding);
+		} else {
+			// total type patterns inherit the nullness of the value being switched over, unless ...
+			if (flowContext.associatedNode instanceof SwitchStatement) {
+				SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
+				int nullStatus = swStmt.containsNull
+						? FlowInfo.NON_NULL // ... null is handled in a separate case
+						: swStmt.expression.nullStatus(flowInfo, flowContext);
+				flowInfo.markNullStatus(this.local.binding, nullStatus);
+			}
+		}
 		return flowInfo;
 	}
 

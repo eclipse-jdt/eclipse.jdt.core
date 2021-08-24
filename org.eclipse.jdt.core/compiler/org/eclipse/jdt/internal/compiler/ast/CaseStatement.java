@@ -99,6 +99,12 @@ private void analyseConstantExpression(
 				&& (e instanceof NullLiteral || e instanceof FakeDefaultLiteral);
 		if (!caseNullorDefaultAllowed)
 			currentScope.problemReporter().caseExpressionMustBeConstant(e);
+		if (e instanceof NullLiteral && flowContext.associatedNode instanceof SwitchStatement) {
+			Expression switchValue = ((SwitchStatement) flowContext.associatedNode).expression;
+			if (switchValue != null && switchValue.nullStatus(flowInfo, flowContext) == FlowInfo.NON_NULL) {
+				currentScope.problemReporter().unnecessaryNullCaseInSwitchOverNonNull(this);
+			}
+		}
 	}
 	e.analyseCode(currentScope, flowContext, flowInfo);
 }

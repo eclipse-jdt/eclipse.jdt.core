@@ -151,9 +151,7 @@ public class SwitchStatement extends Expression {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
 			flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-			if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0
-					|| (this.expression.resolvedType != null
-							&& (this.expression.resolvedType.id == T_JavaLangString || this.expression.resolvedType.isEnum()))) {
+			if (isNullHostile()) {
 				this.expression.checkNPE(currentScope, flowContext, flowInfo, 1);
 			}
 			SwitchFlowContext switchContext =
@@ -242,6 +240,17 @@ public class SwitchStatement extends Expression {
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
+	}
+	private boolean isNullHostile() {
+		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
+			return true;
+		} else if (this.expression.resolvedType != null
+						&& (this.expression.resolvedType.id == T_JavaLangString || this.expression.resolvedType.isEnum())) {
+			return true;
+		} else if ((this.switchBits & (LabeledRules|NullCase)) == LabeledRules && this.totalPattern == null) {
+			return true;
+		}
+		return false;
 	}
 
 	/**

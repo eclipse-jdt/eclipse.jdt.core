@@ -222,6 +222,7 @@ public static Test suite() {
 	 since_17.add(SealedTypesTests.class);
 	 since_17.add(SwitchPatternTest.class);
 	 since_17.add(InstanceofPrimaryPatternTest.class);
+	 since_17.add(NullAnnotationTests17.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
