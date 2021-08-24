@@ -1649,18 +1649,27 @@ protected static class JavacTestOptions {
 		return null;
 	}
 
-	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths) {
+	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths, Map<String, String> options) {
+		if (options == null)
+			options = getCompilerOptions();
 		String encoding = getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
 			encoding = null;
+		String release = null;
+		if (CompilerOptions.ENABLED.equals(options.get(CompilerOptions.OPTION_Release))) {
+			release = getCompilerOptions().get(CompilerOptions.OPTION_Compliance);
+		}
 		if (useDefaultClasspaths && encoding == null)
-			return DefaultJavaRuntimeEnvironment.create(this.classpaths);
+			return DefaultJavaRuntimeEnvironment.create(this.classpaths, release);
 		// fall back to FileSystem
 		INameEnvironment[] classLibs = new INameEnvironment[1];
 		classLibs[0] = new FileSystem(this.classpaths, new String[]{}, // ignore initial file names
-				encoding // default encoding
+				encoding, release
 		);
 		return classLibs;
+	}
+	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths) {
+		return getClassLibs(useDefaultClasspaths, null);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
@@ -1740,9 +1749,12 @@ protected static class JavacTestOptions {
 	/*
 	 * Will consider first the source units passed as arguments, then investigate the classpath: jdklib + output dir
 	 */
-	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
+	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		return new InMemoryNameEnvironment(testFiles, getClassLibs(classPaths == null));
+		return new InMemoryNameEnvironment(testFiles, getClassLibs((classPaths == null), options));
+	}
+	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
+		return getNameEnvironment(testFiles, classPaths, null);
 	}
 	protected IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
@@ -3440,7 +3452,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		compilerOptions.performMethodsFullRecovery = performStatementsRecovery;
 		compilerOptions.performStatementsRecovery = performStatementsRecovery;
-		INameEnvironment nameEnvironment = getNameEnvironment(dependantFiles, classLibraries);
+		INameEnvironment nameEnvironment = getNameEnvironment(dependantFiles, classLibraries, options);
 		Compiler batchCompiler =
 			new Compiler(
 				nameEnvironment,

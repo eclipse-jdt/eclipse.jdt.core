@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 GK Software AG, and others.
+ * Copyright (c) 2017, 2021 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,9 +50,9 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 	}
 
 	@Override
-	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
+	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		INameEnvironment[] classLibs = getClassLibs(classPaths == null);
+		INameEnvironment[] classLibs = getClassLibs(classPaths == null, options);
 		for (INameEnvironment nameEnvironment : classLibs) {
 			((FileSystem) nameEnvironment).scanForModules(createParser());
 		}

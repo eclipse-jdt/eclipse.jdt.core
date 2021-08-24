@@ -52,10 +52,10 @@ protected void tearDown() throws Exception {
 }
 
 @Override
-protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
+protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 	// constructs a name environment that is able to hide a type of name 'this.invisibleType':
 	this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-	return new InMemoryNameEnvironment(testFiles, getClassLibs(classPaths == null)) {
+	return new InMemoryNameEnvironment(testFiles, getClassLibs(classPaths == null, options)) {
 		@Override
 		public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 			if (DeprecatedTest.this.invisibleType != null && CharOperation.equals(DeprecatedTest.this.invisibleType, compoundTypeName))

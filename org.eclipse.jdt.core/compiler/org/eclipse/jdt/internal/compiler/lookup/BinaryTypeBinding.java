@@ -667,7 +667,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			}
 			for (IBinaryAnnotation annotation : declAnnotations) {
 				char[] typeName = annotation.getTypeName();
-				if (CharOperation.endsWith(typeName, ConstantPool.PREVIEW_FEATURE)) {
+				if (isPreviewFeature(typeName)) {
 					this.tagBits |= TagBits.AnnotationPreviewFeature;
 					break;
 				}
@@ -817,7 +817,7 @@ private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binar
 					if (declAnnotations != null) {
 						for (IBinaryAnnotation annotation : declAnnotations) {
 							char[] typeName = annotation.getTypeName();
-							if (CharOperation.endsWith(typeName, ConstantPool.PREVIEW_FEATURE)) {
+							if (isPreviewFeature(typeName)) {
 								field.tagBits |= TagBits.AnnotationPreviewFeature;
 								break;
 							}
@@ -857,6 +857,14 @@ private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binar
 		this.environment.mayTolerateMissingType = save;
 	}
 	return tFields;
+}
+
+private boolean isPreviewFeature(char[] typeName) {
+	int index = CharOperation.lastIndexOf('/', typeName);
+	if (index != -1)
+		typeName = CharOperation.subarray(typeName, index, typeName.length);
+	index = CharOperation.indexOf(ConstantPool.PREVIEW_FEATURE, typeName, true);
+	return index == 0;
 }
 
 private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames) {
@@ -1041,7 +1049,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	if (declAnnotations != null) {
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[] typeName = annotation.getTypeName();
-			if (CharOperation.endsWith(typeName, ConstantPool.PREVIEW_FEATURE)) {
+			if (isPreviewFeature(typeName)) {
 				result.tagBits |= TagBits.AnnotationPreviewFeature;
 				break;
 			}

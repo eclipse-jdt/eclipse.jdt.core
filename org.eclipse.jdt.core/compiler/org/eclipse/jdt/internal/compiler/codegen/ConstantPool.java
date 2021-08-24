@@ -315,7 +315,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] CloneSignature = "()Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] BOOTSTRAP = "bootstrap".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
-	public static final char[] PREVIEW_FEATURE = "/PreviewFeature;".toCharArray(); //$NON-NLS-1$
+	public static final char[] PREVIEW_FEATURE = "/PreviewFeature".toCharArray(); //$NON-NLS-1$
 	public static final char[] TYPESWITCH = "typeSwitch".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_TYPESWITCH_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2020 IBM Corporation.
+ * Copyright (c) 2018, 2021 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -107,7 +108,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 		if (this.compliance == null) {
 			return;
 		}
-		this.releaseInHex = Integer.toHexString(Integer.parseInt(this.compliance)).toUpperCase();
+		this.releaseInHex = CtSym.getReleaseCode(this.compliance);
 		Path filePath = this.jdkHome.toPath().resolve("lib").resolve("ct.sym"); //$NON-NLS-1$ //$NON-NLS-2$
 		URI t = filePath.toUri();
 		if (!Files.exists(filePath)) {

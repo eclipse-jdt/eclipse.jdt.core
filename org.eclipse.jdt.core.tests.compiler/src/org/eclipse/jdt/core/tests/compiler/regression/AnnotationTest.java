@@ -106,12 +106,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		return options;
 	}
 	@Override
-	protected INameEnvironment getNameEnvironment(String[] testFiles, String[] classPaths) {
+	protected INameEnvironment getNameEnvironment(String[] testFiles, String[] classPaths, Map<String, String> options) {
 		if (this.javaClassLib != null) {
 			this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
 			return new InMemoryNameEnvironment(testFiles, new INameEnvironment[] {this.javaClassLib });
 		}
-		return super.getNameEnvironment(testFiles, classPaths);
+		return super.getNameEnvironment(testFiles, classPaths, options);
 	}
 
 	/* (non-Javadoc)

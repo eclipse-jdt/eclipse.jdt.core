@@ -86,8 +86,6 @@ public class BatchCompilerTest_16 extends AbstractBatchCompilerTest {
                 }
         }
         public void testBug570399(){
-    		if (!AbstractBatchCompilerTest.isJREVersionEqualTo(CompilerOptions.VERSION_16))
-    			return;
         	this.runConformTest(
         		new String[] {
                     "src/X.java",

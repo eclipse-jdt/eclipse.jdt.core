@@ -41,11 +41,21 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	public PreviewFeatureTest(String testName){
 		super(testName);
 	}
-
+	@Override
+	protected Map<String, String> getCompilerOptions() {
+		Map<String, String> options = super.getCompilerOptions();
+		if (isJRE17Plus) {
+			options.put(CompilerOptions.OPTION_Release, CompilerOptions.ENABLED);
+		}
+		return options;
+	}
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No
 	 */
-	public void _test001() {
+	public void test001() {
+		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+			return;
+		}
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
@@ -90,7 +100,10 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=yes
 	 */
-	public void _test002() {
+	public void test002() {
+		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+			return;
+		}
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
@@ -127,9 +140,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	 * Preview API, --enable-preview=true, SuppressWarning=No
 	 */
 	public void test003() {
-		Map<String, String> options = getCompilerOptions();
 		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
 			return;
+		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		try {
