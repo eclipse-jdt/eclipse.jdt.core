@@ -327,6 +327,9 @@ public class Java12ElementProcessor extends BaseProcessor {
 		// Deliberately ignoring the extra bogus module to let this pass, so we can test the binary mode in next round
 		assertTrue("incorrect no of modules in root elements in "+ this.mode + " mode", (3 <= modules.size()));
 	}
+	public void testBug574097() {
+		// Nothing here. Just reaching here is not expected
+	}
 	private Element getRoot(Element elem) {
 		Element enclosingElement = elem.getEnclosingElement();
 		while (enclosingElement != null) {
