@@ -443,10 +443,7 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
-	// disabled because our implementation has no straight-forward representation of the scope
-	// where 'o' would be known to be non-null after 'default'.
-	// currently this would bogusly report "Potential null pointer access" against o.toString()
-	public void _test_defaultDoesNotApplyToNull() {
+	public void test_defaultDoesNotApplyToNull() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
 		runner.testFiles = new String[] {
@@ -457,6 +454,7 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 				  "		switch (o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
 				  "			default -> System.out.println(o.toString());\n" +
+				  "			case null -> System.out.print(\"null\");\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +
@@ -467,7 +465,34 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 				  "}\n"
 			};
 		runner.expectedCompilerLog = "";
-		runner.expectedOutputString = "3";
+		runner.expectedOutputString = "null";
+		runner.runConformTest();
+	}
+
+	public void test_defaultDoesNotApplyToNull_field() {
+		Runner runner = getDefaultRunner();
+		runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+		runner.testFiles = new String[] {
+				"X.java",
+				  "import org.eclipse.jdt.annotation.*;\n" +
+				  "public class X {\n" +
+				  "	@Nullable Object o;\n" +
+				  "	void foo() {\n" +
+				  "		switch (this.o) {\n" +
+				  "			case Integer i -> consumeInt(i);\n" +
+				  "			default -> System.out.println(this.o.toString());\n" +
+				  "			case null -> System.out.print(\"null\");\n" +
+				  "		};\n" +
+				  "	}\n" +
+				  "	void consumeInt(@NonNull Integer i) {\n" +
+				  "	}\n" +
+				  "	public static void main(String... args) {\n" +
+				  "		new X().foo();\n" +
+				  "	}\n" +
+				  "}\n"
+			};
+		runner.expectedCompilerLog = "";
+		runner.expectedOutputString = "null";
 		runner.runConformTest();
 	}
 }

@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.flow.SwitchFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -190,6 +191,19 @@ public class SwitchStatement extends Expression {
 							this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
 						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
+						if ((this.switchBits & LabeledRules) != 0 && this.expression instanceof Reference) {
+							Reference reference = (Reference) this.expression;
+							// default case does not apply to null => mark the variable being switched over as nonnull:
+							switch (reference.bits & ASTNode.RestrictiveFlagMASK) {
+								case Binding.LOCAL:
+									caseInits.markAsDefinitelyNonNull(reference.localVariableBinding());
+									break;
+								case Binding.FIELD:
+									if (this.scope.compilerOptions().enableSyntacticNullAnalysisForFields)
+										switchContext.recordNullCheckedFieldReference(reference, 2); // survive this case statement and into the next
+									break;
+							}
+						}
 						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = this.containsPatterns ? FALLTHROUGH : CASE;
 					} else {
