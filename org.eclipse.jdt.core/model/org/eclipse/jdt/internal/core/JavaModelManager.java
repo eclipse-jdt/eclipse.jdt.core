@@ -4361,9 +4361,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private void saveClasspathListCache(String cacheName) throws CoreException {
 		File file = getClasspathListFile(cacheName);
-		DataOutputStream out = null;
-		try {
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))){
 			Set<IPath> pathCache = getClasspathListCache(cacheName);
 			synchronized (pathCache) {
 				out.writeInt(pathCache.size());
@@ -4376,35 +4374,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving non-chaining jar cache", e); //$NON-NLS-1$
 			throw new CoreException(status);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// nothing we can do: ignore
-				}
-			}
 		}
 	}
 
 	private void saveVariablesAndContainers(ISaveContext context) throws CoreException {
 		File file = getVariableAndContainersFile();
-		DataOutputStream out = null;
-		try {
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
 			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
 			new VariablesAndContainersSaveHelper(out).save(context);
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving variables and containers", e); //$NON-NLS-1$
 			throw new CoreException(status);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// nothing we can do: ignore
-				}
-			}
 		}
 	}
 
