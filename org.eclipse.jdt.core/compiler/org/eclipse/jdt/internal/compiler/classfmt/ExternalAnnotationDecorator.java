@@ -223,22 +223,28 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 			ZipFile zipFile) throws IOException {
 		String qualifiedBinaryFileName = qualifiedBinaryTypeName + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 		if (zipFile == null) {
-			File annotationBase = new File(basePath);
-			if (annotationBase.isDirectory()) {
-				String filePath = annotationBase.getAbsolutePath() + '/' + qualifiedBinaryFileName;
-				try {
-					return new ExternalAnnotationProvider(new FileInputStream(filePath), qualifiedBinaryTypeName);
-				} catch (FileNotFoundException e) {
-					// Expected, no need to report an error here
-					return null;
-				}
-			}
+			return externalAnnotationProviderFile(basePath, qualifiedBinaryTypeName, qualifiedBinaryFileName);
 		} else {
 			ZipEntry entry = zipFile.getEntry(qualifiedBinaryFileName);
 			if (entry != null) {
 				try(InputStream is = zipFile.getInputStream(entry)) {
 					return new ExternalAnnotationProvider(is, qualifiedBinaryTypeName);
 				}
+			}
+			return null;
+		}
+	}
+
+	public static ExternalAnnotationProvider externalAnnotationProviderFile(String basePath, String qualifiedBinaryTypeName, String qualifiedBinaryFileName)
+			throws IOException {
+		File annotationBase = new File(basePath);
+		if (annotationBase.isDirectory()) {
+			String filePath = annotationBase.getAbsolutePath() + '/' + qualifiedBinaryFileName;
+			try {
+				return new ExternalAnnotationProvider(new FileInputStream(filePath), qualifiedBinaryTypeName);
+			} catch (FileNotFoundException e) {
+				// Expected, no need to report an error here
+				return null;
 			}
 		}
 		return null;

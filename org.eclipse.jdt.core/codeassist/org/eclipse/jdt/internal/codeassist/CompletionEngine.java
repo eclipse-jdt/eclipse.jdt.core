@@ -243,6 +243,8 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.BinaryTypeConverter;
 import org.eclipse.jdt.internal.core.INamingRequestor;
@@ -2101,6 +2103,12 @@ public final class CompletionEngine
 	 *      This position is relative to the source provided.
 	 */
 	public void complete(ICompilationUnit sourceUnit, int completionPosition, int pos, ITypeRoot root) {
+		try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles.createZipHolder(this)) {
+			completeCached(sourceUnit, completionPosition, pos, root);
+		}
+	}
+
+	private void completeCached(ICompilationUnit sourceUnit, int completionPosition, int pos, ITypeRoot root) {
 
 		if(DEBUG) {
 			System.out.print("COMPLETION IN "); //$NON-NLS-1$
@@ -2527,6 +2535,13 @@ public final class CompletionEngine
 	}
 
 	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
+		try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles.createZipHolder(this)) {
+			completeCached2(type, snippet, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic);
+		}
+	}
+
+	public void completeCached2(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
+
 		if(this.requestor != null){
 			this.requestor.beginReporting();
 		}
@@ -13419,7 +13434,6 @@ public final class CompletionEngine
 
 	private INameEnvironment getNoCacheNameEnvironment() {
 		if (this.noCacheNameEnvironment == null) {
-			JavaModelManager.getJavaModelManager().cacheZipFiles(this);
 			this.noCacheNameEnvironment = IndexBasedJavaSearchEnvironment.create(Collections.singletonList(this.javaProject), this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/));
 		}
 		return this.noCacheNameEnvironment;
@@ -14302,7 +14316,6 @@ public final class CompletionEngine
 		if (this.noCacheNameEnvironment != null) {
 			this.noCacheNameEnvironment.cleanup();
 			this.noCacheNameEnvironment = null;
-			JavaModelManager.getJavaModelManager().flushZipFiles(this);
 		}
 	}
 

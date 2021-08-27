@@ -17,10 +17,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipEntry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -56,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -283,6 +286,19 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 	return result;
 }
 
+public static ThreadLocalZipFile getAnnotationZipFile(String resolvedPath, IPath externalAnnotationPath) throws IOException {
+	File annotationBase = new File(resolvedPath);
+	if (!annotationBase.isFile()) {
+		return null;
+	}
+	try {
+		return JavaModelManager.getJavaModelManager().getZipFile(externalAnnotationPath); // use (absolute, but) unresolved path here
+	} catch (CoreException e) {
+		throw new IOException("Failed to read annotation file from "+externalAnnotationPath.toString(), e); //$NON-NLS-1$
+	}
+
+}
+
 private IBinaryType setupExternalAnnotationProvider(IProject project, final IPath externalAnnotationPath,
 		IBinaryType reader, final String typeName)
 {
@@ -308,34 +324,37 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 	} else {
 		resolvedPath = externalAnnotationPath.toString(); // not in workspace, use as is
 	}
-	ZipFile annotationZip = null;
-	try {
-		annotationZip = ExternalAnnotationDecorator.getAnnotationZipFile(resolvedPath, new ExternalAnnotationDecorator.ZipFileProducer() {
-			@Override public ZipFile produce() throws IOException {
-				try {
-					return JavaModelManager.getJavaModelManager().getZipFile(externalAnnotationPath); // use (absolute, but) unresolved path here
-				} catch (CoreException e) {
-					throw new IOException("Failed to read annotation file for "+typeName+" from "+externalAnnotationPath.toString(), e); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}});
+	try (ThreadLocalZipFile	annotationZip = getAnnotationZipFile(resolvedPath,externalAnnotationPath)){
 
-		ExternalAnnotationProvider annotationProvider = ExternalAnnotationDecorator
-				.externalAnnotationProvider(resolvedPath, typeName, annotationZip);
+		ExternalAnnotationProvider annotationProvider = externalAnnotationProvider(resolvedPath, typeName, annotationZip);
 		result = new ExternalAnnotationDecorator(reader, annotationProvider);
+		if (annotationZip == null) {
+			// Additional change listening for individual types only when annotations are in individual files.
+			// Note that we also listen for classes that don't yet have an annotation file, to detect its creation
+			this.externalAnnotationBase = externalAnnotationPath; // remember so we can unregister later
+			ExternalAnnotationTracker.registerClassFile(externalAnnotationPath, new Path(typeName), this);
+		}
 	} catch (IOException e) {
 		Util.log(e);
 		return result;
-	} finally {
-		if (annotationZip != null)
-			JavaModelManager.getJavaModelManager().closeZipFile(annotationZip);
-	}
-	if (annotationZip == null) {
-		// Additional change listening for individual types only when annotations are in individual files.
-		// Note that we also listen for classes that don't yet have an annotation file, to detect its creation
-		this.externalAnnotationBase = externalAnnotationPath; // remember so we can unregister later
-		ExternalAnnotationTracker.registerClassFile(externalAnnotationPath, new Path(typeName), this);
 	}
 	return result;
+}
+
+public static ExternalAnnotationProvider externalAnnotationProvider(String basePath, String qualifiedBinaryTypeName,
+		ThreadLocalZipFile zipFile) throws IOException {
+	String qualifiedBinaryFileName = qualifiedBinaryTypeName + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
+	if (zipFile == null) {
+		return ExternalAnnotationDecorator.externalAnnotationProviderFile(basePath, qualifiedBinaryTypeName, qualifiedBinaryFileName);
+	} else {
+		ZipEntry entry = zipFile.getEntry(qualifiedBinaryFileName);
+		if (entry != null) {
+			try(InputStream is = zipFile.getInputStream(entry)) {
+				return new ExternalAnnotationProvider(is, qualifiedBinaryTypeName);
+			}
+		}
+		return null;
+	}
 }
 void closeAndRemoveFromJarTypeCache() throws JavaModelException {
 	super.close();

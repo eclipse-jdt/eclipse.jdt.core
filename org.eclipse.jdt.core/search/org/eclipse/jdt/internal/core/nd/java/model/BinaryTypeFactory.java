@@ -17,8 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
@@ -44,6 +42,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -118,7 +117,7 @@ public class BinaryTypeFactory {
 
 	public static ClassFileReader rawReadType(BinaryTypeDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException {
 		try {
-			return rawReadTypeTestForExists(descriptor, fullyInitialize, true);
+			return rawReadTypeTestForExists(descriptor, fullyInitialize);
 		} catch (FileNotFoundException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
@@ -133,17 +132,14 @@ public class BinaryTypeFactory {
 	 * @throws JavaModelException if unable to read the class file due to a transient failure
 	 * @throws FileNotFoundException if the file does not exist
 	 */
-	public static ClassFileReader rawReadTypeTestForExists(BinaryTypeDescriptor descriptor, boolean fullyInitialize,
-			boolean useInvalidArchiveCache) throws JavaModelException, ClassFormatException, FileNotFoundException {
+	public static ClassFileReader rawReadTypeTestForExists(BinaryTypeDescriptor descriptor, boolean fullyInitialize)
+			throws JavaModelException, ClassFormatException, FileNotFoundException {
 		if (descriptor == null) {
 			return null;
 		}
 		if (descriptor.isInJarFile()) {
 			if (CharOperation.indexOf("jrt-fs.jar".toCharArray(), descriptor.location, false) == -1) { //$NON-NLS-1$
-				ZipFile zip = null;
-				try {
-					zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)),
-							useInvalidArchiveCache);
+				try (ThreadLocalZipFile zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)))){
 					char[] entryNameCharArray = CharArrayUtils.concat(
 							fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
 					String entryName = new String(entryNameCharArray);
@@ -151,7 +147,7 @@ public class BinaryTypeFactory {
 					if (ze != null) {
 						byte contents[];
 						try {
-							contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+							contents = Util.getZipEntryByteContent(ze, zip);
 						} catch (IOException ioe) {
 							throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
 						}
@@ -159,8 +155,6 @@ public class BinaryTypeFactory {
 					}
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
-				} finally {
-					JavaModelManager.getJavaModelManager().closeZipFile(zip);
 				}
 			}
 		} else {

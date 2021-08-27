@@ -27,8 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.Flags;
@@ -92,6 +90,9 @@ import org.eclipse.jdt.internal.core.SourceMapper;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.*;
 import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
@@ -280,17 +281,11 @@ public static IBinaryType classFileReader(IType type) {
 			String path = Util.concatWith(pkg.names, classFileName, '/');
 			return ClassFileReader.readFromJrt(new File(rootPath), null, path);
 		} else {
-			ZipFile zipFile = null;
-			try {
-				IPath zipPath = root.getPath();
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-					System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
-				zipFile = manager.getZipFile(zipPath);
+			IPath zipPath = root.getPath();
+			try (ThreadLocalZipFile zipFile = manager.getZipFile(zipPath)){
 				String classFileName = classFile.getElementName();
 				String path = Util.concatWith(pkg.names, classFileName, '/');
-				return ClassFileReader.read(zipFile, path);
-			} finally {
-				manager.closeZipFile(zipFile);
+				return Util.read(zipFile, path);
 			}
 		}
 	} catch (ClassFormatException | CoreException | IOException e) {
@@ -896,12 +891,8 @@ protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) thr
 			// class file in a jar
 			String classFileName = classFile.getElementName();
 			String classFilePath = Util.concatWith(pkg.names, classFileName, '/');
-			ZipFile zipFile = null;
-			try {
-				zipFile = ((JarPackageFragmentRoot) root).getJar();
-				info = ClassFileReader.read(zipFile, classFilePath);
-			} finally {
-				JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
+			try (ThreadLocalZipFile zipFile =  ((JarPackageFragmentRoot)root).getJar()){
+				info = Util.read(zipFile, classFilePath);
 			}
 		} else {
 			// class file in a directory
@@ -1428,11 +1419,10 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 	this.workingCopies = new org.eclipse.jdt.core.ICompilationUnit[copiesLength];
 	copies.toArray(this.workingCopies);
 
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	this.bindings = new SimpleLookupTable();
-	try {
-		// optimize access to zip files during search operation
-		manager.cacheZipFiles(this);
+	// optimize access to zip files during search operation
+	try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles
+			.createZipHolder(this)) {
 
 		// initialize handle factory (used as a cache of handles so as to optimize space)
 		if (this.handleFactory == null)
@@ -1520,7 +1510,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			if (pathString.endsWith(TypeConstants.AUTOMATIC_MODULE_NAME)) {
 				IPath path = resource.getFullPath();
 				String s = (pathString.contains(path.lastSegment())) ?
-						JavaModelManager.getLocalFile(path).toPath().toAbsolutePath().toString() :
+						JavaModelManager.getLocalFile(resource).toPath().toAbsolutePath().toString() :
 						pathString.split(Pattern.quote("|"))[0]; //$NON-NLS-1$
 				possibleMatch.autoModuleName = new String(AutomaticModuleNaming.determineAutomaticModuleName(s));
 			}
@@ -1545,7 +1535,6 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 		if (this.nameEnvironment != null)
 			this.nameEnvironment.cleanup();
 		this.unitScope = null;
-		manager.flushZipFiles(this);
 		this.bindings = null;
 	}
 }

@@ -608,23 +608,18 @@ public class Util implements SuffixConstants {
 	 * Returns the contents of the given zip entry as a byte array.
 	 * @throws IOException if a problem occurred reading the zip entry.
 	 */
-	public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip)
-		throws IOException {
+	public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip) throws IOException {
+		try (QuietClose<InputStream> q = new QuietClose<>(zip.getInputStream(ze))) {
+			InputStream stream = q.get();
+			return read(stream, ze);
+		}
+	}
 
-		InputStream stream = null;
-		try {
-			InputStream inputStream = zip.getInputStream(ze);
-			if (inputStream == null) throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
-			stream = new BufferedInputStream(inputStream);
+	private static byte[] read(InputStream inputStream, ZipEntry ze) throws IOException {
+		if (inputStream == null)
+			throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
+		try (InputStream stream = new BufferedInputStream(inputStream)){
 			return readNBytes(stream, (int) ze.getSize());
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 	}
 	public static int hashCode(Object[] array) {

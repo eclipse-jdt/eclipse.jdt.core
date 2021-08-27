@@ -19,8 +19,6 @@ import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.*;
@@ -67,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.compiler.util.QuietClose;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.Annotation;
 import org.eclipse.jdt.internal.core.ClassFile;
@@ -76,6 +75,7 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.MemberValuePair;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -870,36 +870,32 @@ public class Util {
 					reader = Util.newClassFileReader(classFile);
 			} else {
 				// root is a jar file or a zip file
-				ZipFile jar = null;
-				try {
-					IPath path = null;
-					if (targetLibrary instanceof IResource) {
-						path = ((IResource)targetLibrary).getFullPath();
-					} else if (targetLibrary instanceof File){
-						File f = (File) targetLibrary;
-						if (!f.isDirectory()) {
-							path = new Path(((File)targetLibrary).getPath());
-						}
+				IPath path = null;
+				if (targetLibrary instanceof IResource) {
+					path = ((IResource) targetLibrary).getFullPath();
+				} else if (targetLibrary instanceof File) {
+					File f = (File) targetLibrary;
+					if (!f.isDirectory()) {
+						path = new Path(((File) targetLibrary).getPath());
 					}
-					if (path != null) {
-						if (JavaModelManager.isJrt(path)) {
-							return ClassFileConstants.JDK9;
-						} else {
-							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
-							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-								ZipEntry member= (ZipEntry) e.nextElement();
-								String entryName= member.getName();
+				}
+				if (path != null) {
+					if (JavaModelManager.isJrt(path)) {
+						return ClassFileConstants.JDK9;
+					} else {
+						try (ThreadLocalZipFile jar = JavaModelManager.getJavaModelManager().getZipFile(path)) {
+							for (Enumeration e = jar.entries(); e.hasMoreElements();) {
+								ZipEntry member = (ZipEntry) e.nextElement();
+								String entryName = member.getName();
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-									reader = ClassFileReader.read(jar, entryName);
+									reader = read(jar, entryName);
 									break;
 								}
 							}
+						} catch (CoreException e) {
+							// ignore
 						}
 					}
-				} catch (CoreException e) {
-					// ignore
-				} finally {
-					JavaModelManager.getJavaModelManager().closeZipFile(jar);
 				}
 			}
 			if (reader != null) {
@@ -3366,5 +3362,28 @@ public class Util {
 			method = methods[0];
 		}
 		return method;
+	}
+
+	public static byte[] getZipEntryByteContent(ZipEntry ze, ThreadLocalZipFiles.ThreadLocalZipFile zip) throws IOException {
+		try (QuietClose<InputStream> q = new QuietClose<>(zip.getInputStream(ze))) {
+			InputStream stream = q.get();
+			return read(stream, ze);
+		}
+	}
+	private static byte[] read(InputStream inputStream, ZipEntry ze) throws IOException {
+		if (inputStream == null)
+			throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
+		try (InputStream stream = new BufferedInputStream(inputStream)){
+			return stream.readNBytes((int) ze.getSize());
+		}
+	}
+
+	public static org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader read(ThreadLocalZipFile zip, String filename)
+			throws org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException, java.io.IOException {
+		java.util.zip.ZipEntry ze = zip.getEntry(filename);
+		if (ze == null)
+			return null;
+		byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
+		return org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(classFileBytes, filename, false);
 	}
 }

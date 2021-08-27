@@ -38,18 +38,25 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.apt.util.EclipseFileManager;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 
 import junit.framework.TestCase;
 
 /**
- * Test the implementation of the Filer interface,
- * in more detail than BatchDispatchTests does.
+ * Test the implementation of the Filer interface, in more detail than
+ * BatchDispatchTests does.
+ *
  * @since 3.4
  */
 public class FileManagerTests extends TestCase {
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see junit.framework.TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
@@ -110,7 +117,7 @@ public class FileManagerTests extends TestCase {
 			try {
 				fileManager.getJavaFileObjectsFromFiles(files);
 				fail("IllegalArgumentException should be thrown but not");
-			} catch(IllegalArgumentException iae) {
+			} catch (IllegalArgumentException iae) {
 				// Do nothing
 			}
 
@@ -120,13 +127,14 @@ public class FileManagerTests extends TestCase {
 			try {
 				fileManager.close();
 			} catch (IOException e) {
-				//ignore the exception
+				// ignore the exception
 			}
 		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 		assertTrue("delete failed", dir.delete());
 	}
+
 	// Test that JavaFileManager#inferBinaryName returns null for invalid file
 	public void testInferBinaryName() {
 		String tmpFolder = System.getProperty("java.io.tmpdir");
@@ -176,12 +184,13 @@ public class FileManagerTests extends TestCase {
 	}
 
 	public void testBug460085() {
-		if (isOnJRE9()) return;
+		if (isOnJRE9())
+			return;
 		try {
 			boolean found = false;
 			EclipseFileManager fileManager = null;
 			fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
-			Iterable <? extends File> files = fileManager.getLocation(javax.tools.StandardLocation.PLATFORM_CLASS_PATH);
+			Iterable<? extends File> files = fileManager.getLocation(javax.tools.StandardLocation.PLATFORM_CLASS_PATH);
 			Iterator<? extends File> iter = files.iterator();
 			while (iter.hasNext()) {
 				File f = iter.next();
@@ -196,10 +205,11 @@ public class FileManagerTests extends TestCase {
 			fail(e.getMessage());
 		}
 	}
+
 	private boolean isOnJRE9() {
 		try {
 			SourceVersion.valueOf("RELEASE_9");
-		} catch(IllegalArgumentException iae) {
+		} catch (IllegalArgumentException iae) {
 			return false;
 		}
 		return true;
@@ -209,7 +219,8 @@ public class FileManagerTests extends TestCase {
 		EclipseFileManager fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
 		List<File> classpath = new ArrayList<>();
 		classpath.add(new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/classes"));
-		classpath.add(new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip"));
+		classpath
+				.add(new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip"));
 		fileManager.setLocation(javax.tools.StandardLocation.CLASS_PATH, classpath);
 		assertNotNull(fileManager.getFileForInput(javax.tools.StandardLocation.CLASS_PATH, "", "dirresource.txt"));
 		assertNotNull(fileManager.getFileForInput(javax.tools.StandardLocation.CLASS_PATH, "", "jarresource.txt"));
@@ -219,7 +230,8 @@ public class FileManagerTests extends TestCase {
 	public void testBug514121_getClassloader_close() throws Exception {
 		EclipseFileManager fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
 		List<File> classpath = new ArrayList<>();
-		classpath.add(new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip"));
+		classpath
+				.add(new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip"));
 		fileManager.setLocation(javax.tools.StandardLocation.ANNOTATION_PROCESSOR_PATH, classpath);
 		URLClassLoader loader = (URLClassLoader) fileManager
 				.getClassLoader(javax.tools.StandardLocation.ANNOTATION_PROCESSOR_PATH);
@@ -228,13 +240,93 @@ public class FileManagerTests extends TestCase {
 		assertNull(loader.findResource("jarresource.txt")); // assert the classloader is closed
 	}
 
+	public void testThreadLocalZipFiles() throws Exception {
+		Path dir = Files.createTempDirectory("repro573287-");
+		Path target = dir.resolve("copy573287.zip");
+		File src = new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip");
+		Path copy = Files.copy(src.toPath(), target);
+		IPath copyPath=new org.eclipse.core.runtime.Path(copy.toFile().getPath());
+		try (ThreadLocalZipFile zipFile1 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			try (ThreadLocalZipFile zipFile2 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+				assertSame("same zipfileInstances expected", zipFile1, zipFile2);
+				try (ThreadLocalZipFile zipFile3 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+					assertSame("same zipfileInstances expected", zipFile1, zipFile3);
+				}
+			}
+		}
+		ThreadLocalZipFile z1;
+		try (ThreadLocalZipFile zipFile1 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			z1 = zipFile1;
+		}
+		ThreadLocalZipFile z2;
+		try (ThreadLocalZipFile zipFile2 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			z2 = zipFile2;
+		}
+		assertNotSame("different zipfileInstances expected", z1, z2);
+		Files.delete(copy); // (would be impossible to delete under Windows if still open)
+		Files.delete(dir);
+	}
+
+	public void testThreadLocalZipFileHolder() throws Exception {
+		Path dir = Files.createTempDirectory("repro573287-");
+		Path target = dir.resolve("copy573287.zip");
+		File src = new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip");
+		Path copy = Files.copy(src.toPath(), target);
+		IPath copyPath=new org.eclipse.core.runtime.Path(copy.toFile().getPath());
+		ThreadLocalZipFile z1a;
+		ThreadLocalZipFile z1b;
+		ThreadLocalZipFile z2a;
+		ThreadLocalZipFile z2b;
+		ThreadLocalZipFile z3a;
+		ThreadLocalZipFile z3b;
+		try (ThreadLocalZipFileHolder holder1 = ThreadLocalZipFiles.createZipHolder(this)) {
+			try (ThreadLocalZipFileHolder holder2 = ThreadLocalZipFiles.createZipHolder(new Object())) {
+				try (ThreadLocalZipFileHolder holder3 = ThreadLocalZipFiles.createZipHolder(new Object())) {
+					try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+						z3a = zipFileA;
+					}
+					try (ThreadLocalZipFile zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
+						z3b = zipFileB;
+					}
+					assertSame("same zipfileInstances expected", z3a, z3b);
+				}
+				try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+					z2a = zipFileA;
+				}
+				try (ThreadLocalZipFile zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
+					z2b = zipFileB;
+				}
+				assertSame("same zipfileInstances expected", z2a, z2b);
+				assertSame("same zipfileInstances expected", z2a, z3a);
+			}
+			try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+				z1a = zipFileA;
+			}
+			try (ThreadLocalZipFile zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
+				z1b = zipFileB;
+			}
+			assertSame("same zipfileInstances expected", z1a, z1b);
+			assertSame("same zipfileInstances expected", z1a, z3a);
+		}
+		ThreadLocalZipFile z0a;
+		try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			z0a = zipFileA;
+		}
+		assertNotSame("different zipfileInstances expected", z1a, z0a);
+		assertNotSame("different zipfileInstances expected", z2a, z0a);
+		assertNotSame("different zipfileInstances expected", z3a, z0a);
+		Files.delete(copy); // (would be impossible to delete under Windows if still open)
+		Files.delete(dir);
+	}
+
 	public void testBug573287_ArchiveFileObject_openInputStream() throws Exception {
 		Path dir = Files.createTempDirectory("repro573287-");
 		Path target = dir.resolve("copy573287.zip");
 		File src = new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip");
 		Path copy = Files.copy(src.toPath(), target);
 
-		extracted_ArchiveFileObject_openInputStream(copy); //do not inline (!) - otherwise the reference to local variables are not lost
+		extracted_ArchiveFileObject_openInputStream(copy); // do not inline (!) - otherwise the reference to local
+															// variables are not lost
 		try {
 			// Try to clean up:
 			// On Windows this resulted in java.nio.file.FileSystemException because copy
@@ -246,7 +338,8 @@ public class FileManagerTests extends TestCase {
 			try {
 				// clean up memory:
 				System.gc();
-				// runs finalize() - but only if extracted_ArchiveFileObject_openInputStream is not inlined(!):
+				// runs finalize() - but only if extracted_ArchiveFileObject_openInputStream is
+				// not inlined(!):
 				System.runFinalization();
 				// clean up files - now it works:
 				Files.delete(copy);
@@ -268,7 +361,8 @@ public class FileManagerTests extends TestCase {
 			assertNotNull(fileForInput);
 			byte[] content;
 			try (InputStream inputStream = fileForInput.openInputStream()) {
-				// inputStream may be java.util.zip.ZipFile$ZipFileInputStream which would hold a reference to ZipFile
+				// inputStream may be java.util.zip.ZipFile$ZipFileInputStream which would hold
+				// a reference to ZipFile
 				content = inputStream.readAllBytes();
 			}
 			assertEquals(new String(content, StandardCharsets.UTF_8), "jar resource");

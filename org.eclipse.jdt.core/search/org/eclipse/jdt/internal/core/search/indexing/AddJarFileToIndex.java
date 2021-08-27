@@ -21,7 +21,6 @@ import java.nio.file.NoSuchFileException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipError;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -40,6 +39,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
@@ -123,18 +124,16 @@ class AddJarFileToIndex extends BinaryContainer {
 				return true; // index got deleted since acquired
 			}
 			index.separator = JAR_SEPARATOR;
-			ZipFile zip = null;
 			try {
 				// this path will be a relative path to the workspace in case the zipfile in the workspace otherwise it will be a path in the
 				// local file system
 				Path zipFilePath = null;
 
 				monitor.enterWrite(); // ask permission to write
+				File zipFile;
 				if (this.resource != null) {
 					URI location = this.resource.getLocationURI();
 					if (location == null) return false;
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
 					File file = null;
 					try {
 						file = org.eclipse.jdt.internal.core.util.Util.toLocalFile(location, progressMonitor);
@@ -149,140 +148,134 @@ class AddJarFileToIndex extends BinaryContainer {
 							org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
-					zip = new ZipFile(file);
+					zipFile = file;
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					// external file -> it is ok to use toFile()
-					zip = new ZipFile(this.containerPath.toFile());
+					zipFile = this.containerPath.toFile();
 					zipFilePath = (Path) this.containerPath;
 					// path is already canonical since coming from a library classpath entry
 				}
+				try (ThreadLocalZipFile zip = ThreadLocalZipFiles.createZipFile(zipFilePath)) {
 
-				if (this.isCancelled) {
-					if (JobManager.VERBOSE)
-						org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
-					return false;
-				}
-
-				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
-				long initialTime = System.currentTimeMillis();
-
-				String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
-				if (paths != null) {
-					int max = paths.length;
-					/* check integrity of the existing index file
-					 * if the length is equal to 0, we want to index the whole jar again
-					 * If not, then we want to check that there is no missing entry, if
-					 * one entry is missing then we recreate the index
-					 */
-					String EXISTS = "OK"; //$NON-NLS-1$
-					String DELETED = "DELETED"; //$NON-NLS-1$
-					SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
-					for (int i = 0; i < max; i++)
-						indexedFileNames.put(paths[i], DELETED);
-					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
-						// iterate each entry to index it
-						ZipEntry ze = (ZipEntry) e.nextElement();
-						String zipEntryName = ze.getName();
-						if (Util.isClassFileName(zipEntryName) && isValidPackageNameForClassOrisModule(zipEntryName))
-								// the class file may not be there if the package name is not valid
-							indexedFileNames.put(zipEntryName, EXISTS);
-					}
-					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
-					if (!needToReindex) {
-						Object[] valueTable = indexedFileNames.valueTable;
-						for (int i = 0, l = valueTable.length; i < l; i++) {
-							if (valueTable[i] == DELETED) {
-								needToReindex = true; // a file was deleted so re-index
-								break;
-							}
-						}
-						if (!needToReindex) {
-							if (JobManager.VERBOSE)
-								org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
-								+ zip.getName() + " (" //$NON-NLS-1$
-								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
-							this.manager.saveIndex(index); // to ensure its placed into the saved state
-							return true;
-						}
-					}
-				}
-
-				// Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
-				// index already existed: recreate it so that we forget about previous entries
-				SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
-				if (!this.manager.resetIndex(this.containerPath)) {
-					// failed to recreate index, see 73330
-					this.manager.removeIndex(this.containerPath);
-					return false;
-				}
-				index.separator = JAR_SEPARATOR;
-				IPath indexPath = null;
-				IndexLocation indexLocation;
-				if ((indexLocation = index.getIndexLocation()) != null) {
-					indexPath = new Path(indexLocation.getCanonicalFilePath());
-				}
-				boolean hasModuleInfoClass = false;
-				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)
 							org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
 
-					// iterate each entry to index it
-					ZipEntry ze = (ZipEntry) e.nextElement();
-					String zipEntryName = ze.getName();
-					if (Util.isClassFileName(zipEntryName) &&
-							isValidPackageNameForClassOrisModule(zipEntryName)) {
-						hasModuleInfoClass |= zipEntryName.contains(TypeConstants.MODULE_INFO_NAME_STRING);
-						// index only classes coming from valid packages - https://bugs.eclipse.org/bugs/show_bug.cgi?id=293861
-						final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
-						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, classFileBytes, participant);
-						this.manager.indexDocument(entryDocument, participant, index, indexPath);
+					if (JobManager.VERBOSE)
+						org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing " + zip.getName()); //$NON-NLS-1$
+					long initialTime = System.currentTimeMillis();
+
+					String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
+					if (paths != null) {
+						int max = paths.length;
+						/* check integrity of the existing index file
+						 * if the length is equal to 0, we want to index the whole jar again
+						 * If not, then we want to check that there is no missing entry, if
+						 * one entry is missing then we recreate the index
+						 */
+
+						String EXISTS = "OK"; //$NON-NLS-1$
+						String DELETED = "DELETED"; //$NON-NLS-1$
+						SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
+						for (int i = 0; i < max; i++)
+							indexedFileNames.put(paths[i], DELETED);
+						for (Enumeration e = zip.entries(); e.hasMoreElements();) {
+							// iterate each entry to index it
+							ZipEntry ze = (ZipEntry) e.nextElement();
+							String zipEntryName = ze.getName();
+							if (Util.isClassFileName(zipEntryName) && isValidPackageNameForClassOrisModule(zipEntryName))
+								// the class file may not be there if the package name is not valid
+								indexedFileNames.put(zipEntryName, EXISTS);
+						}
+						boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
+						if (!needToReindex) {
+							Object[] valueTable = indexedFileNames.valueTable;
+							for (int i = 0, l = valueTable.length; i < l; i++) {
+								if (valueTable[i] == DELETED) {
+									needToReindex = true; // a file was deleted so re-index
+									break;
+								}
+							}
+							if (!needToReindex) {
+								if (JobManager.VERBOSE)
+									org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
+													+ zip.getName() + " (" //$NON-NLS-1$
+													+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
+								this.manager.saveIndex(index); // to ensure its placed into the saved state
+								return true;
+							}
+						}
 					}
-				}
-				if (!hasModuleInfoClass) {
-					String s;
-					try {
-						s = this.resource == null ? this.containerPath.toOSString() :
-							JavaModelManager.getLocalFile(this.resource.getFullPath()).toPath().toAbsolutePath().toString();
-						char[] autoModuleName = AutomaticModuleNaming.determineAutomaticModuleName(s);
-						final char[] contents = CharOperation.append(CharOperation.append(TypeConstants.AUTOMATIC_MODULE_NAME.toCharArray(), ':'), autoModuleName);
-						// adding only the automatic module entry here - can be extended in the future to include other fields.
-						ZipEntry ze = new ZipEntry(TypeConstants.AUTOMATIC_MODULE_NAME);
-						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, new String(contents).getBytes(Charset.defaultCharset()), participant);
-						this.manager.indexDocument(entryDocument, participant, index, indexPath);
-					} catch (CoreException e) {
-						// TODO Auto-generated catch block
-//						e.printStackTrace();
+
+					// Index the jar for the first time or reindex the jar in case the previous index file has been corrupted
+					// index already existed: recreate it so that we forget about previous entries
+					SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
+					if (!this.manager.resetIndex(this.containerPath)) {
+						// failed to recreate index, see 73330
+						this.manager.removeIndex(this.containerPath);
+						return false;
 					}
+					index.separator = JAR_SEPARATOR;
+					IPath indexPath = null;
+					IndexLocation indexLocation;
+					if ((indexLocation = index.getIndexLocation()) != null) {
+						indexPath = new Path(indexLocation.getCanonicalFilePath());
+					}
+					boolean hasModuleInfoClass = false;
+					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
+						if (this.isCancelled) {
+							if (JobManager.VERBOSE)
+								org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
+							return false;
+						}
+
+						// iterate each entry to index it
+						ZipEntry ze = (ZipEntry) e.nextElement();
+						String zipEntryName = ze.getName();
+						if (Util.isClassFileName(zipEntryName) &&
+								isValidPackageNameForClassOrisModule(zipEntryName)) {
+							hasModuleInfoClass |= zipEntryName.contains(TypeConstants.MODULE_INFO_NAME_STRING);
+							// index only classes coming from valid packages - https://bugs.eclipse.org/bugs/show_bug.cgi?id=293861
+							final byte[] classFileBytes = org.eclipse.jdt.internal.core.util.Util.getZipEntryByteContent(ze, zip);
+							JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, classFileBytes, participant);
+							this.manager.indexDocument(entryDocument, participant, index, indexPath);
+						}
+					}
+					if (!hasModuleInfoClass) {
+						String s;
+						try {
+							s = this.resource == null ? this.containerPath.toOSString() :
+								JavaModelManager.getLocalFile(this.resource).toPath().toAbsolutePath().toString();
+							char[] autoModuleName = AutomaticModuleNaming.determineAutomaticModuleName(s);
+							final char[] contents = CharOperation.append(CharOperation.append(TypeConstants.AUTOMATIC_MODULE_NAME.toCharArray(), ':'), autoModuleName);
+							// adding only the automatic module entry here - can be extended in the future to include other fields.
+							ZipEntry ze = new ZipEntry(TypeConstants.AUTOMATIC_MODULE_NAME);
+							JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, new String(contents).getBytes(Charset.defaultCharset()), participant);
+							this.manager.indexDocument(entryDocument, participant, index, indexPath);
+						} catch (CoreException e) {
+							// TODO Auto-generated catch block
+//							e.printStackTrace();
+						}
+					}
+					if(this.forceIndexUpdate) {
+						this.manager.savePreBuiltIndex(index);
+					}
+					else {
+						this.manager.saveIndex(index);
+					}
+					if (JobManager.VERBOSE)
+						org.eclipse.jdt.internal.core.util.Util.verbose("-> done indexing of " //$NON-NLS-1$
+							+ zip.getName() + " (" //$NON-NLS-1$
+							+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 				}
-				if(this.forceIndexUpdate) {
-					this.manager.savePreBuiltIndex(index);
-				}
-				else {
-					this.manager.saveIndex(index);
-				}
-				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> done indexing of " //$NON-NLS-1$
-						+ zip.getName() + " (" //$NON-NLS-1$
-						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
-				if (zip != null) {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
-					zip.close();
-				}
 				monitor.exitWrite(); // free write lock
 			}
-		} catch (IOException | ZipError e) {
+		} catch (IOException | ZipError | CoreException e) {
 			if (e instanceof NoSuchFileException) {
 				IStatus info = new Status(IStatus.INFO, JavaCore.PLUGIN_ID, "File no longer exists: " + this.containerPath, e); //$NON-NLS-1$
 				org.eclipse.jdt.internal.core.util.Util.log(info);

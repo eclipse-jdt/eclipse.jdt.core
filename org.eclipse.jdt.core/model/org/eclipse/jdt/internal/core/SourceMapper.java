@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -70,7 +68,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 /**
@@ -573,9 +574,7 @@ public class SourceMapper
 			}
 		} else if (root.isArchive()) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			ZipFile zip = null;
-			try {
-				zip = manager.getZipFile(pkgFragmentRootPath);
+			try (ThreadLocalZipFile zip = manager.getZipFile(pkgFragmentRootPath)) {
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String entryName = entry.getName();
@@ -605,8 +604,6 @@ public class SourceMapper
 				}
 			} catch (CoreException e) {
 				// ignore
-			} finally {
-				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
 			Object target = JavaModel.getTarget(root.getPath(), true);
@@ -648,9 +645,7 @@ public class SourceMapper
 				computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()/*if external folder, this is the linked folder path*/);
 			} else {
 				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				ZipFile zip = null;
-				try {
-					zip = manager.getZipFile(this.sourcePath);
+				try (ThreadLocalZipFile zip = manager.getZipFile(this.sourcePath)){
 					for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 						ZipEntry entry = (ZipEntry) entries.nextElement();
 						String entryName;
@@ -674,8 +669,6 @@ public class SourceMapper
 					}
 				} catch (CoreException e) {
 					// ignore
-				} finally {
-					manager.closeZipFile(zip); // handle null case
 				}
 			}
 		}
@@ -1171,9 +1164,7 @@ public class SourceMapper
 
 		char[] source = null;
 
-		JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
-		try {
-			javaModelManager.cacheZipFiles(this); // Cache any zip files we open during this operation
+		try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles.createZipHolder(this)) { // Cache any zip files we open during this operation
 
 			if (this.rootPath != null) {
 				source = getSourceForRootPath(this.rootPath, name);
@@ -1201,8 +1192,6 @@ public class SourceMapper
 					}
 				}
 			}
-		} finally {
-			javaModelManager.flushZipFiles(this); // clean up cached zip files.
 		}
 		if (VERBOSE) {
 			System.out.println("spent " + (System.currentTimeMillis() - time) + "ms for " + typeOrModule.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1256,20 +1245,14 @@ public class SourceMapper
 			}
 
 			// try to get the entry
-			ZipEntry entry = null;
-			ZipFile zip = null;
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			try {
-				zip = manager.getZipFile(this.sourcePath);
-				entry = zip.getEntry(fullName);
+			try (ThreadLocalZipFile zip =  JavaModelManager.getJavaModelManager().getZipFile(this.sourcePath)){
+				ZipEntry entry = zip.getEntry(fullName);
 				if (entry != null) {
 					// now read the source code
 					source = readSource(entry, zip, charSet);
 				}
 			} catch (CoreException e) {
 				return null;
-			} finally {
-				manager.closeZipFile(zip); // handle null case
 			}
 		}
 		return source;
@@ -1641,9 +1624,9 @@ public class SourceMapper
 			this.typeDepth = -1;
 		}
 	}
-	private char[] readSource(ZipEntry entry, ZipFile zip, String charSet) {
+	private char[] readSource(ZipEntry entry, ThreadLocalZipFile zip, String charSet) {
 		try {
-			byte[] bytes = Util.getZipEntryByteContent(entry, zip);
+			byte[] bytes = org.eclipse.jdt.internal.core.util.Util.getZipEntryByteContent(entry, zip);
 			if (bytes != null) {
 				// Order of preference: charSet supplied, this.encoding or this.defaultEncoding in that order
 				return Util.bytesToChar(bytes, charSet == null ? (this.encoding == null ? this.defaultEncoding : this.encoding) : charSet);

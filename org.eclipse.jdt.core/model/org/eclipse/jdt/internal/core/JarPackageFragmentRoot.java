@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -43,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -125,9 +125,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			long classLevel = Util.getJdkLevel(file);
 			String projectCompliance = this.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			long projectLevel = CompilerOptions.versionToJdkLevel(projectCompliance);
-			ZipFile jar = null;
-			try {
-				jar = getJar();
+			try (ThreadLocalZipFile jar = getJar()){
 				String version = "META-INF/versions/";  //$NON-NLS-1$
 				List<String> versions = new ArrayList<>();
 				if (projectLevel >= ClassFileConstants.JDK9 && jar.getEntry(version) != null) {
@@ -164,8 +162,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 					}
 					initRawPackageInfo(rawPackageInfo, name, member.isDirectory(), CompilerOptions.versionFromJdkLevel(classLevel));
 				}
-			}  finally {
-				JavaModelManager.getJavaModelManager().closeZipFile(jar);
 			}
 			// loop through all of referenced packages, creating package fragments if necessary
 			// and cache the entry names in the rawPackageInfo table
@@ -246,7 +242,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 *
 	 * @exception CoreException if an error occurs accessing the jar
 	 */
-	public ZipFile getJar() throws CoreException {
+	public ThreadLocalZipFile getJar() throws CoreException {
 		return JavaModelManager.getJavaModelManager().getZipFile(getPath());
 	}
 	/**
@@ -453,9 +449,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 
 	@Override
 	public Manifest getManifest() {
-		ZipFile jar = null;
-		try {
-			jar = getJar();
+		try (ThreadLocalZipFile jar = getJar()){
 			ZipEntry mfEntry = jar.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 			if (mfEntry != null) {
 				try (InputStream is = jar.getInputStream(mfEntry)) {
@@ -464,8 +458,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			}
 		} catch (CoreException | IOException e) {
 			// must do without manifest
-		} finally {
-			JavaModelManager.getJavaModelManager().closeZipFile(jar);
 		}
 		return null;
 	}

@@ -32,11 +32,13 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
@@ -263,12 +265,8 @@ public class ToolFactory {
 			try {
 				if (root instanceof JarPackageFragmentRoot) {
 					String archiveName = null;
-					ZipFile jar = null;
-					try {
-						jar = ((JarPackageFragmentRoot)root).getJar();
+					try (ThreadLocalZipFile jar =  ((JarPackageFragmentRoot)root).getJar()){
 						archiveName = jar.getName();
-					} finally {
-						JavaModelManager.getJavaModelManager().closeZipFile(jar);
 					}
 					PackageFragment packageFragment = (PackageFragment) classfile.getParent();
 					String classFileName = classfile.getElementName();
@@ -357,7 +355,7 @@ public class ToolFactory {
 	public static IClassFileReader createDefaultClassFileReader(String zipFileName, String zipEntryName, int decodingFlag){
 		ZipFile zipFile = null;
 		try {
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+			if (ThreadLocalZipFiles.verboseLogging()) {
 				System.out.println("(" + Thread.currentThread() + ") [ToolFactory.createDefaultClassFileReader()] Creating ZipFile on " + zipFileName); //$NON-NLS-1$	//$NON-NLS-2$
 			}
 			zipFile = new ZipFile(zipFileName);

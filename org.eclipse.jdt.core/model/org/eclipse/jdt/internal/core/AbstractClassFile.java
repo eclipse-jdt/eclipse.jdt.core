@@ -20,8 +20,6 @@ package org.eclipse.jdt.internal.core;
 import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -35,6 +33,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -223,14 +222,11 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 					className,
 					root.getElementName());
 		} else {
-			ZipFile zip = root.getJar();
-			try {
+			try (ThreadLocalZipFile zip = root.getJar()){
 				ZipEntry ze = zip.getEntry(className);
 				if (ze != null) {
-					contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+					contents = Util.getZipEntryByteContent(ze, zip);
 				}
-			} finally {
-				JavaModelManager.getJavaModelManager().closeZipFile(zip);
 			}
 		}
 		if (contents == null && Thread.interrupted()) // reading from JRT is interruptible

@@ -17,7 +17,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceStatus;
@@ -39,6 +38,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.ModularClassFile;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 
 /**
  * <strong>FIXME:</strong> this class is a stub as of now, it does not support modules in the new index.
@@ -102,7 +102,7 @@ public class BinaryModuleFactory {
 
 	public static IBinaryModule rawReadModule(BinaryModuleDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException {
 		try {
-			return rawReadModuleTestForExists(descriptor, fullyInitialize, true);
+			return rawReadModuleTestForExists(descriptor, fullyInitialize);
 		} catch (FileNotFoundException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 		}
@@ -117,22 +117,18 @@ public class BinaryModuleFactory {
 	 * @throws JavaModelException if unable to read the class file due to a transient failure
 	 * @throws FileNotFoundException if the file does not exist
 	 */
-	public static IBinaryModule rawReadModuleTestForExists(BinaryModuleDescriptor descriptor, boolean fullyInitialize,
-			boolean useInvalidArchiveCache) throws JavaModelException, ClassFormatException, FileNotFoundException {
+	public static IBinaryModule rawReadModuleTestForExists(BinaryModuleDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException, FileNotFoundException {
 		if (descriptor == null) {
 			return null;
 		}
 		if (descriptor.isInJarFile()) {
-			ZipFile zip = null;
-			try {
-				zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)),
-						useInvalidArchiveCache);
+			try (ThreadLocalZipFile zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)))){
 				String entryName = TypeConstants.MODULE_INFO_CLASS_NAME_STRING;
 				ZipEntry ze = zip.getEntry(entryName);
 				if (ze != null) {
 					byte contents[];
 					try {
-						contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+						contents = org.eclipse.jdt.internal.core.util.Util.getZipEntryByteContent(ze, zip);
 					} catch (IOException ioe) {
 						throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
 					}
@@ -141,8 +137,6 @@ public class BinaryModuleFactory {
 				}
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
-			} finally {
-				JavaModelManager.getJavaModelManager().closeZipFile(zip);
 			}
 		} else {
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(new String(descriptor.workspacePath)));

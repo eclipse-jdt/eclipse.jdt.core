@@ -266,7 +266,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 			cp = (root instanceof JrtPackageFragmentRoot) ?
 					ClasspathLocation.forJrtSystem(path.toOSString(), rawClasspathEntry.getAccessRuleSet(),
 							rawClasspathEntry.getExternalAnnotationPath(project.getProject(), true), compliance) :
-									ClasspathLocation.forLibrary(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(),
+									ClasspathLocation.forLibrary(root, rawClasspathEntry.getAccessRuleSet(),
 												rawClasspathEntry.getExternalAnnotationPath(((IJavaProject) root.getParent()).getProject(), true),
 												rawClasspathEntry.isModular(), compliance) ;
 		} else {

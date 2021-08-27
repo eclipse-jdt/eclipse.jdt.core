@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -71,8 +70,11 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
+import org.eclipse.jdt.internal.compiler.util.QuietClose;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.ZipState;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -1001,27 +1003,17 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	private static char[] getManifestContents(IPath jarPath) throws CoreException, IOException {
-		ZipFile zip = null;
-		InputStream inputStream = null;
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		try {
-			zip = manager.getZipFile(jarPath);
+		try (ThreadLocalZipFile zip = manager.getZipFile(jarPath)) {
 			ZipEntry manifest = zip.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 			if (manifest == null) {
 				return null;
 			}
-			inputStream = zip.getInputStream(manifest);
-			char[] chars = getInputStreamAsCharArray(inputStream, UTF_8);
-			return chars;
-		} finally {
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					// best effort
-				}
+			try (QuietClose<InputStream> q = new QuietClose<>(zip.getInputStream(manifest))) {
+				InputStream inputStream = q.get();
+				char[] chars = getInputStreamAsCharArray(inputStream, UTF_8);
+				return chars;
 			}
-			manager.closeZipFile(zip);
 		}
 	}
 
@@ -2210,7 +2202,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, boolean checkSourceAttachment, boolean referredByContainer){
 		if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-			JavaModelManager.getJavaModelManager().removeFromInvalidArchiveCache(entry.getPath());
+			ZipState.removeArchiveValidity(entry.getPath());
 		}
 		IJavaModelStatus status = validateClasspathEntry(project, entry, null, checkSourceAttachment, referredByContainer);
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=171136 and https://bugs.eclipse.org/bugs/show_bug.cgi?id=300136
@@ -2550,9 +2542,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	private static IJavaModelStatus validateLibraryContents(IPath path, IJavaProject project, String entryPathMsg) {
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
-			manager.verifyArchiveContent(path);
+			ZipState.verifyArchiveContent(path);
 		} catch (CoreException e) {
 			if (e.getStatus().getMessage() == Messages.status_IOException) {
 				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(

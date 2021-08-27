@@ -123,18 +123,16 @@ public static ClassFileReader read(InputStream stream, String fileName) throws C
 
 public static ClassFileReader read(InputStream stream, String fileName, boolean fullyInitialize) throws ClassFormatException, IOException {
 	byte classFileBytes[] = Util.getInputStreamAsByteArray(stream);
-	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, fileName.toCharArray());
-	if (fullyInitialize) {
-		classFileReader.initialize();
-	}
-	return classFileReader;
+	return read(classFileBytes, fileName, fullyInitialize);
 }
 
-public static ClassFileReader read(
-	java.util.zip.ZipFile zip,
-	String filename)
-	throws ClassFormatException, java.io.IOException {
-		return read(zip, filename, false);
+public static ClassFileReader read(java.util.zip.ZipFile zip, String filename)
+		throws ClassFormatException, java.io.IOException {
+	java.util.zip.ZipEntry ze = zip.getEntry(filename);
+	if (ze == null)
+		return null;
+	byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
+	return read(classFileBytes, filename, false);
 }
 
 public static ClassFileReader readFromJrt(
@@ -154,15 +152,8 @@ public static ClassFileReader readFromModule(
 		throws ClassFormatException, java.io.IOException {
 		return JRTUtil.getClassfile(jrt, filename, moduleName, moduleNameFilter);
 }
-public static ClassFileReader read(
-	java.util.zip.ZipFile zip,
-	String filename,
-	boolean fullyInitialize)
-	throws ClassFormatException, java.io.IOException {
-	java.util.zip.ZipEntry ze = zip.getEntry(filename);
-	if (ze == null)
-		return null;
-	byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
+public static ClassFileReader read(byte[] classFileBytes, String filename, boolean fullyInitialize )
+		throws ClassFormatException {
 	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, filename.toCharArray());
 	if (fullyInitialize) {
 		classFileReader.initialize();

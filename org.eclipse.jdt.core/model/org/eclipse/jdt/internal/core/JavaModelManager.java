@@ -56,7 +56,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.zip.ZipException;
-import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -140,8 +139,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
@@ -158,6 +159,7 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.jdt.internal.core.util.ZipState;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.osgi.service.debug.DebugOptionsListener;
@@ -188,62 +190,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
 	private static final String ASSUMED_EXTERNAL_FILES_CACHE = "assumedExternalFilesCache";  //$NON-NLS-1$
 
-	public static enum ArchiveValidity {
-		INVALID, VALID;
-
-		public boolean isValid() {
-			return this == VALID;
-		}
-	}
-
-	/**
-	 * Define a zip cache object.
-	 */
-	static class ZipCache {
-		private Map<Object, ZipFile> map;
-		Object owner;
-
-		ZipCache(Object owner) {
-			this.map = new HashMap<>();
-			this.owner = owner;
-		}
-
-		public void flush() {
-			Thread currentThread = Thread.currentThread();
-			Iterator<ZipFile> iterator = this.map.values().iterator();
-			while (iterator.hasNext()) {
-				ZipFile zipFile = iterator.next();
-				try {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-						System.out.println("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
-								+ "].flush()] Closing ZipFile on " + zipFile.getName()); //$NON-NLS-1$
-					}
-					zipFile.close();
-				} catch (IOException e) {
-					// problem occured closing zip file: cannot do much more
-					JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + zipFile.getName(), e)); //$NON-NLS-1$
-				}
-			}
-		}
-
-		public ZipFile getCache(IPath path) {
-			return this.map.get(path);
-		}
-
-		public void setCache(IPath path, ZipFile zipFile) {
-			try (ZipFile old = this.map.put(path, zipFile)) {
-				if (old != null) {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-						Thread currentThread = Thread.currentThread();
-						System.out.println("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
-								+ "].setCache()] leaked ZipFile on " + old.getName() + " for path: " + path); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 	/**
 	 * Unique handle onto the JavaModel
 	 */
@@ -1580,18 +1526,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static boolean VERBOSE = false;
 	public static boolean DEBUG_CLASSPATH = false;
-	public static boolean DEBUG_INVALID_ARCHIVES = false;
 	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
-	public static boolean ZIP_ACCESS_VERBOSE = false;
 	public static boolean JRT_ACCESS_VERBOSE = false;
-
-	/**
-	 * A cache of opened zip files per thread.
-	 * (for a given thread, the object value is a HashMap from IPath to java.io.ZipFile)
-	 */
-	private ThreadLocal<ZipCache> zipFiles = new ThreadLocal<>();
 
 	private UserLibraryManager userLibraryManager;
 
@@ -1600,32 +1538,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * A set of IPaths for jars that are known to not contain a chaining (through MANIFEST.MF) to another library
 	 */
 	private Set<IPath> nonChainingJars;
-
-	// The amount of time from when an invalid archive is first sensed until that state is considered stale.
-	private static long INVALID_ARCHIVE_TTL_MILLISECONDS = 2 * 60 * 1000;
-
-	private static class InvalidArchiveInfo {
-		/**
-		 * Time at which this entry will be removed from the invalid archive list.
-		 */
-		final long evictionTimestamp;
-
-		/**
-		 * Reason the entry was added to the invalid archive list.
-		 */
-		final ArchiveValidity reason;
-
-		InvalidArchiveInfo(long evictionTimestamp, ArchiveValidity reason) {
-			this.evictionTimestamp = evictionTimestamp;
-			this.reason = reason;
-		}
-	}
-
-	/*
-	 * A map of IPaths for jars with known validity (such as being in a valid/known format or not), to an eviction timestamp.
-	 * Synchronize on invalidArchives before accessing.
-	 */
-	private final Map<IPath, InvalidArchiveInfo> invalidArchives = new HashMap<>();
 
 	/*
 	 * A set of IPaths for files that are known to be external to the workspace.
@@ -1795,15 +1707,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.nonChainingJars.add(path);
 	}
 
-	public void addInvalidArchive(IPath path, ArchiveValidity reason) {
-		if (DEBUG_INVALID_ARCHIVES) {
-			System.out.println("JAR cache: adding " + reason + " " + path);  //$NON-NLS-1$//$NON-NLS-2$
-		}
-		synchronized (this.invalidArchives) {
-			this.invalidArchives.put(path, new InvalidArchiveInfo(System.currentTimeMillis() + INVALID_ARCHIVE_TTL_MILLISECONDS, reason));
-		}
-	}
-
 	/**
 	 * Adds a path to the external files cache. It is the responsibility of callers to
 	 * determine the file's existence, as determined by  {@link File#isFile()}.
@@ -1815,38 +1718,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		if(this.externalFiles != null) {
 			this.externalFiles.add(path);
-		}
-	}
-
-	/**
-	 * Starts caching ZipFiles.
-	 * Ignores if there are already clients.
-	 */
-	public void cacheZipFiles(Object owner) {
-		ZipCache zipCache = this.zipFiles.get();
-		if (zipCache != null) {
-			return;
-		}
-		// the owner will be responsible for flushing the cache
-		this.zipFiles.set(new ZipCache(owner));
-	}
-
-	public void closeZipFile(ZipFile zipFile) {
-		if (zipFile == null) return;
-		if (this.zipFiles.get() != null) {
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.closeZipFile(ZipFile)] NOT closed ZipFile (cache exist!) on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
-			}
-			return; // zip file will be closed by call to flushZipFiles
-		}
-		try {
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.closeZipFile(ZipFile)] Closing ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
-			}
-			zipFile.close();
-		} catch (IOException e) {
-			// problem occured closing zip file: cannot do much more
-			JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + zipFile.getName(), e)); //$NON-NLS-1$
 		}
 	}
 
@@ -1876,7 +1747,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				JobManager.VERBOSE = debug && options.getBooleanOption(INDEX_MANAGER_DEBUG, false);
 				IndexManager.DEBUG = debug && options.getBooleanOption(INDEX_MANAGER_ADVANCED_DEBUG, false);
 				JavaModelManager.DEBUG_CLASSPATH = debug && options.getBooleanOption(JAVAMODEL_CLASSPATH, false);
-				JavaModelManager.DEBUG_INVALID_ARCHIVES = debug && options.getBooleanOption(JAVAMODEL_INVALID_ARCHIVES, false);
+				ZipState.DEBUG_INVALID_ARCHIVES = debug && options.getBooleanOption(JAVAMODEL_INVALID_ARCHIVES, false);
 				JavaModelManager.VERBOSE = debug && options.getBooleanOption(JAVAMODEL_DEBUG, false);
 				JavaModelCache.VERBOSE = debug && options.getBooleanOption(JAVAMODELCACHE_DEBUG, false);
 				JavaModelCache.DEBUG_CACHE_INSERTIONS = debug && options.getBooleanOption(JAVAMODELCACHE_INSERTIONS_DEBUG, false);
@@ -1884,7 +1755,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				NameLookup.VERBOSE = debug && options.getBooleanOption(RESOLUTION_DEBUG, false);
 				BasicSearchEngine.VERBOSE = debug && options.getBooleanOption(SEARCH_DEBUG, false);
 				SelectionEngine.DEBUG = debug && options.getBooleanOption(SELECTION_DEBUG, false);
-				JavaModelManager.ZIP_ACCESS_VERBOSE = debug && options.getBooleanOption(ZIP_ACCESS_DEBUG, false);
+				ThreadLocalZipFiles.ZIP_ACCESS_VERBOSE = debug && options.getBooleanOption(ZIP_ACCESS_DEBUG, false);
 				SourceMapper.VERBOSE = debug && options.getBooleanOption(SOURCE_MAPPER_DEBUG_VERBOSE, false);
 				DefaultCodeFormatter.DEBUG = debug && options.getBooleanOption(FORMATTER_DEBUG, false);
 
@@ -2016,31 +1887,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	@Override
 	public void doneSaving(ISaveContext context){
 		// nothing to do for jdt.core
-	}
-
-	/**
-	 * Flushes ZipFiles cache if there are no more clients.
-	 */
-	public void flushZipFiles(Object owner) {
-		ZipCache zipCache = this.zipFiles.get();
-		if (zipCache == null) {
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.flushZipFiles(String)] NOT found cache for " + owner); //$NON-NLS-1$	//$NON-NLS-2$
-			}
-			return;
-		}
-		// the owner will be responsible for flushing the cache
-		// we want to check object identity to make sure this is the owner that created the cache
-		if (zipCache.owner == owner) {
-			this.zipFiles.remove();
-			zipCache.flush();
-		} else {
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() //$NON-NLS-1$
-						+ ") [JavaModelManager.flushZipFiles(String)] NOT closed cache, wrong owner, expected: " //$NON-NLS-1$
-						+ zipCache.owner + ", got: " + owner); //$NON-NLS-1$
-			}
-		}
 	}
 
 	/*
@@ -2836,18 +2682,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return isJrt(new Path(path));
 	}
 
-	public void verifyArchiveContent(IPath path) throws CoreException {
-		// TODO: we haven't finalized what path the JRT is represented by. Don't attempt to validate it.
-		if (isJrt(path)) {
-			return;
-		}
-		if (isArchiveStateKnownToBeValid(path)) {
-			return; // known to be valid
-		}
-		ZipFile file = getZipFile(path);
-		closeZipFile(file);
-	}
-
 	/**
 	 * Returns the open ZipFile at the given path. If the ZipFile
 	 * does not yet exist, it is created, opened, and added to the cache
@@ -2862,52 +2696,28 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * {@link FileNotFoundException} if the file does not exist, or a
 	 * {@link IOException} if we were unable to read the file.
 	 */
-	public ZipFile getZipFile(IPath path) throws CoreException {
-		return getZipFile(path, true);
+	public ThreadLocalZipFile getZipFile(IPath path) throws CoreException {
+		return ZipState.createZipFile(path);
 	}
 
-	/**
-	 * For use in the JDT unit tests only. Used for testing error handling. Causes an
-	 * {@link IOException} to be thrown in {@link #getZipFile} whenever it attempts to
-	 * read a zip file.
-	 *
-	 * @noreference This field is not intended to be referenced by clients.
-	 */
-	public static boolean throwIoExceptionsInGetZipFile = false;
+	/** returns a file with an absolute path - even when the file is already deleted */
+	public static File getLocalFile(IResource resource) throws CoreException {
+		IPath location = resource.getLocation();
+		if (location!=null) { // resource exists
+			if (resource.getType() != IResource.FILE) {
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, resource.toString()), null));
+			}
+			return new File(location.toOSString());
+		} else { // resource already deleted
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			String rootFile=root.getLocation().toOSString();
+			IPath path=resource.getFullPath();
+			return new File(rootFile,path.toOSString());
 
-	public ZipFile getZipFile(IPath path, boolean checkInvalidArchiveCache) throws CoreException {
-		if (checkInvalidArchiveCache) {
-			isArchiveStateKnownToBeValid(path);
-		}
-		ZipCache zipCache;
-		ZipFile zipFile;
-		if ((zipCache = this.zipFiles.get()) != null
-				&& (zipFile = zipCache.getCache(path)) != null) {
-			return zipFile;
-		}
-		File localFile = getLocalFile(path);
-
-		try {
-			if (ZIP_ACCESS_VERBOSE) {
-				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + localFile ); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (throwIoExceptionsInGetZipFile) {
-				throw new IOException();
-			}
-			zipFile = new ZipFile(localFile);
-			if (zipCache != null) {
-				zipCache.setCache(path, zipFile);
-			}
-			addInvalidArchive(path, ArchiveValidity.VALID); // remember its valid
-			return zipFile;
-		} catch (IOException e) {
-			// file may exist but for some reason is inaccessible
-			ArchiveValidity reason=ArchiveValidity.INVALID;
-			addInvalidArchive(path, reason);
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e));
 		}
 	}
 
+	/** returns a file with an absolute path. If the file is deleted the path may be wrong if the argument was relative to workspace */
 	public static File getLocalFile(IPath path) throws CoreException {
 		File localFile = null;
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
@@ -2922,18 +2732,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (localFile == null)
 				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
 		} else {
+			// XXX may have also be an internal Resource that was deleted
 			// external resource -> it is ok to use toFile()
 			localFile= path.toFile();
 		}
 		return localFile;
-	}
-
-	private boolean isArchiveStateKnownToBeValid(IPath path) throws CoreException {
-		ArchiveValidity validity = getArchiveValidity(path);
-		if (validity == null || validity == ArchiveValidity.INVALID) {
-			return false; // chance the file has become accessible/readable now.
-		}
-		return true;
 	}
 
 	/*
@@ -3372,67 +3175,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public boolean isNonChainingJar(IPath path) {
 		return this.nonChainingJars != null && this.nonChainingJars.contains(path);
-	}
-
-	public ArchiveValidity getArchiveValidity(IPath path) {
-		InvalidArchiveInfo invalidArchiveInfo;
-		synchronized (this.invalidArchives) {
-			invalidArchiveInfo = this.invalidArchives.get(path);
-		}
-		if (invalidArchiveInfo == null) {
-			if (DEBUG_INVALID_ARCHIVES) {
-				System.out.println("JAR cache: UNKNOWN validity for " + path);  //$NON-NLS-1$
-			}
-			return null;
-		}
-		long now = System.currentTimeMillis();
-
-		// If the TTL for this cache entry has expired, directly check whether the archive is still invalid.
-		if (now > invalidArchiveInfo.evictionTimestamp) {
-			try {
-				ZipFile zipFile = getZipFile(path, false);
-				closeZipFile(zipFile);
-				removeFromInvalidArchiveCache(path);
-				addInvalidArchive(path, ArchiveValidity.VALID); // update TTL
-				return ArchiveValidity.VALID;
-			} catch (CoreException e) {
-				// Archive is still invalid, fall through to reporting it is invalid.
-			}
-			addInvalidArchive(path, ArchiveValidity.INVALID); // update TTL
-			return ArchiveValidity.INVALID;
-		}
-		if (DEBUG_INVALID_ARCHIVES) {
-			System.out.println("JAR cache: " + invalidArchiveInfo.reason + " " + path);  //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		return invalidArchiveInfo.reason;
-	}
-
-	public void removeFromInvalidArchiveCache(IPath path) {
-		synchronized(this.invalidArchives) {
-			InvalidArchiveInfo entry = this.invalidArchives.get(path);
-			if (entry != null && entry.reason == ArchiveValidity.VALID) {
-				if (DEBUG_INVALID_ARCHIVES) {
-					System.out.println("JAR cache: keep VALID " + path);  //$NON-NLS-1$
-				}
-				return; // do not remove the VALID information
-			}
-			// If it transitioned to being valid then force an update to project caches.
-			if (this.invalidArchives.remove(path) != null) {
-				if (DEBUG_INVALID_ARCHIVES) {
-					System.out.println("JAR cache: removed INVALID " + path);  //$NON-NLS-1$
-				}
-				try {
-					// Bug 455042: Force an update of the JavaProjectElementInfo project caches.
-					for (IJavaProject project : getJavaModel().getJavaProjects()) {
-						if (project.findPackageFragmentRoot(path) != null) {
-							((JavaProject) project).resetCaches();
-						}
-					}
-				} catch (JavaModelException e) {
-					Util.log(e, "Unable to retrieve the Java model."); //$NON-NLS-1$
-				}
-			}
-		}
 	}
 
 	/**

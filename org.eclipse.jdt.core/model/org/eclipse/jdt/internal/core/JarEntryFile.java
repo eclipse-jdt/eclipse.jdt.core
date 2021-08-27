@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
@@ -29,6 +28,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 
 /**
  * A jar entry that represents a non-java file found in a JAR.
@@ -63,24 +63,16 @@ public class JarEntryFile  extends JarEntryResource {
 			}
 			return null;
 		} else {
-			ZipFile zipFile = null;
-			try {
-				zipFile = getZipFile();
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					System.out.println("(" + Thread.currentThread() + ") [JarEntryFile.getContents()] Creating ZipFile on " +zipFile.getName()); //$NON-NLS-1$	//$NON-NLS-2$
-				}
+			try (ThreadLocalZipFile zipFile = getZipFile()){
 				String entryName = getEntryName();
 				ZipEntry zipEntry = zipFile.getEntry(entryName);
 				if (zipEntry == null){
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, entryName));
 				}
-				byte[] contents = Util.getZipEntryByteContent(zipEntry, zipFile);
+				byte[] contents = org.eclipse.jdt.internal.core.util.Util.getZipEntryByteContent(zipEntry, zipFile);
 				return new ByteArrayInputStream(contents);
 			} catch (IOException e){
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-			} finally {
-				// avoid leaking ZipFiles
-				JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 			}
 		}
 	}

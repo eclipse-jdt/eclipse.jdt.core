@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
 
 public class ClasspathJMod extends ClasspathJar {
 
@@ -70,9 +72,9 @@ public class ClasspathJMod extends ClasspathJar {
 		if (moduleNameFilter != null && this.module != null && !moduleNameFilter.test(String.valueOf(this.module.name())))
 			return null;
 
-		try {
+		try (ThreadLocalZipFile zipFile = createZipFile()) {
 			qualifiedBinaryFileName = new String(CharOperation.append(CLASSES_FOLDER, qualifiedBinaryFileName.toCharArray()));
-			IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
+			IBinaryType reader = org.eclipse.jdt.internal.core.util.Util.read(zipFile, qualifiedBinaryFileName);
 			if (reader != null) {
 				char[] modName = this.module == null ? null : this.module.name();
 				if (reader instanceof ClassFileReader) {
@@ -85,29 +87,34 @@ public class ClasspathJMod extends ClasspathJar {
 				String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 				return createAnswer(fileNameWithoutExtension, reader, modName);
 			}
-		} catch (IOException | ClassFormatException e) { // treat as if class file is missing
+		} catch (IOException | ClassFormatException | CoreException e) {
+			// treat as if class file is missing
 		}
 		return null;
 	}
 	@Override
 	protected String readJarContent(final SimpleSet packageSet) {
 		String modInfo = null;
-		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
-			ZipEntry entry = e.nextElement();
-			char[] entryName = entry.getName().toCharArray();
-			int index = CharOperation.indexOf('/', entryName);
-			if (index != -1) {
-				char[] folder = CharOperation.subarray(entryName, 0, index);
-				if (CharOperation.equals(CLASSES, folder)) {
-					char[] fileName = CharOperation.subarray(entryName, index + 1, entryName.length);
-					if (modInfo == null && fileName.length == MODULE_DESCRIPTOR_NAME_LENGTH) {
-						if (CharOperation.equals(fileName, IModule.MODULE_INFO_CLASS.toCharArray())) {
-							modInfo = new String(entryName);
+		try (ThreadLocalZipFile zipFile = createZipFile()) {
+			for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
+				ZipEntry entry = e.nextElement();
+				char[] entryName = entry.getName().toCharArray();
+				int index = CharOperation.indexOf('/', entryName);
+				if (index != -1) {
+					char[] folder = CharOperation.subarray(entryName, 0, index);
+					if (CharOperation.equals(CLASSES, folder)) {
+						char[] fileName = CharOperation.subarray(entryName, index + 1, entryName.length);
+						if (modInfo == null && fileName.length == MODULE_DESCRIPTOR_NAME_LENGTH) {
+							if (CharOperation.equals(fileName, IModule.MODULE_INFO_CLASS.toCharArray())) {
+								modInfo = new String(entryName);
+							}
 						}
+						addToPackageSet(packageSet, new String(fileName), false);
 					}
-					addToPackageSet(packageSet, new String(fileName), false);
 				}
 			}
+		} catch (CoreException e1) {
+			// nothing
 		}
 		return modInfo;
 	}

@@ -42,6 +42,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.builder.ClasspathJar.ResourceOrExternalFile;
 
 public abstract class ClasspathLocation {
 
@@ -168,11 +170,11 @@ public static ClasspathLocation forLibrary(IFile library, AccessRuleSet accessRu
 			new ClasspathJar(library, accessRuleSet, annotationsPath, isOnModulePath) :
 				new ClasspathMultiReleaseJar(library, accessRuleSet, annotationsPath, isOnModulePath, compliance);
 }
-public static ClasspathLocation forLibrary(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
-										boolean isOnModulePath, String compliance) {
+public static ClasspathLocation forLibrary(PackageFragmentRoot root, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath, String compliance) throws CoreException {
+	ResourceOrExternalFile library=ResourceOrExternalFile.of(root);
 	return (CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK9) ?
-			new ClasspathJar(zipFile, accessRuleSet, externalAnnotationPath, isOnModulePath) :
-				new ClasspathMultiReleaseJar(zipFile, accessRuleSet, externalAnnotationPath, isOnModulePath, compliance);
+				new ClasspathJar(library, null,accessRuleSet, externalAnnotationPath, isOnModulePath) :
+				new ClasspathMultiReleaseJar(library, accessRuleSet, externalAnnotationPath, isOnModulePath, compliance);
 }
 
 public abstract IPath getProjectRelativePath();
