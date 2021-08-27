@@ -15,6 +15,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
+ *     Microsoft Corporation - Contribution for bug 575562 - improve completion search performance
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
@@ -8424,6 +8425,7 @@ public final class CompletionEngine
 					findMembers,
 					getTypesMatchRule(),
 					IJavaSearchConstants.TYPE,
+					false,
 					this,
 					this.monitor);
 			acceptTypes(null);
@@ -11459,6 +11461,7 @@ public final class CompletionEngine
 				this.nameEnvironment.findConstructorDeclarations(
 						token,
 						getTypesMatchRule(),
+						false,
 						this,
 						this.monitor);
 				acceptConstructors(scope);
@@ -11494,6 +11497,7 @@ public final class CompletionEngine
 						proposeAllMemberTypes,
 						getTypesMatchRule(),
 						searchFor,
+						false,
 						this,
 						this.monitor);
 				acceptTypes(scope);
@@ -11662,6 +11666,7 @@ public final class CompletionEngine
 			this.nameEnvironment.findConstructorDeclarations(
 					qualifiedName,
 					getTypesMatchRule(),
+					false,
 					this,
 					this.monitor);
 			acceptConstructors(scope);
@@ -11687,6 +11692,7 @@ public final class CompletionEngine
 					false,
 					getTypesMatchRule(),
 					searchFor,
+					false,
 					this,
 					this.monitor);
 			acceptTypes(scope);

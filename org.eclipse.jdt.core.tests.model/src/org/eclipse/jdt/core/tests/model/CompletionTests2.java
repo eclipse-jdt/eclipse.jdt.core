@@ -6489,4 +6489,110 @@ public void test479656() throws Exception {
 		deleteProject("P");
 	}
 }
+public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+		JavaCore.setOptions(options);
+		setUpJavaProject("AccessRestrictions", "1.4", false);
+		createJavaProject(
+				"P1",
+				new String[] {"src"},
+				new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
+				new String[][]{{}, {}},
+				new String[][]{{}, {"**/*"}},
+				null/*no project*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/,
+				"bin",
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.4");
+		this.createFolder("/P1/src/p11");
+		this.createFile(
+				"/P1/src/p11/Y11.java",
+				"package p11;\n"+
+				"public class YY11 {\n"+
+				"  void foo() {\n"+
+				"    X\n"+
+				"  }\n"+
+				"}");
+		waitUntilIndexesReady();
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p11", "Y11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "X";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertResults(
+			"",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("AccessRestrictions");
+		this.deleteProject("P1");
+		JavaCore.setOptions(oldOptions);
+	}
+}
+public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
+	Hashtable oldOptions = JavaCore.getOptions();
+	try {
+		Hashtable options = new Hashtable(oldOptions);
+		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+		JavaCore.setOptions(options);
+		setUpJavaProject("AccessRestrictions", "1.4", false);
+		createJavaProject(
+				"P1",
+				new String[] {"src"},
+				new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
+				new String[][]{{}, {}},
+				new String[][]{{}, {"**/*"}},
+				null/*no project*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/,
+				"bin",
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.4");
+		this.createFolder("/P1/src/p11");
+		this.createFile(
+				"/P1/src/p11/Y11.java",
+				"package p11;\n"+
+				"public class YY11 {\n"+
+				"  void foo() {\n"+
+				"    X\n"+
+				"  }\n"+
+				"}");
+		waitUntilIndexesReady();
+
+		// do completion
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		ICompilationUnit cu= getCompilationUnit("P1", "src", "p11", "Y11.java");
+
+		String str = cu.getSource();
+		String completeBehind = "X";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		cu.codeComplete(cursorLocation, requestor);
+
+		assertResults(
+			"X[TYPE_REF]{p.X, p, Lp.X;, null, 50}",
+			requestor.getResults());
+	} finally {
+		this.deleteProject("AccessRestrictions");
+		this.deleteProject("P1");
+		JavaCore.setOptions(oldOptions);
+	}
+}
 }
