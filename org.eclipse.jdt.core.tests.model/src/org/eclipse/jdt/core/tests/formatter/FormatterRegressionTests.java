@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15939,6 +15939,50 @@ public void testBug567016() {
 		"		// formatted comment\n" +
 		"	}\n" +
 		"}\n"
+	);
+}
+
+/**
+ * https://bugs.eclipse.org/573949 - [17][switch pattern][formatter] JEP 406 changes
+ */
+public void testBug573949() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	String source =
+		"public class X {\n" +
+		" private static void foo(Object o) {\n" +
+		"   switch (o) {\n" +
+		"     case Integer t, String : System.out.println(\"Error should be flagged for Integer and String\");\n" +
+		"     default : System.out.println(\"Object\");\n" +
+		"   }\n" +
+		" }\n" +
+		"\n" +
+		"static void testTriangle(Shape s) {\n" +
+		"    switch (s) {\n" +
+		"        case Triangle t&&(t.calculateArea() > 100) ->\n" +
+		"            System.out.println(\"Large triangle\");\n" +
+		"        default ->\n" +
+		"            System.out.println(\"A shape, possibly a small triangle\");\n" +
+		"    }\n" +
+		"}\n" +
+		"}";
+	formatSource(source,
+		"public class X {\n" +
+		"	private static void foo(Object o) {\n" +
+		"		switch (o) {\n" +
+		"		case Integer t, String:\n" +
+		"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
+		"		default:\n" +
+		"			System.out.println(\"Object\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"\n" +
+		"	static void testTriangle(Shape s) {\n" +
+		"		switch (s) {\n" +
+		"		case Triangle t && (t.calculateArea() > 100) -> System.out.println(\"Large triangle\");\n" +
+		"		default -> System.out.println(\"A shape, possibly a small triangle\");\n" +
+		"		}\n" +
+		"	}\n" +
+		"}"
 	);
 }
 }

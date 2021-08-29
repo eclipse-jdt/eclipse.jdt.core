@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2019 Mateusz Matela and others.
+ * Copyright (c) 2014, 2021 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -57,6 +57,7 @@ import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.GuardedPattern;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -457,6 +458,13 @@ public class SpacePreparator extends ASTVisitor {
 					this.options.insert_space_after_comma_in_switch_case_expressions);
 			}
 		}
+		return true;
+	}
+
+	@Override
+	public boolean visit(GuardedPattern node) {
+		handleTokenAfter(node.getPattern(), TokenNameAND_AND, this.options.insert_space_before_logical_operator,
+				this.options.insert_space_after_logical_operator);
 		return true;
 	}
 
