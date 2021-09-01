@@ -802,19 +802,6 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	}
 }
 @Override
-protected void consumeGuardedPattern() {
-	this.astLengthPtr--;
-	ASTNode astNode = this.astStack[this.astPtr--];
-	Pattern pattern = null;
-	//avoid class cast exception
-	if(!(astNode instanceof Pattern))
-		return;
-	pattern = (Pattern)astNode;
-	Expression expr = this.expressionStack[this.expressionPtr--];
-	this.expressionLengthPtr--;
-	pushOnAstStack(new GuardedPattern(pattern, expr));
-}
-@Override
 protected void consumeInsideCastExpression() {
 	super.consumeInsideCastExpression();
 	pushOnElementStack(K_CAST_STATEMENT);
@@ -860,10 +847,17 @@ protected void consumeInstanceOfExpressionWithName() {
 	if (length > 0) {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-		if (this.assistNode == null || this.expressionStack[this.expressionPtr] != this.assistNode) {
+		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
 			// Push only when the selection node is not the expression of this
 			// pattern matching instanceof expression
-			pushOnAstStack(pattern.getPatternVariableIntroduced());
+			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariableIntroduced();
+			if (patternVariableIntroduced != null) {
+				// filter out patternVariableIntroduced based on current selection if there is an assist node
+				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
+						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
+					pushOnAstStack(patternVariableIntroduced);
+				}
+			}
 			if ((this.selectionStart >= pattern.sourceStart)
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.restartRecovery	= true;
