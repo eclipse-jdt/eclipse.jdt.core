@@ -3760,4 +3760,87 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
+	public void testBug575714_01() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						" static Object foo(Object o) {\n"+
+						"   switch (o) {\n"+
+						"       case Object __ -> throw new AssertionError(); \n"+
+						"   }\n"+
+						" }\n"+
+						" public static void main(String[] args) {\n"+
+						"   Zork();\n"+
+						" }\n"+
+						"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n");
+	}
+	public void testBug575714_02() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"class X {\n"+
+					" static Object foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"       case Object __ -> System.out.println(\"Hello\"); \n"+
+					"   }\n"+
+					" }\n"+
+					" public static void main(String[] args) {\n"+
+					"   X.foo(new X());\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	static Object foo(Object o) {\n" +
+				"	              ^^^^^^^^^^^^^\n" +
+				"This method must return a result of type Object\n" +
+				"----------\n");
+	}
+	public void testBug575714_03() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n"+
+					" static Object foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"       case Object __ -> System.out.println(\"Hello\"); \n"+
+					"   }\n"+
+					"   return null;\n"+
+					" }\n"+
+					" public static void main(String[] args) {\n"+
+					"   X.foo(new X());\n"+
+					" }\n"+
+					"}",
+				},
+				"Hello");
+	}
+	public void testBug575714_04() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"class X {\n"+
+					" static Object foo(Object o) throws Exception {\n"+
+					"   switch (o) {\n"+
+					"       case Object __ -> throw new Exception(); \n"+
+					"   }\n"+
+					" }\n"+
+					" public static void main(String[] args) {\n"+
+					"   try {\n"+
+					"     X.foo(new X());\n"+
+					"   } catch (Exception e) {\n"+
+					"     System.out.println(\"Hello\");\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"Hello");
+	}
 }

@@ -146,7 +146,7 @@ public class SwitchStatement extends Expression {
 		// do nothing
 	}
 	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() {
-		return true;
+		return !this.isExhaustive();
 	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
