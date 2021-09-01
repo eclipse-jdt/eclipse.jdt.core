@@ -240,6 +240,8 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 	if (patternSwitchAllowed) {
 		for (Expression e : this.constantExpressions) {
 			 if (e instanceof FakeDefaultLiteral) {
+				 scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
+							e.sourceStart, e.sourceEnd);
 				 flagDuplicateDefault(scope, switchStatement,
 						 this.constantExpressions.length > 1 ? e : this);
 				 if (patternCaseLabelCount > 0) {
@@ -249,6 +251,8 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 				 continue;
 			}
 			if (e instanceof Pattern) {
+				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
+						e.sourceStart, e.sourceEnd);
 				if (patternCaseLabelCount++ > 0) {
 					scope.problemReporter().switchPatternOnlyOnePatternCaseLabelAllowed(e);
 					return e; // Return and avoid secondary errors
@@ -263,6 +267,8 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 					return e; // Return and avoid secondary errors
 				}
 			} else if (e instanceof NullLiteral) {
+				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
+						e.sourceStart, e.sourceEnd);
 				if (switchStatement.nullCase == null) {
 					switchStatement.nullCase = this;
 					if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {

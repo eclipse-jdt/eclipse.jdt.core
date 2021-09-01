@@ -27,7 +27,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug573937_11"};
+//		TESTS_NAMES = new String[] { "testBug575737"};
 	}
 
 	private static String previewLevel = "17";
@@ -3916,5 +3916,85 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	           ^^^^^\n" +
 				"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 				"----------\n");
+	}
+	public void testBug575737_001() {
+		Map<String, String> options =getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo1(String o) {\n"+
+				"   switch (o) {\n"+
+				"   case null -> System.out.println(\"null\");\n"+
+				"   case String s -> String.format(\"String %s\", s);\n"+
+				"   }\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	case null -> System.out.println(\"null\");\n" +
+			"	     ^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 5)\n" +
+			"	case String s -> String.format(\"String %s\", s);\n" +
+			"	     ^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
+	}
+	public void testBug575737_002() {
+		Map<String, String> options =getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.INFO);
+
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo1(String o) {\n"+
+				"   switch (o) {\n"+
+				"   case null -> System.out.println(\"null\");\n"+
+				"   case String s -> String.format(\"String %s\", s);\n"+
+				"   }\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. INFO in X.java (at line 4)\n" +
+			"	case null -> System.out.println(\"null\");\n" +
+			"	     ^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. INFO in X.java (at line 5)\n" +
+			"	case String s -> String.format(\"String %s\", s);\n" +
+			"	     ^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 9)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n",
+			null,
+			true,
+			options
+		);
 	}
 }

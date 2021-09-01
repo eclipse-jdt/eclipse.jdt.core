@@ -134,6 +134,7 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 		Map<String,String> opts = getCompilerOptions();
 		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 		opts.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		opts.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		runner.customOptions = opts;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions =
