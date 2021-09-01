@@ -159,9 +159,9 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 		new char[] {'\u0000', '\u0000', '\u0000', '\u0000', '\u0000', '\u0000'};
 	static final int TableSize = 30, InternalTableSize = 6; //30*6 =210 entries
 
-	public static final int OptimizedLength = 7;
+	public static final int OptimizedLength = 6;
 	public /*static*/ final char[][][][] charArray_length =
-		new char[OptimizedLength][TableSize][InternalTableSize][];
+		new char[OptimizedLength - 1][TableSize][InternalTableSize][];
 	// support for detecting non-externalized string literals
 	public static final char[] TAG_PREFIX= "//$NON-NLS-".toCharArray(); //$NON-NLS-1$
 	public static final int TAG_PREFIX_LENGTH= TAG_PREFIX.length;
@@ -177,7 +177,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public boolean returnOnlyGreater = false;
 
 	/*static*/ {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < OptimizedLength - 1; i++) {
 			for (int j = 0; j < TableSize; j++) {
 				for (int k = 0; k < InternalTableSize; k++) {
 					this.charArray_length[i][j][k] = initCharArray;
