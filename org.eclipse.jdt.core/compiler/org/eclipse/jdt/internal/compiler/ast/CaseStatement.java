@@ -251,23 +251,23 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 			if (e instanceof Pattern) {
 				if (patternCaseLabelCount++ > 0) {
 					scope.problemReporter().switchPatternOnlyOnePatternCaseLabelAllowed(e);
-					return null; // Avoid secondary errors
+					return e; // Return and avoid secondary errors
 				} else if (defaultCaseLabelCount > 0) {
 					scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
-					return null; // Avoid secondary errors
+					return e; // Return and avoid secondary errors
 				}
 				if (e instanceof TypePattern) {
 					++typePatternCount;
 				} else if (nullCaseLabelCount > 0 ) {
 					scope.problemReporter().switchPatternBothNullAndNonTypePatternNotAllowed(e);
-					return null; // Avoid secondary errors
+					return e; // Return and avoid secondary errors
 				}
 			} else if (e instanceof NullLiteral) {
 				if (switchStatement.nullCase == null) {
 					switchStatement.nullCase = this;
 					if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
 						scope.problemReporter().patternDominatedByAnother(this.constantExpressions[0]);
-						return null; // Avoid secondary errors
+						return e; // Return and avoid secondary errors
 					}
 				}
 
@@ -277,7 +277,7 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 				}
 				if ((patternCaseLabelCount - typePatternCount) > 0) {
 					scope.problemReporter().switchPatternBothNullAndNonTypePatternNotAllowed(e);
-					return null; // Avoid secondary errors
+					return e; // Return and avoid secondary errors
 				}
 			}
 			if (ret == null) ret = e;

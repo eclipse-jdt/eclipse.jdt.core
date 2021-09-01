@@ -255,10 +255,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"A switch label may not have more than one pattern case label element\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
+			"	                              ^^^^^^\n" +
+			"length cannot be resolved or is not a field\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" + 			"----------\n");
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
 	}
 	public void testBug573516_007() {
 		runNegativeTest(
@@ -3867,6 +3873,48 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	case 4.3: System.out.println();\n" +
 				"	     ^^^\n" +
 				"Type mismatch: cannot convert from double to Number\n" +
+				"----------\n");
+	}
+	public void testBug575686_1() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	void m(Object o) {\n" +
+						"		switch (o) {\n" +
+						"			case Integer i1, String s1 ->\n" +
+						"				System.out.print(s1);\n" +
+						"			default -> System.out.print(\"default\");\n" +
+						"			case Number n, null ->\n" +
+						"				System.out.print(o);\n" +
+						"			case null, Class c ->\n" +
+						"				System.out.print(o);\n" +
+						"		}\n" +
+						"	}\n" +
+						"	public static void main(String[] args) {}\n" +
+						"}\n" +
+						"enum Color {	Blue, Red;  }\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case Integer i1, String s1 ->\n" +
+				"	                 ^^^^^^^^^\n" +
+				"A switch label may not have more than one pattern case label element\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	case Number n, null ->\n" +
+				"	               ^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 9)\n" +
+				"	case null, Class c ->\n" +
+				"	     ^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n" +
+				"4. WARNING in X.java (at line 9)\n" +
+				"	case null, Class c ->\n" +
+				"	           ^^^^^\n" +
+				"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 				"----------\n");
 	}
 }

@@ -104,8 +104,8 @@ public class SwitchStatement extends Expression {
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
-	CaseStatement[] duplicateCaseStatements = null;
-	int duplicateCaseStatementsCounter = 0;
+	Statement[] duplicateCases = null;
+	int duplicateCaseCounter = 0;
 	private LocalVariableBinding dispatchStringCopy = null;
 	private LocalVariableBinding dispatchPatternCopy = null;
 	private LocalVariableBinding restartIndexLocal = null;
@@ -907,7 +907,11 @@ public class SwitchStatement extends Expression {
 									}
 								} else {
 									if (!c.isPattern() && check.test(j)) {
-										reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+										if (this.isNonTraditional) {
+											reportDuplicateCase(c.e, this.otherConstants[j].e, length);
+										} else {
+											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+										}
 									}
 								}
 							}
@@ -1079,28 +1083,28 @@ public class SwitchStatement extends Expression {
 			this.scope.problemReporter().switchExpressionMixedCase(this.defaultCase);
 		}
 	}
-	private void reportDuplicateCase(final CaseStatement duplicate,
-			final CaseStatement original,
+	private void reportDuplicateCase(final Statement duplicate,
+			final Statement original,
 			int length) {
-		if (this.duplicateCaseStatements == null) {
+		if (this.duplicateCases == null) {
 			this.scope.problemReporter().duplicateCase(original);
 			if (duplicate != original)
 				this.scope.problemReporter().duplicateCase(duplicate);
-			this.duplicateCaseStatements = new CaseStatement[length];
-			this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = original;
+			this.duplicateCases = new Statement[length];
+			this.duplicateCases[this.duplicateCaseCounter++] = original;
 			if (duplicate != original)
-				this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = duplicate;
+				this.duplicateCases[this.duplicateCaseCounter++] = duplicate;
 		} else {
 			boolean found = false;
-			searchReportedDuplicate: for (int k = 2; k < this.duplicateCaseStatementsCounter; k++) {
-				if (this.duplicateCaseStatements[k] == duplicate) {
+			searchReportedDuplicate: for (int k = 2; k < this.duplicateCaseCounter; k++) {
+				if (this.duplicateCases[k] == duplicate) {
 					found = true;
 					break searchReportedDuplicate;
 				}
 			}
 			if (!found) {
 				this.scope.problemReporter().duplicateCase(duplicate);
-				this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = duplicate;
+				this.duplicateCases[this.duplicateCaseCounter++] = duplicate;
 			}
 		}
 	}
