@@ -3736,8 +3736,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				options);
 	}
 	public void testBug575571_2() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
 		runNegativeTest(
 				new String[] {
 						"X.java",
@@ -3842,5 +3840,33 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"Hello");
+	}
+	public void testBug575687_1() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	static void number(Number i) {\n" +
+						"		switch (i) {\n" +
+						"			case Integer i2, 4.5:\n" +
+						"			case 4.3: System.out.println();\n" +
+						"			default: System.out.println(\"nothing\");\n" +
+						"		}\n" +
+						"	}\n" +
+						"	public static void main(String[] args) {}\n" +
+						"}\n" +
+						"enum Color {	Blue, Red;  }\n",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case Integer i2, 4.5:\n" +
+				"	                 ^^^\n" +
+				"Type mismatch: cannot convert from double to Number\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case 4.3: System.out.println();\n" +
+				"	     ^^^\n" +
+				"Type mismatch: cannot convert from double to Number\n" +
+				"----------\n");
 	}
 }

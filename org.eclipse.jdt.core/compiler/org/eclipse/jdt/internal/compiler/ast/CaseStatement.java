@@ -326,8 +326,10 @@ private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchEx
 			} else if (e instanceof FakeDefaultLiteral) {
 				continue; // already processed
 			}
-			e.resolveType(scope);
+			caseType = e.resolveType(scope);
 		}
+		if (caseType == null)
+			return ResolvedCase.UnresolvedCase;
 		 // Avoid further resolution and secondary errors
 		if (caseType.isValidBinding()) {
 			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
