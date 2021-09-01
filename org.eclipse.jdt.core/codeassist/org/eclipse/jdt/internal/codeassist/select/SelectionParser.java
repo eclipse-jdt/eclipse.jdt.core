@@ -802,6 +802,19 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	}
 }
 @Override
+protected void consumeGuardedPattern() {
+	this.astLengthPtr--;
+	ASTNode astNode = this.astStack[this.astPtr--];
+	Pattern pattern = null;
+	//avoid class cast exception
+	if(!(astNode instanceof Pattern))
+		return;
+	pattern = (Pattern)astNode;
+	Expression expr = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	pushOnAstStack(new GuardedPattern(pattern, expr));
+}
+@Override
 protected void consumeInsideCastExpression() {
 	super.consumeInsideCastExpression();
 	pushOnElementStack(K_CAST_STATEMENT);

@@ -1406,6 +1406,119 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		}
 	}
 
+	// selection of guarded pattern variable along with instance of expression in case statement and verify that it is local variable
+	public void testBug575718_035() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static int  foo(Object o) {\n" +
+						" return switch (o) {\n" +
+						"	case String strGP && (o instanceof String c3 && c3.length() > 0) -> 0;\n" +
+						"	default       -> 0;\n" +
+						" 	};\n" +
+						" 	}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "strGP";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements[0] instanceof LocalVariable);
+
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	// selection of guarded pattern variable in case statement along with instanceof expression and verify it gets all references
+	public void testBug575718_036() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n" +
+						"public static void main(String[] args) {\n" +
+						"foo(Integer.valueOf(5));\n" +
+						"foo(new Object());\n" +
+						"}\n" +
+						"private static int  foo(Object o) {\n" +
+						" return switch (o) {\n" +
+						"	case String strGP && (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
+						"	default       -> 0;\n" +
+						" 	};\n" +
+						" 	}\n" +
+						"}\n"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "strGP";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements[0] instanceof LocalVariable);
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults(
+					"src/X.java int X.foo(Object) [strGP] EXACT_MATCH");
+
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// selection of guarded pattern variable in case statement along with instanceof expression and verify that it gets all occurences
+		public void testBug575718_037() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public class X {\n" +
+							"public static void main(String[] args) {\n" +
+							"foo(Integer.valueOf(5));\n" +
+							"foo(new Object());\n" +
+							"}\n" +
+							"private static int  foo(Object o) {\n" +
+							" return switch (o) {\n" +
+							"	case String strGP && (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
+							"	default       -> 0;\n" +
+							" 	};\n" +
+							" 	}\n" +
+							"}\n"
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+			// working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				String str = this.workingCopies[0].getSource();
+				String selection = "strGP";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertTrue(elements[0] instanceof LocalVariable);
+				search(elements[0], ALL_OCCURRENCES, EXACT_RULE);
+				assertSearchResults(
+						"src/X.java int X.foo(Object).strGP [strGP] EXACT_MATCH\n"
+						+ "src/X.java int X.foo(Object) [strGP] EXACT_MATCH");
+
+
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
 
 
 }
