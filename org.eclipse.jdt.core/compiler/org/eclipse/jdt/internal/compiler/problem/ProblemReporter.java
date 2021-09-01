@@ -12271,4 +12271,13 @@ public void duplicateTotalPattern(ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
+public void unexpectedTypeinSwitchPattern(TypeBinding type, ASTNode element) {
+	this.handle(
+			IProblem.UnexpectedTypeinSwitchPattern,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
+
 }

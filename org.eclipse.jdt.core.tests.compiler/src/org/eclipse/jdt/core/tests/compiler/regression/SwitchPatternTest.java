@@ -3997,4 +3997,50 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			options
 		);
 	}
+	public void testBug575738_001() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	private static void foo(Object o) {\n" +
+						"	   switch (o.hashCode()) {\n" +
+						"	     case int t: System.out.println(\"Integer\"); \n" +
+						"	     default : System.out.println(\"Object\"); \n" +
+						"	   }\n" +
+						"	}\n" +
+						"	public static void main(String[] args) { \n" +
+						"		foo(\"Hello World\");\n" +
+						"	}\n" +
+						"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case int t: System.out.println(\"Integer\"); \n" +
+				"	     ^^^^^\n" +
+				"Unexpected type int, expected class or array type\n" +
+				"----------\n");
+	}
+	public void testBug575738_002() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	private static void foo(Object o) {\n" +
+						"	   switch (o.hashCode()) {\n" +
+						"	     case Integer t: System.out.println(\"Integer\"); \n" +
+						"	     default : System.out.println(\"Object\"); \n" +
+						"	   }\n" +
+						"	}\n" +
+						"	public static void main(String[] args) { \n" +
+						"		foo(\"Hello World\");\n" +
+						"	}\n" +
+						"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case Integer t: System.out.println(\"Integer\"); \n" +
+				"	     ^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from int to Integer\n" +
+				"----------\n");
+	}
 }

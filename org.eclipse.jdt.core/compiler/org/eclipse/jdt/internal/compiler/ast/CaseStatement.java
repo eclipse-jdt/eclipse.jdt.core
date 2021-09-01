@@ -463,6 +463,10 @@ private Constant resolveConstantExpression(BlockScope scope,
 					}
 				} else if (pb.isValidBinding()) {
 					// if not a valid binding, an error has already been reported for unresolved type
+					if (pb.isPrimitiveType()) {
+						scope.problemReporter().unexpectedTypeinSwitchPattern(pb, e);
+						return Constant.NotAConstant;
+					}
 					if (pb.isBaseType()
 							|| !e.checkCastTypesCompatibility(scope, pb, expressionType, null, false)) {
 						scope.problemReporter().typeMismatchError(expressionType, pb, e, null);

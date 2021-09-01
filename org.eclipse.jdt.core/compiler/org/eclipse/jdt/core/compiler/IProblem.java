@@ -2504,5 +2504,8 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int UnnecessaryNullCaseInSwitchOverNonNull = 1910;
+	int UnnecessaryNullCaseInSwitchOverNonNull = PreviewRelated + 1910;
+	/** @since 3.27 BETA_JAVA17
+	 * @noreference preview feature error */
+	int UnexpectedTypeinSwitchPattern = PreviewRelated + 1911;
 }
