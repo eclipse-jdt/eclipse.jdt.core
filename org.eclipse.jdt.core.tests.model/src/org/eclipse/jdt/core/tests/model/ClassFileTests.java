@@ -1362,7 +1362,7 @@ public void testWorkingCopy04() throws CoreException {
 	}
 	assertEquals(
 		"Unxepected JavaModelException",
-		"Java Model Exception: Java Model Status [Operation not supported for specified element type(s):[Working copy] X.class [in workingcopy [in lib.jar [in P]]]]",
+		"Java Model Exception: Error in Java Model (code 967): Operation not supported for specified element type(s):[Working copy] X.class [in workingcopy [in lib.jar [in P]]]",
 		exception.toString());
 }
 

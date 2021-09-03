@@ -619,9 +619,7 @@ public void testFileDeleted() throws CoreException {
 	try {
 		startLogListening();
 		((org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getCompilationUnit("/P/src/p/Deleted.java")).getContents();
-		assertLogEquals(
-			"Status ERROR: org.eclipse.jdt.core code=4 File not found: \'/P/src/p/Deleted.java\' org.eclipse.core.internal.resources.ResourceException: Resource \'/P/src/p/Deleted.java\' does not exist.\n"
-		);
+		assertLogEquals("Error in Java Model (code 969): Resource \'/P/src/p/Deleted.java\' does not exist.\n");
 	} finally {
 		stopLogListening();
 	}

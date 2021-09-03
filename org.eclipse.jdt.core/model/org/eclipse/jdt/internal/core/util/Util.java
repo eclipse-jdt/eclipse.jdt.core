@@ -1897,7 +1897,11 @@ public class Util {
 	}
 
 	public static void log(Throwable e) {
-		log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.internal_error, e));
+		if (e instanceof CoreException) {
+			log(((CoreException)e).getStatus());
+		} else {
+			log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.internal_error, e));
+		}
 	}
 
 	public static ClassFileReader newClassFileReader(IResource resource) throws CoreException, ClassFormatException, IOException {

@@ -686,7 +686,7 @@ public char[] getContents() {
 						new IOException(e.getMessage());
 				throw new AbortCompilationUnit(null, ioException, encoding);
 			} else {
-				Util.log(e, Messages.bind(Messages.file_notFound, file.getFullPath().toString()));
+				Util.log(e);
 			}
 			return CharOperation.NO_CHAR;
 		}
