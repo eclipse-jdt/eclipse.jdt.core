@@ -15,7 +15,7 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>eclipse.jdt.core</groupId>
-    <version>4.21.0-SNAPSHOT</version>
+    <version>4.22.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <groupId>org.eclipse.jdt</groupId>
