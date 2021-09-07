@@ -435,6 +435,8 @@ public void testIsOnClasspath1() throws CoreException {
 
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
 	assertTrue("CU should be on classpath", this.project.isOnClasspath(cu));
+
+	assertResourceOnClasspathEntry(this.project, file, "/P/src");
 }
 /*
  * Ensures that a cu that is excluded is not on the classpath of the project.
@@ -450,6 +452,8 @@ public void testIsOnClasspath2() throws CoreException {
 	);
 	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
 
+	assertResourceNotOnClasspathEntry(this.project, file);
+
 	ICompilationUnit cu = getCompilationUnit("/P/src/p/A.java");
 	assertTrue("CU should not be on classpath", !this.project.isOnClasspath(cu));
 }
@@ -461,6 +465,8 @@ public void testIsOnClasspath3() throws CoreException {
 	createFolder("/P/src/p");
 	IFile file = createFile("/P/src/p/readme.txt", "");
 	assertTrue("Resource should be on classpath", this.project.isOnClasspath(file));
+
+	assertResourceOnClasspathEntry(this.project, file, "/P/src");
 }
 /*
  * Ensures that a non-java resource that is excluded is not on the classpath of the project.
@@ -470,6 +476,8 @@ public void testIsOnClasspath4() throws CoreException {
 	createFolder("/P/src/p");
 	IFile file = createFile("/P/src/p/readme.txt", "");
 	assertTrue("Resource should not be on classpath", !this.project.isOnClasspath(file));
+
+	assertResourceNotOnClasspathEntry(this.project, file);
 }
 /*
  * Ensures that an excluded nested source folder doesn't appear as a non-java resource of the outer folder.

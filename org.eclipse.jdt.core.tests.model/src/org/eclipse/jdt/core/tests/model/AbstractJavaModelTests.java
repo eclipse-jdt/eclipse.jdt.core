@@ -876,6 +876,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		);
 	}
 
+	protected void assertResourceOnClasspathEntry(IJavaProject project, IResource resource, String path) {
+		IClasspathEntry cp = project.findContainingClasspathEntry(resource);
+		assertNotNull("IClasspathEntry exists for the resource", cp);
+		assertEquals("In the expected classpath entry", path, cp.getPath().toPortableString());
+	}
+
+	protected void assertResourceNotOnClasspathEntry(IJavaProject project, IResource resource) {
+		IClasspathEntry cp = project.findContainingClasspathEntry(resource);
+		assertNull("IClasspathEntry does not exists for the resource", cp);
+	}
+
 	protected void assertResourceTreeEquals(String message, String expected, Object[] resources) throws CoreException {
 		sortResources(resources);
 		StringBuffer buffer = new StringBuffer();

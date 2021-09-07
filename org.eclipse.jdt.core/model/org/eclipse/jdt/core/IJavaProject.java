@@ -773,6 +773,18 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	boolean isOnClasspath(IResource resource);
 
 	/**
+	 * Returns the class path entry which contains the given resource and not explicitly excluded using an exclusion
+	 * pattern, or null otherwise.
+	 *
+	 * @param resource
+	 *            the resource which may or may not on one of the class path entries.
+	 * @return the class path entry which contains the given resource, or null, if it's not in any of the classpath
+	 *         entries, or the resource is null.
+	 * @since 3.28
+	 */
+	IClasspathEntry findContainingClasspathEntry(IResource resource);
+
+	/**
 	 * Creates a new evaluation context.
 	 * @return a new evaluation context.
 	 */
